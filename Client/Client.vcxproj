@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{644D06AC-50EF-3082-39AA-44D625EBB7D2}</ProjectGuid>
+    <IgnoreWarnCompileDuplicatedFilename>true</IgnoreWarnCompileDuplicatedFilename>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>Client</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>..\bin\Debug-x86_64-windows\Client\</OutDir>
+    <IntDir>..\obj\Debug-x86_64-windows\Client\</IntDir>
+    <TargetName>Client</TargetName>
+    <TargetExt>.exe</TargetExt>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>ENGINE_EXPORTS;ENGINE_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\Engine\src;..\dependencies\bin\SDL\SDL2-2.30.6\include;..\dependencies\bin\SDL\SDL2_image\include;..\dependencies\bin\SDL\SDL_TTF\include;..\dependencies\bin\lua\include;..\dependencies\bin\ImGui;..\dependencies\bin\box2d\include\box2d;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalOptions>/MD %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <ExternalWarningLevel>Level3</ExternalWarningLevel>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>SDL2.lib;SDL2_image.lib;SDL2_ttf.lib;lua54.lib;box2d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\bin\Debug-x86_64-windows\Engine;..\dependencies\bin\SDL\SDL2-2.30.6\lib\x64;..\dependencies\bin\SDL\SDL2_image\lib;..\dependencies\bin\SDL\SDL_TTF\lib;..\dependencies\bin\lua;..\dependencies\bin\box2d\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <PostBuildEvent>
+      <Command>IF EXIST "..\bin\Debug-x86_64-windows\Client\Client.exe"\ (xcopy /Q /E /Y /I "..\bin\Debug-x86_64-windows\Client\Client.exe" "$(SolutionDir)\bin\Debug-x86_64-windows\Client\" &gt; nul) ELSE (xcopy /Q /Y /I "..\bin\Debug-x86_64-windows\Client\Client.exe" "$(SolutionDir)\bin\Debug-x86_64-windows\Client\" &gt; nul)
+IF EXIST "$(SolutionDir)\dependencies\bin\SDL\SDL2_Image\lib\SDL2_image.dll"\ (xcopy /Q /E /Y /I "$(SolutionDir)\dependencies\bin\SDL\SDL2_Image\lib\SDL2_image.dll" "$(SolutionDir)\bin\Debug-x86_64-windows\Client\" &gt; nul) ELSE (xcopy /Q /Y /I "$(SolutionDir)\dependencies\bin\SDL\SDL2_Image\lib\SDL2_image.dll" "$(SolutionDir)\bin\Debug-x86_64-windows\Client\" &gt; nul)
+IF EXIST "$(SolutionDir)\dependencies\bin\SDL\SDL2_mixer-2.8.0\lib\x64\SDL2_mixer.dll"\ (xcopy /Q /E /Y /I "$(SolutionDir)\dependencies\bin\SDL\SDL2_mixer-2.8.0\lib\x64\SDL2_mixer.dll" "$(SolutionDir)\bin\Debug-x86_64-windows\Client\" &gt; nul) ELSE (xcopy /Q /Y /I "$(SolutionDir)\dependencies\bin\SDL\SDL2_mixer-2.8.0\lib\x64\SDL2_mixer.dll" "$(SolutionDir)\bin\Debug-x86_64-windows\Client\" &gt; nul)
+IF EXIST "$(SolutionDir)\dependencies\bin\SDL\SDL2-2.30.6\lib\x64\SDL2.dll"\ (xcopy /Q /E /Y /I "$(SolutionDir)\dependencies\bin\SDL\SDL2-2.30.6\lib\x64\SDL2.dll" "$(SolutionDir)\bin\Debug-x86_64-windows\Client\" &gt; nul) ELSE (xcopy /Q /Y /I "$(SolutionDir)\dependencies\bin\SDL\SDL2-2.30.6\lib\x64\SDL2.dll" "$(SolutionDir)\bin\Debug-x86_64-windows\Client\" &gt; nul)
+IF EXIST "$(SolutionDir)\dependencies\bin\lua\lua54.dll"\ (xcopy /Q /E /Y /I "$(SolutionDir)\dependencies\bin\lua\lua54.dll" "$(SolutionDir)\bin\Debug-x86_64-windows\Client\" &gt; nul) ELSE (xcopy /Q /Y /I "$(SolutionDir)\dependencies\bin\lua\lua54.dll" "$(SolutionDir)\bin\Debug-x86_64-windows\Client\" &gt; nul)
+IF EXIST "$(SolutionDir)\dependencies\bin\SDL\SDL_TTF\lib\SDL2_ttf.dll"\ (xcopy /Q /E /Y /I "$(SolutionDir)\dependencies\bin\SDL\SDL_TTF\lib\SDL2_ttf.dll" "$(SolutionDir)\bin\Debug-x86_64-windows\Client\" &gt; nul) ELSE (xcopy /Q /Y /I "$(SolutionDir)\dependencies\bin\SDL\SDL_TTF\lib\SDL2_ttf.dll" "$(SolutionDir)\bin\Debug-x86_64-windows\Client\" &gt; nul)</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Client\Client.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Engine\Engine.vcxproj">
+      <Project>{DBC7D3B0-C769-FE86-B024-12DB9C6585D7}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

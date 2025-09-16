@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{DBC7D3B0-C769-FE86-B024-12DB9C6585D7}</ProjectGuid>
+    <IgnoreWarnCompileDuplicatedFilename>true</IgnoreWarnCompileDuplicatedFilename>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>Engine</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>..\bin\Debug-x86_64-windows\Engine\</OutDir>
+    <IntDir>..\obj\Debug-x86_64-windows\Engine\</IntDir>
+    <TargetName>Engine</TargetName>
+    <TargetExt>.dll</TargetExt>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>ENGINE_EXPORTS;ENGINE_BUILD_DLL;ENGINE_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>src;..\dependencies\bin\SDL\SDL2-2.30.6\include;..\dependencies\bin\SDL\SDL2_image\include;..\dependencies\bin\SDL\SDL_TTF\include;..\dependencies\bin\SDL\SDL2_mixer-2.8.0\include;..\dependencies\bin\lua\include;..\dependencies\bin\ImGui;..\dependencies\bin\box2d\include\box2d;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalOptions>/MD %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <ExternalWarningLevel>Level3</ExternalWarningLevel>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>SDL2.lib;SDL2_image.lib;SDL2_mixer.lib;SDL2_ttf.lib;lua54.lib;box2d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\dependencies\bin\SDL\SDL2-2.30.6\lib\x64;..\dependencies\bin\SDL\SDL2_image\lib;..\dependencies\bin\SDL\SDL_TTF\lib;..\dependencies\bin\SDL\SDL2_mixer-2.8.0\lib\x64;..\dependencies\bin\lua;..\dependencies\bin\box2d\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ImportLibrary>..\bin\Debug-x86_64-windows\Engine\Engine.lib</ImportLibrary>
+    </Link>
+    <PostBuildEvent>
+      <Command>IF EXIST "..\bin\Debug-x86_64-windows\Engine\Engine.dll"\ (xcopy /Q /E /Y /I "..\bin\Debug-x86_64-windows\Engine\Engine.dll" "$(SolutionDir)\bin\Debug-x86_64-windows\Client\" &gt; nul) ELSE (xcopy /Q /Y /I "..\bin\Debug-x86_64-windows\Engine\Engine.dll" "$(SolutionDir)\bin\Debug-x86_64-windows\Client\" &gt; nul)</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="src\Architecture\Application.h" />
+    <ClInclude Include="src\Architecture\Macros.h" />
+    <ClInclude Include="src\Architecture\main.h" />
+    <ClInclude Include="src\EngineIncludes.h" />
+    <ClInclude Include="src\EventSystem\Event.h" />
+    <ClInclude Include="src\EventSystem\EventSDL.h" />
+    <ClInclude Include="src\LayerSystem\Layer.h" />
+    <ClInclude Include="src\LayerSystem\LayerStack.h" />
+    <ClInclude Include="src\LayerSystem\Layers\LayerEditor.h" />
+    <ClInclude Include="src\Window\Window.h" />
+    <ClInclude Include="src\third-party\ImGuiRenderer.h" />
+    <ClInclude Include="src\third-party\imgui_impl_sdlrenderer2.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Architecture\Application.cpp" />
+    <ClCompile Include="src\EventSystem\EventSDL.cpp" />
+    <ClCompile Include="src\LayerSystem\LayerStack.cpp" />
+    <ClCompile Include="src\LayerSystem\Layers\LayerEditor.cpp" />
+    <ClCompile Include="src\Window\Window.cpp" />
+    <ClCompile Include="src\third-party\ImGuiRenderer.cpp" />
+    <ClCompile Include="src\third-party\imgui_impl_sdlrenderer2.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\dependencies\bin\ImGui\ImGui.vcxproj">
+      <Project>{C0FF640D-2C14-8DBE-F595-301E616989EF}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

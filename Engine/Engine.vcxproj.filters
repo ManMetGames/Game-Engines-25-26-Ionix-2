@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Architecture">
+      <UniqueIdentifier>{282F98C7-1492-276C-BD17-6022A959F3EE}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EventSystem">
+      <UniqueIdentifier>{CCE875DF-389E-EED4-C192-E8AB2D47E5D8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LayerSystem">
+      <UniqueIdentifier>{87D49461-F389-0D57-7C7E-072EE832045B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LayerSystem\Layers">
+      <UniqueIdentifier>{662D6E48-5211-2F9E-BB71-29F1A7741920}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Window">
+      <UniqueIdentifier>{3DEA79DA-298C-A4B0-1247-B804FE872B01}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="third-party">
+      <UniqueIdentifier>{9DC1EB7C-0977-6472-926B-5E49FE1F5B76}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\Architecture\Application.h">
+      <Filter>Architecture</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Architecture\Macros.h">
+      <Filter>Architecture</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Architecture\main.h">
+      <Filter>Architecture</Filter>
+    </ClInclude>
+    <ClInclude Include="src\EngineIncludes.h" />
+    <ClInclude Include="src\EventSystem\Event.h">
+      <Filter>EventSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="src\EventSystem\EventSDL.h">
+      <Filter>EventSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LayerSystem\Layer.h">
+      <Filter>LayerSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LayerSystem\LayerStack.h">
+      <Filter>LayerSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LayerSystem\Layers\LayerEditor.h">
+      <Filter>LayerSystem\Layers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Window\Window.h">
+      <Filter>Window</Filter>
+    </ClInclude>
+    <ClInclude Include="src\third-party\ImGuiRenderer.h">
+      <Filter>third-party</Filter>
+    </ClInclude>
+    <ClInclude Include="src\third-party\imgui_impl_sdlrenderer2.h">
+      <Filter>third-party</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Architecture\Application.cpp">
+      <Filter>Architecture</Filter>
+    </ClCompile>
+    <ClCompile Include="src\EventSystem\EventSDL.cpp">
+      <Filter>EventSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LayerSystem\LayerStack.cpp">
+      <Filter>LayerSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LayerSystem\Layers\LayerEditor.cpp">
+      <Filter>LayerSystem\Layers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Window\Window.cpp">
+      <Filter>Window</Filter>
+    </ClCompile>
+    <ClCompile Include="src\third-party\ImGuiRenderer.cpp">
+      <Filter>third-party</Filter>
+    </ClCompile>
+    <ClCompile Include="src\third-party\imgui_impl_sdlrenderer2.cpp">
+      <Filter>third-party</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

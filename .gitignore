@@ -1,0 +1,59 @@
+# --- IDE / Visual Studio md ---
+.vs/
+*.vcxproj.user
+*.user
+*.suo
+*.VC.db
+*.VC.opendb
+*.opendb
+*.db-shm
+*.db-wal
+
+# --- IntelliSense / PCH cache ---
+ipch/
+*.ipch
+*.pch
+*.aps
+
+# --- Build ---
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+Debug*/
+Release*/
+x64/
+x86/
+[Ww]in32/
+*.obj
+*.iobj
+*.pdb
+*.ipdb
+*.ilk
+*.exp
+*.exe
+*.dll
+*.lib
+*.idb
+*.tlog
+*.lastbuildstate
+*.cache
+*.log
+*.tmp
+*.rsp
+*.recipe
+*.tlog/
+
+# --- IDE ---
+.vscode/
+
+# --- Windows OS ---
+Thumbs.db
+Desktop.ini
+
+# --- Project ---
+#/Engine/dependencies/bin
+
+# --- Misc ---
+.idea/
+imgui.ini
