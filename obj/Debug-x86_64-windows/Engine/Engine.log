@@ -1,8 +1,0 @@
-﻿cl : command line  warning D9025: overriding '/MTd' with '/MD'
-  Application.cpp
-C:\Users\jimmy\Desktop\Ionix2\Engine\src\LayerSystem\LayerStack.h(19,23): warning C4251: 'IonixEngine::LayerStack::m_Layers': 'std::vector<IonixEngine::Layer *,std::allocator<IonixEngine::Layer *>>' needs to have dll-interface to be used by clients of 'IonixEngine::LayerStack'
-  (compiling source file 'src/Architecture/Application.cpp')
-      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\vector(442,7):
-      see declaration of 'std::vector<IonixEngine::Layer *,std::allocator<IonixEngine::Layer *>>'
-  
-  Engine.vcxproj -> C:\Users\jimmy\Desktop\Ionix2\bin\Debug-x86_64-windows\Engine\Engine.dll

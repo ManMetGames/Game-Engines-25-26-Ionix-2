@@ -52,7 +52,7 @@ Thumbs.db
 Desktop.ini
 
 # --- Project ---
-#/Engine/dependencies/bin
+/Engine/dependencies/bin
 
 # --- Misc ---
 .idea/

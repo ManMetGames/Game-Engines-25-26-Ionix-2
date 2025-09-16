@@ -1,7 +1,0 @@
-C:\Users\jimmy\Desktop\Ionix2\Engine\src\Architecture\Application.cpp;C:\Users\jimmy\Desktop\Ionix2\obj\Debug-x86_64-windows\Engine\Application.obj
-C:\Users\jimmy\Desktop\Ionix2\Engine\src\EventSystem\EventSDL.cpp;C:\Users\jimmy\Desktop\Ionix2\obj\Debug-x86_64-windows\Engine\EventSDL.obj
-C:\Users\jimmy\Desktop\Ionix2\Engine\src\LayerSystem\LayerStack.cpp;C:\Users\jimmy\Desktop\Ionix2\obj\Debug-x86_64-windows\Engine\LayerStack.obj
-C:\Users\jimmy\Desktop\Ionix2\Engine\src\LayerSystem\Layers\LayerEditor.cpp;C:\Users\jimmy\Desktop\Ionix2\obj\Debug-x86_64-windows\Engine\LayerEditor.obj
-C:\Users\jimmy\Desktop\Ionix2\Engine\src\Window\Window.cpp;C:\Users\jimmy\Desktop\Ionix2\obj\Debug-x86_64-windows\Engine\Window.obj
-C:\Users\jimmy\Desktop\Ionix2\Engine\src\third-party\ImGuiRenderer.cpp;C:\Users\jimmy\Desktop\Ionix2\obj\Debug-x86_64-windows\Engine\ImGuiRenderer.obj
-C:\Users\jimmy\Desktop\Ionix2\Engine\src\third-party\imgui_impl_sdlrenderer2.cpp;C:\Users\jimmy\Desktop\Ionix2\obj\Debug-x86_64-windows\Engine\imgui_impl_sdlrenderer2.obj
