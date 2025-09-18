@@ -52,7 +52,7 @@ Thumbs.db
 Desktop.ini
 
 # --- Project ---
-IonixDependencies/bin
+IonixDependencies/dependencies/bin
 
 # --- Misc ---
 .idea/
