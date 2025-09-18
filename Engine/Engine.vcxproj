@@ -39,7 +39,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>ENGINE_EXPORTS;ENGINE_BUILD_DLL;ENGINE_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;..\dependencies\bin\SDL\SDL2-2.30.6\include;..\dependencies\bin\SDL\SDL2_image\include;..\dependencies\bin\SDL\SDL_TTF\include;..\dependencies\bin\SDL\SDL2_mixer-2.8.0\include;..\dependencies\bin\lua\include;..\dependencies\bin\ImGui;..\dependencies\bin\box2d\include\box2d;..\dependencies\bin\sol2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;..\IonixDependencies\dependencies\bin\SDL\SDL2-2.30.6\include;..\IonixDependencies\dependencies\bin\SDL\SDL2_image\include;..\IonixDependencies\dependencies\bin\SDL\SDL_TTF\include;..\IonixDependencies\dependencies\bin\SDL\SDL2_mixer-2.8.0\include;..\IonixDependencies\dependencies\bin\lua\include;..\IonixDependencies\dependencies\bin\ImGui;..\IonixDependencies\dependencies\bin\box2d\include\box2d;..\IonixDependencies\dependencies\bin\sol2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -51,7 +51,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>SDL2.lib;SDL2_image.lib;SDL2_mixer.lib;SDL2_ttf.lib;lua54.lib;box2d.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\dependencies\bin\SDL\SDL2-2.30.6\lib\x64;..\dependencies\bin\SDL\SDL2_image\lib;..\dependencies\bin\SDL\SDL_TTF\lib;..\dependencies\bin\SDL\SDL2_mixer-2.8.0\lib\x64;..\dependencies\bin\lua;..\dependencies\bin\box2d\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\IonixDependencies\dependencies\bin\SDL\SDL2-2.30.6\lib\x64;..\IonixDependencies\dependencies\bin\SDL\SDL2_image\lib;..\IonixDependencies\dependencies\bin\SDL\SDL_TTF\lib;..\IonixDependencies\dependencies\bin\SDL\SDL2_mixer-2.8.0\lib\x64;..\IonixDependencies\dependencies\bin\lua;..\IonixDependencies\dependencies\bin\box2d\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ImportLibrary>..\bin\Debug-x86_64-windows\Engine\Engine.lib</ImportLibrary>
     </Link>
     <PostBuildEvent>
@@ -82,7 +82,7 @@
     <ClCompile Include="src\third-party\imgui_impl_sdlrenderer2.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\dependencies\bin\ImGui\ImGui.vcxproj">
+    <ProjectReference Include="..\IonixDependencies\dependencies\bin\ImGui\ImGui.vcxproj">
       <Project>{C0FF640D-2C14-8DBE-F595-301E616989EF}</Project>
     </ProjectReference>
   </ItemGroup>

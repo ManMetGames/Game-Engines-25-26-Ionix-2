@@ -52,8 +52,9 @@ Thumbs.db
 Desktop.ini
 
 # --- Project ---
-IonixDependencies/dependencies/bin
+IonixDependencies
 
 # --- Misc ---
 .idea/
 imgui.ini
+
