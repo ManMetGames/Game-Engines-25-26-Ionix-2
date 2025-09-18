@@ -6,7 +6,7 @@ namespace IonixEngine
     class LayerEditor : public Layer
     {
     public:
-        LayerEditor(int id) : Layer(id) {}
+        LayerEditor() {}
 
         virtual void OnAttach() override;
         virtual void OnDetach() override;

@@ -16,15 +16,5 @@ namespace IonixEngine
     {
         m_Layers.push_back(layer);
     }
-
-    Layer* LayerStack::GetLayerByID(int id)
-    {
-        for (Layer* layer : m_Layers)
-        {
-            if (layer->GetID() == id)
-                return layer;
-        }
-        return nullptr;
-    }
 }
 

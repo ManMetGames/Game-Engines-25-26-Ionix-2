@@ -12,7 +12,7 @@ namespace IonixEngine
 		~LayerStack();
 
 		void PushLayer(Layer* layer);
-		Layer* GetLayerByID(int id);
+
 		std::vector<Layer*> GetLayers() { return m_Layers; }
 
 	private:

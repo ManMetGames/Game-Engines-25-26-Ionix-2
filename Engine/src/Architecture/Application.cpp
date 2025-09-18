@@ -13,12 +13,9 @@ namespace IonixEngine
     {
         s_Instance = this;
 
-        //LAYER IDS
-        const int LAYER_EDITOR_ID = 0;
-
-        //EDITOR LAYER
-        AddLayer(new LayerEditor(LAYER_EDITOR_ID));
-        layerEditor = dynamic_cast<LayerEditor*>(m_LayerStack.GetLayerByID(LAYER_EDITOR_ID));
+        //Initialise layers...
+        layerEditor = new LayerEditor();
+        m_LayerStack.PushLayer(layerEditor);
     }
 
     Application::~Application() 
