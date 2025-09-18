@@ -4,7 +4,7 @@ workspace "GameEngines24-25"
 
 outputdir = "%{cfg.buildcfg}-%{cfg.architecture}-%{cfg.system}"
 
-include "IonixDependencies/dependencies/bin/ImGui"
+include "dependencies/bin/ImGui"
 
 project "Engine"
     location "Engine"
@@ -26,23 +26,23 @@ project "Engine"
 
     includedirs {
         "%{prj.name}/src",
-        "IonixDependencies/dependencies/bin/SDL/SDL2-2.30.6/include",
-        "IonixDependencies/dependencies/bin/SDL/SDL2_image/include",
-        "IonixDependencies/dependencies/bin/SDL/SDL_TTF/include",
-        "IonixDependencies/dependencies/bin/SDL/SDL2_mixer-2.8.0/include",
-        "IonixDependencies/dependencies/bin/lua/include",
-        "IonixDependencies/dependencies/bin/ImGui",
-        "IonixDependencies/dependencies/bin/box2d/include/box2d",
-		"IonixDependencies/dependencies/bin/sol2/include"
+        "dependencies/bin/SDL/SDL2-2.30.6/include",
+        "dependencies/bin/SDL/SDL2_image/include",
+        "dependencies/bin/SDL/SDL_TTF/include",
+        "dependencies/bin/SDL/SDL2_mixer-2.8.0/include",
+        "dependencies/bin/lua/include",
+        "dependencies/bin/ImGui",
+        "dependencies/bin/box2d/include/box2d",
+		"dependencies/bin/sol2/include"
     }
 
     libdirs {
-        "IonixDependencies/dependencies/bin/SDL/SDL2-2.30.6/lib/x64",
-        "IonixDependencies/dependencies/bin/SDL/SDL2_image/lib/",
-        "IonixDependencies/dependencies/bin/SDL/SDL_TTF/lib/",
-        "IonixDependencies/dependencies/bin/SDL/SDL2_mixer-2.8.0/lib/x64",
-        "IonixDependencies/dependencies/bin/lua",
-        "IonixDependencies/dependencies/bin/box2d/lib",        
+        "dependencies/bin/SDL/SDL2-2.30.6/lib/x64",
+        "dependencies/bin/SDL/SDL2_image/lib/",
+        "dependencies/bin/SDL/SDL_TTF/lib/",
+        "dependencies/bin/SDL/SDL2_mixer-2.8.0/lib/x64",
+        "dependencies/bin/lua",
+        "dependencies/bin/box2d/lib",        
     }
 
     links {
@@ -94,22 +94,22 @@ project "Client"
 
     includedirs {
         "Engine/src",
-        "IonixDependencies/dependencies/bin/SDL/SDL2-2.30.6/include",
-        "IonixDependencies/dependencies/bin/SDL/SDL2_image/include",
-        "IonixDependencies/dependencies/bin/SDL/SDL_TTF/include",
-        "IonixDependencies/dependencies/bin/lua/include",
-        "IonixDependencies/dependencies/bin/ImGui",
-        "IonixDependencies/dependencies/bin/box2d/include/box2d",
-		"IonixDependencies/dependencies/bin/sol2/include"
+        "dependencies/bin/SDL/SDL2-2.30.6/include",
+        "dependencies/bin/SDL/SDL2_image/include",
+        "dependencies/bin/SDL/SDL_TTF/include",
+        "dependencies/bin/lua/include",
+        "dependencies/bin/ImGui",
+        "dependencies/bin/box2d/include/box2d",
+		"dependencies/bin/sol2/include"
     }
 
     libdirs {
         "bin/" .. outputdir .. "/Engine",
-        "IonixDependencies/dependencies/bin/SDL/SDL2-2.30.6/lib/x64",
-        "IonixDependencies/dependencies/bin/SDL/SDL2_image/lib",
-        "IonixDependencies/dependencies/bin/SDL/SDL_TTF/lib",
-        "IonixDependencies/dependencies/bin/lua",
-        "IonixDependencies/dependencies/bin/box2d/lib"
+        "dependencies/bin/SDL/SDL2-2.30.6/lib/x64",
+        "dependencies/bin/SDL/SDL2_image/lib",
+        "dependencies/bin/SDL/SDL_TTF/lib",
+        "dependencies/bin/lua",
+        "dependencies/bin/box2d/lib"
     }
 
     links {
@@ -123,11 +123,11 @@ project "Client"
 
     postbuildcommands {
         '{COPY} "%{cfg.buildtarget.relpath}" "%{wks.location}/bin/' .. outputdir .. '/Client/"',
-        '{COPY} "%{wks.location}/IonixDependencies/dependencies/bin/SDL/SDL2_Image/lib/SDL2_image.dll" "%{wks.location}/bin/' .. outputdir .. '/Client/"',
-        '{COPY} "%{wks.location}/IonixDependencies/dependencies/bin/SDL/SDL2_mixer-2.8.0/lib/x64/SDL2_mixer.dll" "%{wks.location}/bin/' .. outputdir .. '/Client/"',
-        '{COPY} "%{wks.location}/IonixDependencies/dependencies/bin/SDL/SDL2-2.30.6/lib/x64/SDL2.dll" "%{wks.location}/bin/' .. outputdir .. '/Client/"',
-        '{COPY} "%{wks.location}/IonixDependencies/dependencies/bin/lua/lua54.dll" "%{wks.location}/bin/' .. outputdir .. '/Client/"',
-        '{COPY} "%{wks.location}/IonixDependencies/dependencies/bin/SDL/SDL_TTF/lib/SDL2_ttf.dll" "%{wks.location}/bin/' .. outputdir .. '/Client/"'
+        '{COPY} "%{wks.location}/dependencies/bin/SDL/SDL2_Image/lib/SDL2_image.dll" "%{wks.location}/bin/' .. outputdir .. '/Client/"',
+        '{COPY} "%{wks.location}/dependencies/bin/SDL/SDL2_mixer-2.8.0/lib/x64/SDL2_mixer.dll" "%{wks.location}/bin/' .. outputdir .. '/Client/"',
+        '{COPY} "%{wks.location}/dependencies/bin/SDL/SDL2-2.30.6/lib/x64/SDL2.dll" "%{wks.location}/bin/' .. outputdir .. '/Client/"',
+        '{COPY} "%{wks.location}/dependencies/bin/lua/lua54.dll" "%{wks.location}/bin/' .. outputdir .. '/Client/"',
+        '{COPY} "%{wks.location}/dependencies/bin/SDL/SDL_TTF/lib/SDL2_ttf.dll" "%{wks.location}/bin/' .. outputdir .. '/Client/"'
     }
 
 

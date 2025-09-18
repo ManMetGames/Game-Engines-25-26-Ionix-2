@@ -2,7 +2,7 @@
 setlocal EnableDelayedExpansion
 
 :: Set some environment variables for easy reuse
-set VENDOR_DIR=IonixDependencies\dependencies\bin\
+set VENDOR_DIR=dependencies\bin\
 set PREMAKE_CMD=%VENDOR_DIR%\premake\premake5.exe
 set TARGET="vs2022"
 
