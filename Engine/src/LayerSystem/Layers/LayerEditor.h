@@ -14,6 +14,7 @@ namespace IonixEngine
         virtual void OnEvent(IonixEvent& e) override;
 
     private:
-        bool OnWindowClosedEvent(WindowClosedEvent& e);
+        void OnWindowClosedEvent(WindowClosedEvent& e);
+        void OnWindowMinimizedEvent(WindowMinimizedEvent& e);
     };
 }
