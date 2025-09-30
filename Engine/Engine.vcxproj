@@ -65,9 +65,11 @@
     <ClInclude Include="src\EngineIncludes.h" />
     <ClInclude Include="src\EventSystem\Event.h" />
     <ClInclude Include="src\EventSystem\EventSDL.h" />
+    <ClInclude Include="src\Input\Input.h" />
     <ClInclude Include="src\LayerSystem\Layer.h" />
     <ClInclude Include="src\LayerSystem\LayerStack.h" />
     <ClInclude Include="src\LayerSystem\Layers\LayerEditor.h" />
+    <ClInclude Include="src\LayerSystem\Layers\LayerInput.h" />
     <ClInclude Include="src\Window\Window.h" />
     <ClInclude Include="src\third-party\ImGuiRenderer.h" />
     <ClInclude Include="src\third-party\imgui_impl_sdlrenderer2.h" />
@@ -75,8 +77,10 @@
   <ItemGroup>
     <ClCompile Include="src\Architecture\Application.cpp" />
     <ClCompile Include="src\EventSystem\EventSDL.cpp" />
+    <ClCompile Include="src\Input\Input.cpp" />
     <ClCompile Include="src\LayerSystem\LayerStack.cpp" />
     <ClCompile Include="src\LayerSystem\Layers\LayerEditor.cpp" />
+    <ClCompile Include="src\LayerSystem\Layers\LayerInput.cpp" />
     <ClCompile Include="src\Window\Window.cpp" />
     <ClCompile Include="src\third-party\ImGuiRenderer.cpp" />
     <ClCompile Include="src\third-party\imgui_impl_sdlrenderer2.cpp" />
