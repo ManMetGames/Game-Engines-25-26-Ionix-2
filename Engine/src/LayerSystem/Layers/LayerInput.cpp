@@ -1,0 +1,30 @@
+#include "LayerSystem/Layers/layerInput.h"
+#include "EventSystem/Event.h"
+#include "Architecture/Application.h"
+#include <iostream>
+
+namespace IonixEngine
+{
+    void LayerInput::OnAttach() 
+    {
+        m_input = new Input();
+    }
+
+    void LayerInput::OnDetach() {}
+
+    void LayerInput::OnUpdate() 
+    {
+        //std::cout << "Input Update Ran. \n";
+    }
+
+    void LayerInput::OnEvent(IonixEvent& e)
+    {
+        // Switch statement routes the event and invokes the relevant event handler
+
+        switch (e.Type)
+        {
+            // Add more cases as needed.... (Note: Most engine features don't require events, they
+            //                              can just be callable functions.
+        }
+    }
+}
