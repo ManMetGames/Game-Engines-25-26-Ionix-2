@@ -33,8 +33,8 @@ namespace IonixEngine
 
         // Initialize SDL Mixer
         if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) != 0) {
-            SDL_Log("Unable to initialize SDL_mixer: %s", Mix_GetError());
-            return;
+            //SDL_Log("Unable to initialize SDL_mixer: %s", Mix_GetError());
+            //return;
         }
 
         // Create SDL window
