@@ -90,5 +90,6 @@
     <ClCompile Include="src\third-party\imgui_impl_sdlrenderer2.cpp">
       <Filter>third-party</Filter>
     </ClCompile>
+    <ClCompile Include="src\Input\Input.cpp" />
   </ItemGroup>
 </Project>

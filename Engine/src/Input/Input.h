@@ -14,14 +14,7 @@ namespace IonixEngine
     class Input
     {
     public:
-        MouseCoords GetMousePosition() 
-        {
-            int x, y;
-            SDL_GetMouseState(&x, &y);
-
-            MouseCoords mc(x, y);
-            return mc;
-        }
+        MouseCoords GetMousePosition();
     };
 }
 
