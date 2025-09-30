@@ -1,21 +1,20 @@
 #pragma once
 #include "LayerSystem/Layer.h"
-
+#include "Input/Input.h"
 namespace IonixEngine
 {
-    class LayerEditor : public Layer
+    class LayerInput : public Layer
     {
     public:
-        LayerEditor() {}
+        LayerInput() {}
 
         virtual void OnAttach() override;
         virtual void OnDetach() override;
         virtual void OnUpdate() override;
         virtual void OnEvent(IonixEvent& e) override;
 
-    private:
-        void OnWindowClosedEvent(WindowClosedEvent& e);
-        void OnWindowMinimizedEvent(WindowMinimizedEvent& e);
-        void OnWindowMaximizedEvent(WindowMaximizedEvent& e);
+
+        Input* m_Input;
+   
     };
 }

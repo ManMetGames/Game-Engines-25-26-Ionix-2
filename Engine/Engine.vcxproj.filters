@@ -7,6 +7,9 @@
     <Filter Include="EventSystem">
       <UniqueIdentifier>{CCE875DF-389E-EED4-C192-E8AB2D47E5D8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Input">
+      <UniqueIdentifier>{953A660D-014F-8EBE-CAD0-311E36A48AEF}</UniqueIdentifier>
+    </Filter>
     <Filter Include="LayerSystem">
       <UniqueIdentifier>{87D49461-F389-0D57-7C7E-072EE832045B}</UniqueIdentifier>
     </Filter>
@@ -37,6 +40,9 @@
     <ClInclude Include="src\EventSystem\EventSDL.h">
       <Filter>EventSystem</Filter>
     </ClInclude>
+    <ClInclude Include="src\Input\Input.h">
+      <Filter>Input</Filter>
+    </ClInclude>
     <ClInclude Include="src\LayerSystem\Layer.h">
       <Filter>LayerSystem</Filter>
     </ClInclude>
@@ -44,6 +50,9 @@
       <Filter>LayerSystem</Filter>
     </ClInclude>
     <ClInclude Include="src\LayerSystem\Layers\LayerEditor.h">
+      <Filter>LayerSystem\Layers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LayerSystem\Layers\LayerInput.h">
       <Filter>LayerSystem\Layers</Filter>
     </ClInclude>
     <ClInclude Include="src\Window\Window.h">
@@ -69,6 +78,9 @@
     <ClCompile Include="src\LayerSystem\Layers\LayerEditor.cpp">
       <Filter>LayerSystem\Layers</Filter>
     </ClCompile>
+    <ClCompile Include="src\LayerSystem\Layers\LayerInput.cpp">
+      <Filter>LayerSystem\Layers</Filter>
+    </ClCompile>
     <ClCompile Include="src\Window\Window.cpp">
       <Filter>Window</Filter>
     </ClCompile>
@@ -78,5 +90,6 @@
     <ClCompile Include="src\third-party\imgui_impl_sdlrenderer2.cpp">
       <Filter>third-party</Filter>
     </ClCompile>
+    <ClCompile Include="src\Input\Input.cpp" />
   </ItemGroup>
 </Project>

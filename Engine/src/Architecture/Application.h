@@ -3,7 +3,7 @@
 #include "Macros.h"
 #include "LayerSystem/LayerStack.h"
 #include "LayerSystem/Layers/LayerEditor.h"
-
+#include "LayerSystem/Layers/LayerInput.h"
 namespace IonixEngine
 {    
     class ENGINE_API Application
@@ -30,7 +30,7 @@ namespace IonixEngine
         }
 
         LayerEditor* layerEditor;
-
+        LayerInput* layerInput;
 
     private:
         static Application* s_Instance;
