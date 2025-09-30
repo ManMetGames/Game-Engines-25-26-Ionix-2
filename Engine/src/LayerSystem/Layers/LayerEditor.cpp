@@ -9,7 +9,10 @@ namespace IonixEngine
 
     void LayerEditor::OnDetach() {}
 
-    void LayerEditor::OnUpdate() {}
+    void LayerEditor::OnUpdate() 
+    {
+      // std::cout << "Editor Update Ran.\n";
+    }
 
     void LayerEditor::OnEvent(IonixEvent& e)
     {
@@ -24,6 +27,13 @@ namespace IonixEngine
                 break;
             }
 
+            case IonixEventType::WindowMinimized:
+            {
+                auto& windowEvent = static_cast<WindowMinimizedEvent&>(e);
+                OnWindowMinimizedEvent(windowEvent);
+                break;
+            }
+
             // Add more cases as needed.... (Note: Most engine features don't require events, they
             //                              can just be callable functions.
         }
@@ -34,6 +44,11 @@ namespace IonixEngine
         std::cout << "IonixEvent: Window closed";
 
         Application::Get().m_Running = false;
+        e.Handled = true;
+    }
+    void LayerEditor::OnWindowMinimizedEvent(WindowMinimizedEvent& e)
+    {
+        std::cout << "IonixEvent: Window Minimized\n";
         e.Handled = true;
     }
 }
