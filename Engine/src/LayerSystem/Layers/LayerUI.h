@@ -3,17 +3,14 @@
 
 namespace IonixEngine
 {
-    class LayerEditor : public Layer
+    class LayerUI : public Layer
     {
     public:
-        LayerEditor() {}
+        LayerUI() {}
 
         virtual void OnAttach() override;
         virtual void OnDetach() override;
         virtual void OnUpdate() override;
         virtual void OnEvent(IonixEvent& e) override;
-
-    private:
-        void OnWindowClosedEvent(WindowClosedEvent& e);
     };
 }
