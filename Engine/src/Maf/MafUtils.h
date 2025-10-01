@@ -13,4 +13,21 @@ namespace Maf
 	{
 		return (x < y) ? x : y;
 	}
+
+	template <typename T>
+	inline T mafMax(T x, T y)
+	{
+		return (x > y) ? x : y;
+	}
+
+	inline float mafRound(float x)
+	{
+		return round(x);
+	}
+
+	template <typename T>
+	inline T mafSqrt(T x)
+	{
+		return sqrt(x);
+	}
 }
