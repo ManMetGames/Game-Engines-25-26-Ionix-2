@@ -16,6 +16,16 @@ namespace IonixEngine
         //Initialise layers...
         layerEditor = new LayerEditor();
         m_LayerStack.PushLayer(layerEditor);
+
+        float num1 = 20.0f;
+
+        float num2 = 8.0f;
+        
+        float abs = Maf::mafAbs(num1);
+        float min = Maf::mafMin(num1, num2);
+
+        std::cout << "Absolute: " << abs << "\n";
+        std::cout << "Min: " << min << "\n";
     }
 
     Application::~Application() 
