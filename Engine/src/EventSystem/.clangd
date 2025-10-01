@@ -1,0 +1,12 @@
+CompileFlags:
+  Add:
+   - "-I../../../dependencies/bin/SDL/SDL_TTF/include/"
+   - "-I../../../dependencies/bin/SDL/SDL2_Image/include/"
+   - "-I../../../dependencies/bin/SDL/SDL2-2.30.6/include/"
+   - "-I../../../dependencies/bin/SDL/SDL2_mixer-2.8.0/include/"
+   - "-I../../../dependencies/bin/imgui/"
+   - "-I../../../dependencies/bin/sol2/include/sol/"
+   - "-I../../../dependencies/bin/lua/include/"
+   - "-I../../../dependencies/bin/box2d/include/box2d/"
+   - "-I../"
+   - "-DENGINE_EXPORTS"
