@@ -15,11 +15,10 @@ namespace IonixEngine
 
         //Initialise layers...
         layerEditor = new LayerEditor();
-        m_LayerStack.PushLayer(layerEditor);
+        AddLayer(layerEditor);
 
         layerUI = new LayerUI();
-        m_LayerStack.PushLayer(layerUI);
-
+        AddLayer(layerUI);
     }
 
     Application::~Application() 
