@@ -4,6 +4,9 @@
     <Filter Include="Architecture">
       <UniqueIdentifier>{282F98C7-1492-276C-BD17-6022A959F3EE}</UniqueIdentifier>
     </Filter>
+    <Filter Include="AudioSystem">
+      <UniqueIdentifier>{7CB94F33-E86E-C828-7163-C2FFDD17BF2C}</UniqueIdentifier>
+    </Filter>
     <Filter Include="EventSystem">
       <UniqueIdentifier>{CCE875DF-389E-EED4-C192-E8AB2D47E5D8}</UniqueIdentifier>
     </Filter>
@@ -29,6 +32,12 @@
     </ClInclude>
     <ClInclude Include="src\Architecture\main.h">
       <Filter>Architecture</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AudioSystem\AudioData.h">
+      <Filter>AudioSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AudioSystem\SoundManager.h">
+      <Filter>AudioSystem</Filter>
     </ClInclude>
     <ClInclude Include="src\EngineIncludes.h" />
     <ClInclude Include="src\EventSystem\Event.h">
@@ -59,6 +68,9 @@
   <ItemGroup>
     <ClCompile Include="src\Architecture\Application.cpp">
       <Filter>Architecture</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AudioSystem\SoundManager.cpp">
+      <Filter>AudioSystem</Filter>
     </ClCompile>
     <ClCompile Include="src\EventSystem\EventSDL.cpp">
       <Filter>EventSystem</Filter>

@@ -62,6 +62,8 @@
     <ClInclude Include="src\Architecture\Application.h" />
     <ClInclude Include="src\Architecture\Macros.h" />
     <ClInclude Include="src\Architecture\main.h" />
+    <ClInclude Include="src\AudioSystem\AudioData.h" />
+    <ClInclude Include="src\AudioSystem\SoundManager.h" />
     <ClInclude Include="src\EngineIncludes.h" />
     <ClInclude Include="src\EventSystem\Event.h" />
     <ClInclude Include="src\EventSystem\EventSDL.h" />
@@ -74,6 +76,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Architecture\Application.cpp" />
+    <ClCompile Include="src\AudioSystem\SoundManager.cpp" />
     <ClCompile Include="src\EventSystem\EventSDL.cpp" />
     <ClCompile Include="src\LayerSystem\LayerStack.cpp" />
     <ClCompile Include="src\LayerSystem\Layers\LayerEditor.cpp" />
