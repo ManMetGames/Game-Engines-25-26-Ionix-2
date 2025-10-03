@@ -1,4 +1,4 @@
-workspace "GameEngines24-25"
+workspace "GameEngines25-26"
     architecture "x64"
     configurations { "Debug" }
 
