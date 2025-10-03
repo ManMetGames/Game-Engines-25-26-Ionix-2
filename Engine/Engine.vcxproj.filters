@@ -15,6 +15,8 @@
     </Filter>
     <Filter Include="Maf">
       <UniqueIdentifier>{5907880B-C510-887C-4E8C-9E7CBA94937C}</UniqueIdentifier>
+    <Filter Include="UI">
+      <UniqueIdentifier>{83755900-6F01-880B-D8AF-880BC45A880B}</UniqueIdentifier>
     </Filter>
     <Filter Include="Window">
       <UniqueIdentifier>{3DEA79DA-298C-A4B0-1247-B804FE872B01}</UniqueIdentifier>
@@ -51,6 +53,11 @@
     </ClInclude>
     <ClInclude Include="src\Maf\MafUtils.h">
       <Filter>Maf</Filter>
+    <ClInclude Include="src\LayerSystem\Layers\LayerUI.h">
+      <Filter>LayerSystem\Layers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UI\UI.h">
+      <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="src\Window\Window.h">
       <Filter>Window</Filter>
@@ -73,6 +80,9 @@
       <Filter>LayerSystem</Filter>
     </ClCompile>
     <ClCompile Include="src\LayerSystem\Layers\LayerEditor.cpp">
+      <Filter>LayerSystem\Layers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LayerSystem\Layers\LayerUI.cpp">
       <Filter>LayerSystem\Layers</Filter>
     </ClCompile>
     <ClCompile Include="src\Window\Window.cpp">

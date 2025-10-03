@@ -15,29 +15,10 @@ namespace IonixEngine
 
         //Initialise layers...
         layerEditor = new LayerEditor();
-        m_LayerStack.PushLayer(layerEditor);
+        AddLayer(layerEditor);
 
-        //Bens Maths Utils Testing
-        //-----------------------------------
-
-        float num1 = 20.0f;
-        float num2 = 8.0f;
-        float num3 = 2.26f;
-        float num4 = 64;
-        
-        float abs = Maf::mafAbs(num1);
-        float min = Maf::mafMin(num1, num2);
-        float max = Maf::mafMax(num1, num2);
-        float round = Maf::mafRound(num3);
-        float sqrt = Maf::mafSqrt(num4);
-
-        std::cout << "Absolute: " << abs << "\n";
-        std::cout << "Min: " << min << "\n";
-        std::cout << "Max: " << max << "\n";
-        std::cout << "Round: " << round << "\n";
-        std::cout << "Sqrt: " << sqrt << "\n";
-
-        //---------------------------------
+        layerUI = new LayerUI();
+        AddLayer(layerUI);
     }
 
     Application::~Application() 
