@@ -31,7 +31,14 @@ namespace Maf
 		return sqrt(x);
 	}
 
-	//Joe - Vector2 Implementation
+	//Joe - Implementation
+	template<typename T>
+	inline T mafLerp(T a, T b, T t)
+	{
+		if (t < 0) t = 0 else if (t > 1) t = 1;
+		return a + (b - a) * t;
+	}
+
 	template <typename T>
 	struct mafVector2
 	{
