@@ -65,6 +65,10 @@ namespace IonixEngine
         std::cout << "maf - mafVector2 Lerp: (" << c.x << ", " << c.y << ")\n";
 
         //---------------------------------
+        AddLayer(layerEditor);
+
+        layerUI = new LayerUI();
+        AddLayer(layerUI);
     }
 
     Application::~Application() 

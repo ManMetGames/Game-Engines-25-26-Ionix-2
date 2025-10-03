@@ -5,6 +5,7 @@
 #include "LayerSystem/Layers/LayerEditor.h"
 #include "Maf/MafUtils.h"
 #include <iostream>
+#include "LayerSystem/Layers/LayerUI.h"
 
 namespace IonixEngine
 {    
@@ -32,7 +33,7 @@ namespace IonixEngine
         }
 
         LayerEditor* layerEditor;
-
+        LayerUI* layerUI;
 
     private:
         static Application* s_Instance;
