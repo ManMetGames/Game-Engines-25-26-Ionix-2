@@ -30,4 +30,27 @@ namespace Maf
 	{
 		return sqrt(x);
 	}
+
+	//Joe - Vector2 Implementation
+	template <typename T>
+	struct mafVector2
+	{
+		T x, y;
+
+		mafVector2() : x(0), y(0) {}
+		mafVector2(T x_, T y_) : x(x_), y(y_) {}
+
+
+	};
+
+	template <typename T>
+	struct mafVector3
+	{
+		T x, y, z;
+
+		mafVector3() : x(0), y(0), z(0) {}
+		mafVector3(T x_, T y_, T z_) : x(x_), y(y_), z(z_) {}
+
+
+	};
 }
