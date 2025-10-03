@@ -19,6 +19,9 @@ namespace IonixEngine
 
         layerUI = new LayerUI();
         AddLayer(layerUI);
+
+        layerGraphics = new LayerGraphics();
+        AddLayer(layerGraphics);
     }
 
     Application::~Application() 

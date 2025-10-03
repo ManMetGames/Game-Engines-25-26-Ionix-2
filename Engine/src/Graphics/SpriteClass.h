@@ -10,6 +10,8 @@ namespace IonixEngine
 	public:
 		SDL_Texture* texture;
 
+		Sprite(const char* file, SDL_Renderer* renderer);
+
 		void draw();
 		void changeSize();
 		void move();
