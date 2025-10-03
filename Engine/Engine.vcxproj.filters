@@ -13,6 +13,8 @@
     <Filter Include="LayerSystem\Layers">
       <UniqueIdentifier>{662D6E48-5211-2F9E-BB71-29F1A7741920}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Maf">
+      <UniqueIdentifier>{5907880B-C510-887C-4E8C-9E7CBA94937C}</UniqueIdentifier>
     <Filter Include="UI">
       <UniqueIdentifier>{83755900-6F01-880B-D8AF-880BC45A880B}</UniqueIdentifier>
     </Filter>
@@ -49,6 +51,8 @@
     <ClInclude Include="src\LayerSystem\Layers\LayerEditor.h">
       <Filter>LayerSystem\Layers</Filter>
     </ClInclude>
+    <ClInclude Include="src\Maf\MafUtils.h">
+      <Filter>Maf</Filter>
     <ClInclude Include="src\LayerSystem\Layers\LayerUI.h">
       <Filter>LayerSystem\Layers</Filter>
     </ClInclude>

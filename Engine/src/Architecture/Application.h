@@ -3,6 +3,8 @@
 #include "Macros.h"
 #include "LayerSystem/LayerStack.h"
 #include "LayerSystem/Layers/LayerEditor.h"
+#include "Maf/MafUtils.h"
+#include <iostream>
 #include "LayerSystem/Layers/LayerUI.h"
 
 namespace IonixEngine
