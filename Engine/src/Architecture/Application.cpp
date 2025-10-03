@@ -43,6 +43,7 @@ namespace IonixEngine
         float nom1 = 4.0f;
         float nom2 = 9.0f;
         float nom3 = 12.0f;
+        float t = 0.25f;
 
         Maf::mafVector2<float> vector2(nom1, nom2); //create maf vec2
         Maf::mafVector3<float> vector3(nom1, nom2, nom3); //create maf vec 3
@@ -53,6 +54,15 @@ namespace IonixEngine
         std::cout << "maf-changed vector2 x:" << vector2[0] << " & y:" << vector2[1] << std::endl; //reading changed vector x & y
 
         std::cout << "maf-vector2 x:" << vector3[0] << " & y:" << vector3[1] << " & z:" << vector3[2] << std::endl; //reading vec3 x & y & z
+
+        std::cout << "maf-Lerp nom 1&2: " << Maf::mafLerp(nom1, nom2, t) << std::endl; // lerping
+
+        Maf::mafVector2<float> a(0.f, 0.f); //lerping two vectors
+        Maf::mafVector2<float> b(10.f, 20.f);
+        
+        Maf::mafVector2<float> c = Maf::mafVector2<float>::maf2Lerp(a, b, t);
+
+        std::cout << "maf - mafVector2 Lerp: (" << c.x << ", " << c.y << ")\n";
 
         //---------------------------------
     }

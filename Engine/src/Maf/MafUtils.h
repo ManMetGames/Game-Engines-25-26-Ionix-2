@@ -35,7 +35,7 @@ namespace Maf
 	template<typename T>
 	inline T mafLerp(T a, T b, T t)
 	{
-		if (t < 0) t = 0 else if (t > 1) t = 1;
+		if (t < 0) t = 0; else if (t > 1) t = 1;
 		return a + (b - a) * t;
 	}
 
@@ -51,6 +51,11 @@ namespace Maf
 		T& operator[](int i) { return (i == 0) ? x : y; }
 		const T& operator[](int i) const { return (i == 0) ? x : y; }
 
+		static mafVector2 maf2Lerp(const mafVector2& a, const mafVector2& b, T t) //using my lerp function to lerp x & y of vector 2
+		{
+			return { mafLerp(a.x, b.x, t), mafLerp(a.y, b.y, t) };
+		}
+
 	};
 
 	template <typename T>
@@ -64,5 +69,9 @@ namespace Maf
 		T& operator[](int i) { return (i == 0) ? x : (i == 1) ? y : z; }
 		const T& operator[](int i) const { return (i == 0) ? x : (i == 1) ? y : z; }
 
+		static mafVector3 maf3Lerp(const mafVector3& a, const mafVector3& b, T t) //using my lerp function to lerp x & y of vector 2
+		{
+			return { mafLerp(a.x, b.x, t), mafLerp(a.y, b.y, t), mafLerp(a.z, b.z, t) };
+		}
 	};
 }
