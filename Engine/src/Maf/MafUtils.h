@@ -40,6 +40,9 @@ namespace Maf
 		mafVector2() : x(0), y(0) {}
 		mafVector2(T x_, T y_) : x(x_), y(y_) {}
 
+		//indexing Vector Implementation
+		T& operator[](int i) { return (i == 0) ? x : y; }
+		const T& operator[](int i) const { return (i == 0) ? x : y; }
 
 	};
 
@@ -51,6 +54,8 @@ namespace Maf
 		mafVector3() : x(0), y(0), z(0) {}
 		mafVector3(T x_, T y_, T z_) : x(x_), y(y_), z(z_) {}
 
+		T& operator[](int i) { return (i == 0) ? x : (i == 1) ? y : z; }
+		const T& operator[](int i) const { return (i == 0) ? x : (i == 1) ? y : z; }
 
 	};
 }

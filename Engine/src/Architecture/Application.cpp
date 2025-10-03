@@ -37,6 +37,23 @@ namespace IonixEngine
         std::cout << "Round: " << round << "\n";
         std::cout << "Sqrt: " << sqrt << "\n";
 
+        //Joe Maf Util Test
+        //-----------------------------------
+
+        float nom1 = 4.0f;
+        float nom2 = 9.0f;
+        float nom3 = 12.0f;
+
+        Maf::mafVector2<float> vector2(nom1, nom2); //create maf vec2
+        Maf::mafVector3<float> vector3(nom1, nom2, nom3); //create maf vec 3
+
+        std::cout << "maf-vector2 x:" << vector2[0] << " & y:" << vector2[1] << std::endl; //reading vector x & y
+
+        vector2[0] = 9.f; //writing 9.0f into index 'x'
+        std::cout << "maf-changed vector2 x:" << vector2[0] << " & y:" << vector2[1] << std::endl; //reading changed vector x & y
+
+        std::cout << "maf-vector2 x:" << vector3[0] << " & y:" << vector3[1] << " & z:" << vector3[2] << std::endl; //reading vec3 x & y & z
+
         //---------------------------------
     }
 
