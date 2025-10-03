@@ -7,6 +7,9 @@
     <Filter Include="EventSystem">
       <UniqueIdentifier>{CCE875DF-389E-EED4-C192-E8AB2D47E5D8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Graphics">
+      <UniqueIdentifier>{1653CE33-0220-293F-2B39-17E717655ECD}</UniqueIdentifier>
+    </Filter>
     <Filter Include="LayerSystem">
       <UniqueIdentifier>{87D49461-F389-0D57-7C7E-072EE832045B}</UniqueIdentifier>
     </Filter>
@@ -40,6 +43,9 @@
     <ClInclude Include="src\EventSystem\EventSDL.h">
       <Filter>EventSystem</Filter>
     </ClInclude>
+    <ClInclude Include="src\Graphics\SpriteClass.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
     <ClInclude Include="src\LayerSystem\Layer.h">
       <Filter>LayerSystem</Filter>
     </ClInclude>
@@ -71,6 +77,9 @@
     </ClCompile>
     <ClCompile Include="src\EventSystem\EventSDL.cpp">
       <Filter>EventSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Graphics\SpriteClass.cpp">
+      <Filter>Graphics</Filter>
     </ClCompile>
     <ClCompile Include="src\LayerSystem\LayerStack.cpp">
       <Filter>LayerSystem</Filter>
