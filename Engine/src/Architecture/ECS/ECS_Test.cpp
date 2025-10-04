@@ -1,3 +1,5 @@
+#ifdef ECSTEST
+
 #include "Entity.hpp"
 #include "Component.hpp"
 #include <cstdio>
@@ -52,3 +54,5 @@ void SingleLogger::Start() {
 void SingleLogger::ForceLog() {
     printf("[Single Logger] Forced Log...\n");
 }
+
+#endif // ECSTEST
