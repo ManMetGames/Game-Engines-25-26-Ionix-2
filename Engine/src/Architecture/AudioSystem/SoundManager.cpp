@@ -82,7 +82,7 @@ namespace IonixEngine {
 
         for (int i = 0; i < timesToPlay; ++i) 
         {
-            // Create volume-adjusted buffer
+            // create buffer for volume adjustment
             Uint8* tempBuffer = new Uint8[clip->length]();  
             SDL_MixAudioFormat(tempBuffer, clip->buffer, clip->spec.format,  
                 clip->length, static_cast<int>(SDL_MIX_MAXVOLUME * volume));

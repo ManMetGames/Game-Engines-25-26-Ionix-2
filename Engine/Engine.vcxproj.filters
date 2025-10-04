@@ -4,8 +4,8 @@
     <Filter Include="Architecture">
       <UniqueIdentifier>{282F98C7-1492-276C-BD17-6022A959F3EE}</UniqueIdentifier>
     </Filter>
-    <Filter Include="AudioSystem">
-      <UniqueIdentifier>{7CB94F33-E86E-C828-7163-C2FFDD17BF2C}</UniqueIdentifier>
+    <Filter Include="Architecture\AudioSystem">
+      <UniqueIdentifier>{8E41C409-7A66-138A-A3B1-F8198F3512A8}</UniqueIdentifier>
     </Filter>
     <Filter Include="EventSystem">
       <UniqueIdentifier>{CCE875DF-389E-EED4-C192-E8AB2D47E5D8}</UniqueIdentifier>
@@ -27,17 +27,17 @@
     <ClInclude Include="src\Architecture\Application.h">
       <Filter>Architecture</Filter>
     </ClInclude>
+    <ClInclude Include="src\Architecture\AudioSystem\AudioData.h">
+      <Filter>Architecture\AudioSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Architecture\AudioSystem\SoundManager.h">
+      <Filter>Architecture\AudioSystem</Filter>
+    </ClInclude>
     <ClInclude Include="src\Architecture\Macros.h">
       <Filter>Architecture</Filter>
     </ClInclude>
     <ClInclude Include="src\Architecture\main.h">
       <Filter>Architecture</Filter>
-    </ClInclude>
-    <ClInclude Include="src\AudioSystem\AudioData.h">
-      <Filter>AudioSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="src\AudioSystem\SoundManager.h">
-      <Filter>AudioSystem</Filter>
     </ClInclude>
     <ClInclude Include="src\EngineIncludes.h" />
     <ClInclude Include="src\EventSystem\Event.h">
@@ -69,8 +69,8 @@
     <ClCompile Include="src\Architecture\Application.cpp">
       <Filter>Architecture</Filter>
     </ClCompile>
-    <ClCompile Include="src\AudioSystem\SoundManager.cpp">
-      <Filter>AudioSystem</Filter>
+    <ClCompile Include="src\Architecture\AudioSystem\SoundManager.cpp">
+      <Filter>Architecture\AudioSystem</Filter>
     </ClCompile>
     <ClCompile Include="src\EventSystem\EventSDL.cpp">
       <Filter>EventSystem</Filter>
