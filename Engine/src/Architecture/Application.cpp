@@ -64,7 +64,21 @@ namespace IonixEngine
 
         std::cout << "maf - mafVector2 Lerp: (" << c.x << ", " << c.y << ")\n";
 
+        //Jake Maf Utils Test
         //---------------------------------
+
+        float testnum1 = 10.0f;
+        float testnum2 = 2.0f;
+        float testnum3 = 3.0f;
+
+        float modTest = Maf::mafMod(testnum1, testnum2);
+        float divTest = Maf::mafDiv(testnum1, testnum3);
+
+        std::cout << "Mod Test: " << testnum1 << " MOD " << testnum2 << " = " << modTest << "\n";
+        std::cout << "Div Test: " << testnum1 << " DIV " << testnum3 << " = " << divTest << "\n";
+
+        //-----------------------------------
+
         AddLayer(layerEditor);
 
         layerUI = new LayerUI();

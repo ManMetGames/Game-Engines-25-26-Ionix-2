@@ -74,4 +74,20 @@ namespace Maf
 			return { mafLerp(a.x, b.x, t), mafLerp(a.y, b.y, t), mafLerp(a.z, b.z, t) };
 		}
 	};
+
+	//Jake - Implementation
+
+	template <typename T>
+	inline T mafMod(T x, T y) {
+		int a = x;
+		int b = y;
+		return a % b;
+	}
+
+	template <typename T>
+	inline T mafDiv(T x, T y) {
+		int a = x;
+		int b = y;
+		return a / b;
+	}
 }
