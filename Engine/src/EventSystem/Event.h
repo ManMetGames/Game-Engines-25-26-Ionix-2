@@ -8,7 +8,9 @@ namespace IonixEngine
         None = 0,
         WindowClosed,
         WindowMinimized,
-        WindowMaximized
+        WindowMaximized,
+        WindowResized
+        
         // ...
     };
 
@@ -40,6 +42,13 @@ namespace IonixEngine
     {
     public:
         WindowMaximizedEvent() : IonixEvent(IonixEventType::WindowMaximized) {}
+    };
+
+    class WindowResizedEvent : public IonixEvent 
+    {
+    public:
+        int Width, Height;
+        WindowResizedEvent(int width, int height) : IonixEvent(IonixEventType::WindowResized), Width(width), Height(height) {}
     };
 
     // .. add more as needed...

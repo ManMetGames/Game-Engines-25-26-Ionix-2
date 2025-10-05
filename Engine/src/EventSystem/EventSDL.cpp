@@ -39,6 +39,14 @@ namespace IonixEngine
                     m_EventCallback(event);
                 }
                 break;
+
+            case SDL_WINDOWEVENT_RESIZED:
+                if (m_EventCallback)
+                {
+                    WindowResizedEvent event(e.window.data1, e.window.data2);
+                    m_EventCallback(event);
+                }
+                break;
             }
         }
     }
