@@ -83,6 +83,30 @@ namespace IonixEngine
 
         layerUI = new LayerUI();
         AddLayer(layerUI);
+
+        //Josh maf utils test
+        //------------------------------
+
+        float number1 = 5.5f;
+        float number2 = 12.0f;
+        float number3 = -15.0f;
+
+        Maf::mafVector2<float> vecA(5.0f, 15.0f);
+        Maf::mafVector3<float> vecB(10.0f, 20.0f, 30.0f);
+
+        float vec2SqrMag = Maf::mafSqrMagnitudeVec2(vecA);
+        float vec3SqrMag = Maf::mafSqrMagnitudeVec3(vecB);
+
+        float clampTest1 = Maf::mafClamp(number1, 0.0f, 10.0f);
+        float clampTest2 = Maf::mafClamp(number2, 0.0f, 10.0f);
+        float clampTest3 = Maf::mafClamp(number3, 0.0f, 10.0f);
+
+        std::cout << "Clamp Test 1: " << clampTest1 << "\n";
+        std::cout << "Clamp Test 2: " << clampTest2 << "\n";
+        std::cout << "Clamp Test 3: " << clampTest3 << "\n";
+
+        std::cout << "Vec2 Sqr Magnitude: " << vec2SqrMag << "\n";
+        std::cout << "Vec3 Sqr Magnitude: " << vec3SqrMag << "\n";
     }
 
     Application::~Application() 

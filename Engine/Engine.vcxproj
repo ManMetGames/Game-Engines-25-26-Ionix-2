@@ -68,8 +68,8 @@
     <ClInclude Include="src\LayerSystem\Layer.h" />
     <ClInclude Include="src\LayerSystem\LayerStack.h" />
     <ClInclude Include="src\LayerSystem\Layers\LayerEditor.h" />
-    <ClInclude Include="src\Maf\MafUtils.h" />
     <ClInclude Include="src\LayerSystem\Layers\LayerUI.h" />
+    <ClInclude Include="src\Maf\MafUtils.h" />
     <ClInclude Include="src\UI\UI.h" />
     <ClInclude Include="src\Window\Window.h" />
     <ClInclude Include="src\third-party\ImGuiRenderer.h" />

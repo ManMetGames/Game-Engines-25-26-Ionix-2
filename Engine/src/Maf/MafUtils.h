@@ -90,4 +90,26 @@ namespace Maf
 		int b = y;
 		return a / b;
 	}
+
+	//Josh - Implementation
+
+	template <typename T>
+	inline T mafClamp(T x, T min, T max)
+	{
+		if (x < min) return min;
+		if (x > max) return max;
+		else return x;
+	}
+
+	template <typename T>
+	inline T mafSqrMagnitudeVec3(const mafVector3<T>& v)
+	{
+		return v.x * v.x + v.y * v.y + v.z * v.z;
+	}
+
+	template <typename T>
+	inline T mafSqrMagnitudeVec2(const mafVector2<T>& v)
+	{
+		return v.x * v.x + v.y * v.y;
+	}
 }
