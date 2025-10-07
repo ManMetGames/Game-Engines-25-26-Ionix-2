@@ -74,6 +74,7 @@
     <ClInclude Include="src\Window\Window.h" />
     <ClInclude Include="src\third-party\ImGuiRenderer.h" />
     <ClInclude Include="src\third-party\imgui_impl_sdlrenderer2.h" />
+    <ClInclude Include="VectorMag.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Architecture\Application.cpp" />
