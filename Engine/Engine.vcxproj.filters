@@ -4,11 +4,11 @@
     <Filter Include="Architecture">
       <UniqueIdentifier>{282F98C7-1492-276C-BD17-6022A959F3EE}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Architecture\AudioSystem">
+      <UniqueIdentifier>{8E41C409-7A66-138A-A3B1-F8198F3512A8}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Architecture\ECS">
       <UniqueIdentifier>{72770629-5E70-257B-87A2-0A0073FA0487}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Architecture\Scene">
-      <UniqueIdentifier>{455A9185-313E-52DB-9A9E-4C2E86A13C5D}</UniqueIdentifier>
     </Filter>
     <Filter Include="EventSystem">
       <UniqueIdentifier>{CCE875DF-389E-EED4-C192-E8AB2D47E5D8}</UniqueIdentifier>
@@ -24,6 +24,9 @@
     </Filter>
     <Filter Include="Maf">
       <UniqueIdentifier>{5907880B-C510-887C-4E8C-9E7CBA94937C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scripting">
+      <UniqueIdentifier>{985A7358-04C5-27CF-4D03-D974B9AC0524}</UniqueIdentifier>
     </Filter>
     <Filter Include="UI">
       <UniqueIdentifier>{83755900-6F01-880B-D8AF-880BC45A880B}</UniqueIdentifier>
@@ -48,11 +51,8 @@
     <ClInclude Include="src\Architecture\Macros.h">
       <Filter>Architecture</Filter>
     </ClInclude>
-    <ClInclude Include="src\Architecture\Scene\Scene.h">
-      <Filter>Architecture\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Architecture\Scene\SceneLayer.h">
-      <Filter>Architecture\Scene</Filter>
+    <ClInclude Include="src\Architecture\Scene.h">
+      <Filter>Architecture</Filter>
     </ClInclude>
     <ClInclude Include="src\Architecture\main.h">
       <Filter>Architecture</Filter>
@@ -82,8 +82,14 @@
     <ClInclude Include="src\LayerSystem\Layers\LayerUI.h">
       <Filter>LayerSystem\Layers</Filter>
     </ClInclude>
+    <ClInclude Include="src\LayerSystem\Layers\SceneLayer.h">
+      <Filter>LayerSystem\Layers</Filter>
+    </ClInclude>
     <ClInclude Include="src\Maf\MafUtils.h">
       <Filter>Maf</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scripting\Scripting.h">
+      <Filter>Scripting</Filter>
     </ClInclude>
     <ClInclude Include="src\UI\UI.h">
       <Filter>UI</Filter>
@@ -102,6 +108,9 @@
     <ClCompile Include="src\Architecture\Application.cpp">
       <Filter>Architecture</Filter>
     </ClCompile>
+    <ClCompile Include="src\Architecture\AudioSystem\SoundManager.cpp">
+      <Filter>Architecture\AudioSystem</Filter>
+    </ClCompile>
     <ClCompile Include="src\Architecture\ECS\Component.cpp">
       <Filter>Architecture\ECS</Filter>
     </ClCompile>
@@ -110,9 +119,6 @@
     </ClCompile>
     <ClCompile Include="src\Architecture\ECS\Entity.cpp">
       <Filter>Architecture\ECS</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Architecture\Scene\SceneLayer.cpp">
-      <Filter>Architecture\Scene</Filter>
     </ClCompile>
     <ClCompile Include="src\EventSystem\EventSDL.cpp">
       <Filter>EventSystem</Filter>
@@ -128,6 +134,12 @@
     </ClCompile>
     <ClCompile Include="src\LayerSystem\Layers\LayerUI.cpp">
       <Filter>LayerSystem\Layers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LayerSystem\Layers\SceneLayer.cpp">
+      <Filter>LayerSystem\Layers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Scripting\Scripting.cpp">
+      <Filter>Scripting</Filter>
     </ClCompile>
     <ClCompile Include="src\Window\Window.cpp">
       <Filter>Window</Filter>
