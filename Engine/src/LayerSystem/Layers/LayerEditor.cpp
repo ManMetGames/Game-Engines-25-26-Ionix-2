@@ -52,6 +52,13 @@ namespace IonixEngine
                 break;
             }
 
+            case IonixEventType::WindowHidden:
+            {
+                auto& windowEvent = static_cast<WindowHiddenEvent&>(e);
+                OnWindowHiddenEvent(windowEvent);
+                break;
+            }
+
             // Add more cases as needed.... (Note: Most engine features don't require events, they
             //                              can just be callable functions.
         }
@@ -86,4 +93,13 @@ namespace IonixEngine
         std::cout << "IonixEvent: Window moved to " << "X:" << e.WinX << " Y:" << e.WinY << "\n";
         e.Handled = true;
     }
+
+    //Window Hidden 
+    void LayerEditor::OnWindowHiddenEvent(WindowHiddenEvent& e)
+    {
+        std::cout << "IonixEvent: Window has been hidden \n";
+        e.Handled = true; 
+    }
+
+    
 }

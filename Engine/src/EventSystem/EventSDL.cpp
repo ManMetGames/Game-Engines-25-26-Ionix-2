@@ -31,6 +31,8 @@ namespace IonixEngine
                     m_EventCallback(event);
                 }
                 break;
+            
+
 
             case SDL_WINDOWEVENT_MAXIMIZED:
                 if (m_EventCallback)
@@ -55,9 +57,22 @@ namespace IonixEngine
                     m_EventCallback(event);
                 }
                 break;
+
+                //Window Hidden
+            case SDL_WINDOWEVENT_HIDDEN:
+                if (m_EventCallback)
+                {
+                    WindowHiddenEvent event;
+                    m_EventCallback(event);
+                }
+                break;
+
             }
+          
+
         }
 
+   
 
     }
 }

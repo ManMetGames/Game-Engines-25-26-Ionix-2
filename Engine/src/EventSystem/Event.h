@@ -10,7 +10,8 @@ namespace IonixEngine
         WindowMinimized,
         WindowMaximized,
         WindowResized,
-        WindowMoved
+        WindowMoved,
+        WindowHidden
         
         // ...
     };
@@ -57,6 +58,13 @@ namespace IonixEngine
     public:
         int Width, Height;
         WindowResizedEvent(int width, int height) : IonixEvent(IonixEventType::WindowResized), Width(width), Height(height) {}
+    };
+
+    //Window Hidden
+    class WindowHiddenEvent : public IonixEvent 
+    {
+    public:
+        WindowHiddenEvent() : IonixEvent(IonixEventType::WindowHidden) {}
     };
 
     // .. add more as needed...
