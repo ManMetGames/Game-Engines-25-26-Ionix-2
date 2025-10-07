@@ -32,7 +32,9 @@ namespace IonixEngine
         }
 
         // Initialize SDL Mixer
+        #ifdef WIN32
         SDL_setenv("SDL_AUDIODRIVER", "directsound", 1);
+        #endif
         
         if (SDL_Init(SDL_INIT_AUDIO) != 0)
         {

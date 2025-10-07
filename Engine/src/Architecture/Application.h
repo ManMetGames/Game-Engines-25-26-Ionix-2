@@ -3,8 +3,12 @@
 #include "Macros.h"
 #include "LayerSystem/LayerStack.h"
 #include "LayerSystem/Layers/LayerEditor.h"
+#include "Maf/MafUtils.h"
+#include <iostream>
 #include "LayerSystem/Layers/LayerUI.h"
 #include "LayerSystem/Layers/LayerGraphics.h"
+#include "LayerSystem/Layers/SceneLayer.h"
+#include "LayerSystem/Layers/LayerFysics.h"
 
 namespace IonixEngine
 {    
@@ -30,10 +34,12 @@ namespace IonixEngine
 
             return layer;
         }
-
+        
+        LayerScene* layerScene;
         LayerEditor* layerEditor;
         LayerUI* layerUI;
         LayerGraphics* layerGraphics;
+        LayerFysics* layerFysics;
 
     private:
         static Application* s_Instance;
