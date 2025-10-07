@@ -145,12 +145,12 @@ namespace IonixEngine
     class KeyboardEvent : public IonixEvent
     {
     public:
-        KeyboardEvent(SDL_Scancode scnCode) : 
-            scnCode(scnCode), IonixEvent(IonixEventType::Keyboard){} // Keyboard
-
         SDL_Scancode scnCode;
-        bool isPressed;
         SDL_Keycode keyCode;
+        bool isPressed;
+
+        KeyboardEvent(SDL_Scancode scnCode, SDL_Keycode keycode, bool isPressed) : 
+            scnCode(scnCode), keyCode(keyCode), isPressed(isPressed), IonixEvent(IonixEventType::Keyboard){} // Keyboard
     };
 
     // .. add more as needed...

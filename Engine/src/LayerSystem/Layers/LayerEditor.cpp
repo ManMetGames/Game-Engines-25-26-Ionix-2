@@ -43,7 +43,7 @@ namespace IonixEngine
     }
 
     // when key is pressed, it'll take the key input and convert into a string where it'll say what key is being held down 
-    void LayerEditor::OnKeyboardEvent(Keyboard& e)
+    void LayerEditor::OnKeyboardEvent(KeyboardEvent& e)
     {
         std::cout << "IonixEvent:Key is being held down";
         e.Handled = true;
