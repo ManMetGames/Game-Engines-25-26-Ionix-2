@@ -23,3 +23,7 @@ end
 		end
 	end
 end
+
+function GetModule(name)
+	return modules[name]
+end
