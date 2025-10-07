@@ -66,6 +66,7 @@
     <ClInclude Include="src\EventSystem\Event.h" />
     <ClInclude Include="src\EventSystem\EventSDL.h" />
     <ClInclude Include="src\Graphics\SpriteClass.h" />
+    <ClInclude Include="src\Graphics\SpriteSorting.h" />
     <ClInclude Include="src\LayerSystem\Layer.h" />
     <ClInclude Include="src\LayerSystem\LayerStack.h" />
     <ClInclude Include="src\LayerSystem\Layers\LayerEditor.h" />
@@ -80,6 +81,7 @@
     <ClCompile Include="src\Architecture\Application.cpp" />
     <ClCompile Include="src\EventSystem\EventSDL.cpp" />
     <ClCompile Include="src\Graphics\SpriteClass.cpp" />
+    <ClCompile Include="src\Graphics\SpriteSorting.cpp" />
     <ClCompile Include="src\LayerSystem\LayerStack.cpp" />
     <ClCompile Include="src\LayerSystem\Layers\LayerEditor.cpp" />
     <ClCompile Include="src\LayerSystem\Layers\LayerGraphics.cpp" />

@@ -46,6 +46,9 @@
     <ClInclude Include="src\Graphics\SpriteClass.h">
       <Filter>Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="src\Graphics\SpriteSorting.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
     <ClInclude Include="src\LayerSystem\Layer.h">
       <Filter>LayerSystem</Filter>
     </ClInclude>
@@ -82,6 +85,9 @@
       <Filter>EventSystem</Filter>
     </ClCompile>
     <ClCompile Include="src\Graphics\SpriteClass.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Graphics\SpriteSorting.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
     <ClCompile Include="src\LayerSystem\LayerStack.cpp">
