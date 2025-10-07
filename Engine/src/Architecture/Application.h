@@ -4,6 +4,7 @@
 #include "LayerSystem/LayerStack.h"
 #include "LayerSystem/Layers/LayerEditor.h"
 #include "LayerSystem/Layers/LayerUI.h"
+#include "Scripting/Scripting.h"
 
 namespace IonixEngine
 {    

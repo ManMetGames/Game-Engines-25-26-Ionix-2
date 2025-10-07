@@ -1,4 +1,5 @@
 #pragma once
+#include "sol/sol.hpp"
 
 namespace IonixEngine
 {
@@ -8,9 +9,13 @@ namespace IonixEngine
         //Singleton
         static Scripting& Get();
 
+        //Core
+        void Init();
     private:
         //Singleton Instance
         static Scripting* s_Instance;
+
+        sol::state m_LuaState;
     };
 }
 
