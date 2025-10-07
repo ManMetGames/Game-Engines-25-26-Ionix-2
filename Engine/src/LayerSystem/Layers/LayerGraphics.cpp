@@ -6,11 +6,8 @@
 namespace IonixEngine
 {
     LayerGraphics::LayerGraphics() {
+     
 
-        renderer = (Application::Get().GetWindow().m_Renderer);
-
-        //test sprite
-        Sprite newSprite = Sprite("Graphics/aur naur.jpg", renderer);
     }
 
     void LayerGraphics::OnAttach() {}
@@ -18,12 +15,24 @@ namespace IonixEngine
     void LayerGraphics::OnDetach() {}
 
     void LayerGraphics::OnUpdate() {
-        //todo get sprites to draw here
-        // current idea
-        //create stack/store any and all sprites somewhere
-        //increment through and draw them
-        // :)
+
+        img = IMG_LoadTexture(Application::Get().GetWindow().GetSdlRenderer(), "aur naur.jpg");
+        SDL_Rect texr;
+        texr.x = 0;
+        texr.y = 0;
+        texr.w = 800;
+        texr.h = 600;
+
+
+
+        SDL_SetRenderDrawColor(Application::Get().GetWindow().GetSdlRenderer(), 255, 255, 255, 0);
+
+
+        SDL_RenderClear(Application::Get().GetWindow().GetSdlRenderer());
+        SDL_RenderCopy(Application::Get().GetWindow().GetSdlRenderer(), img, nullptr, &texr);
+        SDL_RenderPresent(Application::Get().GetWindow().GetSdlRenderer());
     }
 
     void LayerGraphics::OnEvent(IonixEvent& e) {}
  }
+
