@@ -2,6 +2,7 @@
 #include "SDL.h"
 #include "SDL_image.h"
 #include <iostream>
+using namespace std;
 
 namespace IonixEngine
 {
@@ -18,6 +19,12 @@ namespace IonixEngine
 		void loadTexture(const char* file, SDL_Renderer* renderer);
 		void clear();
 		void del();
+
+		//
+
+		void Flip();
+		void Sorting(); //layees
+
 	private:
 		
 		float baseWidth;
