@@ -16,6 +16,8 @@ namespace IonixEngine
         void RegisterEngineBindings();
 
         void ExecuteScript(const std::string& scriptName);
+        
+        void CallHook(const std::string& hookName);
 
     private:
         // Singleton Instance
