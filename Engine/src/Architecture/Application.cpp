@@ -30,7 +30,9 @@ namespace IonixEngine
         std::cout << "Deg2Rad: " << Maf::Deg2Rad(deg) << std::end;
 
         std::cout << "Log(8, 2): " << Maf::Log(8.0f, 2.0f) << std::end;
-        std::cout << "Log20(100): " << Maf::Log10(100.0f) << std::end;
+        std::cout << "Log(8, 2): " << Maf::Log(8.0f, 2.0f) << std::endl;
+        std::cout << "Log20(100): " << Maf::Log10(100.0f) << std::endl;
+        //----------------------
         
     }
 
@@ -51,6 +53,7 @@ namespace IonixEngine
 
     void Application::Run()
     {
+       
         m_Running = true;
 
         while (m_Running)

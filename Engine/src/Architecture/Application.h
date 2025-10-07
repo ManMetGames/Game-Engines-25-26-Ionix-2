@@ -1,4 +1,5 @@
 #pragma once
+#include <iostream>
 #include "Window/Window.h"
 #include "Macros.h"
 #include "LayerSystem/LayerStack.h"
