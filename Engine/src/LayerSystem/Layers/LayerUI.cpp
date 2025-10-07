@@ -13,7 +13,7 @@
 namespace IonixEngine
 {
     
-    enum UIType
+    /*enum UIType
     {
         Label,
         Button
@@ -29,10 +29,11 @@ namespace IonixEngine
 
         UIData(UIType type, char* text, int x, int y) : type(type), text(text), x(x), y(y) {}
     };
+
    
 
     std::vector<UIData> uiDrawData;
-     
+    */
     // Factory class needs a method to add a UIData object to the above vector
 
     void LayerUI::OnAttach() 
@@ -49,6 +50,7 @@ namespace IonixEngine
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
+        /*
         for (auto ui : uiDrawData)
         {
             if (ui.type == UIType::Label)
@@ -56,6 +58,7 @@ namespace IonixEngine
                 Application::Get().layerUI->m_UI->DrawLabel(ui.text, ui.x, ui.y);
             }
         }
+        */
 
         // Setup Dear ImGui style
         ImGui::StyleColorsDark();
@@ -96,7 +99,7 @@ namespace IonixEngine
         ImGui::End();
         // Rendering
         ImGui::Render();
-        ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), Application::Get().GetWindow().m_Renderer);
+        ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), Application::Get().GetWindow().m_Renderer); //ask if we can leave this here
 
         //TODO - Will be done by graphics unit eventually. Here for testing for the time being.
         SDL_RenderPresent(Application::Get().GetWindow().m_Renderer);

@@ -5,7 +5,8 @@ namespace IonixEngine
     class UI
     {
     public:
-        void DrawLabel(char* text, int x, int y);
+        void DrawLabel(char* text, int xsize, int ysize, int xpos, int ypos);
+        bool DrawButton(char* text, int xsize, int ysize, int xpos, int ypos);
     };
 }
 
