@@ -64,6 +64,9 @@
     <ClInclude Include="src\third-party\imgui_impl_sdlrenderer2.h">
       <Filter>third-party</Filter>
     </ClInclude>
+    <ClInclude Include="src\UI\UIManager.h">
+      <Filter>UI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Architecture\Application.cpp">
@@ -92,6 +95,9 @@
     </ClCompile>
     <ClCompile Include="src\third-party\imgui_impl_sdlrenderer2.cpp">
       <Filter>third-party</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UI\UIManagercpp.cpp">
+      <Filter>UI</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
