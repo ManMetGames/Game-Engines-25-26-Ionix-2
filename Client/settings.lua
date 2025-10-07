@@ -14,6 +14,10 @@ function OnStart()
 			module:OnStart()
 		end
 	end
+
+	print(Window.get_title())
+	print(Window.get_width())
+	print(Window.get_height())
 end
 
 function OnUpdate()

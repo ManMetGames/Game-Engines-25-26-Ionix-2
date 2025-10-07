@@ -7,7 +7,7 @@ function enemy:OnStart()
 end
 
 function enemy:OnUpdate()
-	print("Enemy OnUpdate Ran")
+	--print("Enemy OnUpdate Ran")
 end
 
 return enemy
