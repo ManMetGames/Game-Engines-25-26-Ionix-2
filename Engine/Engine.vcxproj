@@ -65,6 +65,7 @@
     <ClInclude Include="src\EngineIncludes.h" />
     <ClInclude Include="src\EventSystem\Event.h" />
     <ClInclude Include="src\EventSystem\EventSDL.h" />
+    <ClInclude Include="src\Fysics\Fysics.h" />
     <ClInclude Include="src\LayerSystem\Layer.h" />
     <ClInclude Include="src\LayerSystem\LayerStack.h" />
     <ClInclude Include="src\LayerSystem\Layers\LayerEditor.h" />

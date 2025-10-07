@@ -7,6 +7,9 @@
     <Filter Include="EventSystem">
       <UniqueIdentifier>{CCE875DF-389E-EED4-C192-E8AB2D47E5D8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Fysics">
+      <UniqueIdentifier>{3691F6B3-2233-218A-0BEE-34DEF72EA8DA}</UniqueIdentifier>
+    </Filter>
     <Filter Include="LayerSystem">
       <UniqueIdentifier>{87D49461-F389-0D57-7C7E-072EE832045B}</UniqueIdentifier>
     </Filter>
@@ -42,6 +45,9 @@
     </ClInclude>
     <ClInclude Include="src\EventSystem\EventSDL.h">
       <Filter>EventSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Fysics\Fysics.h">
+      <Filter>Fysics</Filter>
     </ClInclude>
     <ClInclude Include="src\LayerSystem\Layer.h">
       <Filter>LayerSystem</Filter>
