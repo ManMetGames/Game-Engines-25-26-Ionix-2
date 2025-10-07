@@ -4,7 +4,7 @@
 #include "LayerSystem/LayerStack.h"
 #include "LayerSystem/Layers/LayerEditor.h"
 #include "LayerSystem/Layers/LayerUI.h"
-
+#include "LayerSystem/Layers/Audio.h"
 namespace IonixEngine
 {    
     class ENGINE_API Application
@@ -38,6 +38,8 @@ namespace IonixEngine
  
         Window* m_Window;
         LayerStack m_LayerStack;
+
+        Audio* m_Audio;
     };
 
     Application* CreateApplication();

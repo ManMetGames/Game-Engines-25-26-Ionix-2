@@ -79,7 +79,6 @@
     <ClCompile Include="src\Architecture\Application.cpp" />
     <ClCompile Include="src\EventSystem\EventSDL.cpp" />
     <ClCompile Include="src\LayerSystem\LayerStack.cpp" />
-    <ClCompile Include="src\LayerSystem\Layers\Audio.cpp" />
     <ClCompile Include="src\LayerSystem\Layers\LayerEditor.cpp" />
     <ClCompile Include="src\LayerSystem\Layers\LayerUI.cpp" />
     <ClCompile Include="src\Window\Window.cpp" />
