@@ -94,7 +94,8 @@ namespace IonixEngine
         {
             std::cout << "Button pressed\n";
         }
-
+        static int slider_i =5;
+        ImGui::SliderInt("SliderInt (0 -> 100)", &slider_i, 0, 100, "%d" );
         ImGui::End();
         // Rendering
         ImGui::Render();
