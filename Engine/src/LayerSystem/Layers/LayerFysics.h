@@ -1,5 +1,6 @@
 #pragma once
 #include "LayerSystem/Layer.h"
+#include "box2d.h"
 
 namespace IonixEngine
 {
