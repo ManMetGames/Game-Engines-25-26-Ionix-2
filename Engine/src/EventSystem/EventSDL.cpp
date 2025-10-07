@@ -58,7 +58,7 @@ namespace IonixEngine
                 }
                 break;
 
-                //Window Hidden
+                
             case SDL_WINDOWEVENT_HIDDEN:
                 if (m_EventCallback)
                 {
@@ -66,6 +66,13 @@ namespace IonixEngine
                     m_EventCallback(event);
                 }
                 break;
+                //Window Restored
+            case SDL_WINDOWEVENT_RESTORED: 
+                if (m_EventCallback)
+                {
+                    WindowRestoredEvent event;
+                    m_EventCallback(event);
+                }
 
             }
           

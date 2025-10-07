@@ -59,6 +59,13 @@ namespace IonixEngine
                 break;
             }
 
+            case IonixEventType::WindowRestored:
+            {
+                auto& windowEvent = static_cast<WindowRestoredEvent&>(e);
+                OnWindowRestoredEvent(windowEvent);
+                break;
+            }
+
             // Add more cases as needed.... (Note: Most engine features don't require events, they
             //                              can just be callable functions.
         }
@@ -94,11 +101,18 @@ namespace IonixEngine
         e.Handled = true;
     }
 
-    //Window Hidden 
+ 
     void LayerEditor::OnWindowHiddenEvent(WindowHiddenEvent& e)
     {
-        std::cout << "IonixEvent: Window has been hidden \n";
+        std::cout << "IonixEvent: Window has been hidden \n"; 
         e.Handled = true; 
+    }
+
+    //Window Restored
+    void LayerEditor::OnWindowRestoredEvent(WindowRestoredEvent& e)
+    {
+        std::cout << "IonixEvent: Window has been Restored to previous size \n";
+        e.Handled = true;
     }
 
     

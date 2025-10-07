@@ -20,5 +20,6 @@ namespace IonixEngine
         void OnWindowResizedEvent(WindowResizedEvent& e);
         void OnWindowMovedEvent(WindowMovedEvent& e);
         void OnWindowHiddenEvent(WindowHiddenEvent& e);
+        void OnWindowRestoredEvent(WindowRestoredEvent& e);
     };
 }

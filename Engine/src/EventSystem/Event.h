@@ -11,7 +11,8 @@ namespace IonixEngine
         WindowMaximized,
         WindowResized,
         WindowMoved,
-        WindowHidden
+        WindowHidden,
+        WindowRestored
         
         // ...
     };
@@ -60,11 +61,18 @@ namespace IonixEngine
         WindowResizedEvent(int width, int height) : IonixEvent(IonixEventType::WindowResized), Width(width), Height(height) {}
     };
 
-    //Window Hidden
+    
     class WindowHiddenEvent : public IonixEvent 
     {
     public:
         WindowHiddenEvent() : IonixEvent(IonixEventType::WindowHidden) {}
+    };
+
+    //Window Restored
+    class WindowRestoredEvent : public IonixEvent
+    {
+    public:
+        WindowRestoredEvent() : IonixEvent(IonixEventType::WindowRestored) {}
     };
 
     // .. add more as needed...
