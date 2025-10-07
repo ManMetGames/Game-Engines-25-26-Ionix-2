@@ -26,6 +26,7 @@ x64/
 x86/
 [Ww]in32/
 *.obj
+*.o
 *.iobj
 *.pdb
 *.ipdb
