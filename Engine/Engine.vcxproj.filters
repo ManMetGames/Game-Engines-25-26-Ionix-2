@@ -4,8 +4,17 @@
     <Filter Include="Architecture">
       <UniqueIdentifier>{282F98C7-1492-276C-BD17-6022A959F3EE}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Architecture\ECS">
+      <UniqueIdentifier>{72770629-5E70-257B-87A2-0A0073FA0487}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Architecture\Scene">
+      <UniqueIdentifier>{455A9185-313E-52DB-9A9E-4C2E86A13C5D}</UniqueIdentifier>
+    </Filter>
     <Filter Include="EventSystem">
       <UniqueIdentifier>{CCE875DF-389E-EED4-C192-E8AB2D47E5D8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fysics">
+      <UniqueIdentifier>{3691F6B3-2233-218A-0BEE-34DEF72EA8DA}</UniqueIdentifier>
     </Filter>
     <Filter Include="LayerSystem">
       <UniqueIdentifier>{87D49461-F389-0D57-7C7E-072EE832045B}</UniqueIdentifier>
@@ -13,8 +22,8 @@
     <Filter Include="LayerSystem\Layers">
       <UniqueIdentifier>{662D6E48-5211-2F9E-BB71-29F1A7741920}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Scripting">
-      <UniqueIdentifier>{985A7358-04C5-27CF-4D03-D974B9AC0524}</UniqueIdentifier>
+    <Filter Include="Maf">
+      <UniqueIdentifier>{5907880B-C510-887C-4E8C-9E7CBA94937C}</UniqueIdentifier>
     </Filter>
     <Filter Include="UI">
       <UniqueIdentifier>{83755900-6F01-880B-D8AF-880BC45A880B}</UniqueIdentifier>
@@ -30,8 +39,20 @@
     <ClInclude Include="src\Architecture\Application.h">
       <Filter>Architecture</Filter>
     </ClInclude>
+    <ClInclude Include="src\Architecture\AudioSystem\AudioData.h">
+      <Filter>Architecture\AudioSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Architecture\AudioSystem\SoundManager.h">
+      <Filter>Architecture\AudioSystem</Filter>
+    </ClInclude>
     <ClInclude Include="src\Architecture\Macros.h">
       <Filter>Architecture</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Architecture\Scene\Scene.h">
+      <Filter>Architecture\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Architecture\Scene\SceneLayer.h">
+      <Filter>Architecture\Scene</Filter>
     </ClInclude>
     <ClInclude Include="src\Architecture\main.h">
       <Filter>Architecture</Filter>
@@ -43,6 +64,9 @@
     <ClInclude Include="src\EventSystem\EventSDL.h">
       <Filter>EventSystem</Filter>
     </ClInclude>
+    <ClInclude Include="src\Fysics\Fysics.h">
+      <Filter>Fysics</Filter>
+    </ClInclude>
     <ClInclude Include="src\LayerSystem\Layer.h">
       <Filter>LayerSystem</Filter>
     </ClInclude>
@@ -52,11 +76,14 @@
     <ClInclude Include="src\LayerSystem\Layers\LayerEditor.h">
       <Filter>LayerSystem\Layers</Filter>
     </ClInclude>
+    <ClInclude Include="src\LayerSystem\Layers\LayerFysics.h">
+      <Filter>LayerSystem\Layers</Filter>
+    </ClInclude>
     <ClInclude Include="src\LayerSystem\Layers\LayerUI.h">
       <Filter>LayerSystem\Layers</Filter>
     </ClInclude>
-    <ClInclude Include="src\Scripting\Scripting.h">
-      <Filter>Scripting</Filter>
+    <ClInclude Include="src\Maf\MafUtils.h">
+      <Filter>Maf</Filter>
     </ClInclude>
     <ClInclude Include="src\UI\UI.h">
       <Filter>UI</Filter>
@@ -75,6 +102,18 @@
     <ClCompile Include="src\Architecture\Application.cpp">
       <Filter>Architecture</Filter>
     </ClCompile>
+    <ClCompile Include="src\Architecture\ECS\Component.cpp">
+      <Filter>Architecture\ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Architecture\ECS\ECS_Test.cpp">
+      <Filter>Architecture\ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Architecture\ECS\Entity.cpp">
+      <Filter>Architecture\ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Architecture\Scene\SceneLayer.cpp">
+      <Filter>Architecture\Scene</Filter>
+    </ClCompile>
     <ClCompile Include="src\EventSystem\EventSDL.cpp">
       <Filter>EventSystem</Filter>
     </ClCompile>
@@ -84,11 +123,11 @@
     <ClCompile Include="src\LayerSystem\Layers\LayerEditor.cpp">
       <Filter>LayerSystem\Layers</Filter>
     </ClCompile>
-    <ClCompile Include="src\LayerSystem\Layers\LayerUI.cpp">
+    <ClCompile Include="src\LayerSystem\Layers\LayerFysics.cpp">
       <Filter>LayerSystem\Layers</Filter>
     </ClCompile>
-    <ClCompile Include="src\Scripting\Scripting.cpp">
-      <Filter>Scripting</Filter>
+    <ClCompile Include="src\LayerSystem\Layers\LayerUI.cpp">
+      <Filter>LayerSystem\Layers</Filter>
     </ClCompile>
     <ClCompile Include="src\Window\Window.cpp">
       <Filter>Window</Filter>

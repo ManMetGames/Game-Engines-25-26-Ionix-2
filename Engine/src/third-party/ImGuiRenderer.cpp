@@ -90,7 +90,7 @@
 #endif
 
 // SDL
-#include <SDL.H>
+#include <SDL.h>
 #include <SDL_syswm.h>
 
 #ifdef __APPLE__
