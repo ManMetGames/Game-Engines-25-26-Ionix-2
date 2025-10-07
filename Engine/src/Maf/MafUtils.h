@@ -20,7 +20,8 @@ namespace Maf
 		return (x > y) ? x : y;
 	}
 
-	inline float mafRound(float x)
+	template <typename T>
+	inline T mafRound(T x)
 	{
 		return round(x);
 	}
