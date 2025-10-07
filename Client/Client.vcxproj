@@ -71,7 +71,9 @@ IF EXIST "$(SolutionDir)\dependencies\bin\SDL\SDL_TTF\lib\SDL2_ttf.dll"\ (xcopy 
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="test.lua" />
+    <None Include="enemy.lua" />
+    <None Include="player.lua" />
+    <None Include="settings.lua" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -14,6 +14,8 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="test.lua" />
+    <None Include="settings.lua" />
+    <None Include="player.lua" />
+    <None Include="enemy.lua" />
   </ItemGroup>
 </Project>

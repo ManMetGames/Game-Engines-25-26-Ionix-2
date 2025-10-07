@@ -19,6 +19,8 @@ namespace IonixEngine
         
         void CallHook(const std::string& hookName);
 
+        sol::state& GetLuaState() { return m_LuaState; }
+
     private:
         // Singleton Instance
         static Scripting* s_Instance;
