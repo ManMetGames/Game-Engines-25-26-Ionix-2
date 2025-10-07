@@ -1,8 +1,11 @@
 #pragma once
 
+#include "SDL_render.h"
 class Entity;
 
-class RenderData;
+class RenderData {
+    SDL_Renderer* renderer;
+};
 
 class Component {
 protected:
