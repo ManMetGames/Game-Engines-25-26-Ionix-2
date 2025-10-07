@@ -1,5 +1,8 @@
 #pragma once
 #include "Architecture/Macros.h"
+#include <map>
+#include <string>
+using namespace std;
 
 namespace IonixEngine
 {
@@ -154,4 +157,4 @@ namespace IonixEngine
     };
 
     // .. add more as needed...
-}
+};
