@@ -1,3 +1,7 @@
-print(Window.get_window())
-print(Window.get_width())
-print(Window.get_height())
+function OnStart()
+	print("Ionix Engine Start Hook")
+end
+
+function OnUpdate()
+	print(Window.get_title())
+end
