@@ -51,35 +51,36 @@ namespace IonixEngine
 		elements.push_back({ UIType::InputText, x, y, const_cast<char*>(text), nullptr, nullptr, nullptr, 0.0f, 0.0f, buffer, bufferSize });
 	}
 
-	void RenderUI()
-	{
+    void RenderUI()
+    {
+       for (auto& e : elements)
+       {
+           ImGui::SetCursorPos(ImVec2((float)e.xPos, (float)e.yPos));
 
-		for (auto& e : elements)
-		{
-			ImGui::SetCursorPos(ImVec2((float)e.xPos, (float)e.yPos));
-
-			switch (e.type)
-			{
-			case UIType::Label:
-				ImGui::Text("%s", e.text);
-				break;
-			case UIType::Button:
-				if (ImGui::Button(e.text) && e.onClick)
-					e.onClick();
-			case UIType::Checkbox:
-				if (e.checked)
-					ImGui::Checkbox(e.text, e.checked);
-			case UIType::SliderFloat:
-				if (e.sliderValue)
-					ImGui::SliderFloat(e.text, e.sliderValue, e.sliderMin, e.slidermax);
-			case UIType::InputText:
-				if (e.inputBuffer && e.inputBufferSize > 0)
-					ImGui::InputText(e.text, e.inputBuffer, e.inputBufferSize);
-				break;
-			}
-		}
-
-	}
+           switch (e.type)
+           {
+           case UIType::Label:
+               ImGui::Text("%s", e.text);
+               break;
+           case UIType::Button:
+               if (ImGui::Button(e.text) && e.onClick)
+                   e.onClick();
+               break; // Added break to prevent fallthrough
+           case UIType::Checkbox:
+               if (e.checked)
+                   ImGui::Checkbox(e.text, e.checked);
+               break; // Added break to prevent fallthrough
+           case UIType::SliderFloat:
+               if (e.sliderValue)
+                   ImGui::SliderFloat(e.text, e.sliderValue, e.sliderMin, e.slidermax);
+               break; // Added break to prevent fallthrough
+           case UIType::InputText:
+               if (e.inputBuffer && e.inputBufferSize > 0)
+                   ImGui::InputText(e.text, e.inputBuffer, e.inputBufferSize);
+               break;
+           }
+       }
+    }
     
     
 }
