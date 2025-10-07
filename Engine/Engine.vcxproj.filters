@@ -46,6 +46,9 @@
     <ClInclude Include="src\LayerSystem\LayerStack.h">
       <Filter>LayerSystem</Filter>
     </ClInclude>
+    <ClInclude Include="src\LayerSystem\Layers\Audio.h">
+      <Filter>LayerSystem\Layers</Filter>
+    </ClInclude>
     <ClInclude Include="src\LayerSystem\Layers\LayerEditor.h">
       <Filter>LayerSystem\Layers</Filter>
     </ClInclude>
@@ -74,6 +77,9 @@
     </ClCompile>
     <ClCompile Include="src\LayerSystem\LayerStack.cpp">
       <Filter>LayerSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LayerSystem\Layers\Audio.cpp">
+      <Filter>LayerSystem\Layers</Filter>
     </ClCompile>
     <ClCompile Include="src\LayerSystem\Layers\LayerEditor.cpp">
       <Filter>LayerSystem\Layers</Filter>
