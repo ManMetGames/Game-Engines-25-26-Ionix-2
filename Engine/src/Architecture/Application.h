@@ -9,6 +9,7 @@
 #include "LayerSystem/Layers/LayerGraphics.h"
 #include "LayerSystem/Layers/SceneLayer.h"
 #include "LayerSystem/Layers/LayerFysics.h"
+#include"Scripting/Scripting.h"
 
 namespace IonixEngine
 {    
