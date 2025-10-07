@@ -1,4 +1,5 @@
 #include "Graphics/SpriteClass.h"
+#include "Architecture/Application.h"
 
 namespace IonixEngine
 {
