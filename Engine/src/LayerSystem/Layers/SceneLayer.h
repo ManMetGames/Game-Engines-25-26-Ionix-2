@@ -1,7 +1,7 @@
 #pragma once
 #include "Architecture/Macros.h"
 #include "LayerSystem/Layer.h"
-#include "Scene.h"
+#include "Architecture/Scene.h"
 #include <memory>
 
 namespace IonixEngine
