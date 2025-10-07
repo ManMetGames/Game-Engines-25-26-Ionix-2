@@ -6,6 +6,7 @@
 #include "Maf/MafUtils.h"
 #include <iostream>
 #include "LayerSystem/Layers/LayerUI.h"
+#include "LayerSystem/Layers/SceneLayer.h"
 #include "LayerSystem/Layers/LayerFysics.h"
 
 namespace IonixEngine
@@ -32,7 +33,8 @@ namespace IonixEngine
 
             return layer;
         }
-
+        
+        LayerScene* layerScene;
         LayerEditor* layerEditor;
         LayerUI* layerUI;
         LayerFysics* layerFysics;

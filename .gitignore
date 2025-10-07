@@ -26,6 +26,7 @@ x64/
 x86/
 [Ww]in32/
 *.obj
+*.o
 *.iobj
 *.pdb
 *.ipdb
@@ -59,3 +60,5 @@ dependencies
 imgui.ini
 dependencies/bin/imgui/obj/
 dependencies/bin/imgui/bin/
+client
+libengine.so
