@@ -49,6 +49,12 @@ namespace IonixEngine
         //Shows the big ImGui demo window
         ImGui::ShowDemoWindow();
 
+		ImGui::SetCursorPos(ImVec2(100, 100));
+        ImGui::Text("Gui Gang");
+        if (ImGui::Button("Get Gui?", ImVec2(50, 50)))
+        {
+			std::cout << "Gui Gang" << std::endl;
+        }
         // Rendering
         ImGui::Render();
         ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), Application::Get().GetWindow().m_Renderer);
