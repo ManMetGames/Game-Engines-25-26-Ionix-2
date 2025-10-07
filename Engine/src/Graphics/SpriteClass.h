@@ -1,6 +1,7 @@
 #pragma once
 #include "SDL.h"
 #include "SDL_image.h"
+#include "Architecture/Application.h"
 #include <iostream>
 
 namespace IonixEngine
@@ -8,20 +9,19 @@ namespace IonixEngine
 	class Sprite
 	{
 	public:
-		SDL_Texture* texture;
-
+		const char *texture;
+		SDL_Texture* img;
+		SDL_Renderer* rend;
+		SDL_Window* win;
 		Sprite(const char* file, SDL_Renderer* renderer);
 
 		void draw();
 		void changeSize();
 		void move();
-		void loadTexture(const char* file, SDL_Renderer* renderer);
+		void changeTexture(const char* file, SDL_Renderer* renderer);
 		void clear();
 		void del();
 	private:
-		
-		float baseWidth;
-		float baseHeight;
 
 		float width;
 		float height;
