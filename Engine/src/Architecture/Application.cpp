@@ -11,14 +11,6 @@ namespace IonixEngine
     Application::Application()
         : m_Window(new Window())
     {
-        s_Instance = this;
-
-        //Initialise layers...
-        layerEditor = new LayerEditor();
-        AddLayer(layerEditor);
-
-        layerUI = new LayerUI();
-        AddLayer(layerUI);
 
         //Maf test
         //---------------------
@@ -31,6 +23,16 @@ namespace IonixEngine
         std::cout << "Log(8, 2): " << Maf::Log(8.0f, 2.0f) << std::endl;
         std::cout << "Log20(100): " << Maf::Log10(100.0f) << std::endl;
         //----------------------
+
+        s_Instance = this;
+
+        //Initialise layers...
+        layerEditor = new LayerEditor();
+        AddLayer(layerEditor);
+
+        layerUI = new LayerUI();
+        AddLayer(layerUI);
+
         
     }
 

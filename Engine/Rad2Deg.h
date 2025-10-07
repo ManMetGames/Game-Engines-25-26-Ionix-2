@@ -1,5 +1,4 @@
 #pragma once
-#include <cmath>
 #include <corecrt_math_defines.h>
 
 namespace Maf
