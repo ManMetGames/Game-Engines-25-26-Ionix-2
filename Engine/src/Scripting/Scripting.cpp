@@ -1,4 +1,5 @@
 #include "Scripting/Scripting.h"
+#include "Architecture/Application.h"
 
 namespace IonixEngine 
 {
@@ -25,6 +26,39 @@ namespace IonixEngine
 			sol::lib::math,
 			sol::lib::table,
 			sol::lib::io
+		);
+
+		RegisterEngineBindings();
+
+		std::cout << "Lua has been initialized successfully!" << std::endl;
+	}
+
+	void Scripting::RegisterEngineBindings() 
+	{
+		RegisterWindowBindings();
+	}
+	void Scripting::ExecuteScript(const std::string& scriptName)
+	{
+		m_LuaState.script_file(scriptName);
+	}
+	void Scripting::RegisterWindowBindings()
+	{
+		auto getWindowTitle = []() -> std::string {
+			return Application::Get().GetWindow().m_Data.Title;
+		};
+
+		auto getWindowWidth = []() -> int {
+			return Application::Get().GetWindow().m_Data.Width;
+		};
+
+		auto getWindowHeight = []() -> int {
+			return Application::Get().GetWindow().m_Data.Height;
+		};
+
+		m_LuaState["Window"] = m_LuaState.create_table_with(
+			"get_window", getWindowTitle,
+			"get_height", getWindowHeight,
+			"get_width", getWindowWidth
 		);
 	}
 }
