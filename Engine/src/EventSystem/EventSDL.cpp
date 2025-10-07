@@ -24,17 +24,16 @@ namespace IonixEngine
                 }
                 break;
             case SDL_KEYDOWN:
-                {
-                   // KeyboardEvent event;
-                    // m_EventCallback(event);
-                }
+                
+                   
+                
             break;
             case SDL_KEYUP:
                 {
                     // KeyboardEvent event;
                    //  m_EventCallback(event);
                 }
-            break;
+          
             }
         }
     }

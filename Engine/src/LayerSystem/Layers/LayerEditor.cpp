@@ -23,16 +23,10 @@ namespace IonixEngine
                 OnWindowClosedEvent(windowEvent);
                 break;
             }
-            case IonixEventType::KeyDown:
+            case IonixEventType::Keyboard:
             {
-                auto& keyboardEvent = static_cast<KeyDownEvent&>(e);
-                OnKeyDownEvent(keyboardEvent);
-                break;
-            }
-            case IonixEventType::KeyUp:
-            {
-                auto& keyboardEvent = static_cast<KeyUpEvent&>(e);
-                OnKeyUpEvent(keyboardEvent);
+                auto& keyboardEvent = static_cast<KeyboardEvent&>(e);
+                OnKeyboardEvent(keyboardEvent);
                 break;
             }
 
@@ -49,10 +43,9 @@ namespace IonixEngine
     }
 
     // when key is pressed, it'll take the key input and convert into a string where it'll say what key is being held down 
-    void LayerEditor::OnKeyboardEvent(KeyboardEvent& e)
+    void LayerEditor::OnKeyboardEvent(Keyboard& e)
     {
         std::cout << "IonixEvent:Key is being held down";
         e.Handled = true;
     }
-
 }

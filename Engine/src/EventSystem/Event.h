@@ -150,8 +150,8 @@ namespace IonixEngine
 
         SDL_Scancode scnCode;
         bool isPressed;
+        SDL_Keycode keyCode;
     };
-
 
     // .. add more as needed...
 }
