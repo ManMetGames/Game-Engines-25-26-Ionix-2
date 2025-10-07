@@ -55,7 +55,23 @@ namespace IonixEngine
     {
        for (auto& e : elements)
        {
+		   // Get the ImGuiIO object
+		   ImGuiIO& io = ImGui::GetIO();
+
            ImGui::SetCursorPos(ImVec2((float)e.xPos, (float)e.yPos));
+		   // Assume you have multiple fonts loaded
+		   ImFont* defaultFont = io.Fonts->Fonts[0]; // Default font (first one)
+		   ImFont* customFont = io.Fonts->Fonts[1]; // Custom font (second one)
+
+		   // Use default font for a section of UI
+		   ImGui::PushFont(defaultFont);
+		   ImGui::Text("This is default font!");
+		   ImGui::PopFont();
+
+		   // Switch to custom font for another section of UI
+		   ImGui::PushFont(customFont);
+		   ImGui::Text("This is custom font!");
+		   ImGui::PopFont();
 
            switch (e.type)
            {

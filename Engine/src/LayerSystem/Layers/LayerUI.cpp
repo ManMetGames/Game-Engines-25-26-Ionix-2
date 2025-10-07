@@ -1,7 +1,7 @@
 #include "LayerSystem/Layers/LayerUI.h"
 #include "EventSystem/Event.h"
 #include "Architecture/Application.h"
-
+#include "UI/Fontloader.h"
 #include "imgui.h"
 #include "backends/imgui_impl_sdl2.h"
 #include "backends/imgui_impl_sdlrenderer2.h"
@@ -29,6 +29,9 @@ namespace IonixEngine
         // Setup Dear ImGui style
         ImGui::StyleColorsDark();
         //ImGui::StyleColorsLight();
+
+        // Load fonts (only once during initialization)
+        IonixEngine::Fontloader::LoadFonts();
 
         // Setup Platform/Renderer backends
         ImGui_ImplSDL2_InitForSDLRenderer(window, renderer);
