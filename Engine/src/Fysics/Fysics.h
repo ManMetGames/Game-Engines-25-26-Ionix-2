@@ -2,7 +2,7 @@
 
 namespace IonixEngine
 {
-    class Fysics
+    class BoxCollider
     {
     public:
     };

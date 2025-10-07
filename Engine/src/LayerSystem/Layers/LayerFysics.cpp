@@ -1,9 +1,19 @@
 #include "LayerSystem/Layers/LayerFysics.h"
+
+#include <iostream>
+#include <ostream>
+
 #include "EventSystem/Event.h"
 
 namespace IonixEngine
 {
-    void LayerFysics::OnAttach(){}
+    void LayerFysics::OnAttach()
+    {
+        //Set Gravity
+        b2Vec2 gravity = b2Vec2(0.0f, -9.8f);
+        //Create the world
+        b2World world(gravity);
+    }
     void LayerFysics::OnDetach() {}
     void LayerFysics::OnUpdate(){} 
     void LayerFysics::OnEvent(IonixEvent& e)
