@@ -97,6 +97,7 @@ namespace IonixEngine
         }
         static int slider_i =5;
         ImGui::SliderInt("SliderInt (0 -> 100)", &slider_i, 0, 100, "%d" );
+        std::cout << slider_i;
         ImGui::End();
         // Rendering
         ImGui::Render();
