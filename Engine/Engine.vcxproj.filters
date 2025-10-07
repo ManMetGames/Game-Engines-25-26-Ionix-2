@@ -4,14 +4,26 @@
     <Filter Include="Architecture">
       <UniqueIdentifier>{282F98C7-1492-276C-BD17-6022A959F3EE}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Architecture\AudioSystem">
+      <UniqueIdentifier>{8E41C409-7A66-138A-A3B1-F8198F3512A8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Architecture\ECS">
+      <UniqueIdentifier>{72770629-5E70-257B-87A2-0A0073FA0487}</UniqueIdentifier>
+    </Filter>
     <Filter Include="EventSystem">
       <UniqueIdentifier>{CCE875DF-389E-EED4-C192-E8AB2D47E5D8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Graphics">
+      <UniqueIdentifier>{1653CE33-0220-293F-2B39-17E717655ECD}</UniqueIdentifier>
     </Filter>
     <Filter Include="LayerSystem">
       <UniqueIdentifier>{87D49461-F389-0D57-7C7E-072EE832045B}</UniqueIdentifier>
     </Filter>
     <Filter Include="LayerSystem\Layers">
       <UniqueIdentifier>{662D6E48-5211-2F9E-BB71-29F1A7741920}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Maf">
+      <UniqueIdentifier>{5907880B-C510-887C-4E8C-9E7CBA94937C}</UniqueIdentifier>
     </Filter>
     <Filter Include="Scripting">
       <UniqueIdentifier>{985A7358-04C5-27CF-4D03-D974B9AC0524}</UniqueIdentifier>
@@ -30,7 +42,16 @@
     <ClInclude Include="src\Architecture\Application.h">
       <Filter>Architecture</Filter>
     </ClInclude>
+    <ClInclude Include="src\Architecture\AudioSystem\AudioData.h">
+      <Filter>Architecture\AudioSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Architecture\AudioSystem\SoundManager.h">
+      <Filter>Architecture\AudioSystem</Filter>
+    </ClInclude>
     <ClInclude Include="src\Architecture\Macros.h">
+      <Filter>Architecture</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Architecture\Scene.h">
       <Filter>Architecture</Filter>
     </ClInclude>
     <ClInclude Include="src\Architecture\main.h">
@@ -43,6 +64,12 @@
     <ClInclude Include="src\EventSystem\EventSDL.h">
       <Filter>EventSystem</Filter>
     </ClInclude>
+    <ClInclude Include="src\Graphics\SpriteClass.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\SpriteSorting.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
     <ClInclude Include="src\LayerSystem\Layer.h">
       <Filter>LayerSystem</Filter>
     </ClInclude>
@@ -52,8 +79,17 @@
     <ClInclude Include="src\LayerSystem\Layers\LayerEditor.h">
       <Filter>LayerSystem\Layers</Filter>
     </ClInclude>
+    <ClInclude Include="src\LayerSystem\Layers\LayerGraphics.h">
+      <Filter>LayerSystem\Layers</Filter>
+    </ClInclude>
     <ClInclude Include="src\LayerSystem\Layers\LayerUI.h">
       <Filter>LayerSystem\Layers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LayerSystem\Layers\SceneLayer.h">
+      <Filter>LayerSystem\Layers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Maf\MafUtils.h">
+      <Filter>Maf</Filter>
     </ClInclude>
     <ClInclude Include="src\Scripting\Scripting.h">
       <Filter>Scripting</Filter>
@@ -75,8 +111,26 @@
     <ClCompile Include="src\Architecture\Application.cpp">
       <Filter>Architecture</Filter>
     </ClCompile>
+    <ClCompile Include="src\Architecture\AudioSystem\SoundManager.cpp">
+      <Filter>Architecture\AudioSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Architecture\ECS\Component.cpp">
+      <Filter>Architecture\ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Architecture\ECS\ECS_Test.cpp">
+      <Filter>Architecture\ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Architecture\ECS\Entity.cpp">
+      <Filter>Architecture\ECS</Filter>
+    </ClCompile>
     <ClCompile Include="src\EventSystem\EventSDL.cpp">
       <Filter>EventSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Graphics\SpriteClass.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Graphics\SpriteSorting.cpp">
+      <Filter>Graphics</Filter>
     </ClCompile>
     <ClCompile Include="src\LayerSystem\LayerStack.cpp">
       <Filter>LayerSystem</Filter>
@@ -84,7 +138,13 @@
     <ClCompile Include="src\LayerSystem\Layers\LayerEditor.cpp">
       <Filter>LayerSystem\Layers</Filter>
     </ClCompile>
+    <ClCompile Include="src\LayerSystem\Layers\LayerGraphics.cpp">
+      <Filter>LayerSystem\Layers</Filter>
+    </ClCompile>
     <ClCompile Include="src\LayerSystem\Layers\LayerUI.cpp">
+      <Filter>LayerSystem\Layers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LayerSystem\Layers\SceneLayer.cpp">
       <Filter>LayerSystem\Layers</Filter>
     </ClCompile>
     <ClCompile Include="src\Scripting\Scripting.cpp">

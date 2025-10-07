@@ -1,5 +1,5 @@
 #include "Application.h"
-#include "Scripting/Scripting.h"
+
 
 namespace IonixEngine {
     Application* Application::s_Instance = nullptr;
@@ -14,16 +14,24 @@ namespace IonixEngine
     {
         s_Instance = this;
 
+        layerScene = new LayerScene();
+        AddLayer(layerScene);
+
         //Initialise layers...
         layerEditor = new LayerEditor();
         AddLayer(layerEditor);
 
+        layerFysics = new LayerFysics();
+        AddLayer(layerFysics);
+
         layerUI = new LayerUI();
         AddLayer(layerUI);
 
-        Scripting::Get().Init();
-        Scripting::Get().GetLuaState().script_file("settings.lua");
+        layerGraphics = new LayerGraphics();
+        AddLayer(layerGraphics);
 
+        Scripting::Get().Init();
+        Scripting::Get().GetLuaState().script_file("Scripts/settings.lua");
     }
 
     Application::~Application() 
@@ -44,7 +52,7 @@ namespace IonixEngine
     void Application::Run()
     {
         m_Running = true;
-
+#
         Scripting::Get().CallHook("OnStart");
 
         while (m_Running)
@@ -54,9 +62,7 @@ namespace IonixEngine
                 if(layer)
                     layer->OnUpdate();
             }
-
             Scripting::Get().CallHook("OnUpdate");
-
             m_Window->OnUpdate();
         }
     }

@@ -1,38 +1,32 @@
 #include "Scripting/Scripting.h"
 #include "Architecture/Application.h"
 
-namespace IonixEngine
-{
+namespace IonixEngine {
 	Scripting* Scripting::s_Instance = nullptr;
 
-	Scripting& Scripting::Get()
-	{
-		if (!s_Instance)
+	Scripting& Scripting::Get() {
+		if (!s_Instance) {
 			s_Instance = new Scripting();
-
+		}
 		return *s_Instance;
 	}
-
-	void Scripting::Init()
-	{
-		std::cout << "Lua is now being initialised" << std::endl;
+	void Scripting::Init() {
+		std::cout << "Lua is now being initialized." << std::endl;
 
 		m_LuaState.open_libraries(
 			sol::lib::base,
-			sol::lib::package,
 			sol::lib::string,
 			sol::lib::math,
 			sol::lib::table,
 			sol::lib::io
 		);
-
-		RegisterEngineBindings();
-
-		std::cout << "Lua has been initialised successfully" << std::endl;
+		RegisterEngineBindindings();
+		std::cout << "Lua has been initialised successfully." << std::endl;
 	}
-	void Scripting::RegisterEngineBindings()
+
+	void Scripting::RegisterEngineBindindings()
 	{
-		RegisterWindowBindings();
+		RegisterWindowBindindings();
 	}
 
 	void Scripting::ExecuteScript(const std::string& scriptName)
@@ -43,32 +37,36 @@ namespace IonixEngine
 	void Scripting::CallHook(const std::string& hookName)
 	{
 		sol::function hook = m_LuaState[hookName];
-
-		if (hook.valid())
-			hook();
+		if (hook.valid()) {
+			try {
+				hook();
+			}
+			catch (const std::exception& e) {
+				std::cerr << "Error calling hook '" << hookName << "': " << e.what() << '\n';
+			}
+		}
+		else {
+			std::cerr << "Hook '" << hookName << "' is invalid\n";
+		}
 	}
 
-	void Scripting::RegisterWindowBindings()
+	void Scripting::RegisterWindowBindindings()
 	{
-		auto getWindowTitle = []() -> std::string
-			{
-				return Application::Get().GetWindow().m_Data.Title;
-			};
+		auto getWindowTitle = []()->std::string {
 
-		auto getWindowWidth = []() -> int
-			{
-				return Application::Get().GetWindow().m_Data.Width;
+			return Application::Get().GetWindow().m_Data.Title;
 			};
-
-		auto getWindowHeight = []() -> int
-			{
-				return Application::Get().GetWindow().m_Data.Height;
+		auto getWindowWidth = []() -> std::int32_t {
+			return Application::Get().GetWindow().m_Data.Width;
 			};
-
+		auto getWindowHeight = []()-> std::int32_t {
+			return Application::Get().GetWindow().m_Data.Height;
+			};
 		m_LuaState["Window"] = m_LuaState.create_table_with(
 			"get_title", getWindowTitle,
 			"get_width", getWindowWidth,
 			"get_height", getWindowHeight
 		);
-	}
+
+	}// print (Window.get_title())
 }
