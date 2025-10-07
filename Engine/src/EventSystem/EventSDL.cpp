@@ -27,7 +27,14 @@ namespace IonixEngine
             case SDL_KEYUP:
                 if (m_EventCallback)
                 {
-                    // KeyboardEvent event;  <- fix properly later, causes error because of missing parameters
+                    SDL_Scancode scnCode = e.key.keysym.scancode;
+                    SDL_Keycode keyCode = e.key.keysym.sym;
+                    bool isPressed = false;
+                   
+                    // Dictionary (big array)
+                    // scancode, keycode, bool
+                    // 
+                    // string for raw output 
                     // m_EventCallback(event);
                 }
             break;

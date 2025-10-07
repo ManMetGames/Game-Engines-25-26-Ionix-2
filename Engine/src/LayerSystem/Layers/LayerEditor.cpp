@@ -34,7 +34,7 @@ namespace IonixEngine
             //                              can just be callable functions.
         }
     }
-
+   
     void LayerEditor::OnWindowClosedEvent(WindowClosedEvent& e)
     {
         std::cout << "IonixEvent: Window closed";
@@ -45,7 +45,9 @@ namespace IonixEngine
     // when key is pressed, it'll take the key input and convert into a string where it'll say what key is being held down 
     void LayerEditor::OnKeyboardEvent(KeyboardEvent& e)
     {
-        std::cout << "IonixEvent:Key ";
+
+        // big loop statement / search
+
         e.Handled = true;
     }
 }
