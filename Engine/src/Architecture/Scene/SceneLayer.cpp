@@ -1,13 +1,13 @@
-#include "Architecture/scene/SceneLayer.h"
+#include "Architecture/Scene/SceneLayer.h"
 
 namespace IonixEngine
 {
-    void SceneLayer::OnAttach()
+    void LayerScene::OnAttach()
     {
         // Nothing for now (I'm not sure how to exactly do it)
     }
 
-    void SceneLayer::OnDetach()
+    void LayerScene::OnDetach()
     {
         // Ensure the current scene exits when the layer is detached
         if (m_Current)
@@ -17,19 +17,19 @@ namespace IonixEngine
         }
     }
 
-    void SceneLayer::OnUpdate()
+    void LayerScene::OnUpdate()
     {
         if (m_Current)
             m_Current->OnUpdate();
     }
 
-    void SceneLayer::OnEvent(IonixEvent& e)
+    void LayerScene::OnEvent(IonixEvent& e)
     {
         if (m_Current)
             m_Current->OnEvent(e);
     }
 
-    void SceneLayer::SetScene(std::unique_ptr<Scene> scene)
+    void LayerScene::SetScene(std::unique_ptr<Scene> scene)
     {
         // Call exit on the previous scene before replacing
         if (m_Current)

@@ -60,3 +60,5 @@ dependencies
 imgui.ini
 dependencies/bin/imgui/obj/
 dependencies/bin/imgui/bin/
+client
+libengine.so

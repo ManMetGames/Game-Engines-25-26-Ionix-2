@@ -1,17 +1,17 @@
 #pragma once
 #include "Architecture/Macros.h"
 #include "LayerSystem/Layer.h"
-#include "Architecture/scene/Scene.h"
+#include "Scene.h"
 #include <memory>
 
 namespace IonixEngine
 {
     // Layer that hosts the single active Scene and bridges updates/events to it
-    class ENGINE_API SceneLayer : public Layer
+    class ENGINE_API LayerScene : public Layer
     {
     public:
-        SceneLayer() = default;
-        virtual ~SceneLayer() = default;
+        LayerScene() = default;
+        virtual ~LayerScene() = default;
 
         void OnAttach() override;
         void OnDetach() override;

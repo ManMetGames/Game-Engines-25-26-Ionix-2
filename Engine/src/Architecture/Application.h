@@ -1,4 +1,5 @@
 #pragma once
+#include "Architecture/Scene/SceneLayer.h"
 #include "Window/Window.h"
 #include "Macros.h"
 #include "LayerSystem/LayerStack.h"
@@ -29,7 +30,8 @@ namespace IonixEngine
 
             return layer;
         }
-
+        
+        LayerScene* layerScene;
         LayerEditor* layerEditor;
         LayerUI* layerUI;
 
