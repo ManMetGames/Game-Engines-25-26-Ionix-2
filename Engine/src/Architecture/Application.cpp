@@ -1,5 +1,4 @@
 #include "Application.h"
-#include "PetersTest/PetersTest.h"
 
 
 namespace IonixEngine {
@@ -22,7 +21,8 @@ namespace IonixEngine
         layerUI = new LayerUI();
         AddLayer(layerUI);
 
-        PetersTest::PetersTest();
+        Scripting::Get().Init();
+        Scripting::Get().GetLuaState().script_file("Scripts/settings.lua");
 
     }
 

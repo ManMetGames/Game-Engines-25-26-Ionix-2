@@ -15,13 +15,13 @@ namespace IonixEngine
         // Registration Methods
         void RegisterEngineBindindings();
 
-        void ExecuteScript(const std::string& scriptName);
-
-        void GetWindowHeight();
-
-        void GetWindowWidth();
+        void ExecuteScript(const std::string& scriptName); 
 
         void CallHook(const std::string& hookName);
+
+        sol::state& GetLuaState() { return m_LuaState; }
+
+
     private:
         //singleton Instance
         static Scripting* s_Instance;

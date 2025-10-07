@@ -13,9 +13,6 @@
     <Filter Include="LayerSystem\Layers">
       <UniqueIdentifier>{662D6E48-5211-2F9E-BB71-29F1A7741920}</UniqueIdentifier>
     </Filter>
-    <Filter Include="PetersTest">
-      <UniqueIdentifier>{7823DFEC-64DB-203A-CDE2-F995B9B9BB2A}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Scripting">
       <UniqueIdentifier>{985A7358-04C5-27CF-4D03-D974B9AC0524}</UniqueIdentifier>
     </Filter>
@@ -58,9 +55,6 @@
     <ClInclude Include="src\LayerSystem\Layers\LayerUI.h">
       <Filter>LayerSystem\Layers</Filter>
     </ClInclude>
-    <ClInclude Include="src\PetersTest\PetersTest.h">
-      <Filter>PetersTest</Filter>
-    </ClInclude>
     <ClInclude Include="src\Scripting\Scripting.h">
       <Filter>Scripting</Filter>
     </ClInclude>
@@ -92,9 +86,6 @@
     </ClCompile>
     <ClCompile Include="src\LayerSystem\Layers\LayerUI.cpp">
       <Filter>LayerSystem\Layers</Filter>
-    </ClCompile>
-    <ClCompile Include="src\PetersTest\PetersTest.cpp">
-      <Filter>PetersTest</Filter>
     </ClCompile>
     <ClCompile Include="src\Scripting\Scripting.cpp">
       <Filter>Scripting</Filter>

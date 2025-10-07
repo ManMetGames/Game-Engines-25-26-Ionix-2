@@ -56,24 +56,17 @@ namespace IonixEngine {
 
 			return Application::Get().GetWindow().m_Data.Title;
 			};
-		m_LuaState["Window"] = m_LuaState.create_table_with(
-			"get_title", getWindowTitle
-		);
-	}// print (Window.get_title())
-	void GetWindowHeight() {
-		auto getWindowHeight = []()-> std::int16_t {
-			return Application::Get().GetWindow().m_Data.Height;
-			};
-		m_LuaState["Height"] = m_LuaState.create_table_with(
-			"get_Height",getWindowHeight
-		);
-	}
-	void GetWindowWidth() {
-		auto getWindowWidth = []() -> std::int16_t {
+		auto getWindowWidth = []() -> std::int32_t {
 			return Application::Get().GetWindow().m_Data.Width;
 			};
-		m_LuaState["Width"] = m_LuaState.create_table_with(
-			"get_Width", getWindowWidth
+		auto getWindowHeight = []()-> std::int32_t {
+			return Application::Get().GetWindow().m_Data.Height;
+			};
+		m_LuaState["Window"] = m_LuaState.create_table_with(
+			"get_title", getWindowTitle,
+			"get_width", getWindowWidth,
+			"get_height", getWindowHeight
 		);
-	}
+
+	}// print (Window.get_title())
 }
