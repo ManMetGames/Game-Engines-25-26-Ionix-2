@@ -69,6 +69,8 @@
     <ClInclude Include="src\LayerSystem\LayerStack.h" />
     <ClInclude Include="src\LayerSystem\Layers\LayerEditor.h" />
     <ClInclude Include="src\LayerSystem\Layers\LayerUI.h" />
+    <ClInclude Include="src\PetersTest\PetersTest.h" />
+    <ClInclude Include="src\Scripting\Scripting.h" />
     <ClInclude Include="src\UI\UI.h" />
     <ClInclude Include="src\Window\Window.h" />
     <ClInclude Include="src\third-party\ImGuiRenderer.h" />
@@ -80,6 +82,8 @@
     <ClCompile Include="src\LayerSystem\LayerStack.cpp" />
     <ClCompile Include="src\LayerSystem\Layers\LayerEditor.cpp" />
     <ClCompile Include="src\LayerSystem\Layers\LayerUI.cpp" />
+    <ClCompile Include="src\PetersTest\PetersTest.cpp" />
+    <ClCompile Include="src\Scripting\Scripting.cpp" />
     <ClCompile Include="src\Window\Window.cpp" />
     <ClCompile Include="src\third-party\ImGuiRenderer.cpp" />
     <ClCompile Include="src\third-party\imgui_impl_sdlrenderer2.cpp" />

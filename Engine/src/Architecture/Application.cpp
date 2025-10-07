@@ -1,4 +1,6 @@
 #include "Application.h"
+#include "PetersTest/PetersTest.h"
+
 
 namespace IonixEngine {
     Application* Application::s_Instance = nullptr;
@@ -19,6 +21,9 @@ namespace IonixEngine
 
         layerUI = new LayerUI();
         AddLayer(layerUI);
+
+        PetersTest::PetersTest();
+
     }
 
     Application::~Application() 
@@ -39,6 +44,8 @@ namespace IonixEngine
     void Application::Run()
     {
         m_Running = true;
+#
+        Scripting::Get().CallHook("OnStart");
 
         while (m_Running)
         {
@@ -47,7 +54,7 @@ namespace IonixEngine
                 if(layer)
                     layer->OnUpdate();
             }
-
+            Scripting::Get().CallHook("OnUpdate");
             m_Window->OnUpdate();
         }
     }
