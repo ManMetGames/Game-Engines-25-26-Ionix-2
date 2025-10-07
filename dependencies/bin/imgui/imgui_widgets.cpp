@@ -407,7 +407,8 @@ void ImGui::BulletTextV(const char* fmt, va_list args)
 // [SECTION] Widgets: Main
 //-------------------------------------------------------------------------
 // - ButtonBehavior() [Internal]
-// - Button()
+// - Button
+// ()
 // - SmallButton()
 // - InvisibleButton()
 // - ArrowButton()
