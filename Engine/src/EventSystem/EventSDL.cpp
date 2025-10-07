@@ -9,7 +9,7 @@ namespace IonixEngine
     void EventSDL::PollEventsSDL(const SDL_Event& e, WindowData& windowData)
     {
         //Let ImGui handle the event first if needed:
-        ImGui_ImplSDL2_ProcessEvent(&e);
+        //ImGui_ImplSDL2_ProcessEvent(&e);
 
         switch (e.type)
         {

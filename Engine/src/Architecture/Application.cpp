@@ -1,4 +1,5 @@
 #include "Application.h"
+#include "Scripting-Testing/Test.h"
 
 namespace IonixEngine {
     Application* Application::s_Instance = nullptr;
@@ -17,8 +18,10 @@ namespace IonixEngine
         layerEditor = new LayerEditor();
         AddLayer(layerEditor);
 
-        layerUI = new LayerUI();
-        AddLayer(layerUI);
+        //layerUI = new LayerUI();
+        //AddLayer(layerUI);
+
+        Test* test = new Test();
     }
 
     Application::~Application() 

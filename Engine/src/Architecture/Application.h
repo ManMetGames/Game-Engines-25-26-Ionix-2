@@ -4,6 +4,7 @@
 #include "LayerSystem/LayerStack.h"
 #include "LayerSystem/Layers/LayerEditor.h"
 #include "LayerSystem/Layers/LayerUI.h"
+//#include "Scripting-Testing/Test.cpp"
 
 namespace IonixEngine
 {    
@@ -31,7 +32,7 @@ namespace IonixEngine
         }
 
         LayerEditor* layerEditor;
-        LayerUI* layerUI;
+        //LayerUI* layerUI;
 
     private:
         static Application* s_Instance;

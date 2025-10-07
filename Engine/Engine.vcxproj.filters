@@ -13,6 +13,12 @@
     <Filter Include="LayerSystem\Layers">
       <UniqueIdentifier>{662D6E48-5211-2F9E-BB71-29F1A7741920}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Scripting">
+      <UniqueIdentifier>{985A7358-04C5-27CF-4D03-D974B9AC0524}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scripting-Testing">
+      <UniqueIdentifier>{2340BAC2-8F56-B858-D8CD-437A442389E0}</UniqueIdentifier>
+    </Filter>
     <Filter Include="UI">
       <UniqueIdentifier>{83755900-6F01-880B-D8AF-880BC45A880B}</UniqueIdentifier>
     </Filter>
@@ -52,6 +58,12 @@
     <ClInclude Include="src\LayerSystem\Layers\LayerUI.h">
       <Filter>LayerSystem\Layers</Filter>
     </ClInclude>
+    <ClInclude Include="src\Scripting-Testing\Test.h">
+      <Filter>Scripting-Testing</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scripting\Scripting.h">
+      <Filter>Scripting</Filter>
+    </ClInclude>
     <ClInclude Include="src\UI\UI.h">
       <Filter>UI</Filter>
     </ClInclude>
@@ -80,6 +92,12 @@
     </ClCompile>
     <ClCompile Include="src\LayerSystem\Layers\LayerUI.cpp">
       <Filter>LayerSystem\Layers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Scripting-Testing\Test.cpp">
+      <Filter>Scripting-Testing</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Scripting\Scripting.cpp">
+      <Filter>Scripting</Filter>
     </ClCompile>
     <ClCompile Include="src\Window\Window.cpp">
       <Filter>Window</Filter>
