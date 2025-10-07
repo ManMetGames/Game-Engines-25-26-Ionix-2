@@ -9,13 +9,14 @@ namespace IonixEngine
 	class Sprite
 	{
 	public:
-		const char *texture;
+		const string *texture;
+		const char *file;
 		SDL_Texture* img;
 		SDL_Renderer* rend;
 		SDL_Window* win;
-		Sprite(const char* file, SDL_Renderer* renderer);
+		Sprite(const char *file, SDL_Renderer* renderer);
 
-		void draw();
+		void draw(const char* file);
 		void changeSize();
 		void move();
 		void changeTexture(const char* file, SDL_Renderer* renderer);
@@ -29,8 +30,8 @@ namespace IonixEngine
 
 	private:
 
-		float width;
-		float height;
+		int width;
+		int height;
 
 		int xPosition;
 		int yPosition;

@@ -1,6 +1,7 @@
 #include "LayerSystem/Layers/LayerGraphics.h"
 #include "EventSystem/Event.h"
 #include <iostream>
+#include "Architecture/Application.h"
 
 namespace IonixEngine
 {
@@ -11,8 +12,10 @@ namespace IonixEngine
 
     void LayerGraphics::OnDetach() {}
 
-    void LayerGraphics::OnUpdate() {
-        
+    void LayerGraphics::OnUpdate() 
+    {
+        Sprite sprite1 = Sprite("aur naur.jpg", Application::Get().GetWindow().GetSdlRenderer());
+        sprite1.draw("aur naur.jpg");
     }
 
     void LayerGraphics::OnEvent(IonixEvent& e) {}

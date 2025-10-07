@@ -12,7 +12,6 @@ namespace IonixEngine
         SDL_Texture* img;
         SDL_Rect texr;
 
-
     public:
         LayerGraphics();
         virtual void OnAttach() override;
