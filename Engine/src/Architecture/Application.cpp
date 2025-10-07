@@ -21,7 +21,7 @@ namespace IonixEngine
         AddLayer(layerUI);
 
         Scripting::Get().Init();
-        Scripting::Get().ExecuteScript("test.lua");
+        Scripting::Get().GetLuaState().script_file("settings.lua");
     }
 
     Application::~Application() 
@@ -43,6 +43,8 @@ namespace IonixEngine
     {
         m_Running = true;
 
+        Scripting::Get().CallHook("OnStart");
+
         while (m_Running)
         {
             for (auto layer : m_LayerStack.GetLayers())
@@ -50,6 +52,8 @@ namespace IonixEngine
                 if(layer)
                     layer->OnUpdate();
             }
+
+            Scripting::Get().CallHook("OnUpdate");
 
             m_Window->OnUpdate();
         }

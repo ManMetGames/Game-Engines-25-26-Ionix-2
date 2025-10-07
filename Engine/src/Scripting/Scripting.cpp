@@ -39,6 +39,14 @@ namespace IonixEngine
 		m_LuaState.script_file(scriptName);
 	}
 
+	void Scripting::CallHook(const std::string& hookName)
+	{
+		sol::function hook = m_LuaState[hookName];
+
+		if (hook.valid())
+			hook();
+	}
+
 	void Scripting::RegisterWindowBindings()
 	{
 		auto getWindowTitle = []() -> std::string {
@@ -52,7 +60,7 @@ namespace IonixEngine
 			};
 
 		m_LuaState["Window"] = m_LuaState.create_table_with(
-			"get_window", getWindowTitle,
+			"get_title", getWindowTitle,
 			"get_width", getWindowWidth,
 			"get_height", getWindowHeight
 		);

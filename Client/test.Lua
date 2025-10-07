@@ -1,1 +1,0 @@
-print(Window.get_window())
