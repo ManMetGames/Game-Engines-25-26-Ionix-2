@@ -45,6 +45,13 @@ namespace IonixEngine
                 break;
             }
 
+            case IonixEventType::WindowMoved:
+            {
+                auto& windowEvent = static_cast<WindowMovedEvent&>(e);
+                OnWindowMovedEvent(windowEvent);
+                break;
+            }
+
             // Add more cases as needed.... (Note: Most engine features don't require events, they
             //                              can just be callable functions.
         }
@@ -71,6 +78,12 @@ namespace IonixEngine
     void LayerEditor::OnWindowResizedEvent(WindowResizedEvent& e)
     {
         std::cout << "IonixEvent: Window Resized to " << e.Width <<"x" << e.Height << "\n";
+        e.Handled = true;
+    }
+
+    void LayerEditor::OnWindowMovedEvent(WindowMovedEvent& e)
+    {
+        std::cout << "IonixEvent: Window moved to " << e.WinX << "x" << e.WinY << "\n";
         e.Handled = true;
     }
 }

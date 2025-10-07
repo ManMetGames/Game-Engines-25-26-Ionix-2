@@ -47,7 +47,17 @@ namespace IonixEngine
                     m_EventCallback(event);
                 }
                 break;
+
+            case SDL_WINDOWEVENT_MOVED:
+                if (m_EventCallback)
+                {
+                    WindowMovedEvent event(e.window.data1, e.window.data2);
+                    m_EventCallback(event);
+                }
+                break;
             }
         }
+
+
     }
 }

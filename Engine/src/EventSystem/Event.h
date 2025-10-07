@@ -9,7 +9,8 @@ namespace IonixEngine
         WindowClosed,
         WindowMinimized,
         WindowMaximized,
-        WindowResized
+        WindowResized,
+        WindowMoved
         
         // ...
     };
@@ -42,6 +43,13 @@ namespace IonixEngine
     {
     public:
         WindowMaximizedEvent() : IonixEvent(IonixEventType::WindowMaximized) {}
+    };
+
+    class WindowMovedEvent : public IonixEvent
+    {
+    public:
+        int WinX, WinY;
+        WindowMovedEvent(int winX, int winY) : IonixEvent(IonixEventType::WindowMoved), WinX(winX), WinY(winY) {}
     };
 
     class WindowResizedEvent : public IonixEvent 

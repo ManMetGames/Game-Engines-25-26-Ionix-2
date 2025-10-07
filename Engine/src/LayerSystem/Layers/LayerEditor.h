@@ -18,5 +18,6 @@ namespace IonixEngine
         void OnWindowMinimizedEvent(WindowMinimizedEvent& e);
         void OnWindowMaximizedEvent(WindowMaximizedEvent& e);
         void OnWindowResizedEvent(WindowResizedEvent& e);
+        void OnWindowMovedEvent(WindowMovedEvent& e);
     };
 }
