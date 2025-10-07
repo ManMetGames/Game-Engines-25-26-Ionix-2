@@ -1,5 +1,4 @@
 #include "Application.h"
-#include "Scripting/Scripting.h"
 
 namespace IonixEngine {
     Application* Application::s_Instance = nullptr;
@@ -20,6 +19,8 @@ namespace IonixEngine
 
         layerUI = new LayerUI();
         AddLayer(layerUI);
+
+        Scripting::Get().Init();
     }
 
     Application::~Application() 
