@@ -83,7 +83,7 @@ namespace IonixEngine
 
     void LayerEditor::OnWindowMovedEvent(WindowMovedEvent& e)
     {
-        std::cout << "IonixEvent: Window moved to " << e.WinX << "x" << e.WinY << "\n";
+        std::cout << "IonixEvent: Window moved to " << "X:" << e.WinX << " Y:" << e.WinY << "\n";
         e.Handled = true;
     }
 }
