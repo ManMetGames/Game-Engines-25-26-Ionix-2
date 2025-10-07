@@ -23,6 +23,18 @@ namespace IonixEngine
                 OnWindowClosedEvent(windowEvent);
                 break;
             }
+            case IonixEventType::KeyDown:
+            {
+                auto& keyboardEvent = static_cast<KeyDownEvent&>(e);
+                OnKeyDownEvent(keyboardEvent);
+                break;
+            }
+            case IonixEventType::KeyUp:
+            {
+                auto& keyboardEvent = static_cast<KeyUpEvent&>(e);
+                OnKeyUpEvent(keyboardEvent);
+                break;
+            }
 
             // Add more cases as needed.... (Note: Most engine features don't require events, they
             //                              can just be callable functions.
@@ -32,8 +44,15 @@ namespace IonixEngine
     void LayerEditor::OnWindowClosedEvent(WindowClosedEvent& e)
     {
         std::cout << "IonixEvent: Window closed";
-
         Application::Get().m_Running = false;
         e.Handled = true;
     }
+
+    // when key is pressed, it'll take the key input and convert into a string where it'll say what key is being held down 
+    void LayerEditor::OnKeyboardEvent(KeyboardEvent& e)
+    {
+        std::cout << "IonixEvent:Key is being held down";
+        e.Handled = true;
+    }
+
 }

@@ -15,5 +15,6 @@ namespace IonixEngine
 
     private:
         void OnWindowClosedEvent(WindowClosedEvent& e);
+        void OnKeyboardEvent(KeyboardEvent& e);  
     };
 }
