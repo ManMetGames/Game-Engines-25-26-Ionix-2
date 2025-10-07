@@ -60,6 +60,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\Architecture\Application.h" />
+    <ClInclude Include="src\Architecture\AudioSystem\AudioData.h" />
+    <ClInclude Include="src\Architecture\AudioSystem\SoundManager.h" />
     <ClInclude Include="src\Architecture\Macros.h" />
     <ClInclude Include="src\Architecture\Scene\Scene.h" />
     <ClInclude Include="src\Architecture\Scene\SceneLayer.h" />

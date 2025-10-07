@@ -33,6 +33,12 @@
     <ClInclude Include="src\Architecture\Application.h">
       <Filter>Architecture</Filter>
     </ClInclude>
+    <ClInclude Include="src\Architecture\AudioSystem\AudioData.h">
+      <Filter>Architecture\AudioSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Architecture\AudioSystem\SoundManager.h">
+      <Filter>Architecture\AudioSystem</Filter>
+    </ClInclude>
     <ClInclude Include="src\Architecture\Macros.h">
       <Filter>Architecture</Filter>
     </ClInclude>
