@@ -13,11 +13,17 @@
     <Filter Include="EventSystem">
       <UniqueIdentifier>{CCE875DF-389E-EED4-C192-E8AB2D47E5D8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Fysics">
+      <UniqueIdentifier>{3691F6B3-2233-218A-0BEE-34DEF72EA8DA}</UniqueIdentifier>
+    </Filter>
     <Filter Include="LayerSystem">
       <UniqueIdentifier>{87D49461-F389-0D57-7C7E-072EE832045B}</UniqueIdentifier>
     </Filter>
     <Filter Include="LayerSystem\Layers">
       <UniqueIdentifier>{662D6E48-5211-2F9E-BB71-29F1A7741920}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Maf">
+      <UniqueIdentifier>{5907880B-C510-887C-4E8C-9E7CBA94937C}</UniqueIdentifier>
     </Filter>
     <Filter Include="UI">
       <UniqueIdentifier>{83755900-6F01-880B-D8AF-880BC45A880B}</UniqueIdentifier>
@@ -58,6 +64,9 @@
     <ClInclude Include="src\EventSystem\EventSDL.h">
       <Filter>EventSystem</Filter>
     </ClInclude>
+    <ClInclude Include="src\Fysics\Fysics.h">
+      <Filter>Fysics</Filter>
+    </ClInclude>
     <ClInclude Include="src\LayerSystem\Layer.h">
       <Filter>LayerSystem</Filter>
     </ClInclude>
@@ -67,8 +76,14 @@
     <ClInclude Include="src\LayerSystem\Layers\LayerEditor.h">
       <Filter>LayerSystem\Layers</Filter>
     </ClInclude>
+    <ClInclude Include="src\LayerSystem\Layers\LayerFysics.h">
+      <Filter>LayerSystem\Layers</Filter>
+    </ClInclude>
     <ClInclude Include="src\LayerSystem\Layers\LayerUI.h">
       <Filter>LayerSystem\Layers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Maf\MafUtils.h">
+      <Filter>Maf</Filter>
     </ClInclude>
     <ClInclude Include="src\UI\UI.h">
       <Filter>UI</Filter>
@@ -106,6 +121,9 @@
       <Filter>LayerSystem</Filter>
     </ClCompile>
     <ClCompile Include="src\LayerSystem\Layers\LayerEditor.cpp">
+      <Filter>LayerSystem\Layers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LayerSystem\Layers\LayerFysics.cpp">
       <Filter>LayerSystem\Layers</Filter>
     </ClCompile>
     <ClCompile Include="src\LayerSystem\Layers\LayerUI.cpp">

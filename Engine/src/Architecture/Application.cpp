@@ -20,6 +20,9 @@ namespace IonixEngine
         layerEditor = new LayerEditor();
         AddLayer(layerEditor);
 
+        layerFysics = new LayerFysics();
+        AddLayer(layerFysics);
+
         layerUI = new LayerUI();
         AddLayer(layerUI);
     }
