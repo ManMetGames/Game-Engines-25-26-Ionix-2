@@ -29,7 +29,7 @@ namespace IonixEngine
         SoundManager(const SoundManager&) = delete;
         SoundManager& operator=(const SoundManager&) = delete;
 
-        std::unordered_map<std::string, std::shared_ptr<AudioData>> m_Sounds;
+        std::unordered_map<std::string, AudioData> m_Sounds;
         std::unordered_map<std::string, float> m_Volumes;
 
         SDL_AudioDeviceID m_Device = 0;
