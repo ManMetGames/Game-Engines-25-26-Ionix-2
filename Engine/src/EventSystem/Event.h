@@ -150,7 +150,7 @@ namespace IonixEngine
         bool isPressed;
 
         KeyboardEvent(SDL_Scancode scnCode, SDL_Keycode keycode, bool isPressed) : 
-            scnCode(scnCode), keyCode(keyCode), isPressed(isPressed), IonixEvent(IonixEventType::Keyboard){} // Keyboard
+            scnCode(scnCode), keyCode(keyCode), isPressed(isPressed), IonixEvent(IonixEventType::Keyboard){}
     };
 
     // .. add more as needed...

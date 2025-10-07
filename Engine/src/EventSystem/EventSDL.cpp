@@ -25,9 +25,10 @@ namespace IonixEngine
                 break;
             case SDL_KEYDOWN:
             case SDL_KEYUP:
+                if (m_EventCallback)
                 {
-                    // KeyboardEvent event;
-                   //  m_EventCallback(event);
+                    // KeyboardEvent event;  <- fix properly later, causes error because of missing parameters
+                    // m_EventCallback(event);
                 }
             break;
             }
