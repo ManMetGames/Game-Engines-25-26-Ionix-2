@@ -13,4 +13,7 @@
       <Filter>src\Client</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="test.lua" />
+  </ItemGroup>
 </Project>
