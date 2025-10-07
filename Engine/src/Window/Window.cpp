@@ -37,12 +37,12 @@ namespace IonixEngine
         if (SDL_Init(SDL_INIT_AUDIO) != 0)
         {
             SDL_Log("SDL_Init_Error: %s", SDL_GetError());
-            return;
+            //return;
         }
 
         if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) != 0) {
             SDL_Log("Unable to initialize SDL_mixer: %s", Mix_GetError());
-            return;
+            //return;
         }
 
         // Create SDL window
