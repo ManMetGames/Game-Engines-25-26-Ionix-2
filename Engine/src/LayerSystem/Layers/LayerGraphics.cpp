@@ -1,6 +1,5 @@
 #include "LayerSystem/Layers/LayerGraphics.h"
 #include "EventSystem/Event.h"
-#include "Architecture/Application.h"
 #include <iostream>
 
 namespace IonixEngine
