@@ -73,6 +73,7 @@
     <ClInclude Include="src\LayerSystem\Layers\LayerUI.h" />
     <ClInclude Include="src\Maf\MafUtils.h" />
     <ClInclude Include="src\UI\UI.h" />
+    <ClInclude Include="src\UI\UIManager.h" />
     <ClInclude Include="src\Window\Window.h" />
     <ClInclude Include="src\third-party\ImGuiRenderer.h" />
     <ClInclude Include="src\third-party\imgui_impl_sdlrenderer2.h" />
@@ -84,6 +85,7 @@
     <ClCompile Include="src\LayerSystem\Layers\LayerEditor.cpp" />
     <ClCompile Include="src\LayerSystem\Layers\LayerFysics.cpp" />
     <ClCompile Include="src\LayerSystem\Layers\LayerUI.cpp" />
+    <ClCompile Include="src\UI\UIManagercpp.cpp" />
     <ClCompile Include="src\Window\Window.cpp" />
     <ClCompile Include="src\third-party\ImGuiRenderer.cpp" />
     <ClCompile Include="src\third-party\imgui_impl_sdlrenderer2.cpp" />
