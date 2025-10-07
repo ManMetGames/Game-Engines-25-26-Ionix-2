@@ -21,6 +21,7 @@ namespace IonixEngine
         AddLayer(layerUI);
 
         Scripting::Get().Init();
+        Scripting::Get().ExecuteScript("test.lua");
     }
 
     Application::~Application() 
