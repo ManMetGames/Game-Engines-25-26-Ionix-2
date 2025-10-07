@@ -77,7 +77,7 @@ namespace IonixEngine
         // Start the Dear ImGui frame. Immediate mode rendering - UI gets rebuilt each frame
         ImGuiIO& io = ImGui::GetIO();
         (void)io;
-        ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove;
+        ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize;
 
         ImGui_ImplSDLRenderer2_NewFrame();
         ImGui_ImplSDL2_NewFrame();
