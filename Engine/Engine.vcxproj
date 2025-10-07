@@ -92,6 +92,7 @@
     <ClCompile Include="src\LayerSystem\Layers\LayerEditor.cpp" />
     <ClCompile Include="src\LayerSystem\Layers\LayerFysics.cpp" />
     <ClCompile Include="src\LayerSystem\Layers\LayerUI.cpp" />
+    <ClCompile Include="src\UI\UI.cpp" />
     <ClCompile Include="src\Window\Window.cpp" />
     <ClCompile Include="src\third-party\ImGuiRenderer.cpp" />
     <ClCompile Include="src\third-party\imgui_impl_sdlrenderer2.cpp" />

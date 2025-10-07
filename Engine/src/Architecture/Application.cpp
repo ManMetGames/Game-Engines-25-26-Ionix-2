@@ -40,6 +40,7 @@ namespace IonixEngine
             if (e.Handled)
                 break;
         }
+
     }
 
     void Application::Run()

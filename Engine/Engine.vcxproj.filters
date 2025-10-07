@@ -129,6 +129,9 @@
     <ClCompile Include="src\LayerSystem\Layers\LayerUI.cpp">
       <Filter>LayerSystem\Layers</Filter>
     </ClCompile>
+    <ClCompile Include="src\UI\UI.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
     <ClCompile Include="src\Window\Window.cpp">
       <Filter>Window</Filter>
     </ClCompile>
