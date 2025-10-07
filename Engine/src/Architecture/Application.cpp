@@ -1,4 +1,5 @@
 #include "Application.h"
+#include "Scripting/Scripting.h"
 
 namespace IonixEngine {
     Application* Application::s_Instance = nullptr;
