@@ -22,6 +22,7 @@ namespace IonixEngine
         //AddLayer(layerUI);
 
         Test* test = new Test();
+
     }
 
     Application::~Application() 
@@ -43,6 +44,8 @@ namespace IonixEngine
     {
         m_Running = true;
 
+        Scripting::Get().CallHook("OnStart");
+
         while (m_Running)
         {
             for (auto layer : m_LayerStack.GetLayers())
@@ -50,6 +53,8 @@ namespace IonixEngine
                 if(layer)
                     layer->OnUpdate();
             }
+
+            Scripting::Get().CallHook("OnUpdate");
 
             m_Window->OnUpdate();
         }

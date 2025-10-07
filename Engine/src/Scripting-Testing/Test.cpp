@@ -4,7 +4,7 @@ namespace IonixEngine
 
 	Test::Test() {
 		Scripting::Get().Init();
-		Scripting::Get().ExecuteScript("test.lua");
+		Scripting::Get().GetLuaState().script_file("settings.lua");
 	};
 
 }
