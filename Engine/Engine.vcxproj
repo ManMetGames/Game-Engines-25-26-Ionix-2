@@ -68,8 +68,9 @@
     <ClInclude Include="src\LayerSystem\Layer.h" />
     <ClInclude Include="src\LayerSystem\LayerStack.h" />
     <ClInclude Include="src\LayerSystem\Layers\LayerEditor.h" />
-    <ClInclude Include="src\Maf\MafUtils.h" />
+    <ClInclude Include="src\LayerSystem\Layers\LayerFysics.h" />
     <ClInclude Include="src\LayerSystem\Layers\LayerUI.h" />
+    <ClInclude Include="src\Maf\MafUtils.h" />
     <ClInclude Include="src\UI\UI.h" />
     <ClInclude Include="src\Window\Window.h" />
     <ClInclude Include="src\third-party\ImGuiRenderer.h" />
@@ -80,6 +81,7 @@
     <ClCompile Include="src\EventSystem\EventSDL.cpp" />
     <ClCompile Include="src\LayerSystem\LayerStack.cpp" />
     <ClCompile Include="src\LayerSystem\Layers\LayerEditor.cpp" />
+    <ClCompile Include="src\LayerSystem\Layers\LayerFysics.cpp" />
     <ClCompile Include="src\LayerSystem\Layers\LayerUI.cpp" />
     <ClCompile Include="src\Window\Window.cpp" />
     <ClCompile Include="src\third-party\ImGuiRenderer.cpp" />
