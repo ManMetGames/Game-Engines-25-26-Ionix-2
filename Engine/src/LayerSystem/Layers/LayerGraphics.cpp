@@ -14,8 +14,8 @@ namespace IonixEngine
 
     void LayerGraphics::OnUpdate() 
     {
-        Sprite sprite1 = Sprite("aur naur.jpg", Application::Get().GetWindow().GetSdlRenderer());
-        sprite1.draw("aur naur.jpg");
+        Sprite sprite1 = Sprite("aur naur.jpg");
+        sprite1.draw(150,0,250,200);
     }
 
     void LayerGraphics::OnEvent(IonixEvent& e) {}

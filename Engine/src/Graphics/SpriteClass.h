@@ -2,6 +2,7 @@
 #include "SDL.h"
 #include "SDL_image.h"
 #include <iostream>
+
 using namespace std;
 
 namespace IonixEngine
@@ -9,14 +10,13 @@ namespace IonixEngine
 	class Sprite
 	{
 	public:
-		const string *texture;
-		const char *file;
+		const char *fileName;
 		SDL_Texture* img;
 		SDL_Renderer* rend;
 		SDL_Window* win;
-		Sprite(const char *file, SDL_Renderer* renderer);
+		Sprite(const char *file);
 
-		void draw(const char* file);
+		void draw(const int x, const int y, const int w, const int h);
 		void changeSize();
 		void move();
 		void changeTexture(const char* file, SDL_Renderer* renderer);
@@ -35,6 +35,7 @@ namespace IonixEngine
 
 		int xPosition;
 		int yPosition;
+
 
 		// order variable?
 

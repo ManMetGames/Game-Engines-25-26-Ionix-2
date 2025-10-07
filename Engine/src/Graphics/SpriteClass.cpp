@@ -5,10 +5,10 @@
 namespace IonixEngine
 {
 
-	Sprite::Sprite(const char *file, SDL_Renderer* renderer)
+	Sprite::Sprite(const char *file)
 	{
 		rend = Application::Get().GetWindow().GetSdlRenderer();
-
+		fileName = file;
 	}
 	void Sprite::changeTexture(const char *file, SDL_Renderer* renderer)
 	{
@@ -16,7 +16,7 @@ namespace IonixEngine
 		//img = IMG_LoadTexture(renderer, file);
 	}
 
-	void Sprite::draw(const char* fileName) {
+	void Sprite::draw(const int x, const int y, const int w, const int h) {
 
 		// code for rendering an image
 		// to get working in OnUpdate:
@@ -25,10 +25,10 @@ namespace IonixEngine
 		// replace img with file path
 		img = IMG_LoadTexture(Application::Get().GetWindow().GetSdlRenderer(), fileName);
 		SDL_Rect texr;
-		texr.x = 0;
-		texr.y = 0;
-		texr.w = 800;
-		texr.h = 600;
+		texr.x = x;
+		texr.y = y;
+		texr.w = w;
+		texr.h = h;
 
 
 
