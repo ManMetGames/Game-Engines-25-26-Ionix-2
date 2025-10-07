@@ -55,7 +55,10 @@
     <ClInclude Include="src\LayerSystem\Layers\LayerUI.h">
       <Filter>LayerSystem\Layers</Filter>
     </ClInclude>
-    <ClInclude Include="src\Maf\UI.h">
+    <ClInclude Include="src\Maf\Log.h">
+      <Filter>Maf</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Maf\Rad2Deg.h">
       <Filter>Maf</Filter>
     </ClInclude>
     <ClInclude Include="src\UI\UI.h">

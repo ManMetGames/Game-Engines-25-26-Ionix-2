@@ -4,6 +4,8 @@
 #include "LayerSystem/LayerStack.h"
 #include "LayerSystem/Layers/LayerEditor.h"
 #include "LayerSystem/Layers/LayerUI.h"
+#include "Maf/Log.h"
+#include "Maf/Rad2Deg.h"
 
 namespace IonixEngine
 {    

@@ -2,11 +2,8 @@
 #include <cmath>
 #include <algorithm>
 
-namespace Math
+namespace Maf
 {
-    class Mathf
-    {
-     public:
         
         static inline float Log(float value)
         {
@@ -29,7 +26,6 @@ namespace Math
             value = std::max(value, 1e-37f);
             return std::log10(value);
         }
-    };
 }
 
 
