@@ -30,6 +30,9 @@ namespace IonixEngine
         layerGraphics = new LayerGraphics();
         AddLayer(layerGraphics);
 
+        layerSound = new LayerSound();
+        AddLayer(layerSound);
+
         Scripting::Get().Init();
         Scripting::Get().GetLuaState().script_file("Scripts/settings.lua");
     }

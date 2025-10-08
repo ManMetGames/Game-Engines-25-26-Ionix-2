@@ -68,12 +68,15 @@
     <ClInclude Include="src\EngineIncludes.h" />
     <ClInclude Include="src\EventSystem\Event.h" />
     <ClInclude Include="src\EventSystem\EventSDL.h" />
+    <ClInclude Include="src\Fysics\Fysics.h" />
     <ClInclude Include="src\Graphics\SpriteClass.h" />
     <ClInclude Include="src\Graphics\SpriteSorting.h" />
     <ClInclude Include="src\LayerSystem\Layer.h" />
     <ClInclude Include="src\LayerSystem\LayerStack.h" />
     <ClInclude Include="src\LayerSystem\Layers\LayerEditor.h" />
+    <ClInclude Include="src\LayerSystem\Layers\LayerFysics.h" />
     <ClInclude Include="src\LayerSystem\Layers\LayerGraphics.h" />
+    <ClInclude Include="src\LayerSystem\Layers\LayerSound.h" />
     <ClInclude Include="src\LayerSystem\Layers\LayerUI.h" />
     <ClInclude Include="src\LayerSystem\Layers\SceneLayer.h" />
     <ClInclude Include="src\Maf\MafUtils.h" />
@@ -94,7 +97,9 @@
     <ClCompile Include="src\Graphics\SpriteSorting.cpp" />
     <ClCompile Include="src\LayerSystem\LayerStack.cpp" />
     <ClCompile Include="src\LayerSystem\Layers\LayerEditor.cpp" />
+    <ClCompile Include="src\LayerSystem\Layers\LayerFysics.cpp" />
     <ClCompile Include="src\LayerSystem\Layers\LayerGraphics.cpp" />
+    <ClCompile Include="src\LayerSystem\Layers\LayerSound.cpp" />
     <ClCompile Include="src\LayerSystem\Layers\LayerUI.cpp" />
     <ClCompile Include="src\LayerSystem\Layers\SceneLayer.cpp" />
     <ClCompile Include="src\Scripting\Scripting.cpp" />

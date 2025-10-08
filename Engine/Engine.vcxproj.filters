@@ -13,6 +13,9 @@
     <Filter Include="EventSystem">
       <UniqueIdentifier>{CCE875DF-389E-EED4-C192-E8AB2D47E5D8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Fysics">
+      <UniqueIdentifier>{3691F6B3-2233-218A-0BEE-34DEF72EA8DA}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Graphics">
       <UniqueIdentifier>{1653CE33-0220-293F-2B39-17E717655ECD}</UniqueIdentifier>
     </Filter>
@@ -64,6 +67,9 @@
     <ClInclude Include="src\EventSystem\EventSDL.h">
       <Filter>EventSystem</Filter>
     </ClInclude>
+    <ClInclude Include="src\Fysics\Fysics.h">
+      <Filter>Fysics</Filter>
+    </ClInclude>
     <ClInclude Include="src\Graphics\SpriteClass.h">
       <Filter>Graphics</Filter>
     </ClInclude>
@@ -79,7 +85,13 @@
     <ClInclude Include="src\LayerSystem\Layers\LayerEditor.h">
       <Filter>LayerSystem\Layers</Filter>
     </ClInclude>
+    <ClInclude Include="src\LayerSystem\Layers\LayerFysics.h">
+      <Filter>LayerSystem\Layers</Filter>
+    </ClInclude>
     <ClInclude Include="src\LayerSystem\Layers\LayerGraphics.h">
+      <Filter>LayerSystem\Layers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LayerSystem\Layers\LayerSound.h">
       <Filter>LayerSystem\Layers</Filter>
     </ClInclude>
     <ClInclude Include="src\LayerSystem\Layers\LayerUI.h">
@@ -138,7 +150,13 @@
     <ClCompile Include="src\LayerSystem\Layers\LayerEditor.cpp">
       <Filter>LayerSystem\Layers</Filter>
     </ClCompile>
+    <ClCompile Include="src\LayerSystem\Layers\LayerFysics.cpp">
+      <Filter>LayerSystem\Layers</Filter>
+    </ClCompile>
     <ClCompile Include="src\LayerSystem\Layers\LayerGraphics.cpp">
+      <Filter>LayerSystem\Layers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LayerSystem\Layers\LayerSound.cpp">
       <Filter>LayerSystem\Layers</Filter>
     </ClCompile>
     <ClCompile Include="src\LayerSystem\Layers\LayerUI.cpp">
