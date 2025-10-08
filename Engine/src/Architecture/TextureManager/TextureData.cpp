@@ -23,7 +23,7 @@ namespace IonixEngine
 		}
 	}
 
-	SDL_Texture* TextureData::getTexture()
+	SDL_Texture* TextureData::GetTexture()
 	{
 		return texture;
 	}

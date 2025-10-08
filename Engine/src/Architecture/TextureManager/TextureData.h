@@ -25,7 +25,7 @@ namespace IonixEngine
 	public:
 		TextureData(SDL_Renderer* renderer,std::string assetPath);
 		TextureData();
-		SDL_Texture* getTexture();
+		SDL_Texture* GetTexture();
 		inline bool IsValid() { return texture != nullptr; }
 	};
 }

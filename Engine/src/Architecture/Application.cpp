@@ -1,6 +1,4 @@
 #include "Application.h"
-#include "TextureManager\TextureManager.h"
-#include "TextureManager\TextureData.h"
 
 namespace IonixEngine {
     Application* Application::s_Instance = nullptr;
@@ -22,8 +20,6 @@ namespace IonixEngine
         layerUI = new LayerUI();
         AddLayer(layerUI);
 
-        IMG_Init(IMG_INIT_PNG);
-        TextureManager().get().AddTexture("fuck.png","fuck");
     }
 
     Application::~Application() 

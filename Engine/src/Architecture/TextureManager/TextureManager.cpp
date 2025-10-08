@@ -10,7 +10,7 @@ namespace IonixEngine
 		renderer = Application::Get().GetWindow().GetSdlRenderer();
 		errorTexture = TextureData(renderer, "debug.png");
 	}
-	size_t TextureManager::stringToHash(std::string filepath)
+	size_t TextureManager::StringToHash(std::string filepath)
 	{
 		size_t hash = std::hash<std::string>{}(filepath);
 		return hash;
@@ -18,7 +18,7 @@ namespace IonixEngine
 
 	void TextureManager::AddTexture(std::string filepath,std::string alias)
 	{
-		size_t hashName = stringToHash(alias);
+		size_t hashName = StringToHash(alias);
 		TextureData texture = TextureData(renderer, filepath);
 		if (texture.IsValid()) {
 			textureDict[hashName] = texture;
@@ -26,7 +26,7 @@ namespace IonixEngine
 	}
 	TextureData& TextureManager::GetTexture(std::string alias)
 	{
-		auto texture = textureDict.find(TextureManager::stringToHash(alias));
+		auto texture = textureDict.find(TextureManager::StringToHash(alias));
 		if (texture != textureDict.end())
 		{
 			return texture->second;
