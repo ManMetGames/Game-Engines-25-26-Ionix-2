@@ -63,8 +63,7 @@
     <ClInclude Include="src\Architecture\AudioSystem\AudioData.h" />
     <ClInclude Include="src\Architecture\AudioSystem\SoundManager.h" />
     <ClInclude Include="src\Architecture\Macros.h" />
-    <ClInclude Include="src\Architecture\Scene\Scene.h" />
-    <ClInclude Include="src\Architecture\Scene\SceneLayer.h" />
+    <ClInclude Include="src\Architecture\Scene.h" />
     <ClInclude Include="src\Architecture\main.h" />
     <ClInclude Include="src\EngineIncludes.h" />
     <ClInclude Include="src\EventSystem\Event.h" />
@@ -75,6 +74,7 @@
     <ClInclude Include="src\LayerSystem\Layers\LayerEditor.h" />
     <ClInclude Include="src\LayerSystem\Layers\LayerFysics.h" />
     <ClInclude Include="src\LayerSystem\Layers\LayerUI.h" />
+    <ClInclude Include="src\LayerSystem\Layers\SceneLayer.h" />
     <ClInclude Include="src\Maf\MafUtils.h" />
     <ClInclude Include="src\UI\UI.h" />
     <ClInclude Include="src\Window\Window.h" />
@@ -83,15 +83,16 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Architecture\Application.cpp" />
+    <ClCompile Include="src\Architecture\AudioSystem\SoundManager.cpp" />
     <ClCompile Include="src\Architecture\ECS\Component.cpp" />
     <ClCompile Include="src\Architecture\ECS\ECS_Test.cpp" />
     <ClCompile Include="src\Architecture\ECS\Entity.cpp" />
-    <ClCompile Include="src\Architecture\Scene\SceneLayer.cpp" />
     <ClCompile Include="src\EventSystem\EventSDL.cpp" />
     <ClCompile Include="src\LayerSystem\LayerStack.cpp" />
     <ClCompile Include="src\LayerSystem\Layers\LayerEditor.cpp" />
     <ClCompile Include="src\LayerSystem\Layers\LayerFysics.cpp" />
     <ClCompile Include="src\LayerSystem\Layers\LayerUI.cpp" />
+    <ClCompile Include="src\LayerSystem\Layers\SceneLayer.cpp" />
     <ClCompile Include="src\Window\Window.cpp" />
     <ClCompile Include="src\third-party\ImGuiRenderer.cpp" />
     <ClCompile Include="src\third-party\imgui_impl_sdlrenderer2.cpp" />
