@@ -61,6 +61,8 @@
   <ItemGroup>
     <ClInclude Include="src\Architecture\Application.h" />
     <ClInclude Include="src\Architecture\Macros.h" />
+    <ClInclude Include="src\Architecture\TextureManager\TextureData.h" />
+    <ClInclude Include="src\Architecture\TextureManager\TextureManager.h" />
     <ClInclude Include="src\Architecture\main.h" />
     <ClInclude Include="src\EngineIncludes.h" />
     <ClInclude Include="src\EventSystem\Event.h" />
@@ -76,6 +78,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Architecture\Application.cpp" />
+    <ClCompile Include="src\Architecture\TextureManager\TextureData.cpp" />
+    <ClCompile Include="src\Architecture\TextureManager\TextureManager.cpp" />
     <ClCompile Include="src\EventSystem\EventSDL.cpp" />
     <ClCompile Include="src\LayerSystem\LayerStack.cpp" />
     <ClCompile Include="src\LayerSystem\Layers\LayerEditor.cpp" />
