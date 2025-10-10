@@ -10,7 +10,6 @@ namespace IonixEngine
     class SoundManager 
     {
     public:
-        
         static SoundManager& GetInstance();
 
         // just for testing for now maybe
