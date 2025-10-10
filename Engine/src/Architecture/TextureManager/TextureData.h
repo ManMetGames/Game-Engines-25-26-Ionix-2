@@ -1,17 +1,10 @@
 #include <string>
 #include <SDL.h>
 #include <SDL_image.h>
+#include "Architecture/ECS/Temp_Vec2.hpp"
 #pragma once
 
-
-//extern DECLSPEC SDL_Surface* SDLCALL SDL_CreateRGBSurface
-//(Uint32 flags, int width, int height, int depth,
-//	Uint32 Rmask, Uint32 Gmask, Uint32 Bmask, Uint32 Amask);
-
-//make texturedata class, store useful data - assetpath
-// nicknames
-//find out how to do sdl textures, then match
-//class owns it's data
+//texturedata class, owns it's data
 namespace IonixEngine
 {
 	class TextureData
@@ -26,6 +19,7 @@ namespace IonixEngine
 		TextureData(SDL_Renderer* renderer,std::string assetPath);
 		TextureData();
 		SDL_Texture* GetTexture();
+		Vec2 GetDimensions();
 		inline bool IsValid() { return texture != nullptr; }
 	};
 }
