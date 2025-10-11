@@ -3,8 +3,11 @@
 #include <type_traits>
 #include <vector>
 
-Entity::Entity(Vec2 position) : 
-    position(position), 
+namespace IonixEngine {
+
+Entity::Entity(EntityID id) : 
+    id(id),
+    position(Vec2 { 0, 0 }), 
     zOrder(0), 
     rotation(0), 
     remove(false)
@@ -41,4 +44,5 @@ void Entity::Destroy(Scene* scene) {
         component->Destroy();
     }
     remove = true; // Mark for removal
+}
 }

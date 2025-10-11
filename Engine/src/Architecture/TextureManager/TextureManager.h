@@ -18,6 +18,8 @@ namespace IonixEngine
 		void AddTexture(std::string filepath,std::string alias);
 		TextureData& GetTexture(std::string alias);
 		TextureData& GetTexture(size_t hash);
+		void Init();
+		void Shutdown();
 		static TextureManager& Get()
 		{
 			static TextureManager instance;

@@ -16,8 +16,9 @@ namespace IonixEngine
 		SDL_Texture* texture = nullptr;
 
 	public:
-		TextureData(SDL_Renderer* renderer,std::string assetPath);
 		TextureData();
+		~TextureData();
+		void SetData(SDL_Texture* texture, std::string assetPath);
 		SDL_Texture* GetTexture();
 		Vec2 GetDimensions();
 		inline bool IsValid() { return texture != nullptr; }
