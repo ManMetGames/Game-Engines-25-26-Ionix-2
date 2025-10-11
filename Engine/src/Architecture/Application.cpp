@@ -1,4 +1,5 @@
 #include "Application.h"
+#include <chrono>
 
 
 namespace IonixEngine {
@@ -52,18 +53,46 @@ namespace IonixEngine
     void Application::Run()
     {
         m_Running = true;
-#
+
         Scripting::Get().CallHook("OnStart");
+
+        double t = 0.0;
+        const double dt = 1.0 / 60.0;
+
+        double currentTime = GetTimeSeconds();
+        double accumulator = 0.0;
 
         while (m_Running)
         {
+            double newTime = GetTimeSeconds();
+            double frameTime = newTime - currentTime;
+
+            currentTime = newTime;
+            accumulator += frameTime;
+
+            while (accumulator >= dt)
+            {
+
+
+                //Scripting::Get().CallHook("OnUpdate");
+                t += dt;
+                accumulator -= dt;
+            }
             for (auto layer : m_LayerStack.GetLayers())
             {
-                if(layer)
+                if (layer)
                     layer->OnUpdate();
             }
-            Scripting::Get().CallHook("OnUpdate");
             m_Window->OnUpdate();
         }
+    }
+
+    double Application::GetTimeSeconds()
+    {
+        using namespace std::chrono;
+        static auto start = high_resolution_clock::now();
+        auto now = high_resolution_clock::now();
+        duration<double> elapsed = now - start;
+        return elapsed.count();
     }
 }

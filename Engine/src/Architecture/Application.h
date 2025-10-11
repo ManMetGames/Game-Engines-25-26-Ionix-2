@@ -27,6 +27,7 @@ namespace IonixEngine
 
         void Run();
         void OnEvent(IonixEvent& e);
+        double GetTimeSeconds();
         
         inline Layer* AddLayer(Layer* layer) 
         {   
