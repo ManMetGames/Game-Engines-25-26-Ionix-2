@@ -1,4 +1,5 @@
 #include "SoundManager.h"
+#include "SDL_stdinc.h"
 #include <SDL_mixer.h> // i think this is right I cant tell.
 #include <iostream>
 
@@ -10,15 +11,13 @@ SoundManager &SoundManager::GetInstance() {
   return instance;
 }
 
-bool SoundManager::Init(int freq, SDL_AudioFormat format, int channels,
-                        int chunksize) {
+bool SoundManager::Init(int freq, SDL_AudioFormat format, int channels, int chunksize) {
   SDL_AudioSpec desiredSpec{};
   desiredSpec.freq = freq;
   desiredSpec.format = format;
   desiredSpec.channels = channels;
   desiredSpec.samples = chunksize;
-  desiredSpec.callback =
-      nullptr; // this is the callback, it might need changing one day.
+  desiredSpec.callback = nullptr; // this is the callback, it might need changing one day.
 
   m_Device = SDL_OpenAudioDevice(nullptr, 0, &desiredSpec, &m_DeviceSpec, 0);
   if (!m_Device) {
@@ -67,11 +66,7 @@ void SoundManager::PlaySound(const std::string &name, int loops) {
 }
 
 void SoundManager::SetVolume(const std::string &name, float volume) {
-  if (volume < 0.0f)
-    volume = 0.0f;
-  if (volume > 1.0f)
-    volume = 1.0f;
-  m_Volumes[name] = volume;
+  m_Volumes[name] = SDL_clamp(volume, 0, 1);
   // does not play the sound; volume applies to future 'PlaySound' calls
 }
 
