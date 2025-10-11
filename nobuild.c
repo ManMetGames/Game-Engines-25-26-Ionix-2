@@ -1,7 +1,7 @@
 #define NOB_IMPLEMENTATION
 #include "nobuild.h"
 
-#ifdef WIN32
+#ifdef _WIN32
 bool is_windows = true;
 #else
 bool is_windows = false;
@@ -19,6 +19,8 @@ int main(int argc, char* argv[]) {
     NOB_GO_REBUILD_URSELF(argc, argv);
 
     nob_mkdir_if_not_exists("build/");
+    nob_mkdir_if_not_exists("build/Engine/");
+    nob_mkdir_if_not_exists("build/Client/");
 
     Nob_File_Paths engineSourceFiles = { 0 };
     Nob_File_Paths engineHeaderFiles = { 0 };
@@ -27,6 +29,23 @@ int main(int argc, char* argv[]) {
 
     get_sources("./Engine/src/", &engineSourceFiles, &engineHeaderFiles);
     get_sources("./Client/src/", &clientSourceFiles, &clientHeaderFiles);
+
+    const char* version = "-std=c++17";
+
+    Nob_Cmd cmd = { 0 };
+    for (size_t i = 0; i < engineSourceFiles.count; i++) {
+        nob_log(NOB_INFO, "[Engine Source] %s", engineSourceFiles.items[i]);
+        cmd.count = 0;
+        nob_cmd_append(&cmd, "clang++");
+        nob_cmd_append(&cmd, "-c");
+        nob_cmd_append(&cmd, engineSourceFiles.items[i]);
+        nob_cc_output(&cmd, nob_temp_sprintf("./build/Engine/%zu.o", i));
+        // nob_cmd_append(&cmd, engineHeaderFiles.items);
+    }
+
+    for (size_t i = 0; i < engineHeaderFiles.count; i++) {
+        nob_log(NOB_INFO, "[Engine Header] %s", engineHeaderFiles.items[i]);
+    }
 };
 
 void get_sources(const char* path, Nob_File_Paths* source, Nob_File_Paths* header) {
@@ -34,7 +53,8 @@ void get_sources(const char* path, Nob_File_Paths* source, Nob_File_Paths* heade
     nob_read_entire_dir(path, &files);
     for (size_t i = 0; i < files.count; i++) {
         const char* file_path = nob_temp_sprintf("%s%s", path, files.items[i]);
-
+        if (strcmp(files.items[i], ".") == 0) { continue; }
+        if (strcmp(files.items[i], "..") == 0) { continue; }
         if (nob_get_file_type(file_path) == NOB_FILE_DIRECTORY) {
             get_sources(nob_temp_sprintf("%s/", file_path), source, header);
         }
@@ -45,4 +65,5 @@ void get_sources(const char* path, Nob_File_Paths* source, Nob_File_Paths* heade
             nob_da_append(source, file_path);
         }
     }
+    nob_da_free(files);
 }
