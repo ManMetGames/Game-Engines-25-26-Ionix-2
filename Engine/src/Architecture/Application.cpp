@@ -23,6 +23,9 @@ namespace IonixEngine
         layerFysics = new LayerFysics();
         AddLayer(layerFysics);
 
+        layerSound = new LayerSound();
+        AddLayer(layerSound);
+
         layerUI = new LayerUI();
         AddLayer(layerUI);
 

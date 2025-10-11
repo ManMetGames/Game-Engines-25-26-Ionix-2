@@ -10,6 +10,8 @@
 #include "LayerSystem/Layers/LayerGraphics.h"
 #include "LayerSystem/Layers/SceneLayer.h"
 #include "LayerSystem/Layers/LayerFysics.h"
+#include "LayerSystem/Layers/LayerSound.h"
+
 // #include "Scripting/Scripting.h"
 
 namespace IonixEngine
@@ -43,6 +45,7 @@ namespace IonixEngine
         LayerGraphics* layerGraphics;
         LayerTexture* layerTexture;
         LayerFysics* layerFysics;
+        LayerSound* layerSound;
 
     private:
         static Application* s_Instance;

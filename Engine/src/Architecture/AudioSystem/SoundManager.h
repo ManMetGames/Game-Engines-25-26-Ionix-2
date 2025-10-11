@@ -10,12 +10,10 @@ namespace IonixEngine
     class SoundManager 
     {
     public:
-        
         static SoundManager& GetInstance();
 
         // just for testing for now maybe
-        bool Init(int freq = 44100, SDL_AudioFormat format = AUDIO_F32SYS,
-            int channels = 2, int chunksize = 4096);
+        bool Init(int freq = 44100, SDL_AudioFormat format = AUDIO_F32SYS, int channels = 2, int chunksize = 4096);
         void Shutdown();
 
         bool LoadSound(const std::string& name, const std::string& filePath);
