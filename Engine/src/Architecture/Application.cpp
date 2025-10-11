@@ -31,7 +31,7 @@ namespace IonixEngine
         AddLayer(layerGraphics);
 
         Scripting::Get().Init();
-        Scripting::Get().GetLuaState().script_file("Scripts/settings.lua");
+        //Scripting::Get().GetLuaState().script_file("Scripts/settings.lua");
     }
 
     Application::~Application() 
@@ -52,8 +52,8 @@ namespace IonixEngine
     void Application::Run()
     {
         m_Running = true;
-#
-        Scripting::Get().CallHook("OnStart");
+
+        //Scripting::Get().CallHook("OnStart");
 
         while (m_Running)
         {
@@ -62,7 +62,7 @@ namespace IonixEngine
                 if(layer)
                     layer->OnUpdate();
             }
-            Scripting::Get().CallHook("OnUpdate");
+            // Scripting::Get().CallHook("OnUpdate");
             m_Window->OnUpdate();
         }
     }

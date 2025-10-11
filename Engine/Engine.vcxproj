@@ -63,7 +63,8 @@
     <ClInclude Include="src\Architecture\AudioSystem\AudioData.h" />
     <ClInclude Include="src\Architecture\AudioSystem\SoundManager.h" />
     <ClInclude Include="src\Architecture\Macros.h" />
-    <ClInclude Include="src\Architecture\Scene.h" />
+    <ClInclude Include="src\Architecture\TextureManager\TextureData.h" />
+    <ClInclude Include="src\Architecture\TextureManager\TextureManager.h" />
     <ClInclude Include="src\Architecture\main.h" />
     <ClInclude Include="src\EngineIncludes.h" />
     <ClInclude Include="src\EventSystem\Event.h" />
@@ -85,10 +86,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Architecture\Application.cpp" />
-    <ClCompile Include="src\Architecture\AudioSystem\SoundManager.cpp" />
-    <ClCompile Include="src\Architecture\ECS\Component.cpp" />
-    <ClCompile Include="src\Architecture\ECS\ECS_Test.cpp" />
-    <ClCompile Include="src\Architecture\ECS\Entity.cpp" />
+    <ClCompile Include="src\Architecture\TextureManager\TextureData.cpp" />
+    <ClCompile Include="src\Architecture\TextureManager\TextureManager.cpp" />
     <ClCompile Include="src\EventSystem\EventSDL.cpp" />
     <ClCompile Include="src\Graphics\SpriteClass.cpp" />
     <ClCompile Include="src\Graphics\SpriteSorting.cpp" />

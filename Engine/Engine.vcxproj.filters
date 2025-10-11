@@ -4,11 +4,16 @@
     <Filter Include="Architecture">
       <UniqueIdentifier>{282F98C7-1492-276C-BD17-6022A959F3EE}</UniqueIdentifier>
     </Filter>
+<<<<<<< HEAD
     <Filter Include="Architecture\AudioSystem">
       <UniqueIdentifier>{8E41C409-7A66-138A-A3B1-F8198F3512A8}</UniqueIdentifier>
     </Filter>
     <Filter Include="Architecture\ECS">
       <UniqueIdentifier>{72770629-5E70-257B-87A2-0A0073FA0487}</UniqueIdentifier>
+=======
+    <Filter Include="Architecture\TextureManager">
+      <UniqueIdentifier>{63BA5C2A-CFC7-8A10-58AE-86FBC4BA56C7}</UniqueIdentifier>
+>>>>>>> a5e967c538b3daca58b304a6643e13c7299e46a5
     </Filter>
     <Filter Include="EventSystem">
       <UniqueIdentifier>{CCE875DF-389E-EED4-C192-E8AB2D47E5D8}</UniqueIdentifier>
@@ -51,8 +56,16 @@
     <ClInclude Include="src\Architecture\Macros.h">
       <Filter>Architecture</Filter>
     </ClInclude>
+<<<<<<< HEAD
     <ClInclude Include="src\Architecture\Scene.h">
       <Filter>Architecture</Filter>
+=======
+    <ClInclude Include="src\Architecture\TextureManager\TextureData.h">
+      <Filter>Architecture\TextureManager</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Architecture\TextureManager\TextureManager.h">
+      <Filter>Architecture\TextureManager</Filter>
+>>>>>>> a5e967c538b3daca58b304a6643e13c7299e46a5
     </ClInclude>
     <ClInclude Include="src\Architecture\main.h">
       <Filter>Architecture</Filter>
@@ -111,6 +124,7 @@
     <ClCompile Include="src\Architecture\Application.cpp">
       <Filter>Architecture</Filter>
     </ClCompile>
+<<<<<<< HEAD
     <ClCompile Include="src\Architecture\AudioSystem\SoundManager.cpp">
       <Filter>Architecture\AudioSystem</Filter>
     </ClCompile>
@@ -122,6 +136,13 @@
     </ClCompile>
     <ClCompile Include="src\Architecture\ECS\Entity.cpp">
       <Filter>Architecture\ECS</Filter>
+=======
+    <ClCompile Include="src\Architecture\TextureManager\TextureData.cpp">
+      <Filter>Architecture\TextureManager</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Architecture\TextureManager\TextureManager.cpp">
+      <Filter>Architecture\TextureManager</Filter>
+>>>>>>> a5e967c538b3daca58b304a6643e13c7299e46a5
     </ClCompile>
     <ClCompile Include="src\EventSystem\EventSDL.cpp">
       <Filter>EventSystem</Filter>

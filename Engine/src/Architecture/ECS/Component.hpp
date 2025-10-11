@@ -4,6 +4,7 @@
 class Entity;
 
 class RenderData {
+public:
     SDL_Renderer* renderer;
 };
 
