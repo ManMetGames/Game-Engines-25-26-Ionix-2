@@ -20,6 +20,8 @@ namespace IonixEngine
         layerUI = new LayerUI();
         AddLayer(layerUI);
 
+        layerTexture = new LayerTexture();
+        AddLayer(layerTexture);
     }
 
     Application::~Application() 

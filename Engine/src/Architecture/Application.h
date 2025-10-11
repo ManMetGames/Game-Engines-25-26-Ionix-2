@@ -4,6 +4,7 @@
 #include "LayerSystem/LayerStack.h"
 #include "LayerSystem/Layers/LayerEditor.h"
 #include "LayerSystem/Layers/LayerUI.h"
+#include "LayerSystem/Layers/LayerTexture.h"
 
 namespace IonixEngine
 {    
@@ -32,6 +33,7 @@ namespace IonixEngine
 
         LayerEditor* layerEditor;
         LayerUI* layerUI;
+        LayerTexture* layerTexture;
 
     private:
         static Application* s_Instance;
