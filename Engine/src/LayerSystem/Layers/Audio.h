@@ -3,7 +3,6 @@
 #include "UI/UI.h"
 #include "../SDL/SDL2_mixer-2.8.0/include/SDL_mixer.h"
 
-
 namespace IonixEngine
 {
     class Audio
