@@ -21,7 +21,8 @@ namespace IonixEngine
         AddLayer(layerUI);
 
         m_Audio = new Audio();
-        m_Audio->PlayAudio("Assets/Audio/music_test.mp3", -1);
+        m_Audio->PlayAudio("Assets/Audio/music_test.mp3", 1);
+        m_Audio->ChangeVolume(m_Audio->volume);
     }
 
     Application::~Application() 
