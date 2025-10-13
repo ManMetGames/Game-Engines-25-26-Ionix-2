@@ -161,11 +161,13 @@ void get_libs(Nob_File_Paths* clientInclude, Nob_File_Paths* engineInclude, Nob_
 
         nob_da_append(os_libs, "-lmsvcrt");
     } else {
-        multi_da_append(clientLibs, engineLibs, "-llua");
+        multi_da_append(clientLibs, engineLibs, "-llua54");
         multi_da_append(clientLibs, engineLibs, "-lSDL2_ttf");
         multi_da_append(clientLibs, engineLibs, "-lSDL2_image");
+        multi_da_append(clientLibs, engineLibs, "-lSDL2_mixer");
         multi_da_append(clientLibs, engineLibs, "-lbox2d");
         multi_da_append(clientLibs, engineLibs, "-lSDL2");
+        multi_da_append(clientLibs, engineLibs, "-limgui");
     }
 }
 
