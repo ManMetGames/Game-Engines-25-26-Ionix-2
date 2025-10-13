@@ -20,9 +20,11 @@ const char* basename(const char* path);
 
 int main(int argc, char* argv[]) {
 
+    #ifdef _WIN32
     #ifndef __clang__
     nob_log(NOB_ERROR, "Clang not found, please rebuild nobuild with clang...");
     return -1;
+    #endif
     #endif
 
     NOB_GO_REBUILD_URSELF(argc, argv);
@@ -43,6 +45,8 @@ int main(int argc, char* argv[]) {
     Nob_File_Paths os_flags = { 0 };
     if (is_windows) nob_da_append(&os_flags, "-fms-runtime-lib=dll");
     if (is_windows) nob_da_append(&os_flags, "-nostdlib");
+    if (!is_windows) { nob_da_append(&os_flags, "-fPIC"); }
+    if (!is_windows) nob_da_append(&os_flags, "-Wl,-rpath,.");
 
     get_sources("./Engine/src/", &engine_source_files, &engine_header_files, &engine_include);
     get_sources("./Client/src/", &client_source_files, &client_header_files, &client_include);
@@ -103,6 +107,13 @@ int main(int argc, char* argv[]) {
     nob_cmd_append(&cmd, "clang++");
     nob_cmd_append(&cmd, version);
     nob_da_append_many(&cmd, client_source_files.items, client_source_files.count);
+    nob_cmd_append(&cmd, "./dependencies/bin/imgui/backends/imgui_impl_sdl2.cpp");
+    nob_cmd_append(&cmd, "./dependencies/bin/imgui/backends/imgui_impl_opengl3.cpp");
+    nob_cmd_append(&cmd, "./dependencies/bin/imgui/imgui.cpp");
+    nob_cmd_append(&cmd, "./dependencies/bin/imgui/imgui_demo.cpp");
+    nob_cmd_append(&cmd, "./dependencies/bin/imgui/imgui_draw.cpp");
+    nob_cmd_append(&cmd, "./dependencies/bin/imgui/imgui_tables.cpp");
+    nob_cmd_append(&cmd, "./dependencies/bin/imgui/imgui_widgets.cpp");
     nob_cc_output(&cmd, exe);
     nob_da_append_many(&cmd, client_include.items, client_include.count);
     nob_da_append_many(&cmd, engine_include.items, engine_include.count);
@@ -134,13 +145,18 @@ void get_sources(const char* path, Nob_File_Paths* source, Nob_File_Paths* heade
 }
 
 void get_libs(Nob_File_Paths* clientInclude, Nob_File_Paths* engineInclude, Nob_File_Paths* clientLibs, Nob_File_Paths* engineLibs, Nob_File_Paths* os_libs) {
-    multi_da_append(clientInclude, engineInclude, "-I./dependencies/bin/lua/include/");
-    multi_da_append(clientInclude, engineInclude, "-I./dependencies/bin/SDL/SDL_TTF/include/");
-    multi_da_append(clientInclude, engineInclude, "-I./dependencies/bin/SDL/SDL2_Image/include/");
-    multi_da_append(clientInclude, engineInclude, "-I./dependencies/bin/SDL/SDL2-2.30.6/include/");
-    multi_da_append(clientInclude, engineInclude, "-I./dependencies/bin/SDL/SDL2_mixer-2.8.0/include/");
+    if (is_windows) {
+        multi_da_append(clientInclude, engineInclude, "-I./dependencies/bin/lua/include/");
+        multi_da_append(clientInclude, engineInclude, "-I./dependencies/bin/SDL/SDL_TTF/include/");
+        multi_da_append(clientInclude, engineInclude, "-I./dependencies/bin/SDL/SDL2_Image/include/");
+        multi_da_append(clientInclude, engineInclude, "-I./dependencies/bin/SDL/SDL2-2.30.6/include/");
+        multi_da_append(clientInclude, engineInclude, "-I./dependencies/bin/SDL/SDL2_mixer-2.8.0/include/");
+        multi_da_append(clientInclude, engineInclude, "-I./dependencies/bin/box2d/include/box2d/");
+    } else {
+        multi_da_append(clientInclude, engineInclude, "-I/usr/include/box2d/");
+        multi_da_append(clientInclude, engineInclude, "-I/usr/include/SDL2/");
+    }
     multi_da_append(clientInclude, engineInclude, "-I./dependencies/bin/sol2/include/");
-    multi_da_append(clientInclude, engineInclude, "-I./dependencies/bin/box2d/include/box2d/");
     multi_da_append(clientInclude, engineInclude, "-I./dependencies/bin/imgui/");
 
     if (is_windows) {
@@ -161,13 +177,12 @@ void get_libs(Nob_File_Paths* clientInclude, Nob_File_Paths* engineInclude, Nob_
 
         nob_da_append(os_libs, "-lmsvcrt");
     } else {
-        multi_da_append(clientLibs, engineLibs, "-llua54");
+        multi_da_append(clientLibs, engineLibs, "-llua");
         multi_da_append(clientLibs, engineLibs, "-lSDL2_ttf");
         multi_da_append(clientLibs, engineLibs, "-lSDL2_image");
         multi_da_append(clientLibs, engineLibs, "-lSDL2_mixer");
         multi_da_append(clientLibs, engineLibs, "-lbox2d");
         multi_da_append(clientLibs, engineLibs, "-lSDL2");
-        multi_da_append(clientLibs, engineLibs, "-limgui");
     }
 }
 
