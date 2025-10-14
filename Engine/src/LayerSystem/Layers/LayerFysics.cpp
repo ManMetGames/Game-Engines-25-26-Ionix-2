@@ -12,7 +12,15 @@ namespace IonixEngine
         //Set Gravity
         b2Vec2 gravity = b2Vec2(0.0f, -9.8f);
         //Create the world
-        b2World world(gravity);
+        world = new b2World(gravity);
+
+        //create default ground box
+        b2BodyDef groundDef; groundDef.position.Set(0.f, -1.f);
+        b2Body* ground = world->CreateBody(&groundDef);
+        b2PolygonShape g; g.SetAsBox(50.f, 1.f);
+        ground->CreateFixture(&g, 0.f);
+
+
     }
     void LayerFysics::OnDetach() 
     {
@@ -44,5 +52,16 @@ namespace IonixEngine
     b2Vec2 LayerFysics::GetGravity() const
     {
         return world ? world->GetGravity() : b2Vec2(0.f, 0.f);
+    }
+
+    b2Body* LayerFysics::CreateGroundBox(float x, float y, float hx, float hy, float angle, float friction, float restitution)
+    {
+        if (!world) return nullptr;
+        b2BodyDef def; def.position.Set(x, y);
+        b2Body* body = world->CreateBody(&def);
+        b2PolygonShape shape; shape.SetAsBox(hx, hy, b2Vec2(0.f, 0.f), angle);
+        b2FixtureDef fix; fix.shape = &shape; fix.density = 0.f; fix.friction = friction; fix.restitution = restitution;
+        body->CreateFixture(&fix);
+        return body;
     }
 }

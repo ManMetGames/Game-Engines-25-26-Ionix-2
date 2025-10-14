@@ -16,6 +16,8 @@ namespace IonixEngine
         virtual void SetGravity(float x, float y, bool wake = true);
         virtual b2Vec2 GetGravity() const;
 
+        b2Body* CreateGroundBox(float x = 0.f, float y = 0.f, float hx = 50.f, float hy = 1.f, float angle = 0.f, float friction = 0.6f, float restitution = 0.f);  
+
         b2World* GetWorld() const { return world; }
     private:
         b2World* world{ nullptr };
