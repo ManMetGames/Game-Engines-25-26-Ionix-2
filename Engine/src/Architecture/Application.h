@@ -12,6 +12,7 @@
 #include "LayerSystem/Layers/LayerFysics.h"
 #include "LayerSystem/Layers/LayerInput.h"
 #include"Scripting/Scripting.h"
+#include "Scripting/Audio/AudioScripting.h"
 #include "LayerSystem/Layers/LayerSound.h"
 
 namespace IonixEngine

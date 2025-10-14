@@ -23,11 +23,23 @@ namespace IonixEngine
 	}
 	void AudioScripting::RegisterAudioBindings()
 	{
-		auto loadSound = []()->std::string {
-			return SoundManager::LoadSound();
-			};
+		auto& lua = m_LuaState;
 
-		
+		SoundManager& soundManager = SoundManager::GetInstance();
+
+		lua["Audio"] = lua.create_table_with(
+			"load_sound", [](const std::string& name, const std::string& filePath) {
+				return SoundManager::GetInstance().LoadSound(name, filePath);
+			},
+			"play_sound", [](const std::string& name, int loops = 0) {
+				SoundManager::GetInstance().PlaySound(name, loops);
+			},
+			"set_volume", [](const std::string& name, float volume) {
+				SoundManager::GetInstance().SetVolume(name, volume);
+			}
+		);
+
+		std::cout << "[Lua] Audio bindings registered." << std::endl;
 	}
 }
 

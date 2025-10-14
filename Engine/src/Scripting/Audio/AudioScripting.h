@@ -3,6 +3,7 @@
 #include "Scripting/Scripting.h"
 #include "LayerSystem/Layers/LayerSound.h"
 #include "Architecture/AudioSystem/SoundManager.h"
+#include "Audio/Audio.h"
 
 namespace IonixEngine
 {
