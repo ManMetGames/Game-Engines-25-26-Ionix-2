@@ -35,7 +35,7 @@ namespace IonixEngine
 		SDL_SetRenderDrawColor(rend, 255, 255, 255, 0);
 
 
-		SDL_RenderClear(rend);
+		// SDL_RenderClear(rend);
 		SDL_RenderCopy(rend, img, nullptr, &texr);
 		SDL_RenderPresent(rend);
 	}

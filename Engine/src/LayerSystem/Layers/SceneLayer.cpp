@@ -5,6 +5,7 @@ namespace IonixEngine
     void LayerScene::OnAttach()
     {
         // Nothing for now (I'm not sure how to exactly do it)
+        SetScene(std::make_unique<Scene>());
     }
 
     void LayerScene::OnDetach()
@@ -20,7 +21,7 @@ namespace IonixEngine
     void LayerScene::OnUpdate()
     {
         if (m_Current)
-            m_Current->OnUpdate();
+            m_Current->OnUpdate(0.016f);
     }
 
     void LayerScene::OnEvent(IonixEvent& e)

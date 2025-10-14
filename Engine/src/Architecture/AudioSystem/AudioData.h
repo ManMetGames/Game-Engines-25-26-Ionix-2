@@ -1,20 +1,12 @@
 #pragma once
 #include <SDL.h>
 
-namespace IonixEngine
-{    
-    struct AudioData 
-    {
-        Uint8* buffer = nullptr;   // raw audio data from the buffer
-        Uint32 length = 0;         // buffer size
-        SDL_AudioSpec spec{};      // format info cus it technically matters in this case (it really matters) (i am kinda doing guesswork, this tbh might need changing)
+struct Mix_Chunk;
 
-        ~AudioData() 
-        {
-            if (buffer) 
-            {
-                SDL_FreeWAV(buffer);
-            }
-        }
+namespace IonixEngine {
+    struct AudioData {
+        Mix_Chunk* audio;   // raw audio data from the buffer
+
+        ~AudioData();
     };
-}
+};

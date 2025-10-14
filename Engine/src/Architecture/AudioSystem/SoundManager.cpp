@@ -1,4 +1,5 @@
 #include "SoundManager.h"
+#include "SDL_stdinc.h"
 #include <SDL_mixer.h> // i think this is right I cant tell.
 #include <iostream>
 
@@ -10,24 +11,17 @@ SoundManager &SoundManager::GetInstance() {
   return instance;
 }
 
-bool SoundManager::Init(int freq, SDL_AudioFormat format, int channels,
-                        int chunksize) {
-  if (SDL_Init(SDL_INIT_AUDIO) < 0) {
-    std::cerr << "SDL audio init failed: " << SDL_GetError() << std::endl;
-    return false;
-  }
-
+bool SoundManager::Init(int freq, SDL_AudioFormat format, int channels, int chunksize) {
   SDL_AudioSpec desiredSpec{};
   desiredSpec.freq = freq;
   desiredSpec.format = format;
   desiredSpec.channels = channels;
   desiredSpec.samples = chunksize;
-  desiredSpec.callback =
-      nullptr; // this is the callback, it might need changing one day.
+  desiredSpec.callback = nullptr; // this is the callback, it might need changing one day.
 
   m_Device = SDL_OpenAudioDevice(nullptr, 0, &desiredSpec, &m_DeviceSpec, 0);
-  if (m_Device == 0) {
-    std::cerr << "Failed to open audio device: " << SDL_GetError() << std::endl;
+  if (!m_Device) {
+    SDL_Log("Failed to open audio device: %s", SDL_GetError());
     return false;
   }
 
@@ -43,21 +37,19 @@ void SoundManager::Shutdown() {
     SDL_CloseAudioDevice(m_Device);
     m_Device = 0;
   }
-  SDL_QuitSubSystem(SDL_INIT_AUDIO);
 }
 
-bool SoundManager::LoadSound(const std::string &name,
-                             const std::string &filePath) {
-  AudioData clip;
-  if (SDL_LoadWAV(filePath.c_str(), &clip.spec, &clip.buffer, &clip.length) ==
-      nullptr) {
-    std::cerr << "Failed to load sound: " << filePath << " - " << SDL_GetError()
-              << std::endl;
-    return false;
-  }
+bool SoundManager::LoadSound(const std::string &name, const std::string &filePath) {
+    m_Sounds[name] = AudioData();
+    AudioData* clip = &m_Sounds[name];
+    Mix_Chunk* audio = Mix_LoadWAV(filePath.c_str());
 
-  m_Sounds[name] = clip;
-  return true;
+    if (audio) {
+        m_Sounds[name].audio = audio;
+        return true;
+    }
+    SDL_Log("[Sound Manager] Could not load audio file: %s due to: %s", filePath.c_str(), Mix_GetError());
+    return false;
 }
 
 void SoundManager::PlaySound(const std::string &name, int loops) {
@@ -69,28 +61,12 @@ void SoundManager::PlaySound(const std::string &name, int loops) {
 
   auto &clip = it->second;
   float volume = m_Volumes.count(name) ? m_Volumes[name] : 1.0f;
-  int timesToPlay =
-      (loops == 0) ? 1 : loops + 1; // 0 = play once; >0 = play loops + 1 times
-
-  for (int i = 0; i < timesToPlay; ++i) {
-    // create buffer for volume adjustment
-    Uint8 *tempBuffer = new Uint8[clip.length]();
-    SDL_MixAudioFormat(tempBuffer, clip.buffer, clip.spec.format, clip.length,
-                       static_cast<int>(SDL_MIX_MAXVOLUME * volume));
-
-    if (SDL_QueueAudio(m_Device, tempBuffer, clip.length) < 0) {
-      std::cerr << "Failed to queue sound: " << SDL_GetError() << std::endl;
-    }
-    delete[] tempBuffer; // this looks useful.
-  }
+  clip.audio->volume = (Uint8)SDL_lroundf(m_Volumes[name] * 128.0f);
+  Mix_PlayChannel(-1, clip.audio, loops);
 }
 
 void SoundManager::SetVolume(const std::string &name, float volume) {
-  if (volume < 0.0f)
-    volume = 0.0f;
-  if (volume > 1.0f)
-    volume = 1.0f;
-  m_Volumes[name] = volume;
+  m_Volumes[name] = SDL_clamp(volume, 0, 1);
   // does not play the sound; volume applies to future 'PlaySound' calls
 }
 

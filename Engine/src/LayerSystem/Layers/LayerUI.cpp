@@ -1,7 +1,6 @@
 #include "LayerSystem/Layers/LayerUI.h"
 #include "EventSystem/Event.h"
 #include "Architecture/Application.h"
-
 #include "imgui.h"
 #include "backends/imgui_impl_sdl2.h"
 #include "backends/imgui_impl_sdlrenderer2.h"
@@ -12,9 +11,33 @@
 
 namespace IonixEngine
 {
+    
+    /*enum UIType
+    {
+        Label,
+        Button
+    };
+
+    struct UIData
+    {
+        UIType type;
+
+        char* text;
+        int x;
+        int y;
+
+        UIData(UIType type, char* text, int x, int y) : type(type), text(text), x(x), y(y) {}
+    };
+
+   
+
+    std::vector<UIData> uiDrawData;
+    */
+    // Factory class needs a method to add a UIData object to the above vector
+
     void LayerUI::OnAttach() 
     {
-
+        m_UI = new UI();
         //Get window and renderer
         SDL_Window* window = Application::Get().GetWindow().GetSdlWindow();
         SDL_Renderer* renderer = Application::Get().GetWindow().GetSdlRenderer();
@@ -25,6 +48,16 @@ namespace IonixEngine
         ImGuiIO& io = ImGui::GetIO(); (void)io;
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+        /*
+        for (auto ui : uiDrawData)
+        {
+            if (ui.type == UIType::Label)
+            {
+                Application::Get().layerUI->m_UI->DrawLabel(ui.text, ui.x, ui.y);
+            }
+        }
+        */
 
         // Setup Dear ImGui style
         ImGui::StyleColorsDark();
@@ -42,19 +75,18 @@ namespace IonixEngine
     void LayerUI::OnUpdate() 
     {
         // Start the Dear ImGui frame. Immediate mode rendering - UI gets rebuilt each frame
-        ImGui_ImplSDLRenderer2_NewFrame();
-        ImGui_ImplSDL2_NewFrame();
-        ImGui::NewFrame();
+         ImGui_ImplSDLRenderer2_NewFrame();
+         ImGui_ImplSDL2_NewFrame();
+         ImGui::NewFrame();
+        
+         //Shows the big ImGui demo window
+         ImGui::ShowDemoWindow();
+        
+         // Rendering
+         ImGui::Render();
+         ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), Application::Get().GetWindow().m_Renderer);
 
-        //Shows the big ImGui demo window
-        ImGui::ShowDemoWindow();
-
-        // Rendering
-        ImGui::Render();
-        ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), Application::Get().GetWindow().m_Renderer);
-
-        //TODO - Will be done by graphics unit eventually. Here for testing for the time being.
-        SDL_RenderPresent(Application::Get().GetWindow().m_Renderer);
+         // TODO - Will be done by graphics unit eventually. Here for testing for the time being.
     }
 
     void LayerUI::OnEvent(IonixEvent& e)

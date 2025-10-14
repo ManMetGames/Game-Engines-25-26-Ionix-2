@@ -1,22 +1,45 @@
 #pragma once
+#include "Architecture/ECS/Component.hpp"
 #include "Architecture/Macros.h"
 #include "EventSystem/Event.h"
+#include "Architecture/ECS/Entity.hpp"
+#include <vector>
+#include <cstdint>
+#include <unordered_map>
 
 namespace IonixEngine
 {
     // Base interface for a game Scene (single active scene model)
-    class ENGINE_API Scene
+    class Scene
     {
+        RenderData renderData;
     public:
-        virtual ~Scene() = default;
+        ~Scene() = default;
 
         // Called when the scene becomes the active scene
-        virtual void OnEnter() {}
+        void OnEnter();
         // Called when the scene stops being the active scene
-        virtual void OnExit() {}
+        void OnExit();
         // Called once per frame while the scene is active
-        virtual void OnUpdate() {}
+        void OnUpdate(float dt);
         // Receives input/window events while the scene is active
-        virtual void OnEvent(IonixEvent& e) {}
+        void OnEvent(IonixEvent& e);
+
+        void Reserve(std::size_t count); // Pre-allocate storage for entities 
+
+        EntityID CreateEntity();  // Create a new entity and return its unique ID
+        
+        bool DestroyEntity(EntityID entityId);
+        
+
+        // Get the number of currently stored entities
+        inline std::size_t Count() const { return m_Entities.size(); }
+        
+        Entity* GetEntityFromID(EntityID id);
+
+    private:
+        std::vector<Entity> m_Entities;
+        std::unordered_map<EntityID, std::size_t> m_IdToIndex;
+        EntityID m_NextId{ 0 };
     };
 }

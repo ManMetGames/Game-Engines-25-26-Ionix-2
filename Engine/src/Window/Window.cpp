@@ -2,6 +2,7 @@
 #include "EventSystem/EventSDL.h"
 #include "EventSystem/Event.h"
 #include "Architecture/Application.h"
+#include "SDL_image.h"
 #include <iostream>
 #include <SDL_mixer.h>
 
@@ -32,7 +33,7 @@ namespace IonixEngine
         }
 
         // Initialize SDL Mixer
-        #ifdef WIN32
+        #ifdef _WIN32
         SDL_setenv("SDL_AUDIODRIVER", "directsound", 1);
         #endif
         
@@ -46,7 +47,7 @@ namespace IonixEngine
             SDL_Log("Unable to initialize SDL_mixer: %s", Mix_GetError());
             //return;
         }
-
+        
         // Create SDL window
         m_Window = SDL_CreateWindow(
             details.Title.c_str(),
