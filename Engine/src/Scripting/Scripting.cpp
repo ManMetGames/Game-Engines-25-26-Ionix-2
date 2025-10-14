@@ -1,5 +1,6 @@
 #include "Scripting/Scripting.h"
 #include "Architecture/Application.h"
+#include "Input/Input.h"
 
 namespace IonixEngine {
 	Scripting* Scripting::s_Instance = nullptr;
@@ -27,6 +28,7 @@ namespace IonixEngine {
 	void Scripting::RegisterEngineBindings()
 	{
 		RegisterWindowBindings();
+		RegisterInputBindings();
 	}
 
 	void Scripting::ExecuteScript(const std::string& scriptName)
@@ -68,5 +70,16 @@ namespace IonixEngine {
 			"get_height", getWindowHeight
 		);
 
-	}// print (Window.get_title())
+	}
+	void Scripting::RegisterInputBindings()
+	{
+		auto getKeyDown = [](int code) -> bool {
+			return Application::Get().layerInput->m_Input->IsKeyDown(static_cast<SDL_Scancode>(code));
+			};
+
+		m_LuaState["Input"] = m_LuaState.create_table_with(
+			"get_key_down", getKeyDown
+		);
+	}
+	// print (Window.get_title())
 }

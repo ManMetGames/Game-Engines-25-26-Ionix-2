@@ -6,6 +6,6 @@ end
 
 
 function enemy:OnUpdate()
-	print("enemy update ran.")
+	--print("enemy update ran.")
 end
 return enemy
