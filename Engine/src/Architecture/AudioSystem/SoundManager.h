@@ -3,7 +3,6 @@
 #include <string>
 #include <memory>
 #include <SDL.h>
-#include <SDL_mixer.h>
 #include "AudioData.h"
 
 namespace IonixEngine
