@@ -90,8 +90,13 @@
 #endif
 
 // SDL
+#ifdef _WIN32
 #include <../../../SDL/SDL2-2.30.6/include/SDL.h>
 #include <../../../SDL/SDL2-2.30.6/include/SDL_syswm.h>
+#else
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_syswm.h>
+#endif
 
 #ifdef __APPLE__
 #include <TargetConditionals.h>

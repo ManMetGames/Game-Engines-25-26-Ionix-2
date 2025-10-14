@@ -1,7 +1,6 @@
 #include "LayerSystem/Layers/LayerUI.h"
 #include "EventSystem/Event.h"
 #include "Architecture/Application.h"
-
 #include "imgui.h"
 #include "backends/imgui_impl_sdl2.h"
 #include "backends/imgui_impl_sdlrenderer2.h"
@@ -76,36 +75,18 @@ namespace IonixEngine
     void LayerUI::OnUpdate() 
     {
         // Start the Dear ImGui frame. Immediate mode rendering - UI gets rebuilt each frame
-        ImGuiIO& io = ImGui::GetIO();
-        (void)io;
-        ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize;
+         ImGui_ImplSDLRenderer2_NewFrame();
+         ImGui_ImplSDL2_NewFrame();
+         ImGui::NewFrame();
+        
+         //Shows the big ImGui demo window
+         ImGui::ShowDemoWindow();
+        
+         // Rendering
+         ImGui::Render();
+         ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), Application::Get().GetWindow().m_Renderer);
 
-        ImGui_ImplSDLRenderer2_NewFrame();
-        ImGui_ImplSDL2_NewFrame();
-        ImGui::NewFrame();
-
-        //Shows the big ImGui demo window
-        ImGui::ShowDemoWindow();
-        ImGui::Begin("null", nullptr, window_flags);
-
-        // access the vector of struct details (UI)
-        // loop 
-        ImGui::SetCursorPos(ImVec2(100, 100));
-        if (ImGui::Button("Button 1", ImVec2(80, 80)))
-        {
-            std::cout << "Button pressed\n";
-        }
-        static int slider_i =5;
-        ImGui::SliderInt("SliderInt (0 -> 100)", &slider_i, 0, 100, "%d" );
-        //std::cout << slider_i;
-        ImGui::End();
-        // Rendering
-        ImGui::Render();
-        ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), Application::Get().GetWindow().m_Renderer); //ask if we can leave this here
-
-        //TODO - Will be done by graphics unit eventually. Here for testing for the time being.
-        SDL_RenderPresent(Application::Get().GetWindow().m_Renderer);
-        SDL_RenderClear(Application::Get().GetWindow().m_Renderer);
+         // TODO - Will be done by graphics unit eventually. Here for testing for the time being.
     }
 
     void LayerUI::OnEvent(IonixEvent& e)

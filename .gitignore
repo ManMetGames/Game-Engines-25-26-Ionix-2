@@ -1,6 +1,8 @@
 # --- IDE / Visual Studio md ---
 .vs/
+*.vcxproj
 *.vcxproj.user
+*.vcxproj.filters
 *.user
 *.suo
 *.VC.db
@@ -26,6 +28,7 @@ x64/
 x86/
 [Ww]in32/
 *.obj
+*.o
 *.iobj
 *.pdb
 *.ipdb
@@ -59,3 +62,6 @@ dependencies
 imgui.ini
 dependencies/bin/imgui/obj/
 dependencies/bin/imgui/bin/
+client
+libengine.so
+nobuild.exe.old

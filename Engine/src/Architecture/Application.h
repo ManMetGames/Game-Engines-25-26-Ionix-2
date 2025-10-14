@@ -1,9 +1,18 @@
 #pragma once
+#include "LayerSystem/Layers/LayerTexture.hpp"
 #include "Window/Window.h"
 #include "Macros.h"
 #include "LayerSystem/LayerStack.h"
 #include "LayerSystem/Layers/LayerEditor.h"
+#include "Maf/MafUtils.h"
+#include <iostream>
 #include "LayerSystem/Layers/LayerUI.h"
+#include "LayerSystem/Layers/LayerGraphics.h"
+#include "LayerSystem/Layers/SceneLayer.h"
+#include "LayerSystem/Layers/LayerFysics.h"
+#include "LayerSystem/Layers/LayerSound.h"
+
+// #include "Scripting/Scripting.h"
 
 namespace IonixEngine
 {    
@@ -29,9 +38,14 @@ namespace IonixEngine
 
             return layer;
         }
-
+        
+        LayerScene* layerScene;
         LayerEditor* layerEditor;
         LayerUI* layerUI;
+        LayerGraphics* layerGraphics;
+        LayerTexture* layerTexture;
+        LayerFysics* layerFysics;
+        LayerSound* layerSound;
 
     private:
         static Application* s_Instance;
