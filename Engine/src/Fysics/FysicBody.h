@@ -22,7 +22,7 @@ namespace IonixEngine
             b2Body* body = world->CreateBody(&bodyDef);
         }
         
-        CreateFysicBody(float xPos, float yPos, fysicBodyType b_type)
+        CreateFysicBody(float xPos, float yPos, fysicBodyType b_type, bool rotationLocked)
         {
             world = LayerFysics::GetInstance()->GetWorld();
             b2BodyDef bodyDef;
@@ -40,7 +40,7 @@ namespace IonixEngine
             }
             bodyDef.position.Set(xPos, yPos);
             bodyDef.awake = true;
-            bodyDef.fixedRotation = false;
+            bodyDef.fixedRotation = rotationLocked;
             b2Body* body = world->CreateBody(&bodyDef);
         }
     };
