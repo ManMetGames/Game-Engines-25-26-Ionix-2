@@ -19,7 +19,7 @@ namespace IonixEngine
             bodyDef.position.Set(0, 0);
             bodyDef.awake = true;
             bodyDef.fixedRotation = false;
-            b2Body* body = world.CreateBody(&bodyDef);
+            b2Body* body = world->CreateBody(&bodyDef);
         }
         
         CreateFysicBody(float xPos, float yPos, fysicBodyType b_type)
@@ -41,7 +41,7 @@ namespace IonixEngine
             bodyDef.position.Set(xPos, yPos);
             bodyDef.awake = true;
             bodyDef.fixedRotation = false;
-            b2Body* body = world.CreateBody(&bodyDef);
+            b2Body* body = world->CreateBody(&bodyDef);
         }
     };
 }
