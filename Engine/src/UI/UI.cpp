@@ -1,13 +1,15 @@
 #include "UI.h"
 #include "imgui.h"
+#include "FontLoader.h"
 
 
 namespace IonixEngine
 {
-	void UI::DrawLabel(char* text, int xsize, int ysize, int xpos, int ypos)
+	void UI::DrawLabel(char* text, int xsize, int ysize, int xpos, int ypos ,const char* font)
 	{
 		ImGui::SetCursorPos(ImVec2(xpos, ypos));
 		ImGui::Text(text, ImVec2(xsize, ysize));
+
 	}
 	bool UI::DrawButton(char* text, int xsize, int ysize, int xpos, int ypos)
 	{

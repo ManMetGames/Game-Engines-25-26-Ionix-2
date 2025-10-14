@@ -6,13 +6,13 @@
 #include "backends/imgui_impl_sdlrenderer2.h"
 #include <stdio.h>
 #include <SDL.h>
-
+#include "UI/Fontloader.h"
 #include <iostream>
 
 namespace IonixEngine
 {
     
-    /*enum UIType
+    enum UIType
     {
         Label,
         Button
@@ -32,7 +32,7 @@ namespace IonixEngine
    
 
     std::vector<UIData> uiDrawData;
-    */
+    
     // Factory class needs a method to add a UIData object to the above vector
 
     void LayerUI::OnAttach() 
@@ -49,19 +49,22 @@ namespace IonixEngine
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
-        /*
+        
         for (auto ui : uiDrawData)
         {
             if (ui.type == UIType::Label)
             {
-                Application::Get().layerUI->m_UI->DrawLabel(ui.text, ui.x, ui.y);
+                Application::Get().layerUI->m_UI->DrawLabel( "text", 50 ,50, 50, 50,"OpenSans - VariableFont.ttf"  );
             }
         }
-        */
+        
 
         // Setup Dear ImGui style
         ImGui::StyleColorsDark();
         //ImGui::StyleColorsLight();
+         // Load fonts (only once during initialization)
+        IonixEngine::Fontloader::LoadFonts();
+
 
         // Setup Platform/Renderer backends
         ImGui_ImplSDL2_InitForSDLRenderer(window, renderer);
