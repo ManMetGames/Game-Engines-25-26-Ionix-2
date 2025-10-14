@@ -195,5 +195,6 @@
     <ClCompile Include="src\third-party\imgui_impl_sdlrenderer2.cpp">
       <Filter>third-party</Filter>
     </ClCompile>
+    <ClCompile Include="src\Fysics\FysicBody.cpp" />
   </ItemGroup>
 </Project>

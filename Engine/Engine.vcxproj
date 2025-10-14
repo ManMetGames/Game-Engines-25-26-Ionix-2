@@ -100,6 +100,7 @@
     <ClCompile Include="src\Architecture\ECS\ECS_Test.cpp" />
     <ClCompile Include="src\Architecture\ECS\Entity.cpp" />
     <ClCompile Include="src\EventSystem\EventSDL.cpp" />
+    <ClCompile Include="src\Fysics\FysicBody.cpp" />
     <ClCompile Include="src\Graphics\SpriteClass.cpp" />
     <ClCompile Include="src\Graphics\SpriteSorting.cpp" />
     <ClCompile Include="src\LayerSystem\LayerStack.cpp" />

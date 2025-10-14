@@ -9,18 +9,17 @@ namespace IonixEngine
     
     class CreateFysicBody
     {
-        b2World* world;
+        b2World* world = LayerFysics::GetInstance()->GetWorld();
 
     public:
         CreateFysicBody()
         {
-            world = LayerFysics::GetInstance()->GetWorld();
             b2BodyDef bodyDef;
             bodyDef.type = b2_dynamicBody;
             bodyDef.position.Set(0, 0);
             bodyDef.awake = true;
             bodyDef.fixedRotation = false;
-            b2Body* body = world.CreateBody(&bodyDef);
+            b2Body* body = world->CreateBody(&bodyDef);
         }
         
         CreateFysicBody(float xPos, float yPos, fysicBodyType b_type)
@@ -42,7 +41,7 @@ namespace IonixEngine
             bodyDef.position.Set(xPos, yPos);
             bodyDef.awake = true;
             bodyDef.fixedRotation = false;
-            b2Body* body = world.CreateBody(&bodyDef);
+            b2Body* body = world->CreateBody(&bodyDef);
         }
     };
 }

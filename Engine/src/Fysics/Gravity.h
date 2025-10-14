@@ -16,7 +16,7 @@ namespace IonixEngine
         {
             if (!world) return;
             world->SetGravity(b2Vec2(x, y));
-            if (wake) for (b2Body* b = world->GetBodyList();b;b = b->GetNext()) b->SetAwake(true);
+            if (wake) for (b2Body* bodies = world->GetBodyList();bodies;bodies = bodies->GetNext()) bodies->SetAwake(true);
         }
 
         b2Vec2 Gravity::GetGravity() const
