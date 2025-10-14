@@ -67,7 +67,31 @@
     <ClInclude Include="src\EventSystem\EventSDL.h">
       <Filter>EventSystem</Filter>
     </ClInclude>
+    <ClInclude Include="src\Fysics\Collider.h">
+      <Filter>Fysics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Fysics\Force.h">
+      <Filter>Fysics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Fysics\FysicBody.h">
+      <Filter>Fysics</Filter>
+    </ClInclude>
     <ClInclude Include="src\Fysics\FysicsManager.h">
+      <Filter>Fysics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Fysics\Gravity.h">
+      <Filter>Fysics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Fysics\Joints.h">
+      <Filter>Fysics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Fysics\Raycast.h">
+      <Filter>Fysics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Fysics\Shapes.h">
+      <Filter>Fysics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Fysics\Utility.h">
       <Filter>Fysics</Filter>
     </ClInclude>
     <ClInclude Include="src\Graphics\SpriteClass.h">

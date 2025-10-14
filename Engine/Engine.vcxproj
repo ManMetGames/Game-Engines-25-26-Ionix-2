@@ -68,7 +68,15 @@
     <ClInclude Include="src\EngineIncludes.h" />
     <ClInclude Include="src\EventSystem\Event.h" />
     <ClInclude Include="src\EventSystem\EventSDL.h" />
+    <ClInclude Include="src\Fysics\Collider.h" />
+    <ClInclude Include="src\Fysics\Force.h" />
+    <ClInclude Include="src\Fysics\FysicBody.h" />
     <ClInclude Include="src\Fysics\FysicsManager.h" />
+    <ClInclude Include="src\Fysics\Gravity.h" />
+    <ClInclude Include="src\Fysics\Joints.h" />
+    <ClInclude Include="src\Fysics\Raycast.h" />
+    <ClInclude Include="src\Fysics\Shapes.h" />
+    <ClInclude Include="src\Fysics\Utility.h" />
     <ClInclude Include="src\Graphics\SpriteClass.h" />
     <ClInclude Include="src\Graphics\SpriteSorting.h" />
     <ClInclude Include="src\LayerSystem\Layer.h" />
