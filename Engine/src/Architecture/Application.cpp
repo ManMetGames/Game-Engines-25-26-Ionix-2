@@ -20,6 +20,9 @@ namespace IonixEngine
         layerEditor = new LayerEditor();
         AddLayer(layerEditor);
 
+        layerInput = new LayerInput();
+        AddLayer(layerInput);
+
         layerFysics = new LayerFysics();
         AddLayer(layerFysics);
 
@@ -54,6 +57,7 @@ namespace IonixEngine
             if (e.Handled)
                 break;
         }
+
     }
 
     void Application::Run()
@@ -65,14 +69,34 @@ namespace IonixEngine
 
         while (m_Running)
         {
-			SDL_RenderClear(renderer);
-			SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);
+			      SDL_RenderClear(renderer);
+			      SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);
+          
             for (auto layer : m_LayerStack.GetLayers())
             {
                 if(layer)
                     layer->OnUpdate();
             }
+
             // Scripting::Get().CallHook("OnUpdate");
+
+            if (layerInput->m_Input->IsKeyDown(SDL_SCANCODE_SPACE))
+            {
+                std::cout << "Spacebar was pressed once \n";
+            }
+            if (layerInput->m_Input->IsKeyUp(SDL_SCANCODE_SPACE))
+            {
+                std::cout << "Spacebar has been lifted \n";
+            }
+            if (layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_SPACE))
+            {
+                std::cout << "Spacebar is being held down \n";
+            }
+
+            layerInput->m_Input->CopyCodesEndFrame();
+
+            // Scripting::Get().CallHook("OnUpdate");
+          
             m_Window->OnUpdate();
             SDL_RenderPresent(renderer);
         }

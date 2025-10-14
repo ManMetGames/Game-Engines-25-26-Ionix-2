@@ -1,12 +1,12 @@
 local modules = {}
 
-function Loadmodule(name,path)
+function LoadModule(name,path)
 	local module = dofile(path)
 	modules[name] = module
 end
 
-Loadmodule("enemy","Scripts/enemy.lua")
-Loadmodule("player","Scripts/player.lua")
+LoadModule("enemy","Scripts/enemy.lua")
+LoadModule("player","Scripts/player.lua")
 
 function OnStart()
 	for name, module in pairs(modules) do
@@ -23,6 +23,6 @@ function OnUpdate()
 	end
 end
 
-function GetModle(name)
+function GetModule(name)
 	return modules[name] 
 end
