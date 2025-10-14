@@ -9,6 +9,7 @@ namespace IonixEngine
 {
     void LayerFysics::OnAttach()
     {
+        m_Fysics = new FysicsManager();
         //Set Gravity
         b2Vec2 gravity = b2Vec2(0.0f, -9.8f);
         //Create the world
