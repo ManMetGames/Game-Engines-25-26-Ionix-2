@@ -16,6 +16,6 @@ namespace IonixEngine
 
     private:
         std::string m_SoundName = "test";  // THIS IS FOR TESTING!!!
-        std::string m_FilePath = "./test.wav";
+        std::string m_FilePath = "./Assets/test.wav";
     };
 }

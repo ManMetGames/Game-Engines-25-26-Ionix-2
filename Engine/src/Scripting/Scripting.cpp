@@ -1,5 +1,6 @@
 #include "Scripting/Scripting.h"
 #include "Architecture/Application.h"
+#include "Scripting/Audio/AudioScripting.h"
 
 namespace IonixEngine {
 	Scripting* Scripting::s_Instance = nullptr;
