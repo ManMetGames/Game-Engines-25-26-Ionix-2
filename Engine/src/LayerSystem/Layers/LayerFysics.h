@@ -15,6 +15,8 @@ namespace IonixEngine
         virtual void OnEvent(IonixEvent& e) override;
         virtual void SetGravity(float x, float y, bool wake = true);
         virtual b2Vec2 GetGravity() const;
+
+        b2World* GetWorld() const { return world; }
     private:
         b2World* world{ nullptr };
         float timeStep{ 1.f / 60.f };
