@@ -1,5 +1,4 @@
 #include "LayerSystem/Layers/LayerFysics.h"
-#include "Fysics/FysicsManager.h"
 
 #include <iostream>
 #include <ostream>
@@ -8,8 +7,6 @@
 
 namespace IonixEngine
 {
-    LayerFysics* LayerFysics::instance = nullptr;
-    LayerFysics* FysicsManager::s_instance = nullptr;
 
     LayerFysics* LayerFysics::GetInstance() {
         return instance;
