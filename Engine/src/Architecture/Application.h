@@ -1,4 +1,5 @@
 #pragma once
+#include "LayerSystem/Layers/LayerTexture.hpp"
 #include "Window/Window.h"
 #include "Macros.h"
 #include "LayerSystem/LayerStack.h"
@@ -9,7 +10,9 @@
 #include "LayerSystem/Layers/LayerGraphics.h"
 #include "LayerSystem/Layers/SceneLayer.h"
 #include "LayerSystem/Layers/LayerFysics.h"
-#include"Scripting/Scripting.h"
+#include "LayerSystem/Layers/LayerSound.h"
+
+// #include "Scripting/Scripting.h"
 
 namespace IonixEngine
 {    
@@ -40,7 +43,9 @@ namespace IonixEngine
         LayerEditor* layerEditor;
         LayerUI* layerUI;
         LayerGraphics* layerGraphics;
+        LayerTexture* layerTexture;
         LayerFysics* layerFysics;
+        LayerSound* layerSound;
 
     private:
         static Application* s_Instance;

@@ -1,6 +1,8 @@
 # --- IDE / Visual Studio md ---
 .vs/
+*.vcxproj
 *.vcxproj.user
+*.vcxproj.filters
 *.user
 *.suo
 *.VC.db

@@ -1,7 +1,6 @@
 #include "LayerSystem/Layers/LayerUI.h"
 #include "EventSystem/Event.h"
 #include "Architecture/Application.h"
-
 #include "imgui.h"
 #include "backends/imgui_impl_sdl2.h"
 #include "backends/imgui_impl_sdlrenderer2.h"
@@ -42,19 +41,18 @@ namespace IonixEngine
     void LayerUI::OnUpdate() 
     {
         // Start the Dear ImGui frame. Immediate mode rendering - UI gets rebuilt each frame
-        ImGui_ImplSDLRenderer2_NewFrame();
-        ImGui_ImplSDL2_NewFrame();
-        ImGui::NewFrame();
+         ImGui_ImplSDLRenderer2_NewFrame();
+         ImGui_ImplSDL2_NewFrame();
+         ImGui::NewFrame();
+        
+         //Shows the big ImGui demo window
+         ImGui::ShowDemoWindow();
+        
+         // Rendering
+         ImGui::Render();
+         ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), Application::Get().GetWindow().m_Renderer);
 
-        //Shows the big ImGui demo window
-        ImGui::ShowDemoWindow();
-
-        // Rendering
-        ImGui::Render();
-        ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), Application::Get().GetWindow().m_Renderer);
-
-        //TODO - Will be done by graphics unit eventually. Here for testing for the time being.
-        SDL_RenderPresent(Application::Get().GetWindow().m_Renderer);
+         // TODO - Will be done by graphics unit eventually. Here for testing for the time being.
     }
 
     void LayerUI::OnEvent(IonixEvent& e)
