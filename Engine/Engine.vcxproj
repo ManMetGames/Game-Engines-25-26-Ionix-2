@@ -68,7 +68,7 @@
     <ClInclude Include="src\EngineIncludes.h" />
     <ClInclude Include="src\EventSystem\Event.h" />
     <ClInclude Include="src\EventSystem\EventSDL.h" />
-    <ClInclude Include="src\Fysics\Fysics.h" />
+    <ClInclude Include="src\Fysics\FysicsManager.h" />
     <ClInclude Include="src\Graphics\SpriteClass.h" />
     <ClInclude Include="src\Graphics\SpriteSorting.h" />
     <ClInclude Include="src\LayerSystem\Layer.h" />

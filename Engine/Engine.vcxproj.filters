@@ -67,7 +67,7 @@
     <ClInclude Include="src\EventSystem\EventSDL.h">
       <Filter>EventSystem</Filter>
     </ClInclude>
-    <ClInclude Include="src\Fysics\Fysics.h">
+    <ClInclude Include="src\Fysics\FysicsManager.h">
       <Filter>Fysics</Filter>
     </ClInclude>
     <ClInclude Include="src\Graphics\SpriteClass.h">

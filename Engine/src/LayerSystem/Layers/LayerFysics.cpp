@@ -7,9 +7,14 @@
 
 namespace IonixEngine
 {
-    void LayerFysics::OnAttach()
+
+    LayerFysics* LayerFysics::GetInstance() {
+        return instance;
+    }
+
+    void LayerFysics::OnAttach() // call first says archie or brok
     {
-        m_Fysics = new FysicsManager();
+        FysicsManager::SetInstance(this);
         //Set Gravity
         b2Vec2 gravity = b2Vec2(0.0f, -9.8f);
         //Create the world
@@ -43,17 +48,7 @@ namespace IonixEngine
         }
     }
 
-    void LayerFysics::SetGravity(float x, float y, bool wake)
-    {
-        if (!world) return;
-        world->SetGravity(b2Vec2(x, y));
-        if (wake) for (b2Body* b = world->GetBodyList();b;b = b->GetNext()) b->SetAwake(true);
-    }
-
-    b2Vec2 LayerFysics::GetGravity() const
-    {
-        return world ? world->GetGravity() : b2Vec2(0.f, 0.f);
-    }
+   
 
     b2Body* LayerFysics::CreateGroundBox(float x, float y, float hx, float hy, float angle, float friction, float restitution)
     {
