@@ -5,26 +5,32 @@
 
 namespace IonixEngine
 {
-    enum class fysicBodyType {staticBody, dynamicBody, kinematicBody  };
+    enum class fysicBodyType {staticBody, dynamicBody, kinematicBody};
     
     class FysicBody
     {
         b2World* world;
-
-        fysicBodyType type;
-        switch (type)
-        {
-        case fysicBodyType::staticBody:
-            
-        }
         
-        FysicBody(float xPos, float yPos, enum fysicBodyType)
+        
+        FysicBody(float xPos, float yPos, fysicBodyType b_type)
         {
             world = LayerFysics::GetInstance()->GetWorld();
-
             b2BodyDef bodyDef;
-            bodyDef.type = b2;
+            switch (b_type)
+            {
+                case fysicBodyType::staticBody:
+                    bodyDef.type = b2_staticBody;
+                     break;
+                case fysicBodyType::dynamicBody:
+                    bodyDef.type = b2_dynamicBody;
+                    break;
+                case fysicBodyType::kinematicBody:
+                    bodyDef.type = b2_kinematicBody;
+                    break;
+            }
             bodyDef.position.Set(xPos, yPos);
+            bodyDef.awake = true;
+            bodyDef.fixedRotation = false;
             b2Body* body = world.CreateBody(&bodyDef);
         }
     };
