@@ -10,7 +10,7 @@ namespace IonixEngine
         //SDL_Window win;
         //SDL_Renderer* renderer;
         SDL_Texture* img;
-        SDL_Rect texr;
+        SDL_Renderer* renderer;
 
     public:
         LayerGraphics();

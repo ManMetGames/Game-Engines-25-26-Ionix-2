@@ -31,7 +31,7 @@ namespace IonixEngine
 
     void LayerEditor::OnWindowClosedEvent(WindowClosedEvent& e)
     {
-        std::cout << "IonixEvent: Window closed";
+        std::cout << "IonixEvent: Window closed\n";
 
         Application::Get().m_Running = false;
         e.Handled = true;
