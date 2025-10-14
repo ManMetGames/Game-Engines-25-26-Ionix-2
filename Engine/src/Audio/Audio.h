@@ -33,7 +33,12 @@ namespace IonixEngine
         // play/pause function
         void Mix_Pause(int channel);
 
-
-
+        
+        
+        // Music loop
+        void Audio::LoopAudio(double music)
+        {
+            double MixMusic_Duration(Mix_Music * music);
+        }
     };
 }
