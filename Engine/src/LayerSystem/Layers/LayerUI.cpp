@@ -21,7 +21,7 @@ namespace IonixEngine
     struct UIData
     {
         UIType type;
-
+        
         char* text;
         int x;
         int y;
@@ -37,7 +37,9 @@ namespace IonixEngine
 
     void LayerUI::OnAttach() 
     {
+
         m_UI = new UI();
+
         //Get window and renderer
         SDL_Window* window = Application::Get().GetWindow().GetSdlWindow();
         SDL_Renderer* renderer = Application::Get().GetWindow().GetSdlRenderer();
@@ -49,21 +51,19 @@ namespace IonixEngine
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
-        
-        for (auto ui : uiDrawData)
+        static ImFont* customFont = nullptr;
+        customFont = io.Fonts->AddFontFromFileTTF("OpenSans - VariableFont.ttf", 16.0f);
+        if (customFont == nullptr)
         {
-            if (ui.type == UIType::Label)
-            {
-                Application::Get().layerUI->m_UI->DrawLabel( "text", 50 ,50, 50, 50,"OpenSans - VariableFont.ttf"  );
-            }
+            std::cerr << "Failed to load font!" << std::endl;
         }
-        
+        // Load fonts (only once during initialization)
+        //IonixEngine::Fontloader::LoadFonts();
+       
 
         // Setup Dear ImGui style
         ImGui::StyleColorsDark();
         //ImGui::StyleColorsLight();
-         // Load fonts (only once during initialization)
-        IonixEngine::Fontloader::LoadFonts();
 
 
         // Setup Platform/Renderer backends
@@ -84,7 +84,7 @@ namespace IonixEngine
         
          //Shows the big ImGui demo window
          ImGui::ShowDemoWindow();
-        
+         m_UI->DrawLabel("text", 50, 50, 50, 50, "OpenSans - VariableFont.ttf");
          // Rendering
          ImGui::Render();
          ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), Application::Get().GetWindow().m_Renderer);
