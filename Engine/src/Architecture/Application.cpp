@@ -67,6 +67,19 @@ namespace IonixEngine
             }
         // Scripting::Get().CallHook("OnUpdate");
 
+            if (layerInput->m_Input->IsKeyDown(SDL_SCANCODE_SPACE))
+            {
+                std::cout << "Spacebar was pressed once \n";
+            }
+            if (layerInput->m_Input->IsKeyUp(SDL_SCANCODE_SPACE))
+            {
+                std::cout << "Spacebar has been lifted \n";
+            }
+            if (layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_SPACE))
+            {
+                std::cout << "Spacebar is being held down \n";
+            }
+
             layerInput->m_Input->CopyCodesEndFrame();
             m_Window->OnUpdate();
         }
