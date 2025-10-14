@@ -89,8 +89,15 @@ namespace IonixEngine
          //Shows the big ImGui demo window
          ImGui::ShowDemoWindow();
 
-         for(auto uiElement : elements)
-         m_UI->DrawLabel("test", 100, 100, 5, 5);
+         for (auto uiElement : m_UIManager->GetElements())
+         {
+             if (uiElement.type == UIType::Label)
+             {
+                 m_UI->DrawLabel(uiElement.text, 100 ,100 , uiElement.xPos, uiElement.yPos);
+             }
+         }
+
+         
 
          ImGui::End();        
         
