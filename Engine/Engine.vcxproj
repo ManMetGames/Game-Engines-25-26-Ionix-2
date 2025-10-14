@@ -62,12 +62,12 @@
     <ClInclude Include="src\Architecture\Application.h" />
     <ClInclude Include="src\Architecture\Macros.h" />
     <ClInclude Include="src\Architecture\main.h" />
+    <ClInclude Include="src\Audio\Audio.h" />
     <ClInclude Include="src\EngineIncludes.h" />
     <ClInclude Include="src\EventSystem\Event.h" />
     <ClInclude Include="src\EventSystem\EventSDL.h" />
     <ClInclude Include="src\LayerSystem\Layer.h" />
     <ClInclude Include="src\LayerSystem\LayerStack.h" />
-    <ClInclude Include="src\LayerSystem\Layers\Audio.h" />
     <ClInclude Include="src\LayerSystem\Layers\LayerEditor.h" />
     <ClInclude Include="src\LayerSystem\Layers\LayerUI.h" />
     <ClInclude Include="src\UI\UI.h" />

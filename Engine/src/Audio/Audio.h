@@ -13,11 +13,11 @@ namespace IonixEngine
         {
             Mix_Chunk* chunk = Mix_LoadWAV(file);
             //check if audio format can be played. Add to SDL_Log below if it works.
-            if (chunk == NULL)
-            {
-                SDL_Log("error incorect audio format, use MP3 or Wav or Flac", Mix_GetError());
-                return;
-            }
+            //if (chunk == NULL)
+            //{
+            //    SDL_Log("error incorect audio format, use MP3 or Wav or Flac", Mix_GetError());
+            //    return;
+            //}
 
             Mix_PlayChannel(-1, chunk, loops);
         }
@@ -28,5 +28,12 @@ namespace IonixEngine
         {
             Mix_MasterVolume(volume);
         }
+
+
+        // play/pause function
+        void Mix_Pause(int channel);
+
+
+
     };
 }
