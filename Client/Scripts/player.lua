@@ -14,7 +14,7 @@ function player:OnUpdate()
 	end
 	print("player update ran.")--]]
 
-	if Input.get_key_down(44) then
+	if Input.get_key_down(Keys.ionix_equals) then
 		print("key down")
 	end
 end
