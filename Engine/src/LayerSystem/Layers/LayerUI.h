@@ -13,5 +13,7 @@ namespace IonixEngine
         virtual void OnDetach() override;
         virtual void OnUpdate() override;
         virtual void OnEvent(IonixEvent& e) override;
+
+        UI* m_UI;
     };
 }

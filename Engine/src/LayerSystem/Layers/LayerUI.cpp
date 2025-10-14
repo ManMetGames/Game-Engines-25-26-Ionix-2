@@ -11,9 +11,33 @@
 
 namespace IonixEngine
 {
+    
+    /*enum UIType
+    {
+        Label,
+        Button
+    };
+
+    struct UIData
+    {
+        UIType type;
+
+        char* text;
+        int x;
+        int y;
+
+        UIData(UIType type, char* text, int x, int y) : type(type), text(text), x(x), y(y) {}
+    };
+
+   
+
+    std::vector<UIData> uiDrawData;
+    */
+    // Factory class needs a method to add a UIData object to the above vector
+
     void LayerUI::OnAttach() 
     {
-
+        m_UI = new UI();
         //Get window and renderer
         SDL_Window* window = Application::Get().GetWindow().GetSdlWindow();
         SDL_Renderer* renderer = Application::Get().GetWindow().GetSdlRenderer();
@@ -24,6 +48,16 @@ namespace IonixEngine
         ImGuiIO& io = ImGui::GetIO(); (void)io;
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+        /*
+        for (auto ui : uiDrawData)
+        {
+            if (ui.type == UIType::Label)
+            {
+                Application::Get().layerUI->m_UI->DrawLabel(ui.text, ui.x, ui.y);
+            }
+        }
+        */
 
         // Setup Dear ImGui style
         ImGui::StyleColorsDark();
