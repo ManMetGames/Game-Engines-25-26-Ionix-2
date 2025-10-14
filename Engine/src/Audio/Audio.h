@@ -38,7 +38,7 @@ namespace IonixEngine
         // Music loop
         void Audio::LoopAudio(double music)
         {
-            double MixMusic_Duration(Mix_Music * music);
+            Mix_MusicDuration(Mix_Music * music);
         }
     };
 }
