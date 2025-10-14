@@ -1,6 +1,5 @@
 #include "Scripting/Scripting.h"
 #include "Architecture/Application.h"
-#include "Input/Input.h"
 
 namespace IonixEngine {
 	Scripting* Scripting::s_Instance = nullptr;
@@ -29,6 +28,7 @@ namespace IonixEngine {
 	{
 		RegisterWindowBindings();
 		RegisterInputBindings();
+		RegisterMafsFunction();
 	}
 
 	void Scripting::ExecuteScript(const std::string& scriptName)
@@ -136,6 +136,24 @@ namespace IonixEngine {
 
 		m_LuaState["Input"] = m_LuaState.create_table_with(
 			"get_key_down", getKeyDown
+		);
+	}
+	void Scripting::RegisterMafsFunction()
+	{
+		auto clamp = [](double x, double min, double max) -> double {
+			return Maf::mafClamp(x, min, max);
+		};
+		auto log = [](double x) -> double {
+			return Maf::Log(x);
+		};
+		auto logCustom = [](double x, double base) -> double {
+			return Maf::Log(x, base);
+		};
+
+		m_LuaState["Mafs"] = m_LuaState.create_table_with(
+			"clamp", clamp,
+			"log", log,
+			"log_custom", logCustom
 		);
 	}
 	// print (Window.get_title())
