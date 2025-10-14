@@ -49,29 +49,29 @@ void IonixEngine::UIManager::EndPanel()
 }
 
 
-void IonixEngine::UIManager::AddLabel(int x, int y, const char* text)
+void IonixEngine::UIManager::AddLabel(int x, int y, float xSize, float ySize, const char* text)
 {
-	elements.push_back({ UIType::Label,currentGroupName , x, y, const_cast<char*>(text), nullptr });
+	elements.push_back({ UIType::Label,currentGroupName , x, y, xSize, ySize, const_cast<char*>(text), nullptr });
 }
 
-void IonixEngine::UIManager::AddButton(int x, int y, const char* text, std::function<void()> onClick)
+void IonixEngine::UIManager::AddButton(int x, int y, float xSize, float ySize, const char* text, std::function<void()> onClick)
 {
-	elements.push_back({ UIType::Button,currentGroupName, x, y, const_cast<char*>(text), onClick });
+	elements.push_back({ UIType::Button,currentGroupName, x, y, xSize, ySize, const_cast<char*>(text), onClick });
 }
 
-void IonixEngine::UIManager::AddCheckbox(int x, int y, const char* text, bool* checked)
+void IonixEngine::UIManager::AddCheckbox(int x, int y, float xSize, float ySize, const char* text, bool* checked)
 {
-	elements.push_back({ UIType::Checkbox,currentGroupName, x, y, const_cast<char*>(text), nullptr, checked });
+	elements.push_back({ UIType::Checkbox,currentGroupName, x, y, xSize, ySize, const_cast<char*>(text), nullptr, checked });
 }
 
-void IonixEngine::UIManager::AddSliderFloat(int x, int y, const char* text, float* value, float min, float max)
+void IonixEngine::UIManager::AddSliderFloat(int x, int y, float xSize, float ySize, const char* text, float* value, float min, float max)
 {
-	elements.push_back({ UIType::SliderFloat,currentGroupName, x, y, const_cast<char*>(text), nullptr, nullptr, value, min, max });
+	elements.push_back({ UIType::SliderFloat,currentGroupName, x, y, xSize, ySize, const_cast<char*>(text), nullptr, nullptr, value, min, max });
 }
 
-void IonixEngine::UIManager::AddInputText(int x, int y, const char* text, char* buffer, size_t bufferSize)
+void IonixEngine::UIManager::AddInputText(int x, int y, float xSize, float ySize, const char* text, char* buffer, size_t bufferSize)
 {
-	elements.push_back({ UIType::InputText,currentGroupName, x, y, const_cast<char*>(text), nullptr, nullptr, nullptr, 0.0f, 0.0f, buffer, bufferSize });
+	elements.push_back({ UIType::InputText,currentGroupName, x, y, xSize, ySize, const_cast<char*>(text), nullptr, nullptr, nullptr, 0.0f, 0.0f, buffer, bufferSize });
 }
 
 void IonixEngine::UIManager::RenderElement(UIElement& element)

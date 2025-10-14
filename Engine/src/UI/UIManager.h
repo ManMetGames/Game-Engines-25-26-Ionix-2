@@ -20,6 +20,8 @@ namespace IonixEngine
 		std::string groupName;
 		int xPos;
 		int yPos;
+		float xSize;
+		float ySize;
 		char* text = nullptr;
 		std::function<void()> onClick = nullptr; // only for buttons
 		bool* checked = nullptr; // only for checkboxes
@@ -52,15 +54,15 @@ namespace IonixEngine
 		void UIManager::EndPanel();
 		
 		// Add for new UITypes below
-		void AddLabel(int x, int y, const char* text);
+		void AddLabel(int x, int y, float xSize, float ySize, const char* text);
 		
-		void AddButton(int x, int y, const char* text, std::function<void()> onClick);
+		void AddButton(int x, int y, float xSize, float ySize, const char* text, std::function<void()> onClick);
 		
-		void AddCheckbox(int x, int y, const char* text, bool* checked);
+		void AddCheckbox(int x, int y, float xSize, float ySize, const char* text, bool* checked);
 		
-		void AddSliderFloat(int x, int y, const char* text, float* value, float min, float max);
+		void AddSliderFloat(int x, int y, float xSize, float ySize, const char* text, float* value, float min, float max);
 		
-		void AddInputText(int x, int y, const char* text, char* buffer, size_t bufferSize);
+		void AddInputText(int x, int y, float xSize, float ySize, const char* text, char* buffer, size_t bufferSize);
 		
 		void RenderUI();
 		
