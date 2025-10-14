@@ -11,10 +11,7 @@ namespace IonixEngine
     {
         b2World* world = LayerFysics::GetInstance()->GetWorld();
 
-<<<<<<< HEAD
     public:
-=======
->>>>>>> FysicsBody(BT)
         CreateFysicBody()
         {
             b2BodyDef bodyDef;
