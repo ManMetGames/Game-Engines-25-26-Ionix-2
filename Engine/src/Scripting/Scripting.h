@@ -13,7 +13,7 @@ namespace IonixEngine
         void Init();
 
         // Registration Methods
-        void RegisterEngineBindindings();
+        void RegisterEngineBindings();
 
         void ExecuteScript(const std::string& scriptName); 
 
@@ -28,7 +28,7 @@ namespace IonixEngine
         sol::state m_LuaState;
 
 
-        void RegisterWindowBindindings();
+        void RegisterWindowBindings();
 
     };
 }

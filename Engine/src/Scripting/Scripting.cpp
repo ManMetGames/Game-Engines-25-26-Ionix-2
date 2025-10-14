@@ -20,13 +20,13 @@ namespace IonixEngine {
 			sol::lib::table,
 			sol::lib::io
 		);
-		RegisterEngineBindindings();
+		RegisterEngineBindings();
 		std::cout << "Lua has been initialised successfully." << std::endl;
 	}
 
-	void Scripting::RegisterEngineBindindings()
+	void Scripting::RegisterEngineBindings()
 	{
-		RegisterWindowBindindings();
+		RegisterWindowBindings();
 	}
 
 	void Scripting::ExecuteScript(const std::string& scriptName)
@@ -50,7 +50,7 @@ namespace IonixEngine {
 		}
 	}
 
-	void Scripting::RegisterWindowBindindings()
+	void Scripting::RegisterWindowBindings()
 	{
 		auto getWindowTitle = []()->std::string {
 
