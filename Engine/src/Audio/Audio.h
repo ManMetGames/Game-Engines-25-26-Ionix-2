@@ -41,11 +41,10 @@ namespace IonixEngine
             Mix_Resume(-1);//resumes audio
         }
 
-        // Music loop
-        void Audio::LoopAudio(double music)
+        // Music loop - loops by specified number of times
+        void Audio::LoopAudioByTimes(Mix_Music* music, int loops)
         {
-            double Mix_MusicDuration(Mix_Music * music);
-
+            Mix_PlayMusic(music, loops); // loops: 0 = once, 1+ = that many times, -1 = infinite
         }
     };
 }
