@@ -21,6 +21,9 @@ namespace IonixEngine
         layerEditor = new LayerEditor();
         AddLayer(layerEditor);
 
+        layerInput = new LayerInput();
+        AddLayer(layerInput);
+
         layerFysics = new LayerFysics();
         AddLayer(layerFysics);
 
@@ -53,7 +56,7 @@ namespace IonixEngine
     {
         m_Running = true;
 #
-        Scripting::Get().CallHook("OnStart");
+       // Scripting::Get().CallHook("OnStart");
 
         while (m_Running)
         {
@@ -62,7 +65,9 @@ namespace IonixEngine
                 if(layer)
                     layer->OnUpdate();
             }
-            Scripting::Get().CallHook("OnUpdate");
+        // Scripting::Get().CallHook("OnUpdate");
+
+            layerInput->m_Input->CopyCodesEndFrame();
             m_Window->OnUpdate();
         }
     }

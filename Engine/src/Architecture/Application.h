@@ -9,6 +9,7 @@
 #include "LayerSystem/Layers/LayerGraphics.h"
 #include "LayerSystem/Layers/SceneLayer.h"
 #include "LayerSystem/Layers/LayerFysics.h"
+#include "LayerSystem/Layers/LayerInput.h"
 #include"Scripting/Scripting.h"
 
 namespace IonixEngine
@@ -41,6 +42,7 @@ namespace IonixEngine
         LayerUI* layerUI;
         LayerGraphics* layerGraphics;
         LayerFysics* layerFysics;
+        LayerInput* layerInput;
 
     private:
         static Application* s_Instance;

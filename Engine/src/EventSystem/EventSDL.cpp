@@ -3,6 +3,7 @@
 #include "Window/Window.h"
 #include "imgui.h"
 #include <backends/imgui_impl_sdl2.h>
+#include "Architecture/Application.h"
 
 namespace IonixEngine
 {
@@ -24,6 +25,15 @@ namespace IonixEngine
                 }
                 break;
             }
+            break;
+            case SDL_KEYDOWN:
+                Application::Get().layerInput->m_Input->SetKeyPressed(e.key.keysym.scancode); 
+                break;
+
+            case SDL_KEYUP: 
+                Application::Get().layerInput->m_Input->SetKeyReleased(e.key.keysym.scancode);
+                break;
+
         }
     }
 }
