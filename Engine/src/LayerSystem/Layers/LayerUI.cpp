@@ -38,6 +38,8 @@ namespace IonixEngine
     void LayerUI::OnAttach() 
     {
         m_UI = new UI();
+        m_UIManager = new UIManager();
+
         //Get window and renderer
         SDL_Window* window = Application::Get().GetWindow().GetSdlWindow();
         SDL_Renderer* renderer = Application::Get().GetWindow().GetSdlRenderer();
@@ -59,6 +61,7 @@ namespace IonixEngine
         }
         */
 
+
         // Setup Dear ImGui style
         ImGui::StyleColorsDark();
         //ImGui::StyleColorsLight();
@@ -78,9 +81,18 @@ namespace IonixEngine
          ImGui_ImplSDLRenderer2_NewFrame();
          ImGui_ImplSDL2_NewFrame();
          ImGui::NewFrame();
-        
+         ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize;
+
+         ImGui::Begin("null", nullptr, window_flags);
+
+         // ALL DRAW CALLS GO HERE (LIKE DrawLabel)
          //Shows the big ImGui demo window
          ImGui::ShowDemoWindow();
+
+         for(auto uiElement : elements)
+         m_UI->DrawLabel("test", 100, 100, 5, 5);
+
+         ImGui::End();        
         
          // Rendering
          ImGui::Render();
