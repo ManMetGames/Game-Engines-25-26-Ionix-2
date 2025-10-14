@@ -52,18 +52,29 @@ bool SoundManager::LoadSound(const std::string &name, const std::string &filePat
     return false;
 }
 
-void SoundManager::PlaySound(const std::string &name, int loops) {
-  auto it = m_Sounds.find(name);
-  if (it == m_Sounds.end()) {
-    std::cerr << "Sound not found: " << name << std::endl;
-    return;
-  }
-
-  auto &clip = it->second;
-  float volume = m_Volumes.count(name) ? m_Volumes[name] : 1.0f;
-  clip.audio->volume = (Uint8)SDL_lroundf(m_Volumes[name] * 128.0f);
-  Mix_PlayChannel(-1, clip.audio, loops);
+Mix_Chunk* SoundManager::GetAudio(const std::string& name) {
+    auto it = m_Sounds.find(name);
+    if (it != m_Sounds.end()) {
+        return m_Sounds[name].audio;
+    }
+    else {
+        SDL_Log("[Sound Manager] Sound %s was not present, returned nullptr", name.c_str());
+        return nullptr;
+    }
 }
+
+//void SoundManager::PlaySound(const std::string &name, int loops) {
+//  auto it = m_Sounds.find(name);
+//  if (it == m_Sounds.end()) {
+//    std::cerr << "Sound not found: " << name << std::endl;
+//    return;
+//  }
+//
+//  auto &clip = it->second;
+//  float volume = m_Volumes.count(name) ? m_Volumes[name] : 1.0f;
+//  clip.audio->volume = (Uint8)SDL_lroundf(m_Volumes[name] * 128.0f);
+//  Mix_PlayChannel(-1, clip.audio, loops);
+//}
 
 void SoundManager::SetVolume(const std::string &name, float volume) {
   m_Volumes[name] = SDL_clamp(volume, 0, 1);

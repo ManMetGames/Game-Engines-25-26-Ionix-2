@@ -3,6 +3,7 @@
 #include <string>
 #include <memory>
 #include <SDL.h>
+#include <SDL_mixer.h>
 #include "AudioData.h"
 
 namespace IonixEngine
@@ -17,7 +18,7 @@ namespace IonixEngine
         void Shutdown();
 
         bool LoadSound(const std::string& name, const std::string& filePath);
-        void PlaySound(const std::string& name, int loops = 0);
+        Mix_Chunk* GetAudio(const std::string& name);
         void SetVolume(const std::string& name, float volume); // 0.0f to 1.0f
 
     private:
