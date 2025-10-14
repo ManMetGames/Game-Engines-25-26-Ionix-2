@@ -43,7 +43,7 @@ namespace IonixEngine
         //Scripting::Get().Init();
         //Scripting::Get().GetLuaState().script_file("Scripts/settings.lua");
     }
-
+        
     Application::~Application() 
     {
         delete m_Window;
