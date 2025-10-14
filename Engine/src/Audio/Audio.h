@@ -23,7 +23,7 @@ namespace IonixEngine
         }
 
 
-        float Audio::volume = 128;
+        float Audio::volume = 128;  
         void Audio::ChangeVolume(float volume)
         {
             Mix_MasterVolume(volume);
