@@ -1,6 +1,5 @@
 local player = {}
-local keyCode = SDL_SCANCODE_SPACE
-
+local vec2 = Mafs.vector2(50, 40)
 function player:OnStart()
 	print("player start ran.")
 end
@@ -13,9 +12,9 @@ function player:OnUpdate()
 		print("Enemy health: " .. enemy.health)
 	end
 	print("player update ran.")--]]
-
+	
 	if Input.get_key_down(Keys.ionix_space) then
-		print(Mafs.lerp(5, 66, 0.2))
+		print(Mafs.vector2_x(vec2))
 	end
 end
 return player
