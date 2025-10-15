@@ -15,7 +15,7 @@ function player:OnUpdate()
 	print("player update ran.")--]]
 
 	if Input.get_key_down(Keys.ionix_space) then
-		print(Mafs.square_root(25))
+		print(Mafs.lerp(5, 66, 0.2))
 	end
 end
 return player
