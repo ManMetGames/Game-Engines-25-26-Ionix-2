@@ -1,5 +1,6 @@
 #include "Scripting/Scripting.h"
 #include "Architecture/Application.h"
+#include "LucasScripting.h"
 
 namespace IonixEngine {
 	Scripting* Scripting::s_Instance = nullptr;
@@ -28,7 +29,8 @@ namespace IonixEngine {
 	{
 		RegisterWindowBindings();
 		RegisterInputBindings();
-		RegisterMafsFunction();
+		//RegisterMafsFunction();
+		LucasScripting::RegisterMafBindings();
 	}
 
 	void Scripting::ExecuteScript(const std::string& scriptName)

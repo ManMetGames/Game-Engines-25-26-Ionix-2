@@ -14,8 +14,8 @@ function player:OnUpdate()
 	end
 	print("player update ran.")--]]
 
-	if Input.get_key_down(Keys.ionix_equals) then
-		print(Mafs.clamp(25,10,20))
+	if Input.get_key_down(Keys.ionix_space) then
+		print(Mafs.square_root(25))
 	end
 end
 return player
