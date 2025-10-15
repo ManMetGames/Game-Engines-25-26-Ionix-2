@@ -14,6 +14,7 @@ namespace IonixEngine {
 	void Scripting::Init() {
 		std::cout << "Lua is now being initialized." << std::endl;
 
+		// Open all libraries first
 		m_LuaState.open_libraries(
 			sol::lib::base,
 			sol::lib::string,
@@ -21,9 +22,17 @@ namespace IonixEngine {
 			sol::lib::table,
 			sol::lib::io
 		);
+
+		// Register engine systems
 		RegisterEngineBindings();
+
+		// Register audio bindings last
+		AudioScripting::Get().Init(m_LuaState);
+
 		std::cout << "Lua has been initialised successfully." << std::endl;
 	}
+
+
 
 	void Scripting::RegisterEngineBindings()
 	{

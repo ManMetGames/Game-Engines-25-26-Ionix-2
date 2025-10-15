@@ -9,21 +9,23 @@ namespace IonixEngine
 		}
 		return *s_Instance;
 	}
-	void AudioScripting::Init() {
+	void AudioScripting::Init(sol::state& sharedState)
+	{
+		if (m_LuaState == &sharedState) {
+			std::cout << "Lua Audio Scripting already initialized on this state.\n";
+			return;
+		}
+
 		std::cout << "Lua Audio Scripting is now being initialized." << std::endl;
-		m_LuaState.open_libraries(
-			sol::lib::base,
-			sol::lib::string,
-			sol::lib::math,
-			sol::lib::table,
-			sol::lib::io
-		);
+		m_LuaState = &sharedState;
 		RegisterAudioBindings();
 		std::cout << "Lua Audio Scripting has been initialised successfully." << std::endl;
 	}
+
+
 	void AudioScripting::RegisterAudioBindings()
 	{
-		sol::state& lua = m_LuaState;
+		sol::state& lua = *m_LuaState; 
 
 		lua.new_usertype<Audio>("Audio",
 			sol::constructors<Audio(const std::string&, const std::string&)>(),
@@ -33,8 +35,6 @@ namespace IonixEngine
 			"PauseAll", &Audio::PauseAll,
 			"ResumeAll", &Audio::ResumeAll
 		);
-
-		std::cout << "[Lua] Audio class registered with SoundManager backend.\n";
 	}
 }
 

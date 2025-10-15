@@ -1,5 +1,6 @@
 #include "Audio.h"
 #include <iostream>
+#include <SDL_mixer.h> 
 
 namespace IonixEngine
 {
@@ -25,5 +26,14 @@ namespace IonixEngine
     void Audio::Loop(int loops)
     {
         SoundManager::GetInstance().PlaySound(m_Name, loops);
+    }
+    void Audio::PauseAll()
+    {
+        Mix_Pause(-1); // Pause all active channels
+    }
+
+    void Audio::ResumeAll()
+    {
+        Mix_Resume(-1); // Resume all paused channels
     }
 }
