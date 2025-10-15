@@ -64,7 +64,15 @@ namespace IonixEngine
     void Application::Run()
     {
         m_Running = true;
+        if (!SoundManager::GetInstance().Init())
+        {
+            std::cerr << "[Error] Failed to initialize SoundManager audio device.\n";
+            return;
+        }
 
+        Scripting::Get().Init();      
+        AudioScripting::Get().Init(); 
+        Scripting::Get().ExecuteScript("Scripts/Settings.lua");
         Scripting::Get().CallHook("OnStart");
         SDL_Renderer* renderer = m_Window->GetSdlRenderer();
 
@@ -99,7 +107,6 @@ namespace IonixEngine
             m_Window->OnUpdate();
             SDL_RenderPresent(renderer);
         }
-		// shutdown and cleanup
         Scripting::Get().CallHook("OnShutdown");
         SoundManager::GetInstance().Shutdown();
 

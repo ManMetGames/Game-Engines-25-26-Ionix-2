@@ -1,43 +1,29 @@
 #include "Audio.h"
-#include "SDL_mixer.h"
+#include <iostream>
 
-namespace IonixEngine {
-    Audio::Audio(const std::string& name)
+namespace IonixEngine
+{
+    Audio::Audio(const std::string& name, const std::string& filePath)
+        : m_Name(name)
     {
-        chunk = Mix_LoadWAV(name.c_str());
-        // chunk = SoundManager::GetInstance().GetAudio(name);
-
-        //check if audio format can be played. Add to SDL_Log below if it works.
-        //if (chunk == NULL)
-        //{
-        //    SDL_Log("error incorect audio format, use MP3 or Wav or Flac", Mix_GetError());
-        //    return;
-        //}
-
-
-    }
-    void Audio::PlayAudio()
-    {
-        Mix_PlayChannel(-1, chunk, 0);
+        if (!SoundManager::GetInstance().LoadSound(name, filePath))
+        {
+            std::cerr << "[Audio] Failed to load sound: " << filePath << std::endl;
+        }
     }
 
-    void Audio::ChangeVolume(float volume)
+    void Audio::Play()
     {
-        Mix_MasterVolume(volume);
+        SoundManager::GetInstance().PlaySound(m_Name);
     }
 
-    void Audio::Pause()
+    void Audio::SetVolume(float volume)
     {
-        Mix_Pause(-1);
+        SoundManager::GetInstance().SetVolume(m_Name, volume);
     }
 
-    void Audio::Resume()
+    void Audio::Loop(int loops)
     {
-        Mix_Resume(-1);
+        SoundManager::GetInstance().PlaySound(m_Name, loops);
     }
-
-    void Audio::LoopAudio(double music)
-    {
-        // noop
-	}
 }
