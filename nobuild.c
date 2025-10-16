@@ -46,7 +46,6 @@ int main(int argc, char* argv[]) {
     if (is_windows) nob_da_append(&os_flags, "-fms-runtime-lib=dll");
     if (is_windows) nob_da_append(&os_flags, "-nostdlib");
     if (!is_windows) { nob_da_append(&os_flags, "-fPIC"); }
-    if (!is_windows) nob_da_append(&os_flags, "-Wl,-rpath,.");
 
     get_sources("./Engine/src/", &engine_source_files, &engine_header_files, &engine_include);
     get_sources("./Client/src/", &client_source_files, &client_header_files, &client_include);
@@ -82,6 +81,8 @@ int main(int argc, char* argv[]) {
 
     if (is_windows) nob_cmd_append(&os_flags, "-Wl,/NODEFAULTLIB:LIBCMT");
     const char* dll = is_windows ? "./build/Client/Engine.dll" : "./build/Client/libengine.so";
+    const char* dll_basename = is_windows ? "Engine.dll" : "libengine.so";
+    if (!is_windows) nob_da_append(&os_flags, "-Wl,-rpath,.");
 
     nob_cmd_append(&cmd, "clang++");
     nob_cmd_append(&cmd, "-shared");
@@ -98,6 +99,13 @@ int main(int argc, char* argv[]) {
         nob_log(NOB_INFO, "Successfully created engine dll");
         nob_da_append(&client_libs, "-L./build/Client/");
         nob_da_append(&client_libs, is_windows ? "-lEngine" : "-lengine");
+        
+        nob_cmd_append(&cmd, "cp");
+        nob_cmd_append(&cmd, dll);
+        nob_cmd_append(&cmd, nob_temp_sprintf("./Client/%s", dll_basename));
+        if (!nob_cmd_run_sync_and_reset(&cmd)) {
+            nob_log(NOB_WARNING, "Could not copy engine lib to Client/!");
+        }
     } else {
         return -1;
     }
