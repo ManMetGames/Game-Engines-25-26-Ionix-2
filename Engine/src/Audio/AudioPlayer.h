@@ -2,22 +2,23 @@
 #include "LayerSystem/Layer.h"
 #include "UI/UI.h"
 #include "../SDL/SDL2_mixer-2.8.0/include/SDL_mixer.h"
+#include "Architecture/AudioSystem/SoundManager.h"
 #include <iostream>
+#include <string>
 
 namespace IonixEngine
 {
     class Audio
     {
     public:
-        void Audio::PlayAudio(const char* file, int loops)
+        void Audio::PlayAudio(const std::string& soundName, int loops)
         {
-            Mix_Chunk* chunk = Mix_LoadWAV(file);
-            //check if audio format can be played. Add to SDL_Log below if it works.
-            //if (chunk == NULL)
-            //{
-            //    SDL_Log("error incorect audio format, use MP3 or Wav or Flac", Mix_GetError());
-            //    return;
-            //}
+            Mix_Chunk* chunk = SoundManager::GetInstance().GetAudio(soundName);
+            if (chunk == nullptr)
+            {
+                SDL_Log("[AudioPlayer] Failed to play sound: %s not found in SoundManager", soundName.c_str());
+                return;
+            }
 
             Mix_PlayChannel(-1, chunk, loops);
         }
