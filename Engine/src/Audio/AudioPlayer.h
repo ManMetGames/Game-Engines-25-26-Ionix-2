@@ -77,6 +77,17 @@ namespace IonixEngine
             }
         }
 
+        // Status query
+        bool IsPlaying() const
+        {
+            if (m_Channel == -1)
+            {
+                return false;
+            }
+            
+            return Mix_Playing(m_Channel) == 1;
+        }
+
         // Music loop - loops by specified number of times
         void LoopAudioByTimes(Mix_Music* music, int loops)
         {
