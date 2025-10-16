@@ -6,6 +6,5 @@ end
 
 
 function enemy:OnUpdate()
-	
 end
 return enemy

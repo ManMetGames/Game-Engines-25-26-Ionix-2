@@ -39,6 +39,8 @@ namespace IonixEngine
 
         layerScene = new LayerScene();
         AddLayer(layerScene);
+        Scripting::Get().Init();
+        Scripting::Get().GetLuaState().script_file("Scripts/settings.lua");
     }
 
     Application::~Application()
@@ -60,15 +62,7 @@ namespace IonixEngine
     {
         m_Running = true;
 
-        if (!SoundManager::GetInstance().Init())
-        {
-            std::cerr << "[Error] Failed to initialize SoundManager audio device.\n";
-            return;
-        }
-
-        // No more Init() or ExecuteScript() here
         Scripting::Get().CallHook("OnStart");
-
         SDL_Renderer* renderer = m_Window->GetSdlRenderer();
 
         while (m_Running)
@@ -81,8 +75,10 @@ namespace IonixEngine
                 if (layer)
                     layer->OnUpdate();
             }
-
             if (layerInput->m_Input->IsKeyDown(SDL_SCANCODE_SPACE))
+            Scripting::Get().CallHook("OnUpdate");
+
+            /*if (layerInput->m_Input->IsKeyDown(SDL_SCANCODE_SPACE))
             {
                 std::cout << "Spacebar was pressed once \n";
             }
@@ -93,11 +89,10 @@ namespace IonixEngine
             if (layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_SPACE))
             {
                 std::cout << "Spacebar is being held down \n";
-            }
+            }*/
 
             layerInput->m_Input->CopyCodesEndFrame();
             Scripting::Get().CallHook("OnUpdate");
-
             m_Window->OnUpdate();
             SDL_RenderPresent(renderer);
         }

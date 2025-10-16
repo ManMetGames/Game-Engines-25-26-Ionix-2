@@ -30,6 +30,10 @@ namespace IonixEngine
 
         void RegisterWindowBindings();
 
+        void RegisterInputBindings();
+
+        void RegisterMafsFunction();
+
     };
 }
 
