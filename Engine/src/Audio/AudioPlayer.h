@@ -77,7 +77,6 @@ namespace IonixEngine
             }
         }
 
-        // Status query
         bool IsPlaying() const
         {
             if (m_Channel == -1)
@@ -86,6 +85,36 @@ namespace IonixEngine
             }
             
             return Mix_Playing(m_Channel) == 1;
+
+            //example:
+            // if (gunshotSound.IsPlaying())
+            // {
+            //     gunshotSound.Pause();
+            // or anything like that
+            // }
+        }
+
+        // Fire-and-forget sound (doesn't affect this instance's current playback)
+        void PlayOneShot(const std::string& soundName, float volumeScale = 1.0f)
+        {
+            Mix_Chunk* chunk = SoundManager::GetInstance().GetAudio(soundName);
+            if (chunk == nullptr)
+            {
+                SDL_Log("[AudioPlayer] Failed to play one-shot: sound '%s' not found", soundName.c_str());
+                return;
+            }
+            
+            // Play on any free channel (not this instance's m_Channel)
+            int tempChannel = Mix_PlayChannel(-1, chunk, 0);
+            if (tempChannel != -1)
+            {
+                // Apply volume with scale
+                int vol = static_cast<int>(volume * volumeScale);
+                Mix_Volume(tempChannel, vol);
+            }
+
+            // example:
+            // clickSound.PlayOneShot("ui_click", 0.8f); // Play at 80% of instance volume
         }
 
         // Music loop - loops by specified number of times
