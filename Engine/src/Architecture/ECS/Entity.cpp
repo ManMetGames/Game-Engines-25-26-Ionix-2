@@ -15,8 +15,6 @@ Entity::Entity(EntityID id) :
     components = std::vector<Component*>();
 }
 
-void Entity::Init(Scene* scene) { }
-
 void Entity::Render(RenderData* data) {
     for (Component* component : components) {
         if (!component->CanRender()) { continue; } 

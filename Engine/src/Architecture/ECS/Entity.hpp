@@ -32,12 +32,27 @@ namespace IonixEngine {
 
         // May want to add a pointer to scene entity belongs to?
 
-        void Init(Scene* scene);
+        /**
+         * Called once per frame after Entity::Update() - calls Component::Render() on all components with canRender flag set to true
+         * @param data - Context for renderer - should probably contain pointer/reference to render queue later
+         */
         void Render(RenderData* data);
+
+        /**
+         * Called once per frame - calls Component::Update() on all components without isTag set to true
+         * @param dt - Time since last frame
+         */
         void Update(float dt);
         void Collision(Entity* other);
         void Destroy(Scene* scene);
 
+        inline bool FlaggedForRemoval() { return remove; }
+
+        /**
+         * Get component without error checking
+         * @return Component pointer - will be nullptr if not component not present
+         * @example `entity->GetComponent<SpriteRenderer>()->someSpriteRendererField`
+         */
         template<typename T> T* GetComponent() {
             static_assert(std::is_base_of<Component, T>::value, "Type does not inherit component");
             for (Component* candidate : components) {
@@ -47,16 +62,28 @@ namespace IonixEngine {
                 }
             }
             return nullptr;
-        }
+        };
 
+        /**
+         * Adds component by pointer
+         * @return Added component
+         * @param component Component to add to components - recommended to pass component made via new to avoid lifetime issues
+         * @example `entity->AddComponent(new SpriteRenderer("./Assets/Image.png"));`
+         */
         template<typename T> T* AddComponent(T* component) {
             static_assert(std::is_base_of<Component, T>::value, "Type does not inherit component");
             if (!component) { return nullptr; }
             components.push_back(dynamic_cast<Component*>(component));
             components.back()->Start();
             return dynamic_cast<T*>(components.back());
-        }
+        };
 
+        /**
+         * Get component with nicer error handling
+         * @return If component was found
+         * @param out Pointer to found component - set to nullptr if returns false
+         * @example SpriteRenderer* renderer; if (entity->TryGetComponent(renderer)) { // do renderer things }
+         */
         template<typename T> bool TryGetComponent(T* out) {
             static_assert(std::is_base_of<Component, T>::value, "Type does not inherit component");
             for (Component* candidate : components) {
@@ -68,8 +95,28 @@ namespace IonixEngine {
             }
             out = nullptr;
             return false;
-        }
+        };
 
+        /**
+         * Get pointers to all matching components
+         * @return Vector of all components that successfully casted to T pointers
+         */
+        template<typename T> std::vector<T*> GetComponents() {
+            static_assert(std::is_base_of<Component, T>::value, "Type does not inherit component");
+            std::vector<T*> components;
+            for (Component* candidate : this->components) {
+                T* component = dynamic_cast<T*>(candidate);
+                if (component) {
+                    components.push_back(component);
+                }
+            }
+            return components;
+        };
+
+        /**
+         * Check if component is present in components
+         * @return If component successfully casts to a T pointer returns true
+         */
         template<typename T> bool HasComponent() {
             static_assert(std::is_base_of<Component, T>::value, "Type does not inherit component");
             for (Component* candidate : components) {
@@ -79,6 +126,6 @@ namespace IonixEngine {
                 }
             }
             return false;
-        }
+        };
     };
 };
