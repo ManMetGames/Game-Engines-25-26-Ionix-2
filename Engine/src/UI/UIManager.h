@@ -45,13 +45,13 @@ namespace IonixEngine
 
 		void RenderElement(UIElement& element);
 	public:
-		void UIManager::BeginGroup(const std::string& groupName);
+		void BeginGroup(const std::string& groupName);
 		
-		void UIManager::EndGroup();
+		void EndGroup();
 
-		void UIManager::BeginPanel(const std::string& panelName);
+		void BeginPanel(const std::string& panelName);
 
-		void UIManager::EndPanel();
+		void EndPanel();
 		
 		// Add for new UITypes below
 		void AddLabel(int x, int y, float xSize, float ySize, const char* text);

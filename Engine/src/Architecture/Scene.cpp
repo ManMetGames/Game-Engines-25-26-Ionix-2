@@ -4,8 +4,27 @@
 #include "SDL_render.h"
 
 namespace IonixEngine {
+
+    SceneHandle::SceneHandle() {
+        currentScene = nullptr;
+    }
+
+    void SceneHandle::SetScene(Scene* scene) {
+       currentScene = scene;
+    }
+
+    SceneHandle& Scene::Handle() {
+        static SceneHandle handle;
+        return handle;
+    }
+
+    Scene* Scene::CurrentScene() {
+        return Handle().currentScene;
+    }
+
     void Scene::OnEnter() {
         SDL_Log("[Scene] Started Scene");
+        Handle().SetScene(this);
         renderData.renderer = Application::Get().GetWindow().GetSdlRenderer();
 
         EntityID en = CreateEntity();
@@ -40,7 +59,7 @@ namespace IonixEngine {
     EntityID Scene::CreateEntity() {
         const EntityID entityId = m_NextId++;
         const std::size_t index = m_Entities.size();
-        m_Entities.push_back(Entity{ entityId });
+        m_Entities.push_back(Entity(entityId, this));
         m_IdToIndex[entityId] = index;
         return entityId;
     }

@@ -1,12 +1,12 @@
 #include "Entity.hpp"
 #include "Component.hpp"
-#include <type_traits>
 #include <vector>
 
 namespace IonixEngine {
 
-Entity::Entity(EntityID id) : 
+Entity::Entity(EntityID id, Scene* scene) : 
     id(id),
+    scene(scene),
     position(Vec2 { 0, 0 }), 
     zOrder(0), 
     rotation(0), 

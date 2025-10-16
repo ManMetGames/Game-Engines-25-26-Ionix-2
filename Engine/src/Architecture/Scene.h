@@ -7,15 +7,25 @@
 #include <cstdint>
 #include <unordered_map>
 
-namespace IonixEngine
-{
+namespace IonixEngine {
+    struct SceneHandle {
+        Scene* currentScene;
+        // Scene* persistentScene
+        
+        SceneHandle();
+
+        void SetScene(Scene* scene);
+    };
+
     // Base interface for a game Scene (single active scene model)
-    class Scene
-    {
+    class Scene {
         RenderData renderData;
+        static SceneHandle& Handle();
     public:
         ~Scene() = default;
-
+        
+        // Get current scene
+        Scene* CurrentScene();
         // Called when the scene becomes the active scene
         void OnEnter();
         // Called when the scene stops being the active scene

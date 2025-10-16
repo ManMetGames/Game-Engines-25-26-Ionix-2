@@ -26,8 +26,8 @@ namespace IonixEngine {
         int32_t zOrder;
         EntityID id;
 
-        Entity(EntityID id);
-
+        Entity(EntityID id, Scene* scene);
+        Scene* scene;
         std::vector<Component*> components;
 
         // May want to add a pointer to scene entity belongs to?
