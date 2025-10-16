@@ -10,6 +10,17 @@ bool is_windows = true;
 bool is_windows = false;
 #endif
 
+#ifndef _WIN32
+bool add_imgui_src = true;
+#else
+#ifdef WIN_TEST
+bool add_imgui_src = true;
+#else
+bool add_imgui_src = false;
+#endif
+#endif
+
+
 void get_sources(const char* path, Nob_File_Paths* source, Nob_File_Paths* header, Nob_File_Paths* include);
 
 void multi_da_append(Nob_File_Paths* first, Nob_File_Paths* second, const char* path);
@@ -51,13 +62,20 @@ int main(int argc, char* argv[]) {
     get_sources("./Client/src/", &client_source_files, &client_header_files, &client_include);
     get_libs(&client_include, &engine_include, &client_libs, &engine_libs, &os_libs);
 
+    if (add_imgui_src) nob_da_append(&engine_source_files, "./dependencies/bin/imgui/imgui.cpp");
+    if (add_imgui_src) nob_da_append(&engine_source_files, "./dependencies/bin/imgui/imgui_demo.cpp");
+    if (add_imgui_src) nob_da_append(&engine_source_files, "./dependencies/bin/imgui/imgui_draw.cpp");
+    if (add_imgui_src) nob_da_append(&engine_source_files, "./dependencies/bin/imgui/imgui_tables.cpp");
+    if (add_imgui_src) nob_da_append(&engine_source_files, "./dependencies/bin/imgui/imgui_widgets.cpp");
+
     const char* version = "-std=c++17";
 
     Nob_Procs procs = { 0 };
     Nob_Cmd cmd = { 0 };
 
     size_t save = nob_temp_save();
-
+    
+    // ENGINE COMPILE START
     for (size_t i = 0; i < engine_source_files.count; i++) {
         nob_cmd_append(&cmd, "clang++");
         nob_cmd_append(&cmd, "-c");
@@ -75,6 +93,7 @@ int main(int argc, char* argv[]) {
 
     nob_procs_wait_and_reset(&procs);
     nob_temp_rewind(save);
+    // ENGINE LINK START
 
     Nob_File_Paths objs = { 0 };
     nob_read_entire_dir("./build/Engine/", &objs);
@@ -112,16 +131,10 @@ int main(int argc, char* argv[]) {
 
     const char* exe = is_windows ? "./Client/Client.exe" : "./Client/client";
 
+    // CLIENT COMPILE + LINK START
     nob_cmd_append(&cmd, "clang++");
     nob_cmd_append(&cmd, version);
     nob_da_append_many(&cmd, client_source_files.items, client_source_files.count);
-    if (!is_windows) nob_cmd_append(&cmd, "./dependencies/bin/imgui/backends/imgui_impl_sdl2.cpp");
-    if (!is_windows) nob_cmd_append(&cmd, "./dependencies/bin/imgui/backends/imgui_impl_opengl3.cpp");
-    if (!is_windows) nob_cmd_append(&cmd, "./dependencies/bin/imgui/imgui.cpp");
-    if (!is_windows) nob_cmd_append(&cmd, "./dependencies/bin/imgui/imgui_demo.cpp");
-    if (!is_windows) nob_cmd_append(&cmd, "./dependencies/bin/imgui/imgui_draw.cpp");
-    if (!is_windows) nob_cmd_append(&cmd, "./dependencies/bin/imgui/imgui_tables.cpp");
-    if (!is_windows) nob_cmd_append(&cmd, "./dependencies/bin/imgui/imgui_widgets.cpp");
     nob_cc_output(&cmd, exe);
     nob_da_append_many(&cmd, client_include.items, client_include.count);
     nob_da_append_many(&cmd, engine_include.items, engine_include.count);
@@ -181,7 +194,7 @@ void get_libs(Nob_File_Paths* clientInclude, Nob_File_Paths* engineInclude, Nob_
         multi_da_append(clientLibs, engineLibs, "-lSDL2_mixer");
         multi_da_append(clientLibs, engineLibs, "-lbox2d");
         multi_da_append(clientLibs, engineLibs, "-lSDL2");
-        multi_da_append(clientLibs, engineLibs, "-limgui");
+        if (!add_imgui_src) multi_da_append(clientLibs, engineLibs, "-limgui");
 
         nob_da_append(os_libs, "-lmsvcrt");
     } else {
