@@ -11,6 +11,11 @@ namespace IonixEngine
     class Audio
     {
     public:
+        // Per-instance properties (more should be added, leaving it to the audio team members)
+        float volume = 128.0f;
+        bool mute = false;
+        std::string clip = "";
+
         void PlayAudio(const std::string& soundName, int loops)
         {
             Mix_Chunk* chunk = SoundManager::GetInstance().GetAudio(soundName);
@@ -21,14 +26,34 @@ namespace IonixEngine
             }
 
             m_Channel = Mix_PlayChannel(-1, chunk, loops);
+            
+            // Apply volume (unless muted)
+            if (m_Channel != -1)
+            {
+                int vol = mute ? 0 : static_cast<int>(volume);
+                Mix_Volume(m_Channel, vol);
+            }
         }
 
+        void Play()
+        {
+            if (clip.empty())
+            {
+                SDL_Log("[AudioPlayer] Cannot play: no clip assigned");
+                return;
+            }
+            
+            PlayAudio(clip, 0);
+            // example:
+            // gunshotSound.clip = "gunshot";
+            // gunshotSound.volume = 64;
+            // gunshotSound.Play();
+        }
 
-        float volume = 128.0f;
         void ChangeVolume(float vol)
         {
             volume = vol;
-            if (m_Channel != -1)
+            if (m_Channel != -1 && !mute)
             {
                 Mix_Volume(m_Channel, static_cast<int>(volume));
             }
