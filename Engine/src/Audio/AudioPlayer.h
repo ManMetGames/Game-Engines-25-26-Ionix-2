@@ -8,7 +8,7 @@
 
 namespace IonixEngine
 {
-    class Audio
+    class AudioPlayer
     {
     public:
         // Per-instance properties (more should be added, leaving it to the audio team members)
