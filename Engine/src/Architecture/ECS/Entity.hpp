@@ -43,9 +43,23 @@ namespace IonixEngine {
          * @param dt - Time since last frame
          */
         void Update(float dt);
+
+        /**
+         * Called when two physics objects collide/intersect - called multiple times while colliding
+         * @param other - Entity this entity collided with
+         */
         void Collision(Entity* other);
+
+        /**
+         * Sets remove flag to true and calls Component::Destroy on all non tag components
+         * @param scene - Scene this entity belongs to
+         */
         void Destroy(Scene* scene);
 
+        /**
+         * Returns whether entity is flagged for removal
+         * @return - remove flag value
+         */
         inline bool FlaggedForRemoval() { return remove; }
 
         /**
