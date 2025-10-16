@@ -11,7 +11,7 @@ namespace IonixEngine
     class Audio
     {
     public:
-        void Audio::PlayAudio(const std::string& soundName, int loops)
+        void PlayAudio(const std::string& soundName, int loops)
         {
             Mix_Chunk* chunk = SoundManager::GetInstance().GetAudio(soundName);
             if (chunk == nullptr)
@@ -24,10 +24,14 @@ namespace IonixEngine
         }
 
 
-        float Audio::volume = 128;
-        void Audio::ChangeVolume(float volume)
+        float volume = 128.0f;
+        void ChangeVolume(float vol)
         {
-            Mix_MasterVolume(volume);
+            volume = vol;
+            if (m_Channel != -1)
+            {
+                Mix_Volume(m_Channel, static_cast<int>(volume));
+            }
         }
 
 
@@ -49,7 +53,7 @@ namespace IonixEngine
         }
 
         // Music loop - loops by specified number of times
-        void Audio::LoopAudioByTimes(Mix_Music* music, int loops)
+        void LoopAudioByTimes(Mix_Music* music, int loops)
         {
             Mix_PlayMusic(music, loops); // loops: 0 = once, 1+ = that many times, -1 = infinite
         }
