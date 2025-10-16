@@ -20,7 +20,7 @@ namespace IonixEngine
                 return;
             }
 
-            Mix_PlayChannel(-1, chunk, loops);
+            m_Channel = Mix_PlayChannel(-1, chunk, loops);
         }
 
 
@@ -34,12 +34,18 @@ namespace IonixEngine
         // play/pause function
         void Pause()
         {
-            Mix_Pause(-1);//pauses audio
+            if (m_Channel != -1)
+            {
+                Mix_Pause(m_Channel);
+            }
         }
 
         void Resume()
         {
-            Mix_Resume(-1);//resumes audio
+            if (m_Channel != -1)
+            {
+                Mix_Resume(m_Channel);
+            }
         }
 
         // Music loop - loops by specified number of times
@@ -47,5 +53,8 @@ namespace IonixEngine
         {
             Mix_PlayMusic(music, loops); // loops: 0 = once, 1+ = that many times, -1 = infinite
         }
+
+    private:
+        int m_Channel = -1; // SDL_mixer channel this instance is using (-1 = not playing)
     };
 }
