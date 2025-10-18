@@ -152,16 +152,32 @@ namespace IonixEngine {
 	{
 		auto clamp = [](double x, double min, double max) -> double {
 			return Maf::mafClamp(x, min, max);
-		};
+			};
+		auto abs = [](double x) -> double {
+			return Maf::mafAbs(x);
+			};
+		auto min = [](double x, double minVal) -> double {
+			return Maf::mafMin(x, minVal);
+			};
+		auto max = [](double x, double maxVal) -> double {
+			return Maf::mafMax(x, maxVal);
+			};
+		auto round = [](double x) -> double {
+			return Maf::mafRound(x);
+			};
 		auto log = [](double x) -> double {
 			return Maf::Log(x);
-		};
+			};
 		auto logCustom = [](double x, double base) -> double {
 			return Maf::Log(x, base);
-		};
+			};
 
 		m_LuaState["Mafs"] = m_LuaState.create_table_with(
 			"clamp", clamp,
+			"abs", abs,
+			"min", min,
+			"max", max,
+			"round", round,
 			"log", log,
 			"log_custom", logCustom
 		);
