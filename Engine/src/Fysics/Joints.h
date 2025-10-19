@@ -8,15 +8,15 @@ namespace IonixEngine
     public:
         b2World* world;    
 
-     
-
         b2JointUserData userData;
         Joints()
         {
             world = LayerFysics::GetInstance()->GetWorld();          
         }              
 
-        virtual void destroyJoint();
+        void destroyJoint(b2Joint* joint) {
+            world->DestroyJoint(joint);
+        }
     
         b2Body* getBodyA(b2Joint* joint) {
             return joint->GetBodyA();
@@ -36,16 +36,13 @@ namespace IonixEngine
 
         void getUserData(b2Joint* joint) {
            userData = joint->GetUserData();
-        }
-
-       
+        }     
     };
 
     class PrismaticJoints : public Joints{
-    public:
-
-        PrismaticJoints() : Joints() {}
+    private:
         b2PrismaticJoint* joint;
+    public:
 
       void setJoint(b2Body* bodyA, b2Body* bodyB, b2Vec2 worldAxis, float lowerTranslation, float upperTranslation, bool enableLimit, float maxMotorForce, float motorSpeed, bool enableMotor) {
          b2PrismaticJointDef jointDef;
@@ -62,9 +59,6 @@ namespace IonixEngine
       }
       b2Joint* getJoint() {
           return joint;
-      }
-      void destroyJoint() override {
-          world->DestroyJoint(joint);
       }
 
       float getJointTranslation() {
@@ -88,15 +82,33 @@ namespace IonixEngine
       }
     };
 
-    class WeldJoints {
+    class WeldJoints : Joints {
+    private:
+        b2WeldJoint* joint;
 
+    public:
+
+        void setJoint(b2Body* bodyA, b2Body* bodyB) {
+            b2WeldJointDef jointDef;
+
+            b2Vec2 anchor = bodyA->GetWorldCenter();
+
+            jointDef.Initialize(bodyA,bodyB,anchor);
+
+            joint = (b2WeldJoint*)world->CreateJoint(&jointDef);
+
+        }
+
+        b2Joint* getJoint() {
+            return joint;
+        }
     };
 
     class PulleyJoints : public Joints {
-    public:
-        PulleyJoints() : Joints() {}
-
+    private:
         b2PulleyJoint* joint;
+
+    public:
 
         void setJoint(b2Body* bodyA, b2Body* bodyB, b2Vec2 p1, b2Vec2 p2, float ratio, float lengthA, float lengthB) {
 
@@ -119,7 +131,10 @@ namespace IonixEngine
         float getLengthB() {
             return joint->GetLengthA();
         }
+
+        b2Joint* getJoint() {
+            return joint;
+        }
     };
-    
 }
 
