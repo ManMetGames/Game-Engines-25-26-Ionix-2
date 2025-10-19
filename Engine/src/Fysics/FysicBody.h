@@ -117,7 +117,41 @@ namespace IonixEngine
                 body->SetTransform(currentPos, angleInRadians);
             }
         }
-        
+
+        //Get&Set Linear Velocity
+        b2Vec2 GetLinearVelocity() const
+        {
+            if (body)
+            {
+                return body->GetLinearVelocity();
+            }
+            return b2Vec2(0.0f, 0.0f);
+        }
+        void SetLinearVelocity(float x, float y)
+        {
+            if (body)
+            {
+                b2Vec2 newVelocity(x, y);
+                body->SetLinearVelocity(newVelocity);
+            }
+        }
+
+        //Get&Set Angular Velocity
+        float GetAngularVelocity() const
+        {
+            if (body)
+            {
+                return body->GetAngularVelocity();
+            }
+            return 0.0f;
+        }
+        void SetAngularVelocity(float x)
+        {
+            if (body)
+            {
+                body->SetAngularVelocity(x);
+            }
+        }
     };
 }
 
