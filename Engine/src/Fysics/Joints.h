@@ -14,12 +14,9 @@ namespace IonixEngine
         Joints()
         {
             world = LayerFysics::GetInstance()->GetWorld();          
-        }
+        }              
 
-   
-        virtual void setJoint(b2Body* bodyA, b2Body* bodyB);       
-
-        virtual void deleteJoint();
+        virtual void destroyJoint();
     
         b2Body* getBodyA(b2Joint* joint) {
             return joint->GetBodyA();
@@ -50,16 +47,15 @@ namespace IonixEngine
         PrismaticJoints() : Joints() {}
         b2PrismaticJoint* joint;
 
-      void setJoint(b2Body* bodyA, b2Body* bodyB) override {
+      void setJoint(b2Body* bodyA, b2Body* bodyB, b2Vec2 worldAxis, float lowerTranslation, float upperTranslation, bool enableLimit, float maxMotorForce, float motorSpeed, bool enableMotor) {
          b2PrismaticJointDef jointDef;
-         b2Vec2 worldAxis(1.0f, 0.0f);
          jointDef.Initialize(bodyA, bodyB, bodyA->GetWorldCenter(), worldAxis);
-         jointDef.lowerTranslation = -5.0f;
-         jointDef.upperTranslation = 2.5f;
-         jointDef.enableLimit = true;
-         jointDef.maxMotorForce = 1.0f;
-         jointDef.motorSpeed = 0.0f;
-         jointDef.enableMotor = true;
+         jointDef.lowerTranslation = lowerTranslation;
+         jointDef.upperTranslation = upperTranslation;
+         jointDef.enableLimit = enableLimit;
+         jointDef.maxMotorForce = maxMotorForce;
+         jointDef.motorSpeed = motorSpeed;
+         jointDef.enableMotor = enableMotor;
 
          joint = (b2PrismaticJoint*)world->CreateJoint(&jointDef);
 
@@ -67,7 +63,7 @@ namespace IonixEngine
       b2Joint* getJoint() {
           return joint;
       }
-      void deleteJoint() override {
+      void destroyJoint() override {
           world->DestroyJoint(joint);
       }
 
@@ -79,8 +75,8 @@ namespace IonixEngine
           return joint->GetJointSpeed();
       }
 
-      float getMotorForce() {
-          return joint->GetMotorForce(60.0f); //requires inverse delta time to be made
+      float getMotorForce(float inverseDeltaTime) {
+          return joint->GetMotorForce(inverseDeltaTime);
       }
 
       void SetMotorSpeed(float speed) {
@@ -96,8 +92,33 @@ namespace IonixEngine
 
     };
 
-    class PulleyJoints {
+    class PulleyJoints : public Joints {
+    public:
+        PulleyJoints() : Joints() {}
 
+        b2PulleyJoint* joint;
+
+        void setJoint(b2Body* bodyA, b2Body* bodyB, b2Vec2 p1, b2Vec2 p2, float ratio, float lengthA, float lengthB) {
+
+            b2Vec2 anchorA = bodyA->GetWorldCenter();
+            b2Vec2 anchorB = bodyB->GetWorldCenter();
+
+            b2Vec2 groundAnchorA(p1.x, p1.y + lengthA);
+            b2Vec2 groundAnchorB(p1.x, p1.y + lengthB);
+
+            b2PulleyJointDef jointDef;
+            jointDef.Initialize(bodyA, bodyB, groundAnchorA, groundAnchorB, anchorA, anchorB, ratio);
+
+            joint = (b2PulleyJoint*)world->CreateJoint(&jointDef);
+        }
+
+        float getLengthA() {
+            return joint->GetLengthA();
+        }
+
+        float getLengthB() {
+            return joint->GetLengthA();
+        }
     };
     
 }
