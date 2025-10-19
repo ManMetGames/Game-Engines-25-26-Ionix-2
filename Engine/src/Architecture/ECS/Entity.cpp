@@ -73,10 +73,37 @@ namespace IonixEngine {
 
             float angle = parentRot;
 
+            //turns out there's a lot of edge cases here
+            //angle additions if x & y are non-zero
             if (position.x != 0.0f && position.y != 0.0f)
             {
-                angle += (atan((position.x / position.y)) - 180.0f);
+                if (position.y > 0.0f)
+                {
+                    angle += atan(position.x / position.y);
+                }
+                else
+                {
+                    angle += (atan((position.x / position.y)) + 180.0f);
+                }
             }
+            //angle additions if either x or y is zero
+            else if (position.y == 0.0f)
+            {
+                if (position.x > 0.0f)
+                {
+                    angle += 90.0f;
+                }
+                else
+                {
+                    angle -= 90.0f;
+                }
+            }
+            else if (position.x == 0.0f && position.y < 0.0f)
+            {
+                angle += 180.0f;
+            }
+            //apparently, there's no action taken if x = 0 and y > 0
+
 
             float mag = sqrt(pow(position.x, 2) + pow(position.y, 2));
 
