@@ -152,6 +152,25 @@ namespace IonixEngine
                 body->SetAngularVelocity(x);
             }
         }
+        
+        //Add Force
+        
+        void AddForce(b2Vec2 force, b2Vec2 point)
+        {
+            if (body)
+            {
+                body->ApplyForce(force, point, true);
+            }
+        }
+
+        void AddForceToCenter(b2Vec2 force)
+        {
+            if (body)
+            {
+                body->ApplyForceToCenter(force, true);
+            }
+        }
+        
     };
 }
 
