@@ -68,6 +68,56 @@ namespace IonixEngine
             bodyDef.gravityScale = gravityScale;
             body = world->CreateBody(&bodyDef);
         }
+
+        ~FysicBody()
+        {
+            if (world && body)
+            {
+                world->DestroyBody(body);
+                body = nullptr;
+            }
+        }
+
+
+        //Get & Set Position
+        b2Vec2 GetPosition() const
+        {
+            if (body)
+            {
+                return body->GetPosition();
+            }
+            return b2Vec2(0.0f, 0.0f);            
+        }
+
+        void SetPosition(float x, float y)
+        {
+            if (body)
+            {
+                b2Vec2 newPos(x, y);
+                body->SetTransform(newPos, body->GetAngle());//Sets the position, and makes sure the angle doesnt change
+            }
+        }
+
+        //Get & Set Angle
+
+        float GetAngle() const
+        {
+            if (body)
+            {
+                return body->GetAngle();
+            }
+            return 0.0f;
+        }
+
+        void SetAngle(float angleInRadians)
+        {
+            if (body)
+            {
+                b2Vec2 currentPos = body->GetPosition();
+                body->SetTransform(currentPos, angleInRadians);
+            }
+        }
+        
     };
 }
 
