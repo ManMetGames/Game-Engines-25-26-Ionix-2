@@ -15,6 +15,7 @@ namespace IonixEngine
         switch (e.type)
         {
         case SDL_WINDOWEVENT:
+            // Window
             switch (e.window.event)
             {
             case SDL_WINDOWEVENT_CLOSE:
@@ -26,6 +27,8 @@ namespace IonixEngine
                 break;
             }
             break;
+
+            // Keyboard
             case SDL_KEYDOWN:
                 Application::Get().layerInput->m_Input->SetKeyPressed(e.key.keysym.scancode); 
                 break;
@@ -34,6 +37,13 @@ namespace IonixEngine
                 Application::Get().layerInput->m_Input->SetKeyReleased(e.key.keysym.scancode);
                 break;
 
+            // Controller
+            case SDL_CONTROLLERDEVICEADDED:
+
+                break;
+            case SDL_CONTROLLERDEVICEREMOVED:
+
+                break;
         }
     }
 }

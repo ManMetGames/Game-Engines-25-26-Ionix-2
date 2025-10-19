@@ -7,6 +7,9 @@ namespace IonixEngine
     class Input
     {
     public:
+
+    // Keyboard
+
         bool IsKeyDown(SDL_Scancode code) const
         {
             // Not held down previous frame
@@ -41,9 +44,35 @@ namespace IonixEngine
         {
             previousKeys = currentKeys;
         }
+
+     // Controller
+
+        // connect/remove controller
+        void FindController()
+        {
+            SDL_GameController* controller = findController(); // finds the controller 
+        }
+
+        // controller button down
+        // controller button up
+
     private:
         std::unordered_set<SDL_Scancode> currentKeys;
         std::unordered_set<SDL_Scancode> previousKeys;
+        
+        // Pointer to find controller
+        // supposed to grab its ID to say how many there are 
+        SDL_GameController* findController()
+        {
+            for (int i = 0; i < SDL_NumJoysticks(); i++)
+            {
+                if (SDL_IsGameController(i))
+                {
+                    return SDL_GameControllerOpen(i);
+                }
+            }
+            return nullptr;
+        }
     };
 }
 
