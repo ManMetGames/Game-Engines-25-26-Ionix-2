@@ -1,7 +1,6 @@
 #include "Application.h"
 #include "LayerSystem/Layers/LayerTexture.hpp"
 
-
 namespace IonixEngine {
     Application* Application::s_Instance = nullptr;
 }
@@ -14,9 +13,9 @@ namespace IonixEngine
         : m_Window(new Window())
     {
         s_Instance = this;
+        Scripting::Get().Init();
+        Scripting::Get().ExecuteScript("Scripts/settings.lua");
 
-
-        //Initialise layers...
         layerEditor = new LayerEditor();
         AddLayer(layerEditor);
 
@@ -43,8 +42,8 @@ namespace IonixEngine
         Scripting::Get().Init();
         Scripting::Get().GetLuaState().script_file("Scripts/settings.lua");
     }
-        
-    Application::~Application() 
+
+    Application::~Application()
     {
         delete m_Window;
         m_Window = nullptr;
@@ -57,7 +56,6 @@ namespace IonixEngine
             if (e.Handled)
                 break;
         }
-
     }
 
     void Application::Run()
@@ -69,16 +67,16 @@ namespace IonixEngine
 
         while (m_Running)
         {
-			      SDL_RenderClear(renderer);
-			      SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);
-          
+            SDL_RenderClear(renderer);
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);
+
             for (auto layer : m_LayerStack.GetLayers())
             {
-                if(layer)
+                if (layer)
                     layer->OnUpdate();
             }
-
-            // Scripting::Get().CallHook("OnUpdate");
+            if (layerInput->m_Input->IsKeyDown(SDL_SCANCODE_SPACE))
+            Scripting::Get().CallHook("OnUpdate");
 
             /*if (layerInput->m_Input->IsKeyDown(SDL_SCANCODE_SPACE))
             {
@@ -94,12 +92,13 @@ namespace IonixEngine
             }*/
 
             layerInput->m_Input->CopyCodesEndFrame();
-
             Scripting::Get().CallHook("OnUpdate");
-          
             m_Window->OnUpdate();
             SDL_RenderPresent(renderer);
         }
+
+        Scripting::Get().CallHook("OnShutdown");
+        SoundManager::GetInstance().Shutdown();
 
         for (auto layer : m_LayerStack.GetLayers()) {
             layer->OnDetach();
