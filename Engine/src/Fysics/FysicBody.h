@@ -187,6 +187,14 @@ namespace IonixEngine
                 body->ApplyLinearImpulseToCenter(impulse, true);
             }
         }
+        //Add Torque
+        void AddTorque(float torque)
+        {
+            if (body)
+            {
+                body->ApplyTorque(torque, true);
+            }
+        }
         
     };
 }
