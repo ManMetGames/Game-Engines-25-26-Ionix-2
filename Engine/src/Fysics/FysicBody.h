@@ -170,6 +170,23 @@ namespace IonixEngine
                 body->ApplyForceToCenter(force, true);
             }
         }
+        // Add impulse
+        void AddImpulse(b2Vec2 impulse, b2Vec2 point)
+        {
+            if (body)
+            {
+                body->ApplyLinearImpulse(impulse, point, true);
+            }
+        }
+
+        // Add impulse at the center of mass
+        void AddImpulseToCenter(b2Vec2 impulse)
+        {
+            if (body)
+            {
+                body->ApplyLinearImpulseToCenter(impulse, true);
+            }
+        }
         
     };
 }
