@@ -10,14 +10,15 @@ namespace IonixEngine
         bool IsKeyDown(SDL_Scancode code) const
         {
             // Not held down previous frame
-            
+
             // Held down current frame
             return !previousKeys.count(code) && currentKeys.count(code);
         }
+
         bool IsKeyUp(SDL_Scancode code) const
         {
             // Was held down previous frame
-            
+
             // No longer held down on current frame
             return previousKeys.count(code) && !currentKeys.count(code);
         }

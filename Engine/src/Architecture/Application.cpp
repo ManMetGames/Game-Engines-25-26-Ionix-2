@@ -1,5 +1,6 @@
 #include "Application.h"
 #include "LayerSystem/Layers/LayerTexture.hpp"
+#include <iostream>
 
 
 namespace IonixEngine {
@@ -93,10 +94,9 @@ namespace IonixEngine
                 std::cout << "Spacebar is being held down \n";
             }*/
 
+            Scripting::Get().CallHook("OnUpdate");
             layerInput->m_Input->CopyCodesEndFrame();
 
-            Scripting::Get().CallHook("OnUpdate");
-          
             m_Window->OnUpdate();
             SDL_RenderPresent(renderer);
         }
