@@ -113,10 +113,10 @@ namespace IonixEngine
 
     bool Transform::RemoveChild(Transform* child)
     {
-        auto thing = std::find(childTransforms.begin(), childTransforms.end(), child);
-        if (thing != childTransforms.end())
+        auto iterator = std::find(childTransforms.begin(), childTransforms.end(), child);
+        if (iterator != childTransforms.end())
         {
-            childTransforms.erase(thing);
+            childTransforms.erase(iterator);
             return true;
         }
         else { return false; }
