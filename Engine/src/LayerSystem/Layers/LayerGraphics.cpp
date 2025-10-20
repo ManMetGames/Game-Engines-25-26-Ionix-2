@@ -21,7 +21,7 @@ namespace IonixEngine
     }
 
     void LayerGraphics::OnUpdate() {
-        // no longer causes a memory leak <3
+        // no longer causes an EVIL memory leak <3
         sprite1.draw(150,0,250,200);
     }
 
