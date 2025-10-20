@@ -2,6 +2,7 @@
 
 #include "Component.hpp"
 #include "Temp_Vec2.hpp"
+#include "Transforms.h"
 #include <cstdint>
 #include <vector>
 #include <type_traits>
@@ -25,8 +26,7 @@ namespace IonixEngine {
         float rotation;
         int32_t zOrder;
         EntityID id;
-        EntityID parentID;
-        std::vector<EntityID> childID;
+        Transform* transforms;
 
         Entity(EntityID id);
 
@@ -39,9 +39,6 @@ namespace IonixEngine {
         void Update(float dt);
         void Collision(Entity* other);
         void Destroy(Scene* scene);
-
-        float GetGlobalRotation(Scene* scene);
-        Vec2 GetGlobalPosition(Scene* scene);
 
         template<typename T> T* GetComponent() {
             static_assert(std::is_base_of<Component, T>::value, "Type does not inherit component");
