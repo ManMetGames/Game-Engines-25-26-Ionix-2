@@ -1,49 +1,81 @@
 #include "Graphics/QueueRenderer.h"
-
+#include <vector>
 
 void QueueRenderer::AddToQueue(string spriteName)
 {
 	sprites->push(spriteName);
 }
 
-void QueueRenderer::OrderQueueByZ(queue<string> &sprites, int z)
+void QueueRenderer::Merger(int arr[], int left, int mid, int right)
 {
-	//Merge sort algorithm 
-	list<string> leftHand;
-	list<string> rightHand;
+	int n1 = mid - left + 1;
+	int n2 = right - mid;
 
-	//DEFINE LISTS FOR MERGE SORT (LEFT AND RIGHT HAND)
-	int length = sprites.size();
-	for (int i = 0; i < (sprites.size()); i++) //Add the first half of queue to the left-hand list of the merge 
+	int leftHand[n1];
+	int rightHand[n2];
+
+	for (int i = 0; i < n1; i++)
 	{
-		if (sprites.size() % 2 != 0)
+		leftHand[i] = arr[left + i];
+	}
+	for (int j = 0; j < n2; j++)
+	{
+		rightHand[j] = arr[mid + 1 + j];
+	}
+	int i = 0, j = 0, k = left;
+
+	while (i < n1 && j < n2)
+	{
+		if (leftHand[i] < rightHand[j])
 		{
-			if ((sprites.size() / 2) + 1 < i)
-			{
-				std::string curElement = sprites.front();
-				leftHand.push_front(curElement);
-				sprites.pop(); //Removes from front
-				continue;
-			}
+			arr[k] = leftHand[i];
+			i++;
 		}
-		else //If not odd (so even)
+		else
 		{
-			if (sprites.size() / 2 < i)
-			{
-				std::string curElement = sprites.front();
-				leftHand.push_front(curElement);
-				sprites.pop(); //Removes from front
-				continue;
-			}
+			arr[k] = rightHand[j];
+			j++;
 		}
-		std::string curElement = sprites.front();
-		rightHand.push_front(curElement);
-		sprites.pop();
-		continue; //Not strictly needed
+		k++;
 	}
 
-	//SPLIT AND SORT
-	/*for (i += 0);*//* - jack ireland's contrabution to the project  */
+	while (i < n1) //Add anything left from left-hand
+	{
+		arr[k] = leftHand[i];
+		i++;
+		k++;
+	}
+
+	while (j < n2) //Add anything left from right-hand
+	{
+		arr[k] = rightHand[j];
+		j++;
+		k++;
+	}
+}
+
+void QueueRenderer::OrderQueueByZ(queue<int>& sprites)
+{
+	int temp[(sprites.size())]; //Creates temporary array from queue
+
+	for (int i = 0; i < sprites.size(); i++)
+	{
+		temp[i] = sprites.front();
+	}
+
+	MergeCaller(temp, 0, sprites.size() - 1);
+}
+
+void QueueRenderer::MergeCaller(int temp[])
+{
+	int length = sprites.size(); //Returns queue length
+	int left = 0;				 
+	int right = sprites.size() - 1;
+	int mid = left + (right - left) / 2;
+
+	MergeCaller(temp, left, mid);
+	MergeCaller(temp, mid + 1, right);
+	Merger(temp, left, mid, right)
 }
 
 void QueueRenderer::ClearQueue(queue<string>& sprites)
@@ -51,3 +83,5 @@ void QueueRenderer::ClearQueue(queue<string>& sprites)
 	queue<string> emptyQueue;
 	swap(sprites, emptyQueue);
 }
+
+void QueueRenderer::
