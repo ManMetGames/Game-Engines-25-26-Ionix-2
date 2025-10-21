@@ -24,13 +24,6 @@ namespace IonixEngine
             bodyDef.awake = true;
             bodyDef.fixedRotation = false;
             body = world->CreateBody(&bodyDef);
-
-            FysicsShapes fysicsShapes = FysicsShapes();
-
-            fysicsShapes = body->CreateFixture(&fixtureDef);
-
-
-
         }
         
         FysicBody(float xPos, float yPos, fysicBodyType b_type, bool rotationLocked)

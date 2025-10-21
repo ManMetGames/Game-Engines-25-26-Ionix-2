@@ -12,17 +12,16 @@ namespace IonixEngine
     class FysicsShapes
     {
         private:
-            //b2World* world;
+            b2World* world;
             b2Fixture* fixture;
-            //b2Body* body;
+            b2Body* body;
 
         public:
             
-            FysicsShapes()
+            FysicsShapes(b2Body* attachedBody)
             {
-                //world = LayerFysics::GetInstance()->GetWorld();
-                //body = attachedBody;
-                b2FixtureDef fixtureDef;
+                world = LayerFysics::GetInstance()->GetWorld();
+                body = attachedBody;
                 fixture = nullptr;
             }
 
@@ -43,9 +42,12 @@ namespace IonixEngine
 
                 shape.m_radius = radius;
                 shape.m_p = offset;
-                
+                b2FixtureDef fixtureDef;
+
                 fixtureDef.shape = &shape;
                 fixtureDef.isSensor = isTrigger;
+                fixture = body->CreateFixture(&fixtureDef);
+                
             }
 
 
