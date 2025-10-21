@@ -12,6 +12,9 @@ namespace IonixEngine
         SDL_Texture* img;
         SDL_Renderer* renderer;
 
+        //this sprite is just for testing purposes while we work on the sprite component xoxo
+        Sprite sprite1 = Sprite("aur naur.jpg");
+
     public:
         LayerGraphics();
         virtual void OnAttach() override;
