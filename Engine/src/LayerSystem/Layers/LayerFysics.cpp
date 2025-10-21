@@ -28,8 +28,6 @@ namespace IonixEngine
         b2Body* ground = world->CreateBody(&groundDef);
         b2PolygonShape g; g.SetAsBox(50.f, 1.f);
         ground->CreateFixture(&g, 0.f);
-
-
     }
     void LayerFysics::OnDetach() 
     {
