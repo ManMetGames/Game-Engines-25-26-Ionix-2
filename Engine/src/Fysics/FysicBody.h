@@ -2,6 +2,7 @@
 #include <sol/sol.hpp>
 
 #include "LayerSystem/Layers/LayerFysics.h"
+#include "Fysics/Shapes.h"
 
 namespace IonixEngine
 {
@@ -22,8 +23,13 @@ namespace IonixEngine
             bodyDef.position.Set(0, 10);
             bodyDef.awake = true;
             bodyDef.fixedRotation = false;
-            
             body = world->CreateBody(&bodyDef);
+
+            FysicsShapes fysicsShapes = FysicsShapes();
+
+            fysicsShapes = body->CreateFixture(&fixtureDef);
+
+
 
         }
         
