@@ -15,15 +15,23 @@ namespace IonixEngine
 		Transform* parentTransform;
 		Entity& parentEntity;
 
-	public:
 		Vec2 position;
 		float rotation;
+
+	public:
+
 
 		Transform(Entity& parentEntity);
 		Vec2 GetGlobalPosition();
 		float GetGlobalRotation();
 
-		void SetParent(Transform* parent);
+		void SetGlobalPosition(Vec2 transform);
+		void SetGlobalRotation(float rot);
+
+		Vec2 GetLocalPosition();
+		float GetLocalRotation();
+
+		void SetParent(Transform* parent, bool maintainLocation);
 		void RemoveParent(bool maintainLocation);
 
 		void AddChild(Transform* child);
