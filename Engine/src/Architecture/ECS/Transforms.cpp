@@ -4,10 +4,11 @@
 
 namespace IonixEngine
 {
-	Transform::Transform() :
-		position(Vec2{ 0.0f,0.0f }),
-		rotation(0.0f),
-		parentTransform(nullptr)
+    Transform::Transform(Entity& parentEntity) :
+        position(Vec2{ 0.0f,0.0f }),
+        rotation(0.0f),
+        parentTransform(nullptr),
+        parentEntity(parentEntity)
 	{
 		childTransforms = std::vector<Transform*>();
 	}

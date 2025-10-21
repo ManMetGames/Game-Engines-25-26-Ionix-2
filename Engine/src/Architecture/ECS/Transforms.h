@@ -13,12 +13,13 @@ namespace IonixEngine
 	private:
 		std::vector<Transform*> childTransforms;
 		Transform* parentTransform;
+		Entity& parentEntity;
 
 	public:
 		Vec2 position;
 		float rotation;
 
-		Transform();
+		Transform(Entity& parentEntity);
 		Vec2 GetGlobalPosition();
 		float GetGlobalRotation();
 
