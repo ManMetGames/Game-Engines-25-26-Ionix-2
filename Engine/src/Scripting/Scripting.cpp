@@ -150,13 +150,13 @@ namespace IonixEngine {
 	}
 	void Scripting::RegisterMafsBindings()
 	{
-		auto clamp = [](double x, double min, double max) -> double {
+		auto clamp = [](float x, float min, float max) -> float {
 			return Maf::mafClamp(x, min, max);
 		};
-		auto log = [](double x) -> double {
+		auto log = [](float x) -> float {
 			return Maf::Log(x);
 		};
-		auto logCustom = [](double x, double base) -> double {
+		auto logCustom = [](float x, float base) -> float {
 			return Maf::Log(x, base);
 		};
 
@@ -196,19 +196,19 @@ namespace IonixEngine {
 			return vec3.z;
 			};
 
-		auto mod = [](double x, double y) -> double {
+		auto mod = [](float x, float y) -> float {
 			return Maf::mafMod(x, y);
 			};
 
-		auto div = [](double x, double y) -> double {
+		auto div = [](float x, float y) -> float {
 			return Maf::mafDiv(x, y);
 			};
 
-		auto SqrMagnitudeVector2 = [](Maf::mafVector2<double> v) -> double {
+		auto SqrMagnitudeVector2 = [](Maf::mafVector2<float> v) -> float {
 			return Maf::mafSqrMagnitudeVec2(v);
 			};
 
-		auto SqrMagnitudeVector3 = [](Maf::mafVector3<double> v) -> double {
+		auto SqrMagnitudeVector3 = [](Maf::mafVector3<float> v) -> float {
 			return Maf::mafSqrMagnitudeVec3(v);
 			};
 
