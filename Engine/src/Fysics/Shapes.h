@@ -17,9 +17,10 @@ namespace IonixEngine
             b2Body* body;
 
         public:
-            //world = LayerFysics::GetInstance()->GetWorld();
+            
             FysicsShapes(b2Body* attachedBody)
             {
+                world = LayerFysics::GetInstance()->GetWorld();
                 body = attachedBody;
                 fixture = nullptr;
             }
@@ -28,6 +29,7 @@ namespace IonixEngine
             {
                 if (body && fixture)
                 {
+
                     body->DestroyFixture(fixture);
                     fixture = nullptr;
                 }
@@ -47,6 +49,51 @@ namespace IonixEngine
 
                 fixture = body->CreateFixture(&fixtureDef);
             }
+
+
+            void AddBox(float width, float height, b2Vec2 offset = { 0.0f, 0.0f }, float angle = 0.0f, bool isTrigger = false)
+            {
+                b2PolygonShape shape;
+                shape.SetAsBox(width * 0.5f, height * 0.5f, offset, angle); 
+
+                b2FixtureDef fixtureDef;
+
+                fixtureDef.shape = &shape;
+                fixtureDef.isSensor = isTrigger;
+
+                fixture = body->CreateFixture(&fixtureDef);
+            }
+
+
+            void AddPolygon(){
+
+
+
+            }
+
+
+
+
+
+
+
+
+            /*void AddPolygon(const std::vector<b2Vec2>& vertices, bool isTrigger = false)
+            {
+                if (vertices.size() < 3 || vertices.size() > b2_maxPolygonVertices)
+                    return;
+
+                b2PolygonShape shape;
+                shape.Set(vertices.data(), static_cast<int32>(vertices.size()));
+
+                b2FixtureDef fixtureDef;
+
+                fixtureDef.shape = &shape;
+                fixtureDef.isSensor = isTrigger;
+
+                fixture = body->CreateFixture(&fixtureDef);
+            }*/
+
     };
 
     
