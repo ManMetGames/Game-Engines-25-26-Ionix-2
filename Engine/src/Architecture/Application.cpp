@@ -64,7 +64,7 @@ namespace IonixEngine
     {
         m_Running = true;
 
-        //Scripting::Get().CallHook("OnStart");
+        Scripting::Get().CallHook("OnStart");
         SDL_Renderer* renderer = m_Window->GetSdlRenderer();
 
         while (m_Running)
@@ -78,7 +78,7 @@ namespace IonixEngine
                     layer->OnUpdate();
             }
 
-            // Scripting::Get().CallHook("OnUpdate");
+             Scripting::Get().CallHook("OnUpdate");
 
             if (layerInput->m_Input->IsKeyDown(SDL_SCANCODE_SPACE))
             {

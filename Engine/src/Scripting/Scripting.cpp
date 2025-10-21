@@ -211,9 +211,28 @@ namespace IonixEngine {
 			return Maf::mafSqrMagnitudeVec3(v);
 			};
 
+		auto abs = [](float x) -> float {
+			return Maf::mafAbs(x);
+			};
 
-		m_LuaState["Mafs"] = m_LuaState.create_table_with(
+		auto min = [](float x, float minVal) -> float {
+			return Maf::mafMin(x, minVal);
+			};
+
+		auto max = [](float x, float maxVal) -> float {
+			return Maf::mafMax(x, maxVal);
+			};
+
+		auto round = [](float x) -> float {
+			return Maf::mafRound(x);
+			};
+
+			m_LuaState["Mafs"] = m_LuaState.create_table_with(
 			"clamp", clamp,
+			"abs", abs,
+			"min", min,
+			"max", max,
+			"round", round,
 			"log", log,
 			"log_custom", logCustom,
 			"square_root", sqrt,
