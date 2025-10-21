@@ -37,13 +37,11 @@ namespace IonixEngine
 
     void LayerUI::OnAttach() 
     {
-<<<<<<< Updated upstream
+
 
         m_UI = new UI();
 
-=======
-        m_FontLoader = new Fontloader();
->>>>>>> Stashed changes
+
         //Get window and renderer
         SDL_Window* window = Application::Get().GetWindow().GetSdlWindow();
         SDL_Renderer* renderer = Application::Get().GetWindow().GetSdlRenderer();
@@ -55,12 +53,7 @@ namespace IonixEngine
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
-        static ImFont* customFont = nullptr;
-        customFont = io.Fonts->AddFontFromFileTTF("OpenSans - VariableFont.ttf", 16.0f);
-        if (customFont == nullptr)
-        {
-            std::cerr << "Failed to load font!" << std::endl;
-        }
+     
         // Load fonts (only once during initialization)
         //IonixEngine::Fontloader::LoadFonts();
        
@@ -69,14 +62,12 @@ namespace IonixEngine
         ImGui::StyleColorsDark();
         //ImGui::StyleColorsLight();
 
-<<<<<<< Updated upstream
 
-=======
         // Load fonts (only once during initialization)
         
         //IonixEngine::Fontloader::LoadFonts();
         m_FontLoader->LoadFonts();
->>>>>>> Stashed changes
+
         // Setup Platform/Renderer backends
         ImGui_ImplSDL2_InitForSDLRenderer(window, renderer);
         ImGui_ImplSDLRenderer2_Init(renderer);

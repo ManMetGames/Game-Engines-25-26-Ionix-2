@@ -7,11 +7,7 @@ namespace IonixEngine
 {
 	void UI::DrawLabel(char* text, int xsize, int ysize, int xpos, int ypos ,const char* font)
 	{
-		if(font != nullptr)
-		{
-			ImFont 
-			ImGui::PushFont(customFont); // customFont is already loaded in OnAttach
-		}
+		
 		ImGui::SetCursorPos(ImVec2(xpos, ypos));
 		ImGui::Text(text, ImVec2(xsize, ysize));
 
