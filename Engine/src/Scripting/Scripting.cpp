@@ -267,7 +267,7 @@ namespace IonixEngine {
 
 	void Scripting::RegisterGraphicsBindings()
 	{
-		auto sprite = [](char* file) -> Sprite* {
+		auto sprite = [](const char* file) -> Sprite* {
 			return new Sprite(file);
 			};
 
