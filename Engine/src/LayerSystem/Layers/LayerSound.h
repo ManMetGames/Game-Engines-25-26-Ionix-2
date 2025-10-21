@@ -1,6 +1,7 @@
 #pragma once
 #include "LayerSystem/Layer.h"
 #include "Architecture/AudioSystem/SoundManager.h"  
+#include "Scripting/Audio/AudioScripting.h"
 #include <SDL.h>          
 
 namespace IonixEngine
@@ -15,7 +16,5 @@ namespace IonixEngine
         virtual void OnEvent(IonixEvent& e) override;
 
     private:
-        std::string m_SoundName = "test";  // THIS IS FOR TESTING!!!
-        std::string m_FilePath = "./test.wav";
     };
 }
