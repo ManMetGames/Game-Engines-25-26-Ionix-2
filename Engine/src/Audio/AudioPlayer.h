@@ -26,26 +26,7 @@ namespace IonixEngine
             }
         }
 
-        void PlayAudio(const std::string& soundName, int loops)
-        {
-            Mix_Chunk* chunk = SoundManager::GetInstance().GetAudio(soundName);
-            if (chunk == nullptr)
-            {
-                SDL_Log("[AudioPlayer] Failed to play sound: %s not found in SoundManager", soundName.c_str());
-                return;
-            }
-
-            m_Channel = Mix_PlayChannel(-1, chunk, loops);
-            
-            // Apply volume (unless muted)
-            if (m_Channel != -1)
-            {
-                int vol = mute ? 0 : static_cast<int>(volume);
-                Mix_Volume(m_Channel, vol);
-            }
-        }
-
-        void Play()
+        void Play(int fadeMilliseconds = 0)
         {
             if (clip.empty())
             {
@@ -53,13 +34,37 @@ namespace IonixEngine
                 return;
             }
 
+            Mix_Chunk* chunk = SoundManager::GetInstance().GetAudio(clip);
+            if (chunk == nullptr)
+            {
+                SDL_Log("[AudioPlayer] Failed to play sound: %s not found", clip.c_str());
+                return;
+            }
+
             int loopCount = loop ? -1 : 0;
-            PlayAudio(clip, loopCount);
-            
+
+            // Choose fade in or instant start
+            if (fadeMilliseconds > 0)
+            {
+                m_Channel = Mix_FadeInChannel(-1, chunk, loopCount, fadeMilliseconds);
+            }
+            else
+            {
+                m_Channel = Mix_PlayChannel(-1, chunk, loopCount);
+            }
+
+            // Apply volume/mute
+            if (m_Channel != -1)
+            {
+                int vol = mute ? 0 : static_cast<int>(volume);
+                Mix_Volume(m_Channel, vol);
+            }
+
             // example:
             // gunshotSound.clip = "gunshot";
             // gunshotSound.volume = 64;
-            // gunshotSound.Play();
+            // gunshotSound.Play();       // Instant start
+            // gunshotSound.Play(2000);   // 2 second fade in
         }
 
         void ChangeVolume(float vol)
