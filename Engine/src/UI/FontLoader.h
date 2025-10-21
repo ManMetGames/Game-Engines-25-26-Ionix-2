@@ -34,14 +34,22 @@ namespace IonixEngine
 
             // Load the font in
             ImFont* font_title = io.Fonts->AddFontFromFileTTF("TTT-Regular.otf", 23.0f, NULL, io.Fonts->GetGlyphRangesDefault());
-
             IM_ASSERT(font_title != NULL);
-
-            AddMap({"font1", font_title });
-
-           ImFont* font_body = io.Fonts->AddFontFromFileTTF("TTT-Bold.otf", 18.0f, NULL, io.Fonts->GetGlyphRangesDefault());
+            AddMap({"Font1", font_title });
+            ImFont* font_body = io.Fonts->AddFontFromFileTTF("TTT-Bold.otf", 18.0f, NULL, io.Fonts->GetGlyphRangesDefault());
             IM_ASSERT(font_body != NULL);
-            AddMap({ "FontBold",font_body });
+            AddMap({ "Font1Bold",font_body });
+
+            ImFont* font_title2 = io.Fonts->AddFontFromFileTTF("CenturyGothic.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesDefault());
+            IM_ASSERT(font_title2 != NULL);
+            AddMap({ "Font2",font_title2 });
+            ImFont* font_title2bold = io.Fonts->AddFontFromFileTTF("CenturyGothicBold.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesDefault());
+            IM_ASSERT(font_title2bold != NULL);
+            AddMap({ "Font2Bold",font_title2bold });
+            ImFont* font_title2italic = io.Fonts->AddFontFromFileTTF("CenturyGothicItalic.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesDefault());
+            IM_ASSERT(font_title2italic != NULL);
+            AddMap({ "Font2Italic",font_title2italic });
+
 
 
             // Build the font atlas (this can take some time)

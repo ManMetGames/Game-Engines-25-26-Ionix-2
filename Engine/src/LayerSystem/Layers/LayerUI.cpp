@@ -86,8 +86,12 @@ namespace IonixEngine
         
          //Shows the big ImGui demo window
          ImGui::ShowDemoWindow();
-         m_UI->DrawLabel("TEXT", 50, 50, 50, 50, "font1");
-         m_UI->DrawLabel("TEXT", 70, 70, 50, 50, "FontBold");
+
+         //Draw Labels test
+         m_UI->DrawLabel("Century Gothic", 50, 50, 50, 50, "Font1Bold");
+         m_UI->DrawLabel("Century Gothic", 50, 50, 50, 70, "Font2");
+
+
          // Rendering
          ImGui::Render();
          ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), Application::Get().GetWindow().m_Renderer);
