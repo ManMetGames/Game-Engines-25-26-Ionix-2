@@ -196,6 +196,23 @@ namespace IonixEngine {
 			return vec3.z;
 			};
 
+		auto mod = [](double x, double y) -> double {
+			return Maf::mafMod(x, y);
+			};
+
+		auto div = [](double x, double y) -> double {
+			return Maf::mafDiv(x, y);
+			};
+
+		auto SqrMagnitudeVector2 = [](Maf::mafVector2<double> v) -> double {
+			return Maf::mafSqrMagnitudeVec2(v);
+			};
+
+		auto SqrMagnitudeVector3 = [](Maf::mafVector3<double> v) -> double {
+			return Maf::mafSqrMagnitudeVec3(v);
+			};
+
+
 		m_LuaState["Mafs"] = m_LuaState.create_table_with(
 			"clamp", clamp,
 			"log", log,
@@ -208,7 +225,11 @@ namespace IonixEngine {
 			"vector3", vector3,
 			"vector3_x", vector3x,
 			"vector3_y", vector3y,
-			"vector3_z", vector3z
+			"vector3_z", vector3z,
+			"mod", mod,
+			"div", div,
+			"sqr_magnitude_vector2", SqrMagnitudeVector2,
+			"sqr_magnitude_vector3", SqrMagnitudeVector3
 		);
 	}
 	// print (Window.get_title())
