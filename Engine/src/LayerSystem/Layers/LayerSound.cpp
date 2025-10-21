@@ -39,7 +39,7 @@ namespace IonixEngine
         currentTime++;
 
         if (currentTime >= 200) {
-            std::cout << "LayerSound: Playing '" << m_SoundName << "' (timed)..." << std::endl;
+            //std::cout << "LayerSound: Playing '" << m_SoundName << "' (timed)..." << std::endl;
             currentTime = 0;
             //SoundManager::GetInstance().PlaySound(m_SoundName, 0); 
         }
