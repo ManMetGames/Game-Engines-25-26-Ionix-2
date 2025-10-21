@@ -77,6 +77,12 @@ namespace IonixEngine
                 if(layer)
                     layer->OnUpdate();
             }
+<<<<<<< HEAD
+=======
+
+             Scripting::Get().CallHook("OnUpdate");
+
+>>>>>>> 1f72152d1d0a9bdc6d004925711f6a9a600084a2
             if (layerInput->m_Input->IsKeyDown(SDL_SCANCODE_SPACE))
             {
                 std::cout << "Spacebar was pressed once \n";

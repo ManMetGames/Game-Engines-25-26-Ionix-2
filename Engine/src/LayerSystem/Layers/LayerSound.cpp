@@ -18,10 +18,10 @@ namespace IonixEngine
             std::cerr << "LayerSound: Failed to load " << m_FilePath << std::endl;
             return;
         }
-        std::cout << "LayerSound: Loaded sound '" << m_SoundName << "'." << std::endl;
+        std::cout << "LayerSound: Loaded sound '" << m_SoundName << "'." << std::endl;*/
 
         // volume set for now
-        SoundManager::GetInstance().SetVolume(m_SoundName, 0.8f); */
+        //SoundManager::GetInstance().SetVolume(m_SoundName, 0.8f);
         //SoundManager::GetInstance().PlaySound(m_SoundName, 0);
     }
 
