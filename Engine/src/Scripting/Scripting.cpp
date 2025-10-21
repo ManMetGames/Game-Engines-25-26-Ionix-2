@@ -232,5 +232,20 @@ namespace IonixEngine {
 			"sqr_magnitude_vector3", SqrMagnitudeVector3
 		);
 	}
+	void Scripting::RegisterGraphicsBindings()
+	{
+		auto sprite = [](char* file) -> Sprite {
+			return Sprite(file);
+		};
+
+		auto drawsprite = [](Sprite sprite, float x, float y, float w, float h) {
+			sprite.draw(x, y, w, h);
+		};
+
+		m_LuaState["Sprite"] = m_LuaState.create_table_with(
+		"create_sprite", sprite,
+		"draw_sprite", drawsprite	
+		);		
+	}
 	// print (Window.get_title())
 }

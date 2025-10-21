@@ -34,6 +34,8 @@ namespace IonixEngine
 
         void RegisterMafsBindings();
 
+        void RegisterGraphicsBindings();
+
     };
 }
 
