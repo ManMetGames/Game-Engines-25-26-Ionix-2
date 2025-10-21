@@ -43,8 +43,8 @@ namespace IonixEngine
         //Scripting::Get().Init();
         //Scripting::Get().GetLuaState().script_file("Scripts/settings.lua");
     }
-
-    Application::~Application()
+        
+    Application::~Application() 
     {
         delete m_Window;
         m_Window = nullptr;
@@ -94,7 +94,9 @@ namespace IonixEngine
             }
 
             layerInput->m_Input->CopyCodesEndFrame();
-            Scripting::Get().CallHook("OnUpdate");
+
+            // Scripting::Get().CallHook("OnUpdate");
+          
             m_Window->OnUpdate();
             SDL_RenderPresent(renderer);
         }
