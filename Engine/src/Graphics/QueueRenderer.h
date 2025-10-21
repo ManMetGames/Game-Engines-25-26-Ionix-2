@@ -1,5 +1,6 @@
 #include <iostream>
 #include <queue>
+#include <list>
 #include <string>
 //#include <mutex>
 using namespace std;
@@ -19,6 +20,7 @@ public:
 	QueueRenderer(const QueueRenderer& obj) = delete; //prevent copis
 	QueueRenderer();
 	void AddToQueue(string spriteName);
+	void OrderQueueByZ(queue<string> &sprites, int z);
 	void RenderFromQueue();
 	void ClearQueue(queue<string> &sprites);
 	static QueueRenderer& Get()
