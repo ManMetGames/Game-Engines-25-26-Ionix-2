@@ -31,8 +31,8 @@ namespace IonixEngine
             testPlayer.volume = 128;
             
             // Step 2: Play with fade in
-            SDL_Log("\n[Step 2] Playing with fade in (2 seconds)...");
-            testPlayer.Play(2000);
+            SDL_Log("\n[Step 2] Playing with fade in (5 seconds)...");
+            testPlayer.Play(5000);
             
             // Step 3: Wait 3 seconds
             SDL_Log("[Step 3] Waiting 3 seconds...");
@@ -62,11 +62,27 @@ namespace IonixEngine
             SDL_Log("[Step 7] Waiting 2 seconds...");
             SDL_Delay(2000);
             
-            // Step 8: Change volume to 64
+            // Step 8: Change volume to 32
             SDL_Log("\n[Step 8] Changing volume to 32...");
             testPlayer.ChangeVolume(32);
             SDL_Log("[Step 8] Waiting 2 seconds...");
             SDL_Delay(2000);
+            
+            // Step 9: Stop
+            SDL_Log("\n[Step 9] Testing Stop()...");
+            testPlayer.Stop();
+            SDL_Log("[Step 9] Audio stopped. Waiting 2 seconds (should be silent)...");
+            SDL_Delay(2000);
+            
+            // Verify stop worked
+            if (!testPlayer.IsPlaying())
+            {
+                SDL_Log("[PASS] Stop() correctly halted playback");
+            }
+            else
+            {
+                SDL_Log("[FAIL] Stop() did not halt playback");
+            }
             
             SDL_Log("\n=== AudioPlayer Test Suite Completed ===");
             SDL_Log("All tests passed successfully!");
