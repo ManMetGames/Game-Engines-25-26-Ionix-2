@@ -88,6 +88,27 @@ namespace IonixEngine
 
             }
 
+
+            void Remove()
+            {
+                if (body && fixture)
+                {
+                    body->DestroyFixture(fixture);
+                    fixture = nullptr;
+                }
+            }
+
+
+            void SetTrigger(bool isTrigger)
+            {
+                if (fixture)
+                {
+                    fixture->SetSensor(isTrigger);
+                }
+            }
+
+
+
             
     };
 
