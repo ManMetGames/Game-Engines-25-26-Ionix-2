@@ -7,7 +7,7 @@ namespace IonixEngine {
 	}
 
 	void SpriteComponent::SetTexture(std::string newFilePath, std::string newAlias) {
-		//check if alias already exists, if so delete the entry
+		//waaa
 
 		IonixEngine::TextureManager::Get().AddTexture(newFilePath, newAlias); 
 	}
