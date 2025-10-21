@@ -35,6 +35,7 @@ namespace IonixEngine
                 }
             }
 
+            //Add Circle
             void AddCircle(float radius, b2Vec2 offset = { 0.0f, 0.0f }, bool isTrigger = false)
             {
                 b2CircleShape shape;
@@ -51,6 +52,7 @@ namespace IonixEngine
             }
 
 
+            //Add Box
             void AddBox(float width, float height, b2Vec2 offset = { 0.0f, 0.0f }, float angle = 0.0f, bool isTrigger = false)
             {
                 b2PolygonShape shape;
@@ -65,25 +67,14 @@ namespace IonixEngine
             }
 
 
-            void AddPolygon(){
-
-
-
-            }
-
-
-
-
-
-
-
-
-            /*void AddPolygon(const std::vector<b2Vec2>& vertices, bool isTrigger = false)
-            {
+            //Add Polygon
+            void AddPolygon(const std::vector<b2Vec2>& vertices, bool isTrigger = false){
                 if (vertices.size() < 3 || vertices.size() > b2_maxPolygonVertices)
                     return;
 
                 b2PolygonShape shape;
+
+                //Set the polygon shape with the vertices data and their total count
                 shape.Set(vertices.data(), static_cast<int32>(vertices.size()));
 
                 b2FixtureDef fixtureDef;
@@ -91,9 +82,13 @@ namespace IonixEngine
                 fixtureDef.shape = &shape;
                 fixtureDef.isSensor = isTrigger;
 
+                //Set the body fixture for the created shape with polygons
                 fixture = body->CreateFixture(&fixtureDef);
-            }*/
 
+
+            }
+
+            
     };
 
     
