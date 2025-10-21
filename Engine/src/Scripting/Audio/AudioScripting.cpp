@@ -1,5 +1,5 @@
 #include "Scripting/Audio/AudioScripting.h"
-#include <iostream>
+
 
 namespace IonixEngine {
 
@@ -11,5 +11,36 @@ namespace IonixEngine {
         return *s_Instance;
     }
 
+    void AudioScripting::Init(sol::state& lua)
+    {
+        // --- Bind SoundManager singleton ---
+        lua.new_usertype<SoundManager>("SoundManager",
+            "GetInstance", &SoundManager::GetInstance,
+            "LoadSound", &SoundManager::LoadSound,
+            "SetVolume", &SoundManager::SetVolume,
+            "GetAudio", &SoundManager::GetAudio
+        );
+
+        // --- Bind AudioPlayer ---
+        lua.new_usertype<AudioPlayer>("AudioPlayer",
+            sol::constructors<AudioPlayer(Entity*, const std::string&, bool)>(),
+            "Play", sol::overload(
+                [](AudioPlayer& audioPlayer) { audioPlayer.Play(); },
+                [](AudioPlayer& audioPlayer, int fadeMilliseconds) { audioPlayer.Play(fadeMilliseconds); }
+            ),
+            "Pause", &AudioPlayer::Pause,
+            "Resume", &AudioPlayer::Resume,
+            "End", &AudioPlayer::End,
+            "IsPlaying", &AudioPlayer::IsPlaying,
+            "PlayOneShot", &AudioPlayer::PlayOneShot,
+            "ChangeVolume", &AudioPlayer::ChangeVolume,
+            "ToggleMute", &AudioPlayer::ToggleMute,
+            "volume", &AudioPlayer::volume,
+            "mute", &AudioPlayer::mute,
+            "clip", &AudioPlayer::clip,
+            "loop", &AudioPlayer::loop,
+            "playOnAwake", &AudioPlayer::playOnAwake
+        );
+    }
 
 } // namespace IonixEngine
