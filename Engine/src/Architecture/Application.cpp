@@ -9,13 +9,14 @@ namespace IonixEngine {
 
 namespace IonixEngine
 {
+
+    
     Application& Application::Get() { return *s_Instance; }
 
     Application::Application()
         : m_Window(new Window())
     {
         s_Instance = this;
-
 
         //Initialise layers...
         layerEditor = new LayerEditor();
@@ -67,6 +68,10 @@ namespace IonixEngine
     {
         m_Running = true;
 
+        bool isLMouseDown = false;
+        bool isRMouseDown = false;
+        bool isMMouseDown = false;
+
         //Scripting::Get().CallHook("OnStart");
         SDL_Renderer* renderer = m_Window->GetSdlRenderer();
 
@@ -87,7 +92,7 @@ namespace IonixEngine
             {
                 std::cout << "Spacebar was pressed once \n";
             }
-            if (layerInput->m_Input->IsKeyUp(SDL_SCANCODE_SPACE))
+            else if (layerInput->m_Input->IsKeyUp(SDL_SCANCODE_SPACE))
             {
                 std::cout << "Spacebar has been lifted \n";
             }
@@ -99,13 +104,49 @@ namespace IonixEngine
 
            if (layerInput->m_Input->IsMouseButtonDown(SDL_BUTTON_LEFT))
            {
-               std::cout << "Mouse Button Down pressed \n";
+               if (!isLMouseDown)
+               {
+                   std::cout << "L-Mouse Button Down pressed \n";
+                   isLMouseDown = true;
+               }
            }
 
            else if(layerInput->m_Input->IsMouseButtonUp(SDL_BUTTON_LEFT))
            {
-             std::cout << "Mouse Button released \n";
+             std::cout << "L-Mouse Button released \n";
+             isLMouseDown = false;
            }
+
+
+           if (layerInput->m_Input->IsMouseButtonDown(SDL_BUTTON_RIGHT))
+           {
+               if (!isRMouseDown) {
+                   std::cout << "R-Mouse Button Down pressed \n";
+                   isRMouseDown = true;
+               }
+           }
+
+           else if (layerInput->m_Input->IsMouseButtonUp(SDL_BUTTON_RIGHT))
+           {
+              
+               std::cout << "R-Mouse Button released \n";
+               isRMouseDown = false;
+           }
+
+           if (layerInput->m_Input->IsMouseButtonDown(SDL_BUTTON_MIDDLE))
+           {
+               if (!isMMouseDown) {
+                   std::cout << "M-Mouse Button Down pressed \n";
+                   isMMouseDown = true;
+               }
+           }
+
+           else if (layerInput->m_Input->IsMouseButtonUp(SDL_BUTTON_MIDDLE))
+           {
+               std::cout << "M-Mouse Button released \n";
+               isMMouseDown = false;
+           }
+
           
 
 
