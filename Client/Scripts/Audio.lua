@@ -9,7 +9,7 @@ function AudioSystem:OnStart()
 
     -- Load sound into SoundManager
     local sm = SoundManager.GetInstance()
-    sm:LoadSound("test", "Client/Assets/test.wav")
+    sm:LoadSound("test", "./Assets/test.wav")
 
     -- Create AudioPlayer (assuming 'entity' is passed from engine)
     testSound = AudioPlayer:new(entity, "test", false)

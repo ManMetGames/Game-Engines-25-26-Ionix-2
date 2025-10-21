@@ -13,7 +13,6 @@ namespace IonixEngine
             std::cerr << "LayerSound: SoundManager init failed!" << std::endl;
             return;
         }
-
         /* load the sample 
         if (!SoundManager::GetInstance().LoadSound(m_SoundName, m_FilePath)) {
             std::cerr << "LayerSound: Failed to load " << m_FilePath << std::endl;

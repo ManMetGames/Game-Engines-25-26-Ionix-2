@@ -10,15 +10,10 @@ namespace IonixEngine {
     public:
         static AudioScripting& Get();
 
-        void Init(sol::state& lua) {}
-        float volume = 128.0f;
-        bool mute = false;
-        std::string clip = "";
-        bool loop = false;
-        bool playOnAwake = false;
+        void Init(sol::state& lua);
+
     private:
         static AudioScripting* s_Instance;
-        int m_Channel = -1;
     };
 
 } 

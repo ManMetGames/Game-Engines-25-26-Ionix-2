@@ -11,7 +11,7 @@ namespace IonixEngine {
         return *s_Instance;
     }
 
-    void Init(sol::state& lua)
+    void AudioScripting::Init(sol::state& lua)
     {
         // --- Bind SoundManager singleton ---
         lua.new_usertype<SoundManager>("SoundManager",
@@ -24,7 +24,10 @@ namespace IonixEngine {
         // --- Bind AudioPlayer ---
         lua.new_usertype<AudioPlayer>("AudioPlayer",
             sol::constructors<AudioPlayer(Entity*, const std::string&, bool)>(),
-            "Play", &AudioPlayer::Play,
+            "Play", sol::overload(
+                [](AudioPlayer& audioPlayer) { audioPlayer.Play(); },
+                [](AudioPlayer& audioPlayer, int fadeMilliseconds) { audioPlayer.Play(fadeMilliseconds); }
+            ),
             "Pause", &AudioPlayer::Pause,
             "Resume", &AudioPlayer::Resume,
             "End", &AudioPlayer::End,
