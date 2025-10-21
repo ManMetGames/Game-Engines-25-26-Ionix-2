@@ -12,7 +12,6 @@ namespace IonixEngine
     class FysicsShapes
     {
         private:
-            //b2World* world;
             b2Fixture* fixture;
             b2Body* body;
 
@@ -22,14 +21,13 @@ namespace IonixEngine
             {
                 //world = LayerFysics::GetInstance()->GetWorld();
                 body = attachedBody;
-                fixture = nullptr;
+                AddBox();
             }
 
             ~FysicsShapes()
             {
                 if (body && fixture)
                 {
-
                     body->DestroyFixture(fixture);
                     fixture = nullptr;
                 }
@@ -40,7 +38,7 @@ namespace IonixEngine
             {
                 b2CircleShape shape;
 
-                shape.m_radius = radius;
+                shape.m_radius = 5;
                 shape.m_p = offset;
                 b2FixtureDef fixtureDef;
 
@@ -52,6 +50,20 @@ namespace IonixEngine
 
 
             //Add Box
+            b2FixtureDef AddBox()
+            {
+                b2PolygonShape shape;
+                shape.SetAsBox(0.5f, 0.5f, b2Vec2_zero, 0.0f);
+
+                b2FixtureDef fixtureDef;
+
+                fixtureDef.shape = &shape;
+                fixtureDef.isSensor = true;
+                fixtureDef.density = 1.0f;
+
+                return fixtureDef;
+            }
+
             void AddBox(float width, float height, b2Vec2 offset = { 0.0f, 0.0f }, float angle = 0.0f, bool isTrigger = false)
             {
                 b2PolygonShape shape;
@@ -88,7 +100,10 @@ namespace IonixEngine
 
             }
 
-
+            b2Fixture* GetFixture()
+            {
+                return fixture;
+            }
             void Remove()
             {
                 if (body && fixture)

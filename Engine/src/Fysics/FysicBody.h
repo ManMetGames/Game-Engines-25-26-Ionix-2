@@ -11,29 +11,23 @@ namespace IonixEngine
     class FysicBody
     {
     private:
-        b2World* world;
         b2Body* body;
-        FysicsShapes* shape;
     public:
-        FysicBody()
+        FysicBody(b2World* world)
         {
-            world = Application::Get().layerFysics->GetWorld();
+            if (!world) world = nullptr;
             b2BodyDef bodyDef;
             bodyDef.type = b2_dynamicBody;
             bodyDef.position.Set(0, 10);
             bodyDef.awake = true;
             bodyDef.fixedRotation = false;
             body = world->CreateBody(&bodyDef);
-
-            shape = new FysicsShapes(body);
-            shape->AddBox(5.0f, 5.0f);
-
             
         }
         
-        FysicBody(float xPos, float yPos, fysicBodyType b_type, bool rotationLocked)
+        FysicBody(b2World* world, float xPos, float yPos, fysicBodyType b_type, bool rotationLocked)
         {
-            world = LayerFysics::GetInstance()->GetWorld();
+            if (!world) world = nullptr;
             b2BodyDef bodyDef;
             switch (b_type)
             {
@@ -53,9 +47,9 @@ namespace IonixEngine
             body = world->CreateBody(&bodyDef);
         }
 
-        FysicBody(float xPos, float yPos, fysicBodyType b_type, bool rotationLocked, float gravityScale)
+        FysicBody(b2World* world, float xPos, float yPos, fysicBodyType b_type, bool rotationLocked, float gravityScale)
         {
-            world = LayerFysics::GetInstance()->GetWorld();
+            if (!world) world = nullptr;
             b2BodyDef bodyDef;
             switch (b_type)
             {
@@ -75,17 +69,11 @@ namespace IonixEngine
             bodyDef.gravityScale = gravityScale;
             body = world->CreateBody(&bodyDef);
         }
-
-        ~FysicBody()
+        //get body def
+        b2Body* GetBody()
         {
-            if (world && body)
-            {
-                world->DestroyBody(body);
-                body = nullptr;
-            }
+            return body;
         }
-
-
         //Get & Set Position
         b2Vec2 GetPosition() const
         {
@@ -173,6 +161,7 @@ namespace IonixEngine
         bool GetActive() {
             return body->IsAwake();
         }
+
         
         //Rotate Position or Body - doesnt set the angle to be something like Set Angle adds rotation to current body
         void RotatePosition(float angle) {
