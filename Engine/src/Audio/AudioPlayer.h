@@ -59,6 +59,15 @@ namespace IonixEngine
             }
         }
 
+        void ToggleMute()
+        {
+            mute = !mute;
+            if (m_Channel != -1)
+            {
+                int vol = mute ? 0 : static_cast<int>(volume);
+                Mix_Volume(m_Channel, vol);
+            }
+        }
 
         // play/pause function
         void Pause()
