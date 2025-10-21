@@ -1,6 +1,7 @@
 #pragma once
 #include "LayerSystem/Layer.h"
 #include "UI/UI.h"
+#include "UI/Fontloader.h"
 
 namespace IonixEngine
 {
@@ -15,5 +16,6 @@ namespace IonixEngine
         virtual void OnEvent(IonixEvent& e) override;
 
         UI* m_UI;
+        Fontloader* m_FontLoader;
     };
 }
