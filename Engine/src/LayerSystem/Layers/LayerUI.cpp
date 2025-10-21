@@ -11,33 +11,11 @@
 
 namespace IonixEngine
 {
-    
-    /*enum UIType
-    {
-        Label,
-        Button
-    };
-
-    struct UIData
-    {
-        UIType type;
-
-        char* text;
-        int x;
-        int y;
-
-        UIData(UIType type, char* text, int x, int y) : type(type), text(text), x(x), y(y) {}
-    };
-
-   
-
-    std::vector<UIData> uiDrawData;
-    */
-    // Factory class needs a method to add a UIData object to the above vector
-
     void LayerUI::OnAttach() 
     {
         m_UI = new UI();
+        m_UIManager = new UIManager();
+        
         //Get window and renderer
         SDL_Window* window = Application::Get().GetWindow().GetSdlWindow();
         SDL_Renderer* renderer = Application::Get().GetWindow().GetSdlRenderer();
@@ -79,9 +57,24 @@ namespace IonixEngine
          ImGui_ImplSDL2_NewFrame();
          ImGui::NewFrame();
         
+         ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoBackground; //| ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove 
+
+         ImGui::Begin("null", nullptr, window_flags);
+
          //Shows the big ImGui demo window
          ImGui::ShowDemoWindow();
-        
+         m_UIManager->AddLabel(150, 150, -1, -1, "Hello world!");
+
+         for (auto uiElement : m_UIManager->GetElements())
+         {
+             if (uiElement.type == UIType::Label)
+             {
+                 m_UI->DrawLabel(uiElement.text, uiElement.xPos, uiElement.yPos);
+             }
+         }
+         
+         ImGui::End();
+
          // Rendering
          ImGui::Render();
          ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), Application::Get().GetWindow().m_Renderer);

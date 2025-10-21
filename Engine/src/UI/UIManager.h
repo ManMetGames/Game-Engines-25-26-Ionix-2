@@ -40,11 +40,18 @@ namespace IonixEngine
 	{
 	private: 
 		std::string currentGroupName; 
-		std::vector<UIElement> elements;
+
 		std::vector<UIElement*> groupStack; 
 
 		void RenderElement(UIElement& element);
 	public:
+
+		std::vector<UIElement> GetElements()
+		{
+			return elements;
+		}
+
+		std::vector<UIElement> elements;
 		void UIManager::BeginGroup(const std::string& groupName);
 		
 		void UIManager::EndGroup();

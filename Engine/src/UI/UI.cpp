@@ -1,13 +1,18 @@
 #include "UI.h"
 #include "imgui.h"
-
+#include <iostream>
 
 namespace IonixEngine
 {
-	void UI::DrawLabel(char* text, int xsize, int ysize, int xpos, int ypos)
+	void UI::DrawLabel(char* text, int xpos, int ypos)
 	{
+		const ImGuiViewport* viewport = ImGui::GetMainViewport();
+
+		ImGui::SetNextWindowSize(viewport->Size);
 		ImGui::SetCursorPos(ImVec2(xpos, ypos));
-		ImGui::Text(text, ImVec2(xsize, ysize));
+
+		ImGui::Text(text, ImVec2(xpos, ypos));
+
 	}
 	bool UI::DrawButton(char* text, int xsize, int ysize, int xpos, int ypos)
 	{

@@ -51,7 +51,7 @@ void IonixEngine::UIManager::EndPanel()
 
 void IonixEngine::UIManager::AddLabel(int x, int y, float xSize, float ySize, const char* text)
 {
-	elements.push_back({ UIType::Label,currentGroupName , x, y, xSize, ySize, const_cast<char*>(text), nullptr });
+	elements.push_back({ UIType::Label,currentGroupName, x, y, xSize, ySize, const_cast<char*>(text), nullptr });
 }
 
 void IonixEngine::UIManager::AddButton(int x, int y, float xSize, float ySize, const char* text, std::function<void()> onClick)
