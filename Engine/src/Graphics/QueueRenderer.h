@@ -2,6 +2,7 @@
 #include <queue>
 #include <list>
 #include <string>
+#include <array>
 //#include <mutex>
 using namespace std;
 class QueueRenderer //Singleton

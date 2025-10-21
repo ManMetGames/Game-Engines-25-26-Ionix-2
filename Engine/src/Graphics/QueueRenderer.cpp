@@ -84,4 +84,11 @@ void QueueRenderer::ClearQueue(queue<string>& sprites)
 	swap(sprites, emptyQueue);
 }
 
-void QueueRenderer::
+void QueueRenderer::ArrToQueueConverter(std::array<int, int> temp)
+{
+	for (int i = 0; i < temp.size; i++)
+	{
+
+	}
+
+}
