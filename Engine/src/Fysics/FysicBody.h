@@ -15,13 +15,29 @@ namespace IonixEngine
     public:
         FysicBody()
         {
-            world = LayerFysics::GetInstance()->GetWorld();
+            world = Application::Get().layerFysics->GetWorld();
+            //world = LayerFysics::GetInstance()->GetWorld();
             b2BodyDef bodyDef;
             bodyDef.type = b2_dynamicBody;
-            bodyDef.position.Set(0, 0);
+            bodyDef.position.Set(0, 10);
             bodyDef.awake = true;
             bodyDef.fixedRotation = false;
+
+            //Fixtrue Experimentation
+            b2PolygonShape dynamicBox;
+            dynamicBox.SetAsBox(1.0f, 1.0f);
+
+            b2FixtureDef fixtureDef;
+            fixtureDef.shape = &dynamicBox;
+            fixtureDef.density = 1.0f;
+            fixtureDef.friction = 0.3f;
+
+            //End of Fixtrue Experimentation
+            
             body = world->CreateBody(&bodyDef);
+
+            body->CreateFixture(&fixtureDef);
+
         }
         
         FysicBody(float xPos, float yPos, fysicBodyType b_type, bool rotationLocked)
