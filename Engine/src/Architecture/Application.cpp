@@ -97,9 +97,14 @@ namespace IonixEngine
 
             }
 
-           if (layerInput->m_Input->IsMouseButtonDown(1))
+           if (layerInput->m_Input->IsMouseButtonDown(SDL_BUTTON_LEFT))
            {
                std::cout << "Mouse Button Down pressed \n";
+           }
+
+           else if(layerInput->m_Input->IsMouseButtonUp(SDL_BUTTON_LEFT))
+           {
+             std::cout << "Mouse Button released \n";
            }
           
 

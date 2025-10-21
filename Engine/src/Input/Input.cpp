@@ -30,7 +30,12 @@ namespace IonixEngine
 	}
 	bool Input::IsMouseButtonDown(Uint8 mousecode) const
 	{
-		return mousecode != 0 ? true : false;
+		return currentMouse.count(mousecode);
+	}
+
+	bool Input::IsMouseButtonUp(Uint8 mousecode) const
+	{
+		return previousMouse.count(mousecode);
 	}
 
 	void Input::SetKeyPressed(SDL_Scancode code)
@@ -40,16 +45,23 @@ namespace IonixEngine
 
 	void Input::SetKeyReleased(SDL_Scancode code)
 	{
-
 		currentKeys.erase(code);
+	}
+
+	void Input::SetMousePressed(Uint8 code)
+	{
+		currentMouse.insert(code);
+	}
+
+	void Input::SetMouseReleased(Uint8 code)
+	{
+		currentMouse.erase(code);
 	}
 
 	void Input::CopyCodesEndFrame()
 	{
 		previousKeys = currentKeys;
-	}
-
-
-	
+		previousMouse = currentMouse;
+	}	
 }
 
