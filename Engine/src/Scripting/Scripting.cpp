@@ -36,6 +36,7 @@ namespace IonixEngine {
 		RegisterInputBindings();
 		RegisterMafsBindings();
 		RegisterAudioBindings();
+		RegisterGraphicsBindings();
 
 	}
 
@@ -247,8 +248,8 @@ namespace IonixEngine {
 
 	void Scripting::RegisterGraphicsBindings()
 	{
-		auto sprite = [](char* file) -> Sprite {
-			return Sprite(file);
+		auto sprite = [](char* file) -> Sprite* {
+			return new Sprite(file);
 			};
 
 		auto drawsprite = [](Sprite sprite, float x, float y, float w, float h) {

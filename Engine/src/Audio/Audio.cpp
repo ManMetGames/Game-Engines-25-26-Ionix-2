@@ -15,7 +15,7 @@ namespace IonixEngine
 
     void Audio::Play()
     {
-        SoundManager::GetInstance().PlaySound(m_Name);
+        //SoundManager::GetInstance().PlaySound(m_Name);
     }
 
     void Audio::SetVolume(float volume)
@@ -25,7 +25,7 @@ namespace IonixEngine
 
     void Audio::Loop(int loops)
     {
-        SoundManager::GetInstance().PlaySound(m_Name, loops);
+        //SoundManager::GetInstance().PlaySound(m_Name, loops);
     }
     void Audio::PauseAll()
     {
