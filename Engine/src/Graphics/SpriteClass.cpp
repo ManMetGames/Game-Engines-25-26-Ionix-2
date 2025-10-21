@@ -10,6 +10,11 @@ namespace IonixEngine
 		rend = Application::Get().GetWindow().GetSdlRenderer();
 		fileName = file;
 		img = IMG_LoadTexture(Application::Get().GetWindow().GetSdlRenderer(), fileName);
+
+		SDL_QueryTexture(img, NULL, NULL, &size.x, &size.y);
+		std::cout << "X of image: " + std::to_string(size.x)<< endl;
+		std::cout << "Y of image: " + std::to_string(size.y)<< endl;
+
 	}
 	void Sprite::changeTexture(const char *file, SDL_Renderer* renderer)
 	{
@@ -29,6 +34,7 @@ namespace IonixEngine
 		texr.y = y;
 		texr.w = w;
 		texr.h = h;
+
 
 
 
