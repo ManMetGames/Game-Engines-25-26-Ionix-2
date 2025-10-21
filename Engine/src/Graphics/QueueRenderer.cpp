@@ -3,7 +3,7 @@
 
 void QueueRenderer::AddToQueue(string spriteName)
 {
-
+	sprites->push(spriteName);
 }
 
 void QueueRenderer::ClearQueue(queue<string>& sprites)
