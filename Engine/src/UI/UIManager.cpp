@@ -79,11 +79,28 @@ void IonixEngine::UIManager::AddRadioButton(int x, int y, float xSize, float ySi
 	elements.push_back({ UIType::RadioButton,currentGroupName, x, y, xSize, ySize, const_cast<char*>(text), nullptr, nullptr, nullptr, 0.0f, 0.0f, nullptr, 0, radioValuePointer, value, sameline});
 }
 
+void IonixEngine::UIManager::AddDropdown(int x, int y, float xSize, float ySize, const char* text, std::vector<std::string> options, int* currentIndex)
+{
+	UIElement element;
+	element.type = UIType::Dropdown;
+	element.groupName = currentGroupName;
+	element.xPos = x;
+	element.yPos = y;
+	element.xSize = xSize;
+	element.ySize = ySize;
+	element.text = const_cast<char*>(text);
+	element.dropdownOptions = options;	
+	element.dropdownCurrentIndex = currentIndex;
+
+	elements.push_back(element);
+}
+
 void IonixEngine::UIManager::RenderElement(UIElement& element)
 {
 	if (element.type == UIType::Panel)
 	{
-		ImGui::BeginChild(element.groupName.c_str(), ImVec2(0, 0), true);
+		ImGui::SetCursorPos(ImVec2(element.xPos, element.yPos));
+		ImGui::BeginChild(element.groupName.c_str(), ImVec2(element.xSize, element.ySize), true);
 		for (auto& child : element.children)
 		{
 			RenderElement(child);
@@ -125,6 +142,25 @@ void IonixEngine::UIManager::RenderElement(UIElement& element)
 				*element.radioValuePtr = element.RadioButtonValue;
 			}
 		}
+		break;
+	case UIType::Dropdown:
+		ImGui::SetCursorPos(ImVec2(element.xPos, element.yPos));
+		int currentIndex = *(element.dropdownCurrentIndex);
+		const char* currentItem = element.dropdownOptions[currentIndex].c_str();
+		if (ImGui::BeginCombo(element.text, currentItem))
+		{
+			for (size_t n = 0; n < element.dropdownOptions.size(); n++)
+			{
+				bool isSelected = (currentIndex == n);
+				if (ImGui::Selectable(element.dropdownOptions[n].c_str(), isSelected))
+				{
+					*(element.dropdownCurrentIndex) = n;
+				}
+				if (isSelected)
+					ImGui::SetItemDefaultFocus();
+			}
+			ImGui::EndCombo();
+		}
 			
 		break;
 	default:
@@ -133,26 +169,13 @@ void IonixEngine::UIManager::RenderElement(UIElement& element)
 }
 void IonixEngine::UIManager::RenderUI()
 {
-	std::string currentGroup = "";
+	;
 	for (auto& element : elements)
 	{
-		if (element.groupName != currentGroup)
-		{
-			if (!currentGroup.empty())
-			{
-				ImGui::End();
-			}
-			ImGui::Begin(element.groupName.c_str());
-			currentGroup = element.groupName;
-			
-		}
 		RenderElement(element);
 	}
 
-	if (!currentGroup.empty())
-	{
-		ImGui::End();
-	}
+	
 
 }
 
