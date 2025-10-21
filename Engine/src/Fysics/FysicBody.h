@@ -22,21 +22,8 @@ namespace IonixEngine
             bodyDef.position.Set(0, 10);
             bodyDef.awake = true;
             bodyDef.fixedRotation = false;
-
-            //Fixtrue Experimentation
-            b2PolygonShape dynamicBox;
-            dynamicBox.SetAsBox(1.0f, 1.0f);
-
-            b2FixtureDef fixtureDef;
-            fixtureDef.shape = &dynamicBox;
-            fixtureDef.density = 1.0f;
-            fixtureDef.friction = 0.3f;
-
-            //End of Fixtrue Experimentation
             
             body = world->CreateBody(&bodyDef);
-
-            body->CreateFixture(&fixtureDef);
 
         }
         
