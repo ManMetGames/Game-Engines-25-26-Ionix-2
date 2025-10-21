@@ -4,9 +4,21 @@
 
 namespace IonixEngine
 {
+    struct MouseCoords 
+    {
+        int x;
+        int y;
+
+        MouseCoords(int x, int y) : x(x), y(y) {};
+    };
+
     class Input
     {
     public:
+        MouseCoords GetMousePosition();
+
+
+
         bool IsKeyDown(SDL_Scancode code) const
         {
             // Not held down previous frame
@@ -25,6 +37,7 @@ namespace IonixEngine
         {
             return currentKeys.count(code);
         }
+
 
         // for Key Down
         void SetKeyPressed(SDL_Scancode code)

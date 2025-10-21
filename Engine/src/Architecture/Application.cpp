@@ -1,5 +1,6 @@
 #include "Application.h"
 #include "LayerSystem/Layers/LayerTexture.hpp"
+#include <iostream>
 
 
 namespace IonixEngine {
@@ -22,6 +23,8 @@ namespace IonixEngine
 
         layerInput = new LayerInput();
         AddLayer(layerInput);
+
+       
 
         layerFysics = new LayerFysics();
         AddLayer(layerFysics);
@@ -91,8 +94,14 @@ namespace IonixEngine
             if (layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_SPACE))
             {
                 std::cout << "Spacebar is being held down \n";
+
             }
 
+
+
+            MouseCoords mc = layerInput->m_Input->GetMousePosition();
+            std::cout << "Mouse X Pos: " << mc.x << " Mouse Y Pos: " << mc.y << std::endl;
+            
             layerInput->m_Input->CopyCodesEndFrame();
 
             // Scripting::Get().CallHook("OnUpdate");

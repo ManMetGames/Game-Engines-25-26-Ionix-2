@@ -33,6 +33,7 @@ namespace IonixEngine
             case SDL_KEYUP: 
                 Application::Get().layerInput->m_Input->SetKeyReleased(e.key.keysym.scancode);
                 break;
+            
 
         }
     }
