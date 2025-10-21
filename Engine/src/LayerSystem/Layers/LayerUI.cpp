@@ -41,7 +41,7 @@ namespace IonixEngine
 
         m_UI = new UI();
 
-
+        m_FontLoader = new Fontloader();
         //Get window and renderer
         SDL_Window* window = Application::Get().GetWindow().GetSdlWindow();
         SDL_Renderer* renderer = Application::Get().GetWindow().GetSdlRenderer();
