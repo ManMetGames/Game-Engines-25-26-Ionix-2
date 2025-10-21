@@ -11,7 +11,7 @@
 
 namespace IonixEngine
 {
-    
+
     /*enum UIType
     {
         Label,
@@ -29,13 +29,13 @@ namespace IonixEngine
         UIData(UIType type, char* text, int x, int y) : type(type), text(text), x(x), y(y) {}
     };
 
-   
+
 
     std::vector<UIData> uiDrawData;
     */
     // Factory class needs a method to add a UIData object to the above vector
 
-    void LayerUI::OnAttach() 
+    void LayerUI::OnAttach()
     {
         m_UI = new UI();
         m_UIManager = new UIManager();
@@ -75,37 +75,38 @@ namespace IonixEngine
 
     void LayerUI::OnDetach() {}
 
-    void LayerUI::OnUpdate() 
+    void LayerUI::OnUpdate()
     {
         // Start the Dear ImGui frame. Immediate mode rendering - UI gets rebuilt each frame
-         ImGui_ImplSDLRenderer2_NewFrame();
-         ImGui_ImplSDL2_NewFrame();
-         ImGui::NewFrame();
-         ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize;
+        ImGui_ImplSDLRenderer2_NewFrame();
+        ImGui_ImplSDL2_NewFrame();
+        ImGui::NewFrame();
+        ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize;
 
-         ImGui::Begin("null", nullptr, window_flags);
+        ImGui::Begin("null", nullptr, window_flags);
 
-         // ALL DRAW CALLS GO HERE (LIKE DrawLabel)
-         //Shows the big ImGui demo window
-         ImGui::ShowDemoWindow();
+        // ALL DRAW CALLS GO HERE (LIKE DrawLabel)
+        //Shows the big ImGui demo window
+        ImGui::ShowDemoWindow();
+        m_UIManager->AddLabel
 
-         for (auto uiElement : m_UIManager->GetElements())
-         {
-             if (uiElement.type == UIType::Label)
-             {
-                 m_UI->DrawLabel(uiElement.text, 100 ,100 , uiElement.xPos, uiElement.yPos);
-             }
-         }
+        for (auto uiElement : m_UIManager->GetElements())
+        {
+            if (uiElement.type == UIType::Label)
+            {
+                m_UI->DrawLabel(uiElement.text, 100, 100, uiElement.xPos, uiElement.yPos);
+            }
+        }
 
-         
 
-         ImGui::End();        
-        
-         // Rendering
-         ImGui::Render();
-         ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), Application::Get().GetWindow().m_Renderer);
 
-         // TODO - Will be done by graphics unit eventually. Here for testing for the time being.
+        ImGui::End();
+
+        // Rendering
+        ImGui::Render();
+        ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), Application::Get().GetWindow().m_Renderer);
+
+        // TODO - Will be done by graphics unit eventually. Here for testing for the time being.
     }
 
     void LayerUI::OnEvent(IonixEvent& e)
