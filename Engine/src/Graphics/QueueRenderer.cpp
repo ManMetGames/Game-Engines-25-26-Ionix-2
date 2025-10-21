@@ -1,13 +1,14 @@
 #include "Graphics/QueueRenderer.h"
 
+namespace IonixEngine {
+	void QueueRenderer::AddToQueue(SpriteComponent sprite)
+	{
+		sprites->push(sprite.GetAlias());
+	}
 
-void QueueRenderer::AddToQueue(string spriteName)
-{
-	sprites->push(spriteName);
-}
-
-void QueueRenderer::ClearQueue(queue<string>& sprites)
-{
-	queue<string> emptyQueue;
-	swap(sprites, emptyQueue);
+	void QueueRenderer::ClearQueue(queue<string>& sprites)
+	{
+		queue<string> emptyQueue;
+		swap(sprites, emptyQueue);
+	}
 }
