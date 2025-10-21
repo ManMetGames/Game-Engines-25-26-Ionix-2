@@ -37,14 +37,13 @@ namespace IonixEngine
 		ImGui::RadioButton(text, &e, value);
 	}
 
-	void UI::DrawRightToLeftBar(int xpos, int ypos, int xsize, float ysize, float maxvalue, float progresspercentage)
+	void UI::DrawRightToLeftBar(int xpos, int ypos, float xsize, float ysize, float maxvalue, float progresspercentage, char buf[])
 	{
 		ImGui::SetCursorPos(ImVec2(xpos, ypos));
 		static float progress = 1.0f;
 		static float progress_dir = -1.0f;
 
-		char buf[32];
-		sprintf(buf, "%d/%d", (int)(progresspercentage/100 * maxvalue), maxvalue);
+		sprintf(buf, "%d/%d", (int)(progresspercentage * maxvalue), maxvalue);
 		ImGui::ProgressBar(progress, ImVec2(xsize, ysize), buf);
 	}
 

@@ -14,6 +14,7 @@ namespace IonixEngine
 		InputText,
 		Panel,
 		RadioButton,
+		DrawRightToLeftBar
 	};
 	struct UIElement
 	{
@@ -34,6 +35,9 @@ namespace IonixEngine
 		int* radioValuePtr = nullptr;
 		int RadioButtonValue = 0;
 		bool sameline = false;
+		float maxvalue = 0.0f;
+		float progresspercentage = 0.0f;
+		char buffer[32];
 
 		std::vector<UIElement> children;
 		bool isChildGroup = false;
@@ -68,7 +72,9 @@ namespace IonixEngine
 		
 		void AddInputText(int x, int y, float xSize, float ySize, const char* text, char* buffer, size_t bufferSize);
 		
-		void AddRadioButton(int x, int y, const char* text, int* radioValuePointer, int value, bool sameline);
+		void AddRadioButton(int x, int y, float xsize, float ysize, const char* text, int* radioValuePointer, int value, bool sameline);
+
+		void DrawRightToLeftBar(int x, int y, float xsize, float ysize, float maxvalue, float progresspercentage, char buf[]);
 
 		void RenderUI();
 		
