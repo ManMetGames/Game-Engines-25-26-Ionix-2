@@ -1,19 +1,22 @@
 #pragma once
 #include <sol/sol.hpp>
 
+#include "Architecture/Application.h"
+#include "Architecture/ECS/Component.hpp"
+#include "Architecture/ECS/Entity.hpp"
 #include "LayerSystem/Layers/LayerFysics.h"
 
 namespace IonixEngine
 {
     enum class fysicBodyType {staticBody, dynamicBody, kinematicBody};
     
-    class FysicBody
+    class FysicBody : public Component
     {
     private:
         b2World* world;
         b2Body* body;
     public:
-        FysicBody()
+        FysicBody(Entity* entity) : Component(entity, false, true, false)
         {
             world = Application::Get().layerFysics->GetWorld();
             //world = LayerFysics::GetInstance()->GetWorld();
@@ -24,10 +27,10 @@ namespace IonixEngine
             bodyDef.fixedRotation = false;
             
             body = world->CreateBody(&bodyDef);
-
+            Application::Get().layerFysics->entities[body] = entity->id;
         }
         
-        FysicBody(float xPos, float yPos, fysicBodyType b_type, bool rotationLocked)
+        FysicBody(Entity* entity, float xPos, float yPos, fysicBodyType b_type, bool rotationLocked) : Component(entity, false, true, false)
         {
             world = LayerFysics::GetInstance()->GetWorld();
             b2BodyDef bodyDef;
@@ -49,7 +52,7 @@ namespace IonixEngine
             body = world->CreateBody(&bodyDef);
         }
 
-        FysicBody(float xPos, float yPos, fysicBodyType b_type, bool rotationLocked, float gravityScale)
+        FysicBody(Entity* entity, float xPos, float yPos, fysicBodyType b_type, bool rotationLocked, float gravityScale) : Component(entity, false, true, false)
         {
             world = LayerFysics::GetInstance()->GetWorld();
             b2BodyDef bodyDef;
@@ -173,7 +176,18 @@ namespace IonixEngine
                 body->ApplyForceToCenter(force, true);
             }
         }
-        
+
+        virtual void Update(float dt) override;
+
     };
+
+    void FysicBody::Update(float dt) {
+        b2ContactEdge* contacts = body->GetContactList();
+        if (contacts->contact) {
+            Entity* other = entity->scene->GetEntityFromID(Application::Get().layerFysics->entities[contacts->other]);
+            if (!other) { return; }
+            entity->Collision(other);
+        }
+    }
 }
 
