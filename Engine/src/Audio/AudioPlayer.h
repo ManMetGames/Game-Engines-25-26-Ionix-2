@@ -103,6 +103,14 @@ namespace IonixEngine
             }
         }
 
+        void End()
+        {
+            if (m_Channel != -1)
+            {
+                Mix_HaltMusic();
+            }
+        }
+
         bool IsPlaying() const
         {
             if (m_Channel == -1)
