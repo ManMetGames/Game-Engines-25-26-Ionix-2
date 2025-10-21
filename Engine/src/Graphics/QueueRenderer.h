@@ -1,3 +1,4 @@
+#pragma once
 #include <iostream>
 #include <queue>
 #include <string>
@@ -7,24 +8,30 @@
 using namespace std;
 
 namespace IonixEngine {
+
+	struct RenderCall { //render data
+		SDL_Texture* texture;
+		// SDL_Rect src;
+		SDL_Rect dest;
+		int32_t z;
+	};
+
 	class QueueRenderer //Singleton
 	{
 
 	private:
 		//member variables
-		queue<string>* sprites; //change string type later to sprite/texture
+		queue<RenderCall> sprites; // queue of render data
 		//static pointer
-		static QueueRenderer* queueRendPtr;
 
 		//MAYBEEE????? use mutex
 
 	public:
-
-		QueueRenderer(const QueueRenderer& obj) = delete; //prevent copis
 		QueueRenderer();
-		void AddToQueue(SpriteComponent sprite);
+		QueueRenderer(const QueueRenderer& obj) = delete; //prevent copis
+		void AddToQueue(RenderCall sprite);
 		void RenderFromQueue();
-		void ClearQueue(queue<string>& sprites);
+		void ClearQueue(queue<RenderCall>& sprites);
 		static QueueRenderer& Get()
 		{
 			static QueueRenderer instance;

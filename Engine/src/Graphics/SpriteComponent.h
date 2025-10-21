@@ -8,12 +8,11 @@
 namespace IonixEngine {
 
 	class SpriteComponent : public Component {
-		std::string filePath;
-		std::string spriteAlias;
+		SDL_Texture* texture;
 		int zOrder;
+		float width, height;
 	public:
-		SpriteComponent(Entity* entity, std::string filePath, std::string name, int zedOrder);
-		void SetTexture(std::string newName, std::string newAlias);
-		std::string GetAlias();
+		SpriteComponent(Entity* entity, std::string alias, int zedOrder);
+		virtual void Render(RenderData* data) override;
 	};
 }
