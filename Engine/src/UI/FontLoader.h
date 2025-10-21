@@ -12,6 +12,11 @@ namespace IonixEngine
     public:
         std::unordered_map<std::string, ImFont*> fontMap;
 
+        ImFont* GetFont(std::string fontName)
+        {
+            return fontMap[fontName];
+        }
+
         void AddMap(std::pair<std::string, ImFont*> newFont)
         {
             fontMap.insert(newFont);
@@ -29,12 +34,14 @@ namespace IonixEngine
 
             // Load the font in
             ImFont* font_title = io.Fonts->AddFontFromFileTTF("TTT-Regular.otf", 23.0f, NULL, io.Fonts->GetGlyphRangesDefault());
+
             IM_ASSERT(font_title != NULL);
 
-            AddMap({ "font1", font_title });
-            
-            ImFont* font_body = io.Fonts->AddFontFromFileTTF("TTT-Bold.otf", 18.0f, NULL, io.Fonts->GetGlyphRangesDefault());
+            AddMap({"font1", font_title });
+
+           ImFont* font_body = io.Fonts->AddFontFromFileTTF("TTT-Bold.otf", 18.0f, NULL, io.Fonts->GetGlyphRangesDefault());
             IM_ASSERT(font_body != NULL);
+            AddMap({ "FontBold",font_body });
 
 
             // Build the font atlas (this can take some time)

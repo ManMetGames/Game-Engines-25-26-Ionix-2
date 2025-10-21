@@ -6,7 +6,7 @@
 #include "backends/imgui_impl_sdlrenderer2.h"
 #include <stdio.h>
 #include <SDL.h>
-#include "UI/Fontloader.h"
+#include "UI/FontLoader.h"
 #include <iostream>
 
 namespace IonixEngine
@@ -86,7 +86,8 @@ namespace IonixEngine
         
          //Shows the big ImGui demo window
          ImGui::ShowDemoWindow();
-         m_UI->DrawLabel("text", 50, 50, 50, 50, "OpenSans - VariableFont.ttf");
+         m_UI->DrawLabel("TEXT", 50, 50, 50, 50, "font1");
+         m_UI->DrawLabel("TEXT", 70, 70, 50, 50, "FontBold");
          // Rendering
          ImGui::Render();
          ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), Application::Get().GetWindow().m_Renderer);
