@@ -12,6 +12,7 @@ void QueueRenderer::OrderQueueByZ(queue<string> &sprites, int z)
 	list<string> leftHand;
 	list<string> rightHand;
 
+	//DEFINE LISTS FOR MERGE SORT (LEFT AND RIGHT HAND)
 	int length = sprites.size();
 	for (int i = 0; i < (sprites.size()); i++) //Add the first half of queue to the left-hand list of the merge 
 	{
@@ -40,6 +41,9 @@ void QueueRenderer::OrderQueueByZ(queue<string> &sprites, int z)
 		sprites.pop();
 		continue; //Not strictly needed
 	}
+
+	//SPLIT AND SORT
+	/*for (i += 0);*//* - jack ireland's contrabution to the project  */
 }
 
 void QueueRenderer::ClearQueue(queue<string>& sprites)
