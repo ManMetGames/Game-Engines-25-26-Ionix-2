@@ -1,6 +1,5 @@
 #include "Scripting/Scripting.h"
 #include "Architecture/Application.h"
-#include "Scripting/Audio/AudioScripting.h"
 
 namespace IonixEngine {
 	Scripting* Scripting::s_Instance = nullptr;
@@ -26,9 +25,6 @@ namespace IonixEngine {
 		// Register engine systems
 		RegisterEngineBindings();
 
-		// Register audio bindings last
-		AudioScripting::Get().Init(m_LuaState);
-
 		std::cout << "Lua has been initialised successfully." << std::endl;
 	}
 
@@ -38,7 +34,10 @@ namespace IonixEngine {
 	{
 		RegisterWindowBindings();
 		RegisterInputBindings();
-		RegisterMafsFunction();
+		RegisterMafsBindings();
+		RegisterAudioBindings();
+		RegisterGraphicsBindings();
+
 	}
 
 	void Scripting::ExecuteScript(const std::string& scriptName)
@@ -148,39 +147,120 @@ namespace IonixEngine {
 			"get_key_down", getKeyDown
 		);
 	}
-	void Scripting::RegisterMafsFunction()
+	void Scripting::RegisterMafsBindings()
 	{
-		auto clamp = [](double x, double min, double max) -> double {
+		auto clamp = [](float x, float min, float max) -> float {
 			return Maf::mafClamp(x, min, max);
-			};
-		auto abs = [](double x) -> double {
-			return Maf::mafAbs(x);
-			};
-		auto min = [](double x, double minVal) -> double {
-			return Maf::mafMin(x, minVal);
-			};
-		auto max = [](double x, double maxVal) -> double {
-			return Maf::mafMax(x, maxVal);
-			};
-		auto round = [](double x) -> double {
-			return Maf::mafRound(x);
-			};
-		auto log = [](double x) -> double {
+		};
+		auto log = [](float x) -> float {
 			return Maf::Log(x);
-			};
-		auto logCustom = [](double x, double base) -> double {
+		};
+		auto logCustom = [](float x, float base) -> float {
 			return Maf::Log(x, base);
+		};
+
+		auto sqrt = [](float x) -> float {
+			return Maf::mafSqrt(x);
 			};
+
+		auto lerp = [](float x, float y, float t) -> float {
+			return Maf::mafLerp(x, y, t);
+			};
+
+		auto vector2 = [](float x, float y) -> Maf::mafVector2<float> {
+			return Maf::mafVector2(x, y);
+			};
+
+		auto vector2x = [](Maf::mafVector2<float> vec2) -> float {
+			return vec2.x;
+			};
+
+		auto vector2y = [](Maf::mafVector2<float> vec2) -> float {
+			return vec2.y;
+			};
+
+		auto vector3 = [](float x, float y, float z) -> Maf::mafVector3<float> {
+			return Maf::mafVector3(x, y, z);
+			};
+
+		auto vector3x = [](Maf::mafVector3<float> vec3) -> float {
+			return vec3.x;
+			};
+
+		auto vector3y = [](Maf::mafVector3<float> vec3) -> float {
+			return vec3.y;
+			};
+
+		auto vector3z = [](Maf::mafVector3<float> vec3) -> float {
+			return vec3.z;
+			};
+
+		auto mod = [](float x, float y) -> float {
+			return Maf::mafMod(x, y);
+			};
+
+		auto div = [](float x, float y) -> float {
+			return Maf::mafDiv(x, y);
+			};
+
+		auto SqrMagnitudeVector2 = [](Maf::mafVector2<float> v) -> float {
+			return Maf::mafSqrMagnitudeVec2(v);
+			};
+
+		auto SqrMagnitudeVector3 = [](Maf::mafVector3<float> v) -> float {
+			return Maf::mafSqrMagnitudeVec3(v);
+			};
+
 
 		m_LuaState["Mafs"] = m_LuaState.create_table_with(
 			"clamp", clamp,
-			"abs", abs,
-			"min", min,
-			"max", max,
-			"round", round,
 			"log", log,
-			"log_custom", logCustom
+			"log_custom", logCustom,
+			"square_root", sqrt,
+			"lerp", lerp,
+			"vector2", vector2,
+			"vector2_x", vector2x,
+			"vector2_y", vector2y,
+			"vector3", vector3,
+			"vector3_x", vector3x,
+			"vector3_y", vector3y,
+			"vector3_z", vector3z,
+			"mod", mod,
+			"div", div,
+			"sqr_magnitude_vector2", SqrMagnitudeVector2,
+			"sqr_magnitude_vector3", SqrMagnitudeVector3
 		);
 	}
+	void Scripting::RegisterAudioBindings()
+	{
+		sol::state& lua = m_LuaState;
+
+		lua.new_usertype<Audio>(
+			"Audio",
+			sol::constructors<Audio(const std::string&, const std::string&)>(),
+			"Play", &Audio::Play,
+			"SetVolume", &Audio::SetVolume,
+			"Loop", &Audio::Loop,
+			"PauseAll", &Audio::PauseAll,
+			"ResumeAll", &Audio::ResumeAll
+		);
+	}
+
+	void Scripting::RegisterGraphicsBindings()
+	{
+		auto sprite = [](char* file) -> Sprite* {
+			return new Sprite(file);
+			};
+
+		auto drawsprite = [](Sprite sprite, float x, float y, float w, float h) {
+			sprite.draw(x, y, w, h);
+			};
+
+		m_LuaState["Sprite"] = m_LuaState.create_table_with(
+			"create_sprite", sprite,
+			"draw_sprite", drawsprite
+		);
+	}
+	
 	// print (Window.get_title())
 }
