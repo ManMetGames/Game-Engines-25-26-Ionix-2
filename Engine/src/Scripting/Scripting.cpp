@@ -1,6 +1,5 @@
 #include "Scripting/Scripting.h"
 #include "Architecture/Application.h"
-#include "Scripting/Audio/AudioScripting.h"
 
 namespace IonixEngine {
 	Scripting* Scripting::s_Instance = nullptr;
@@ -26,9 +25,6 @@ namespace IonixEngine {
 		// Register engine systems
 		RegisterEngineBindings();
 
-		// Register audio bindings last
-		AudioScripting::Get().Init(m_LuaState);
-
 		std::cout << "Lua has been initialised successfully." << std::endl;
 	}
 
@@ -39,6 +35,8 @@ namespace IonixEngine {
 		RegisterWindowBindings();
 		RegisterInputBindings();
 		RegisterMafsFunction();
+		RegisterAudioBindings();
+
 	}
 
 	void Scripting::ExecuteScript(const std::string& scriptName)
@@ -166,5 +164,20 @@ namespace IonixEngine {
 			"log_custom", logCustom
 		);
 	}
+	void Scripting::RegisterAudioBindings()
+	{
+		sol::state& lua = m_LuaState;
+
+		lua.new_usertype<Audio>(
+			"Audio",
+			sol::constructors<Audio(const std::string&, const std::string&)>(),
+			"Play", &Audio::Play,
+			"SetVolume", &Audio::SetVolume,
+			"Loop", &Audio::Loop,
+			"PauseAll", &Audio::PauseAll,
+			"ResumeAll", &Audio::ResumeAll
+		);
+	}
+	
 	// print (Window.get_title())
 }

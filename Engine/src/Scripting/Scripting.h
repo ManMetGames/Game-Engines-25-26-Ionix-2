@@ -1,6 +1,8 @@
 #pragma once
 #include "sol/sol.hpp"
 
+#include "Scripting/Audio/AudioScripting.h"
+
 namespace IonixEngine
 {
     class Scripting
@@ -27,6 +29,7 @@ namespace IonixEngine
         static Scripting* s_Instance;
         sol::state m_LuaState;
 
+		void RegisterAudioBindings();
 
         void RegisterWindowBindings();
 
