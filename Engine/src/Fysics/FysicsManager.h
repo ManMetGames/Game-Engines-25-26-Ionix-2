@@ -10,9 +10,8 @@ namespace IonixEngine
     class FysicsManager
     {
     private:
-        FysicBody* body;
         FysicsShapes* shape;
-        Joints* joint;
+        PrismaticJoints* joint;
         Force* force;
         b2World* world;
 
@@ -24,9 +23,17 @@ namespace IonixEngine
 
         void Create() 
         {   
-            body = new FysicBody(world);
-            shape = new FysicsShapes(body->GetBody());
-            
+            FysicBody* body = new FysicBody(world);
+            FysicBody* bodyb = new FysicBody(world);
+            shape = new FysicsShapes();
+            shape->AttatchBody(body->GetBody());
+            shape->AddBox();
+            shape->AttatchBody(bodyb->GetBody());
+            shape->AddBox();
+
+            joint = new PrismaticJoints();
+            joint->setJoint(body->GetBody(), bodyb->GetBody(), b2Vec2_zero, 1.0f, 1.0f, true, 1.0f, 1.0f, true);
+
         }
     };
 }
