@@ -15,6 +15,7 @@ namespace IonixEngine
         float volume = 128.0f;
         bool mute = false;
         std::string clip = "";
+        bool loop = false;
 
         ~AudioPlayer()
         {
@@ -51,8 +52,10 @@ namespace IonixEngine
                 SDL_Log("[AudioPlayer] Cannot play: no clip assigned");
                 return;
             }
+
+            int loopCount = loop ? -1 : 0;
+            PlayAudio(clip, loopCount);
             
-            PlayAudio(clip, 0);
             // example:
             // gunshotSound.clip = "gunshot";
             // gunshotSound.volume = 64;
@@ -136,10 +139,7 @@ namespace IonixEngine
         }
 
         // Music loop - loops by specified number of times
-        void LoopAudioByTimes(Mix_Music* music, int loops)
-        {
-            Mix_PlayMusic(music, loops); // loops: 0 = once, 1+ = that many times, -1 = infinite
-        }
+        
 
     private:
         int m_Channel = -1; // SDL_mixer channel this instance is using (-1 = not playing)
