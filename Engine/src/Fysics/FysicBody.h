@@ -195,6 +195,18 @@ namespace IonixEngine
                 body->ApplyTorque(torque, true);
             }
         }
+        //Add impulse with torque
+        void AddAngularImpulse(float torque) {
+            if (body) {
+                body->ApplyAngularImpulse(torque, true);
+            }
+        }
+        //Set Active
+        void SetActive(bool flag) {
+            if (body) {
+                body->SetAwake(flag);
+            }
+        }
         
     };
 }
