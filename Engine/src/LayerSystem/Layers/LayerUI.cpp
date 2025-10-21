@@ -72,13 +72,22 @@ namespace IonixEngine
 
     void LayerUI::OnDetach() {}
 
-    void LayerUI::OnUpdate() 
+    void LayerUI::OnUpdate()    
     {
         // Start the Dear ImGui frame. Immediate mode rendering - UI gets rebuilt each frame
          ImGui_ImplSDLRenderer2_NewFrame();
          ImGui_ImplSDL2_NewFrame();
          ImGui::NewFrame();
-        
+       
+
+         static float progress1 = 1.0f, progress_dir = -1.0f;
+         progress1 -= 0.0001;
+
+         char buf[32];
+         sprintf(buf, "%d/%d", (int)(progress1 * 1000), 100);
+         ImGui::ProgressBar(progress1, ImVec2(300,50), buf);
+
+
          //Shows the big ImGui demo window
          ImGui::ShowDemoWindow();
         

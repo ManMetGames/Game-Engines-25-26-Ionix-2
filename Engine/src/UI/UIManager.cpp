@@ -74,9 +74,9 @@ void IonixEngine::UIManager::AddInputText(int x, int y, float xSize, float ySize
 	elements.push_back({ UIType::InputText,currentGroupName, x, y, xSize, ySize, const_cast<char*>(text), nullptr, nullptr, nullptr, 0.0f, 0.0f, buffer, bufferSize });
 }
 
-void IonixEngine::UIManager::AddRadioButton(int x, int y, float xSize, float ySize, const char* text, int* radioValuePointer, int value, bool sameline)
+void IonixEngine::UIManager::AddRadioButton(int x, int y, const char* text, int* radioValuePointer, int value, bool sameline)
 {
-	elements.push_back({ UIType::RadioButton,currentGroupName, x, y, xSize, ySize, const_cast<char*>(text), nullptr, nullptr, nullptr, 0.0f, 0.0f, nullptr, 0, radioValuePointer, value, sameline});
+	elements.push_back({ UIType::RadioButton,currentGroupName, x, y, 0.0, 0.0, const_cast<char*>(text), nullptr, nullptr, nullptr, 0.0f, 0.0f, nullptr, 0, radioValuePointer, value, sameline});
 }
 
 void IonixEngine::UIManager::RenderElement(UIElement& element)

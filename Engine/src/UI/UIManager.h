@@ -68,7 +68,7 @@ namespace IonixEngine
 		
 		void AddInputText(int x, int y, float xSize, float ySize, const char* text, char* buffer, size_t bufferSize);
 		
-		void AddRadioButton(int x, int y, float xSize, float ySize, const char* text, int* radioValuePointer, int value, bool sameline);
+		void AddRadioButton(int x, int y, const char* text, int* radioValuePointer, int value, bool sameline);
 
 		void RenderUI();
 		

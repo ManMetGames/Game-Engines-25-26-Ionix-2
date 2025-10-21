@@ -1,6 +1,9 @@
 #include "UI.h"
 #include "imgui.h"
+#include <stdio.h>
+#include <iostream>
 
+#define IM_CLAMP(V, MN, MX)     ((V) < (MN) ? (MN) : (V) > (MX) ? (MX) : (V))
 
 namespace IonixEngine
 {
@@ -32,6 +35,17 @@ namespace IonixEngine
 			ImGui::RadioButton(text, &e, value); ImGui::SameLine();
 		}
 		ImGui::RadioButton(text, &e, value);
+	}
+
+	void UI::DrawRightToLeftBar(int xpos, int ypos, int xsize, float ysize, float maxvalue, float progresspercentage)
+	{
+		ImGui::SetCursorPos(ImVec2(xpos, ypos));
+		static float progress = 1.0f;
+		static float progress_dir = -1.0f;
+
+		char buf[32];
+		sprintf(buf, "%d/%d", (int)(progresspercentage/100 * maxvalue), maxvalue);
+		ImGui::ProgressBar(progress, ImVec2(xsize, ysize), buf);
 	}
 
 }
