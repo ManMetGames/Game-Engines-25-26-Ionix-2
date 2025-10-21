@@ -65,14 +65,23 @@ namespace IonixEngine
          ImGui::ShowDemoWindow();
          m_UIManager->AddLabel(150, 150, -1, -1, "Hello world!");
 
+         m_UIManager->AddCheckbox(200,200,50,50,"Is Checked");
+         m_UIManager->AddCheckbox(200,200,50,50,"Is Checked");
+
          for (auto uiElement : m_UIManager->GetElements())
          {
              if (uiElement.type == UIType::Label)
              {
                  m_UI->DrawLabel(uiElement.text, uiElement.xPos, uiElement.yPos);
              }
+             if (uiElement.type == UIType::Checkbox)
+             {
+                 (m_UI->DrawCheckbox(0, uiElement.text, uiElement.xPos, uiElement.yPos, 10, 10));
+             }
          }
          
+         // https://github.com/ocornut/imgui/issues/1901
+
          ImGui::End();
 
          // Rendering

@@ -6,13 +6,8 @@ namespace IonixEngine
 {
 	void UI::DrawLabel(char* text, int xpos, int ypos)
 	{
-		const ImGuiViewport* viewport = ImGui::GetMainViewport();
-
-		ImGui::SetNextWindowSize(viewport->Size);
 		ImGui::SetCursorPos(ImVec2(xpos, ypos));
-
 		ImGui::Text(text, ImVec2(xpos, ypos));
-
 	}
 	bool UI::DrawButton(char* text, int xsize, int ysize, int xpos, int ypos)
 	{
@@ -27,5 +22,18 @@ namespace IonixEngine
 		ImGui::SliderFloat(text, &i, minval, maxval );
 		return i;
 
+	}
+	static bool animate = true;
+
+
+	void UI::DrawCheckbox(int id, char* text, int xpos, int ypos, int xsize, int ysize)
+	{
+		if (checkboxMap.find(id) != checkboxMap.end())
+			checkboxMap.insert({ id, false });
+
+		bool& state = getCheckboxState(id);
+		ImGui::SetCursorPos(ImVec2(xpos, ypos));
+
+		ImGui::Checkbox(text, &state);
 	}
 }

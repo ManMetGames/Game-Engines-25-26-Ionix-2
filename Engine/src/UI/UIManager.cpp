@@ -59,9 +59,9 @@ void IonixEngine::UIManager::AddButton(int x, int y, float xSize, float ySize, c
 	elements.push_back({ UIType::Button,currentGroupName, x, y, xSize, ySize, const_cast<char*>(text), onClick });
 }
 
-void IonixEngine::UIManager::AddCheckbox(int x, int y, float xSize, float ySize, const char* text, bool* checked)
+void IonixEngine::UIManager::AddCheckbox(int x, int y, float xSize, float ySize, const char* text)
 {
-	elements.push_back({ UIType::Checkbox,currentGroupName, x, y, xSize, ySize, const_cast<char*>(text), nullptr, checked });
+	elements.push_back({ UIType::Checkbox,currentGroupName, x, y, xSize, ySize, const_cast<char*>(text), nullptr });
 }
 
 void IonixEngine::UIManager::AddSliderFloat(int x, int y, float xSize, float ySize, const char* text, float* value, float min, float max)

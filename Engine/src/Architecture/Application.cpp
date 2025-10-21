@@ -93,6 +93,11 @@ namespace IonixEngine
                 std::cout << "Spacebar is being held down \n";
             }
 
+            if (layerUI->m_UI->getCheckboxState(0) == true)
+            {
+                std::cout << "Checkbox is toggled.";
+            }
+
             layerInput->m_Input->CopyCodesEndFrame();
 
             // Scripting::Get().CallHook("OnUpdate");
