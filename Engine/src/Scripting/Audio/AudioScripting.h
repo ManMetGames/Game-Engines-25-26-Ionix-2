@@ -1,21 +1,15 @@
 #pragma once
-#include "sol/sol.hpp"
-#include "Scripting/Scripting.h"
-#include "LayerSystem/Layers/LayerSound.h"
-#include "Architecture/AudioSystem/SoundManager.h"
+#include <sol/sol.hpp>
 #include "Audio/Audio.h"
 
-namespace IonixEngine
-{
-    class AudioScripting
-    {
+namespace IonixEngine {
+
+    class AudioScripting {
     public:
-        static AudioScripting & Get();
-        void Init(sol::state& sharedState);
-        void RegisterAudioBindings();
+        static AudioScripting& Get();
 
     private:
         static AudioScripting* s_Instance;
-        sol::state* m_LuaState = nullptr; // changed from sol::state to pointer
     };
-}
+
+} 

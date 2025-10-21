@@ -1,6 +1,5 @@
 #include "Scripting/Scripting.h"
 #include "Architecture/Application.h"
-#include "Scripting/Audio/AudioScripting.h"
 
 namespace IonixEngine {
 	Scripting* Scripting::s_Instance = nullptr;
@@ -26,9 +25,6 @@ namespace IonixEngine {
 		// Register engine systems
 		RegisterEngineBindings();
 
-		// Register audio bindings last
-		AudioScripting::Get().Init(m_LuaState);
-
 		std::cout << "Lua has been initialised successfully." << std::endl;
 	}
 
@@ -38,7 +34,9 @@ namespace IonixEngine {
 	{
 		RegisterWindowBindings();
 		RegisterInputBindings();
-		RegisterMafsBindings();
+		RegisterMafsFunction();
+		RegisterAudioBindings();
+
 	}
 
 	void Scripting::ExecuteScript(const std::string& scriptName)
@@ -232,20 +230,20 @@ namespace IonixEngine {
 			"sqr_magnitude_vector3", SqrMagnitudeVector3
 		);
 	}
-	void Scripting::RegisterGraphicsBindings()
+	void Scripting::RegisterAudioBindings()
 	{
-		auto sprite = [](char* file) -> Sprite {
-			return Sprite(file);
-		};
+		sol::state& lua = m_LuaState;
 
-		auto drawsprite = [](Sprite sprite, float x, float y, float w, float h) {
-			sprite.draw(x, y, w, h);
-		};
-
-		m_LuaState["Sprite"] = m_LuaState.create_table_with(
-		"create_sprite", sprite,
-		"draw_sprite", drawsprite	
-		);		
+		lua.new_usertype<Audio>(
+			"Audio",
+			sol::constructors<Audio(const std::string&, const std::string&)>(),
+			"Play", &Audio::Play,
+			"SetVolume", &Audio::SetVolume,
+			"Loop", &Audio::Loop,
+			"PauseAll", &Audio::PauseAll,
+			"ResumeAll", &Audio::ResumeAll
+		);
 	}
+	
 	// print (Window.get_title())
 }
