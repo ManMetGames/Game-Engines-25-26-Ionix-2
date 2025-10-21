@@ -1,11 +1,14 @@
 #pragma once
 #include "LayerSystem/Layer.h"
 #include "UI/UI.h"
+#include "UI/UIManager.h"
 
 namespace IonixEngine
 {
     class LayerUI : public Layer
     {
+    private:
+        UIManager uiManager;
     public:
         LayerUI() {}
 

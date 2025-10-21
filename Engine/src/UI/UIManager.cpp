@@ -163,8 +163,10 @@ void IonixEngine::UIManager::RenderElement(UIElement& element)
 		}
 			
 		break;
-	default:
-		break;
+	
+
+		if (element.sameline)
+			ImGui::SameLine();
 	}
 }
 void IonixEngine::UIManager::RenderUI()
