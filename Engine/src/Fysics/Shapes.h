@@ -12,7 +12,7 @@ namespace IonixEngine
     class FysicsShapes
     {
         private:
-            b2World* world;
+            //b2World* world;
             b2Fixture* fixture;
             b2Body* body;
 
@@ -20,7 +20,7 @@ namespace IonixEngine
             
             FysicsShapes(b2Body* attachedBody)
             {
-                world = LayerFysics::GetInstance()->GetWorld();
+                //world = LayerFysics::GetInstance()->GetWorld();
                 body = attachedBody;
                 fixture = nullptr;
             }
@@ -61,6 +61,7 @@ namespace IonixEngine
 
                 fixtureDef.shape = &shape;
                 fixtureDef.isSensor = isTrigger;
+                fixtureDef.density = 1.0f;
 
                 fixture = body->CreateFixture(&fixtureDef);
             }

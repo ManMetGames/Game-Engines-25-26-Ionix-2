@@ -89,8 +89,8 @@ namespace IonixEngine
 
             if (layerInput->m_Input->IsKeyDown(SDL_SCANCODE_SPACE))
             {
-                //std::cout << "Spacebar was pressed once \n";
-                testBody.AddForceToCenter(b2Vec2(0.f, 50.f));
+                std::cout << "Spacebar was pressed once \n";
+                testBody.AddForceToCenter(b2Vec2(0.f, 5000.0f));
             }
             if (layerInput->m_Input->IsKeyUp(SDL_SCANCODE_SPACE))
             {

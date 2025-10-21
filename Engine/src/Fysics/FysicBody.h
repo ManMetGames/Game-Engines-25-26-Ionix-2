@@ -13,17 +13,22 @@ namespace IonixEngine
     private:
         b2World* world;
         b2Body* body;
+        FysicsShapes* shape;
     public:
         FysicBody()
         {
             world = Application::Get().layerFysics->GetWorld();
-            //world = LayerFysics::GetInstance()->GetWorld();
             b2BodyDef bodyDef;
             bodyDef.type = b2_dynamicBody;
             bodyDef.position.Set(0, 10);
             bodyDef.awake = true;
             bodyDef.fixedRotation = false;
             body = world->CreateBody(&bodyDef);
+
+            shape = new FysicsShapes(body);
+            shape->AddBox(5.0f, 5.0f);
+
+            
         }
         
         FysicBody(float xPos, float yPos, fysicBodyType b_type, bool rotationLocked)
