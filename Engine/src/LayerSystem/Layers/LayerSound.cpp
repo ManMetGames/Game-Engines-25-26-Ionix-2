@@ -2,6 +2,7 @@
 #include "EventSystem/Event.h"              
 #include <iostream>
 #include <SDL.h>
+#include "Audio/AudioPlayerTest.h"
 
 namespace IonixEngine
 {
@@ -23,6 +24,8 @@ namespace IonixEngine
 
         // volume set for now
         SoundManager::GetInstance().SetVolume(m_SoundName, 0.8f);
+
+        AudioPlayerTest::RunTests();
         //SoundManager::GetInstance().PlaySound(m_SoundName, 0);
     }
 
