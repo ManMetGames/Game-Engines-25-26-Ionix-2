@@ -5,10 +5,13 @@ namespace IonixEngine
 {
      class Joints    
     {
+    private:
+        b2JointUserData userData;
+
     public:
         b2World* world;    
 
-        b2JointUserData userData;
+
         Joints()
         {
             world = LayerFysics::GetInstance()->GetWorld();          
