@@ -3,12 +3,13 @@
 #include "UI/UI.h"
 #include "../SDL/SDL2_mixer-2.8.0/include/SDL_mixer.h"
 #include "Architecture/AudioSystem/SoundManager.h"
+#include "Architecture/ECS/Component.hpp"
 #include <iostream>
 #include <string>
 
 namespace IonixEngine
 {
-    class AudioPlayer
+    class AudioPlayer : public Component
     {
     public:
         // Per-instance properties (more should be added, leaving it to the audio team members)
@@ -16,15 +17,15 @@ namespace IonixEngine
         bool mute = false;
         std::string clip = "";
         bool loop = false;
+        bool playOnAwake = false;
 
-        ~AudioPlayer()
-        {
-            // Stop and release the channel when this AudioPlayer is destroyed
-            if (m_Channel != -1)
-            {
-                Mix_HaltChannel(m_Channel);
-            }
-        }
+        // Constructor
+        AudioPlayer(Entity* entity, const std::string& audioClip = "", bool playOnAwake = false);
+
+        // Component lifecycle overrides
+        void Start() override;
+        void Update(float deltaTime) override;
+        void Destroy() override;
 
         void Play(int fadeMilliseconds = 0)
         {
