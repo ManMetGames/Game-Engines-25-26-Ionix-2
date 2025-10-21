@@ -16,6 +16,15 @@ namespace IonixEngine
         bool mute = false;
         std::string clip = "";
 
+        ~AudioPlayer()
+        {
+            // Stop and release the channel when this AudioPlayer is destroyed
+            if (m_Channel != -1)
+            {
+                Mix_HaltChannel(m_Channel);
+            }
+        }
+
         void PlayAudio(const std::string& soundName, int loops)
         {
             Mix_Chunk* chunk = SoundManager::GetInstance().GetAudio(soundName);
