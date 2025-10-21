@@ -179,7 +179,7 @@ namespace IonixEngine
             }
         }
 
-        // Add impulse at the center of mass
+        // Add impulse at the center of mass 
         void AddImpulseToCenter(b2Vec2 impulse)
         {
             if (body)
@@ -206,6 +206,17 @@ namespace IonixEngine
             if (body) {
                 body->SetAwake(flag);
             }
+        }
+        //Get Active 
+        bool GetActive() {
+            return body->IsAwake();
+        }
+        //Rotate Position or Body - doesnt set the angle to be something like Set Angle adds rotation to current body
+        void RotatePosition(float angle) {
+            float currentAngle = body->GetAngle(); 
+            float newAngle = currentAngle + angle; // adding rotation to current rotation
+            body->SetTransform(body->GetPosition(), newAngle);
+
         }
         
     };
