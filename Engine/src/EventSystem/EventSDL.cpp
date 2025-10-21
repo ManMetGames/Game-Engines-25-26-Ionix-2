@@ -33,7 +33,18 @@ namespace IonixEngine
             case SDL_KEYUP: 
                 Application::Get().layerInput->m_Input->SetKeyReleased(e.key.keysym.scancode);
                 break;
-            
+
+                //Mouse
+           case SDL_MOUSEBUTTONDOWN:
+               Uint8 buttonPressed = e.button.button;
+               // left is 1
+               // middle is 2
+               // right is 3
+               // 
+                Application::Get().layerInput->m_Input->IsMouseButtonDown();
+               break;
+
+  
 
         }
     }

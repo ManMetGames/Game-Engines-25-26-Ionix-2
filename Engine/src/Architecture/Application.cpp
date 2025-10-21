@@ -97,10 +97,16 @@ namespace IonixEngine
 
             }
 
+           if (layerInput->m_Input->IsMouseButtonDown(1))
+           {
+               std::cout << "Mouse Button Down pressed \n";
+           }
+          
 
 
-            MouseCoords mc = layerInput->m_Input->GetMousePosition();
-            std::cout << "Mouse X Pos: " << mc.x << " Mouse Y Pos: " << mc.y << std::endl;
+
+           // MouseCoords mc = layerInput->m_Input->GetMousePosition();
+           // std::cout << "Mouse X Pos: " << mc.x << " Mouse Y Pos: " << mc.y << std::endl;
             
             layerInput->m_Input->CopyCodesEndFrame();
 
