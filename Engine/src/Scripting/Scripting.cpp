@@ -34,7 +34,7 @@ namespace IonixEngine {
 	{
 		RegisterWindowBindings();
 		RegisterInputBindings();
-		RegisterMafsFunction();
+		//RegisterMafsFunction();
 		RegisterAudioBindings();
 
 	}
@@ -232,17 +232,9 @@ namespace IonixEngine {
 	}
 	void Scripting::RegisterAudioBindings()
 	{
-		sol::state& lua = m_LuaState;
+		AudioScripting::Get().Init(m_LuaState);
 
-		lua.new_usertype<Audio>(
-			"Audio",
-			sol::constructors<Audio(const std::string&, const std::string&)>(),
-			"Play", &Audio::Play,
-			"SetVolume", &Audio::SetVolume,
-			"Loop", &Audio::Loop,
-			"PauseAll", &Audio::PauseAll,
-			"ResumeAll", &Audio::ResumeAll
-		);
+	
 	}
 	
 	// print (Window.get_title())

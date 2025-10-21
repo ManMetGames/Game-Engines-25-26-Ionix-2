@@ -21,6 +21,8 @@ namespace IonixEngine
     }
 
     void LayerGraphics::OnUpdate() {
+        // no longer causes an EVIL memory leak <3
+        sprite1.draw(150,0,250,200);
     }
 
     void LayerGraphics::OnEvent(IonixEvent& e) {}

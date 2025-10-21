@@ -40,8 +40,8 @@ namespace IonixEngine
 
         layerScene = new LayerScene();
         AddLayer(layerScene);
-        //Scripting::Get().Init();
-        //Scripting::Get().GetLuaState().script_file("Scripts/settings.lua");
+        Scripting::Get().Init();
+        Scripting::Get().GetLuaState().script_file("Scripts/Settings.lua");
     }
         
     Application::~Application() 
@@ -64,7 +64,7 @@ namespace IonixEngine
     {
         m_Running = true;
 
-        //Scripting::Get().CallHook("OnStart");
+        Scripting::Get().CallHook("OnStart");
         SDL_Renderer* renderer = m_Window->GetSdlRenderer();
 
         while (m_Running)
@@ -77,9 +77,6 @@ namespace IonixEngine
                 if(layer)
                     layer->OnUpdate();
             }
-
-            // Scripting::Get().CallHook("OnUpdate");
-
             if (layerInput->m_Input->IsKeyDown(SDL_SCANCODE_SPACE))
             {
                 std::cout << "Spacebar was pressed once \n";
@@ -93,9 +90,9 @@ namespace IonixEngine
                 std::cout << "Spacebar is being held down \n";
             }
 
-            layerInput->m_Input->CopyCodesEndFrame();
+            Scripting::Get().CallHook("OnUpdate");
 
-            // Scripting::Get().CallHook("OnUpdate");
+            layerInput->m_Input->CopyCodesEndFrame();
           
             m_Window->OnUpdate();
             SDL_RenderPresent(renderer);
