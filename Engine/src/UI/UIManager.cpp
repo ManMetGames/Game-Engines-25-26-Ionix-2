@@ -62,7 +62,7 @@ void IonixEngine::UIManager::AddButton(int x, int y, float xSize, float ySize, c
 void IonixEngine::UIManager::AddCheckbox(int x, int y, float xSize, float ySize, const char* text, bool* checked)
 {
 	elements.push_back({ UIType::Checkbox,currentGroupName, x, y, xSize, ySize, const_cast<char*>(text), nullptr, checked });
-}
+}	
 
 void IonixEngine::UIManager::AddSliderFloat(int x, int y, float xSize, float ySize, const char* text, float* value, float min, float max)
 {
@@ -72,6 +72,11 @@ void IonixEngine::UIManager::AddSliderFloat(int x, int y, float xSize, float ySi
 void IonixEngine::UIManager::AddInputText(int x, int y, float xSize, float ySize, const char* text, char* buffer, size_t bufferSize)
 {
 	elements.push_back({ UIType::InputText,currentGroupName, x, y, xSize, ySize, const_cast<char*>(text), nullptr, nullptr, nullptr, 0.0f, 0.0f, buffer, bufferSize });
+}
+
+void IonixEngine::UIManager::AddRadioButton(int x, int y, float xSize, float ySize, const char* text, int* e, int value, bool sameline)
+{
+	elements.push_back({ UIType::RadioButton,currentGroupName, x, y, xSize, ySize, const_cast<char*>(text), e, value, sameline});
 }
 
 void IonixEngine::UIManager::RenderElement(UIElement& element)
