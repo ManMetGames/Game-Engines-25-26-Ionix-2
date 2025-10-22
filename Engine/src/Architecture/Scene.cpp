@@ -1,18 +1,33 @@
 #include "Scene.h"
 #include "Architecture/Application.h"
 #include "Architecture/ECS/ECS_Test.hpp"
-#include "SDL_render.h"
 
 namespace IonixEngine {
     void Scene::OnEnter() {
         SDL_Log("[Scene] Started Scene");
         renderData.renderer = Application::Get().GetWindow().GetSdlRenderer();
 
-        EntityID en = CreateEntity();
-        Entity* entity = GetEntityFromID(en);
-        if (!entity) { return; }
-        entity->AddComponent(new SpriteRenderer(entity));
-        entity->AddComponent(new EntityMover(entity));
+        EntityID first = CreateEntity();
+        Entity* firstEntity = GetEntityFromID(first);
+        if (!firstEntity) { return; }
+        firstEntity->AddComponent(new SpriteRenderer(firstEntity));
+        firstEntity->AddComponent(new EntityMover(firstEntity, 10));
+        firstEntity->transform.SetLocalPosition(Vec2 { 500, 300 });
+
+        EntityID second = CreateEntity();
+        Entity* secondEntity = GetEntityFromID(second);
+        if (!secondEntity) { return; }
+        secondEntity->AddComponent(new SpriteRenderer(secondEntity));
+        secondEntity->transform.SetLocalPosition(Vec2 { 100, 0 });
+        secondEntity->transform.SetParent(&firstEntity->transform);
+        secondEntity->AddComponent(new EntityMover(secondEntity, -10));
+
+        EntityID third = CreateEntity();
+        Entity* thirdEntity = GetEntityFromID(third);
+        if (!thirdEntity) { return; }
+        thirdEntity->AddComponent(new SpriteRenderer(thirdEntity));
+        thirdEntity->transform.SetLocalPosition(Vec2 { -100, 0 });
+        thirdEntity->transform.SetParent(&secondEntity->transform);
     }
 
     void Scene::OnUpdate(float dt) {

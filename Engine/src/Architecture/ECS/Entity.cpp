@@ -1,7 +1,6 @@
 #include "Entity.hpp"
 #include "Component.hpp"
-#include "../Scene.h"
-#include <type_traits>
+#include "Scene.h"
 #include <vector>
 #include <cmath>
 
@@ -12,10 +11,9 @@ namespace IonixEngine {
         position(Vec2{ 0, 0 }),
         zOrder(0),
         rotation(0),
-        remove(false)
+        remove(false),
+        transform(this)
     {
-        Transform newTransform = Transform();
-        transforms = &newTransform;
         components = std::vector<Component*>();
     }
 

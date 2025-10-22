@@ -65,3 +65,5 @@ dependencies/bin/imgui/bin/
 client
 libengine.so
 nobuild.exe.old
+nobuild
+nobuild.old

@@ -47,6 +47,8 @@ int main(int argc, char* argv[]) {
     if (is_windows) nob_da_append(&os_flags, "-nostdlib");
     if (!is_windows) { nob_da_append(&os_flags, "-fPIC"); }
     if (!is_windows) nob_da_append(&os_flags, "-Wl,-rpath,.");
+    nob_da_append(&os_flags, "-g");
+    nob_da_append(&os_flags, "-O0");
 
     get_sources("./Engine/src/", &engine_source_files, &engine_header_files, &engine_include);
     get_sources("./Client/src/", &client_source_files, &client_header_files, &client_include);

@@ -26,7 +26,7 @@ namespace IonixEngine {
         float rotation;
         int32_t zOrder;
         EntityID id;
-        Transform* transforms;
+        Transform transform;
 
         Entity(EntityID id);
 

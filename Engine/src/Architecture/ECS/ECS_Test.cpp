@@ -1,19 +1,25 @@
 #include "ECS_Test.hpp"
-namespace IonixEngine {
-    SpriteRenderer::SpriteRenderer(Entity* entity) : Component(entity, false, true, false) {
-		image = IonixEngine::TextureManager::Get().GetTexture("Test").GetTexture();
-	}
+#include "Architecture/TextureManager/TextureManager.h"
 
-    void SpriteRenderer::Render(RenderData* data) {
-    SDL_Rect draw = { static_cast<int>(entity->position.x - 50), static_cast<int>(entity->position.y - 50), 100, 100 };
+namespace IonixEngine {
+SpriteRenderer::SpriteRenderer(Entity* entity) : Component(entity, false, true, false) {
+    image = IonixEngine::TextureManager::Get().GetTexture("Test").GetTexture();
+}
+
+void SpriteRenderer::Render(RenderData* data) {
+    Vec2 position = entity->transform.GetGlobalPosition();
+    SDL_Rect draw = { static_cast<int>(position.x - 50), static_cast<int>(position.y - 50), 100, 100 };
 
     if (SDL_RenderCopy(data->renderer, image, nullptr, &draw) < 0) {
         SDL_Log("Could not draw texture: %s", SDL_GetError());
     }
 }
 
+
+EntityMover::EntityMover(Entity* entity, float speed) : Component(entity, false, false, false), speed(speed) { }
+
 void EntityMover::Update(float dt) {
-    time += dt * 3.14;
-    entity->position = Vec2 { 500 + 100 * cosf(time), 300 + sinf(time) * 100 };
+    float newRotation = entity->transform.GetLocalRotation() + speed * dt;
+    entity->transform.SetLocalRotation(newRotation);
 }
 }

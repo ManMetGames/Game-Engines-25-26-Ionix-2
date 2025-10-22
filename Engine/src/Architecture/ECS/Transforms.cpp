@@ -1,14 +1,17 @@
 #include <algorithm>
+#include <cmath>
 
 #include "Transforms.h"
+#include "ECS/Temp_Vec2.hpp"
+#include "Entity.hpp"
 
 namespace IonixEngine
 {
-	Transform::Transform(Entity& parentEntity) :
+	Transform::Transform(Entity* parentEntity) :
 		position(Vec2{ 0.0f,0.0f }),
 		rotation(0.0f),
 		parentTransform(nullptr),
-		parentEntity(parentEntity)
+		entity(parentEntity)
 	{
 		childTransforms = std::vector<Transform*>();
 	}
@@ -17,49 +20,11 @@ namespace IonixEngine
 	{
 		Vec2 position;
 		Transform* parent = parentTransform;
-		while (parent != nullptr)
-		{
+		while (parent) {
 			Vec2 parentPos = parentTransform->position;
 			float parentRot = parentTransform->rotation;
 
-			float angle = parentRot;
-
-			//turns out there's a lot of edge cases here
-			//angle additions if x & y are non-zero
-			if (position.x != 0.0f && position.y != 0.0f)
-			{
-				if (position.y > 0.0f)
-				{
-					angle += atan(position.x / position.y);
-				}
-				else
-				{
-					angle += (atan((position.x / position.y)) + 180.0f);
-				}
-			}
-			//angle additions if either x or y is zero
-			else if (position.y == 0.0f)
-			{
-				if (position.x > 0.0f)
-				{
-					angle += 90.0f;
-				}
-				else
-				{
-					angle -= 90.0f;
-				}
-			}
-			else if (position.x == 0.0f && position.y < 0.0f)
-			{
-				angle += 180.0f;
-			}
-			//apparently, there's no action taken if x = 0 and y > 0
-
-
-			float mag = sqrt(pow(position.x, 2) + pow(position.y, 2));
-
-			float x = mag * sin(angle);
-			float y = mag * cos(angle);
+			parentPos = Vec2Rotate(parentPos, parentRot);
 
 			position.x += parentPos.x;
 			position.y += parentPos.y;
@@ -76,7 +41,7 @@ namespace IonixEngine
 	{
 		Transform* parent = parentTransform;
 		float rot = 0.0f;
-		while (parent != nullptr)
+		while (parent)
 		{
 			rot += parent->rotation;
 			parent = parent->parentTransform;
@@ -93,32 +58,22 @@ namespace IonixEngine
 		}*/
 	}
 
-	void Transform::SetGlobalPosition(Vec2 transform)
+	void Transform::SetGlobalPosition(Vec2 newPosition)
 	{
 		Vec2 parentPos = parentTransform->GetGlobalPosition();
-		float parentRot = parentTransform->GetGlobalRotation();
+		float parentRot = parentTransform->GetLocalRotation();
 
-		float xOffset = transform.x - parentPos.x;
-		float yOffset = transform.y - parentPos.y;
+		Vec2 difference = { newPosition.x - parentPos.x, newPosition.y - parentPos.y };
+		difference = Vec2Rotate(difference, -parentRot);
 
-		float mag = sqrt(pow(xOffset, 2) + pow(yOffset, 2));
-
-		float xAngle = asin(xOffset / mag);
-		//float yAngle = acos(yOffset / mag);
-
-		xAngle -= parentRot;
-
-		float x = mag * sin(xAngle);
-		float y = mag * cos(xAngle);
-
-		position = { x,y };
+		position = difference;
 	}
 
 	void Transform::SetGlobalRotation(float rot)
 	{
 		float accumulator = 0.0f;
 		Transform* parent = parentTransform;
-		while (parent != nullptr)
+		while (parent)
 		{
 			accumulator += parent->rotation;
 			parent = parent->parentTransform;
@@ -136,8 +91,18 @@ namespace IonixEngine
 		return rotation;
 	}
 
+	void Transform::SetLocalPosition(Vec2 localPosition)
+	{
+		position = localPosition;
+	}
+
+	void Transform::SetLocalRotation(float localRotation)
+	{
+		rotation = localRotation;
+	}
+
 	//maintainLocation = true will attempt to keep the transforms in the same place
-	void Transform::SetParent(Transform* parent, bool maintainLocation = true)
+	void Transform::SetParent(Transform* parent, bool maintainLocation)
 	{
 		if (parentTransform != nullptr) { RemoveParent(); }
 
@@ -155,7 +120,7 @@ namespace IonixEngine
 	}
 
 	//maintainLocation = true will attempt to keep the transforms in the same place
-	void Transform::RemoveParent(bool maintainLocation = true)
+	void Transform::RemoveParent(bool maintainLocation)
 	{
 		Vec2 globalPos = GetGlobalPosition();
 		float globalRot = GetGlobalRotation();
