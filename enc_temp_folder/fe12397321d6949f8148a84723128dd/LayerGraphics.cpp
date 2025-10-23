@@ -22,6 +22,7 @@ namespace IonixEngine
     }
 
     void LayerGraphics::OnUpdate() {
+        // no longer causes an EVIL memory leak <3
         ball.drawFrame(0,0,32,32);
     }
 

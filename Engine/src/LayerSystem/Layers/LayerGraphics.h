@@ -1,6 +1,7 @@
 #pragma once
 #include "LayerSystem/Layer.h"
 #include "Graphics/SpriteClass.h"
+#include "Graphics/SpriteAnimation.h"
 
 namespace IonixEngine
 {
@@ -13,8 +14,8 @@ namespace IonixEngine
         SDL_Renderer* renderer;
 
         //this sprite is just for testing purposes while we work on the sprite component xoxo
-        Sprite sprite1 = Sprite("aur naur.jpg");
-
+        //Sprite sprite1 = Sprite("./Assets/ball sprite sheet.png");
+        SpriteAnimation ball = SpriteAnimation("ball sprite sheet.png");
     public:
         LayerGraphics();
         virtual void OnAttach() override;
