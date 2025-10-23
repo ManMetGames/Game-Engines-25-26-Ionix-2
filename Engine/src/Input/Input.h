@@ -51,6 +51,12 @@ namespace IonixEngine
         void FindController()
         {
             SDL_GameController* controller = findController(); // finds the controller 
+            
+            // notes on how i want to do this in theory: logic is probably wrong. oh well
+            // findController() gets the ID of the current controller connected (i assume an int)
+            // if [SOMETHING] = the ID, then print controller is found
+            // else say it's not there
+            // also check to see if a controller was already previously connected or something
         }
 
         // controller button down
