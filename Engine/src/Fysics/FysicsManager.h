@@ -1,6 +1,6 @@
 #pragma once
 #include "LayerSystem/Layers/LayerFysics.h"
-#include "Fysics/FysicBody.h"
+#include "Fysics/FysicsBody.h"
 #include "Fysics/Shapes.h"
 #include "Fysics/Joints.h"
 #include "Fysics/Force.h"
@@ -23,8 +23,8 @@ namespace IonixEngine
 
         void Create() 
         {   
-            FysicBody* body = new FysicBody(world);
-            FysicBody* bodyb = new FysicBody(world);
+            FysicsBody* body = new FysicsBody(world);
+            FysicsBody* bodyb = new FysicsBody(world);
             shape = new FysicsShapes();
             shape->AttatchBody(body->GetBody());
             shape->AddBox();

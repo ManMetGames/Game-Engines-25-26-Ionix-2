@@ -6,14 +6,14 @@
 
 namespace IonixEngine
 {
-    enum class fysicBodyType {staticBody, dynamicBody, kinematicBody};
+    enum class fysicsBodyType {staticBody, dynamicBody, kinematicBody};
     
-    class FysicBody
+    class FysicsBody
     {
     private:
         b2Body* body;
     public:
-        FysicBody(b2World* world)
+        FysicsBody(b2World* world)
         {
             if (!world) world = nullptr;
             b2BodyDef bodyDef;
@@ -25,19 +25,19 @@ namespace IonixEngine
             
         }
         
-        FysicBody(b2World* world, float xPos, float yPos, fysicBodyType b_type, bool rotationLocked)
+        FysicsBody(b2World* world, float xPos, float yPos, fysicsBodyType b_type, bool rotationLocked)
         {
             if (!world) world = nullptr;
             b2BodyDef bodyDef;
             switch (b_type)
             {
-                case fysicBodyType::staticBody:
+                case fysicsBodyType::staticBody:
                     bodyDef.type = b2_staticBody;
                      break;
-                case fysicBodyType::dynamicBody:
+                case fysicsBodyType::dynamicBody:
                     bodyDef.type = b2_dynamicBody;
                     break;
-                case fysicBodyType::kinematicBody:
+                case fysicsBodyType::kinematicBody:
                     bodyDef.type = b2_kinematicBody;
                     break;
             }
@@ -47,19 +47,19 @@ namespace IonixEngine
             body = world->CreateBody(&bodyDef);
         }
 
-        FysicBody(b2World* world, float xPos, float yPos, fysicBodyType b_type, bool rotationLocked, float gravityScale)
+        FysicsBody(b2World* world, float xPos, float yPos, fysicsBodyType b_type, bool rotationLocked, float gravityScale)
         {
             if (!world) world = nullptr;
             b2BodyDef bodyDef;
             switch (b_type)
             {
-            case fysicBodyType::staticBody:
+            case fysicsBodyType::staticBody:
                 bodyDef.type = b2_staticBody;
                 break;
-            case fysicBodyType::dynamicBody:
+            case fysicsBodyType::dynamicBody:
                 bodyDef.type = b2_dynamicBody;
                 break;
-            case fysicBodyType::kinematicBody:
+            case fysicsBodyType::kinematicBody:
                 bodyDef.type = b2_kinematicBody;
                 break;
             }
@@ -148,27 +148,88 @@ namespace IonixEngine
             }
         }
         
-        //Add Force
-        
-       
         //Set Active
-        void SetActive(bool flag) {
+        void SetAwake(bool flag) {
             if (body) {
                 body->SetAwake(flag);
             }
         }
         //Get Active 
-        bool GetActive() {
+        bool GetAwake() {
             return body->IsAwake();
         }
-
         
         //Rotate Position or Body - doesnt set the angle to be something like Set Angle adds rotation to current body
         void RotatePosition(float angle) {
             float currentAngle = body->GetAngle(); 
             float newAngle = currentAngle + angle; // adding rotation to current rotation
             body->SetTransform(body->GetPosition(), newAngle);
+        }
 
+        //Linear Damping
+        float GetLinearDamping()
+        {
+                return body->GetLinearDamping();
+        }
+
+        void SetLinearDamping(float linearDamping)
+        {
+                body->SetLinearDamping(linearDamping);
+        }
+
+        //Angular Damping
+        float GetAngularDamping()
+        {
+            return body->GetAngularDamping();
+        }
+
+        void SetAngularDamping(float angularDamping)
+        {
+            body->SetAngularDamping(angularDamping);
+        }
+
+        //Allow Sleep
+        bool GetAllowSleep()
+        {
+            return body->IsSleepingAllowed();
+        }
+
+        void SetAllowSleep(bool flag)
+        {
+            body->SetSleepingAllowed(flag);
+        }
+
+        //Fixed Rotation
+        bool GetFixedRotation()
+        {
+            return body->IsFixedRotation();
+        }
+
+        void SetFixedRotation(bool flag)
+        {
+            body->SetFixedRotation(flag);
+        }
+
+        //Bullet
+        bool GetIsBullet()
+        {
+            return body->IsBullet();
+        }
+
+        void SetIsBullet(bool flag)
+        {
+            body->SetBullet(flag);
+        }
+
+        //Gravity Scale
+        float GetGravityScale()
+        {
+            return body->GetGravityScale();
+        }
+
+        void SetGravityScale(float gravityScale)
+        {
+            body->SetGravityScale(gravityScale);
         }
         
     };
