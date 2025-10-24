@@ -3,6 +3,7 @@
 #include "EventSystem/Event.h"
 #include <iostream>
 #include "Architecture/Application.h"
+#include "Graphics/QueueRenderer.h"
 #include "SDL_render.h"
 
 namespace IonixEngine
@@ -23,7 +24,12 @@ namespace IonixEngine
 
     void LayerGraphics::OnUpdate() {
         ball.drawFrame(0,0,32,32);
+        queue.RenderFromQueue();
     }
 
     void LayerGraphics::OnEvent(IonixEvent& e) {}
+    QueueRenderer* LayerGraphics::GetQueue()
+    {
+        return &queue;
+    }
 }
