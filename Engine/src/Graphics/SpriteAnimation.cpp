@@ -5,7 +5,7 @@
 namespace IonixEngine
 {
 
-	SpriteAnimation::SpriteAnimation(const char* file) //COPY OF SPRITE CLASS
+	SpriteAnimation::SpriteAnimation(const char* file, bool reverse) //COPY OF SPRITE CLASS
 	{
 		rend = Application::Get().GetWindow().GetSdlRenderer();
 		fileName = file;
@@ -16,6 +16,8 @@ namespace IonixEngine
 
 		frames = GetFrameCount();
 		currentFrame = 0;
+		reverseOnEnd = reverse;
+		playReverse = false;
 	}
 
 	void SpriteAnimation::setRect(const int x, const int y, const int w, const int h) 
@@ -27,10 +29,15 @@ namespace IonixEngine
 	}
 
 	void SpriteAnimation::drawFrame(int x, int y, int w, int h)
-	{
-		setRect(0,0,64,64); //setting the size of the rect to be drawn on
+
+		//x and y are origin point of the rect/sprite to be dranw
+		// //for now y will be kept as 0 but this will change if/when we implement multiple rows
 		
-		//setting the area of the image we're drawing
+		//w and h are the size of each sprite frame in the spritesheet
+	{
+		setRect(0, 0, 64, 64); //setting the size of the rect to be drawn on
+
+		//setting the area of the image we're drawing AKA the frame in the spritesheet we want to draw
 		src.x = x + w * currentFrame;
 		src.y = y;
 		src.w = w;
@@ -40,19 +47,40 @@ namespace IonixEngine
 		SDL_RenderClear(rend);
 		SDL_RenderCopy(rend, spriteSheet, &src, &dest);
 
-		currentFrame++;
-		if (currentFrame > frames)
+		if (reverseOnEnd)
 		{
-			currentFrame = 0;
-		}
 
+			if (!playReverse)
+			{
+				currentFrame++;
+			}
+			else
+			{
+				currentFrame--;
+			}
+
+			if (currentFrame > frames)
+			{
+				playReverse = true;
+			}
+			else if (currentFrame < 0)
+			{
+				playReverse = false;
+			}
+		}	
+		else
+		{
+			currentFrame++;
+			if (currentFrame > frames)
+			{
+				currentFrame = 0;
+			}
+		}
 	}
 
-	int SpriteAnimation::GetFrameCount() //cuts up sprite sheet into equal frames 
+	int SpriteAnimation::GetFrameCount() //for now, assume the spritesheet is 1 row
 	{
 		int x = size.x / size.y;
 		return x;		
 	};
-
-
 }
