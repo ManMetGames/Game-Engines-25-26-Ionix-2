@@ -40,9 +40,6 @@ namespace IonixEngine
 		SDL_RenderClear(rend);
 		SDL_RenderCopy(rend, spriteSheet, &src, &dest);
 
-
-		SDL_Delay(60);
-
 		currentFrame++;
 		if (currentFrame > frames)
 		{
