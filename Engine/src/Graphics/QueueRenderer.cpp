@@ -22,7 +22,7 @@ namespace IonixEngine {
 	void QueueRenderer::RenderFromQueue() {
 		while (!sprites.empty()) {
 			RenderCall call = sprites.front();
-			SDL_RenderCopy(Application::Get().GetWindow().GetSdlRenderer(), call.texture, nullptr, &call.dest);
+			SDL_RenderCopy(Application::Get().GetWindow().GetSdlRenderer(), call.texture, &call.src, &call.dest);
 			sprites.pop();
 		}
 	}

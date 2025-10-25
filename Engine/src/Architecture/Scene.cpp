@@ -12,8 +12,11 @@ namespace IonixEngine {
         EntityID en = CreateEntity();
         Entity* entity = GetEntityFromID(en);
         if (!entity) { return; }
-        entity->AddComponent(new SpriteComponent(entity, "Test", 0));
-        entity->AddComponent(new EntityMover(entity));
+        //entity->AddComponent(new SpriteComponent(entity, "pim", 0));
+        entity->AddComponent(new AnimatedSpriteComponent(entity, "Ball", 0));
+        entity->position.x = 100;
+        entity->position.y = 100;
+        //entity->AddComponent(new EntityMover(entity));
     }
 
     void Scene::OnUpdate(float dt) {

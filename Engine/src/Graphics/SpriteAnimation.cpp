@@ -31,13 +31,13 @@ namespace IonixEngine
 	void SpriteAnimation::drawFrame(int x, int y, int w, int h)
 
 		//x and y are origin point of the rect/sprite to be dranw
-		// //for now y will be kept as 0 but this will change if/when we implement multiple rows
+		//for now y will be kept as 0 but this will change when we implement multiple rows
 		
 		//w and h are the size of each sprite frame in the spritesheet
 	{
 		setRect(0, 0, 64, 64); //setting the size of the rect to be drawn on
 
-		//setting the area of the image we're drawing AKA the frame in the spritesheet we want to draw
+		//setting the area of the individual image we're drawing AKA the frame in the spritesheet we want to draw
 		src.x = x + w * currentFrame;
 		src.y = y;
 		src.w = w;
