@@ -44,6 +44,12 @@ namespace IonixEngine
             case SDL_CONTROLLERDEVICEREMOVED:
 
                 break;
+            case SDL_CONTROLLERBUTTONDOWN:
+
+                break;
+            case SDL_CONTROLLERBUTTONUP:
+
+                break;
         }
     }
 }
