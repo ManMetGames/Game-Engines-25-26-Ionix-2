@@ -4,6 +4,8 @@
 #include <vector>
 #include <cmath>
 
+#include "SDL.h"
+
 namespace IonixEngine {
 
     Entity::Entity(EntityID id) :
@@ -15,6 +17,9 @@ namespace IonixEngine {
         transform(this)
     {
         components = std::vector<Component*>();
+        SDL_Log("Entity capacity = %i",components.capacity());
+        components.reserve(10);
+        SDL_Log("Entity capacity = %i", components.capacity());
     }
 
     void Entity::Init(Scene* scene) {}
