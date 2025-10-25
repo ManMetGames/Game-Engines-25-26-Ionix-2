@@ -9,31 +9,46 @@ namespace IonixEngine {
 
         EntityID first = CreateEntity();
         Entity* firstEntity = GetEntityFromID(first);
-        if (!firstEntity) { return; }
+        if (!firstEntity)
+        {
+            SDL_Log("[DEBUG TEST] First entity failed, returning...");
+            return;
+        }
         firstEntity->AddComponent(new SpriteRenderer(firstEntity));
         firstEntity->AddComponent(new EntityMover(firstEntity, 10));
-        firstEntity->transform.SetLocalPosition(Vec2 { 500, 300 });
+        firstEntity->transform.SetLocalPosition(Vec2 { 300, 300 });
 
         EntityID second = CreateEntity();
         Entity* secondEntity = GetEntityFromID(second);
-        if (!secondEntity) { return; }
+        if (!secondEntity)
+        {
+            SDL_Log("[DEBUG TEST] Second entity failed, returning...");
+            return;
+        }
         secondEntity->AddComponent(new SpriteRenderer(secondEntity));
-        secondEntity->transform.SetLocalPosition(Vec2 { 100, 0 });
-        secondEntity->transform.SetParent(&firstEntity->transform);
         secondEntity->AddComponent(new EntityMover(secondEntity, -10));
+        secondEntity->transform.SetLocalPosition(Vec2{ 100, 0 });
+        secondEntity->transform.SetParent(&firstEntity->transform);
 
         EntityID third = CreateEntity();
         Entity* thirdEntity = GetEntityFromID(third);
-        if (!thirdEntity) { return; }
+        if (!thirdEntity)
+        {
+            SDL_Log("[DEBUG TEST] Third entity failed, returning...");
+            return;
+        }
         thirdEntity->AddComponent(new SpriteRenderer(thirdEntity));
         thirdEntity->transform.SetLocalPosition(Vec2 { -100, 0 });
         thirdEntity->transform.SetParent(&secondEntity->transform);
     }
 
     void Scene::OnUpdate(float dt) {
+        SDL_Log("[DEBUG TEST] Scene OnUpdate running...");
         for (size_t i = 0; i < m_Entities.size(); i++) {
             Entity* entity = &m_Entities[i];
+            SDL_Log("[DEBUG TEST] Updating entity %i",i);
             entity->Update(dt);
+            SDL_Log("[DEBUG TEST] Rendering entity %i", i);
             entity->Render(&renderData);
         }
     }

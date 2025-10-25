@@ -1,6 +1,6 @@
 #include "Entity.hpp"
 #include "Component.hpp"
-#include "Scene.h"
+#include "../Scene.h"
 #include <vector>
 #include <cmath>
 

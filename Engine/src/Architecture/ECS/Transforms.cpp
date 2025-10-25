@@ -1,39 +1,61 @@
 #include <algorithm>
 #include <cmath>
 
+#include "SDL.h"
 #include "Transforms.h"
-#include "ECS/Temp_Vec2.hpp"
+#include "../ECS/Temp_Vec2.hpp"
 #include "Entity.hpp"
 
 namespace IonixEngine
 {
 	Transform::Transform(Entity* parentEntity) :
-		position(Vec2{ 0.0f,0.0f }),
+		//position(Vec2{ 0.0f,0.0f }),
 		rotation(0.0f),
 		parentTransform(nullptr),
 		entity(parentEntity)
 	{
+		position = Vec2{ 0.0f,0.0f };
 		childTransforms = std::vector<Transform*>();
 	}
 
 	Vec2 Transform::GetGlobalPosition()
 	{
-		Vec2 position;
+		Vec2 position = { 0.0f,0.0f };
 		Transform* parent = parentTransform;
-		while (parent) {
-			Vec2 parentPos = parentTransform->position;
-			float parentRot = parentTransform->rotation;
+		if (parent)
+		{
+			SDL_Log("[Transforms] Parent valid, grabbing global transforms");
+			while (parent)
+			{
+				Vec2 parentPos = parent->position;
+				float parentRot = parent->rotation;
 
-			parentPos = Vec2Rotate(parentPos, parentRot);
+				SDL_Log("parentPos = %f, %f", parentPos.x, parentPos.y);
+				SDL_Log("parentRot = %f", parentRot);
 
-			position.x += parentPos.x;
-			position.y += parentPos.y;
-			parent = parent->parentTransform;
+				parentPos = Vec2Rotate(parentPos, parentRot);
+
+				position.x += parentPos.x;
+				position.y += parentPos.y;
+				parent = parent->parentTransform;
+				if (parent)
+				{
+					SDL_Log("[Transforms] new parent valid");
+				}
+				else
+				{
+					SDL_Log("[Transforms] new parent invalid, aborting...");
+					break;
+				}
+			}
 		}
+		else { SDL_Log("[Transforms] Parent invalid, cannot grab global transform"); }
+
 		Vec2 local = GetLocalPosition();
 		position.x += local.x;
 		position.y += local.y;
 
+		SDL_Log("[Transforms] Returning %f, %f", position.x, position.y);
 		return position;
 	}
 
