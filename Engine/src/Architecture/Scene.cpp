@@ -46,9 +46,9 @@ namespace IonixEngine {
         SDL_Log("[DEBUG TEST] Scene OnUpdate running...");
         for (size_t i = 0; i < m_Entities.size(); i++) {
             Entity* entity = &m_Entities[i];
-            SDL_Log("[DEBUG TEST] Updating entity %i",i);
+            SDL_Log("[DEBUG TEST] Updating entity %u",i);
             entity->Update(dt);
-            SDL_Log("[DEBUG TEST] Rendering entity %i", i);
+            SDL_Log("[DEBUG TEST] Rendering entity %u", i);
             entity->Render(&renderData);
         }
     }

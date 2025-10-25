@@ -24,7 +24,7 @@ namespace IonixEngine
 		Transform* parent = parentTransform;
 		if (parent)
 		{
-			SDL_Log("[Transforms] Parent valid, grabbing global transforms");
+			SDL_Log("[Transforms] Parent found, attempting to get global transforms...");
 			while (parent)
 			{
 				Vec2 parentPos = parent->position;
@@ -40,22 +40,22 @@ namespace IonixEngine
 				parent = parent->parentTransform;
 				if (parent)
 				{
-					SDL_Log("[Transforms] new parent valid");
+					SDL_Log("[Transforms] Higher parent found, continuing loop...");
 				}
 				else
 				{
-					SDL_Log("[Transforms] new parent invalid, aborting...");
+					SDL_Log("[Transforms] No higher parent found, breaking loop");
 					break;
 				}
 			}
 		}
-		else { SDL_Log("[Transforms] Parent invalid, cannot grab global transform"); }
+		else { SDL_Log("[Transforms] No parent found"); }
 
-		Vec2 local = GetLocalPosition();
+		Vec2 local = this->position;
 		position.x += local.x;
 		position.y += local.y;
 
-		SDL_Log("[Transforms] Returning %f, %f", position.x, position.y);
+		SDL_Log("[Transforms] Returning Global Pos: %f, %f", position.x, position.y);
 		return position;
 	}
 
@@ -126,12 +126,16 @@ namespace IonixEngine
 	//maintainLocation = true will attempt to keep the transforms in the same place
 	void Transform::SetParent(Transform* parent, bool maintainLocation)
 	{
-		if (parentTransform != nullptr) { RemoveParent(); }
+		if (parentTransform)
+		{
+			RemoveParent();
+		}
 
 		Vec2 oldPos = GetGlobalPosition();
 		float oldRot = GetGlobalRotation();
 
-		parent->AddChild(this);
+		//parent->AddChild(this);
+		SDL_Log("[Transform] New parent set");
 		parentTransform = parent;
 
 		if (maintainLocation)
@@ -147,7 +151,8 @@ namespace IonixEngine
 		Vec2 globalPos = GetGlobalPosition();
 		float globalRot = GetGlobalRotation();
 
-		parentTransform->RemoveChild(this);
+		//parentTransform->RemoveChild(this);
+		SDL_Log("[Transform] Removing parent transform");
 		parentTransform = nullptr;
 
 		if (maintainLocation)
@@ -159,6 +164,7 @@ namespace IonixEngine
 
 	void Transform::AddChild(Transform* child)
 	{
+		SDL_Log("[Transform] Adding new child transform");
 		childTransforms.push_back(child);
 	}
 
