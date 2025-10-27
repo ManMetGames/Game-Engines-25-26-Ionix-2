@@ -139,5 +139,29 @@ namespace IonixEngine
             return joint;
         }
     };
+
+    class DistanceJoints : public Joints {
+    private:
+        b2DistanceJoint* joint;
+
+    public:
+
+        void setJoint(b2Body* bodyA, b2Body* bodyB, const b2Vec2& anchorA, const b2Vec2& anchorB, float length = -1.0f) {
+
+            b2DistanceJointDef jointDef;
+            jointDef.Initialize(bodyA, bodyB, anchorA, anchorB);
+            if (length > 0.0f) jointDef.length = length;
+
+            joint = (b2DistanceJoint*)world->CreateJoint(&jointDef);
+        }
+
+        float getLength() { return joint->GetLength(); }
+        void setLength(float l) { joint->SetLength(l); }
+
+        b2Vec2 getAnchorA() { return joint->GetAnchorA(); }
+        b2Vec2 getAnchorB() { return joint->GetAnchorB(); }
+
+        b2Joint* getJoint() { return joint; }
+    };
 }
 
