@@ -8,11 +8,11 @@ void QueueRenderer::AddToQueue(string spriteName)
 
 void QueueRenderer::Merger(int arr[], int left, int mid, int right)
 {
-	int n1 = mid - left + 1;
+	const int n1 = mid - left + 1;
 	int n2 = right - mid;
 
-	int leftHand[n1];
-	int rightHand[n2];
+	std::vector<int> leftHand(n1);
+	std::vector<int> rightHand(n2);
 
 	for (int i = 0; i < n1; i++)
 	{

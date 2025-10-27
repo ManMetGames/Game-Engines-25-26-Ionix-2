@@ -21,7 +21,7 @@ public:
 	QueueRenderer(const QueueRenderer& obj) = delete; //prevent copis
 	QueueRenderer();
 	void AddToQueue(string spriteName);
-	void OrderQueueByZ(queue<string> &sprites);
+	void OrderQueueByZ(queue<int> &sprites);
 	void RenderFromQueue();
 	void Merger(int arr[], int left, int mid, int right);
 	void MergeCaller(int arr[], int left, int right);
