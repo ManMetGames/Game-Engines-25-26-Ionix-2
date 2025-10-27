@@ -1,19 +1,24 @@
 #pragma once
 #include "LayerSystem/Layers/LayerFysics.h"
 #include "Maf/MafUtils.h"
+#include "Fysics/FysicsManager.h"
+
+#include <iostream>
 
 namespace IonixEngine
 {
     class Collider
     {
         b2World* world;
+        FysicsManager* fysicsManager;
 
-        Collider()
+    public:
+
+        Collider(FysicsManager* manager) : fysicsManager(manager)
         {
             world = LayerFysics::GetInstance()->GetWorld();
         }
 
-        
         struct Contact {         //Contact struct
             bool isTouching;
             float overlapX;
@@ -29,7 +34,16 @@ namespace IonixEngine
 
         bool isTouching(const Rect& a, const Rect& b) //Collision detection between two Rect objects
         {
-            return (a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y);
+            bool touching = (a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y);
+
+            if (touching && fysicsManager)
+            {
+                //Collision detected
+                std::cout << "[Collider::isTouching] Collision detected between rectangles!\n";
+                fysicsManager->EmitCollision(1, 2); // Placeholder EntityIDs
+            }
+
+            return touching;
         }
 
         Contact getContact(const Rect& a, const Rect& b)
