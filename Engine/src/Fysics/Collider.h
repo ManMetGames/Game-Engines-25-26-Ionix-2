@@ -34,7 +34,20 @@ namespace IonixEngine
 
         bool isTouching(const Rect& a, const Rect& b) //Collision detection between two Rect objects
         {
-            bool touching = (a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y);
+            if (a.width <= 0 || a.height <= 0 || b.width <= 0 || b.height <= 0)
+                return false;
+
+            float leftA = std::min(a.x, a.x + a.width);
+            float rightA = std::max(a.x, a.x + a.width);
+            float topA = std::min(a.y, a.y + a.height);
+            float bottomA = std::max(a.y, a.y + a.height);
+
+            float leftB = std::min(b.x, b.x + b.width);
+            float rightB = std::max(b.x, b.x + b.width);
+            float topB = std::min(b.y, b.y + b.height);
+            float bottomB = std::max(b.y, b.y + b.height);
+
+            bool touching = (leftA < rightB && rightA > leftB && topA < bottomB && bottomA > topB);
 
             if (touching && fysicsManager)
             {
@@ -122,6 +135,17 @@ namespace IonixEngine
             float dist = Maf::mafSqrt(distanceSqr);
             //Computes the depth
             float overlap = radiusSum - dist;
+
+            //Considering edge case of circles being exactly on top of each other
+            if (dist == 0.0f)
+            {
+                contact.isTouching = true;
+                contact.normalX = 1.0f;
+                contact.normalY = 0.0f;
+                contact.overlapX = 0.0f;
+                contact.overlapY = radiusSum;
+                return contact;
+            }
             //Creates a unit vector for the collision normal
             contact.normalX = dx / dist;
             contact.normalY = dy / dist;
