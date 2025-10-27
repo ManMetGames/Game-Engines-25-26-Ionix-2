@@ -25,8 +25,8 @@ public:
 	void RenderFromQueue();
 	void Merger(std::vector<int> arr, int left, int mid, int right);
 	void MergeCaller(queue<int> &sprites, std::vector<int> arr, int left, int right);
-	void ArrToQueueConverter(int arr[]);
-	void ClearQueue(queue<string> &sprites);
+	void ArrToQueueConverter(std::vector<int> temp, queue<int>& sprites);
+	void ClearQueue(queue<int> &sprites);
 	static QueueRenderer& Get()
 	{
 		static QueueRenderer instance;

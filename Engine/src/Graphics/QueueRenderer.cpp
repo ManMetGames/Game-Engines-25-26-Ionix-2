@@ -77,19 +77,22 @@ void QueueRenderer::MergeCaller(queue<int>& sprites, std::vector<int> temp, int 
 	MergeCaller(sprites, temp, left, mid);
 	MergeCaller(sprites, temp, mid + 1, right);
 	Merger(temp, left, mid, right);
+
+	ArrToQueueConverter(temp, sprites); //Convert vector to queue at the end!
 }
 
-void QueueRenderer::ClearQueue(queue<string>& sprites)
+void QueueRenderer::ClearQueue(queue<int>& sprites)
 {
-	queue<string> emptyQueue;
+	queue<int> emptyQueue;
 	swap(sprites, emptyQueue);
 }
 
-//void QueueRenderer::ArrToQueueConverter(std::vector<int> temp)
-//{
-//	for (int i = 0; i < temp.size; i++)
-//	{
-//
-//	}
-//
-//}
+void QueueRenderer::ArrToQueueConverter(std::vector<int> temp, queue<int>& sprites)
+{
+	ClearQueue(sprites);
+	//std::queue<int> orderedQueue;
+	for (int i = 0; i < temp.size(); i++)
+	{
+		sprites.push(temp[i]);
+	}
+}
