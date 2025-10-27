@@ -23,8 +23,8 @@ public:
 	void AddToQueue(string spriteName);
 	void OrderQueueByZ(queue<int> &sprites);
 	void RenderFromQueue();
-	void Merger(int arr[], int left, int mid, int right);
-	void MergeCaller(int arr[], int left, int right);
+	void Merger(std::vector<int> arr, int left, int mid, int right);
+	void MergeCaller(queue<int> &sprites, std::vector<int> arr, int left, int right);
 	void ArrToQueueConverter(int arr[]);
 	void ClearQueue(queue<string> &sprites);
 	static QueueRenderer& Get()

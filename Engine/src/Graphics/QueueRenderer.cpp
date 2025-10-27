@@ -3,10 +3,10 @@
 
 void QueueRenderer::AddToQueue(string spriteName)
 {
-	sprites->push(spriteName);
-}
+	//sprites->push(spriteName); needs to be changed because this doesn't take strings anymore
+}   //all of this is TEMPORARY because we're TESTING - it's in the name, that's why it says TEMP everywhere. We'll change this soon, thanks
 
-void QueueRenderer::Merger(int arr[], int left, int mid, int right)
+void QueueRenderer::Merger(std::vector<int> arr, int left, int mid, int right)
 {
 	const int n1 = mid - left + 1;
 	int n2 = right - mid;
@@ -56,26 +56,27 @@ void QueueRenderer::Merger(int arr[], int left, int mid, int right)
 
 void QueueRenderer::OrderQueueByZ(queue<int>& sprites)
 {
-	int temp[(sprites.size())]; //Creates temporary array from queue
+	std::vector<int> temp(sprites.size());
+	//int temp[(sprites.size())]; //Creates temporary array from queue
 
 	for (int i = 0; i < sprites.size(); i++)
 	{
 		temp[i] = sprites.front();
 	}
 
-	MergeCaller(temp, 0, sprites.size() - 1);
+	MergeCaller(sprites, temp, 0, sprites.size() - 1);
 }
 
-void QueueRenderer::MergeCaller(int temp[])
+void QueueRenderer::MergeCaller(queue<int>& sprites, std::vector<int> temp, int left, int right)
 {
 	int length = sprites.size(); //Returns queue length
 	int left = 0;				 
 	int right = sprites.size() - 1;
 	int mid = left + (right - left) / 2;
 
-	MergeCaller(temp, left, mid);
-	MergeCaller(temp, mid + 1, right);
-	Merger(temp, left, mid, right)
+	MergeCaller(sprites, temp, left, mid);
+	MergeCaller(sprites, temp, mid + 1, right);
+	Merger(temp, left, mid, right);
 }
 
 void QueueRenderer::ClearQueue(queue<string>& sprites)
@@ -84,11 +85,11 @@ void QueueRenderer::ClearQueue(queue<string>& sprites)
 	swap(sprites, emptyQueue);
 }
 
-void QueueRenderer::ArrToQueueConverter(std::array<int, int> temp)
-{
-	for (int i = 0; i < temp.size; i++)
-	{
-
-	}
-
-}
+//void QueueRenderer::ArrToQueueConverter(std::vector<int> temp)
+//{
+//	for (int i = 0; i < temp.size; i++)
+//	{
+//
+//	}
+//
+//}
