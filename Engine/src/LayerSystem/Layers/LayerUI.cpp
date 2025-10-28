@@ -72,12 +72,13 @@ namespace IonixEngine
 
     void LayerUI::OnDetach() {}
 
-    void LayerUI::OnUpdate() 
+    void LayerUI::OnUpdate()    
     {
         // Start the Dear ImGui frame. Immediate mode rendering - UI gets rebuilt each frame
          ImGui_ImplSDLRenderer2_NewFrame();
          ImGui_ImplSDL2_NewFrame();
          ImGui::NewFrame();
+
         
          std::vector<std::string> dropdownOptions = { "Option 1", "Option 2", "Option 3" };
          int dropdownIndex = 0;

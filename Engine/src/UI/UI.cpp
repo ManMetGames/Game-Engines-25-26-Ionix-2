@@ -2,6 +2,10 @@
 #include "imgui.h"
 #include "FontLoader.h"
 #include "Architecture/Application.h"
+#include <stdio.h>
+#include <iostream>
+#define IM_CLAMP(V, MN, MX)     ((V) < (MN) ? (MN) : (V) > (MX) ? (MX) : (V))
+
 
 namespace IonixEngine
 {
@@ -62,5 +66,28 @@ namespace IonixEngine
 		return *color;
 	}
 	
+
+	float UI::ProgressBar(int xPos, int yPos, float xSize, float ySize, float maxValue, float& currentValue, float incrementAmount)
+	{
+		ImGui::SetCursorPos(ImVec2(xPos, yPos));
+		
+		
+		// Positive = increase, Negative = decrease
+		currentValue += incrementAmount;
+		
+
+		if (currentValue < 0.0f) currentValue = 0.0f;
+		if (currentValue > maxValue) currentValue = maxValue;
+		
+		float progress = currentValue / maxValue;
+		progress = IM_CLAMP(progress, 0.0f, 1.0f);
+
+		char buf[32];
+		sprintf(buf, "%.0f/%.0f", currentValue, maxValue);
+		
+		ImGui::ProgressBar(progress, ImVec2(xSize, ySize), buf);
+		
+		return currentValue;
+	}
 
 }
