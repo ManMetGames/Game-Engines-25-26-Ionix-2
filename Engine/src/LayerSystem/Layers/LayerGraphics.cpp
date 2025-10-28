@@ -14,7 +14,8 @@ namespace IonixEngine
     void LayerGraphics::OnAttach() {
         TextureManager::Get().Init();
         TextureManager::Get().AddTexture("./Assets/Test.png", "Test");
-        TextureManager::Get().AddTexture("./Assets/ball sprite sheet.png", "Ball");
+        TextureManager::Get().AddTexture("./Assets/ball.png", "Ball");
+        TextureManager::Get().AddTexture("./Assets/aur naur.jpg", "pim");
         SDL_Log("Added debug texture");
     }
 
@@ -23,7 +24,7 @@ namespace IonixEngine
     }
 
     void LayerGraphics::OnUpdate() {
-        ball.drawFrame(0,0,32,32);
+        //ball.drawFrame(0,0,32,32);
         queue.RenderFromQueue();
     }
 
