@@ -36,7 +36,6 @@ bool SoundManager::LoadSound(const std::string &name, const std::string &filePat
 
     if (audio) {
         m_Sounds[name].audio = audio;
-
         printf("Test Audio Length: %f", GetPlayTime(name));
         return true;
     }
@@ -83,7 +82,7 @@ float SoundManager::GetPlayTime(const std::string& alias)
 
     if (audio) {
         if (!Mix_QuerySpec(&freq, &format, &channels)) { return -1.0f; }
-        return (float) audio->alen / (float)(freq * ((format & 0xFF) / 8));
+        return (float) audio->alen / (float)(freq * channels * ((format & 0xFF) / 8));
     }
     else {
         return -1;
