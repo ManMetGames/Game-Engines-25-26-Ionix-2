@@ -245,6 +245,34 @@ namespace IonixEngine
                 std::cout << "the right bumper is being held down \n";
             }
 
+                // Sticks
+                    // Pressing Left
+            if (layerInput->m_Input->isButtonDown(SDL_CONTROLLER_BUTTON_LEFTSTICK))
+            {
+                std::cout << "the left stick was pressed down once \n";
+            }
+            else if (layerInput->m_Input->isButtonUp(SDL_CONTROLLER_BUTTON_LEFTSTICK)) 
+            {
+                std::cout << "the left stick has been lifted \n";
+            }
+            else if (layerInput->m_Input->isButtonHeld(SDL_CONTROLLER_BUTTON_LEFTSTICK))
+            {
+                std::cout << "the left stick is being held down \n";
+            }
+                    // Pressing Right
+            if (layerInput->m_Input->isButtonDown(SDL_CONTROLLER_BUTTON_RIGHTSTICK))
+            {
+                std::cout << "the right stick was pressed down once \n";
+            }
+            else if (layerInput->m_Input->isButtonUp(SDL_CONTROLLER_BUTTON_RIGHTSTICK))
+            {
+                std::cout << "the right stick has been lifted \n";
+            }
+            else if (layerInput->m_Input->isButtonHeld(SDL_CONTROLLER_BUTTON_RIGHTSTICK))
+            {
+                std::cout << "the right stick is being held down \n";
+            }
+
             layerInput->m_Input->CopyCodesEndFrame();
 
             // Scripting::Get().CallHook("OnUpdate");
