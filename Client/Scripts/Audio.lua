@@ -7,7 +7,7 @@ function AudioSystem:OnStart()
 
     -- Load sound into SoundManager
     local sm = SoundManager.GetInstance()
-    sm:LoadSound("test", "./Assets/test.mp3")
+    sm:LoadSound("test", "./Assets/test.wav")
 
     -- Create AudioPlayer (assuming 'entity' is passed from engine)
     testSound = AudioPlayer:new(entity, "test", false)
@@ -15,7 +15,7 @@ function AudioSystem:OnStart()
 
     -- Play sound
     testSound:Play(0, 2)
-    print("[Lua] Test file length is: " + sm.GetPlayTime())
+    print("[Lua] Test file length is: " + sm:GetPlayTime("test"))
     print("[Lua] Playing test.wav...")
 end
 
