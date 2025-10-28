@@ -29,8 +29,6 @@ namespace IonixEngine
         static Scripting* s_Instance;
         sol::state m_LuaState;
 
-        UI ui;
-
 		void RegisterAudioBindings();
 
         void RegisterWindowBindings();
