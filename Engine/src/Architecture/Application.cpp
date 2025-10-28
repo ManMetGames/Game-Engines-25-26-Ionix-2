@@ -108,6 +108,20 @@ namespace IonixEngine
                 std::cout << "Button A on the controller is being held down \n";
             }
 
+                // Touchpad
+            if (layerInput->m_Input->isButtonDown(SDL_CONTROLLER_BUTTON_TOUCHPAD))
+            {
+                std::cout << "Touchpad was pressed once \n";
+            }
+            else if (layerInput->m_Input->isButtonUp(SDL_CONTROLLER_BUTTON_TOUCHPAD))
+            {
+                std::cout << "Touchpad has been lifted \n";
+            }
+            else if (layerInput->m_Input->isButtonHeld(SDL_CONTROLLER_BUTTON_TOUCHPAD))
+            {
+                std::cout << "Touchpad is being held down \n";
+            }
+
             layerInput->m_Input->CopyCodesEndFrame();
 
             // Scripting::Get().CallHook("OnUpdate");
