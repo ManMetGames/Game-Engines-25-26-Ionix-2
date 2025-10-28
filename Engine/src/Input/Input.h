@@ -15,6 +15,13 @@ namespace IonixEngine
         MouseCoords(int x, int y) : x(x), y(y) {};
     };
 
+    struct ScrollCoords
+    {
+        int y;
+        
+        ScrollCoords(int y) : y(y) {};
+    };
+
     class Input
     {
     public:
@@ -48,9 +55,14 @@ namespace IonixEngine
 
         // for Mouse Up
         void SetMouseReleased(Uint8 code);
+
+        //for scroll wheel
+        float ScrollWheel(Uint8 code)const;
       
         // for Previous Key
         void CopyCodesEndFrame();
+
+        
   
         private:
             std::unordered_set<SDL_Scancode> currentKeys;
@@ -58,6 +70,8 @@ namespace IonixEngine
 
             std::unordered_set<Uint8> currentMouse;
             std::unordered_set<Uint8> previousMouse;
+            std::unordered_set<Uint8> currentScroll;
+            std::unordered_set<Uint8> previousScroll;
 
 
     };

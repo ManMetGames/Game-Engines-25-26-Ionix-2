@@ -147,6 +147,12 @@ namespace IonixEngine
                isMMouseDown = false;
            }
 
+           if (layerInput->m_Input->ScrollWheel(SDL_MOUSEWHEEL))
+           {
+               std::cout << "Scroll Wheel is scrolling.\n";
+           }
+           
+
           
 
 

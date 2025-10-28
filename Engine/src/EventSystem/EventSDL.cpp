@@ -47,6 +47,10 @@ namespace IonixEngine
               Application::Get().layerInput->m_Input->SetMouseReleased(e.button.button);
               break;
 
+          case SDL_MOUSEWHEEL:
+                  Application::Get().layerInput->m_Input->ScrollWheel(e.wheel.y);
+              break;
+
 
   
 

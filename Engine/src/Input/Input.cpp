@@ -58,10 +58,18 @@ namespace IonixEngine
 		currentMouse.erase(code);
 	}
 
+	float Input::ScrollWheel(Uint8 code)const
+	{
+		return currentScroll.count(code);
+	}
+
 	void Input::CopyCodesEndFrame()
 	{
 		previousKeys = currentKeys;
 		previousMouse = currentMouse;
+		previousScroll = currentScroll;
 	}	
+
+	
 }
 
