@@ -79,15 +79,19 @@ namespace IonixEngine
          ImGui_ImplSDL2_NewFrame();
          ImGui::NewFrame();
 
-         int maxvalue = 1000;
-         int currentvalue = 1000;
-
-         static float progress1 = currentvalue / maxvalue;
-         progress1 -= 0.0001;
-
-         //char buf[32];
-         //sprintf(buf, "%d/%d", (int)(progress1 * 1000), 1000);
-         ImGui::ProgressBar(progress1, ImVec2(300,50), "");
+      
+         static float maxValue = 1000.0f;
+         static float currentValue = 1000.0f;
+         float decreasePerFrame = 0.1f; 
+         
+        
+         currentValue -= decreasePerFrame;
+         if (currentValue < 0.0f) currentValue = 0.0f;
+         
+         // Draw decreasing progress bar (right to left) at position (10, 10)
+         ImGui::Begin("Health Bar Example");
+         m_UI->ProgressBar(10, 10, 300.0f, 50.0f, maxValue, currentValue, decreasePerFrame, false);
+         ImGui::End();
 
          //Shows the big ImGui demo window
          ImGui::ShowDemoWindow();

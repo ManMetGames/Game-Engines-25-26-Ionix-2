@@ -37,15 +37,21 @@ namespace IonixEngine
 		ImGui::RadioButton(text, &e, value);
 	}
 
-	void UI::HealthProgressBarDec(int xpos, int ypos, float xsize, float ysize, float maxvalue, float currentvalue, float incrementamount)
+	void UI::ProgressBar(int xpos, int ypos, float xsize, float ysize, float maxvalue, float currentvalue, float incrementamount, bool increaseDirection)
 	{
 		ImGui::SetCursorPos(ImVec2(xpos, ypos));
-		static float progress = maxvalue/currentvalue;
-		static float progress_dir = -1.0f;
-		progress -= maxvalue / (currentvalue - incrementamount);
-		ImGui::ProgressBar(progress, ImVec2(xsize, ysize), "");
-
 		
+		// Calculate progress as a ratio (0.0 to 1.0)
+		float progress = currentvalue / maxvalue;
+		
+		// Clamp progress between 0 and 1
+		progress = IM_CLAMP(progress, 0.0f, 1.0f);
+		
+		// Format display text
+		char buf[32];
+		sprintf(buf, "%.0f/%.0f", currentvalue, maxvalue);
+		
+		ImGui::ProgressBar(progress, ImVec2(xsize, ysize), buf);
 	}
 
 }
