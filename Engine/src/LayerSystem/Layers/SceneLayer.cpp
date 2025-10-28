@@ -37,9 +37,15 @@ namespace IonixEngine
             m_Current->OnExit();
 
         m_Current = std::move(scene);
+        Handle().scene = m_Current.get();
 
         // Call enter on the new scene after becoming active
         if (m_Current)
             m_Current->OnEnter();
+    }
+
+    
+    Scene* LayerScene::CurrentScene() {
+        return LayerScene::Handle().scene;
     }
 }
