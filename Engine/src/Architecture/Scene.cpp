@@ -14,6 +14,8 @@ namespace IonixEngine {
         if (!entity) { return; }
         //entity->AddComponent(new SpriteComponent(entity, "pim", 0));
         entity->AddComponent(new AnimatedSpriteComponent(entity, "Ball", 0));
+        entity->AddComponent(new AnimatedSpriteComponent(entity, "pim", 2));
+        entity->AddComponent(new AnimatedSpriteComponent(entity, "Test", 3));
         entity->position.x = 500;
         entity->position.y = 500;
         //entity->AddComponent(new EntityMover(entity));

@@ -23,18 +23,18 @@ namespace IonixEngine {
 
 	private:
 		//member variables
-		queue<RenderCall> sprites; //change string type later to sprite/texture
 		//static pointer
 		static QueueRenderer* queueRendPtr;
 
 		//MAYBEEE????? use mutex
 
 	public:
+		queue<RenderCall> sprites; //change string type later to sprite/texture
 
 		QueueRenderer(const QueueRenderer& obj) = delete; //prevent copis
 		QueueRenderer();
 		void AddToQueue(RenderCall sprite);
-		void OrderQueueByZ(queue<RenderCall>& sprites);
+		void OrderQueueByZ();
 		void RenderFromQueue();
 		void ClearQueue(queue<RenderCall>& sprites);
 		static QueueRenderer& Get()

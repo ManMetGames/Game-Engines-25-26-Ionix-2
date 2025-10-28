@@ -17,6 +17,9 @@ namespace IonixEngine {
 	}   //all of this is TEMPORARY because we're TESTING - it's in the name, that's why it says TEMP everywhere. We'll change this soon, thanks
 
 	void QueueRenderer::RenderFromQueue() {
+
+		//gtft
+
 		while (!sprites.empty()) {
 			RenderCall call = sprites.front();
 			SDL_RenderCopy(Application::Get().GetWindow().GetSdlRenderer(), call.texture, &call.src, &call.dest);
@@ -44,7 +47,7 @@ namespace IonixEngine {
 
 		while (i < n1 && j < n2)
 		{
-			if (leftHand[i].z < rightHand[j].z)
+			if (leftHand[i].z <= rightHand[j].z)
 			{
 				arr[k] = leftHand[i];
 				i++;
@@ -72,14 +75,18 @@ namespace IonixEngine {
 		}
 	}
 
-	void QueueRenderer::OrderQueueByZ(queue<RenderCall>& sprites)
+	//void QueueRenderer::OrderQueueByZ(queue<RenderCall>& sprites) //Driver
+	void QueueRenderer::OrderQueueByZ() //Driver
 	{
+		//cout << sprites.size() << endl;
 		std::vector<RenderCall> temp(sprites.size());
 		//int temp[(sprites.size())]; //Creates temporary array from queue
 
 		for (int i = 0; i < sprites.size(); i++)
 		{
 			temp[i] = sprites.front();
+			cout << temp[i].z<< endl;
+			sprites.pop();
 		}
 
 		MergeCaller(sprites, temp, 0, sprites.size() - 1);
@@ -87,14 +94,17 @@ namespace IonixEngine {
 
 	void QueueRenderer::MergeCaller(queue<RenderCall>& sprites, std::vector<RenderCall> temp, int left, int right)
 	{
-		int length = sprites.size(); //Returns queue length
-		/*left = 0;
-		right = sprites.size() - 1;*/
-		int mid = left + (right - left) / 2;
+		if (left < right)
+		{
+			int length = sprites.size(); //Returns queue length
+			/*left = 0;
+			right = sprites.size() - 1;*/
+			int mid = left + (right - left) / 2;
 
-		MergeCaller(sprites, temp, left, mid);
-		MergeCaller(sprites, temp, mid + 1, right);
-		Merger(temp, left, mid, right);
+			MergeCaller(sprites, temp, left, mid);
+			MergeCaller(sprites, temp, mid + 1, right);
+			Merger(temp, left, mid, right);
+		}
 
 		ArrToQueueConverter(temp, sprites); //Convert vector to queue at the end!
 	}
@@ -112,6 +122,8 @@ namespace IonixEngine {
 		for (int i = 0; i < temp.size(); i++)
 		{
 			sprites.push(temp[i]);
+			//cout << "NUM: " + temp[i].z << endl;
+			//cout << temp.size() << endl;
 		}
 	}
 }
