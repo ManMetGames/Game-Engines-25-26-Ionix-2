@@ -14,9 +14,9 @@ namespace IonixEngine {
         {
             return;
         }
-        firstEntity->transform.SetLocalPosition(Vec2 { 100, 100 });
-        firstEntity->AddComponent(new SpriteRenderer(firstEntity));
-        firstEntity->AddComponent(new EntityMover(firstEntity, 60));
+        firstEntity->transform.SetLocalPosition(Vec2 { 500, 300 });
+        firstEntity->AddComponent(new SpriteRenderer(firstEntity,"1"));
+        firstEntity->AddComponent(new EntityMover(firstEntity, 90));
 
         EntityID second = CreateEntity();
         Entity* secondEntity = GetEntityFromID(second);
@@ -26,8 +26,8 @@ namespace IonixEngine {
         }
         secondEntity->transform.SetLocalPosition(Vec2{ 0, 100 });
         secondEntity->transform.SetParent(&firstEntity->transform, false);
-        secondEntity->AddComponent(new SpriteRenderer(secondEntity));
-        secondEntity->AddComponent(new EntityMover(secondEntity, -60));
+        secondEntity->AddComponent(new SpriteRenderer(secondEntity, "2"));
+        secondEntity->AddComponent(new EntityMover(secondEntity, -90));
 
 
         EntityID third = CreateEntity();
@@ -38,7 +38,8 @@ namespace IonixEngine {
         }
         thirdEntity->transform.SetLocalPosition(Vec2{ 0, 100 });
         thirdEntity->transform.SetParent(&secondEntity->transform, false);
-        thirdEntity->AddComponent(new SpriteRenderer(thirdEntity));
+        Vec2 rect = Vec2{ 35.0f,35.0f };
+        thirdEntity->AddComponent(new SpriteRenderer(thirdEntity, "3", rect));
 
     }
 
@@ -47,6 +48,8 @@ namespace IonixEngine {
             Entity* entity = &m_Entities[i];
             entity->Update(dt);
             entity->Render(&renderData);
+            SDL_Log("index: %zu, %f, %f",i, entity->transform.GetLocalRotation(), entity->transform.GetGlobalRotation());
+
         }
     }
 
@@ -65,7 +68,7 @@ namespace IonixEngine {
     }
 
     EntityID Scene::CreateEntity() {
-        const EntityID entityId = m_NextId++;
+        const EntityID entityId = ++m_NextId;
         const std::size_t index = m_Entities.size();
         m_Entities.push_back(Entity{ entityId });
         m_IdToIndex[entityId] = index;

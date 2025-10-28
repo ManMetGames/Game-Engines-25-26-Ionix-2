@@ -12,8 +12,9 @@ namespace IonixEngine
     //private methods
     std::stack<Transform*> Transform::getPathToParent()
     {
+        std::stack<Transform*> pathToParent = std::stack<Transform*>();
+        if (!parentTransform) { return pathToParent; }
         Transform* parent = parentTransform;
-        std::stack<Transform*> pathToParent;
         while (parent)
         {
             pathToParent.push(parent);
@@ -36,40 +37,40 @@ namespace IonixEngine
     {
         if (!parentTransform)
         {
+            //SDL_Log("[Transforms] Returning Global Pos: %f, %f", position.x, position.y);
             return position;
         }
 
         std::stack<Transform*> pathToParent = getPathToParent();
+        int stackSize = pathToParent.size();
         Vec2 globalPos = { 0.0f,0.0f };
         float globalRot = 0.0f;
 
         while (!pathToParent.empty())
         {
             Transform* currentParent = pathToParent.top();
-
-            globalRot += currentParent->rotation;
-
-            Vec2 parentLocalPos = Vec2Rotate(currentParent->position, globalRot);
+            float pRotation = 0.0f;
+            if (currentParent->parentTransform)
+            {
+                pRotation += currentParent->parentTransform->rotation;
+            }
+            //globalRot += currentParent->rotation;
+            Vec2 parentLocalPos = Vec2Rotate(currentParent->position, pRotation);
 
             globalPos.x += parentLocalPos.x;
             globalPos.y += parentLocalPos.y;
 
             pathToParent.pop();
         }
-
-        if (parentTransform)
-        {
-            Vec2 displacedLocal = Vec2Rotate(position, globalRot+rotation);
-            globalPos.x += displacedLocal.x;
-            globalPos.y += displacedLocal.y;
-        }
-        else
-        {
-            globalPos.x += position.x;
-            globalPos.y += position.y;
+        Vec2 displacedLocal = position;
+        if (parentTransform) {
+            displacedLocal = Vec2Rotate(position, parentTransform->rotation);
         }
 
-        SDL_Log("[Transforms] Returning Global Pos: %f, %f", globalPos.x, globalPos.y);
+        globalPos.x += displacedLocal.x;
+        globalPos.y += displacedLocal.y;
+
+        //SDL_Log("[Transforms] Returning Global Pos: %f, %f", globalPos.x, globalPos.y);
         return globalPos;
     }
         
@@ -77,6 +78,7 @@ namespace IonixEngine
 
     float Transform::GetGlobalRotation()
     {
+        if (!parentTransform) { return rotation; }
         std::stack<Transform*> pathToParent = getPathToParent();
         float rot = 0.0f;
         while (!pathToParent.empty())

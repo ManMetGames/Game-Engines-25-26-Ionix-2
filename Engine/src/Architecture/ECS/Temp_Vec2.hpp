@@ -12,8 +12,8 @@ inline Vec2 Vec2Rotate(Vec2 v, float angle) {
     angle *= DEG2RAD;
     Vec2 result = { 0 };
 
-    float cosres = cosf(angle);
-    float sinres = sinf(angle);
+    float cosres = cosf(-angle);
+    float sinres = sinf(-angle);
 
     result.x = v.x*cosres - v.y*sinres;
     result.y = v.x*sinres + v.y*cosres;
