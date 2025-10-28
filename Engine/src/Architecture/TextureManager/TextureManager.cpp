@@ -42,6 +42,7 @@ namespace IonixEngine
 
     void TextureManager::Shutdown() {
         textureDict.clear();
+        errorTexture.Free();
     }
 
     /// <summary>

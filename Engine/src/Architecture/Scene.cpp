@@ -1,6 +1,8 @@
 #include "Scene.h"
 #include "Architecture/Application.h"
 #include "Architecture/ECS/ECS_Test.hpp"
+#include "LayerSystem/Layers/SceneLayer.h"
+#include <cstdio>
 
 namespace IonixEngine {
     void Scene::OnEnter() {
@@ -8,7 +10,7 @@ namespace IonixEngine {
         //m_Entities.reserve(50);
         Reserve(50);
         renderData.renderer = Application::Get().GetWindow().GetSdlRenderer();
-
+        SDL_Log("[Scene] Current scene %p == %p", (void*) this, (void*) LayerScene::CurrentScene());
         EntityID first = CreateEntity();
         Entity* firstEntity = GetEntityFromID(first);
         if (!firstEntity)
@@ -45,12 +47,12 @@ namespace IonixEngine {
     }
 
     void Scene::OnUpdate(float dt) {
-        SDL_Log("[DEBUG TEST] Scene OnUpdate running...");
+        // SDL_Log("[DEBUG TEST] Scene OnUpdate running...");
         for (size_t i = 0; i < m_Entities.size(); i++) {
             Entity* entity = &m_Entities[i];
-            SDL_Log("[DEBUG TEST] Updating entity %zu",i);
+            // SDL_Log("[DEBUG TEST] Updating entity %zu",i);
             entity->Update(dt);
-            SDL_Log("[DEBUG TEST] Rendering entity %zu", i);
+            // SDL_Log("[DEBUG TEST] Rendering entity %zu", i);
             entity->Render(&renderData);
         }
     }

@@ -28,6 +28,7 @@ namespace IonixEngine
         // Access the current scene (non-owning)
         Scene* GetScene() const { return m_Current.get(); }
 
+        static Scene* CurrentScene();
 
     private:
         std::unique_ptr<Scene> m_Current;
@@ -35,6 +36,5 @@ namespace IonixEngine
             static SceneHandle handle;
             return handle;
         }
-        static Scene* CurrentScene();
     };
 }

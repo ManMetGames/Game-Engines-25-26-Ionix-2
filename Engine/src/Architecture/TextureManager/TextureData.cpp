@@ -32,4 +32,12 @@ namespace IonixEngine
 		this->texture = texture;
 		this->assetPath = assetPath;
 	}
+
+	void TextureData::Free() {
+		if (texture) {
+			SDL_Log("[Texture Data] Texture: %s has been destroyed", assetPath.c_str());
+			SDL_DestroyTexture(texture);
+			texture = nullptr;
+		}
+	}
 }

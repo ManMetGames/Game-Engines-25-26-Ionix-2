@@ -1,5 +1,6 @@
 #include "Application.h"
 #include "LayerSystem/Layers/LayerTexture.hpp"
+#include <vector>
 
 
 namespace IonixEngine {
@@ -100,9 +101,10 @@ namespace IonixEngine
             m_Window->OnUpdate();
             SDL_RenderPresent(renderer);
         }
-
-        for (auto layer : m_LayerStack.GetLayers()) {
-            layer->OnDetach();
+    
+        std::vector<Layer*> layers = m_LayerStack.GetLayers();
+        for (size_t i = layers.size() - 1; i > 0; i--) {
+            layers[i]->OnDetach();
         }
     }
 }

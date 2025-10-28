@@ -36,9 +36,6 @@ namespace IonixEngine
             Vec2 parentPos = t->localPosition;
             float parentRot = t->localRotation;
 
-            SDL_Log("parentPos = %f, %f", parentPos.x, parentPos.y);
-            SDL_Log("parentRot = %f", parentRot);
-
             parentPos = Vec2Rotate(parentPos, parentRot);
 
             position.x += parentPos.x;
@@ -51,7 +48,6 @@ namespace IonixEngine
         position.x += local.x;
         position.y += local.y;
 
-        SDL_Log("[Transforms] Returning Global Pos: %f, %f", position.x, position.y);
         return position;
 
 
@@ -143,7 +139,6 @@ namespace IonixEngine
         float oldRot = GetGlobalRotation();
 
         parent->AddChild(this);
-        SDL_Log("[Transform] New parent set");
         parentTransform = parent;
 
         if (maintainLocation)
@@ -160,7 +155,6 @@ namespace IonixEngine
         float globalRot = GetGlobalRotation();
 
         parentTransform->RemoveChild(this);
-        SDL_Log("[Transform] Removing parent transform");
         parentTransform = nullptr;
 
         if (maintainLocation)
@@ -172,7 +166,6 @@ namespace IonixEngine
 
     void Transform::AddChild(Transform* child)
     {
-        SDL_Log("[Transform] Adding new child transform");
         childTransforms.push_back(child);
     }
 

@@ -16,6 +16,7 @@ namespace IonixEngine
             m_Current->OnExit();
             m_Current.reset();
         }
+        Handle().scene = nullptr;
     }
 
     void LayerScene::OnUpdate()
