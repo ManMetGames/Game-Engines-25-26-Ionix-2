@@ -18,7 +18,8 @@ namespace IonixEngine {
             "GetInstance", &SoundManager::GetInstance,
             "LoadSound", &SoundManager::LoadSound,
             "SetVolume", &SoundManager::SetVolume,
-            "GetAudio", &SoundManager::GetAudio
+            "GetAudio", &SoundManager::GetAudio,
+            "GetPlayTime", &SoundManager::GetPlayTime
         );
 
         // --- Bind AudioPlayer ---

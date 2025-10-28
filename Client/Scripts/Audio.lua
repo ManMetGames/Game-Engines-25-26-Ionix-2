@@ -15,6 +15,7 @@ function AudioSystem:OnStart()
 
     -- Play sound
     testSound:Play(0, 2)
+    print("[Lua] Test file length is: " + sm.GetPlayTime())
     print("[Lua] Playing test.wav...")
 end
 
