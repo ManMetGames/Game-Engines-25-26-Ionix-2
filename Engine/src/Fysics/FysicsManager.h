@@ -5,6 +5,7 @@
 #include "Fysics/Joints.h"
 #include "Fysics/Force.h"
 
+#include <unordered_map>
 #include <vector>
 #include <functional>
 
@@ -19,18 +20,17 @@ namespace IonixEngine
         PrismaticJoints* joint;
         Force* force;
         b2World* world;
-        using CollisionCallback = std::function<void(EntityID, EntityID)>;
-        std::vector<CollisionCallback> collisionCallbacks_;
 
     public:
         static LayerFysics* s_instance;
+        std::unordered_map<int, FysicsBody> BodyDic;
+        int BodyCount = 0;
+
+
         static void SetInstance(LayerFysics* instance) {
             s_instance = instance;
         }
 
-        void RegisterCollisionCallback(CollisionCallback callback);
-        void EmitCollision(EntityID a, EntityID b);
-        void Update();
 
         void Create() 
         {   
@@ -50,6 +50,8 @@ namespace IonixEngine
         void FB_Create()
         {
             FysicsBody* body = new FysicsBody(world);
+            BodyDic.emplace(BodyCount, body);
+            BodyCount++;
         }
 
         void FB_Destroy()
