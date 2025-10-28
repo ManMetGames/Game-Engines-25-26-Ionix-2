@@ -6,44 +6,38 @@
 
 namespace IonixEngine
 {
-    enum class fysicBodyType {staticBody, dynamicBody, kinematicBody};
+    enum class fysicsBodyType {staticBody, dynamicBody, kinematicBody};
     
-    class FysicBody
+    class FysicsBody
     {
     private:
-        b2World* world;
         b2Body* body;
-        FysicsShapes* shape;
     public:
-        FysicBody()
+        FysicsBody(b2World* world)
         {
-            world = Application::Get().layerFysics->GetWorld();
+            if (!world) world = nullptr;
             b2BodyDef bodyDef;
             bodyDef.type = b2_dynamicBody;
             bodyDef.position.Set(0, 10);
             bodyDef.awake = true;
             bodyDef.fixedRotation = false;
             body = world->CreateBody(&bodyDef);
-
-            shape = new FysicsShapes(body);
-            shape->AddBox(5.0f, 5.0f);
-
             
         }
         
-        FysicBody(float xPos, float yPos, fysicBodyType b_type, bool rotationLocked)
+        FysicsBody(b2World* world, float xPos, float yPos, fysicsBodyType b_type, bool rotationLocked)
         {
-            world = LayerFysics::GetInstance()->GetWorld();
+            if (!world) world = nullptr;
             b2BodyDef bodyDef;
             switch (b_type)
             {
-                case fysicBodyType::staticBody:
+                case fysicsBodyType::staticBody:
                     bodyDef.type = b2_staticBody;
                      break;
-                case fysicBodyType::dynamicBody:
+                case fysicsBodyType::dynamicBody:
                     bodyDef.type = b2_dynamicBody;
                     break;
-                case fysicBodyType::kinematicBody:
+                case fysicsBodyType::kinematicBody:
                     bodyDef.type = b2_kinematicBody;
                     break;
             }
@@ -53,19 +47,19 @@ namespace IonixEngine
             body = world->CreateBody(&bodyDef);
         }
 
-        FysicBody(float xPos, float yPos, fysicBodyType b_type, bool rotationLocked, float gravityScale)
+        FysicsBody(b2World* world, float xPos, float yPos, fysicsBodyType b_type, bool rotationLocked, float gravityScale)
         {
-            world = LayerFysics::GetInstance()->GetWorld();
+            if (!world) world = nullptr;
             b2BodyDef bodyDef;
             switch (b_type)
             {
-            case fysicBodyType::staticBody:
+            case fysicsBodyType::staticBody:
                 bodyDef.type = b2_staticBody;
                 break;
-            case fysicBodyType::dynamicBody:
+            case fysicsBodyType::dynamicBody:
                 bodyDef.type = b2_dynamicBody;
                 break;
-            case fysicBodyType::kinematicBody:
+            case fysicsBodyType::kinematicBody:
                 bodyDef.type = b2_kinematicBody;
                 break;
             }
@@ -75,17 +69,11 @@ namespace IonixEngine
             bodyDef.gravityScale = gravityScale;
             body = world->CreateBody(&bodyDef);
         }
-
-        ~FysicBody()
+        //get body def
+        b2Body* GetBody()
         {
-            if (world && body)
-            {
-                world->DestroyBody(body);
-                body = nullptr;
-            }
+            return body;
         }
-
-
         //Get & Set Position
         b2Vec2 GetPosition() const
         {
@@ -160,70 +148,88 @@ namespace IonixEngine
             }
         }
         
-        //Add Force
-        
-        void AddForce(b2Vec2 force, b2Vec2 point)
-        {
-            if (body)
-            {
-                body->ApplyForce(force, point, true);
-            }
-        }
-
-        void AddForceToCenter(b2Vec2 force)
-        {
-            if (body)
-            {
-                body->ApplyForceToCenter(force, true);
-            }
-        }
-        // Add impulse
-        void AddImpulse(b2Vec2 impulse, b2Vec2 point)
-        {
-            if (body)
-            {
-                body->ApplyLinearImpulse(impulse, point, true);
-            }
-        }
-
-        // Add impulse at the center of mass 
-        void AddImpulseToCenter(b2Vec2 impulse)
-        {
-            if (body)
-            {
-                body->ApplyLinearImpulseToCenter(impulse, true);
-            }
-        }
-        //Add Torque
-        void AddTorque(float torque)
-        {
-            if (body)
-            {
-                body->ApplyTorque(torque, true);
-            }
-        }
-        //Add impulse with torque
-        void AddAngularImpulse(float torque) {
-            if (body) {
-                body->ApplyAngularImpulse(torque, true);
-            }
-        }
         //Set Active
-        void SetActive(bool flag) {
+        void SetAwake(bool flag) {
             if (body) {
                 body->SetAwake(flag);
             }
         }
         //Get Active 
-        bool GetActive() {
+        bool GetAwake() {
             return body->IsAwake();
         }
+        
         //Rotate Position or Body - doesnt set the angle to be something like Set Angle adds rotation to current body
         void RotatePosition(float angle) {
             float currentAngle = body->GetAngle(); 
             float newAngle = currentAngle + angle; // adding rotation to current rotation
             body->SetTransform(body->GetPosition(), newAngle);
+        }
 
+        //Linear Damping
+        float GetLinearDamping()
+        {
+                return body->GetLinearDamping();
+        }
+
+        void SetLinearDamping(float linearDamping)
+        {
+                body->SetLinearDamping(linearDamping);
+        }
+
+        //Angular Damping
+        float GetAngularDamping()
+        {
+            return body->GetAngularDamping();
+        }
+
+        void SetAngularDamping(float angularDamping)
+        {
+            body->SetAngularDamping(angularDamping);
+        }
+
+        //Allow Sleep
+        bool GetAllowSleep()
+        {
+            return body->IsSleepingAllowed();
+        }
+
+        void SetAllowSleep(bool flag)
+        {
+            body->SetSleepingAllowed(flag);
+        }
+
+        //Fixed Rotation
+        bool GetFixedRotation()
+        {
+            return body->IsFixedRotation();
+        }
+
+        void SetFixedRotation(bool flag)
+        {
+            body->SetFixedRotation(flag);
+        }
+
+        //Bullet
+        bool GetIsBullet()
+        {
+            return body->IsBullet();
+        }
+
+        void SetIsBullet(bool flag)
+        {
+            body->SetBullet(flag);
+        }
+
+        //Gravity Scale
+        float GetGravityScale()
+        {
+            return body->GetGravityScale();
+        }
+
+        void SetGravityScale(float gravityScale)
+        {
+            body->SetGravityScale(gravityScale);
         }
         
     };
