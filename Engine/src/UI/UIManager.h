@@ -60,6 +60,8 @@ namespace IonixEngine
 		void UIManager::BeginPanel(const std::string& panelName);
 
 		void UIManager::EndPanel();
+
+		void UIManager::AddChildToPanel(UIElement element);
 		
 		// Add for new UITypes below
 		void AddLabel(int x, int y, float xSize, float ySize, const char* text);

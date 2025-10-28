@@ -48,35 +48,105 @@ void IonixEngine::UIManager::EndPanel()
 	}
 }
 
+void IonixEngine::UIManager::AddChildToPanel(UIElement element)
+{
+	if (!groupStack.empty())
+	{
+		groupStack.back()->children.push_back(element);
+	}
+	else
+	{
+		elements.push_back(element);
+	}
+}
+
 
 void IonixEngine::UIManager::AddLabel(int x, int y, float xSize, float ySize, const char* text)
 {
-	elements.push_back({ UIType::Label,currentGroupName , x, y, xSize, ySize, const_cast<char*>(text), nullptr });
+	UIElement element;
+	element.type = UIType::Label;
+	element.groupName = currentGroupName;
+	element.xPos = x;
+	element.yPos = y;
+	element.xSize = xSize;
+	element.ySize = ySize;
+	element.text = const_cast<char*>(text);
+	AddChildToPanel(element);
 }
 
 void IonixEngine::UIManager::AddButton(int x, int y, float xSize, float ySize, const char* text, std::function<void()> onClick)
 {
-	elements.push_back({ UIType::Button,currentGroupName, x, y, xSize, ySize, const_cast<char*>(text), onClick });
+	UIElement element;
+	element.type = UIType::Button;
+	element.groupName = currentGroupName;
+	element.xPos = x;
+	element.yPos = y;
+	element.xSize = xSize;
+	element.ySize = ySize;
+	element.text = const_cast<char*>(text);
+	element.onClick = onClick;
+	AddChildToPanel(element);
 }
 
 void IonixEngine::UIManager::AddCheckbox(int x, int y, float xSize, float ySize, const char* text, bool* checked)
 {
-	elements.push_back({ UIType::Checkbox,currentGroupName, x, y, xSize, ySize, const_cast<char*>(text), nullptr, checked });
+	UIElement element;
+	element.type = UIType::Checkbox;
+	element.groupName = currentGroupName;
+	element.xPos = x;
+	element.yPos = y;
+	element.xSize = xSize;
+	element.ySize = ySize;
+	element.text = const_cast<char*>(text);
+	element.checked = checked;
+	AddChildToPanel(element);
 }
 
 void IonixEngine::UIManager::AddSliderFloat(int x, int y, float xSize, float ySize, const char* text, float* value, float min, float max)
 {
-	elements.push_back({ UIType::SliderFloat,currentGroupName, x, y, xSize, ySize, const_cast<char*>(text), nullptr, nullptr, value, min, max });
+	UIElement element;
+	element.type = UIType::SliderFloat;
+	element.groupName = currentGroupName;
+	element.xPos = x;
+	element.yPos = y;
+	element.xSize = xSize;
+	element.ySize = ySize;
+	element.text = const_cast<char*>(text);
+	element.sliderValue = value;
+	element.sliderMin = min;
+	element.slidermax = max;
+	AddChildToPanel(element);
 }
 
 void IonixEngine::UIManager::AddInputText(int x, int y, float xSize, float ySize, const char* text, char* buffer, size_t bufferSize)
 {
-	elements.push_back({ UIType::InputText,currentGroupName, x, y, xSize, ySize, const_cast<char*>(text), nullptr, nullptr, nullptr, 0.0f, 0.0f, buffer, bufferSize });
+	UIElement element;
+	element.type = UIType::InputText;
+	element.groupName = currentGroupName;
+	element.xPos = x;
+	element.yPos = y;
+	element.xSize = xSize;
+	element.ySize = ySize;
+	element.text = const_cast<char*>(text);
+	element.inputBuffer = buffer;
+	element.inputBufferSize = bufferSize;
+	AddChildToPanel(element);
 }
 
 void IonixEngine::UIManager::AddRadioButton(int x, int y, float xSize, float ySize, const char* text, int* radioValuePointer, int value, bool sameline)
 {
-	elements.push_back({ UIType::RadioButton,currentGroupName, x, y, xSize, ySize, const_cast<char*>(text), nullptr, nullptr, nullptr, 0.0f, 0.0f, nullptr, 0, radioValuePointer, value, sameline});
+	UIElement element;
+	element.type = UIType::RadioButton;
+	element.groupName = currentGroupName;
+	element.xPos = x;
+	element.yPos = y;
+	element.xSize = xSize;
+	element.ySize = ySize;
+	element.text = const_cast<char*>(text);
+	element.radioValuePtr = radioValuePointer;
+	element.RadioButtonValue = value;
+	element.sameline = sameline;
+	AddChildToPanel(element);
 }
 
 void IonixEngine::UIManager::AddDropdown(int x, int y, float xSize, float ySize, const char* text, std::vector<std::string> options, int* currentIndex)
@@ -92,7 +162,7 @@ void IonixEngine::UIManager::AddDropdown(int x, int y, float xSize, float ySize,
 	element.dropdownOptions = options;	
 	element.dropdownCurrentIndex = currentIndex;
 
-	elements.push_back(element);
+	AddChildToPanel(element);
 }
 
 void IonixEngine::UIManager::RenderElement(UIElement& element)
