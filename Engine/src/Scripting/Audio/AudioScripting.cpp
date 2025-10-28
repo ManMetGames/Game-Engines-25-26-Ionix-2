@@ -18,7 +18,8 @@ namespace IonixEngine {
             "GetInstance", &SoundManager::GetInstance,
             "LoadSound", &SoundManager::LoadSound,
             "SetVolume", &SoundManager::SetVolume,
-            "GetAudio", &SoundManager::GetAudio
+            "GetAudio", &SoundManager::GetAudio,
+            "GetPlayTime", &SoundManager::GetPlayTime
         );
 
         // --- Bind AudioPlayer ---
@@ -26,7 +27,8 @@ namespace IonixEngine {
             sol::constructors<AudioPlayer(Entity*, const std::string&, bool)>(),
             "Play", sol::overload(
                 [](AudioPlayer& audioPlayer) { audioPlayer.Play(); },
-                [](AudioPlayer& audioPlayer, int fadeMilliseconds) { audioPlayer.Play(fadeMilliseconds); }
+                [](AudioPlayer& audioPlayer, int fadeMilliseconds) { audioPlayer.Play(fadeMilliseconds); },
+                [](AudioPlayer& audioPlayer, int fadeMilliseconds, int numOfLoops) { audioPlayer.Play(fadeMilliseconds, numOfLoops); }
             ),
             "Pause", &AudioPlayer::Pause,
             "Resume", &AudioPlayer::Resume,
@@ -38,7 +40,6 @@ namespace IonixEngine {
             "volume", &AudioPlayer::volume,
             "mute", &AudioPlayer::mute,
             "clip", &AudioPlayer::clip,
-            "loop", &AudioPlayer::loop,
             "playOnAwake", &AudioPlayer::playOnAwake
         );
     }

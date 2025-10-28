@@ -46,6 +46,7 @@ bool SoundManager::LoadSound(const std::string &name, const std::string &filePat
 
     if (audio) {
         m_Sounds[name].audio = audio;
+        std::cout << GetPlayTime(name) << std::endl;
         return true;
     }
     SDL_Log("[Sound Manager] Could not load audio file: %s due to: %s", filePath.c_str(), Mix_GetError());
@@ -81,6 +82,21 @@ void SoundManager::SetVolume(const std::string &name, float volume) {
   // does not play the sound; volume applies to future 'PlaySound' calls
 }
 
+float SoundManager::GetPlayTime(const std::string& alias)
+{
+    int freq = 0;
+    Uint16 format = 0;
+    int channels = 0;
+
+    Mix_Chunk* audio = GetAudio(alias);
+    if (audio) {
+    if (!Mix_QuerySpec(&freq, &format, &channels)) { return -1.0f; }
+    return (float)audio->alen / (float)(freq * channels * ((format & 0xFF) / 8));
+    }
+    else {
+        return -1;
+    }
+}
 SoundManager::~SoundManager() { Shutdown(); }
 
 } // namespace IonixEngine
