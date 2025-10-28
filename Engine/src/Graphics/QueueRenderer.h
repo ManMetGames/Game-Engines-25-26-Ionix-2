@@ -13,8 +13,8 @@ namespace IonixEngine {
 
 	struct RenderCall { //render data
 		SDL_Texture* texture;
-		SDL_Rect src;
 		SDL_Rect dest;
+		SDL_Rect src;
 		int32_t z;
 	};
 
