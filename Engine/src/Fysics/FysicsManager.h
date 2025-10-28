@@ -19,11 +19,10 @@ namespace IonixEngine
         FysicsShapes* shape;
         PrismaticJoints* joint;
         Force* force;
-        b2World* world;
 
     public:
         static LayerFysics* s_instance;
-        std::unordered_map<int, FysicsBody> BodyDic;
+        std::unordered_map<int, FysicsBody*> BodyDic;
         int BodyCount = 0;
 
 
@@ -31,32 +30,16 @@ namespace IonixEngine
             s_instance = instance;
         }
 
-
-        void Create() 
-        {   
-            FysicsBody* body = new FysicsBody(world);
-            FysicsBody* bodyb = new FysicsBody(world);
-            shape = new FysicsShapes();
-            shape->AttatchBody(body->GetBody());
-            shape->AddBox();
-            shape->AttatchBody(bodyb->GetBody());
-            shape->AddBox();
-
-            joint = new PrismaticJoints();
-            joint->setJoint(body->GetBody(), bodyb->GetBody(), b2Vec2_zero, 1.0f, 1.0f, true, 1.0f, 1.0f, true);
-
-        }
-
         void FB_Create()
         {
-            FysicsBody* body = new FysicsBody(world);
-            BodyDic.emplace(BodyCount, body);
+            FysicsBody* body = new FysicsBody(s_instance->GetWorld());
+            BodyDic[BodyCount] = body;
             BodyCount++;
         }
 
         void FB_Destroy()
         {
-
+            
         }
 
         void FB_GetPos()

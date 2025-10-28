@@ -69,6 +69,7 @@ namespace IonixEngine
             bodyDef.gravityScale = gravityScale;
             body = world->CreateBody(&bodyDef);
         }
+        
         //get body def
         b2Body* GetBody()
         {

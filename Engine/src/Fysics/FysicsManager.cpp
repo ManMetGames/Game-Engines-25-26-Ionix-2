@@ -1,4 +1,4 @@
-#include "Fysics/FysicsManager.h"
+/*#include "Fysics/FysicsManager.h"
 #include "Fysics/Collider.h"
 #include <iostream>
 
@@ -36,4 +36,4 @@ void IonixEngine::FysicsManager::Update()
 	{
 		std::cout << "[FysicsManager::Update] Collision detected!\n";
 	}
-}
+}*/
