@@ -5,6 +5,7 @@
 #include <string>
 #include <array>
 #include "Graphics/SpriteComponent.h"
+#include "Graphics/AnimatedSpriteComponent.h"
 //#include <mutex>
 using namespace std;
 
@@ -12,7 +13,7 @@ namespace IonixEngine {
 
 	struct RenderCall { //render data
 		SDL_Texture* texture;
-		// SDL_Rect src;
+		SDL_Rect src;
 		SDL_Rect dest;
 		int32_t z;
 	};
@@ -22,7 +23,7 @@ namespace IonixEngine {
 
 	private:
 		//member variables
-		queue<RenderCall>* sprites; //change string type later to sprite/texture
+		queue<RenderCall> sprites; //change string type later to sprite/texture
 		//static pointer
 		static QueueRenderer* queueRendPtr;
 
@@ -32,7 +33,7 @@ namespace IonixEngine {
 
 		QueueRenderer(const QueueRenderer& obj) = delete; //prevent copis
 		QueueRenderer();
-		void AddToQueue(string spriteName);
+		void AddToQueue(RenderCall sprite);
 		void OrderQueueByZ(queue<RenderCall>& sprites);
 		void RenderFromQueue();
 		void ClearQueue(queue<RenderCall>& sprites);
