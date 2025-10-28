@@ -1,4 +1,7 @@
 #include "Application.h"
+
+#include "Fysics/FysicsBody.h"
+#include "Fysics/Shapes.h"
 #include "LayerSystem/Layers/LayerTexture.hpp"
 
 
@@ -40,6 +43,7 @@ namespace IonixEngine
 
         layerScene = new LayerScene();
         AddLayer(layerScene);
+        
         //Scripting::Get().Init();
         //Scripting::Get().GetLuaState().script_file("Scripts/settings.lua");
     }
@@ -66,6 +70,8 @@ namespace IonixEngine
 
         //Scripting::Get().CallHook("OnStart");
         SDL_Renderer* renderer = m_Window->GetSdlRenderer();
+        
+        
 
         while (m_Running)
         {
@@ -82,17 +88,16 @@ namespace IonixEngine
 
             if (layerInput->m_Input->IsKeyDown(SDL_SCANCODE_SPACE))
             {
-                std::cout << "Spacebar was pressed once \n";
+                //std::cout << "Spacebar was pressed once \n";
             }
             if (layerInput->m_Input->IsKeyUp(SDL_SCANCODE_SPACE))
             {
-                std::cout << "Spacebar has been lifted \n";
+               // std::cout << "Spacebar has been lifted \n";
             }
             if (layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_SPACE))
             {
-                std::cout << "Spacebar is being held down \n";
+               // std::cout << "Spacebar is being held down \n";
             }
-
             layerInput->m_Input->CopyCodesEndFrame();
 
             // Scripting::Get().CallHook("OnUpdate");
