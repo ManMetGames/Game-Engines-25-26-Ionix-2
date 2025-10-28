@@ -26,7 +26,8 @@ namespace IonixEngine {
             sol::constructors<AudioPlayer(Entity*, const std::string&, bool)>(),
             "Play", sol::overload(
                 [](AudioPlayer& audioPlayer) { audioPlayer.Play(); },
-                [](AudioPlayer& audioPlayer, int fadeMilliseconds) { audioPlayer.Play(fadeMilliseconds); }
+                [](AudioPlayer& audioPlayer, int fadeMilliseconds) { audioPlayer.Play(fadeMilliseconds); },
+                [](AudioPlayer& audioPlayer, int fadeMilliseconds, int numOfLoops) { audioPlayer.Play(fadeMilliseconds, numOfLoops); }
             ),
             "Pause", &AudioPlayer::Pause,
             "Resume", &AudioPlayer::Resume,
@@ -38,7 +39,6 @@ namespace IonixEngine {
             "volume", &AudioPlayer::volume,
             "mute", &AudioPlayer::mute,
             "clip", &AudioPlayer::clip,
-            "loop", &AudioPlayer::loop,
             "playOnAwake", &AudioPlayer::playOnAwake
         );
     }
