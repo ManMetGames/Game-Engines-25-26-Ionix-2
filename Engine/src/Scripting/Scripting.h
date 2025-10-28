@@ -41,6 +41,8 @@ namespace IonixEngine
 
         void RegisterEntityBindings();
 
+        void RegisterUIBindings();
+
     };
 }
 
