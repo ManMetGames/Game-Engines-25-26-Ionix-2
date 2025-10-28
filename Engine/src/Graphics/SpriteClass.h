@@ -14,6 +14,7 @@ namespace IonixEngine
 		SDL_Texture* img;
 		SDL_Renderer* rend;
 		SDL_Window* win;
+		SDL_Point size;
 		Sprite(const char *file);
 
 		void draw(const int x, const int y, const int w, const int h);

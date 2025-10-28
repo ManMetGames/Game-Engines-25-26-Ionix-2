@@ -13,6 +13,7 @@ namespace IonixEngine
 		SliderFloat,
 		InputText,
 		Panel,
+		RadioButton,
 	};
 	struct UIElement
 	{
@@ -30,6 +31,9 @@ namespace IonixEngine
 		float slidermax = 1.0f;// only for sliders
 		char* inputBuffer = nullptr; // only for input text
 		size_t inputBufferSize; // only for input text
+		int* radioValuePtr = nullptr;
+		int RadioButtonValue = 0;
+		bool sameline = false;
 
 		std::vector<UIElement> children;
 		bool isChildGroup = false;
@@ -71,6 +75,8 @@ namespace IonixEngine
 		
 		void AddInputText(int x, int y, float xSize, float ySize, const char* text, char* buffer, size_t bufferSize);
 		
+		void AddRadioButton(int x, int y, float xSize, float ySize, const char* text, int* radioValuePointer, int value, bool sameline);
+
 		void RenderUI();
 		
 	};

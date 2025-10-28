@@ -23,6 +23,7 @@ namespace IonixEngine
 		return i;
 
 	}
+
 	static bool animate = true;
 
 
@@ -36,4 +37,17 @@ namespace IonixEngine
 
 		ImGui::Checkbox(text, &state);
 	}
+
+
+	void UI::DrawRadioButton(int xpos, int ypos, char* text, static int e, int value, bool sameline)
+	{
+		ImGui::SetCursorPos(ImVec2(xpos, ypos));
+		if (sameline == true)
+		{
+			ImGui::RadioButton(text, &e, value); ImGui::SameLine();
+		}
+		ImGui::RadioButton(text, &e, value);
+	}
+
+
 }
