@@ -21,7 +21,7 @@ namespace IonixEngine
         Mix_Chunk* GetAudio(const std::string& name);
         void SetVolume(const std::string& name, float volume); // 0.0f to 1.0f
         float GetPlayTime(const std::string& alias);
-        void PlaySound(const std::string& name, int loops);
+        //void PlaySound(const std::string& name, int loops);
 
         std::unordered_map<std::string, AudioData> m_Sounds;
         std::unordered_map<std::string, float> m_Volumes;
