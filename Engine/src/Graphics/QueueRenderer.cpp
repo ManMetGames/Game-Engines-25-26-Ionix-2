@@ -1,29 +1,98 @@
 #include "Graphics/QueueRenderer.h"
-#include "Architecture/Application.h"
-#include "SDL_render.h"
+#include <vector>
 
-namespace IonixEngine {
+void QueueRenderer::AddToQueue(string spriteName)
+{
+	//sprites->push(spriteName); needs to be changed because this doesn't take strings anymore
+}   //all of this is TEMPORARY because we're TESTING - it's in the name, that's why it says TEMP everywhere. We'll change this soon, thanks
 
-	QueueRenderer::QueueRenderer() {
-		sprites = queue<RenderCall>();// queue of render data
-	}
+void QueueRenderer::Merger(std::vector<int> arr, int left, int mid, int right)
+{
+	const int n1 = mid - left + 1;
+	int n2 = right - mid;
 
-	void QueueRenderer::AddToQueue(RenderCall sprite)
+	std::vector<int> leftHand(n1);
+	std::vector<int> rightHand(n2);
+
+	for (int i = 0; i < n1; i++)
 	{
-		sprites.push(sprite); // pushes render data onto sprite queue
+		leftHand[i] = arr[left + i];
 	}
-
-	void QueueRenderer::ClearQueue(queue<RenderCall>& sprites)
+	for (int j = 0; j < n2; j++)
 	{
-		queue<RenderCall> emptyQueue;
-		swap(sprites, emptyQueue);
+		rightHand[j] = arr[mid + 1 + j];
 	}
+	int i = 0, j = 0, k = left;
 
-	void QueueRenderer::RenderFromQueue() {
-		while (!sprites.empty()) {
-			RenderCall call = sprites.front();
-			SDL_RenderCopy(Application::Get().GetWindow().GetSdlRenderer(), call.texture, &call.src, &call.dest);
-			sprites.pop();
+	while (i < n1 && j < n2)
+	{
+		if (leftHand[i] < rightHand[j])
+		{
+			arr[k] = leftHand[i];
+			i++;
 		}
+		else
+		{
+			arr[k] = rightHand[j];
+			j++;
+		}
+		k++;
+	}
+
+	while (i < n1) //Add anything left from left-hand
+	{
+		arr[k] = leftHand[i];
+		i++;
+		k++;
+	}
+
+	while (j < n2) //Add anything left from right-hand
+	{
+		arr[k] = rightHand[j];
+		j++;
+		k++;
+	}
+}
+
+void QueueRenderer::OrderQueueByZ(queue<int>& sprites)
+{
+	std::vector<int> temp(sprites.size());
+	//int temp[(sprites.size())]; //Creates temporary array from queue
+
+	for (int i = 0; i < sprites.size(); i++)
+	{
+		temp[i] = sprites.front();
+	}
+
+	MergeCaller(sprites, temp, 0, sprites.size() - 1);
+}
+
+void QueueRenderer::MergeCaller(queue<int>& sprites, std::vector<int> temp, int left, int right)
+{
+	int length = sprites.size(); //Returns queue length
+	int left = 0;				 
+	int right = sprites.size() - 1;
+	int mid = left + (right - left) / 2;
+
+	MergeCaller(sprites, temp, left, mid);
+	MergeCaller(sprites, temp, mid + 1, right);
+	Merger(temp, left, mid, right);
+
+	ArrToQueueConverter(temp, sprites); //Convert vector to queue at the end!
+}
+
+void QueueRenderer::ClearQueue(queue<int>& sprites)
+{
+	queue<int> emptyQueue;
+	swap(sprites, emptyQueue);
+}
+
+void QueueRenderer::ArrToQueueConverter(std::vector<int> temp, queue<int>& sprites)
+{
+	ClearQueue(sprites);
+	//std::queue<int> orderedQueue;
+	for (int i = 0; i < temp.size(); i++)
+	{
+		sprites.push(temp[i]);
 	}
 }

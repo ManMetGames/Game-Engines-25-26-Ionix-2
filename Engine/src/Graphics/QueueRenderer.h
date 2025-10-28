@@ -1,43 +1,36 @@
-#pragma once
 #include <iostream>
 #include <queue>
+#include <list>
 #include <string>
-#include "Graphics/SpriteComponent.h"
-#include "Graphics/AnimatedSpriteComponent.h"
-
+#include <array>
 //#include <mutex>
 using namespace std;
+class QueueRenderer //Singleton
+{
 
-namespace IonixEngine {
+private:
+	//member variables
+	queue<int>* sprites; //change string type later to sprite/texture
+	//static pointer
+	static QueueRenderer* queueRendPtr;
 
-	struct RenderCall { //render data
-		SDL_Texture* texture;
-		SDL_Rect dest;
-		SDL_Rect src;
-		int32_t z;
-	};
+	//MAYBEEE????? use mutex
 
-	class QueueRenderer //Singleton
+public:
+
+	QueueRenderer(const QueueRenderer& obj) = delete; //prevent copis
+	QueueRenderer();
+	void AddToQueue(string spriteName);
+	void OrderQueueByZ(queue<int> &sprites);
+	void RenderFromQueue();
+	void Merger(std::vector<int> arr, int left, int mid, int right);
+	void MergeCaller(queue<int> &sprites, std::vector<int> arr, int left, int right);
+	void ArrToQueueConverter(std::vector<int> temp, queue<int>& sprites);
+	void ClearQueue(queue<int> &sprites);
+	static QueueRenderer& Get()
 	{
+		static QueueRenderer instance;
+		return instance;
+	}
 
-	private:
-		//member variables
-		queue<RenderCall> sprites; // queue of render data
-		//static pointer
-
-		//MAYBEEE????? use mutex
-
-	public:
-		QueueRenderer();
-		QueueRenderer(const QueueRenderer& obj) = delete; //prevent copis
-		void AddToQueue(RenderCall sprite);
-		void RenderFromQueue();
-		void ClearQueue(queue<RenderCall>& sprites);
-		static QueueRenderer& Get()
-		{
-			static QueueRenderer instance;
-			return instance;
-		}
-
-	};
-}
+};
