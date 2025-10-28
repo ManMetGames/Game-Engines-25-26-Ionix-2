@@ -148,6 +148,34 @@ void IonixEngine::UIManager::AddRadioButton(int x, int y, float xSize, float ySi
 	element.sameline = sameline;
 	AddChildToPanel(element);
 }
+void IonixEngine::UIManager::AddColorPicker3(int x, int y, float xSize, float ySize, const char* label, float* color)
+{
+	UIElement element;
+	element.type = UIType::ColorPicker3;
+	element.groupName = currentGroupName;
+	element.xPos = x;
+	element.yPos = y;
+	element.xSize = xSize;
+	element.ySize = ySize;
+	element.text = const_cast<char*>(label);
+	element.color3 = color;
+	AddChildToPanel(element);
+}
+
+
+void IonixEngine::UIManager::AddColorPicker4(int x, int y, float xSize, float ySize, const char* label, float* color)
+{
+	UIElement element;
+	element.type = UIType::ColorPicker4;
+	element.groupName = currentGroupName;
+	element.xPos = x;
+	element.yPos = y;
+	element.xSize = xSize;
+	element.ySize = ySize;
+	element.text = const_cast<char*>(label);
+	element.color4 = color;
+	AddChildToPanel(element);
+}
 
 void IonixEngine::UIManager::AddDropdown(int x, int y, float xSize, float ySize, const char* text, std::vector<std::string> options, int* currentIndex)
 {

@@ -12,7 +12,7 @@ namespace IonixEngine
         void DrawCheckbox(int id, char* text, int xpos, int ypos, int xsize, int ysize);
 
         void DrawRadioButton(int xpos, int ypos, char* text, int e, int value, bool sameline);
-
+        float DrawColorPicker(int x, int y, float xSize, float ySize, const char* label, float* color);
         std::unordered_map<int, bool> checkboxMap;
         bool& getCheckboxState(int index) { return checkboxMap[index]; }
 

@@ -15,6 +15,8 @@ namespace IonixEngine
 		Panel,
 		RadioButton,
 		Dropdown,
+		ColorPicker3,
+		ColorPicker4,
 	};
 	struct UIElement
 	{
@@ -35,6 +37,8 @@ namespace IonixEngine
 		int* radioValuePtr = nullptr;
 		int RadioButtonValue = 0;
 		bool sameline = false;
+		float* color3 = nullptr; // only for ColorPicker3
+		float* color4 = nullptr; // only for ColorPicker4
 
 		std::vector<UIElement> children;
 		bool isChildGroup = false;
@@ -84,6 +88,9 @@ namespace IonixEngine
 		void AddRadioButton(int x, int y, float xSize, float ySize, const char* text, int* radioValuePointer, int value, bool sameline);
 		
 		void AddDropdown(int x, int y, float xSize, float ySize, const char* text, std::vector<std::string> options, int* currentIndex);
+		
+		void AddColorPicker3(int x, int y, float xSize, float ySize, const char* label, float* color);
+		void AddColorPicker4(int x, int y, float xSize, float ySize, const char* label, float* color);
 
 		void RenderUI();
 		
