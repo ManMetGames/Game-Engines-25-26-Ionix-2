@@ -9,7 +9,7 @@ namespace IonixEngine
         bool DrawButton(char* text, int xsize, int ysize, int xpos, int ypos);
         float DrawSlider(char* text, static float i, int xsize, int ysize, int xpos, int ypos, int minval, int maxval);
         void DrawRadioButton(int xpos, int ypos, char* text, static int e, int value, bool sameline);
-        void ProgressBar(int xpos, int ypos, float xsize, float ysize, float maxvalue, float currentvalue, float incrementamount, bool increaseDirection = false);
+        void ProgressBar(int xpos, int ypos, float xsize, float ysize, float maxvalue, float currentvalue, float incrementamount);
     };
 }
 

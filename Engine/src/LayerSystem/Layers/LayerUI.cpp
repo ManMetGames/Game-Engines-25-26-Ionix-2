@@ -79,19 +79,14 @@ namespace IonixEngine
          ImGui_ImplSDL2_NewFrame();
          ImGui::NewFrame();
 
-      
-         static float maxValue = 1000.0f;
-         static float currentValue = 1000.0f;
-         float decreasePerFrame = 0.1f; 
-         
-        
-         currentValue -= decreasePerFrame;
-         if (currentValue < 0.0f) currentValue = 0.0f;
-         
-         // Draw decreasing progress bar (right to left) at position (10, 10)
-         ImGui::Begin("Health Bar Example");
-         m_UI->ProgressBar(10, 10, 300.0f, 50.0f, maxValue, currentValue, decreasePerFrame, false);
+         /*ImGui::Begin("Health Bar Example");
+         * 
+         m_UI->ProgressBar(10, 10, 300.0f, 50.0f, maxValue, currentValue, decreasePerFrame);
+
+         Progress bar local test (need local variable for local testing, actual implementation needs to be done by scripting team)
+
          ImGui::End();
+         */
 
          //Shows the big ImGui demo window
          ImGui::ShowDemoWindow();
