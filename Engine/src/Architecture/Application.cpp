@@ -273,6 +273,11 @@ namespace IonixEngine
                 std::cout << "the right stick is being held down \n";
             }
 
+            //if (layerInput->m_Input->NormaliseLeftXAxis(SDL_CONTROLLER_AXIS_LEFTX))
+            //{
+             //  std::cout << std::setprecision(2) << fixed << val << "\n";
+            //}
+
             layerInput->m_Input->CopyCodesEndFrame();
 
             // Scripting::Get().CallHook("OnUpdate");

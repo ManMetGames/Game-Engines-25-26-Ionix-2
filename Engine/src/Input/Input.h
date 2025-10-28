@@ -2,26 +2,27 @@
 #include <unordered_set>
 #include <SDL.H>
 
+
 namespace IonixEngine
 {
     class Input
     {
     public:
 
-    // Keyboard
+        // Keyboard
 
-        // keyboard input booleans
+            // keyboard input booleans
         bool IsKeyDown(SDL_Scancode code) const
         {
             // Not held down previous frame
-            
+
             // Held down current frame
             return !previousKeys.count(code) && currentKeys.count(code);
         }
         bool IsKeyUp(SDL_Scancode code) const
         {
             // Was held down previous frame
-            
+
             // No longer held down on current frame
             return previousKeys.count(code) && !currentKeys.count(code);
         }
@@ -41,13 +42,13 @@ namespace IonixEngine
             currentKeys.erase(code);
         }
 
-     // Controller
+        // Controller
 
-         // button input booleans
+            // button input booleans
         bool isButtonDown(Uint8 btn) const
         {
             // Not held down previous frame
-            
+
 
             // Held down current frame
             return !previousButton.count(btn) && currentButton.count(btn);
@@ -75,6 +76,9 @@ namespace IonixEngine
             currentButton.erase(btn);
         }
 
+        // controller axis variables:
+        /*
+            // RT
         float GetRightTrigger()
         {
             return rightTrigger;
@@ -82,7 +86,7 @@ namespace IonixEngine
         float SetRightTrigger()
         {
         }
-
+            // LT
         float GetLeftTrigger()
         {
             return leftTrigger;
@@ -90,7 +94,7 @@ namespace IonixEngine
         float SetLeftTrigger()
         {
         }
-
+            // Left Stick Horizontal
         float GetLeftStickHorizontal()
         {
             return leftStickHorizontal;
@@ -98,7 +102,7 @@ namespace IonixEngine
         float SetLeftStickHorizontal()
         {
         }
-
+            // Left Stick Vetical
         float GetLeftStickVertical()
         {
             return leftStickVertical;
@@ -106,7 +110,7 @@ namespace IonixEngine
         float SetLeftStickVertical()
         {
         }
-
+            // Right Stick Horizontal
         float GetRightStickHoriontal()
         {
             return rightStickHorizontal;
@@ -114,7 +118,7 @@ namespace IonixEngine
         float SetRightStickHorizontal()
         {
         }
-
+            // Right Stick Vertical
         float GetRightStickVertical()
         {
             return rightStickVertical;
@@ -122,16 +126,24 @@ namespace IonixEngine
         float SetRightStickVertical()
         {
         }
+        */
         
- 
 
-    // Previous Frame Keys/Buttons
-       void CopyCodesEndFrame()
+        // normalised controller axis:
+        void NormaliseLeftXAxis(float axis)
+        {
+            leftStickHorizontal = (float) axis / 32768;
+            leftStickHorizontal = std::round(leftStickHorizontal * 100) / 100;
+        }
+
+        // Previous Frame Keys/Buttons
+        void CopyCodesEndFrame()
         {
             previousKeys = currentKeys;
             previousButton = currentButton;
         }
-
+    
+        float GetXStickHor() { return leftStickHorizontal; }
 
     private:
         // Keyboard:
@@ -143,14 +155,13 @@ namespace IonixEngine
         std::unordered_set<Uint8> currentButton;
         std::unordered_set<Uint8> previousButton;
 
-            // Axis
+        // Axis
         float leftStickVertical;
         float leftStickHorizontal;
         float rightStickVertical;
         float rightStickHorizontal;
         float leftTrigger;
         float rightTrigger;
-       
     };
 }
 

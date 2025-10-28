@@ -4,6 +4,8 @@
 #include "imgui.h"
 #include <backends/imgui_impl_sdl2.h>
 #include "Architecture/Application.h"
+#include <iostream>
+#include <iomanip>
 
 namespace IonixEngine
 {
@@ -56,22 +58,13 @@ namespace IonixEngine
                 {
                     case SDL_CONTROLLER_AXIS_LEFTX:
                     {
-                        float normalizeAxis = e.caxis.value;
-                        if (e.caxis.value > 0)
-                        {
-                            normalizeAxis = e.caxis.value / e.caxis.value;
-                            return;
-                        }
-                        else if (e.caxis.value < 0)
-                        {
-                            float tempPositive = e.caxis.value * e.caxis.value;
-                            normalizeAxis = e.caxis.value / tempPositive;
-                            return;
-                        }
-                        
-
-                        std::cout << normalizeAxis << "\n";
-                        //Application::Get().layerInput->m_Input->SetLeftStickHorizontal(e.caxis.value);
+                       // float normalizeLeftXAxis = (float)e.caxis.value / 32768;
+                        //std::cout << std::setprecision(2) << fixed << normalizeLeftXAxis << "\n";
+                        double val = e.caxis.value;
+                        val = (val / 32768);
+                        val = std::ceil(val * 100) / 100;
+                        Application::Get().layerInput->m_Input->NormaliseLeftXAxis(val);
+                        std::cout << val << "\n";
                         break;
                     }
                     case SDL_CONTROLLER_AXIS_LEFTY:
