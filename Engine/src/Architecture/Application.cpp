@@ -1,6 +1,6 @@
 #include "Application.h"
 
-#include "Fysics/FysicBody.h"
+#include "Fysics/FysicsBody.h"
 #include "Fysics/Shapes.h"
 #include "LayerSystem/Layers/LayerTexture.hpp"
 
@@ -71,7 +71,6 @@ namespace IonixEngine
         Scripting::Get().CallHook("OnStart");
         SDL_Renderer* renderer = m_Window->GetSdlRenderer();
         
-        FysicBody testBody = FysicBody();
         
 
         while (m_Running)
@@ -88,7 +87,6 @@ namespace IonixEngine
             if (layerInput->m_Input->IsKeyDown(SDL_SCANCODE_SPACE))
             {
                 //std::cout << "Spacebar was pressed once \n";
-                testBody.AddForceToCenter(b2Vec2(0.f, 5000.0f));
             }
             if (layerInput->m_Input->IsKeyUp(SDL_SCANCODE_SPACE))
             {
@@ -98,10 +96,6 @@ namespace IonixEngine
             {
                // std::cout << "Spacebar is being held down \n";
             }
-
-            printf("%4.2f %4.2f\n", testBody.GetPosition().x, testBody.GetPosition().y);
-            
-
             layerInput->m_Input->CopyCodesEndFrame();
 
             Scripting::Get().CallHook("OnUpdate");

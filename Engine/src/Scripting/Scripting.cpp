@@ -236,6 +236,22 @@ namespace IonixEngine {
 			return Maf::mafRound(x);
 			};
 
+		auto sin = [](float x) -> float {
+			return Maf::mafSin(x);
+			};
+
+		auto cos = [](float x) -> float {
+			return Maf::mafCos(x);
+			};
+
+		auto tan = [](float x) -> float {
+			return Maf::mafTan(x);
+			};
+
+		auto pi = []() -> double {
+			return Maf::mafPI();
+			};
+
 			m_LuaState["Mafs"] = m_LuaState.create_table_with(
 			"clamp", clamp,
 			"abs", abs,
@@ -256,7 +272,11 @@ namespace IonixEngine {
 			"mod", mod,
 			"div", div,
 			"sqr_magnitude_vector2", SqrMagnitudeVector2,
-			"sqr_magnitude_vector3", SqrMagnitudeVector3
+			"sqr_magnitude_vector3", SqrMagnitudeVector3,
+			"sin", sin,
+			"cos", cos,
+			"tan", tan,
+			"pi", pi
 		);
 	}
 	void Scripting::RegisterAudioBindings()
