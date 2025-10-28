@@ -74,6 +74,55 @@ namespace IonixEngine
         {
             currentButton.erase(btn);
         }
+
+        float GetRightTrigger()
+        {
+            return rightTrigger;
+        }
+        float SetRightTrigger()
+        {
+        }
+
+        float GetLeftTrigger()
+        {
+            return leftTrigger;
+        }
+        float SetLeftTrigger()
+        {
+        }
+
+        float GetLeftStickHorizontal()
+        {
+            return leftStickHorizontal;
+        }
+        float SetLeftStickHorizontal()
+        {
+        }
+
+        float GetLeftStickVertical()
+        {
+            return leftStickVertical;
+        }
+        float SetLeftStickVertical()
+        {
+        }
+
+        float GetRightStickHoriontal()
+        {
+            return rightStickHorizontal;
+        }
+        float SetRightStickHorizontal()
+        {
+        }
+
+        float GetRightStickVertical()
+        {
+            return rightStickVertical;
+        }
+        float SetRightStickVertical()
+        {
+        }
+        
  
 
     // Previous Frame Keys/Buttons

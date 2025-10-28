@@ -51,6 +51,51 @@ namespace IonixEngine
             case SDL_CONTROLLERBUTTONUP:
                 Application::Get().layerInput->m_Input->SetButtonReleased(e.cbutton.button);
                 break;
+            case SDL_CONTROLLERAXISMOTION:
+                switch (e.caxis.axis)
+                {
+                    case SDL_CONTROLLER_AXIS_LEFTX:
+                    {
+                        float normalizeAxis = e.caxis.value;
+                        if (e.caxis.value > 0)
+                        {
+                            normalizeAxis = e.caxis.value / e.caxis.value;
+                            return;
+                        }
+                        else if (e.caxis.value < 0)
+                        {
+                            float tempPositive = e.caxis.value * e.caxis.value;
+                            normalizeAxis = e.caxis.value / tempPositive;
+                            return;
+                        }
+                        
+
+                        std::cout << normalizeAxis << "\n";
+                        //Application::Get().layerInput->m_Input->SetLeftStickHorizontal(e.caxis.value);
+                        break;
+                    }
+                    case SDL_CONTROLLER_AXIS_LEFTY:
+                    {
+                        break;
+                    }
+                    case SDL_CONTROLLER_AXIS_RIGHTX:
+                    {
+                        break;
+                    }
+                    case SDL_CONTROLLER_AXIS_RIGHTY:
+                    {
+                        break;
+                    }
+                    case SDL_CONTROLLER_AXIS_TRIGGERLEFT:
+                    {
+                        break;
+                    }
+                    case SDL_CONTROLLER_AXIS_TRIGGERRIGHT:
+                    {
+                        break;
+                    }
+                break;
+                }
         }
     }
 }
