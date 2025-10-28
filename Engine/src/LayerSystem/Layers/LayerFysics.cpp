@@ -22,6 +22,8 @@ namespace IonixEngine
         b2Vec2 gravity = b2Vec2(0.0f, -9.8f);
         //Create the world
         world = new b2World(gravity);
+        //enable sleeping
+        world->SetAllowSleeping(true);
 
         //create default ground box
         b2BodyDef groundDef; groundDef.position.Set(0.f, -1.f);
