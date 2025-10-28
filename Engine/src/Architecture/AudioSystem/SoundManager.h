@@ -15,10 +15,12 @@ namespace IonixEngine
         // just for testing for now maybe
         bool Init(int freq = 44100, SDL_AudioFormat format = AUDIO_F32SYS, int channels = 2, int chunksize = 4096);
         void Shutdown();
+        float volume = 128.0f;
 
         bool LoadSound(const std::string& name, const std::string& filePath);
         Mix_Chunk* GetAudio(const std::string& name);
         void SetVolume(const std::string& name, float volume); // 0.0f to 1.0f
+        float GetPlayTime(const char* filename);
 
     private:
         SoundManager() = default;

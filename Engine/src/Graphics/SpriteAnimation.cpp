@@ -80,7 +80,7 @@ namespace IonixEngine
 
 	int SpriteAnimation::GetFrameCount() //for now, assume the spritesheet is 1 row
 	{
-		int x = size.x / size.y;
+		int x = size.x / 1;
 		return x;		
 	};
 }

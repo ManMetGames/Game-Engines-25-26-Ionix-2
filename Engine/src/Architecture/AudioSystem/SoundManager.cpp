@@ -44,6 +44,8 @@ bool SoundManager::LoadSound(const std::string &name, const std::string &filePat
     AudioData* clip = &m_Sounds[name];
     Mix_Chunk* audio = Mix_LoadWAV(filePath.c_str());
 
+    printf("%4f%", SoundManager::GetPlayTime(filePath.c_str()));
+
     if (audio) {
         m_Sounds[name].audio = audio;
         return true;
@@ -76,9 +78,40 @@ Mix_Chunk* SoundManager::GetAudio(const std::string& name) {
 //  Mix_PlayChannel(-1, clip.audio, loops);
 //}
 
-void SoundManager::SetVolume(const std::string &name, float volume) {
+void SoundManager::SetVolume(const std::string& name, float volume) {
   m_Volumes[name] = SDL_clamp(volume, 0, 1);
   // does not play the sound; volume applies to future 'PlaySound' calls
+}
+
+float SoundManager::GetPlayTime(const char* filename)
+{
+    SDL_AudioSpec spec;
+    uint32_t audioLen;
+    uint8_t* audioBuf;
+    double seconds = 0.0;
+
+    if (SDL_LoadWAV(filename, &spec, &audioBuf, &audioLen) != NULL) {
+        // we aren't using the actual audio in this example
+        SDL_FreeWAV(audioBuf);
+        uint32_t sampleSize = SDL_AUDIO_BITSIZE(spec.format) / 8;
+        uint32_t sampleCount = audioLen / sampleSize;
+        // could do a sanity check and make sure (audioLen % sampleSize) is 0
+        uint32_t sampleLen = 0;
+        if (spec.channels) {
+            sampleLen = sampleCount / spec.channels;
+        }
+        else {
+            // spec.channels *should* be 1 or higher, but just in case
+            sampleLen = sampleCount;
+        }
+        seconds = (double)sampleLen / (double)spec.freq;
+    }
+    else {
+        // uh-oh!
+        fprintf(stderr, "ERROR: can't load: %s: %s\n", filename, SDL_GetError());
+    }
+
+    return seconds;
 }
 
 SoundManager::~SoundManager() { Shutdown(); }

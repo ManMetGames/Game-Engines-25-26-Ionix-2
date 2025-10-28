@@ -101,7 +101,10 @@ namespace IonixEngine
                // std::cout << "Spacebar is being held down \n";
             }
 
-            printf("%4.2f %4.2f\n", testBody.GetPosition().x, testBody.GetPosition().y);
+            SoundManager& sm = SoundManager::GetInstance();
+            sm.Init();
+            sm.LoadSound("test", "../Client/test.wav");
+            //printf("%4.2f %4.2f\n", testBody.GetPosition().x, testBody.GetPosition().y);
             
 
             layerInput->m_Input->CopyCodesEndFrame();

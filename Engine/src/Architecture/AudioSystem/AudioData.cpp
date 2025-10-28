@@ -4,7 +4,7 @@
 namespace IonixEngine {
   AudioData::~AudioData() {
     if (audio) {
-      Mix_FreeChunk(audio);     
+        Mix_FreeChunk(audio);
     }
   }
 }

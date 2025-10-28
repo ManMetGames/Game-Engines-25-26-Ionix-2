@@ -130,7 +130,7 @@ namespace IonixEngine
         }
 
         // Fire-and-forget sound (doesn't affect this instance's current playback)
-        void PlayOneShot(const std::string& soundName, float volumeScale = 1.0f)
+        /*void PlayOneShot(const std::string& soundName, float volumeScale = 1.0f)
         {
             Mix_Chunk* chunk = SoundManager::GetInstance().GetAudio(soundName);
             if (chunk == nullptr)
@@ -150,7 +150,7 @@ namespace IonixEngine
 
             // example:
             // clickSound.PlayOneShot("ui_click", 0.8f); // Play at 80% of instance volume
-        }
+        }*/
 
         // Music loop - loops by specified number of times
         
