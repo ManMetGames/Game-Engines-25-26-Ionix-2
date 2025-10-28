@@ -7,11 +7,12 @@ namespace IonixEngine {
     void Scene::OnEnter() {
         SDL_Log("[Scene] Started Scene");
         renderData.renderer = Application::Get().GetWindow().GetSdlRenderer();
+        renderData.queue = Application::Get().layerGraphics->GetQueue();
 
         EntityID en = CreateEntity();
         Entity* entity = GetEntityFromID(en);
         if (!entity) { return; }
-        entity->AddComponent(new SpriteRenderer(entity));
+        entity->AddComponent(new SpriteComponent(entity, "Test", 0));
         entity->AddComponent(new EntityMover(entity));
     }
 

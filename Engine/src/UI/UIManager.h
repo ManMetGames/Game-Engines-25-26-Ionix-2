@@ -12,93 +12,66 @@ namespace IonixEngine
 		Checkbox,
 		SliderFloat,
 		InputText,
+		Panel,
+		RadioButton,
 	};
 	struct UIElement
 	{
 		UIType type;
+		std::string groupName;
 		int xPos;
 		int yPos;
-		char* text;
-		std::function<void()> onClick; // only for buttons
-		bool* checked; // only for checkboxes
-		float* sliderValue; // only for sliders
+		float xSize;
+		float ySize;
+		char* text = nullptr;
+		std::function<void()> onClick = nullptr; // only for buttons
+		bool* checked = nullptr; // only for checkboxes
+		float* sliderValue = nullptr; // only for sliders
 		float sliderMin = 0.0f;// only for sliders
 		float slidermax = 1.0f;// only for sliders
-		char* inputBuffer; // only for input text
+		char* inputBuffer = nullptr; // only for input text
 		size_t inputBufferSize; // only for input text
+		int* radioValuePtr = nullptr;
+		int RadioButtonValue = 0;
+		bool sameline = false;
+
+		std::vector<UIElement> children;
+		bool isChildGroup = false;
+		
 	};
 
-	std::vector<UIElement> elements;
-	// end user, all they need is a function to push a new UI element to this vector
-	void AddLabel(int x, int y, const char* text)
-		{
-			elements.push_back({ UIType::Label, x, y, const_cast<char*>(text), nullptr });
-		}
-	void AddButton(int x, int y, const char* text, std::function<void()> onClick)
+	class UIManager
 	{
-		elements.push_back({ UIType::Button, x, y, const_cast<char*>(text), onClick });
-	}
-	void AddCheckbox(int x, int y, const char* text, bool* checked)
-	{
-		elements.push_back({ UIType::Checkbox, x, y, const_cast<char*>(text), nullptr, checked });
-	}
-	void AddSliderFloat(int x, int y, const char* text, float* value, float min, float max)
-	{
-		elements.push_back({ UIType::SliderFloat, x, y, const_cast<char*>(text), nullptr, nullptr, value, min, max });
-	}
-	void AddInputText(int x, int y, const char* text, char* buffer, size_t bufferSize)
-	{
-		elements.push_back({ UIType::InputText, x, y, const_cast<char*>(text), nullptr, nullptr, nullptr, 0.0f, 0.0f, buffer, bufferSize });
-	}
+	private: 
+		std::string currentGroupName; 
+		std::vector<UIElement> elements;
+		std::vector<UIElement*> groupStack; 
 
-    void RenderUI()
-    {
-       for (auto& e : elements)
-       {
-		   // Get the ImGuiIO object
-		   ImGuiIO& io = ImGui::GetIO();
+		void RenderElement(UIElement& element);
+	public:
+		void UIManager::BeginGroup(const std::string& groupName);
+		
+		void UIManager::EndGroup();
 
-           ImGui::SetCursorPos(ImVec2((float)e.xPos, (float)e.yPos));
+		void UIManager::BeginPanel(const std::string& panelName);
 
-		   // Assume you have multiple fonts loaded
-		   ImFont* defaultFont = io.Fonts->Fonts[0]; // Default font (first one)
-		   ImFont* customFont = io.Fonts->Fonts[1]; // Custom font (second one)
+		void UIManager::EndPanel();
+		
+		// Add for new UITypes below
+		void AddLabel(int x, int y, float xSize, float ySize, const char* text);
+		
+		void AddButton(int x, int y, float xSize, float ySize, const char* text, std::function<void()> onClick);
+		
+		void AddCheckbox(int x, int y, float xSize, float ySize, const char* text, bool* checked);
+		
+		void AddSliderFloat(int x, int y, float xSize, float ySize, const char* text, float* value, float min, float max);
+		
+		void AddInputText(int x, int y, float xSize, float ySize, const char* text, char* buffer, size_t bufferSize);
+		
+		void AddRadioButton(int x, int y, float xSize, float ySize, const char* text, int* radioValuePointer, int value, bool sameline);
 
-		   // Use default font for a section of UI
-		   ImGui::PushFont(defaultFont);
-		   ImGui::Text("This is default font!");
-		   ImGui::PopFont();
-
-		   // Switch to custom font for another section of UI
-		   ImGui::PushFont(customFont);
-		   ImGui::Text("This is custom font!");
-		   ImGui::PopFont();
-
-           switch (e.type)
-           {
-           case UIType::Label:
-               ImGui::Text("%s", e.text);
-               break;
-           case UIType::Button:
-               if (ImGui::Button(e.text) && e.onClick)
-                   e.onClick();
-               break; // Added break to prevent fallthrough
-           case UIType::Checkbox:
-               if (e.checked)
-                   ImGui::Checkbox(e.text, e.checked);
-               break; // Added break to prevent fallthrough
-           case UIType::SliderFloat:
-               if (e.sliderValue)
-                   ImGui::SliderFloat(e.text, e.sliderValue, e.sliderMin, e.slidermax);
-               break; // Added break to prevent fallthrough
-           case UIType::InputText:
-               if (e.inputBuffer && e.inputBufferSize > 0)
-                   ImGui::InputText(e.text, e.inputBuffer, e.inputBufferSize);
-               break;
-           }
-       }
-    }
-    
-    
+		void RenderUI();
+		
+	};
 }
 

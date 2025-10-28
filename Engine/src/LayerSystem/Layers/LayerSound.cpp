@@ -23,7 +23,7 @@ namespace IonixEngine
 
         // volume set for now
         SoundManager::GetInstance().SetVolume(m_SoundName, 0.8f);
-        SoundManager::GetInstance().PlaySound(m_SoundName, 0);
+        //SoundManager::GetInstance().PlaySound(m_SoundName, 0);
     }
 
     void LayerSound::OnDetach()
@@ -38,9 +38,9 @@ namespace IonixEngine
         static uint32_t currentTime;
         currentTime++;
         if (currentTime >= 200) {
-            std::cout << "LayerSound: Playing '" << m_SoundName << "' (timed)..." << std::endl;
+            //std::cout << "LayerSound: Playing '" << m_SoundName << "' (timed)..." << std::endl;
             currentTime = 0;
-            SoundManager::GetInstance().PlaySound(m_SoundName, 0); 
+            //SoundManager::GetInstance().PlaySound(m_SoundName, 0); 
         }
     }
 
