@@ -48,9 +48,9 @@ namespace IonixEngine
               break;
 
           case SDL_MOUSEWHEEL:
-                  Application::Get().layerInput->m_Input->ScrollWheel(e.wheel.y);
+              float scrollY = static_cast<float>(e.wheel.y);
+              Application::Get().layerInput->m_Input->SetScrollDiff(scrollY);
               break;
-
 
   
 

@@ -56,8 +56,9 @@ namespace IonixEngine
         // for Mouse Up
         void SetMouseReleased(Uint8 code);
 
-        //for scroll wheel
-        float ScrollWheel(Uint8 code)const;
+        void SetScrollDiff(float diff);
+
+        float GetScrollDiff() const;
       
         // for Previous Key
         void CopyCodesEndFrame();
@@ -73,6 +74,8 @@ namespace IonixEngine
             std::unordered_set<Uint8> currentScroll;
             std::unordered_set<Uint8> previousScroll;
 
+
+            float scrollDiff = 0.0f; //Resets each frame
 
     };
 }
