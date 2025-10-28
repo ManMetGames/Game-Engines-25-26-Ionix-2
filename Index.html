@@ -111,7 +111,6 @@
       z-index: 5;
     }
 
-    /* Hidden big horse */
     .hidden-gif {
       position: fixed;
       top: 50%;
@@ -138,45 +137,141 @@
   </header>
 
   <main>
+
+    <!-- Window -->
+    <section>
+      <h2>Window</h2>
+      <table>
+        <tr><th>Function</th><th>Description</th></tr>
+        <tr><td><code>Window.get_title()</code></td><td>Returns the current window title.</td></tr>
+        <tr><td><code>Window.get_width()</code></td><td>Returns the window width in pixels.</td></tr>
+        <tr><td><code>Window.get_height()</code></td><td>Returns the window height in pixels.</td></tr>
+      </table>
+    </section>
+
+    <!-- Input -->
+    <section>
+      <h2>Input</h2>
+      <table>
+        <tr><th>Function</th><th>Description</th></tr>
+        <tr><td><code>Input.get_key_up(KeyCode)</code></td><td>Returns true if the key was released this frame.</td></tr>
+        <tr><td><code>Input.get_key_down(KeyCode)</code></td><td>Returns true if the key was pressed this frame.</td></tr>
+        <tr><td><code>Input.get_key_held(KeyCode)</code></td><td>Returns true if the key is being held down.</td></tr>
+      </table>
+      <p><span style="color: var(--text-secondary);">Available key constants:</span> <code>Keys.ionix_a</code>–<code>Keys.ionix_z</code>, <code>Keys.ionix_space</code>, <code>Keys.ionix_escape</code>, <code>Keys.ionix_return</code>, etc.</p>
+    </section>
+
+    <!-- Mafs -->
+    <section>
+      <h2>Mafs (Maths)</h2>
+      <table>
+        <tr><th>Function</th><th>Description</th></tr>
+        <tr><td><code>Mafs.clamp(x, min, max)</code></td><td>Clamps <code>x</code> between <code>min</code> and <code>max</code>.</td></tr>
+        <tr><td><code>Mafs.abs(x)</code></td><td>Returns the absolute value of <code>x</code>.</td></tr>
+        <tr><td><code>Mafs.min(x, minVal)</code></td><td>Ensures <code>x</code> ≥ <code>minVal</code>.</td></tr>
+        <tr><td><code>Mafs.max(x, maxVal)</code></td><td>Ensures <code>x</code> ≤ <code>maxVal</code>.</td></tr>
+        <tr><td><code>Mafs.round(x)</code></td><td>Rounds <code>x</code> to the nearest integer.</td></tr>
+        <tr><td><code>Mafs.log(x)</code></td><td>Returns the natural logarithm of <code>x</code>.</td></tr>
+        <tr><td><code>Mafs.log_custom(x, base)</code></td><td>Returns the logarithm of <code>x</code> with a custom base.</td></tr>
+        <tr><td><code>Mafs.square_root(x)</code></td><td>Returns the square root of <code>x</code>.</td></tr>
+        <tr><td><code>Mafs.lerp(x, y, t)</code></td><td>Linearly interpolates between <code>x</code> and <code>y</code>.</td></tr>
+        <tr><td><code>Mafs.mod(x, y)</code></td><td>Returns the remainder of <code>x</code> divided by <code>y</code>.</td></tr>
+        <tr><td><code>Mafs.div(x, y)</code></td><td>Returns the whole-number division of <code>x</code> by <code>y</code>.</td></tr>
+        <tr><td><code>Mafs.sin(a)</code></td><td>Returns the sine of <code>a</code> in radians.</td></tr>
+        <tr><td><code>Mafs.cos(a)</code></td><td>Returns the cosine of <code>a</code> in radians.</td></tr>
+        <tr><td><code>Mafs.tan(a)</code></td><td>Returns the tangent of <code>a</code> in radians.</td></tr>
+        <tr><td><code>Mafs.pi()</code></td><td>Returns the mathematical constant π.</td></tr>
+      </table>
+    </section>
+
+    <!-- Vectors -->
+    <section>
+      <h2>Vectors</h2>
+      <h3>Vector2</h3>
+      <table>
+        <tr><td><code>Mafs.vector2(x, y)</code></td><td>Creates a 2D vector.</td></tr>
+        <tr><td><code>Mafs.vector2_x(v)</code></td><td>Gets the X component of a vector.</td></tr>
+        <tr><td><code>Mafs.vector2_y(v)</code></td><td>Gets the Y component of a vector.</td></tr>
+        <tr><td><code>Mafs.sqr_magnitude_vector2(v)</code></td><td>Returns the squared magnitude.</td></tr>
+      </table>
+      <h3>Vector3</h3>
+      <table>
+        <tr><td><code>Mafs.vector3(x, y, z)</code></td><td>Creates a 3D vector.</td></tr>
+        <tr><td><code>Mafs.vector3_x(v)</code></td><td>Gets the X component.</td></tr>
+        <tr><td><code>Mafs.vector3_y(v)</code></td><td>Gets the Y component.</td></tr>
+        <tr><td><code>Mafs.vector3_z(v)</code></td><td>Gets the Z component.</td></tr>
+        <tr><td><code>Mafs.sqr_magnitude_vector3(v)</code></td><td>Returns the squared magnitude.</td></tr>
+      </table>
+    </section>
+
+    <!-- Entity -->
+    <section>
+      <h2>Entity</h2>
+      <table>
+        <tr><td><code>Entity.create_entity()</code></td><td>Creates a new entity.</td></tr>
+        <tr><td><code>Entity.get_entity_pos(entity)</code></td><td>Returns the entity’s position.</td></tr>
+        <tr><td><code>Entity.set_entity_pos(entity, x, y)</code></td><td>Sets the entity’s position.</td></tr>
+        <tr><td><code>Entity.add_sprite_component(entity, alias, zOrder)</code></td><td>Adds a sprite component.</td></tr>
+      </table>
+    </section>
+
+    <!-- UI -->
+    <section>
+      <h2>UI</h2>
+      <table>
+        <tr><td><code>UI.draw_label(text, w, h, x, y)</code></td><td>Draws a label.</td></tr>
+        <tr><td><code>UI.draw_button(text, w, h, x, y)</code></td><td>Draws a button and returns true if clicked.</td></tr>
+        <tr><td><code>UI.draw_slider(text, value, w, h, x, y, min, max)</code></td><td>Draws a slider and returns new value.</td></tr>
+      </table>
+    </section>
+
+    <!-- Texture -->
+    <section>
+      <h2>Texture</h2>
+      <table>
+        <tr><td><code>Texture.add_texture(path, alias)</code></td><td>Loads a texture and assigns an alias.</td></tr>
+      </table>
+    </section>
+
+    <!-- Audio -->
     <section>
       <h2>Audio</h2>
-
       <h3>SoundManager</h3>
       <table>
         <tr><td><code>SoundManager.GetInstance()</code></td><td>Returns the SoundManager instance.</td></tr>
-        <tr><td><code>SoundManager:LoadSound(name, path)</code></td><td>Loads a sound file from the given path.</td></tr>
-        <tr><td><code>SoundManager:SetVolume(name, volume)</code></td><td>Sets the sound volume (0–128).</td></tr>
-        <tr><td><code>SoundManager:GetAudio(name)</code></td><td>Returns an AudioPlayer for the specified sound.</td></tr>
+        <tr><td><code>SoundManager:LoadSound(name, path)</code></td><td>Loads a sound from file.</td></tr>
+        <tr><td><code>SoundManager:SetVolume(name, volume)</code></td><td>Sets the volume for a sound.</td></tr>
+        <tr><td><code>SoundManager:GetAudio(name)</code></td><td>Returns an AudioPlayer instance.</td></tr>
       </table>
 
       <h3>AudioPlayer</h3>
       <table>
         <tr><td><code>AudioPlayer:new(entity, soundName, playOnAwake)</code></td><td>Creates a new AudioPlayer.</td></tr>
         <tr><td><code>AudioPlayer:Play()</code></td><td>Plays the assigned sound.</td></tr>
-        <tr><td><code>AudioPlayer:Pause()</code></td><td>Pauses the sound.</td></tr>
+        <tr><td><code>AudioPlayer:Pause()</code></td><td>Pauses playback.</td></tr>
         <tr><td><code>AudioPlayer:Resume()</code></td><td>Resumes playback.</td></tr>
-        <tr><td><code>AudioPlayer:End()</code></td><td>Stops playback completely.</td></tr>
+        <tr><td><code>AudioPlayer:End()</code></td><td>Stops playback.</td></tr>
         <tr><td><code>AudioPlayer:IsPlaying()</code></td><td>Returns true if the sound is playing.</td></tr>
-        <tr><td><code>AudioPlayer:ChangeVolume(volume)</code></td><td>Changes the volume level.</td></tr>
-        <tr><td><code>AudioPlayer:ToggleMute()</code></td><td>Toggles mute on or off.</td></tr>
-        <tr><td><code>AudioPlayer.volume</code></td><td>Integer volume property (0–128).</td></tr>
-        <tr><td><code>AudioPlayer.mute</code></td><td>Boolean mute state.</td></tr>
-        <tr><td><code>AudioPlayer.loop</code></td><td>Enables or disables looping.</td></tr>
-        <tr><td><code>AudioPlayer.playOnAwake</code></td><td>Automatically plays on creation if true.</td></tr>
+        <tr><td><code>AudioPlayer:ChangeVolume(volume)</code></td><td>Changes the sound’s volume.</td></tr>
+        <tr><td><code>AudioPlayer:ToggleMute()</code></td><td>Toggles mute on/off.</td></tr>
+        <tr><td><code>AudioPlayer.volume</code></td><td>Volume property (0–128).</td></tr>
+        <tr><td><code>AudioPlayer.mute</code></td><td>Boolean mute flag.</td></tr>
+        <tr><td><code>AudioPlayer.loop</code></td><td>Boolean to loop playback.</td></tr>
+        <tr><td><code>AudioPlayer.playOnAwake</code></td><td>Plays automatically on load if true.</td></tr>
       </table>
     </section>
+
   </main>
 
   <footer id="footer-easteregg">
     © 2025 Ionix Engine Lua API — Made by <strong>Peter & ChatGPT</strong>
   </footer>
 
-  <!-- The hidden horse GIF -->
- <!-- The hidden horse GIF -->
-<img src="Client/Assets/horse-fat.gif"
-     alt="hidden horse gif"
-     class="hidden-gif"
-     id="easter-egg-gif"/>
+  <img src="Client/Assets/horse-fat.gif"
+       alt="hidden horse gif"
+       class="hidden-gif"
+       id="easter-egg-gif"/>
+
   <audio id="easter-egg-audio" src="Client/Assets/test.wav" preload="auto"></audio>
 
   <script>
