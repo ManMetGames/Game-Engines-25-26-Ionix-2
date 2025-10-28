@@ -27,7 +27,7 @@ namespace IonixEngine
 
 	}
 
-	void UI::DrawRadioButton(int xpos, int ypos, char* text, static int e, int value, bool sameline)
+	/*void UI::DrawRadioButton(int xpos, int ypos, char* text, static int e, int value, bool sameline)
 	{
 		ImGui::SetCursorPos(ImVec2(xpos, ypos));
 		if (sameline == true)
@@ -35,7 +35,7 @@ namespace IonixEngine
 			ImGui::RadioButton(text, &e, value); ImGui::SameLine();
 		}
 		ImGui::RadioButton(text, &e, value);
-	}
+	}*/
 
 	float UI::ProgressBar(int xPos, int yPos, float xSize, float ySize, float maxValue, float& currentValue, float incrementAmount)
 	{
