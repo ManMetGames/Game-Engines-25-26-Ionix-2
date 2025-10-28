@@ -21,8 +21,8 @@ namespace IonixEngine
 
         // volume set for now
         SoundManager::GetInstance().SetVolume(m_SoundName, 0.8f);
-        //SoundManager::GetInstance().PlaySound(m_SoundName, 0);
-        SDL_Log("Test audio duration: %f", SoundManager::GetInstance().GetPlayTime("test"));
+        SoundManager::GetInstance().PlaySound(m_SoundName, -1);
+        //SDL_Log("Test audio duration: %f", SoundManager::GetInstance().GetPlayTime("test"));
     }
 
     void LayerSound::OnDetach()
