@@ -82,11 +82,15 @@ namespace IonixEngine {
 		std::vector<RenderCall> temp(sprites.size());
 		//int temp[(sprites.size())]; //Creates temporary array from queue
 
-		for (int i = 0; i < sprites.size(); i++)
+		for (int i = sprites.size(); i > 0; i--)
 		{
-			temp[i] = sprites.front();
-			cout << temp[i].z<< endl;
-			sprites.pop();
+			if (sprites.size() >= 0)
+			{
+				temp[i] = sprites.front();
+				//cout << temp[i].z << endl;
+				sprites.pop();
+				//cout << sprites.size() << endl;
+			}
 		}
 
 		MergeCaller(sprites, temp, 0, sprites.size() - 1);
@@ -117,13 +121,14 @@ namespace IonixEngine {
 
 	void QueueRenderer::ArrToQueueConverter(std::vector<RenderCall> temp, queue<RenderCall>& sprites)
 	{
-		ClearQueue(sprites);
-		//std::queue<int> orderedQueue;
-		for (int i = 0; i < temp.size(); i++)
+		//ClearQueue(sprites); --> already empty
+		cout << temp.size() << endl;
+		//std::queue<int> orderedQueue
+		for (int i = temp.size(); i > 0; i--)
 		{
 			sprites.push(temp[i]);
 			//cout << "NUM: " + temp[i].z << endl;
-			//cout << temp.size() << endl;
+			//cout << sprites.size() << endl;
 		}
 	}
 }
