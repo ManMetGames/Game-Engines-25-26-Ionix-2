@@ -68,7 +68,7 @@ namespace IonixEngine
     {
         m_Running = true;
 
-        Scripting::Get().CallHook("OnStart");
+        //Scripting::Get().CallHook("OnStart");
         SDL_Renderer* renderer = m_Window->GetSdlRenderer();
         
         FysicBody testBody = FysicBody();
