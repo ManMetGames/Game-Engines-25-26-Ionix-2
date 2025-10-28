@@ -2,6 +2,7 @@
 
 //#include <cmath>
 #include <vector>
+#include <stack>
 #include "Temp_Vec2.hpp"
 
 namespace IonixEngine
@@ -18,6 +19,8 @@ namespace IonixEngine
 		Vec2 position;
 		float rotation;
 
+		std::stack<Transform*> getPathToParent();
+
 	public:
 		Transform(Entity* parentEntity);
 		Vec2 GetGlobalPosition();
@@ -31,6 +34,7 @@ namespace IonixEngine
 
 		void SetLocalPosition(Vec2 transform);
 		void SetLocalRotation(float rot);
+
 
 		void SetParent(Transform* parent, bool maintainLocation = true);
 		void RemoveParent(bool maintainLocation = true);

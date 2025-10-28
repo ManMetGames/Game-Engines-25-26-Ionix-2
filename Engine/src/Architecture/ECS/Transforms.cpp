@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <cmath>
+#include <stack>
 
 #include "SDL.h"
 #include "Transforms.h"
@@ -8,8 +9,21 @@
 
 namespace IonixEngine
 {
+    //private methods
+    std::stack<Transform*> Transform::getPathToParent()
+    {
+        Transform* parent = parentTransform;
+        std::stack<Transform*> pathToParent;
+        while (parent)
+        {
+            pathToParent.push(parent);
+            parent = parent->parentTransform;
+        }
+        return pathToParent;
+    }
+
+    //public methods
     Transform::Transform(Entity* parentEntity) :
-        //position(Vec2{ 0.0f,0.0f }),
         rotation(0.0f),
         parentTransform(nullptr),
         entity(parentEntity)
@@ -20,73 +34,59 @@ namespace IonixEngine
 
     Vec2 Transform::GetGlobalPosition()
     {
-        Vec2 position = { 0.0f,0.0f };
-        Transform* parent = parentTransform;
-        if (parent)
+        if (!parentTransform)
         {
-            SDL_Log("[Transforms] parent found");
+            return position;
+        }
 
+        std::stack<Transform*> pathToParent = getPathToParent();
+        Vec2 globalPos = { 0.0f,0.0f };
+        float globalRot = 0.0f;
 
-            while (parent)
-            {
-                Vec2 parentPos = parent->position;
-                float parentRot = parent->rotation;
+        while (!pathToParent.empty())
+        {
+            Transform* currentParent = pathToParent.top();
 
-                SDL_Log("parentPos = %f, %f", parentPos.x, parentPos.y);
-                SDL_Log("parentRot = %f", parentRot);
+            globalRot += currentParent->rotation;
 
-                parentPos = Vec2Rotate(parentPos, parentRot);
+            Vec2 parentLocalPos = Vec2Rotate(currentParent->position, globalRot);
 
-                position.x += parentPos.x;
-                position.y += parentPos.y;
-                parent = parent->parentTransform;
-                if (parent)
-                {
-                    SDL_Log("[Transforms] Higher parent found, continuing loop...");
-                }
-                else
-                {
-                    SDL_Log("[Transforms] No higher parent found, breaking loop");
-                    break;
-                }
-            }
+            globalPos.x += parentLocalPos.x;
+            globalPos.y += parentLocalPos.y;
+
+            pathToParent.pop();
+        }
+
+        if (parentTransform)
+        {
+            Vec2 displacedLocal = Vec2Rotate(position, globalRot+rotation);
+            globalPos.x += displacedLocal.x;
+            globalPos.y += displacedLocal.y;
         }
         else
         {
-            SDL_Log("[Transforms] parent invalid");
+            globalPos.x += position.x;
+            globalPos.y += position.y;
         }
 
-        Vec2 local = this->position;
-        position.x += local.x;
-        position.y += local.y;
-
-        SDL_Log("[Transforms] Returning Global Pos: %f, %f", position.x, position.y);
-        return position;
-
-
+        SDL_Log("[Transforms] Returning Global Pos: %f, %f", globalPos.x, globalPos.y);
+        return globalPos;
     }
         
 
 
     float Transform::GetGlobalRotation()
     {
-        Transform* parent = parentTransform;
+        std::stack<Transform*> pathToParent = getPathToParent();
         float rot = 0.0f;
-        while (parent)
+        while (!pathToParent.empty())
         {
-            rot += parent->rotation;
-            parent = parent->parentTransform;
+            Transform* currentParent = pathToParent.top();
+            rot += currentParent->rotation;
+            pathToParent.pop();
         }
         rot += rotation;
         return rot;
-        /*if (parentTransform != nullptr)
-        {
-            return parentTransform->GetGlobalRotation() + rotation;
-        }
-        else
-        {
-            return rotation;
-        }*/
     }
 
     void Transform::SetGlobalPosition(Vec2 newPosition)
@@ -102,12 +102,14 @@ namespace IonixEngine
 
     void Transform::SetGlobalRotation(float rot)
     {
+        std::stack<Transform*> pathToParent = getPathToParent();
         float accumulator = 0.0f;
-        Transform* parent = parentTransform;
-        while (parent)
+        while (!pathToParent.empty())
         {
-            accumulator += parent->rotation;
-            parent = parent->parentTransform;
+            Transform* currentParent = pathToParent.top();
+            accumulator += currentParent->rotation;
+            pathToParent.pop();
+
         }
         rotation = rot - accumulator;
         rotation = fmod(rotation,360.0f);

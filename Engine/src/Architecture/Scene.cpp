@@ -5,7 +5,6 @@
 namespace IonixEngine {
     void Scene::OnEnter() {
         SDL_Log("[Scene] Started Scene");
-        //m_Entities.reserve(50);
         Reserve(50);
         renderData.renderer = Application::Get().GetWindow().GetSdlRenderer();
 
@@ -13,44 +12,40 @@ namespace IonixEngine {
         Entity* firstEntity = GetEntityFromID(first);
         if (!firstEntity)
         {
-            SDL_Log("[DEBUG TEST] First entity failed, returning...");
             return;
         }
-        firstEntity->transform.SetLocalPosition(Vec2 { 300, 300 });
+        firstEntity->transform.SetLocalPosition(Vec2 { 100, 100 });
         firstEntity->AddComponent(new SpriteRenderer(firstEntity));
-        firstEntity->AddComponent(new EntityMover(firstEntity, 10));
+        firstEntity->AddComponent(new EntityMover(firstEntity, 60));
 
         EntityID second = CreateEntity();
         Entity* secondEntity = GetEntityFromID(second);
         if (!secondEntity)
         {
-            SDL_Log("[DEBUG TEST] Second entity failed, returning...");
             return;
         }
-        secondEntity->AddComponent(new SpriteRenderer(secondEntity));
-        secondEntity->AddComponent(new EntityMover(secondEntity, -10));
-        secondEntity->transform.SetLocalPosition(Vec2{ 150, 0 });
+        secondEntity->transform.SetLocalPosition(Vec2{ 0, 100 });
         secondEntity->transform.SetParent(&firstEntity->transform, false);
+        secondEntity->AddComponent(new SpriteRenderer(secondEntity));
+        secondEntity->AddComponent(new EntityMover(secondEntity, -60));
+
 
         EntityID third = CreateEntity();
         Entity* thirdEntity = GetEntityFromID(third);
         if (!thirdEntity)
         {
-            SDL_Log("[DEBUG TEST] Third entity failed, returning...");
             return;
         }
-        thirdEntity->AddComponent(new SpriteRenderer(thirdEntity));
-        thirdEntity->transform.SetLocalPosition(Vec2{ -150, 0 });
+        thirdEntity->transform.SetLocalPosition(Vec2{ 0, 100 });
         thirdEntity->transform.SetParent(&secondEntity->transform, false);
+        thirdEntity->AddComponent(new SpriteRenderer(thirdEntity));
+
     }
 
     void Scene::OnUpdate(float dt) {
-        SDL_Log("[DEBUG TEST] Scene OnUpdate running...");
         for (size_t i = 0; i < m_Entities.size(); i++) {
             Entity* entity = &m_Entities[i];
-            SDL_Log("[DEBUG TEST] Updating entity %i",i);
             entity->Update(dt);
-            SDL_Log("[DEBUG TEST] Rendering entity %i", i);
             entity->Render(&renderData);
         }
     }
