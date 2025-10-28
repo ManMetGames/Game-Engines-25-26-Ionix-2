@@ -102,8 +102,7 @@ namespace IonixEngine
          uiManager.RenderUI();
         
          // Rendering
-         ImGui::Render();
-         ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), Application::Get().GetWindow().m_Renderer);
+         
 
          // TODO - Will be done by graphics unit eventually. Here for testing for the time being.
 

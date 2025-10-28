@@ -270,7 +270,7 @@ void IonixEngine::UIManager::RenderElement(UIElement& element)
 void IonixEngine::UIManager::RenderUI()
 {
 	;
-	for (auto& element : elements)
+	for (auto& element : groupStack.front()->children)
 	{
 		RenderElement(element);
 	}
