@@ -18,5 +18,6 @@ namespace IonixEngine
         virtual void OnEvent(IonixEvent& e) override;
         UIManager GetUIManager() { return uiManager; }
         UI* m_UI;
+        UIManager* m_UIManager;
     };
 }

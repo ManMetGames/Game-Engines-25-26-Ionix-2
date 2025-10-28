@@ -101,6 +101,11 @@ namespace IonixEngine
                // std::cout << "Spacebar is being held down \n";
             }
 
+
+            if (layerUI->m_UI->getCheckboxState(0) == true)
+            {
+                std::cout << "Checkbox is toggled.";
+            }
             printf("%4.2f %4.2f\n", testBody.GetPosition().x, testBody.GetPosition().y);
             
 

@@ -14,7 +14,7 @@ namespace IonixEngine
 
 		SDL_QueryTexture(spriteSheet, NULL, NULL, &size.x, &size.y); //used to give spritesheets x and y values
 
-		frames = GetFrameCount();
+		//frames = GetFrameCount();
 		currentFrame = 0;
 		reverseOnEnd = reverse;
 		playReverse = false;
@@ -77,10 +77,11 @@ namespace IonixEngine
 			}
 		}
 	}
-
-	int SpriteAnimation::GetFrameCount() //for now, assume the spritesheet is 1 row
+	
+	/*float SpriteAnimation::GetFrameCount() //for now, assume the spritesheet is 1 row
 	{
-		int x = size.x / size.y;
+		float x = size.x / size.y;
 		return x;		
 	};
+	*/
 }

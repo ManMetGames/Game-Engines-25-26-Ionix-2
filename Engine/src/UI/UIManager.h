@@ -48,11 +48,18 @@ namespace IonixEngine
 	{
 	private: 
 		std::string currentGroupName; 
-		std::vector<UIElement> elements;
+
 		std::vector<UIElement*> groupStack; 
 
 		void RenderElement(UIElement& element);
 	public:
+
+		std::vector<UIElement> GetElements()
+		{
+			return elements;
+		}
+
+		std::vector<UIElement> elements;
 		void UIManager::BeginGroup(const std::string& groupName);
 		
 		void UIManager::EndGroup();
@@ -68,7 +75,7 @@ namespace IonixEngine
 		
 		void AddButton(int x, int y, float xSize, float ySize, const char* text, std::function<void()> onClick);
 		
-		void AddCheckbox(int x, int y, float xSize, float ySize, const char* text, bool* checked);
+		void AddCheckbox(int x, int y, float xSize, float ySize, const char* text);
 		
 		void AddSliderFloat(int x, int y, float xSize, float ySize, const char* text, float* value, float min, float max);
 		
