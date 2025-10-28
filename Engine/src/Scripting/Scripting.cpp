@@ -39,6 +39,7 @@ namespace IonixEngine {
 		RegisterAudioBindings();
 		RegisterGraphicsBindings();
 		RegisterEntityBindings();
+		RegisterUIBindings();
 	}
 
 	void Scripting::ExecuteScript(const std::string& scriptName)
@@ -329,15 +330,15 @@ namespace IonixEngine {
 
 	void Scripting::RegisterUIBindings()
 	{
-		auto drawLabel = [this](const char* text, int xsize, int ysize, int xpos, int ypos) {
+		auto drawLabel = [](const char* text, int xsize, int ysize, int xpos, int ypos) {
 			Application::Get().layerUI->m_UI->DrawLabel((char*)text, xsize, ysize, xpos, ypos);
 			};
 
-		auto drawButton = [this](const char* text, int xsize, int ysize, int xpos, int ypos) -> bool {
+		auto drawButton = [](const char* text, int xsize, int ysize, int xpos, int ypos) -> bool {
 			return Application::Get().layerUI->m_UI->DrawButton((char*)text, xsize, ysize, xpos, ypos);
 			};
 
-		auto drawSlider = [this](const char* text, float i, int xsize, int ysize, int xpos, int ypos, int minval, int maxval) -> float {
+		auto drawSlider = [](const char* text, float i, int xsize, int ysize, int xpos, int ypos, int minval, int maxval) -> float {
 			return Application::Get().layerUI->m_UI->DrawSlider((char*)text, i, xsize, ysize, xpos, ypos, minval, maxval);
 			};
 
