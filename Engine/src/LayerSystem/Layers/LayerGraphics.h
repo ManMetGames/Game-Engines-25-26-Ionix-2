@@ -1,7 +1,6 @@
 #pragma once
 #include "LayerSystem/Layer.h"
 #include "Graphics/SpriteClass.h"
-#include "Graphics/SpriteAnimation.h"
 #include "Graphics/QueueRenderer.h"
 
 namespace IonixEngine
