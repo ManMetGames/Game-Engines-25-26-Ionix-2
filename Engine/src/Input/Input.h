@@ -85,19 +85,20 @@ namespace IonixEngine
 
 
     private:
-        // Keyboard
+        // Keyboard:
         std::unordered_set<SDL_Scancode> currentKeys;
         std::unordered_set<SDL_Scancode> previousKeys;
-        // Controller
+
+        // Controller:
+            // Buttons
         std::unordered_set<Uint8> currentButton;
         std::unordered_set<Uint8> previousButton;
 
+            // Axis
         float leftStickVertical;
         float leftStickHorizontal;
-
         float rightStickVertical;
         float rightStickHorizontal;
-
         float leftTrigger;
         float rightTrigger;
        

@@ -95,17 +95,112 @@ namespace IonixEngine
             }
 
             // Controller
-            if (layerInput->m_Input->isButtonDown(SDL_CONTROLLER_BUTTON_TOUCHPAD))
+                // Buttons
+                    // A Button
+            if (layerInput->m_Input->isButtonDown(SDL_CONTROLLER_BUTTON_A))
             {
                 std::cout << "Button A on the controller was pressed once \n";
             }
-            else if (layerInput->m_Input->isButtonUp(SDL_CONTROLLER_BUTTON_TOUCHPAD))
+            else if (layerInput->m_Input->isButtonUp(SDL_CONTROLLER_BUTTON_A))
             {
                 std::cout << "Button A on the controller has been lifted \n";
             }
-            else if (layerInput->m_Input->isButtonHeld(SDL_CONTROLLER_BUTTON_TOUCHPAD))
+            else if (layerInput->m_Input->isButtonHeld(SDL_CONTROLLER_BUTTON_A))
             {
                 std::cout << "Button A on the controller is being held down \n";
+            }
+                    // B Button
+            if (layerInput->m_Input->isButtonDown(SDL_CONTROLLER_BUTTON_B))
+            {
+                std::cout << "Button B on the controller was pressed once \n";
+            }
+            else if (layerInput->m_Input->isButtonUp(SDL_CONTROLLER_BUTTON_B))
+            {
+                std::cout << "Button B on the controller has been lifted \n";
+            }
+            else if (layerInput->m_Input->isButtonHeld(SDL_CONTROLLER_BUTTON_B))
+            {
+                std::cout << "Button B on the controller is being held down \n";
+            }
+                    // X Button
+            if (layerInput->m_Input->isButtonDown(SDL_CONTROLLER_BUTTON_X))
+            {
+                std::cout << "Button X on the controller was pressed once \n";
+            }
+            else if (layerInput->m_Input->isButtonUp(SDL_CONTROLLER_BUTTON_X))
+            {
+                std::cout << "Button X on the controller has been lifted \n";
+            }
+            else if (layerInput->m_Input->isButtonHeld(SDL_CONTROLLER_BUTTON_X))
+            {
+                std::cout << "Button X on the controller is being held down \n";
+            }
+                    // Y Button
+            if (layerInput->m_Input->isButtonDown(SDL_CONTROLLER_BUTTON_Y))
+            {
+                std::cout << "Button Y on the controller was pressed once \n";
+            }
+            else if (layerInput->m_Input->isButtonUp(SDL_CONTROLLER_BUTTON_Y))
+            {
+                std::cout << "Button Y on the controller has been lifted \n";
+            }
+            else if (layerInput->m_Input->isButtonHeld(SDL_CONTROLLER_BUTTON_Y))
+            {
+                std::cout << "Button Y on the controller is being held down \n";
+            }
+
+                // D-Pad
+                    // Up
+            if (layerInput->m_Input->isButtonDown(SDL_CONTROLLER_BUTTON_DPAD_UP))
+            {
+                std::cout << "Up on the controller D-Pad was pressed once \n";
+            }
+            else if (layerInput->m_Input->isButtonUp(SDL_CONTROLLER_BUTTON_DPAD_UP))
+            {
+                std::cout << "Up on the controller D-Pad has been lifted \n";
+            }
+            else if (layerInput->m_Input->isButtonHeld(SDL_CONTROLLER_BUTTON_DPAD_UP))
+            {
+                std::cout << "Up on the controller D-Pad is being held down \n";
+            }
+                    // Down
+            if (layerInput->m_Input->isButtonDown(SDL_CONTROLLER_BUTTON_DPAD_DOWN))
+            {
+                std::cout << "Down on the controller D-Pad was pressed once \n";
+            }
+            else if (layerInput->m_Input->isButtonUp(SDL_CONTROLLER_BUTTON_DPAD_DOWN))
+            {
+                std::cout << "Down on the controller D-Pad has been lifted \n";
+            }
+            else if (layerInput->m_Input->isButtonHeld(SDL_CONTROLLER_BUTTON_DPAD_DOWN))
+            {
+                std::cout << "Down on the controller D-Pad is being held down \n";
+            }
+                    // Left
+            if (layerInput->m_Input->isButtonDown(SDL_CONTROLLER_BUTTON_DPAD_LEFT))
+            {
+                std::cout << "Left on the controller D-Pad was pressed once \n";
+            }
+            else if (layerInput->m_Input->isButtonUp(SDL_CONTROLLER_BUTTON_DPAD_LEFT))
+            {
+                std::cout << "Left on the controller D-Pad has been lifted \n";
+            }
+            else if (layerInput->m_Input->isButtonHeld(SDL_CONTROLLER_BUTTON_DPAD_LEFT))
+            {
+                std::cout << "Left on the controller D-Pad is being held down \n";
+            }
+                    // Right
+            if (layerInput->m_Input->isButtonDown(SDL_CONTROLLER_BUTTON_DPAD_RIGHT))
+            {
+                std::cout << "Right on the controller D-Pad was pressed once \n";
+            }
+            else if (layerInput->m_Input->isButtonUp(SDL_CONTROLLER_BUTTON_DPAD_RIGHT))
+            {
+                std::cout << "Right on the controller D-Pad has been lifted \n";
+            }
+            else if (layerInput->m_Input->isButtonHeld(SDL_CONTROLLER_BUTTON_DPAD_RIGHT))
+            {
+                std::cout << "Right on the controller D-Pad is being held down \n";
             }
 
                 // Touchpad
@@ -120,6 +215,34 @@ namespace IonixEngine
             else if (layerInput->m_Input->isButtonHeld(SDL_CONTROLLER_BUTTON_TOUCHPAD))
             {
                 std::cout << "Touchpad is being held down \n";
+            }
+
+               // Bumpers
+                    // Left
+            if (layerInput->m_Input->isButtonDown(SDL_CONTROLLER_BUTTON_LEFTSHOULDER))
+            {
+                std::cout << "the left bumper was pressed once \n";
+            }
+            else if (layerInput->m_Input->isButtonUp(SDL_CONTROLLER_BUTTON_LEFTSHOULDER))
+            {
+                std::cout << "the left bumper has been lifted \n";
+            }
+            else if (layerInput->m_Input->isButtonHeld(SDL_CONTROLLER_BUTTON_LEFTSHOULDER))
+            {
+                std::cout << "the left bumper is being held down \n";
+            }
+                    // Right
+            if (layerInput->m_Input->isButtonDown(SDL_CONTROLLER_BUTTON_RIGHTSHOULDER))
+            {
+                std::cout << "the right bumper was pressed once \n";
+            }
+            else if (layerInput->m_Input->isButtonUp(SDL_CONTROLLER_BUTTON_RIGHTSHOULDER))
+            {
+                std::cout << "the right bumper has been lifted \n";
+            }
+            else if (layerInput->m_Input->isButtonHeld(SDL_CONTROLLER_BUTTON_RIGHTSHOULDER))
+            {
+                std::cout << "the right bumper is being held down \n";
             }
 
             layerInput->m_Input->CopyCodesEndFrame();
