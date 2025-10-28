@@ -78,17 +78,6 @@ namespace IonixEngine
          ImGui_ImplSDLRenderer2_NewFrame();
          ImGui_ImplSDL2_NewFrame();
          ImGui::NewFrame();
-
-         /*ImGui::Begin("Health Bar Example");
-         * 
-         m_UI->ProgressBar(10, 10, 300.0f, 50.0f, maxValue, currentValue, decreasePerFrame);
-
-         Progress bar local test (need local variable for local testing, actual implementation needs to be done by scripting team)
-
-         ImGui::End();
-         */
-
-         //Shows the big ImGui demo window
          ImGui::ShowDemoWindow();
         
          // Rendering
