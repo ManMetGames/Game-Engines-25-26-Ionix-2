@@ -166,6 +166,9 @@ namespace IonixEngine {
 		auto log = [](float x) -> float {
 			return Maf::Log(x);
 			};
+		auto log10 = [](float value) -> float {
+			return Maf::Log10(value);
+			};
 		auto logCustom = [](float x, float base) -> float {
 			return Maf::Log(x, base);
 			};
@@ -254,6 +257,14 @@ namespace IonixEngine {
 			return Maf::mafPI();
 			};
 
+		auto rad2deg = [](float radians) -> float {
+			return Maf::Rad2Deg(radians);
+			};
+
+		auto deg2rad = [](float degrees) -> float {
+			return Maf::Deg2Rad(degrees);
+			};
+
 		m_LuaState["Mafs"] = m_LuaState.create_table_with(
 			"clamp", clamp,
 			"abs", abs,
@@ -261,6 +272,7 @@ namespace IonixEngine {
 			"max", max,
 			"round", round,
 			"log", log,
+			"log_10", log10,
 			"log_custom", logCustom,
 			"square_root", sqrt,
 			"lerp", lerp,
@@ -278,7 +290,9 @@ namespace IonixEngine {
 			"sin", sin,
 			"cos", cos,
 			"tan", tan,
-			"pi", pi
+			"pi", pi,
+			"rad_2_deg", rad2deg,
+			"deg_2_rad", deg2rad
 		);
 	}
 	void Scripting::RegisterAudioBindings()
