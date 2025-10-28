@@ -1,4 +1,3 @@
-
 local modules = {}
 
 -- Loads a Lua script and stores it as a named module
@@ -22,6 +21,7 @@ function OnStart()
     end
 end
 
+-- Called each frame
 function OnUpdate()
     for name, module in pairs(modules) do
         if module.OnUpdate then

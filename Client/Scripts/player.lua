@@ -2,8 +2,8 @@ local player = {}
 local keyCode = SDL_SCANCODE_SPACE
 
 function player:OnStart()
-end
 
+end
 
 function player:OnUpdate()
 	local enemy = GetModule("enemy")
@@ -21,4 +21,5 @@ function player:OnUpdate()
 
 
 end
+
 return player

@@ -1,5 +1,3 @@
-
-
 local AudioSystem = {}
 
 local testSound = nil

@@ -4,7 +4,8 @@ function enemy:OnStart()
 	
 end
 
-
 function enemy:OnUpdate()
+
 end
+
 return enemy
