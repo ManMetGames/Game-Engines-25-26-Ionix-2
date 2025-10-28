@@ -90,8 +90,8 @@ float SoundManager::GetPlayTime(const std::string& alias)
     Mix_Chunk* audio = GetAudio(alias);
     if (audio) 
     {
-        std::cout << ("Here") << std::endl;
         if (!Mix_QuerySpec(&freq, &format, &channels)) { return -1.0f; }
+        std::cout << ("Here") << std::endl;
         return (float)audio->alen / (float)(freq * channels * ((format & 0xFF) / 8));
     }
     else {
