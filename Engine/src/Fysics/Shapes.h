@@ -117,7 +117,10 @@ namespace IonixEngine
 
                 fixtureDef.shape = &shape;
                 fixtureDef.isSensor = isTrigger;
+
+                //body->DestroyFixture(fixture);
                 fixture = body->CreateFixture(&fixtureDef);
+
                 
             }
 
