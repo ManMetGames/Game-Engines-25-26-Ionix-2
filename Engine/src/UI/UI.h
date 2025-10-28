@@ -16,7 +16,7 @@ namespace IonixEngine
         std::unordered_map<int, bool> checkboxMap;
         bool& getCheckboxState(int index) { return checkboxMap[index]; }
 
-        float DrawSlider(char* text, float i, int xsize, int ysize, int xpos, int ypos, int minval, int maxval);
+        
 
     };
 }
