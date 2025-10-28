@@ -1,5 +1,7 @@
 #pragma once
 #include "sol/sol.hpp"
+#include "Architecture/Scene.h"
+#include "Scripting/Audio/AudioScripting.h"
 
 namespace IonixEngine
 {
@@ -27,8 +29,17 @@ namespace IonixEngine
         static Scripting* s_Instance;
         sol::state m_LuaState;
 
+		void RegisterAudioBindings();
 
         void RegisterWindowBindings();
+
+        void RegisterInputBindings();
+
+        void RegisterMafsBindings();
+
+        void RegisterGraphicsBindings();
+
+        void RegisterEntityBindings();
 
     };
 }

@@ -25,4 +25,15 @@ namespace IonixEngine {
 		return i;
 
 	}
+
+	/*void UI::DrawRadioButton(int xpos, int ypos, char* text, static int e, int value, bool sameline)
+	{
+		ImGui::SetCursorPos(ImVec2(xpos, ypos));
+		if (sameline == true)
+		{
+			ImGui::RadioButton(text, &e, value); ImGui::SameLine();
+		}
+		ImGui::RadioButton(text, &e, value);
+	}*/
+
 }

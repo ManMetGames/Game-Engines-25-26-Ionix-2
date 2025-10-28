@@ -11,6 +11,8 @@ namespace IonixEngine {
         //m_Entities.reserve(50);
         Reserve(50);
         renderData.renderer = Application::Get().GetWindow().GetSdlRenderer();
+        renderData.queue = Application::Get().layerGraphics->GetQueue();
+
         SDL_Log("[Scene] Current scene %p == %p", (void*) this, (void*) LayerScene::CurrentScene());
         EntityID first = CreateEntity();
         Entity* firstEntity = GetEntityFromID(first);
