@@ -327,6 +327,26 @@ namespace IonixEngine {
 		);
 	}
 
+	void Scripting::RegisterUIBindings()
+	{
+		auto drawLabel = [this](const char* text, int xsize, int ysize, int xpos, int ypos) {
+			ui.DrawLabel((char*)text, xsize, ysize, xpos, ypos);
+			};
+
+		auto drawButton = [this](const char* text, int xsize, int ysize, int xpos, int ypos) -> bool {
+			return ui.DrawButton((char*)text, xsize, ysize, xpos, ypos);
+			};
+
+		auto drawSlider = [this](const char* text, float i, int xsize, int ysize, int xpos, int ypos, int minval, int maxval) -> float {
+			return ui.DrawSlider((char*)text, i, xsize, ysize, xpos, ypos, minval, maxval);
+			};
+
+		m_LuaState["UI"] = m_LuaState.create_table_with(
+			"draw_label", drawLabel,
+			"draw_button", drawButton,
+			"draw_slider", drawSlider
+		);
+
 	
 	
 	// print (Window.get_title())
