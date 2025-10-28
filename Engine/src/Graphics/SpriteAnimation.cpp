@@ -14,7 +14,7 @@ namespace IonixEngine
 
 		SDL_QueryTexture(spriteSheet, NULL, NULL, &size.x, &size.y); //used to give spritesheets x and y values
 
-		frames = GetFrameCount();
+		//frames = GetFrameCount();
 		currentFrame = 0;
 		reverseOnEnd = reverse;
 		playReverse = false;
