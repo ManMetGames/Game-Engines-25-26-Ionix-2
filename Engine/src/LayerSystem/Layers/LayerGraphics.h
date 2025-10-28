@@ -16,7 +16,6 @@ namespace IonixEngine
 
         //this sprite is just for testing purposes while we work on the sprite component xoxo
         //Sprite sprite1 = Sprite("./Assets/ball sprite sheet.png");
-        //SpriteAnimation ball = SpriteAnimation("ball sprite sheet.png", false);
         QueueRenderer queue;
 
     public:
