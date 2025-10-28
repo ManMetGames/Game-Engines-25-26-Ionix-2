@@ -28,6 +28,5 @@ namespace IonixEngine
 
 		void drawFrame(int x, int y, int w, int h);
 		void setRect(const int x, const int y, const int w, const int h);
-		int GetFrameCount();
 	};
 }

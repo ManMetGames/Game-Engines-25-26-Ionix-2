@@ -13,8 +13,6 @@ namespace IonixEngine
 		spriteSheet = IMG_LoadTexture(Application::Get().GetWindow().GetSdlRenderer(), fileName);
 
 		SDL_QueryTexture(spriteSheet, NULL, NULL, &size.x, &size.y); //used to give spritesheets x and y values
-
-		frames = GetFrameCount();
 		currentFrame = 0;
 		reverseOnEnd = reverse;
 		playReverse = false;
@@ -77,10 +75,4 @@ namespace IonixEngine
 			}
 		}
 	}
-
-	int SpriteAnimation::GetFrameCount() //for now, assume the spritesheet is 1 row
-	{
-		int x = size.x / size.y;
-		return x;		
-	};
 }

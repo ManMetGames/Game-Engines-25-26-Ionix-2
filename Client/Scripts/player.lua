@@ -1,8 +1,10 @@
 local player = {}
 local keyCode = SDL_SCANCODE_SPACE
+local myNumber = 1.5
 
 function player:OnStart()
-
+ myNumber = Mafs.log10(myNumber)
+ print(myNumber)
 end
 
 function player:OnUpdate()

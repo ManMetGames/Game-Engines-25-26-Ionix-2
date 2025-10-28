@@ -191,7 +191,7 @@ namespace Maf
 	{
 		return degrees * (static_cast<float>(M_PI) / 180.0f);
 	}
-
+	//work with
 	inline float Rad2Deg(float radians)
 	{
 		return radians * (180.0f / static_cast<float>(M_PI));

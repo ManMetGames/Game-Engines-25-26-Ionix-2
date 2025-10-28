@@ -34,7 +34,7 @@ namespace IonixEngine {
 	{
 		RegisterWindowBindings();
 		RegisterInputBindings();
-		//RegisterMafsFunction();
+		RegisterMafsBindings();
 		RegisterAudioBindings();
 		RegisterGraphicsBindings();
 
@@ -164,6 +164,9 @@ namespace IonixEngine {
 		auto log = [](float x) -> float {
 			return Maf::Log(x);
 		};
+		auto log10 = [](float value) -> float {
+			return Maf::Log10(value);
+			};
 		auto logCustom = [](float x, float base) -> float {
 			return Maf::Log(x, base);
 		};
@@ -248,6 +251,14 @@ namespace IonixEngine {
 			return Maf::mafTan(x);
 			};
 
+		auto rad2deg = [](float radians) -> float {
+			return Maf::Rad2Deg(radians);
+			};
+
+		auto deg2rad = [](float degrees) -> float {
+			return Maf::Deg2Rad(degrees);
+			};
+
 		auto pi = []() -> double {
 			return Maf::mafPI();
 			};
@@ -259,6 +270,7 @@ namespace IonixEngine {
 			"max", max,
 			"round", round,
 			"log", log,
+			"log10", log10,
 			"log_custom", logCustom,
 			"square_root", sqrt,
 			"lerp", lerp,
@@ -276,12 +288,14 @@ namespace IonixEngine {
 			"sin", sin,
 			"cos", cos,
 			"tan", tan,
-			"pi", pi
+			"pi", pi,
+			"rad_to_deg", rad2deg,
+			"deg_to_rad", deg2rad
 		);
 	}
 	void Scripting::RegisterAudioBindings()
 	{
-		AudioScripting::Get().Init(m_LuaState);
+		//AudioScripting::Get().Init(m_LuaState);
 
 	
 	}

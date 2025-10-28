@@ -71,7 +71,7 @@ namespace IonixEngine
         //Scripting::Get().CallHook("OnStart");
         SDL_Renderer* renderer = m_Window->GetSdlRenderer();
         
-        
+        Scripting::Get().CallHook("OnStart");
 
         while (m_Running)
         {
