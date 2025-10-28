@@ -15,8 +15,8 @@ namespace IonixEngine
 		Transform* parentTransform;
 		Entity* entity;
 
-		Vec2 position;
-		float rotation;
+		Vec2 localPosition;
+		float localRotation;
 
 	public:
 		Transform(Entity* parentEntity);

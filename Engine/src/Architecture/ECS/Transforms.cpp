@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <cmath>
+#include <stack>
 
 #include "SDL.h"
 #include "Transforms.h"
@@ -10,11 +11,11 @@ namespace IonixEngine
 {
     Transform::Transform(Entity* parentEntity) :
         //position(Vec2{ 0.0f,0.0f }),
-        rotation(0.0f),
+        localRotation(0.0f),
         parentTransform(nullptr),
         entity(parentEntity)
     {
-        position = Vec2{ 0.0f,0.0f };
+        localPosition = Vec2{ 0.0f,0.0f };
         childTransforms = std::vector<Transform*>();
     }
 
@@ -22,41 +23,31 @@ namespace IonixEngine
     {
         Vec2 position = { 0.0f,0.0f };
         Transform* parent = parentTransform;
-        if (parent)
-        {
-            SDL_Log("[Transforms] parent found");
 
-
-            while (parent)
-            {
-                Vec2 parentPos = parent->position;
-                float parentRot = parent->rotation;
-
-                SDL_Log("parentPos = %f, %f", parentPos.x, parentPos.y);
-                SDL_Log("parentRot = %f", parentRot);
-
-                parentPos = Vec2Rotate(parentPos, parentRot);
-
-                position.x += parentPos.x;
-                position.y += parentPos.y;
-                parent = parent->parentTransform;
-                if (parent)
-                {
-                    SDL_Log("[Transforms] Higher parent found, continuing loop...");
-                }
-                else
-                {
-                    SDL_Log("[Transforms] No higher parent found, breaking loop");
-                    break;
-                }
-            }
-        }
-        else
-        {
-            SDL_Log("[Transforms] parent invalid");
+        std::stack<Transform*> pathToParent;
+        while (parent) {
+            pathToParent.push(parent);
+            parent = parent->parentTransform;
         }
 
-        Vec2 local = this->position;
+        while (!pathToParent.empty())
+        {
+            Transform* t = pathToParent.top();
+            Vec2 parentPos = t->localPosition;
+            float parentRot = t->localRotation;
+
+            SDL_Log("parentPos = %f, %f", parentPos.x, parentPos.y);
+            SDL_Log("parentRot = %f", parentRot);
+
+            parentPos = Vec2Rotate(parentPos, parentRot);
+
+            position.x += parentPos.x;
+            position.y += parentPos.y;
+
+            pathToParent.pop();
+        }
+
+        Vec2 local = Vec2Rotate(localPosition, 0.0f);
         position.x += local.x;
         position.y += local.y;
 
@@ -72,12 +63,18 @@ namespace IonixEngine
     {
         Transform* parent = parentTransform;
         float rot = 0.0f;
+        std::stack<Transform*> pathToParent;
         while (parent)
         {
-            rot += parent->rotation;
+            pathToParent.push(parent);
             parent = parent->parentTransform;
         }
-        rot += rotation;
+
+        while (!pathToParent.empty()) {
+            rot += pathToParent.top()->localRotation;
+            pathToParent.pop();
+        }
+        rot += localRotation;
         return rot;
         /*if (parentTransform != nullptr)
         {
@@ -97,7 +94,7 @@ namespace IonixEngine
         Vec2 difference = { newPosition.x - parentPos.x, newPosition.y - parentPos.y };
         difference = Vec2Rotate(difference, -parentRot);
 
-        position = difference;
+        localPosition = difference;
     }
 
     void Transform::SetGlobalRotation(float rot)
@@ -106,32 +103,32 @@ namespace IonixEngine
         Transform* parent = parentTransform;
         while (parent)
         {
-            accumulator += parent->rotation;
+            accumulator += parent->localRotation;
             parent = parent->parentTransform;
         }
-        rotation = rot - accumulator;
-        rotation = fmod(rotation,360.0f);
+        localRotation = rot - accumulator;
+        localRotation = fmod(localRotation,360.0f);
     }
 
     Vec2 Transform::GetLocalPosition()
     {
-        return position;
+        return localPosition;
     }
 
     float Transform::GetLocalRotation()
     {
-        return rotation;
+        return localRotation;
     }
 
     void Transform::SetLocalPosition(Vec2 localPosition)
     {
-        position = localPosition;
+        localPosition = localPosition;
     }
 
     void Transform::SetLocalRotation(float localRotation)
     {
-        rotation = localRotation;
-        rotation = fmod(rotation, 360.0f);
+        localRotation = localRotation;
+        localRotation = fmod(localRotation, 360.0f);
     }
 
     //maintainLocation = true will attempt to keep the transforms in the same place
@@ -168,8 +165,8 @@ namespace IonixEngine
 
         if (maintainLocation)
         {
-            position = globalPos;
-            rotation = globalRot;
+            localPosition = globalPos;
+            localRotation = globalRot;
         }
     }
 

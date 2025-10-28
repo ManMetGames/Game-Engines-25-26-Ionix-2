@@ -1,10 +1,10 @@
 #include "Entity.hpp"
 #include "Component.hpp"
-#include "../Scene.h"
+#include "Scene.h"
 #include <vector>
 #include <cmath>
 
-#include "SDL.h"
+#include "SDL_log.h"
 
 namespace IonixEngine {
 
@@ -17,9 +17,9 @@ namespace IonixEngine {
         transform(this)
     {
         components = std::vector<Component*>();
-        SDL_Log("Entity capacity = %i",components.capacity());
+        SDL_Log("Entity capacity = %zu",components.capacity());
         components.reserve(10);
-        SDL_Log("Entity capacity = %i", components.capacity());
+        SDL_Log("Entity capacity = %zu", components.capacity());
     }
 
     void Entity::Init(Scene* scene) {}
