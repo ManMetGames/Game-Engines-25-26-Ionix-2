@@ -19,24 +19,13 @@ bool SoundManager::Init(int freq, SDL_AudioFormat format, int channels, int chun
   desiredSpec.samples = chunksize;
   desiredSpec.callback = nullptr; // this is the callback, it might need changing one day.
 
-  m_Device = SDL_OpenAudioDevice(nullptr, 0, &desiredSpec, &m_DeviceSpec, 0);
-  if (!m_Device) {
-    SDL_Log("Failed to open audio device: %s", SDL_GetError());
-    return false;
-  }
-
-  SDL_PauseAudioDevice(m_Device, 0); // what do you think it does???
+  // what do you think it does???
   return true;
 }
 
 void SoundManager::Shutdown() {
   m_Sounds.clear();
   m_Volumes.clear();
-
-  if (m_Device != 0) {
-    SDL_CloseAudioDevice(m_Device);
-    m_Device = 0;
-  }
 }
 
 bool SoundManager::LoadSound(const std::string &name, const std::string &filePath) {
@@ -44,10 +33,11 @@ bool SoundManager::LoadSound(const std::string &name, const std::string &filePat
     AudioData* clip = &m_Sounds[name];
     Mix_Chunk* audio = Mix_LoadWAV(filePath.c_str());
 
-    printf("%4f%", SoundManager::GetPlayTime(filePath.c_str()));
 
     if (audio) {
         m_Sounds[name].audio = audio;
+
+        printf("Test Audio Length: %f", GetPlayTime(name));
         return true;
     }
     SDL_Log("[Sound Manager] Could not load audio file: %s due to: %s", filePath.c_str(), Mix_GetError());
@@ -83,35 +73,15 @@ void SoundManager::SetVolume(const std::string& name, float volume) {
   // does not play the sound; volume applies to future 'PlaySound' calls
 }
 
-float SoundManager::GetPlayTime(const char* filename)
+float SoundManager::GetPlayTime(const std::string& alias)
 {
-    SDL_AudioSpec spec;
-    uint32_t audioLen;
-    uint8_t* audioBuf;
-    double seconds = 0.0;
-
-    if (SDL_LoadWAV(filename, &spec, &audioBuf, &audioLen) != NULL) {
-        // we aren't using the actual audio in this example
-        SDL_FreeWAV(audioBuf);
-        uint32_t sampleSize = SDL_AUDIO_BITSIZE(spec.format) / 8;
-        uint32_t sampleCount = audioLen / sampleSize;
-        // could do a sanity check and make sure (audioLen % sampleSize) is 0
-        uint32_t sampleLen = 0;
-        if (spec.channels) {
-            sampleLen = sampleCount / spec.channels;
-        }
-        else {
-            // spec.channels *should* be 1 or higher, but just in case
-            sampleLen = sampleCount;
-        }
-        seconds = (double)sampleLen / (double)spec.freq;
+    Mix_Chunk* audio = GetAudio(alias);
+    if (audio) {
+        return (float) audio->alen / 44100.0f;
     }
     else {
-        // uh-oh!
-        fprintf(stderr, "ERROR: can't load: %s: %s\n", filename, SDL_GetError());
+        return -1;
     }
-
-    return seconds;
 }
 
 SoundManager::~SoundManager() { Shutdown(); }

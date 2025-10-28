@@ -20,7 +20,7 @@ namespace IonixEngine
         bool LoadSound(const std::string& name, const std::string& filePath);
         Mix_Chunk* GetAudio(const std::string& name);
         void SetVolume(const std::string& name, float volume); // 0.0f to 1.0f
-        float GetPlayTime(const char* filename);
+        float GetPlayTime(const std::string& alias);
 
     private:
         SoundManager() = default;

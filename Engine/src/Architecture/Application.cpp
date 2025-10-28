@@ -103,7 +103,7 @@ namespace IonixEngine
 
             SoundManager& sm = SoundManager::GetInstance();
             sm.Init();
-            sm.LoadSound("test", "../Client/test.wav");
+            sm.LoadSound("test", "test.wav");
             //printf("%4.2f %4.2f\n", testBody.GetPosition().x, testBody.GetPosition().y);
             
 
