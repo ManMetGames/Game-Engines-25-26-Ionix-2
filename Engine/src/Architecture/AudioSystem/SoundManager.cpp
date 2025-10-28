@@ -76,8 +76,14 @@ void SoundManager::SetVolume(const std::string& name, float volume) {
 float SoundManager::GetPlayTime(const std::string& alias)
 {
     Mix_Chunk* audio = GetAudio(alias);
+    
+    int freq = 0;
+    Uint16 format = 0;
+    int channels = 0;
+
     if (audio) {
-        return (float) audio->alen / 44100.0f;
+        if (!Mix_QuerySpec(&freq, &format, &channels)) { return -1.0f; }
+        return (float) audio->alen / (float)(freq * ((format & 0xFF) / 8));
     }
     else {
         return -1;
