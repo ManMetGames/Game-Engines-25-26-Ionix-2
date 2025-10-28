@@ -75,7 +75,7 @@ namespace IonixEngine
 		
 		void AddButton(int x, int y, float xSize, float ySize, const char* text, std::function<void()> onClick);
 		
-		void AddCheckbox(int x, int y, float xSize, float ySize, const char* text);
+		void AddCheckbox(int x, int y, float xSize, float ySize, const char* text, bool* checked);
 		
 		void AddSliderFloat(int x, int y, float xSize, float ySize, const char* text, float* value, float min, float max);
 		

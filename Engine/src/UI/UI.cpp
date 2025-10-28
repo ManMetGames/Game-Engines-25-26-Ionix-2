@@ -35,6 +35,17 @@ namespace IonixEngine
 		return i;
 
 	}
+	
+	void UI::DrawCheckbox(int id, char* text, int xpos, int ypos, int xsize, int ysize)
+	{
+		if (checkboxMap.find(id) != checkboxMap.end())
+			checkboxMap.insert({ id, false });
+
+		bool& state = getCheckboxState(id);
+		ImGui::SetCursorPos(ImVec2(xpos, ypos));
+
+		ImGui::Checkbox(text, &state);
+	}
 
 	void UI::DrawRadioButton(int xpos, int ypos, char* text, static int e, int value, bool sameline)
 	{
