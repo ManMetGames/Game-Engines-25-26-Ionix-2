@@ -1,3 +1,4 @@
+#pragma once
 #include "Graphics/QueueRenderer.h"
 #include <vector>
 #include "Architecture/Application.h"
@@ -15,13 +16,13 @@ namespace IonixEngine {
 		//sprites->push(spriteName); needs to be changed because this doesn't take strings anymore
 	}   //all of this is TEMPORARY because we're TESTING - it's in the name, that's why it says TEMP everywhere. We'll change this soon, thanks
 
-	void QueueRenderer::Merger(std::vector<int> arr, int left, int mid, int right)
+	void QueueRenderer::Merger(std::vector<RenderCall> arr, int left, int mid, int right)
 	{
 		const int n1 = mid - left + 1;
 		int n2 = right - mid;
 
-		std::vector<int> leftHand(n1);
-		std::vector<int> rightHand(n2);
+		std::vector<RenderCall> leftHand(n1);
+		std::vector<RenderCall> rightHand(n2);
 
 		for (int i = 0; i < n1; i++)
 		{
@@ -35,7 +36,7 @@ namespace IonixEngine {
 
 		while (i < n1 && j < n2)
 		{
-			if (leftHand[i] < rightHand[j])
+			if (leftHand[i].z < rightHand[j].z)
 			{
 				arr[k] = leftHand[i];
 				i++;
@@ -63,7 +64,7 @@ namespace IonixEngine {
 		}
 	}
 
-	void QueueRenderer::OrderQueueByZ(queue<int>& sprites)
+	void QueueRenderer::OrderQueueByZ(queue<RenderCall>& sprites)
 	{
 		std::vector<int> temp(sprites.size());
 		//int temp[(sprites.size())]; //Creates temporary array from queue
@@ -76,7 +77,7 @@ namespace IonixEngine {
 		MergeCaller(sprites, temp, 0, sprites.size() - 1);
 	}
 
-	void QueueRenderer::MergeCaller(queue<int>& sprites, std::vector<int> temp, int left, int right)
+	void QueueRenderer::MergeCaller(queue<RenderCall>& sprites, std::vector<RenderCall> temp, int left, int right)
 	{
 		int length = sprites.size(); //Returns queue length
 		int left = 0;
@@ -90,13 +91,13 @@ namespace IonixEngine {
 		ArrToQueueConverter(temp, sprites); //Convert vector to queue at the end!
 	}
 
-	void QueueRenderer::ClearQueue(queue<int>& sprites)
+	void QueueRenderer::ClearQueue(queue<RenderCall>& sprites)
 	{
 		queue<int> emptyQueue;
 		swap(sprites, emptyQueue);
 	}
 
-	void QueueRenderer::ArrToQueueConverter(std::vector<int> temp, queue<int>& sprites)
+	void QueueRenderer::ArrToQueueConverter(std::vector<RenderCall> temp, queue<RenderCall>& sprites)
 	{
 		ClearQueue(sprites);
 		//std::queue<int> orderedQueue;

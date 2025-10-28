@@ -1,8 +1,10 @@
+#pragma once
 #include <iostream>
 #include <queue>
 #include <list>
 #include <string>
 #include <array>
+#include "Graphics/SpriteComponent.h"
 //#include <mutex>
 using namespace std;
 
@@ -20,7 +22,7 @@ namespace IonixEngine {
 
 	private:
 		//member variables
-		queue<int>* sprites; //change string type later to sprite/texture
+		queue<RenderCall>* sprites; //change string type later to sprite/texture
 		//static pointer
 		static QueueRenderer* queueRendPtr;
 
@@ -31,9 +33,9 @@ namespace IonixEngine {
 		QueueRenderer(const QueueRenderer& obj) = delete; //prevent copis
 		QueueRenderer();
 		void AddToQueue(string spriteName);
-		void OrderQueueByZ(queue<int>& sprites);
+		void OrderQueueByZ(queue<RenderCall>& sprites);
 		void RenderFromQueue();
-		void ClearQueue(queue<int>& sprites);
+		void ClearQueue(queue<RenderCall>& sprites);
 		static QueueRenderer& Get()
 		{
 			static QueueRenderer instance;
@@ -41,9 +43,9 @@ namespace IonixEngine {
 		}
 
 		//sort algorithm stuff
-		void Merger(vector<int> arr, int left, int mid, int right);
-		void MergeCaller(queue<int>& sprites, vector<int> arr, int left, int right);
-		void ArrToQueueConverter(vector<int> temp, queue<int>& sprites);
+		void Merger(vector<RenderCall> arr, int left, int mid, int right);
+		void MergeCaller(queue<RenderCall>& sprites, vector<RenderCall> arr, int left, int right);
+		void ArrToQueueConverter(vector<RenderCall> temp, queue<RenderCall>& sprites);
 
 	};
 }
