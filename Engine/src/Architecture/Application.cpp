@@ -107,9 +107,10 @@ namespace IonixEngine
 
                      
             m_Window->OnUpdate();
-            SDL_RenderPresent(renderer);
             ImGui::Render();
             ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), Application::Get().GetWindow().m_Renderer);
+            SDL_RenderPresent(renderer);
+
         }
 
         for (auto layer : m_LayerStack.GetLayers()) {

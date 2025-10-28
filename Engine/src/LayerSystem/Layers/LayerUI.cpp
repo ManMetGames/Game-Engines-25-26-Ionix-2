@@ -96,11 +96,11 @@ namespace IonixEngine
          uiManager.AddRadioButton(120, 130, 100, 25, "Option 2", &radioValue, 1, true);
          uiManager.AddDropdown(10, 160, 150, 25, "Dropdown", dropdownOptions, &dropdownIndex);
 
-         uiManager.EndPanel();
+
 
          // Render the UI
          uiManager.RenderUI();
-        
+         uiManager.EndPanel();
          // Rendering
          
 
