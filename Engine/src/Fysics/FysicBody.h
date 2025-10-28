@@ -14,6 +14,10 @@ namespace IonixEngine
         b2World* world;
         b2Body* body;
         FysicsShapes* shape;
+
+        float maxLinearVelocity = -1.0f; //no limit to velocity
+        float maxAngularVelocity = -1.0f; 
+
     public:
         FysicBody()
         {
@@ -123,6 +127,12 @@ namespace IonixEngine
                 b2Vec2 currentPos = body->GetPosition();
                 body->SetTransform(currentPos, angleInRadians);
             }
+        }
+        //Set Velocity Threshold
+        void SetVelocityThreshold(float linearMax, float angularMax)
+        {
+            maxLinearVelocity = linearMax;
+            maxAngularVelocity = angularMax;
         }
 
         //Get&Set Linear Velocity
