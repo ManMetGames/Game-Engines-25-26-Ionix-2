@@ -75,6 +75,17 @@ namespace IonixEngine
         {
             return body;
         }
+
+        ~FysicsBody()
+        {
+            if (body->GetWorld() && body)
+            {
+                body->GetWorld()->DestroyBody(body);
+                body = nullptr;
+            }
+        }
+
+        
         //Get & Set Position
         b2Vec2 GetPosition() const
         {
@@ -85,11 +96,10 @@ namespace IonixEngine
             return b2Vec2(0.0f, 0.0f);            
         }
 
-        void SetPosition(float x, float y)
+        void SetPosition(b2Vec2 newPos)
         {
             if (body)
             {
-                b2Vec2 newPos(x, y);
                 body->SetTransform(newPos, body->GetAngle());//Sets the position, and makes sure the angle doesnt change
             }
         }

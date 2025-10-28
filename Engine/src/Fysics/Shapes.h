@@ -92,11 +92,26 @@ namespace IonixEngine
 
             // Circle ----------------------------------------------------
 
+
+        //DEFAULT CONSTRUCTOR FOR REFERANCE
+            void AddCircle()
+            {
+                b2CircleShape shape;
+
+                shape.m_radius = radius;
+                shape.m_p = offset;
+                b2FixtureDef fixtureDef;
+
+                fixtureDef.shape = &shape;
+                fixtureDef.isSensor = isTrigger;
+                fixture = body->CreateFixture(&fixtureDef);
+            }
+        
             void AddCircle(float radius, b2Vec2 offset = { 0.0f, 0.0f }, bool isTrigger = false)
             {
                 b2CircleShape shape;
 
-                shape.m_radius = 5;
+                shape.m_radius = radius;
                 shape.m_p = offset;
                 b2FixtureDef fixtureDef;
 
@@ -138,24 +153,23 @@ namespace IonixEngine
 
 
             //Add Polygon ---------------------------------------------------------
-            void AddPolygon(std::vector<b2Vec2>& vertices, bool isTrigger = false){
-                if (vertices.size() < 3 || vertices.size() > b2_maxPolygonVertices)
-                    return;
 
-                b2PolygonShape shape;
+            void AddPolygon(std::vector<b2Vec2>& vertices){
+                    if (vertices.size() < 3 || vertices.size() > b2_maxPolygonVertices)
+                        return;
 
-                //Set the polygon shape with the vertices data and their total count
-                shape.Set(vertices.data(), static_cast<int32>(vertices.size()));
+                    b2PolygonShape shape;
 
-                b2FixtureDef fixtureDef;
+                    //Set the polygon shape with the vertices data and their total count
+                    shape.Set(vertices.data(), static_cast<int32>(vertices.size()));
 
-                fixtureDef.shape = &shape;
-                fixtureDef.isSensor = isTrigger;
+                    b2FixtureDef fixtureDef;
 
-                //Set the body fixture for the created shape with polygons
-                fixture = body->CreateFixture(&fixtureDef);
+                    fixtureDef.shape = &shape;
+                    fixtureDef.isSensor = false;
 
-
+                    //Set the body fixture for the created shape with polygons
+                    fixture = body->CreateFixture(&fixtureDef);
             }
 
             /*b2Fixture* GetFixture()

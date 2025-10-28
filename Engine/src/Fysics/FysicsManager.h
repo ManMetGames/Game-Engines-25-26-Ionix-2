@@ -9,6 +9,8 @@
 #include <vector>
 #include <functional>
 
+#include "Maf/MafUtils.h"
+
 using EntityID = int;
 
 namespace IonixEngine
@@ -16,15 +18,14 @@ namespace IonixEngine
     class FysicsManager
     {
     private:
-        FysicsShapes* shape;
+        FysicsShapes* shape = new FysicsShapes();
         PrismaticJoints* joint;
         Force* force;
-
+        
     public:
         static LayerFysics* s_instance;
         std::unordered_map<int, FysicsBody*> BodyDic;
-        int BodyCount = 0;
-
+        int BodyIncrement = 0;
 
         static void SetInstance(LayerFysics* instance) {
             s_instance = instance;
@@ -33,28 +34,49 @@ namespace IonixEngine
         void FB_Create()
         {
             FysicsBody* body = new FysicsBody(s_instance->GetWorld());
-            BodyDic[BodyCount] = body;
-            BodyCount++;
+            BodyDic[BodyIncrement] = body;
+            std::cout << "Body Created at Index: " << BodyIncrement << std::endl;
+            BodyIncrement++;
         }
 
-        void FB_Destroy()
+        void FB_AddShape(int dicIndex, fysicShapeType shapeType)
         {
-            
+            shape->SetBody(BodyDic[dicIndex]->GetBody());
+            switch (shapeType)
+            {
+            case fysicShapeType::circle:
+                shape->AddCircle();
+                break;
+            case fysicShapeType::box:
+                shape->AddBox();
+                break;
+            }
         }
 
-        void FB_GetPos()
+        void FB_AddPolygon(int dicIndex, std::vector<b2Vec2>& vertices)
         {
-
+            shape->SetBody(BodyDic[dicIndex]->GetBody());
+            shape->AddPolygon(vertices);
+        }
+        
+        void FB_Destroy(int dicIndex)
+        {
+            BodyDic.erase(dicIndex);
         }
 
-        void FB_SetPos()
-        {
+        b2Vec2 FB_GetPos(int dicIndex)
+        {                       
+            return BodyDic[dicIndex]->GetPosition();
+        }
 
+        void FB_SetPos(int dicIndex, b2Vec2 bodyPos)
+        {
+            BodyDic[dicIndex]->SetPosition(bodyPos);
         }
 
         void FB_GetAngle()
         {
-
+            
         }
 
         void FB_SetAngle()

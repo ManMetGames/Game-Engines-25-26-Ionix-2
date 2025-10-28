@@ -1,6 +1,7 @@
 #include "Application.h"
 
 #include "Fysics/FysicsBody.h"
+#include "Fysics/FysicsManager.h"
 #include "Fysics/Shapes.h"
 #include "LayerSystem/Layers/LayerTexture.hpp"
 
@@ -70,7 +71,8 @@ namespace IonixEngine
 
         //Scripting::Get().CallHook("OnStart");
         SDL_Renderer* renderer = m_Window->GetSdlRenderer();
-        
+        FysicsManager manager;
+        manager.FB_Create();
         
 
         while (m_Running)
