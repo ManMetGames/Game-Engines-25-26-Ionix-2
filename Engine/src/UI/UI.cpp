@@ -63,6 +63,7 @@ namespace IonixEngine
 	float UI::DrawColorPicker(int x, int y, float xSize, float ySize, const char* label, float* color)
 	{
 		ImGui::SetCursorPos(ImVec2(x, y));
+		ImGui::ColorEdit4(label, color, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_PickerHueWheel);
 		return *color;
 	}
 	

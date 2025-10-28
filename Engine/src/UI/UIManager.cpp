@@ -148,32 +148,20 @@ void IonixEngine::UIManager::AddRadioButton(int x, int y, float xSize, float ySi
 	element.sameline = sameline;
 	AddChildToPanel(element);
 }
-void IonixEngine::UIManager::AddColorPicker3(int x, int y, float xSize, float ySize, const char* label, float* color)
+
+
+
+void IonixEngine::UIManager::AddColorPicker(int x, int y, float xSize, float ySize, const char* label, float* color)
 {
 	UIElement element;
-	element.type = UIType::ColorPicker3;
+	element.type = UIType::ColorPicker;
 	element.groupName = currentGroupName;
 	element.xPos = x;
 	element.yPos = y;
 	element.xSize = xSize;
 	element.ySize = ySize;
 	element.text = const_cast<char*>(label);
-	element.color3 = color;
-	AddChildToPanel(element);
-}
-
-
-void IonixEngine::UIManager::AddColorPicker4(int x, int y, float xSize, float ySize, const char* label, float* color)
-{
-	UIElement element;
-	element.type = UIType::ColorPicker4;
-	element.groupName = currentGroupName;
-	element.xPos = x;
-	element.yPos = y;
-	element.xSize = xSize;
-	element.ySize = ySize;
-	element.text = const_cast<char*>(label);
-	element.color4 = color;
+	element.color = color;
 	AddChildToPanel(element);
 }
 
@@ -241,6 +229,10 @@ void IonixEngine::UIManager::RenderElement(UIElement& element)
 			}
 		}
 		break;
+	case UIType::ColorPicker:
+		if (element.color)
+			ImGui::ColorEdit4(element.text, element.color);
+		break;
 	case UIType::Dropdown:
 		ImGui::SetCursorPos(ImVec2(element.xPos, element.yPos));
 		int currentIndex = *(element.dropdownCurrentIndex);
@@ -259,8 +251,8 @@ void IonixEngine::UIManager::RenderElement(UIElement& element)
 			}
 			ImGui::EndCombo();
 		}
-			
 		break;
+	
 	
 
 		if (element.sameline)

@@ -14,6 +14,7 @@ namespace IonixEngine
 
         void DrawRadioButton(int xpos, int ypos, char* text, int e, int value, bool sameline);
         float DrawColorPicker(int x, int y, float xSize, float ySize, const char* label, float* color);
+        float myColor[4] = {};
         std::unordered_map<int, bool> checkboxMap;
         bool& getCheckboxState(int index) { return checkboxMap[index]; }
         float ProgressBar(int xpos, int ypos, float xsize, float ysize, float maxvalue, float& currentvalue, float incrementamount);

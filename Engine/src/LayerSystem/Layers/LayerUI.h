@@ -13,6 +13,7 @@ namespace IonixEngine
     {
     private:
         UIManager uiManager;
+        UI ui;
     public:
         LayerUI() {}
 
@@ -21,6 +22,7 @@ namespace IonixEngine
         virtual void OnUpdate() override;
         virtual void OnEvent(IonixEvent& e) override;
         UIManager GetUIManager() { return uiManager; }
+		UI GetUI() { return ui; }
         UI* m_UI;
 
         UIManager* m_UIManager;
