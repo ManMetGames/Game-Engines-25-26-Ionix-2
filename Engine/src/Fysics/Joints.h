@@ -5,8 +5,6 @@ namespace IonixEngine
 {
      class Joints    
     {
-    private:
-        b2JointUserData userData;
 
     public:
         b2World* world;    
@@ -37,9 +35,34 @@ namespace IonixEngine
             return joint->GetAnchorB();
         }
 
-        void getUserData(b2Joint* joint) {
-           userData = joint->GetUserData();
+        b2JointUserData getUserData(b2Joint* joint) {
+           return joint->GetUserData();
         }     
+
+        bool getCollideConntected(b2Joint* joint) {
+            return joint->GetCollideConnected();
+        }
+
+        b2Vec2 getReactionForce(b2Joint* joint, float inverseDeltaTime) {
+            return joint->GetReactionForce(inverseDeltaTime);
+        }
+
+        float getReactionTorque(b2Joint* joint, float inverseDeltaTime) {
+            return joint->GetReactionTorque(inverseDeltaTime);
+        }
+
+        b2JointType getType(b2Joint* joint, float inverseDeltaTime) {
+            return joint->GetType();
+        }
+
+        bool isEnabled(b2Joint* joint) {
+            return joint->IsEnabled();
+        }
+
+        void shiftOrigin(b2Joint* joint, b2Vec2 newOrigin) {
+            joint->ShiftOrigin(newOrigin);
+        }
+
     };
 
     class PrismaticJoints : public Joints{
@@ -67,6 +90,11 @@ namespace IonixEngine
       float getJointTranslation() {
           return joint->GetJointTranslation();
       }
+
+      void setJointTranslation(float lowerTranslation, float upperTranslation) {
+          if (joint == nullptr) return;
+          joint->SetLimits(lowerTranslation, upperTranslation);
+      }
     
       float getJointSpeed() {
           return joint->GetJointSpeed();
@@ -76,11 +104,13 @@ namespace IonixEngine
           return joint->GetMotorForce(inverseDeltaTime);
       }
 
-      void SetMotorSpeed(float speed) {
+      void setMotorSpeed(float speed) {
+          if (joint == nullptr) return;
           joint->SetMotorSpeed(speed);
       }
 
-      void SetMotorForce(float force) {
+      void setMotorForce(float force) {
+          if (joint == nullptr) return;
           joint->SetMaxMotorForce(force);
       }
     };
@@ -105,6 +135,22 @@ namespace IonixEngine
         b2Joint* getJoint() {
             return joint;
         }
+
+        void setDamping(float damping) {
+            joint->SetDamping(damping);
+        }
+
+        float getDamping() {
+            return joint->GetDamping();
+        }
+
+        void setStiffness(float stiffness) {
+            joint->SetStiffness(stiffness);
+        }
+
+        float getStiffness() {
+            return joint->GetStiffness();
+        }
     };
 
     class PulleyJoints : public Joints {
@@ -127,6 +173,10 @@ namespace IonixEngine
             joint = (b2PulleyJoint*)world->CreateJoint(&jointDef);
         }
 
+        b2Joint* getJoint() {
+            return joint;
+        }
+
         float getLengthA() {
             return joint->GetLengthA();
         }
@@ -135,8 +185,24 @@ namespace IonixEngine
             return joint->GetLengthA();
         }
 
-        b2Joint* getJoint() {
-            return joint;
+        float getCurrentLengthA() {
+            return joint->GetCurrentLengthA();
+        }
+
+        float getCurrentLengthB() {
+            return joint->GetCurrentLengthB();
+        }
+
+        float getRatio() {
+            return joint->GetRatio();
+        }
+
+        b2Vec2 getGroundAnchorA() {
+            return joint->GetGroundAnchorA();
+        }
+
+        b2Vec2 getGroundAnchorB() {
+            return joint->GetGroundAnchorB();
         }
     };
 }
