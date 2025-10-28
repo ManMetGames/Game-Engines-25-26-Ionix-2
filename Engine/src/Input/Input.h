@@ -40,85 +40,56 @@ namespace IonixEngine
         {
             currentKeys.erase(code);
         }
-        // for Previous Key
-        void CopyCodesEndFrame()
-        {
-            previousKeys = currentKeys;
-        }
 
      // Controller
 
-        // connect/remove controller
-        void FindController()
+         // button input booleans
+        bool isButtonDown(Uint8 btn) const
         {
-            SDL_GameController* controller = findController(); // finds the controller 
+            // Not held down previous frame
             
-            // notes on how i want to do this in theory: logic is probably wrong. oh well
-            // findController() gets the ID of the current controller connected (i assume an int)
-            // if [SOMETHING] = the ID, then print controller is found
-            // else say it's not there
-            // also check to see if a controller was already previously connected or something
+
+            // Held down current frame
+            return !previousButton.count(btn) && currentButton.count(btn);
+        }
+        bool isButtonUp(Uint8 btn) const
+        {
+            // Was held down previous frame
+
+            // No longer held down on current frame
+            return previousButton.count(btn) && !currentButton.count(btn);
+        }
+        bool isButtonHeld(Uint8 btn) const
+        {
+            return currentButton.count(btn);
         }
 
         // controller button down
-        /*
-        * void SetButtonPressed(SDL_GameControllerButton btn)
-        * {
-        *       currentButton.insert(btn);
-        * }
-        */
+        void SetButtonPressed(Uint8 btn)
+        {
+            currentButton.insert(btn);
+        }
         // controller button up
-        /*
-        * void SetButtonReleased(SDL_GameControllerButton btn)
-        * {
-        *       currentButton.erase(btn);
-        * }
-        */
-        // previous button
-        /*
-        * void CopyButtonsEndFrame()
-        * {
-        *       previousButton = currentButton;
-        * }
-        */
+        void SetButtonReleased(Uint8 btn)
+        {
+            currentButton.erase(btn);
+        }
+ 
 
-        // button input booleans
-        bool isButtonDown(SDL_GameControllerButton btn) const
+    // Previous Frame Keys/Buttons
+       void CopyCodesEndFrame()
         {
-            // Not held down previous frame
-            // Held down current frame
-                // return !previousButton.count(btn) && currentButton.count(btn);
+            previousKeys = currentKeys;
+            previousButton = currentButton;
         }
-        bool isButtonUp(SDL_GameControllerButton btn) const
-        {
-            // Was held down previous frame
-            // No longer held down on current frame
-                // return previousButton.count(btn) && !currentButton.count(btn);
-        }
-        bool isButtonHeld(SDL_GameControllerButton btn) const
-        {
-            // return currentButton.count(btn);
-        }
+
 
     private:
         std::unordered_set<SDL_Scancode> currentKeys;
         std::unordered_set<SDL_Scancode> previousKeys;
-        std::unordered_set<SDL_GameControllerButton> currentButton;
-        std::unordered_set<SDL_GameControllerButton> previousButton;
-        
-        // Pointer to find controller
-        // supposed to grab its ID to say how many there are 
-        SDL_GameController* findController()
-        {
-            for (int i = 0; i < SDL_NumJoysticks(); i++)
-            {
-                if (SDL_IsGameController(i))
-                {
-                    return SDL_GameControllerOpen(i);
-                }
-            }
-            return nullptr;
-        }
+        std::unordered_set<Uint8> currentButton;
+        std::unordered_set<Uint8> previousButton;
+       
     };
 }
 

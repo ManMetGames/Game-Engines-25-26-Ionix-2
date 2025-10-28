@@ -39,16 +39,17 @@ namespace IonixEngine
 
             // Controller
             case SDL_CONTROLLERDEVICEADDED:
-
+                std::cout << "Controller is connected \n";
                 break;
             case SDL_CONTROLLERDEVICEREMOVED:
-
+                std::cout << "Controller is disconnected \n";
                 break;
-            case SDL_CONTROLLERBUTTONDOWN:
 
+            case SDL_CONTROLLERBUTTONDOWN:
+                Application::Get().layerInput->m_Input->SetButtonPressed(e.cbutton.button);
                 break;
             case SDL_CONTROLLERBUTTONUP:
-
+                Application::Get().layerInput->m_Input->SetButtonReleased(e.cbutton.button);
                 break;
         }
     }
