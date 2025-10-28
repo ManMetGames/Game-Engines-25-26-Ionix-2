@@ -85,25 +85,25 @@ namespace IonixEngine
             {
                 std::cout << "Spacebar was pressed once \n";
             }
-            if (layerInput->m_Input->IsKeyUp(SDL_SCANCODE_SPACE))
+            else if (layerInput->m_Input->IsKeyUp(SDL_SCANCODE_SPACE))
             {
                 std::cout << "Spacebar has been lifted \n";
             }
-            if (layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_SPACE))
+            else if (layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_SPACE))
             {
                 std::cout << "Spacebar is being held down \n";
             }
 
             // Controller
-            if (layerInput->m_Input->isButtonDown(SDL_CONTROLLER_BUTTON_A))
+            if (layerInput->m_Input->isButtonDown(SDL_CONTROLLER_BUTTON_TOUCHPAD))
             {
                 std::cout << "Button A on the controller was pressed once \n";
             }
-            else if (layerInput->m_Input->isButtonUp(SDL_CONTROLLER_BUTTON_A))
+            else if (layerInput->m_Input->isButtonUp(SDL_CONTROLLER_BUTTON_TOUCHPAD))
             {
                 std::cout << "Button A on the controller has been lifted \n";
             }
-            else if (layerInput->m_Input->isButtonHeld(SDL_CONTROLLER_BUTTON_A))
+            else if (layerInput->m_Input->isButtonHeld(SDL_CONTROLLER_BUTTON_TOUCHPAD))
             {
                 std::cout << "Button A on the controller is being held down \n";
             }

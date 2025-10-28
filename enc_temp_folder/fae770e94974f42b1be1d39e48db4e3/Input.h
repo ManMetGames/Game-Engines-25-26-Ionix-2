@@ -91,15 +91,6 @@ namespace IonixEngine
         // Controller
         std::unordered_set<Uint8> currentButton;
         std::unordered_set<Uint8> previousButton;
-
-        float leftStickVertical;
-        float leftStickHorizontal;
-
-        float rightStickVertical;
-        float rightStickHorizontal;
-
-        float leftTrigger;
-        float rightTrigger;
        
     };
 }
