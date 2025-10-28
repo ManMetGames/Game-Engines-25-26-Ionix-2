@@ -6,9 +6,12 @@ namespace IonixEngine {
 
     class Entity;
 
+    class QueueRenderer;
+
     class RenderData {
     public:
         SDL_Renderer* renderer;
+        QueueRenderer* queue;
     };
 
     class Component {

@@ -3,6 +3,7 @@
 #include "EventSystem/Event.h"
 #include <iostream>
 #include "Architecture/Application.h"
+#include "Graphics/QueueRenderer.h"
 #include "SDL_render.h"
 
 namespace IonixEngine
@@ -13,6 +14,8 @@ namespace IonixEngine
     void LayerGraphics::OnAttach() {
         TextureManager::Get().Init();
         TextureManager::Get().AddTexture("./Assets/Test.png", "Test");
+        TextureManager::Get().AddTexture("./Assets/ball.png", "Ball");
+        TextureManager::Get().AddTexture("./Assets/aur naur.jpg", "pim");
         SDL_Log("Added debug texture");
     }
 
@@ -21,9 +24,13 @@ namespace IonixEngine
     }
 
     void LayerGraphics::OnUpdate() {
-        // no longer causes an EVIL memory leak <3
-        sprite1.draw(150,0,250,200);
+        //ball.drawFrame(0,0,32,32);
+        queue.RenderFromQueue();
     }
 
     void LayerGraphics::OnEvent(IonixEvent& e) {}
+    QueueRenderer* LayerGraphics::GetQueue()
+    {
+        return &queue;
+    }
 }

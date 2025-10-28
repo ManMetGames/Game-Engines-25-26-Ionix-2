@@ -1,15 +1,22 @@
 #include "SpriteComponent.h"
+#include <Graphics/QueueRenderer.h>
 
 namespace IonixEngine {
-	SpriteComponent::SpriteComponent(Entity* entity, std::string filePath, std::string name, int zedOrder) : Component(entity, false, true, false) {
-		IonixEngine::TextureManager::Get().AddTexture(filePath, name); //adding sprite image file to the texture manager
+	SpriteComponent::SpriteComponent(Entity* entity, std::string alias, int zedOrder) : Component(entity, false, true, false) {
+		texture = IonixEngine::TextureManager::Get().GetTexture(alias).GetTexture(); //adding sprite image file to the texture manager
 		zOrder = zedOrder;
+		width = 100;
+		height = 100;
 	}
 
-	void SpriteComponent::SetTexture(std::string newFilePath, std::string newAlias) {
-		//waaa
-
-		IonixEngine::TextureManager::Get().AddTexture(newFilePath, newAlias); 
+	void SpriteComponent::Render(RenderData* data)
+	{
+		//create and send render data to the render queue
+		data->queue->AddToQueue(RenderCall {
+			texture,
+			SDL_Rect { (int) (entity->position.x - width / 2), (int) (entity->position.y - height / 2), (int) width, (int) height },
+			SDL_Rect { (int)(entity->position.x - width / 2), (int)(entity->position.y - height / 2), (int)width, (int)height }
+		});
 	}
 
 }
