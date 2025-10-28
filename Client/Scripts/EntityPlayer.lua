@@ -7,7 +7,7 @@ local ySpeed = 10
 function EntityPlayer:OnStart()
     entity1 = Entity.create_entity()
     Texture.add_texture("./Assets/aur naur.jpg", "aur")
-    Entity.add_sprite_component(entity1, "aur", 0)
+    Entity.add_sprite_component(entity1, "aur", 5)
 end
 
 
