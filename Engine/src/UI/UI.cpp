@@ -37,27 +37,27 @@ namespace IonixEngine
 		ImGui::RadioButton(text, &e, value);
 	}
 
-	float UI::ProgressBar(int xpos, int ypos, float xsize, float ysize, float maxvalue, float& currentvalue, float incrementamount)
+	float UI::ProgressBar(int xPos, int yPos, float xSize, float ySize, float maxValue, float& currentValue, float incrementAmount)
 	{
-		ImGui::SetCursorPos(ImVec2(xpos, ypos));
+		ImGui::SetCursorPos(ImVec2(xPos, yPos));
 		
 		
 		// Positive = increase, Negative = decrease
-		currentvalue += incrementamount;
+		currentValue += incrementAmount;
 		
 
-		if (currentvalue < 0.0f) currentvalue = 0.0f;
-		if (currentvalue > maxvalue) currentvalue = maxvalue;
+		if (currentValue < 0.0f) currentValue = 0.0f;
+		if (currentValue > maxValue) currentValue = maxValue;
 		
-		float progress = currentvalue / maxvalue;
+		float progress = currentValue / maxValue;
 		progress = IM_CLAMP(progress, 0.0f, 1.0f);
 
 		char buf[32];
-		sprintf(buf, "%.0f/%.0f", currentvalue, maxvalue);
+		sprintf(buf, "%.0f/%.0f", currentValue, maxValue);
 		
-		ImGui::ProgressBar(progress, ImVec2(xsize, ysize), buf);
+		ImGui::ProgressBar(progress, ImVec2(xSize, ySize), buf);
 		
-		return currentvalue;
+		return currentValue;
 	}
 
 }
