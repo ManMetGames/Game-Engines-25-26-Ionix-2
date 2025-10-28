@@ -38,7 +38,7 @@ namespace IonixEngine
                     AddBox(width, height, offset, angle, isTrigger);
                     break;
                 case fysicShapeType::polygon:
-                    AddPolygon(vertices, isTrigger);
+                    AddPolygon(vertices);
                     break;
                 default:
                     break;
