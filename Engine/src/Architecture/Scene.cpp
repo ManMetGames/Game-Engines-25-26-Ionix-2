@@ -2,6 +2,7 @@
 #include "Architecture/Application.h"
 #include "Architecture/ECS/ECS_Test.hpp"
 #include "LayerSystem/Layers/SceneLayer.h"
+#include "SDL_log.h"
 #include <cstdio>
 
 namespace IonixEngine {
@@ -21,6 +22,15 @@ namespace IonixEngine {
         firstEntity->transform.SetLocalPosition(Vec2 { 300, 300 });
         firstEntity->AddComponent(new SpriteRenderer(firstEntity));
         firstEntity->AddComponent(new EntityMover(firstEntity, 10));
+
+        #if ECS_FIX_TEST
+        EntityMover* mover;
+        if (firstEntity->TryGetComponent(&mover)) {
+            SDL_Log("Found EntityMover component");
+        } else {
+            SDL_Log("Did not found EntityMover component");
+        }
+        #endif
 
         EntityID second = CreateEntity();
         Entity* secondEntity = GetEntityFromID(second);

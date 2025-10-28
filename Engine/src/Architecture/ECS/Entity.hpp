@@ -59,16 +59,16 @@ namespace IonixEngine {
             return dynamic_cast<T*>(components.back());
         }
 
-        template<typename T> bool TryGetComponent(T* out) {
+        template<typename T> bool TryGetComponent(T** out) {
             static_assert(std::is_base_of<Component, T>::value, "Type does not inherit component");
             for (Component* candidate : components) {
                 T* component = dynamic_cast<T*>(candidate);
                 if (component) {
-                    out = component;
+                    *out = component;
                     return true;
                 }
             }
-            out = nullptr;
+            *out = nullptr;
             return false;
         }
 
