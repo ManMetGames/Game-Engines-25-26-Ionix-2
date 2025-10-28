@@ -3,6 +3,7 @@
 #include "Fysics/FysicsBody.h"
 #include "Fysics/Shapes.h"
 #include "LayerSystem/Layers/LayerTexture.hpp"
+#include <backends/imgui_impl_sdlrenderer2.h>
 
 
 namespace IonixEngine {
@@ -106,7 +107,10 @@ namespace IonixEngine
 
                      
             m_Window->OnUpdate();
+            ImGui::Render();
+            ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), Application::Get().GetWindow().m_Renderer);
             SDL_RenderPresent(renderer);
+
         }
 
         for (auto layer : m_LayerStack.GetLayers()) {

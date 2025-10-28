@@ -344,8 +344,9 @@ namespace IonixEngine {
 
 	void Scripting::RegisterUIBindings()
 	{
-		auto drawLabel = [](const char* text, int xsize, int ysize, int xpos, int ypos) {
-			Application::Get().layerUI->m_UI->DrawLabel((char*)text, xsize, ysize, xpos, ypos);
+    UI-Main
+		auto drawLabel = [this](const char* text, int xsize, int ysize, int xpos, int ypos, const char* font) {
+			Application::Get().layerUI->m_UI->DrawLabel((char*)text, xsize, ysize, xpos, ypos, "");
 			};
 
 		auto drawButton = [](const char* text, int xsize, int ysize, int xpos, int ypos) -> bool {
