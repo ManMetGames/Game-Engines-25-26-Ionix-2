@@ -1,6 +1,6 @@
 #pragma once
 #include "sol/sol.hpp"
-
+#include "Architecture/Scene.h"
 #include "Scripting/Audio/AudioScripting.h"
 
 namespace IonixEngine
@@ -38,6 +38,8 @@ namespace IonixEngine
         void RegisterMafsBindings();
 
         void RegisterGraphicsBindings();
+
+        void RegisterEntityBindings();
 
     };
 }

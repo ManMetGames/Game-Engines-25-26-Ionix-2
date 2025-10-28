@@ -1,5 +1,6 @@
 #include "Scripting/Scripting.h"
 #include "Architecture/Application.h"
+#include "LayerSystem/Layer.h"
 
 namespace IonixEngine {
 	Scripting* Scripting::s_Instance = nullptr;
@@ -34,10 +35,10 @@ namespace IonixEngine {
 	{
 		RegisterWindowBindings();
 		RegisterInputBindings();
-		//RegisterMafsFunction();
+		RegisterMafsBindings();
 		RegisterAudioBindings();
 		RegisterGraphicsBindings();
-
+		RegisterEntityBindings();
 	}
 
 	void Scripting::ExecuteScript(const std::string& scriptName)
@@ -288,19 +289,45 @@ namespace IonixEngine {
 
 	void Scripting::RegisterGraphicsBindings()
 	{
-		auto sprite = [](const char* file) -> Sprite* {
-			return new Sprite(file);
-			};
 
-		auto drawsprite = [](Sprite sprite, float x, float y, float w, float h) {
-			sprite.draw(x, y, w, h);
-			};
+		auto texture = [](std::string filePath, std::string alias)
+		{
+			TextureManager::Get().AddTexture(filePath, alias);
+		};
 
-		m_LuaState["Sprite"] = m_LuaState.create_table_with(
-			"create_sprite", sprite,
-			"draw_sprite", drawsprite
+		m_LuaState["Texture"] = m_LuaState.create_table_with(
+			"add_texture", texture
 		);
 	}
+
+	void Scripting::RegisterEntityBindings()
+	{
+		auto entity = []() -> Entity* {
+			EntityID entityID = Application::Get().layerScene->GetScene()->CreateEntity();
+			return Application::Get().layerScene->GetScene()->GetEntityFromID(entityID);
+		};
+
+		auto getEntityPos = [](Entity* entity) -> Vec2 {
+			return entity->position;
+		};
+
+		auto setEntityPos = [](Entity* entity, float x, float y) {
+			entity->position = Vec2{x, y};
+		};
+
+		auto addSpriteComponent = [](Entity* entity, string alias, int zedOrder) {
+			entity->AddComponent(new SpriteComponent(entity, alias, zedOrder));
+		};
+
+		m_LuaState["Entity"] = m_LuaState.create_table_with(
+			"create_entity", entity,
+			"get_entity_pos", getEntityPos,
+			"set_entity_pos", setEntityPos,
+			"add_sprite_component", addSpriteComponent
+		);
+	}
+
+	
 	
 	// print (Window.get_title())
 }

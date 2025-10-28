@@ -70,7 +70,8 @@ namespace IonixEngine
 
         Scripting::Get().CallHook("OnStart");
         SDL_Renderer* renderer = m_Window->GetSdlRenderer();
-        
+
+        FysicBody testBody = FysicBody();
         
 
         while (m_Running)
@@ -96,10 +97,14 @@ namespace IonixEngine
             {
                // std::cout << "Spacebar is being held down \n";
             }
+
+            printf("%4.2f %4.2f\n", testBody.GetPosition().x, testBody.GetPosition().y);
+            
+            Scripting::Get().CallHook("OnUpdate");
+
             layerInput->m_Input->CopyCodesEndFrame();
 
-            Scripting::Get().CallHook("OnUpdate");
-          
+                     
             m_Window->OnUpdate();
             SDL_RenderPresent(renderer);
         }
