@@ -79,10 +79,6 @@ void IonixEngine::UIManager::AddRadioButton(int x, int y, float xsize, float ysi
 	elements.push_back({ UIType::RadioButton,currentGroupName, x, y, 0.0, 0.0, const_cast<char*>(text), nullptr, nullptr, nullptr, 0.0f, 0.0f, nullptr, 0, radioValuePointer, value, sameline});
 }
 
-void IonixEngine::UIManager::DrawRightToLeftBar(int x, int y, float xsize, float ysize, float maxvalue, float progresspercentage, char buf[])
-{
-	elements.push_back({ UIType::DrawRightToLeftBar,currentGroupName, x, y, xsize, ysize, nullptr, nullptr, nullptr, nullptr, 0.0f, 0.0f, nullptr, 0, nullptr, 0, false, maxvalue, progresspercentage, buf});
-}
 
 void IonixEngine::UIManager::RenderElement(UIElement& element)
 {
@@ -127,9 +123,6 @@ void IonixEngine::UIManager::RenderElement(UIElement& element)
 		{
 			ImGui::RadioButton(element.text, *element.radioValuePtr == element.RadioButtonValue);
 		}
-	case UIType::DrawRightToLeftBar:
-		if (element.progresspercentage)
-			ImGui::ProgressBar(element.progresspercentage, ImVec2(element.xSize, element.ySize), element.buffer);
 		break;
 	default:
 		break;

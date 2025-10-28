@@ -78,15 +78,16 @@ namespace IonixEngine
          ImGui_ImplSDLRenderer2_NewFrame();
          ImGui_ImplSDL2_NewFrame();
          ImGui::NewFrame();
-       
-         /*
-         static float progress1 = 1.0f, progress_dir = -1.0f;
+
+         int maxvalue = 1000;
+         int currentvalue = 1000;
+
+         static float progress1 = currentvalue / maxvalue;
          progress1 -= 0.0001;
 
-         char buf[32];
-         sprintf(buf, "%d/%d", (int)(progress1 * 1000), 1000);
-         ImGui::ProgressBar(progress1, ImVec2(300,50), buf);
-         */
+         //char buf[32];
+         //sprintf(buf, "%d/%d", (int)(progress1 * 1000), 1000);
+         ImGui::ProgressBar(progress1, ImVec2(300,50), "");
 
          //Shows the big ImGui demo window
          ImGui::ShowDemoWindow();
