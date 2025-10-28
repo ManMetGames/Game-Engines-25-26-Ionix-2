@@ -3,62 +3,77 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Engine Function Reference</title>
+  <title>Ionix Engine Lua API Reference</title>
   <style>
+    /* === Terminal Style Theme === */
     :root {
-      --bg: #0d1117;
-      --card: #161b22;
-      --text: #e6edf3;
-      --accent: #58a6ff;
-      --border: #30363d;
-      --table-bg: #1c2128;
+      --bg: #000000;
+      --text-primary: #00b7ff;      /* Bright cyan-blue */
+      --text-secondary: #3399ff;    /* Softer blue */
+      --accent: #58a6ff;            /* Highlight blue */
+      --border: #112244;
+      --table-bg: #020b14;
+      --section-bg: #010409;
+      --header-bg: #010f1e;
     }
 
     body {
-      font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: "Consolas", "Courier New", monospace;
       background-color: var(--bg);
-      color: var(--text);
+      color: var(--text-primary);
       margin: 0;
       padding: 0;
       line-height: 1.6;
     }
 
     header {
-      background: var(--card);
-      border-bottom: 1px solid var(--border);
+      background: var(--header-bg);
+      border-bottom: 1px solid var(--accent);
       padding: 2rem 1rem;
       text-align: center;
+      box-shadow: 0 0 10px #0055ff33;
     }
 
     header h1 {
-      margin: 0;
       color: var(--accent);
       font-size: 2rem;
+      margin: 0;
+    }
+
+    header p {
+      color: var(--text-secondary);
+      font-style: italic;
+      margin-top: 0.5rem;
     }
 
     main {
-      max-width: 1000px;
+      max-width: 1100px;
       margin: auto;
       padding: 2rem;
     }
 
     section {
       margin-bottom: 3rem;
-      background: var(--card);
+      background: var(--section-bg);
       border: 1px solid var(--border);
-      border-radius: 10px;
+      border-radius: 8px;
       padding: 1.5rem;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      box-shadow: 0 0 15px #00336633;
     }
 
-    h2, h3, h4 {
-      color: var(--accent);
+    h2, h3 {
+      color: var(--text-secondary);
+      border-left: 4px solid var(--accent);
+      padding-left: 8px;
+      margin-top: 0;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 1rem;
+      background-color: var(--table-bg);
+      box-shadow: 0 0 10px #00225533;
     }
 
     th, td {
@@ -68,31 +83,36 @@
     }
 
     th {
-      background-color: var(--table-bg);
       color: var(--accent);
+      background-color: #001a33;
+    }
+
+    td {
+      color: var(--text-primary);
     }
 
     code {
-      background-color: var(--table-bg);
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-family: monospace;
       color: var(--accent);
+      background: #001a33;
+      padding: 2px 5px;
+      border-radius: 4px;
     }
 
     footer {
       text-align: center;
       padding: 1rem;
       border-top: 1px solid var(--border);
-      color: #8b949e;
+      color: var(--text-secondary);
       font-size: 0.9rem;
+      background: var(--header-bg);
+      box-shadow: 0 0 10px #00448833;
     }
 
     @media (max-width: 700px) {
       body {
         font-size: 0.9rem;
       }
-      table, th, td {
+      th, td {
         font-size: 0.85rem;
       }
     }
@@ -100,111 +120,147 @@
 </head>
 <body>
   <header>
-    <h1>🎮 Engine Function Reference</h1>
-    <p>A quick-access guide for Input, Maths, Vectors, Graphics, and Audio systems.</p>
+    <h1>Ionix Engine Lua API</h1>
+    <p>Callable Lua functions within the Ionix Engine</p>
   </header>
 
   <main>
-    <section id="input">
-      <h2>🕹️ Input</h2>
+
+    <!-- Window -->
+    <section>
+      <h2>Window</h2>
       <table>
         <tr><th>Function</th><th>Description</th></tr>
-        <tr><td><code>IsKeyUp(KeyCode)</code></td><td>Checks if the given key is released.</td></tr>
-        <tr><td><code>IsKeyDown(KeyCode)</code></td><td>Checks if the given key is pressed.</td></tr>
-        <tr><td><code>IsKeyHeld(KeyCode)</code></td><td>Checks if the given key is continually held down.</td></tr>
+        <tr><td><code>Window.get_title()</code></td><td>Returns the window title.</td></tr>
+        <tr><td><code>Window.get_width()</code></td><td>Returns the window width in pixels.</td></tr>
+        <tr><td><code>Window.get_height()</code></td><td>Returns the window height in pixels.</td></tr>
       </table>
     </section>
 
-    <section id="maths">
-      <h2>🧮 Maths</h2>
+    <!-- Input -->
+    <section>
+      <h2>Input</h2>
       <table>
         <tr><th>Function</th><th>Description</th></tr>
-        <tr><td><code>clamp(float input, float min, float max)</code></td><td>Restricts input to stay between min and max.</td></tr>
-        <tr><td><code>abs(float input)</code></td><td>Returns the absolute value of input (makes negatives positive).</td></tr>
-        <tr><td><code>min(float input, float min)</code></td><td>Ensures input is not less than min.</td></tr>
-        <tr><td><code>max(float input, float max)</code></td><td>Ensures input is not greater than max.</td></tr>
-        <tr><td><code>round(float input)</code></td><td>Rounds input to the nearest integer.</td></tr>
-        <tr><td><code>log(float input)</code></td><td>Returns the logarithm (inverse of exponential) of input.</td></tr>
-        <tr><td><code>log_custom(float input, float base)</code></td><td>Returns the logarithm of input with a custom base.</td></tr>
-        <tr><td><code>square_root(float input)</code></td><td>Returns the square root of input.</td></tr>
-        <tr><td><code>lerp(float x, float y, float time)</code></td><td>Linearly interpolates from x to y over the given time.</td></tr>
-        <tr><td><code>mod(float x, float y)</code></td><td>Returns the remainder of x divided by y.</td></tr>
-        <tr><td><code>div(float x, float y)</code></td><td>Returns the whole number result of x divided by y.</td></tr>
-        <tr><td><code>sin(float angle)</code></td><td>Returns the sine of angle (in radians).</td></tr>
-        <tr><td><code>cos(float angle)</code></td><td>Returns the cosine of angle (in radians).</td></tr>
-        <tr><td><code>tan(float angle)</code></td><td>Returns the tangent of angle (in radians).</td></tr>
-        <tr><td><code>pi</code></td><td>Returns the mathematical constant π (3.141592...).</td></tr>
+        <tr><td><code>Input.get_key_up(KeyCode)</code></td><td>Checks if a key was released.</td></tr>
+        <tr><td><code>Input.get_key_down(KeyCode)</code></td><td>Checks if a key was pressed.</td></tr>
+        <tr><td><code>Input.get_key_held(KeyCode)</code></td><td>Checks if a key is held down.</td></tr>
+      </table>
+      <p><span style="color: var(--text-secondary);">Key Codes:</span> <code>Keys.ionix_a</code>–<code>Keys.ionix_z</code>, <code>Keys.ionix_space</code>, <code>Keys.ionix_escape</code>, <code>Keys.ionix_return</code>, etc.</p>
+    </section>
+
+    <!-- Maths -->
+    <section>
+      <h2>Mafs (Maths)</h2>
+      <table>
+        <tr><th>Function</th><th>Description</th></tr>
+        <tr><td><code>Mafs.clamp(x, min, max)</code></td><td>Restricts <code>x</code> between <code>min</code> and <code>max</code>.</td></tr>
+        <tr><td><code>Mafs.abs(x)</code></td><td>Returns the absolute value of <code>x</code>.</td></tr>
+        <tr><td><code>Mafs.min(x, minVal)</code></td><td>Ensures <code>x</code> ≥ <code>minVal</code>.</td></tr>
+        <tr><td><code>Mafs.max(x, maxVal)</code></td><td>Ensures <code>x</code> ≤ <code>maxVal</code>.</td></tr>
+        <tr><td><code>Mafs.round(x)</code></td><td>Rounds to the nearest integer.</td></tr>
+        <tr><td><code>Mafs.log(x)</code></td><td>Returns the natural logarithm.</td></tr>
+        <tr><td><code>Mafs.log_custom(x, base)</code></td><td>Returns the logarithm of <code>x</code> with a custom base.</td></tr>
+        <tr><td><code>Mafs.square_root(x)</code></td><td>Returns the square root of <code>x</code>.</td></tr>
+        <tr><td><code>Mafs.lerp(x, y, t)</code></td><td>Interpolates between <code>x</code> and <code>y</code> by <code>t</code>.</td></tr>
+        <tr><td><code>Mafs.mod(x, y)</code></td><td>Returns the remainder of <code>x</code> divided by <code>y</code>.</td></tr>
+        <tr><td><code>Mafs.div(x, y)</code></td><td>Returns the whole number result of <code>x</code> divided by <code>y</code>.</td></tr>
+        <tr><td><code>Mafs.sin(a)</code></td><td>Returns the sine of angle <code>a</code> (radians).</td></tr>
+        <tr><td><code>Mafs.cos(a)</code></td><td>Returns the cosine of angle <code>a</code> (radians).</td></tr>
+        <tr><td><code>Mafs.tan(a)</code></td><td>Returns the tangent of angle <code>a</code> (radians).</td></tr>
+        <tr><td><code>Mafs.pi()</code></td><td>Returns the mathematical constant π.</td></tr>
       </table>
     </section>
 
-    <section id="vectors">
-      <h2>🧩 Vectors</h2>
-
+    <!-- Vectors -->
+    <section>
+      <h2>Vectors</h2>
       <h3>Vector2</h3>
       <table>
         <tr><th>Function</th><th>Description</th></tr>
-        <tr><td><code>vector2(float x, float y)</code></td><td>Creates a 2D vector.</td></tr>
-        <tr><td><code>vector2_x</code></td><td>Gets the x component of a Vector2 as a float.</td></tr>
-        <tr><td><code>vector2_y</code></td><td>Gets the y component of a Vector2 as a float.</td></tr>
-        <tr><td><code>sqr_magnitude_vector2(vector2 input)</code></td><td>Returns the squared magnitude of a Vector2.</td></tr>
+        <tr><td><code>Mafs.vector2(x, y)</code></td><td>Creates a 2D vector.</td></tr>
+        <tr><td><code>Mafs.vector2_x(v)</code></td><td>Returns the X component of the vector.</td></tr>
+        <tr><td><code>Mafs.vector2_y(v)</code></td><td>Returns the Y component of the vector.</td></tr>
+        <tr><td><code>Mafs.sqr_magnitude_vector2(v)</code></td><td>Returns the squared magnitude of the vector.</td></tr>
       </table>
-
       <h3>Vector3</h3>
       <table>
         <tr><th>Function</th><th>Description</th></tr>
-        <tr><td><code>vector3(float x, float y, float z)</code></td><td>Creates a 3D vector.</td></tr>
-        <tr><td><code>vector3_x</code></td><td>Gets the x component of a Vector3 as a float.</td></tr>
-        <tr><td><code>vector3_y</code></td><td>Gets the y component of a Vector3 as a float.</td></tr>
-        <tr><td><code>vector3_z</code></td><td>Gets the z component of a Vector3 as a float.</td></tr>
-        <tr><td><code>sqr_magnitude_vector3(vector3 input)</code></td><td>Returns the squared magnitude of a Vector3.</td></tr>
+        <tr><td><code>Mafs.vector3(x, y, z)</code></td><td>Creates a 3D vector.</td></tr>
+        <tr><td><code>Mafs.vector3_x(v)</code></td><td>Returns the X component of the vector.</td></tr>
+        <tr><td><code>Mafs.vector3_y(v)</code></td><td>Returns the Y component of the vector.</td></tr>
+        <tr><td><code>Mafs.vector3_z(v)</code></td><td>Returns the Z component of the vector.</td></tr>
+        <tr><td><code>Mafs.sqr_magnitude_vector3(v)</code></td><td>Returns the squared magnitude of the vector.</td></tr>
       </table>
     </section>
 
-    <section id="graphics">
-      <h2>🖼️ Graphics</h2>
+    <!-- Entity -->
+    <section>
+      <h2>Entity</h2>
       <table>
         <tr><th>Function</th><th>Description</th></tr>
-        <tr><td><code>create_sprite(string path, string fileName)</code></td><td>Creates an image with the given name from the specified path.</td></tr>
-        <tr><td><code>draw_sprite(string fileName, float x, float y, float z, float scale)</code></td><td>Draws the given image at the specified position and scale.</td></tr>
+        <tr><td><code>Entity.create_entity()</code></td><td>Creates a new entity in the current scene.</td></tr>
+        <tr><td><code>Entity.get_entity_pos(entity)</code></td><td>Returns the entity’s position as <code>Vec2</code>.</td></tr>
+        <tr><td><code>Entity.set_entity_pos(entity, x, y)</code></td><td>Sets the entity’s position.</td></tr>
+        <tr><td><code>Entity.add_sprite_component(entity, alias, zOrder)</code></td><td>Adds a sprite component with a texture alias and z-order.</td></tr>
       </table>
     </section>
 
-    <section id="audio">
-      <h2>🔊 Audio</h2>
+    <!-- UI -->
+    <section>
+      <h2>UI</h2>
+      <table>
+        <tr><th>Function</th><th>Description</th></tr>
+        <tr><td><code>UI.draw_label(text, w, h, x, y)</code></td><td>Draws a label on the UI.</td></tr>
+        <tr><td><code>UI.draw_button(text, w, h, x, y)</code></td><td>Draws a button and returns <code>true</code> if clicked.</td></tr>
+        <tr><td><code>UI.draw_slider(text, value, w, h, x, y, min, max)</code></td><td>Draws a slider and returns the new slider value.</td></tr>
+      </table>
+    </section>
 
+    <!-- Graphics -->
+    <section>
+      <h2>Texture / Graphics</h2>
+      <table>
+        <tr><th>Function</th><th>Description</th></tr>
+        <tr><td><code>Texture.add_texture(filePath, alias)</code></td><td>Loads a texture from file and assigns it an alias.</td></tr>
+      </table>
+    </section>
+
+    <!-- Audio -->
+    <section>
+      <h2>Audio</h2>
       <h3>SoundManager</h3>
-      <p><em>Controls all sound-related functions.</em></p>
       <table>
         <tr><th>Function</th><th>Description</th></tr>
-        <tr><td><code>GetInstance()</code></td><td>Returns the current SoundManager instance.</td></tr>
-        <tr><td><code>LoadSound(string soundName, string soundPath)</code></td><td>Loads a sound from the given path and assigns it the given name.</td></tr>
-        <tr><td><code>SetVolume(string soundName, float volume)</code></td><td>Sets the volume of a sound.</td></tr>
-        <tr><td><code>GetAudio(string soundName)</code></td><td>Returns the audio clip associated with the name.</td></tr>
+        <tr><td><code>SoundManager.GetInstance()</code></td><td>Returns the SoundManager instance.</td></tr>
+        <tr><td><code>SoundManager.LoadSound(name, path)</code></td><td>Loads a sound from a file.</td></tr>
+        <tr><td><code>SoundManager.SetVolume(name, volume)</code></td><td>Sets the volume for a sound.</td></tr>
+        <tr><td><code>SoundManager.GetAudio(name)</code></td><td>Retrieves the AudioPlayer for a sound.</td></tr>
       </table>
 
       <h3>AudioPlayer</h3>
-      <p><em>Manages a specific sound rather than all sounds in the SoundManager.</em></p>
       <table>
-        <tr><th>Function</th><th>Description</th></tr>
-        <tr><td><code>.Play()</code></td><td>Plays the assigned sound.</td></tr>
-        <tr><td><code>.Play(int fadeTime)</code></td><td>Plays the sound with a fade-in over fadeTime milliseconds.</td></tr>
-        <tr><td><code>.Pause()</code></td><td>Pauses the audio.</td></tr>
+        <tr><th>Function / Property</th><th>Description</th></tr>
+        <tr><td><code>.Play()</code></td><td>Plays the sound.</td></tr>
+        <tr><td><code>.Play(fadeTime)</code></td><td>Plays with fade-in (milliseconds).</td></tr>
+        <tr><td><code>.PlayOneShot()</code></td><td>Plays the sound once immediately.</td></tr>
+        <tr><td><code>.Pause()</code></td><td>Pauses playback.</td></tr>
         <tr><td><code>.Resume()</code></td><td>Resumes playback.</td></tr>
-        <tr><td><code>.End()</code></td><td>Stops and ends playback.</td></tr>
-        <tr><td><code>.IsPlaying</code></td><td>Returns a bool indicating if the sound is currently playing.</td></tr>
-        <tr><td><code>.ChangeVolume(float volume)</code></td><td>Changes the volume of the sound.</td></tr>
-        <tr><td><code>.ToggleMute()</code></td><td>Toggles mute on/off.</td></tr>
-        <tr><td><code>.volume</code></td><td>An int (0–128) representing the sound volume level.</td></tr>
-        <tr><td><code>.mute</code></td><td>A bool indicating whether the sound is muted.</td></tr>
-        <tr><td><code>.clip</code></td><td>Selects a portion of an audio file.</td></tr>
-        <tr><td><code>.loop</code></td><td>Enables or disables looping for the track.</td></tr>
-        <tr><td><code>.playOnAwake</code></td><td>If true, plays the audio automatically when loaded.</td></tr>
+        <tr><td><code>.End()</code></td><td>Stops playback completely.</td></tr>
+        <tr><td><code>.IsPlaying</code></td><td>Returns true if the sound is playing.</td></tr>
+        <tr><td><code>.ChangeVolume(v)</code></td><td>Changes volume (0–128).</td></tr>
+        <tr><td><code>.ToggleMute()</code></td><td>Toggles mute on or off.</td></tr>
+        <tr><td><code>.loop</code></td><td>Enables or disables looping.</td></tr>
+        <tr><td><code>.mute</code></td><td>Returns or sets mute state.</td></tr>
+        <tr><td><code>.clip</code></td><td>Selects a portion of the audio file.</td></tr>
+        <tr><td><code>.playOnAwake</code></td><td>Automatically plays when loaded if true.</td></tr>
       </table>
     </section>
+
   </main>
 
   <footer>
-    © 2025 — Engine Function Reference by <strong>Peter</strong>
+    © 2025 Ionix Engine Lua API — Terminal Edition by <strong>Peter</strong>
   </footer>
 </body>
 </html>
