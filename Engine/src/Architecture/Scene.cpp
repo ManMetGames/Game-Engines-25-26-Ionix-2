@@ -48,8 +48,6 @@ namespace IonixEngine {
             Entity* entity = &m_Entities[i];
             entity->Update(dt);
             entity->Render(&renderData);
-            SDL_Log("index: %zu, %f, %f",i, entity->transform.GetLocalRotation(), entity->transform.GetGlobalRotation());
-
         }
     }
 

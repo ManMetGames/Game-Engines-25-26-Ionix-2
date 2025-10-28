@@ -57,6 +57,8 @@ namespace IonixEngine
             //globalRot += currentParent->rotation;
             Vec2 parentLocalPos = Vec2Rotate(currentParent->position, pRotation);
 
+            globalRot += currentParent->rotation;
+
             globalPos.x += parentLocalPos.x;
             globalPos.y += parentLocalPos.y;
 
@@ -64,11 +66,15 @@ namespace IonixEngine
         }
         Vec2 displacedLocal = position;
         if (parentTransform) {
+            //displacedLocal = Vec2Rotate(position, parentTransform->rotation);
             displacedLocal = Vec2Rotate(position, parentTransform->rotation);
+            //displacedLocal = Vec2Rotate(position, -rotation);
         }
 
         globalPos.x += displacedLocal.x;
         globalPos.y += displacedLocal.y;
+
+
 
         //SDL_Log("[Transforms] Returning Global Pos: %f, %f", globalPos.x, globalPos.y);
         return globalPos;
@@ -203,6 +209,23 @@ namespace IonixEngine
             return true;
         }
         else { return false; }
+    }
+
+    void Transform::GetRotationsAll()
+    {
+        std::stack<Transform*> pathToParent = getPathToParent();
+        int i = 0;
+        while (!pathToParent.empty())
+        {
+            Transform* currentParent = pathToParent.top();
+            SDL_Log("[Transform] Rotations at index %i: Local: %f\nGlobal %f", i, currentParent->rotation, currentParent->GetGlobalRotation());
+            SDL_Log("[Transform] Positions at index %i: Local: X:%f,Y:%f\nGlobal X:%f,Y:%f", i, currentParent->position.x, currentParent->position.y, currentParent->GetGlobalPosition().x, currentParent->GetGlobalPosition().y);
+            i++;
+            pathToParent.pop();
+        }
+        SDL_Log("[Transform] Rotations at index %i: Local: %f\nGlobal %f", i, rotation, GetGlobalRotation());
+        SDL_Log("[Transform] Positions at index %i: Local: X:%f,Y:%f\nGlobal X:%f,Y:%f", i, position.x, position.y, GetGlobalPosition().x, GetGlobalPosition().y);
+
     }
 
 }

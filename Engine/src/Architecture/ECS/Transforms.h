@@ -3,6 +3,7 @@
 //#include <cmath>
 #include <vector>
 #include <stack>
+#include <string>
 #include "Temp_Vec2.hpp"
 
 namespace IonixEngine
@@ -42,5 +43,7 @@ namespace IonixEngine
 		void AddChild(Transform* child);
 		bool RemoveChild(Transform* child);
 		bool RemoveChild(int index);
+
+		void GetRotationsAll();
 	};
 }
