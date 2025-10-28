@@ -4,6 +4,7 @@
 #include "Fysics/Shapes.h"
 #include "Fysics/Joints.h"
 #include "Fysics/Force.h"
+#include "Fysics/Collider.h"
 
 #include <vector>
 #include <functional>
@@ -20,25 +21,33 @@ namespace IonixEngine
         Force* force;
         b2World* world;
 
-        static LayerFysics* s_instance;
+        using GlobalCollisionCallback = std::function<void(Collider*, Collider*)>;
+        std::vector<GlobalCollisionCallback> globalCollisionCallbacks_;
+
     public:
         static LayerFysics* s_instance;
         static void SetInstance(LayerFysics* instance) {
             s_instance = instance;
         }
-        using CollisionCallback = std::function<void(EntityID, EntityID)>;
 
-        void RegisterCollisionCallback(CollisionCallback callback);
-        void EmitCollision(EntityID a, EntityID b);
-        void Update();
+        void RegisterCollisionCallback(const GlobalCollisionCallback& callback)
+        {
+            globalCollisionCallbacks_.push_back(callback);
+        }
 
-    private:
-        std::vector<CollisionCallback> collisionCallbacks_;
-    };
-}
+        void EmitCollision(Collider* a, Collider* b)
+        {
+            std::cout << "[FysicsManager] Collision emitted\n";
 
-        void Create() 
-        {   
+            for (auto& cb : globalCollisionCallbacks_)
+                cb(a, b);
+
+            if (a) a->EmitCollision(b);
+            if (b) b->EmitCollision(a);
+        }
+
+        void Create()
+        {
             FysicsBody* body = new FysicsBody(world);
             FysicsBody* bodyb = new FysicsBody(world);
             shape = new FysicsShapes();
@@ -49,7 +58,6 @@ namespace IonixEngine
 
             joint = new PrismaticJoints();
             joint->setJoint(body->GetBody(), bodyb->GetBody(), b2Vec2_zero, 1.0f, 1.0f, true, 1.0f, 1.0f, true);
-
         }
     };
 }

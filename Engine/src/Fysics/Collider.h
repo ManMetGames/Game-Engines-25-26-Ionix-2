@@ -1,7 +1,6 @@
 #pragma once
 #include "LayerSystem/Layers/LayerFysics.h"
 #include "Maf/MafUtils.h"
-#include "Fysics/FysicsManager.h"
 
 #include <iostream>
 
@@ -10,13 +9,26 @@ namespace IonixEngine
     class Collider
     {
         b2World* world;
-        FysicsManager* fysicsManager;
+
+        using CollisionCallback = std::function<void(Collider* other)>;
+        std::vector<CollisionCallback> collisionCallbacks_;
 
     public:
 
-        Collider(FysicsManager* manager) : fysicsManager(manager)
+        Collider()
         {
             world = LayerFysics::GetInstance()->GetWorld();
+        }
+
+        void RegisterCollisionCallback(const CollisionCallback& callback)
+        {
+            collisionCallbacks_.push_back(callback);
+        }
+
+        void EmitCollision(Collider* other)
+        {
+            for (auto& cb : collisionCallbacks_)
+                cb(other);
         }
 
         struct Contact {         //Contact struct
@@ -58,11 +70,10 @@ namespace IonixEngine
 
             bool touching = (leftA < rightB && rightA > leftB && topA < bottomB && bottomA > topB);
 
-            if (touching && fysicsManager)
+            if (touching)
             {
                 //Collision detected
                 std::cout << "[Collider::isTouching] Collision detected between rectangles!\n";
-                fysicsManager->EmitCollision(1, 2); // Placeholder EntityIDs
             }
 
             return touching;
@@ -179,13 +190,6 @@ namespace IonixEngine
             //Returns the Contact point and the direction of the normal
             return contact;
         }
-
-        void setFysicsManager(FysicsManager* manager)
-		{
-			fysicsManager = manager;
-		}
-
-        FysicsManager* getFysicsManager() const { return fysicsManager; }
 
         void SetWorld(b2World* newWorld) { world = newWorld; }
 
