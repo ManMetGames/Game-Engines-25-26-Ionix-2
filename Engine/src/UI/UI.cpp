@@ -1,13 +1,25 @@
 #include "UI.h"
 #include "imgui.h"
-#include <iostream>
+#include "FontLoader.h"
+#include "Architecture/Application.h"
 
 namespace IonixEngine
 {
-	void UI::DrawLabel(char* text, int xpos, int ypos)
+	void UI::DrawLabel(char* text, int xsize, int ysize, int xpos, int ypos ,const char* font)
 	{
+		
 		ImGui::SetCursorPos(ImVec2(xpos, ypos));
-		ImGui::Text(text, ImVec2(xpos, ypos));
+		
+	    ImFont* fontToPush = Application::Get().layerUI->m_FontLoader->GetFont("Font1Bold");
+		ImGui::PushFont(fontToPush);
+		ImGui::Text(text, ImVec2(xsize, ysize));
+		ImGui::PopFont();
+
+		/*ImFont* BoldFontPush = Application::Get().layerUI->m_FontLoader->GetFont("FontBold");
+		ImGui::PushFont(BoldFontPush);
+		ImGui::Text(text, ImVec2(xsize, ysize));
+		ImGui::PopFont();*/
+
 	}
 	bool UI::DrawButton(char* text, int xsize, int ysize, int xpos, int ypos)
 	{
@@ -24,21 +36,6 @@ namespace IonixEngine
 
 	}
 
-	static bool animate = true;
-
-
-	void UI::DrawCheckbox(int id, char* text, int xpos, int ypos, int xsize, int ysize)
-	{
-		if (checkboxMap.find(id) != checkboxMap.end())
-			checkboxMap.insert({ id, false });
-
-		bool& state = getCheckboxState(id);
-		ImGui::SetCursorPos(ImVec2(xpos, ypos));
-
-		ImGui::Checkbox(text, &state);
-	}
-
-
 	void UI::DrawRadioButton(int xpos, int ypos, char* text, static int e, int value, bool sameline)
 	{
 		ImGui::SetCursorPos(ImVec2(xpos, ypos));
@@ -48,6 +45,5 @@ namespace IonixEngine
 		}
 		ImGui::RadioButton(text, &e, value);
 	}
-
 
 }
