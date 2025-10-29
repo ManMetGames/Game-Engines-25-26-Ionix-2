@@ -94,6 +94,13 @@ namespace IonixEngine {
 			return Application::Get().layerInput->m_Input->IsKeyHeld(static_cast<SDL_Scancode>(code));
 			};
 
+		auto getMouseX = []() -> int {
+			return Application::Get().layerInput->m_Input->GetMousePosition().x;
+			};
+		auto getMouseY = []() -> int {
+			return Application::Get().layerInput->m_Input->GetMousePosition().y;
+			};
+
 
 		m_LuaState["Keys"] = m_LuaState.create_table_with(
 			"ionix_a", SDL_SCANCODE_A,
@@ -155,7 +162,9 @@ namespace IonixEngine {
 		m_LuaState["Input"] = m_LuaState.create_table_with(
 			"get_key_up", getKeyUp,
 			"get_key_down", getKeyDown,
-			"get_key_held", getKeyHeld
+			"get_key_held", getKeyHeld,
+			"get_mouse_x", getMouseX,
+			"get_mouse_y", getMouseY
 		);
 	}
 	void Scripting::RegisterMafsBindings()
