@@ -327,6 +327,7 @@ namespace IonixEngine {
 			};
 
 		auto setEntityPos = [](Entity* entity, float x, float y) {
+			if (entity == nullptr) return;
 			entity->position = Vec2{ x, y };
 			};
 

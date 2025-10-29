@@ -46,7 +46,6 @@ bool SoundManager::LoadSound(const std::string &name, const std::string &filePat
 
     if (audio) {
         m_Sounds[name].audio = audio;
-        std::cout << GetPlayTime(name) << std::endl;
         return true;
     }
     SDL_Log("[Sound Manager] Could not load audio file: %s due to: %s", filePath.c_str(), Mix_GetError());
@@ -89,12 +88,14 @@ float SoundManager::GetPlayTime(const std::string& alias)
     int channels = 0;
 
     Mix_Chunk* audio = GetAudio(alias);
-    if (audio) {
-    if (!Mix_QuerySpec(&freq, &format, &channels)) { return -1.0f; }
-    return (float)audio->alen / (float)(freq * channels * ((format & 0xFF) / 8));
+    if (audio) 
+    {
+        if (!Mix_QuerySpec(&freq, &format, &channels)) { return -1.0f; }
+        std::cout << ("Here") << std::endl;
+        return (float)audio->alen / (float)(freq * channels * ((format & 0xFF) / 8));
     }
     else {
-        return -1;
+        return -1.0f;
     }
 }
 SoundManager::~SoundManager() { Shutdown(); }

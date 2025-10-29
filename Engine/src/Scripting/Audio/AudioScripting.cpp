@@ -19,7 +19,9 @@ namespace IonixEngine {
             "LoadSound", &SoundManager::LoadSound,
             "SetVolume", &SoundManager::SetVolume,
             "GetAudio", &SoundManager::GetAudio,
-            "GetPlayTime", &SoundManager::GetPlayTime
+            "GetPlayTime", sol::overload(
+                [](SoundManager& sm, const std::string& alias) { return sm.GetPlayTime(alias); }
+            )
         );
 
         // --- Bind AudioPlayer ---
