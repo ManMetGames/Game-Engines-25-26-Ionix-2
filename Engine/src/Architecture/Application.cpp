@@ -93,28 +93,11 @@ namespace IonixEngine
                     layer->OnUpdate();
             }
 
-            if (layerInput->m_Input->IsKeyDown(SDL_SCANCODE_SPACE))
-            {
-                //std::cout << "Spacebar was pressed once \n";
-            }
-            else if (layerInput->m_Input->IsKeyUp(SDL_SCANCODE_SPACE))
-            {
-               // std::cout << "Spacebar has been lifted \n";
-            }
-            if (layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_SPACE))
-            {
-               // std::cout << "Spacebar is being held down \n";
-            }
-
-            //printf("%4.2f %4.2f\n", testBody.GetPosition().x, testBody.GetPosition().y);
             
             Scripting::Get().CallHook("OnUpdate");
 
-                std::cout << "Spacebar is being held down \n";
 
-            }
-
-           if (layerInput->m_Input->IsMouseButtonDown(SDL_BUTTON_LEFT))
+           /*if (layerInput->m_Input->IsMouseButtonDown(SDL_BUTTON_LEFT))
            {
                if (!isLMouseDown)
                {
@@ -159,8 +142,9 @@ namespace IonixEngine
                isMMouseDown = false;
            }
 
-           // MouseCoords mc = layerInput->m_Input->GetMousePosition();
-           // std::cout << "Mouse X Pos: " << mc.x << " Mouse Y Pos: " << mc.y << std::endl;
+           MouseCoords mc = layerInput->m_Input->GetMousePosition();
+           std::cout << "Mouse X Pos: " << mc.x << " Mouse Y Pos: " << mc.y << std::endl;
+           */
             
             layerInput->m_Input->CopyCodesEndFrame();
 

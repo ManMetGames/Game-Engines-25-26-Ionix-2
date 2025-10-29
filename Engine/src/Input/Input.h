@@ -18,39 +18,16 @@ namespace IonixEngine
     class Input
     {
     public:
-        bool IsKeyDown(SDL_Scancode code) const
-        {
-            // Not held down previous frame
-
-            // Held down current frame
-            return !previousKeys.count(code) && currentKeys.count(code);
-        }
-
-        bool IsKeyUp(SDL_Scancode code) const
-        {
-            // Was held down previous frame
-
-            // No longer held down on current frame
-            return previousKeys.count(code) && !currentKeys.count(code);
-        }
-        bool IsKeyHeld(SDL_Scancode code) const
-        {
-            return currentKeys.count(code);
-        }
+        bool IsKeyDown(SDL_Scancode code) const;
+        bool IsKeyUp(SDL_Scancode code) const;
+        bool IsKeyHeld(SDL_Scancode code) const;
+        
         MouseCoords GetMousePosition();
 
-        bool IsKeyDown(SDL_Scancode code) const;
-
-
-        bool IsKeyUp(SDL_Scancode code) const;
-        
-       
-        bool IsKeyHeld(SDL_Scancode code) const;
        
 
         //Mouse Button Down 
         bool IsMouseButtonDown(Uint8 mousecode) const;
-
         bool IsMouseButtonUp(Uint8 mousecode) const;
       
 
