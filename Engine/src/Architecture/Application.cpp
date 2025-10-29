@@ -3,6 +3,7 @@
 #include "Fysics/FysicsBody.h"
 #include "Fysics/Shapes.h"
 #include "LayerSystem/Layers/LayerTexture.hpp"
+#include "imgui.h"
 #include <vector>
 
 
@@ -100,14 +101,15 @@ namespace IonixEngine
             }
 
             //printf("%4.2f %4.2f\n", testBody.GetPosition().x, testBody.GetPosition().y);
-            
+            ImGui::Render();
             Scripting::Get().CallHook("OnUpdate");
+            SDL_RenderPresent(m_Window->m_Renderer);
 
             layerInput->m_Input->CopyCodesEndFrame();
 
                      
             m_Window->OnUpdate();
-            SDL_RenderPresent(renderer);
+
         }
     
         std::vector<Layer*> layers = m_LayerStack.GetLayers();

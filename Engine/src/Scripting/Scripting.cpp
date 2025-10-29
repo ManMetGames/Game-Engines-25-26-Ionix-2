@@ -39,6 +39,7 @@ namespace IonixEngine {
 		RegisterAudioBindings();
 		RegisterGraphicsBindings();
 		RegisterEntityBindings();
+		RegisterUIBindings();
 	}
 
 	void Scripting::ExecuteScript(const std::string& scriptName)
@@ -92,7 +93,7 @@ namespace IonixEngine {
 		auto getKeyHeld = [](int code) -> bool {
 			return Application::Get().layerInput->m_Input->IsKeyHeld(static_cast<SDL_Scancode>(code));
 			};
-		
+
 
 		m_LuaState["Keys"] = m_LuaState.create_table_with(
 			"ionix_a", SDL_SCANCODE_A,
@@ -161,13 +162,16 @@ namespace IonixEngine {
 	{
 		auto clamp = [](float x, float min, float max) -> float {
 			return Maf::mafClamp(x, min, max);
-		};
+			};
 		auto log = [](float x) -> float {
 			return Maf::Log(x);
-		};
+			};
+		auto log10 = [](float value) -> float {
+			return Maf::Log10(value);
+			};
 		auto logCustom = [](float x, float base) -> float {
 			return Maf::Log(x, base);
-		};
+			};
 
 		auto sqrt = [](float x) -> float {
 			return Maf::mafSqrt(x);
@@ -253,13 +257,22 @@ namespace IonixEngine {
 			return Maf::mafPI();
 			};
 
-			m_LuaState["Mafs"] = m_LuaState.create_table_with(
+		auto rad2deg = [](float radians) -> float {
+			return Maf::Rad2Deg(radians);
+			};
+
+		auto deg2rad = [](float degrees) -> float {
+			return Maf::Deg2Rad(degrees);
+			};
+
+		m_LuaState["Mafs"] = m_LuaState.create_table_with(
 			"clamp", clamp,
 			"abs", abs,
 			"min", min,
 			"max", max,
 			"round", round,
 			"log", log,
+			"log_10", log10,
 			"log_custom", logCustom,
 			"square_root", sqrt,
 			"lerp", lerp,
@@ -277,23 +290,25 @@ namespace IonixEngine {
 			"sin", sin,
 			"cos", cos,
 			"tan", tan,
-			"pi", pi
+			"pi", pi,
+			"rad_2_deg", rad2deg,
+			"deg_2_rad", deg2rad
 		);
 	}
 	void Scripting::RegisterAudioBindings()
 	{
-		AudioScripting::Get().Init(m_LuaState);
+		// AudioScripting::Get().Init(m_LuaState);
 
-	
+
 	}
 
 	void Scripting::RegisterGraphicsBindings()
 	{
 
 		auto texture = [](std::string filePath, std::string alias)
-		{
-			TextureManager::Get().AddTexture(filePath, alias);
-		};
+			{
+				TextureManager::Get().AddTexture(filePath, alias);
+			};
 
 		m_LuaState["Texture"] = m_LuaState.create_table_with(
 			"add_texture", texture
@@ -305,19 +320,19 @@ namespace IonixEngine {
 		auto entity = []() -> Entity* {
 			EntityID entityID = Application::Get().layerScene->GetScene()->CreateEntity();
 			return Application::Get().layerScene->GetScene()->GetEntityFromID(entityID);
-		};
+			};
 
 		auto getEntityPos = [](Entity* entity) -> Vec2 {
 			return entity->position;
-		};
+			};
 
 		auto setEntityPos = [](Entity* entity, float x, float y) {
-			entity->position = Vec2{x, y};
-		};
+			entity->position = Vec2{ x, y };
+			};
 
 		auto addSpriteComponent = [](Entity* entity, string alias, int zedOrder) {
 			entity->AddComponent(new SpriteComponent(entity, alias, zedOrder));
-		};
+			};
 
 		m_LuaState["Entity"] = m_LuaState.create_table_with(
 			"create_entity", entity,
@@ -327,7 +342,28 @@ namespace IonixEngine {
 		);
 	}
 
-	
-	
-	// print (Window.get_title())
+	void Scripting::RegisterUIBindings()
+	{
+		auto drawLabel = [this](const char* text, int xsize, int ysize, int xpos, int ypos, const char* font) {
+			Application::Get().layerUI->m_UI->DrawLabel((char*)text, xsize, ysize, xpos, ypos, "");
+			};
+
+		auto drawButton = [](const char* text, int xsize, int ysize, int xpos, int ypos) -> bool {
+			return Application::Get().layerUI->m_UI->DrawButton((char*)text, xsize, ysize, xpos, ypos);
+			};
+
+		auto drawSlider = [](const char* text, float i, int xsize, int ysize, int xpos, int ypos, int minval, int maxval) -> float {
+			return Application::Get().layerUI->m_UI->DrawSlider((char*)text, i, xsize, ysize, xpos, ypos, minval, maxval);
+			};
+
+		m_LuaState["UI"] = m_LuaState.create_table_with(
+			"draw_label", drawLabel,
+			"draw_button", drawButton,
+			"draw_slider", drawSlider
+		);
+
+
+
+		// print (Window.get_title())
+	}
 }
