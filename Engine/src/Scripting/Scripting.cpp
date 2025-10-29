@@ -331,7 +331,7 @@ namespace IonixEngine {
 			};
 
 		auto addSpriteComponent = [](Entity* entity, string alias, int zedOrder) {
-			entity->AddComponent(new SpriteComponent(entity, alias, zedOrder));
+			entity->AddComponent(new AnimatedSpriteComponent(entity, alias, zedOrder));
 			};
 
 		m_LuaState["Entity"] = m_LuaState.create_table_with(
@@ -344,7 +344,6 @@ namespace IonixEngine {
 
 	void Scripting::RegisterUIBindings()
 	{
-    UI-Main
 		auto drawLabel = [this](const char* text, int xsize, int ysize, int xpos, int ypos, const char* font) {
 			Application::Get().layerUI->m_UI->DrawLabel((char*)text, xsize, ysize, xpos, ypos, "");
 			};
