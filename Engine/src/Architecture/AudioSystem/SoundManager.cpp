@@ -91,7 +91,6 @@ float SoundManager::GetPlayTime(const std::string& alias)
     if (audio) 
     {
         if (!Mix_QuerySpec(&freq, &format, &channels)) { return -1.0f; }
-        std::cout << ("Here") << std::endl;
         return (float)audio->alen / (float)(freq * channels * ((format & 0xFF) / 8));
     }
     else {
