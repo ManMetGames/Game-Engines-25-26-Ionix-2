@@ -90,5 +90,4 @@ namespace IonixEngine
 		
 		return currentValue;
 	}
-
 }

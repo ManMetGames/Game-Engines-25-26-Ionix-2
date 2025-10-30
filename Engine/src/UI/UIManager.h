@@ -85,8 +85,7 @@ namespace IonixEngine
 		
 		void AddRadioButton(int x, int y, float xSize, float ySize, const char* text, int* radioValuePointer, int value, bool sameline);
 		
-		void AddDropdown(int x, int y, float xSize, float ySize, const char* text, std::vector<std::string> options, int* currentIndex);
-		
+		void AddDropdown(int x, int y, float xSize, float ySize, const char* text, std::vector<std::string> options, static int* currentIndex);
 		
 		void AddColorPicker(int x, int y, float xSize, float ySize, const char* label, float* color);
 
