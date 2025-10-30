@@ -16,6 +16,7 @@ namespace IonixEngine
 		RadioButton,
 		Dropdown,
 		ColorPicker,
+		ProgressBar,
 	};
 	struct UIElement
 	{
@@ -37,7 +38,9 @@ namespace IonixEngine
 		int RadioButtonValue = 0;
 		bool sameline = false;
 		float* color = nullptr; // only for ColorPicker4
-		
+		float maxValue = 0.0f; // only for ProgressBar
+		float* currentValue = nullptr; // only for ProgressBar
+		float incrementAmount = 0.0f; // only for ProgressBar
 		std::vector<UIElement> children;
 		bool isChildGroup = false;
 
@@ -89,6 +92,8 @@ namespace IonixEngine
 		
 		
 		void AddColorPicker(int x, int y, float xSize, float ySize, const char* label, float* color);
+
+		void AddProgressBar(int x, int y, float xSize, float ySize, float maxvalue, float* currentvalue, float incrementamount);
 
 		void RenderUI();
 		

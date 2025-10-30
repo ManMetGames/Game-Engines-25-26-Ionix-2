@@ -165,6 +165,21 @@ void IonixEngine::UIManager::AddColorPicker(int x, int y, float xSize, float ySi
 	AddChildToPanel(element);
 }
 
+void IonixEngine::UIManager::AddProgressBar(int x, int y, float xSize, float ySize, float maxvalue, float* currentvalue, float incrementamount)
+{
+	UIElement element;
+	element.type = UIType::ProgressBar;
+	element.groupName = currentGroupName;
+	element.xPos = x;
+	element.yPos = y;
+	element.xSize = xSize;
+	element.ySize = ySize;
+	element.maxValue = maxvalue;
+	element.currentValue = currentvalue;
+	element.incrementAmount = incrementamount;
+	AddChildToPanel(element);
+}
+
 void IonixEngine::UIManager::AddDropdown(int x, int y, float xSize, float ySize, const char* text, std::vector<std::string> options, int* currentIndex)
 {
 	UIElement element;
@@ -232,6 +247,15 @@ void IonixEngine::UIManager::RenderElement(UIElement& element)
 	case UIType::ColorPicker:
 		if (element.color)
 			ImGui::ColorEdit4(element.text, element.color);
+		break;
+	case UIType::ProgressBar:
+		if (element.currentValue)
+		{
+			ImGui::ProgressBar(*element.currentValue / element.maxValue, ImVec2(element.xSize, element.ySize));
+			*element.currentValue += element.incrementAmount;
+			if (*element.currentValue > element.maxValue)
+				*element.currentValue = 0.0f;
+		}
 		break;
 	case UIType::Dropdown:
 		ImGui::SetCursorPos(ImVec2(element.xPos, element.yPos));
