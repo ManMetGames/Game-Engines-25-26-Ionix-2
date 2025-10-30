@@ -3,6 +3,7 @@
 #include <string>
 #include <functional>
 #include <vector>
+#include "UI/UI.h"
 namespace IonixEngine
 {
 	enum UIType
@@ -57,6 +58,8 @@ namespace IonixEngine
 		std::vector<UIElement*> groupStack; 
 
 		void RenderElement(UIElement& element);
+
+		UI* m_ui = nullptr;
 	public:
 
 		std::vector<UIElement> GetElements()
@@ -65,6 +68,10 @@ namespace IonixEngine
 		}
 
 		std::vector<UIElement> elements;
+		void setUIRenderer(UI* ui)
+		{
+			m_ui = ui;
+		}
 		void UIManager::BeginGroup(const std::string& groupName);
 		
 		void UIManager::EndGroup();
