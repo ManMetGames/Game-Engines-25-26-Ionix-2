@@ -16,6 +16,7 @@ namespace IonixEngine
 		Entity* entity;
 
 		Vec2 localPosition;
+		Vec2 localScale;
 		float localRotation;
 
 	public:
@@ -29,8 +30,13 @@ namespace IonixEngine
 		Vec2 GetLocalPosition();
 		float GetLocalRotation();
 
-		void SetLocalPosition(Vec2 transform);
-		void SetLocalRotation(float rot);
+		Mat2 GetRotationMatrix();
+		Mat2 GetScaleMatrix();
+		Mat2 GetTransformMatrix();
+
+		void SetLocalPosition(Vec2 newPos);
+		void SetLocalRotation(float newRot);
+		void SetLocalScale(Vec2 newScale);
 
 		void SetParent(Transform* parent, bool maintainLocation = true);
 		void RemoveParent(bool maintainLocation = true);

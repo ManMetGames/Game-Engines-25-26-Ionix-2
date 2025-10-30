@@ -16,6 +16,7 @@ namespace IonixEngine
         entity(parentEntity)
     {
         localPosition = Vec2{ 0.0f,0.0f };
+        localScale = Vec2{ 1.0f,1.0f };
         childTransforms = std::vector<Transform*>();
     }
 
@@ -116,15 +117,53 @@ namespace IonixEngine
         return localRotation;
     }
 
-    void Transform::SetLocalPosition(Vec2 localPosition)
+    Mat2 Transform::GetRotationMatrix()
     {
-        localPosition = localPosition;
+        float angle = localRotation * DEG2RAD;
+
+        Mat2 rotationMatrix = {
+            cosf(angle),sinf(angle),
+            -sinf(angle),cosf(angle) };
+
+        return rotationMatrix;
     }
 
-    void Transform::SetLocalRotation(float localRotation)
+    Mat2 Transform::GetScaleMatrix()
     {
-        localRotation = localRotation;
+        Mat2 scaleMatrix = {
+            localScale.x,0,
+            0,localScale.y };
+
+        return scaleMatrix;
+    }
+
+    Mat2 Transform::GetTransformMatrix()
+    {
+        Mat2 output = { 0,0,0,0 };
+
+        Mat2 rot = GetRotationMatrix();
+        Mat2 scale = GetScaleMatrix();
+
+        //multiply matrices
+
+        //SDL_Log("debug log lol %f", output.b);
+        return output;
+    }
+
+    void Transform::SetLocalPosition(Vec2 newPosition)
+    {
+        this->localPosition = newPosition;
+    }
+
+    void Transform::SetLocalRotation(float newRotation)
+    {
+        localRotation = newRotation;
         localRotation = fmod(localRotation, 360.0f);
+    }
+
+    void Transform::SetLocalScale(Vec2 newScale)
+    {
+        localScale = newScale;
     }
 
     //maintainLocation = true will attempt to keep the transforms in the same place
