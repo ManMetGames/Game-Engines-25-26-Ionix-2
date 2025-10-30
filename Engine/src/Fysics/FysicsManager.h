@@ -181,10 +181,14 @@ namespace IonixEngine
 
 
 
-        //-------------------------
-        void AddJointToFysicsBody()
-        {
+        //------------Joints------------//
 
+        //Prismatic Joints
+        void PrJ_Create(int dicIndexA, int dicIndexB, b2Vec2 worldAxis, float lowerTranslation, float upperTranslation, bool enableLimit, float maxMotorForce, float motorSpeed, bool enableMotor)
+        {
+            PrismaticJoints prismaticJoint;
+            prismaticJoint.setJoint(BodyDic[dicIndexA]->GetBody(), BodyDic[dicIndexB]->GetBody(), worldAxis, lowerTranslation, upperTranslation, enableLimit, maxMotorForce, motorSpeed, enableMotor);
+            std::cout << "Joint Created" << std::endl;
         }
 
     };
