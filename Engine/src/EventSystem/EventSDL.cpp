@@ -26,6 +26,8 @@ namespace IonixEngine
                 break;
             }
             break;
+
+
             case SDL_KEYDOWN:
                 Application::Get().layerInput->m_Input->SetKeyPressed(e.key.keysym.scancode); 
                 break;
@@ -33,6 +35,20 @@ namespace IonixEngine
             case SDL_KEYUP: 
                 Application::Get().layerInput->m_Input->SetKeyReleased(e.key.keysym.scancode);
                 break;
+
+              // Mouse
+             
+            case SDL_MOUSEBUTTONDOWN:
+               //Application::Get().layerInput->m_Input->IsMouseButtonDown(e.button.button);
+               Application::Get().layerInput->m_Input->SetMousePressed(e.button.button);
+               break;
+
+          case SDL_MOUSEBUTTONUP:
+              Application::Get().layerInput->m_Input->SetMouseReleased(e.button.button);
+              break;
+
+
+  
 
         }
     }
