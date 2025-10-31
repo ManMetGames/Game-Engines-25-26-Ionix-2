@@ -1,6 +1,5 @@
 #include <algorithm>
 #include <cmath>
-#include <stack>
 
 #include "SDL.h"
 #include "Transforms.h"
@@ -20,17 +19,24 @@ namespace IonixEngine
         childTransforms = std::vector<Transform*>();
     }
 
-    Vec2 Transform::GetGlobalPosition()
+    std::stack<Transform*> Transform::getPathToParent()
     {
-        Vec2 position = { 0.0f,0.0f };
         Transform* parent = parentTransform;
-
         std::stack<Transform*> pathToParent;
-        while (parent) {
+
+        while (parent)
+        {
             pathToParent.push(parent);
             parent = parent->parentTransform;
         }
+        return pathToParent;
+    }
 
+    Vec2 Transform::GetGlobalPosition()
+    {
+        Vec2 position = { 0.0f,0.0f };
+        std::stack<Transform*> pathToParent = getPathToParent();
+        
         while (!pathToParent.empty())
         {
             Transform* t = pathToParent.top();
@@ -58,16 +64,11 @@ namespace IonixEngine
 
     float Transform::GetGlobalRotation()
     {
-        Transform* parent = parentTransform;
         float rot = 0.0f;
-        std::stack<Transform*> pathToParent;
-        while (parent)
-        {
-            pathToParent.push(parent);
-            parent = parent->parentTransform;
-        }
+        std::stack<Transform*> pathToParent = getPathToParent();
 
-        while (!pathToParent.empty()) {
+        while (!pathToParent.empty())
+        {
             rot += pathToParent.top()->localRotation;
             pathToParent.pop();
         }
@@ -81,6 +82,35 @@ namespace IonixEngine
         {
             return rotation;
         }*/
+    }
+
+    Vec2 Transform::GetGlobalScale()
+    {
+        //I don't think order matters for getting scale
+
+        //ordered version
+        std::stack<Transform*> pathToParent = getPathToParent();
+        Vec2 scale = pathToParent.top()->localScale;
+        pathToParent.pop();
+
+        while (!pathToParent.empty())
+        {
+            Vec2 parentScale = pathToParent.top()->localScale;
+            scale = { scale.x * parentScale.x,scale.y * parentScale.y };
+            pathToParent.pop();
+        }
+
+        scale = { scale.x * localScale.x,scale.y * localScale.y };
+
+        //unordered version
+        //Vec2 scale = localScale;
+        //Transform* parent = parentTransform;
+        //while (parent) 
+        //{
+        //    scale = { scale.x * parent->localScale.x,scale.y * parent->localScale.y };
+        //    parent = parent->parentTransform;
+        //}
+        return scale;
     }
 
     void Transform::SetGlobalPosition(Vec2 newPosition)
@@ -117,6 +147,11 @@ namespace IonixEngine
         return localRotation;
     }
 
+    Vec2 Transform::GetLocalScale()
+    {
+        return localScale;
+    }
+
     Mat2 Transform::GetRotationMatrix()
     {
         float angle = localRotation * DEG2RAD;
@@ -141,11 +176,14 @@ namespace IonixEngine
     {
         Mat2 output = { 0,0,0,0 };
 
-        Mat2 rot = GetRotationMatrix();
         Mat2 scale = GetScaleMatrix();
+        Mat2 rot = GetRotationMatrix();
 
         //multiply matrices
-
+        //scale -> rotation -> displacement
+        
+        //output = scale * rot;
+        output = rot;
         //SDL_Log("debug log lol %f", output.b);
         return output;
     }

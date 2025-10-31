@@ -2,6 +2,7 @@
 
 //#include <cmath>
 #include <vector>
+#include <stack>
 #include "Temp_Vec2.hpp"
 
 namespace IonixEngine
@@ -19,16 +20,21 @@ namespace IonixEngine
 		Vec2 localScale;
 		float localRotation;
 
+		std::stack<Transform*> getPathToParent();
+
 	public:
 		Transform(Entity* parentEntity);
 		Vec2 GetGlobalPosition();
 		float GetGlobalRotation();
+		Vec2 GetGlobalScale();
 
 		void SetGlobalPosition(Vec2 transform);
 		void SetGlobalRotation(float rot);
 
+
 		Vec2 GetLocalPosition();
 		float GetLocalRotation();
+		Vec2 GetLocalScale();
 
 		Mat2 GetRotationMatrix();
 		Mat2 GetScaleMatrix();
