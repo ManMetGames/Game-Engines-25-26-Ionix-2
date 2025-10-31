@@ -12,13 +12,25 @@ struct Mat2
     float a, b, c, d;
 };
 
-//Vec2 operator*(Vec2 vec, Mat2 mat)
-//{
-//    Vec2 output = {
-//        (vec.x * mat.a) + (vec.y * mat.b),
-//        (vec.x * mat.c) + (vec.y * mat.d) };
-//    return output;
-//}
+static Mat2 operator*(const Mat2& left, const Mat2& right)
+{
+    Mat2 output = {
+        (left.a * right.a) + (left.b * right.c),
+        (left.a * right.b) + (left.b * right.d),
+
+        (left.c * right.a) + (left.d * right.c),
+        (left.c * right.b) + (left.d * right.d) };
+
+    return output;
+};
+
+static Vec2 operator*(const Vec2& vec, const Mat2& mat)
+{
+    Vec2 output = {
+        (vec.x * mat.a) + (vec.y * mat.b),
+        (vec.x * mat.c) + (vec.y * mat.d) };
+    return output;
+};
 
 constexpr float PI = 3.14159265358979323846f;
 constexpr float DEG2RAD = PI / 180.0f;
