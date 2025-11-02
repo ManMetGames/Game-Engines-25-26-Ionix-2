@@ -76,6 +76,22 @@ namespace IonixEngine
             return Cast(origin, end, hitPoint, hitNormal);
         }
 
+        // Get distance to nearest object in direction
+        float GetDistanceToNearest(const b2Vec2& origin, const b2Vec2& direction, float maxDistance)
+        {
+            b2Vec2 end;
+            end.x = origin.x + direction.x * maxDistance;
+            end.y = origin.y + direction.y * maxDistance;
+
+            RaycastCallback callback;
+            world->RayCast(&callback, origin, end);
+
+            if (callback.m_hit)
+                return callback.m_fraction * maxDistance;
+
+            return maxDistance;
+        }
+
         // line of sight check
         bool HasLineOfSight(const b2Vec2& from, const b2Vec2& to)
         {
