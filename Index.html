@@ -1,297 +1,235 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Game-Engines-25-26 Ionix Engine Lua API Reference</title>
-  <style>
-    :root {
-      --bg: #000000;
-      --text-primary: #00b7ff;
-      --text-secondary: #3399ff;
-      --accent: #58a6ff;
-      --border: #112244;
-      --table-bg: #020b14;
-      --section-bg: #010409;
-      --header-bg: #010f1e;
-    }
-
-    body {
-      font-family: "Consolas", "Courier New", monospace;
-      background-color: var(--bg);
-      color: var(--text-primary);
-      margin: 0;
-      padding: 0;
-      line-height: 1.6;
-      overflow-x: hidden;
-    }
-
-    header {
-      background: var(--header-bg);
-      border-bottom: 1px solid var(--accent);
-      padding: 2rem 1rem;
-      text-align: center;
-      box-shadow: 0 0 10px #0055ff33;
-    }
-
-    header h1 {
-      color: var(--accent);
-      font-size: 2rem;
-      margin: 0;
-    }
-
-    header p {
-      color: var(--text-secondary);
-      font-style: italic;
-      margin-top: 0.5rem;
-    }
-
-    main {
-      max-width: 1100px;
-      margin: auto;
-      padding: 2rem;
-    }
-
-    section {
-      margin-bottom: 3rem;
-      background: var(--section-bg);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 1.5rem;
-      box-shadow: 0 0 15px #00336633;
-    }
-
-    h2, h3 {
-      color: var(--text-secondary);
-      border-left: 4px solid var(--accent);
-      padding-left: 8px;
-      margin-top: 0;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 1rem;
-      background-color: var(--table-bg);
-      box-shadow: 0 0 10px #00225533;
-    }
-
-    th, td {
-      border: 1px solid var(--border);
-      padding: 8px 12px;
-      text-align: left;
-    }
-
-    th {
-      color: var(--accent);
-      background-color: #001a33;
-    }
-
-    td {
-      color: var(--text-primary);
-    }
-
-    code {
-      color: var(--accent);
-      background: #001a33;
-      padding: 2px 5px;
-      border-radius: 4px;
-    }
-
-    footer {
-      text-align: center;
-      padding: 1rem;
-      border-top: 1px solid var(--border);
-      color: var(--text-secondary);
-      font-size: 0.9rem;
-      background: var(--header-bg);
-      box-shadow: 0 0 10px #00448833;
-      position: relative;
-      cursor: pointer;
-      z-index: 5;
-    }
-
-    .hidden-gif {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) scale(0.1);
-      opacity: 0;
-      width: 800px;
-      height: auto;
-      transition: all 0.8s ease-in-out;
-      z-index: 50;
-      pointer-events: none;
-    }
-
-    .hidden-gif.show {
-      opacity: 1;
-      transform: translate(-50%, -50%) scale(1);
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ionix Engine Lua API Reference (2025)</title>
+<style>
+:root {
+  --bg: #000;
+  --text-primary: #00b7ff;
+  --text-secondary: #3399ff;
+  --accent: #58a6ff;
+  --border: #112244;
+  --table-bg: #020b14;
+  --section-bg: #010409;
+  --header-bg: #010f1e;
+}
+body {
+  font-family: Consolas, monospace;
+  background: var(--bg);
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.6;
+}
+header {
+  background: var(--header-bg);
+  border-bottom: 1px solid var(--accent);
+  text-align: center;
+  padding: 2rem 1rem;
+  box-shadow: 0 0 10px #0055ff33;
+}
+header h1 { color: var(--accent); margin: 0; }
+header p { color: var(--text-secondary); font-style: italic; }
+main { max-width: 1100px; margin: auto; padding: 2rem; }
+section {
+  margin-bottom: 3rem;
+  background: var(--section-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 0 15px #00336633;
+}
+h2, h3 {
+  color: var(--text-secondary);
+  border-left: 4px solid var(--accent);
+  padding-left: 8px;
+  margin-top: 0;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  background: var(--table-bg);
+  box-shadow: 0 0 10px #00225533;
+}
+th, td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+th { color: var(--accent); background-color: #001a33; }
+code { color: var(--accent); background: #001a33; padding: 2px 5px; border-radius: 4px; }
+footer {
+  text-align: center;
+  padding: 1rem;
+  border-top: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  background: var(--header-bg);
+  box-shadow: 0 0 10px #00448833;
+  cursor: pointer;
+}
+.hidden-gif {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%) scale(0.1);
+  opacity: 0;
+  width: 800px;
+  transition: all .8s ease-in-out;
+  pointer-events: none;
+  z-index: 50;
+}
+.hidden-gif.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+</style>
 </head>
 <body>
-  <header>
-    <h1>Game-Engines-25-26 Ionix Engine Lua API</h1>
-    <p>A funny Lua api for our game</p>
-  </header>
 
-  <main>
+<header>
+  <h1>Ionix Engine Lua API</h1>
+  <p>Full Lua scripting reference for 2025 build (Scripting.cpp + AudioScripting.cpp)</p>
+</header>
 
-    <!-- Window -->
-    <section>
-      <h2>Window</h2>
-      <table>
-        <tr><th>Function</th><th>Description</th></tr>
-        <tr><td><code>Window.get_title()</code></td><td>Returns the current window title.</td></tr>
-        <tr><td><code>Window.get_width()</code></td><td>Returns the window width in pixels.</td></tr>
-        <tr><td><code>Window.get_height()</code></td><td>Returns the window height in pixels.</td></tr>
-      </table>
-    </section>
+<main>
 
-    <!-- Input -->
-    <section>
-      <h2>Input</h2>
-      <table>
-        <tr><th>Function</th><th>Description</th></tr>
-        <tr><td><code>Input.get_key_up(KeyCode)</code></td><td>Returns true if the key was released this frame.</td></tr>
-        <tr><td><code>Input.get_key_down(KeyCode)</code></td><td>Returns true if the key was pressed this frame.</td></tr>
-        <tr><td><code>Input.get_key_held(KeyCode)</code></td><td>Returns true if the key is being held down.</td></tr>
-      </table>
-      <p><span style="color: var(--text-secondary);">Available key constants:</span> <code>Keys.ionix_a</code>–<code>Keys.ionix_z</code>, <code>Keys.ionix_space</code>, <code>Keys.ionix_escape</code>, <code>Keys.ionix_return</code>, etc.</p>
-    </section>
+<!-- Hooks -->
+<section>
+  <h2>Modules & Hooks</h2>
+  <p>Each Lua script module can implement these lifecycle hooks:</p>
+  <table>
+    <tr><th>Hook</th><th>Description</th></tr>
+    <tr><td><code>OnStart()</code></td><td>Called once at game start.</td></tr>
+    <tr><td><code>OnUpdate()</code></td><td>Called every frame.</td></tr>
+    <tr><td><code>OnShutdown()</code></td><td>Called before the game quits.</td></tr>
+  </table>
+  <p>Use <code>GetModule("name")</code> to get another loaded module instance.</p>
+</section>
 
-    <!-- Mafs -->
-    <section>
-      <h2>Mafs (Maths)</h2>
-      <table>
-        <tr><th>Function</th><th>Description</th></tr>
-        <tr><td><code>Mafs.clamp(x, min, max)</code></td><td>Clamps <code>x</code> between <code>min</code> and <code>max</code>.</td></tr>
-        <tr><td><code>Mafs.abs(x)</code></td><td>Returns the absolute value of <code>x</code>.</td></tr>
-        <tr><td><code>Mafs.min(x, minVal)</code></td><td>Ensures <code>x</code> ≥ <code>minVal</code>.</td></tr>
-        <tr><td><code>Mafs.max(x, maxVal)</code></td><td>Ensures <code>x</code> ≤ <code>maxVal</code>.</td></tr>
-        <tr><td><code>Mafs.round(x)</code></td><td>Rounds <code>x</code> to the nearest integer.</td></tr>
-        <tr><td><code>Mafs.log(x)</code></td><td>Returns the natural logarithm of <code>x</code>.</td></tr>
-        <tr><td><code>Mafs.log_custom(x, base)</code></td><td>Returns the logarithm of <code>x</code> with a custom base.</td></tr>
-        <tr><td><code>Mafs.square_root(x)</code></td><td>Returns the square root of <code>x</code>.</td></tr>
-        <tr><td><code>Mafs.lerp(x, y, t)</code></td><td>Linearly interpolates between <code>x</code> and <code>y</code>.</td></tr>
-        <tr><td><code>Mafs.mod(x, y)</code></td><td>Returns the remainder of <code>x</code> divided by <code>y</code>.</td></tr>
-        <tr><td><code>Mafs.div(x, y)</code></td><td>Returns the whole-number division of <code>x</code> by <code>y</code>.</td></tr>
-        <tr><td><code>Mafs.sin(a)</code></td><td>Returns the sine of <code>a</code> in radians.</td></tr>
-        <tr><td><code>Mafs.cos(a)</code></td><td>Returns the cosine of <code>a</code> in radians.</td></tr>
-        <tr><td><code>Mafs.tan(a)</code></td><td>Returns the tangent of <code>a</code> in radians.</td></tr>
-        <tr><td><code>Mafs.pi()</code></td><td>Returns the mathematical constant π.</td></tr>
-      </table>
-    </section>
+<!-- Window -->
+<section>
+  <h2>Window</h2>
+  <table>
+    <tr><th>Function</th><th>Description</th></tr>
+    <tr><td><code>Window.get_title()</code></td><td>Returns the current window title.</td></tr>
+    <tr><td><code>Window.get_width()</code></td><td>Returns the window width in pixels.</td></tr>
+    <tr><td><code>Window.get_height()</code></td><td>Returns the window height in pixels.</td></tr>
+  </table>
+</section>
 
-    <!-- Vectors -->
-    <section>
-      <h2>Vectors</h2>
-      <h3>Vector2</h3>
-      <table>
-        <tr><td><code>Mafs.vector2(x, y)</code></td><td>Creates a 2D vector.</td></tr>
-        <tr><td><code>Mafs.vector2_x(v)</code></td><td>Gets the X component of a vector.</td></tr>
-        <tr><td><code>Mafs.vector2_y(v)</code></td><td>Gets the Y component of a vector.</td></tr>
-        <tr><td><code>Mafs.sqr_magnitude_vector2(v)</code></td><td>Returns the squared magnitude.</td></tr>
-      </table>
-      <h3>Vector3</h3>
-      <table>
-        <tr><td><code>Mafs.vector3(x, y, z)</code></td><td>Creates a 3D vector.</td></tr>
-        <tr><td><code>Mafs.vector3_x(v)</code></td><td>Gets the X component.</td></tr>
-        <tr><td><code>Mafs.vector3_y(v)</code></td><td>Gets the Y component.</td></tr>
-        <tr><td><code>Mafs.vector3_z(v)</code></td><td>Gets the Z component.</td></tr>
-        <tr><td><code>Mafs.sqr_magnitude_vector3(v)</code></td><td>Returns the squared magnitude.</td></tr>
-      </table>
-    </section>
+<!-- Input -->
+<section>
+  <h2>Input</h2>
+  <table>
+    <tr><th>Function</th><th>Description</th></tr>
+    <tr><td><code>Input.get_key_up(KeyCode)</code></td><td>True if key released this frame.</td></tr>
+    <tr><td><code>Input.get_key_down(KeyCode)</code></td><td>True if key pressed this frame.</td></tr>
+    <tr><td><code>Input.get_key_held(KeyCode)</code></td><td>True if key held down.</td></tr>
+  </table>
+  <p>Available key constants: <code>Keys.ionix_a</code>–<code>Keys.ionix_z</code>, numbers, arrows, space, escape, etc.</p>
+</section>
 
-    <!-- Entity -->
-    <section>
-      <h2>Entity</h2>
-      <table>
-        <tr><td><code>Entity.create_entity()</code></td><td>Creates a new entity.</td></tr>
-        <tr><td><code>Entity.get_entity_pos(entity)</code></td><td>Returns the entity’s position.</td></tr>
-        <tr><td><code>Entity.set_entity_pos(entity, x, y)</code></td><td>Sets the entity’s position.</td></tr>
-        <tr><td><code>Entity.add_sprite_component(entity, alias, zOrder)</code></td><td>Adds a sprite component.</td></tr>
-      </table>
-    </section>
+<!-- Mafs -->
+<section>
+  <h2>Mafs (Math Utilities)</h2>
+  <table>
+    <tr><th>Function</th><th>Description</th></tr>
+    <tr><td><code>Mafs.clamp(x, min, max)</code></td><td>Clamp x between min and max.</td></tr>
+    <tr><td><code>Mafs.abs(x)</code></td><td>Absolute value.</td></tr>
+    <tr><td><code>Mafs.min(x, minVal)</code></td><td>Minimum of x and minVal.</td></tr>
+    <tr><td><code>Mafs.max(x, maxVal)</code></td><td>Maximum of x and maxVal.</td></tr>
+    <tr><td><code>Mafs.round(x)</code></td><td>Round to nearest integer.</td></tr>
+    <tr><td><code>Mafs.log(x)</code></td><td>Natural logarithm.</td></tr>
+    <tr><td><code>Mafs.log_10(x)</code></td><td>Log base 10.</td></tr>
+    <tr><td><code>Mafs.log_custom(x, base)</code></td><td>Log with custom base.</td></tr>
+    <tr><td><code>Mafs.square_root(x)</code></td><td>Square root.</td></tr>
+    <tr><td><code>Mafs.lerp(x, y, t)</code></td><td>Linear interpolation.</td></tr>
+    <tr><td><code>Mafs.mod(x, y)</code></td><td>Modulo operation.</td></tr>
+    <tr><td><code>Mafs.div(x, y)</code></td><td>Whole-number division.</td></tr>
+    <tr><td><code>Mafs.sin(a)</code></td><td>Sine.</td></tr>
+    <tr><td><code>Mafs.cos(a)</code></td><td>Cosine.</td></tr>
+    <tr><td><code>Mafs.tan(a)</code></td><td>Tangent.</td></tr>
+    <tr><td><code>Mafs.pi()</code></td><td>Math constant π.</td></tr>
+    <tr><td><code>Mafs.rad_2_deg(r)</code></td><td>Radians → Degrees.</td></tr>
+    <tr><td><code>Mafs.deg_2_rad(d)</code></td><td>Degrees → Radians.</td></tr>
+    <tr><td><code>Mafs.vector2(x, y)</code></td><td>Create 2D vector.</td></tr>
+    <tr><td><code>Mafs.vector3(x, y, z)</code></td><td>Create 3D vector.</td></tr>
+  </table>
+</section>
 
-    <!-- UI -->
-    <section>
-      <h2>UI</h2>
-      <table>
-        <tr><td><code>UI.draw_label(text, w, h, x, y)</code></td><td>Draws a label.</td></tr>
-        <tr><td><code>UI.draw_button(text, w, h, x, y)</code></td><td>Draws a button and returns true if clicked.</td></tr>
-        <tr><td><code>UI.draw_slider(text, value, w, h, x, y, min, max)</code></td><td>Draws a slider and returns new value.</td></tr>
-      </table>
-    </section>
+<!-- Entity -->
+<section>
+  <h2>Entity</h2>
+  <table>
+    <tr><th>Function</th><th>Description</th></tr>
+    <tr><td><code>Entity.create_entity()</code></td><td>Create a new scene entity.</td></tr>
+    <tr><td><code>Entity.get_entity_pos(entity)</code></td><td>Get entity position.</td></tr>
+    <tr><td><code>Entity.set_entity_pos(entity, x, y)</code></td><td>Set entity position.</td></tr>
+    <tr><td><code>Entity.add_sprite_component(entity, alias, zOrder)</code></td><td>Add sprite component.</td></tr>
+  </table>
+</section>
 
-    <!-- Texture -->
-    <section>
-      <h2>Texture</h2>
-      <table>
-        <tr><td><code>Texture.add_texture(path, alias)</code></td><td>Loads a texture and assigns an alias.</td></tr>
-      </table>
-    </section>
+<!-- UI -->
+<section>
+  <h2>UI</h2>
+  <table>
+    <tr><td><code>UI.draw_label(text, w, h, x, y)</code></td><td>Draw label on screen.</td></tr>
+    <tr><td><code>UI.draw_button(text, w, h, x, y)</code></td><td>Draw button (returns true if clicked).</td></tr>
+    <tr><td><code>UI.draw_slider(text, value, w, h, x, y, min, max)</code></td><td>Draw slider (returns new value).</td></tr>
+  </table>
+</section>
 
-    <!-- Audio -->
-    <section>
-      <h2>Audio</h2>
-      <h3>SoundManager</h3>
-      <table>
-        <tr><td><code>SoundManager.GetInstance()</code></td><td>Returns the SoundManager instance.</td></tr>
-        <tr><td><code>SoundManager:LoadSound(name, path)</code></td><td>Loads a sound from file.</td></tr>
-        <tr><td><code>SoundManager:SetVolume(name, volume)</code></td><td>Sets the volume for a sound.</td></tr>
-        <tr><td><code>SoundManager:GetAudio(name)</code></td><td>Returns an AudioPlayer instance.</td></tr>
-      </table>
+<!-- Texture -->
+<section>
+  <h2>Texture</h2>
+  <table>
+    <tr><td><code>Texture.add_texture(path, alias)</code></td><td>Loads a texture file and registers an alias.</td></tr>
+  </table>
+</section>
 
-      <h3>AudioPlayer</h3>
-      <table>
-        <tr><td><code>AudioPlayer:new(entity, soundName, playOnAwake)</code></td><td>Creates a new AudioPlayer.</td></tr>
-        <tr><td><code>AudioPlayer:Play()</code></td><td>Plays the assigned sound.</td></tr>
-        <tr><td><code>AudioPlayer:Pause()</code></td><td>Pauses playback.</td></tr>
-        <tr><td><code>AudioPlayer:Resume()</code></td><td>Resumes playback.</td></tr>
-        <tr><td><code>AudioPlayer:End()</code></td><td>Stops playback.</td></tr>
-        <tr><td><code>AudioPlayer:IsPlaying()</code></td><td>Returns true if the sound is playing.</td></tr>
-        <tr><td><code>AudioPlayer:ChangeVolume(volume)</code></td><td>Changes the sound’s volume.</td></tr>
-        <tr><td><code>AudioPlayer:ToggleMute()</code></td><td>Toggles mute on/off.</td></tr>
-        <tr><td><code>AudioPlayer.volume</code></td><td>Volume property (0–128).</td></tr>
-        <tr><td><code>AudioPlayer.mute</code></td><td>Boolean mute flag.</td></tr>
-        <tr><td><code>AudioPlayer.loop</code></td><td>Boolean to loop playback.</td></tr>
-        <tr><td><code>AudioPlayer.playOnAwake</code></td><td>Plays automatically on load if true.</td></tr>
-      </table>
-    </section>
+<!-- Audio -->
+<section>
+  <h2>Audio</h2>
+  <h3>SoundManager</h3>
+  <table>
+    <tr><th>Function</th><th>Description</th></tr>
+    <tr><td><code>SoundManager.GetInstance()</code></td><td>Returns singleton SoundManager.</td></tr>
+    <tr><td><code>SoundManager:LoadSound(name, path)</code></td><td>Loads sound from file.</td></tr>
+    <tr><td><code>SoundManager:SetVolume(name, volume)</code></td><td>Sets volume (0–1).</td></tr>
+    <tr><td><code>SoundManager:GetAudio(name)</code></td><td>Returns AudioPlayer for that sound.</td></tr>
+    <tr><td><code>SoundManager:GetPlayTime(name)</code></td><td>Returns play time info (if supported).</td></tr>
+  </table>
 
-  </main>
+  <h3>AudioPlayer</h3>
+  <table>
+    <tr><td><code>AudioPlayer:new(entity, soundName, playOnAwake)</code></td><td>Creates AudioPlayer for an entity.</td></tr>
+    <tr><td><code>AudioPlayer:Play()</code></td><td>Play sound immediately.</td></tr>
+    <tr><td><code>AudioPlayer:Play(fadeMs)</code></td><td>Play with fade-in (ms).</td></tr>
+    <tr><td><code>AudioPlayer:Play(fadeMs, loops)</code></td><td>Play with fade and looping.</td></tr>
+    <tr><td><code>AudioPlayer:Pause()</code></td><td>Pause playback.</td></tr>
+    <tr><td><code>AudioPlayer:Resume()</code></td><td>Resume paused sound.</td></tr>
+    <tr><td><code>AudioPlayer:End()</code></td><td>Stop playback completely.</td></tr>
+    <tr><td><code>AudioPlayer:IsPlaying()</code></td><td>Check if currently playing.</td></tr>
+    <tr><td><code>AudioPlayer:PlayOneShot()</code></td><td>Play sound once without interrupting others.</td></tr>
+    <tr><td><code>AudioPlayer:ChangeVolume(v)</code></td><td>Change playback volume.</td></tr>
+    <tr><td><code>AudioPlayer:ToggleMute()</code></td><td>Toggle mute state.</td></tr>
+    <tr><td><code>AudioPlayer.volume</code></td><td>Volume property (0–128).</td></tr>
+    <tr><td><code>AudioPlayer.mute</code></td><td>Boolean mute flag.</td></tr>
+    <tr><td><code>AudioPlayer.clip</code></td><td>Assigned clip name/path.</td></tr>
+    <tr><td><code>AudioPlayer.playOnAwake</code></td><td>True = auto play on creation.</td></tr>
+  </table>
+</section>
 
-  <footer id="footer-easteregg">
-    © 2025 Ionix Engine Lua API — Made by <strong>Peter & ChatGPT</strong>
-  </footer>
+</main>
 
-  <img src="Client/Assets/horse-fat.gif"
-       alt="hidden horse gif"
-       class="hidden-gif"
-       id="easter-egg-gif"/>
+<footer id="footer-easteregg">
+  © 2025 Ionix Engine Lua API — Made by <strong>Peter & ChatGPT</strong>
+</footer>
 
-  <audio id="easter-egg-audio" src="Client/Assets/test.wav" preload="auto"></audio>
+<img src="Client/Assets/horse-fat.gif" class="hidden-gif" id="easter-egg-gif"/>
+<audio id="easter-egg-audio" src="Client/Assets/test.wav" preload="auto"></audio>
 
-  <script>
-    const footer = document.getElementById('footer-easteregg');
-    const gif = document.getElementById('easter-egg-gif');
-    const audio = document.getElementById('easter-egg-audio');
-
-    footer.addEventListener('mouseenter', () => {
-      gif.classList.add('show');
-      audio.currentTime = 0;
-      audio.play().catch(() => {});
-      console.log("[Lua] Audio system initializing...");
-      console.log("[Lua] Playing test.wav...");
-    });
-
-    footer.addEventListener('mouseleave', () => {
-      gif.classList.remove('show');
-      audio.pause();
-      console.log("[Lua] Audio system shutting down...");
-    });
-  </script>
+<script>
+const footer = document.getElementById('footer-easteregg');
+const gif = document.getElementById('easter-egg-gif');
+const audio = document.getElementById('easter-egg-audio');
+footer.addEventListener('mouseenter',()=>{gif.classList.add('show');audio.currentTime=0;audio.play().catch(()=>{});});
+footer.addEventListener('mouseleave',()=>{gif.classList.remove('show');audio.pause();});
+</script>
 </body>
 </html>
