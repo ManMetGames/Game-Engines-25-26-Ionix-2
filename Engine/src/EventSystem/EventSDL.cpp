@@ -12,7 +12,10 @@ namespace IonixEngine
     void EventSDL::PollEventsSDL(const SDL_Event& e, WindowData& windowData)
     {
         //Let ImGui handle the event first if needed:
-        ImGui_ImplSDL2_ProcessEvent(&e);
+        ImGui_ImplSDL2_ProcessEvent(&e); 
+
+        //Store connected controllers 
+        static std::vector<SDL_GameController*> controllers;
 
         switch (e.type)
         {
@@ -40,12 +43,30 @@ namespace IonixEngine
                 break;
 
             // Controller
+           // Controller
             case SDL_CONTROLLERDEVICEADDED:
-                std::cout << "Controller is connected \n";
+            {
+                SDL_GameController* pad = SDL_GameControllerOpen(e.cdevice.which);
+                if (pad)
+                {
+                    std::cout << "Controller Added! Total: " << controllers.size() << "\n";
+
+                }
                 break;
+
+            }
             case SDL_CONTROLLERDEVICEREMOVED:
-                std::cout << "Controller is disconnected \n";
-                break;
+            {
+                SDL_GameController* pad = SDL_GameControllerOpen(e.cdevice.which);
+
+                if (pad)
+                {
+                    std::cout << "Controller remove! Total: " << controllers.size() << "\n";
+                }
+
+
+            }
+            break;
 
             case SDL_CONTROLLERBUTTONDOWN:
                 Application::Get().layerInput->m_Input->SetButtonPressed(e.cbutton.button);
