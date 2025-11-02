@@ -3,7 +3,7 @@
 
 namespace IonixEngine
 {
-    class RaycastCallback : public b2RayCastCallback
+    class RaycastCallback : public b2RayCastCallback // single hit callback
     {
     public:
         RaycastCallback() : m_hit(false), m_fixture(nullptr), m_point(0.0f, 0.0f), m_normal(0.0f, 0.0f), m_fraction(1.0f) {}
@@ -46,6 +46,21 @@ namespace IonixEngine
             {
                 hitPoint = callback.m_point;
                 hitNormal = callback.m_normal;
+                return true;
+            }
+            return false;
+        }
+
+        // raycast returning fixture
+        bool CastGetFixture(const b2Vec2& start, const b2Vec2& end,
+            b2Fixture** outFixture)
+        {
+            RaycastCallback callback;
+            world->RayCast(&callback, start, end);
+
+            if (callback.m_hit && outFixture)
+            {
+                *outFixture = callback.m_fixture;
                 return true;
             }
             return false;
