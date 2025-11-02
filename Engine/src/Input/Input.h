@@ -1,167 +1,71 @@
 #pragma once
 #include <unordered_set>
-#include <SDL.H>
-
+#include <SDL.h>
 
 namespace IonixEngine
 {
+    struct MouseCoords
+    {
+        int x;
+        int y;
+
+        MouseCoords(int x, int y) : x(x), y(y) {}
+    };
+
     class Input
     {
     public:
+        //Mouse
+        MouseCoords GetMousePosition();
 
-        // Keyboard
+        //Keyboard
+        bool IsKeyDown(SDL_Scancode code) const;
+        bool IsKeyUp(SDL_Scancode code) const;
+        bool IsKeyHeld(SDL_Scancode code) const;
+        void SetKeyPressed(SDL_Scancode code);
+        void SetKeyReleased(SDL_Scancode code);
 
-            // keyboard input booleans
-        bool IsKeyDown(SDL_Scancode code) const
-        {
-            // Not held down previous frame
+        //Mouse buttons
+        bool IsMouseButtonDown(Uint8 mousecode) const;
+        bool IsMouseButtonUp(Uint8 mousecode) const;
+        void SetMousePressed(Uint8 code);
+        void SetMouseReleased(Uint8 code);
 
-            // Held down current frame
-            return !previousKeys.count(code) && currentKeys.count(code);
-        }
-        bool IsKeyUp(SDL_Scancode code) const
-        {
-            // Was held down previous frame
+        //Controller buttons
+        bool IsButtonDown(Uint8 btn) const;
+        bool IsButtonUp(Uint8 btn) const;
+        bool IsButtonHeld(Uint8 btn) const;
+        void SetButtonPressed(Uint8 btn);
+        void SetButtonReleased(Uint8 btn);
 
-            // No longer held down on current frame
-            return previousKeys.count(code) && !currentKeys.count(code);
-        }
-        bool IsKeyHeld(SDL_Scancode code) const
-        {
-            return currentKeys.count(code);
-        }
+        //Controller axis normalization
+        void NormaliseLeftXAxis(float axis);
 
-        // for Key Down
-        void SetKeyPressed(SDL_Scancode code)
-        {
-            currentKeys.insert(code);
-        }
-        // for Key Up
-        void SetKeyReleased(SDL_Scancode code)
-        {
-            currentKeys.erase(code);
-        }
+        //Update state
+        void CopyCodesEndFrame();
 
-        // Controller
-
-            // button input booleans
-        bool isButtonDown(Uint8 btn) const
-        {
-            // Not held down previous frame
-
-
-            // Held down current frame
-            return !previousButton.count(btn) && currentButton.count(btn);
-        }
-        bool isButtonUp(Uint8 btn) const
-        {
-            // Was held down previous frame
-
-            // No longer held down on current frame
-            return previousButton.count(btn) && !currentButton.count(btn);
-        }
-        bool isButtonHeld(Uint8 btn) const
-        {
-            return currentButton.count(btn);
-        }
-
-        // controller button down
-        void SetButtonPressed(Uint8 btn)
-        {
-            currentButton.insert(btn);
-        }
-        // controller button up
-        void SetButtonReleased(Uint8 btn)
-        {
-            currentButton.erase(btn);
-        }
-
-        // controller axis variables:
-        /*
-            // RT
-        float GetRightTrigger()
-        {
-            return rightTrigger;
-        }
-        float SetRightTrigger()
-        {
-        }
-            // LT
-        float GetLeftTrigger()
-        {
-            return leftTrigger;
-        }
-        float SetLeftTrigger()
-        {
-        }
-            // Left Stick Horizontal
-        float GetLeftStickHorizontal()
-        {
-            return leftStickHorizontal;
-        }
-        float SetLeftStickHorizontal()
-        {
-        }
-            // Left Stick Vetical
-        float GetLeftStickVertical()
-        {
-            return leftStickVertical;
-        }
-        float SetLeftStickVertical()
-        {
-        }
-            // Right Stick Horizontal
-        float GetRightStickHoriontal()
-        {
-            return rightStickHorizontal;
-        }
-        float SetRightStickHorizontal()
-        {
-        }
-            // Right Stick Vertical
-        float GetRightStickVertical()
-        {
-            return rightStickVertical;
-        }
-        float SetRightStickVertical()
-        {
-        }
-        */
-        
-
-        // normalised controller axis:
-        void NormaliseLeftXAxis(float axis)
-        {
-            leftStickHorizontal = (float) axis / 32768;
-            leftStickHorizontal = std::round(leftStickHorizontal * 100) / 100;
-        }
-
-        // Previous Frame Keys/Buttons
-        void CopyCodesEndFrame()
-        {
-            previousKeys = currentKeys;
-            previousButton = currentButton;
-        }
-    
+        //Getters
         float GetXStickHor() { return leftStickHorizontal; }
 
     private:
-        // Keyboard:
+        //Keyboard
         std::unordered_set<SDL_Scancode> currentKeys;
         std::unordered_set<SDL_Scancode> previousKeys;
 
-        // Controller:
-            // Buttons
+        //Mouse
+        std::unordered_set<Uint8> currentMouse;
+        std::unordered_set<Uint8> previousMouse;
+
+        //Controller buttons
         std::unordered_set<Uint8> currentButton;
         std::unordered_set<Uint8> previousButton;
 
-        // Axis
-        float leftStickVertical;
-        float leftStickHorizontal;
-        float rightStickVertical;
-        float rightStickHorizontal;
-        float leftTrigger;
-        float rightTrigger;
+        //Controller axes
+        float leftStickVertical = 0.0f;
+        float leftStickHorizontal = 0.0f;
+        float rightStickVertical = 0.0f;
+        float rightStickHorizontal = 0.0f;
+        float leftTrigger = 0.0f;
+        float rightTrigger = 0.0f;
     };
 }
-
