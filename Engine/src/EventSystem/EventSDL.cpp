@@ -34,39 +34,45 @@ namespace IonixEngine
             break;
 
             // Keyboard
-            case SDL_KEYDOWN:
-                Application::Get().layerInput->m_Input->SetKeyPressed(e.key.keysym.scancode); 
-                break;
+        case SDL_KEYDOWN:
+            Application::Get().layerInput->m_Input->SetKeyPressed(e.key.keysym.scancode);
+            break;
 
-            case SDL_KEYUP: 
-                Application::Get().layerInput->m_Input->SetKeyReleased(e.key.keysym.scancode);
-                break;
+        case SDL_KEYUP:
+            Application::Get().layerInput->m_Input->SetKeyReleased(e.key.keysym.scancode);
+            break;
 
-            // Controller
            // Controller
-            case SDL_CONTROLLERDEVICEADDED:
+        case SDL_CONTROLLERDEVICEADDED:
+        {
+            if (controllers.size() < 4) //Allow up to 4 controllers
             {
-                SDL_GameController* pad = SDL_GameControllerOpen(e.cdevice.which);
-                if (pad)
+                SDL_GameController* controller = SDL_GameControllerOpen(e.cdevice.which);
+                if (controller)
                 {
-                    std::cout << "Controller Added! Total: " << controllers.size() << "\n";
+                    controllers.push_back(controller);
+                    std::cout << "Controller Connected! Total: " << controllers.size() << "\n";
 
                 }
-                break;
-
-            }
-            case SDL_CONTROLLERDEVICEREMOVED:
-            {
-                SDL_GameController* pad = SDL_GameControllerOpen(e.cdevice.which);
-
-                if (pad)
-                {
-                    std::cout << "Controller remove! Total: " << controllers.size() << "\n";
-                }
-
-
             }
             break;
+
+        }
+        case SDL_CONTROLLERDEVICEREMOVED:
+        {
+            int instanceId = e.cdevice.which;
+            for (auto it = controllers.begin(); it != controllers.end(); ++it)
+            {
+                if (SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(*it)) == instanceId)
+                {
+                    SDL_GameControllerClose(*it);
+                    controllers.erase(it);
+                    std::cout << "Controller Disconnected! Total: " << controllers.size() << "\n";
+                    break;
+                }
+            }
+            break;
+        }
 
             case SDL_CONTROLLERBUTTONDOWN:
                 Application::Get().layerInput->m_Input->SetButtonPressed(e.cbutton.button);
