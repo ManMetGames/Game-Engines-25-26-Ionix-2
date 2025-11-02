@@ -3,6 +3,29 @@
 
 namespace IonixEngine
 {
+    class RaycastCallback : public b2RayCastCallback
+    {
+    public:
+        RaycastCallback() : m_hit(false), m_fixture(nullptr), m_point(0.0f, 0.0f), m_normal(0.0f, 0.0f), m_fraction(1.0f) {}
+
+        float ReportFixture(b2Fixture* fixture, const b2Vec2& point,
+            const b2Vec2& normal, float fraction) override
+        {
+            m_hit = true;
+            m_fixture = fixture;
+            m_point = point;
+            m_normal = normal;
+            m_fraction = fraction;
+            return fraction;
+        }
+
+        bool m_hit;
+        b2Fixture* m_fixture;
+        b2Vec2 m_point;
+        b2Vec2 m_normal;
+        float m_fraction;
+    };
+
     class Raycast
     {
         b2World* world;
@@ -10,6 +33,22 @@ namespace IonixEngine
         Raycast()
         {
             world = LayerFysics::GetInstance()->GetWorld();
+        }
+
+        //simple ray cast  - returns true if hit
+        bool Cast(const b2Vec2& start, const b2Vec2& end,
+            b2Vec2& hitPoint, b2Vec2& hitNormal)
+        {
+            RaycastCallback callback;
+            world->RayCast(&callback, start, end);
+
+            if (callback.m_hit)
+            {
+                hitPoint = callback.m_point;
+                hitNormal = callback.m_normal;
+                return true;
+            }
+            return false;
         }
     };
     
