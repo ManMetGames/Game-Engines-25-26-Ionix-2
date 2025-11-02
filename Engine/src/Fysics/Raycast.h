@@ -65,6 +65,24 @@ namespace IonixEngine
             }
             return false;
         }
+
+        // raycast in direction with length
+        bool CastDirection(const b2Vec2& origin, const b2Vec2& direction, float length,
+            b2Vec2& hitPoint, b2Vec2& hitNormal)
+        {
+            b2Vec2 end;
+            end.x = origin.x + direction.x * length;
+            end.y = origin.y + direction.y * length;
+            return Cast(origin, end, hitPoint, hitNormal);
+        }
+
+        // line of sight check
+        bool HasLineOfSight(const b2Vec2& from, const b2Vec2& to)
+        {
+            RaycastCallback callback;
+            world->RayCast(&callback, from, to);
+            return !callback.m_hit;
+        }
     };
     
 }
