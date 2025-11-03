@@ -21,8 +21,14 @@ namespace IonixEngine
 
         
         static LayerFysics* GetInstance();
-        
+
+        /*LayerFysics::LayerFysics()
+        {
+        	world->SetContactListener(&listener);
+        }*/
+    
     private:
+        //static ContactListener listener;
         static LayerFysics* instance;
         b2World* world{ nullptr };
         

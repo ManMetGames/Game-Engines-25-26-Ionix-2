@@ -20,6 +20,7 @@ namespace IonixEngine
         PrismaticJoints* joint;
         Force* force;
         b2World* world;
+        b2ContactListener* contactListener;
 
         using GlobalCollisionCallback = std::function<void(Collider*, Collider*)>;
         std::vector<GlobalCollisionCallback> globalCollisionCallbacks_;
@@ -46,6 +47,18 @@ namespace IonixEngine
             if (b) b->EmitCollision(a);
         }
 
+        void BeginContact(b2Contact* contact)
+        {
+            auto* colA = (Collider*)contact->GetFixtureA()->GetBody()->GetUserData().pointer;
+            auto* colB = (Collider*)contact->GetFixtureB()->GetBody()->GetUserData().pointer;
+
+            if (colA && colB)
+            {
+                colA->EmitCollision(colB);
+                colB->EmitCollision(colA);
+            }
+        }
+
         void Create()
         {
             FysicsBody* body = new FysicsBody(world);
@@ -61,3 +74,19 @@ namespace IonixEngine
         }
     };
 }
+
+//class ContactListener : public b2ContactListener
+//{
+//public:
+//    void BeginContact(b2Contact* contact) override
+//    {
+//        auto colA = (Collider*)contact->GetFixtureA()->GetBody()->GetUserData().pointer;
+//        auto colB = (Collider*)contact->GetFixtureB()->GetBody()->GetUserData().pointer;
+//
+//        if (colA && colB)
+//        {
+//            colA->EmitCollision(colB);
+//            colB->EmitCollision(colA);
+//        }
+//    }
+//};
