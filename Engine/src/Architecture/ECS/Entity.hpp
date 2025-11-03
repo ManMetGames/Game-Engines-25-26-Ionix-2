@@ -22,7 +22,7 @@ namespace IonixEngine {
 
     public:
         Vec2 position;
-        float rotation;
+        double rotation;
         int32_t zOrder;
         EntityID id;
 

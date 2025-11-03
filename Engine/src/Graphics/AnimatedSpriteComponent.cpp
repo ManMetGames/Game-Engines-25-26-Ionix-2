@@ -2,15 +2,16 @@
 #include <Graphics/QueueRenderer.h>
 
 namespace IonixEngine {
-	AnimatedSpriteComponent::AnimatedSpriteComponent(Entity* entity, std::string alias, int zedOrder) : Component(entity, false, true, false) {
+	AnimatedSpriteComponent::AnimatedSpriteComponent(Entity* entity, std::string alias, int zedOrder, int w, int h) : Component(entity, false, true, false) {
 		texture = IonixEngine::TextureManager::Get().GetTexture(alias).GetTexture(); //adding sprite image file to the texture manager
 		zOrder = zedOrder;
-		width = 200;
-		height = 200;
+		width = w;
+		height = h;
 		
 		//calculating the total frame count
 		SDL_QueryTexture(texture, NULL, NULL, &size.x, &size.y);
 		totalFrames =  size.x / size.y;
+		
 		currentFrame = 0;
 	}
 
@@ -32,7 +33,9 @@ namespace IonixEngine {
 			texture,
 			SDL_Rect { (int) (entity->position.x - width / 2), (int) (entity->position.y - height / 2), (int) width, (int) height },
 			SDL_Rect { src.x, src.y, src.w, src.h },
-
+			zOrder,
+			entity->rotation,
+			entity
 		});
 
 

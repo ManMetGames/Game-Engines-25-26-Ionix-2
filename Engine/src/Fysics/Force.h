@@ -1,16 +1,26 @@
 #pragma once
-#include "LayerSystem/Layers/LayerFysics.h"
+#include "box2d.h"
 
 namespace IonixEngine
 {
+    class Entity;
     class Force
     {
     private:
-        b2World* world;
-        b2Body* body;
+	
+		// Not the best idea with this integration - world is singular to FysicsManager and body is accessed via the new dictionary (see Force.cpp for example of how).
+        //b2World* world;
+        //b2Body* body;
 
         public:
 
+        void AddForce(Entity* entity, float xForce, float yForce, float xForceOrigin, float yForceOrigin);
+        void AddImpulseForce(Entity* entity, float xForce, float yForce, float xForceOrigin, float yForceOrigin);
+
+		/*
+        Nothing wrong with the below, they just need the same treatment as above.
+			 This needs tasking up as 'refactoring x to work with ECS system'
+			
         void AddForce(b2Vec2 force, b2Vec2 point)
         {
             if (body)
@@ -57,6 +67,8 @@ namespace IonixEngine
                 body->ApplyAngularImpulse(torque, true);
             }
         }
+        */
+		
     };
     
 }

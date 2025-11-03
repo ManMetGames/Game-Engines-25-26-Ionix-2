@@ -19,7 +19,20 @@ namespace IonixEngine {
 	void QueueRenderer::RenderFromQueue() {
 		while (!sprites.empty()) {
 			RenderCall call = sprites.front();
-			SDL_RenderCopy(Application::Get().GetWindow().GetSdlRenderer(), call.texture, &call.src, &call.dest);
+			double rot = 0;
+
+			if(call.entity)
+				rot = call.entity->rotation;
+
+			SDL_RenderCopyEx(
+				Application::Get().GetWindow().GetSdlRenderer(),
+				call.texture,
+				&call.src,
+				&call.dest,
+				rot,
+				nullptr,
+				SDL_FLIP_NONE
+			);
 			sprites.pop();
 		}
 	}

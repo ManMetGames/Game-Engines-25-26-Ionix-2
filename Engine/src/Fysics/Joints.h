@@ -1,5 +1,5 @@
 #pragma once
-#include "LayerSystem/Layers/LayerFysics.h"
+#include "box2d.h"
 
 namespace IonixEngine
 {
@@ -14,7 +14,7 @@ namespace IonixEngine
 
         Joints()
         {
-            world = LayerFysics::GetInstance()->GetWorld();          
+            //world = LayerFysics::GetInstance()->GetWorld();          
         }              
 
         void destroyJoint(b2Joint* joint) {

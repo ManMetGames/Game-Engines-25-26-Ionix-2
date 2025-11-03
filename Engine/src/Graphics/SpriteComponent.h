@@ -11,8 +11,9 @@ namespace IonixEngine {
 		SDL_Texture* texture;
 		int zOrder;
 		float width, height;
+		double rotation;
 	public:
-		SpriteComponent(Entity* entity, std::string alias, int zedOrder);
+		SpriteComponent(Entity* entity, std::string alias, int zedOrder, double rotation);
 		virtual void Render(RenderData* data) override;
 	};
 }

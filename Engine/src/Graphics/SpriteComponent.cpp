@@ -2,11 +2,12 @@
 #include <Graphics/QueueRenderer.h>
 
 namespace IonixEngine {
-	SpriteComponent::SpriteComponent(Entity* entity, std::string alias, int zedOrder) : Component(entity, false, true, false) {
+	SpriteComponent::SpriteComponent(Entity* entity, std::string alias, int zedOrder, double rotation) : Component(entity, false, true, false) {
 		texture = IonixEngine::TextureManager::Get().GetTexture(alias).GetTexture(); //adding sprite image file to the texture manager
 		zOrder = zedOrder;
 		width = 100;
 		height = 100;
+		this->rotation = entity->rotation;
 	}
 
 	void SpriteComponent::Render(RenderData* data)
@@ -15,7 +16,10 @@ namespace IonixEngine {
 		data->queue->AddToQueue(RenderCall {
 			texture,
 			SDL_Rect { (int) (entity->position.x - width / 2), (int) (entity->position.y - height / 2), (int) width, (int) height },
-			SDL_Rect { (int)(entity->position.x - width / 2), (int)(entity->position.y - height / 2), (int)width, (int)height }
+			SDL_Rect { (int)(entity->position.x - width / 2), (int)(entity->position.y - height / 2), (int)width, (int)height },
+			0,
+			entity->rotation,
+			entity
 		});
 	}
 

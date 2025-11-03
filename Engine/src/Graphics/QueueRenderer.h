@@ -16,6 +16,8 @@ namespace IonixEngine {
 		SDL_Rect dest;
 		SDL_Rect src;
 		int32_t z;
+		double rotation = 0.0;
+		Entity* entity;
 	};
 
 	class QueueRenderer //Singleton

@@ -1,6 +1,7 @@
 #include "Scripting/Scripting.h"
 #include "Architecture/Application.h"
 #include "LayerSystem/Layer.h"
+#include "Fysics/Components/RigidbodyComponent.h"
 
 namespace IonixEngine {
 	Scripting* Scripting::s_Instance = nullptr;
@@ -40,6 +41,7 @@ namespace IonixEngine {
 		RegisterGraphicsBindings();
 		RegisterEntityBindings();
 		RegisterUIBindings();
+		RegisterFysicsBindings();
 	}
 
 	void Scripting::ExecuteScript(const std::string& scriptName)
@@ -298,8 +300,6 @@ namespace IonixEngine {
 	void Scripting::RegisterAudioBindings()
 	{
 		AudioScripting::Get().Init(m_LuaState);
-
-
 	}
 
 	void Scripting::RegisterGraphicsBindings()
@@ -331,8 +331,8 @@ namespace IonixEngine {
 			entity->position = Vec2{ x, y };
 			};
 
-		auto addSpriteComponent = [](Entity* entity, string alias, int zedOrder) {
-			entity->AddComponent(new AnimatedSpriteComponent(entity, alias, zedOrder));
+		auto addSpriteComponent = [](Entity* entity, string alias, int zedOrder, int width, int height) {
+			entity->AddComponent(new AnimatedSpriteComponent(entity, alias, zedOrder, width, height));
 			};
 
 		m_LuaState["Entity"] = m_LuaState.create_table_with(
@@ -363,8 +363,32 @@ namespace IonixEngine {
 			"draw_slider", drawSlider
 		);
 
-
-
 		// print (Window.get_title())
+	}
+
+	void Scripting::RegisterFysicsBindings()
+	{
+		auto addRigidbodyComponent = [](Entity* entity, string alias, int type) {
+			entity->AddComponent(new RigidBodyComponent(entity, alias, type));
+			};
+
+		auto addCollider = [](Entity* entityToAddTo, int colliderType, float density, bool isTrigger) {
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddCollider(entityToAddTo, colliderType, density, isTrigger);
+			};
+
+		auto addForce = [](Entity* entity, float forceX, float forceY, float originX, float originY) {
+			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddForce(entity, forceX, forceY, originX, originY);
+			};
+
+		auto addImpulseForce = [](Entity* entity, float forceX, float forceY, float originX, float originY) {
+			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddImpulseForce(entity, forceX, forceY, originX, originY);
+			};
+
+		m_LuaState["Fysics"] = m_LuaState.create_table_with(
+			"add_rigidbody_component", addRigidbodyComponent,
+			"add_collider", addCollider,
+			"add_force", addForce,
+			"add_impulse_force", addImpulseForce
+		);
 	}
 }

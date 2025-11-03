@@ -1,15 +1,21 @@
 #pragma once
-#include <sol/sol.hpp>
+#include "box2d.h"
 
-#include "LayerSystem/Layers/LayerFysics.h"
-#include "Fysics/Shapes.h"
+// This CLASS IS NO LONGER USED (MOVED ELSEWHERE) - PLEASE READ BELOW
+
+// A lot of inspiration was taken from this class and morphed into components that conform with the ECS system (RigidboyComponent.cpp)
+// I would look to move the physics-based methods out of this class and integrate with ECS (Force.h / .cpp as examples) 
+
+// This constructor isn't called anymore because we do the iitialisation of this body when a RigidboyComponent is added instead.
+
 
 namespace IonixEngine
 {
-    enum class fysicsBodyType {staticBody, dynamicBody, kinematicBody};
+    //enum class fysicsBodyType {staticBody, dynamicBody, kinematicBody};
     
     class FysicsBody
     {
+	/*
     private:
         b2Body* body;
     public:
@@ -231,7 +237,7 @@ namespace IonixEngine
         {
             body->SetGravityScale(gravityScale);
         }
-        
+        */
     };
 }
 

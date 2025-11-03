@@ -21,7 +21,7 @@ namespace IonixEngine {
 		bool reverseOnEnd;
 		bool isReversing;
 	public:
-		AnimatedSpriteComponent(Entity* entity, std::string alias, int zedOrder);
+		AnimatedSpriteComponent(Entity* entity, std::string alias, int zedOrder, int width, int height);
 		virtual void Render(RenderData* data) override;
 		void getFrame();
 	};

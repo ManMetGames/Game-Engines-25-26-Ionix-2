@@ -43,6 +43,8 @@ namespace IonixEngine
 
         void RegisterUIBindings();
 
+        void RegisterFysicsBindings();
+
     };
 }
 
