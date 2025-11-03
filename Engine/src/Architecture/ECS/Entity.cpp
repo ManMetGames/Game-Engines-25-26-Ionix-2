@@ -1,6 +1,10 @@
 #include "Entity.hpp"
 #include "Component.hpp"
-#include "Scene.h"
+
+//For some reason Visual Studio cannot find Scene.h
+//#include "Scene.h"
+#include "./Architecture/Scene.h"
+
 #include <vector>
 #include <cmath>
 
