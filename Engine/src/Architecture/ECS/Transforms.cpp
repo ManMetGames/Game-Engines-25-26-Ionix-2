@@ -36,7 +36,7 @@ namespace IonixEngine
     {
         Vec2 position = { 0.0f,0.0f };
         std::stack<Transform*> pathToParent = getPathToParent();
-        
+
         while (!pathToParent.empty())
         {
             Transform* t = pathToParent.top();
@@ -56,10 +56,8 @@ namespace IonixEngine
         position.y += local.y;
 
         return position;
-
-
     }
-        
+
 
 
     float Transform::GetGlobalRotation()
@@ -134,7 +132,7 @@ namespace IonixEngine
             parent = parent->parentTransform;
         }
         localRotation = rot - accumulator;
-        localRotation = fmod(localRotation,360.0f);
+        localRotation = fmod(localRotation, 360.0f);
     }
 
     Vec2 Transform::GetLocalPosition()
@@ -152,36 +150,43 @@ namespace IonixEngine
         return localScale;
     }
 
-    Mat2 Transform::GetRotationMatrix()
+    Mat3 Transform::GetScaleMatrix()
+    {
+        return Mat3{
+            localScale.x,0,0,
+            0,localScale.y,0,
+            0,0,1 };
+    }
+
+    Mat3 Transform::GetRotationMatrix()
     {
         float angle = localRotation * DEG2RAD;
 
-        Mat2 rotationMatrix = {
-            cosf(angle),sinf(angle),
-            -sinf(angle),cosf(angle) };
-
-        return rotationMatrix;
+        return Mat3{
+            cosf(angle),sinf(angle),0,
+            -sinf(angle),cosf(angle),0,
+            0,0,1 };
     }
 
-    Mat2 Transform::GetScaleMatrix()
+    Mat3 Transform::GetTranslationMatrix()
     {
-        Mat2 scaleMatrix = {
-            localScale.x,0,
-            0,localScale.y };
-
-        return scaleMatrix;
+        return Mat3{
+            1,0,localPosition.x,
+            0,1,localPosition.y,
+            0,0,1 };
     }
 
-    Mat2 Transform::GetTransformMatrix()
+    Mat3 Transform::GetTransformMatrix()
     {
-        Mat2 output = { 0,0,0,0 };
+        Mat3 output = { 0,0,0,0,0,0,0,0,0 };
 
-        Mat2 scale = GetScaleMatrix();
-        Mat2 rot = GetRotationMatrix();
+        Mat3 scale = GetScaleMatrix();
+        Mat3 rot = GetRotationMatrix();
+        Mat3 translate = GetTranslationMatrix();
 
         //multiply matrices
         //scale -> rotation -> displacement
-        
+
         //output = scale * rot;
         output = rot;
         //SDL_Log("debug log lol %f", output.b);
