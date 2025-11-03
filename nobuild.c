@@ -1,6 +1,5 @@
-#include <stdio.h>
-#include <unistd.h>
 #pragma clang diagnostic ignored "-Weverything"
+#include <stdio.h>
 
 #include <string.h>
 #define NOB_IMPLEMENTATION
@@ -118,7 +117,7 @@ int main(int argc, char* argv[]) {
         nob_log(NOB_INFO, "Successfully created engine dll");
         nob_da_append(&client_libs, "-L./build/Client/");
         nob_da_append(&client_libs, is_windows ? "-lEngine" : "-lengine");
-        nob_da_append(&cmd, "cp");
+        nob_da_append(&cmd, is_windows ? "copy" : "cp");
         nob_da_append(&cmd, dll);
         nob_da_append(&cmd, "./Client/");
         if (nob_cmd_run_sync_and_reset(&cmd)) {

@@ -17,10 +17,8 @@
 #include "Audio/AudioPlayer.h"
 
 
-namespace IonixEngine
-{    
-    class ENGINE_API Application
-    {
+namespace IonixEngine {    
+    class ENGINE_API Application {
     public:
         static Application& Get();
 
@@ -34,8 +32,7 @@ namespace IonixEngine
         void Run();
         void OnEvent(IonixEvent& e);
         
-        inline Layer* AddLayer(Layer* layer) 
-        {   
+        inline Layer* AddLayer(Layer* layer) {   
             m_LayerStack.PushLayer(layer); 
             layer->OnAttach(); 
 
@@ -53,7 +50,6 @@ namespace IonixEngine
 
     private:
         static Application* s_Instance;
- 
         Window* m_Window;
         LayerStack m_LayerStack;
     };
