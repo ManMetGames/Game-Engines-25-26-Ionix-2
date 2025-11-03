@@ -9,6 +9,7 @@
 #include <vector>
 #include <functional>
 
+#include "Gravity.h"
 #include "Maf/MafUtils.h"
 
 using EntityID = int;
@@ -21,6 +22,12 @@ namespace IonixEngine
         FysicsShapes* shape = new FysicsShapes();
         PrismaticJoints* joint;
         Force* force;
+        Gravity* gravity{nullptr};
+        Gravity* EnsureGravity()
+        {
+            if (!gravity && s_instance) gravity = new Gravity(s_instance->GetWorld());
+            return gravity;
+        }
         
     public:
         static LayerFysics* s_instance;
@@ -72,6 +79,19 @@ namespace IonixEngine
         void FB_SetPos(int dicIndex, b2Vec2 bodyPos)
         {
             BodyDic[dicIndex]->SetPosition(bodyPos);
+        }
+
+        b2Vec2 FB_GetWorldGravity()
+        {
+            auto g = EnsureGravity();
+            return g ? g->GetGravity() : b2Vec2(0.f, 0.f);
+        }
+
+
+        void FB_SetGravity(const b2Vec2& bodyGravity, bool wake=true)
+        {
+            auto g = EnsureGravity();
+            if (g) g->SetGravity(bodyGravity.x, bodyGravity.y, wake);
         }
 
         void FB_GetAngle()
