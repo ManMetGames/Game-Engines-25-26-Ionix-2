@@ -1,5 +1,5 @@
 #include "Scripting/Audio/AudioScripting.h"
-
+#include "Architecture/ECS/Entity.hpp"
 
 namespace IonixEngine {
 
@@ -14,49 +14,109 @@ namespace IonixEngine {
     void AudioScripting::Init(sol::state& lua)
     {
 
-        auto GetInstance = []() -> SoundManager& {
+         // --- Bind SoundManager singleton ---
+        auto getInstance = []() -> SoundManager& {
             return SoundManager::GetInstance();
             };
 
-        auto SetVolume = [](std::string name, float volume) {
+        auto loadSound = [](std::string name, std::string filePath) -> bool {
+            SoundManager::GetInstance().LoadSound(name, filePath);
+            };
+
+        auto setVolume = [](std::string name, float volume) {
             SoundManager::GetInstance().SetVolume(name, volume);
             };
 
-        // auto GetAudio
-        // 
-        // 
-        // 
-        // // --- Bind SoundManager singleton ---
-        // lua.new_usertype<SoundManager>("SoundManager",
-        //     "GetInstance", &SoundManager::GetInstance,
-        //     "LoadSound", &SoundManager::LoadSound,
-        //     "SetVolume", &SoundManager::SetVolume,
-        //     "GetAudio", &SoundManager::GetAudio,
-        //     "GetPlayTime", sol::overload(
-        //         [](SoundManager& sm, const std::string& alias) { return sm.GetPlayTime(alias); }
-        //     )
-        // );
-        // 
-        // // --- Bind AudioPlayer ---
-        // lua.new_usertype<AudioPlayer>("AudioPlayer",
-        //     sol::constructors<AudioPlayer(Entity*, const std::string&, bool)>(),
-        //     "Play", sol::overload(
-        //         [](AudioPlayer& audioPlayer) { audioPlayer.Play(); },
-        //         [](AudioPlayer& audioPlayer, int fadeMilliseconds) { audioPlayer.Play(fadeMilliseconds); },
-        //         [](AudioPlayer& audioPlayer, int fadeMilliseconds, int numOfLoops) { audioPlayer.Play(fadeMilliseconds, numOfLoops); }
-        //     ),
-        //     "Pause", &AudioPlayer::Pause,
-        //     "Resume", &AudioPlayer::Resume,
-        //     "End", &AudioPlayer::End,
-        //     "IsPlaying", &AudioPlayer::IsPlaying,
-        //     "PlayOneShot", &AudioPlayer::PlayOneShot,
-        //     "ChangeVolume", &AudioPlayer::ChangeVolume,
-        //     "ToggleMute", &AudioPlayer::ToggleMute,
-        //     "volume", &AudioPlayer::volume,
-        //     "mute", &AudioPlayer::mute,
-        //     "clip", &AudioPlayer::clip,
-        //     "playOnAwake", &AudioPlayer::playOnAwake
-        // );
+        auto getAudio = [](std::string name) -> Mix_Chunk* {
+            SoundManager::GetInstance().GetAudio(name);
+            };
+
+        auto getPlaytime = [](std::string name) -> float {
+            SoundManager::GetInstance().GetPlayTime(name);
+            };
+         
+        lua["SoundManager"] = lua.create_table_with(
+            "get_sound_manager", getInstance,
+            "load_sound", loadSound,
+            "set_volume", setVolume,
+            "get_audio", getAudio,
+            "get_playtime", getPlaytime
+        );
+        
+         
+         // --- Bind AudioPlayer ---
+
+        auto play = [](Entity* entity) {
+            entity->GetComponent<AudioPlayer>()->Play();
+            };
+
+        auto play = [](Entity* entity, int fadeMilliseconds = 0) {
+            entity->GetComponent<AudioPlayer>()->Play(fadeMilliseconds);
+            };
+
+        auto play = [](Entity* entity, int fadeMilliseconds = 0, int numLoops = 0) {
+            entity->GetComponent<AudioPlayer>()->Play(fadeMilliseconds, numLoops);
+            };
+
+        auto pause = [](Entity* entity) {
+            entity->GetComponent<AudioPlayer>()->Pause();
+            };
+
+        auto resume = [](Entity* entity){
+            entity->GetComponent<AudioPlayer>()->Resume();
+            };
+
+        auto end = [](Entity* entity){
+            entity->GetComponent<AudioPlayer>()->End();
+            };
+
+        auto isPlaying = [](Entity* entity) -> bool {
+            return entity->GetComponent<AudioPlayer>()->IsPlaying();
+            };
+
+        auto oneShot = [](Entity* entity, std::string name, float volumeScale = 1.0f)
+            {
+                entity->GetComponent<AudioPlayer>()->PlayOneShot(name, volumeScale);
+            };
+
+        auto changeVolume = [](Entity* entity, float volume) {
+            entity->GetComponent<AudioPlayer>()->ChangeVolume(volume);
+            };
+
+        auto toggleMute = [](Entity* entity) {
+            entity->GetComponent<AudioPlayer>()->ToggleMute();
+            };
+
+        auto getVolume = [](Entity* entity) -> float {
+            return entity->GetComponent<AudioPlayer>()->volume;
+            };
+
+        auto mute = [](Entity* entity) -> bool {
+            return entity->GetComponent<AudioPlayer>()->mute;
+            };
+
+        auto getClip = [](Entity* entity) -> std::string {
+            return entity->GetComponent<AudioPlayer>()->clip;
+            };
+
+        auto getAwake = [](Entity* entity) -> bool {
+            return entity->GetComponent<AudioPlayer>()->playOnAwake;
+            };
+       
+        lua["AudioComponent"] = lua.create_table_with(
+            "play", play,
+            "pause", pause,
+            "resume", resume,
+            "end", end,
+            "is_playing", isPlaying,
+            "play_one_shot", oneShot,
+            "change_volume", changeVolume,
+            "toggle_mute", toggleMute,
+            "get_volume", getVolume,
+            "get_mute", mute,
+            "get_clip", getClip,
+            "get_play_on_awake", getAwake
+        );
     }
 
-} // namespace IonixEngine
+}

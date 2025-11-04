@@ -32,11 +32,16 @@ namespace IonixEngine {
             entity->AddComponent(new AnimatedSpriteComponent(entity, alias, zedOrder));
             };
 
+        auto addAudioPlayerComponent = [](Entity* entity, std::string clip = "", bool playOnAwake = false) {
+            entity->AddComponent(new AudioPlayer(entity, clip, playOnAwake));
+            };
+
         lua["Entity"] = lua.create_table_with(
             "create_entity", entity,
             "get_entity_pos", getEntityPos,
             "set_entity_pos", setEntityPos,
-            "add_sprite_component", addSpriteComponent
+            "add_sprite_component", addSpriteComponent,
+            "add_audio_component", addAudioPlayerComponent
         );
     }
 
