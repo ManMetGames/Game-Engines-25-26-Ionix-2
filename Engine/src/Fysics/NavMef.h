@@ -57,7 +57,7 @@ public:
 
         // cells
         for (int i = 0; i < fourCount; i++) {
-            m_cells[i].corns = { indices[i * 4], indices[i * 4 + 1], indices[i * 4 + 2], indices[i*4+2]}; // the corner values
+            m_cells[i].corns = { indices[i * 4], indices[i * 4 + 1], indices[i * 4 + 2], indices[i*4+2]}; // the corner values (index's)
             //m_cells[i].heuristicValue = CalculateHeuristic(m_cells);
         }
 
@@ -77,11 +77,11 @@ public:
     b2Vec2 GetCellCentre(const Cell& cell) const {
         //finds the centre of the cell (rectangle)  from the 3 verticies;
         b2Vec2 centre = { 0,0 };
-        for (int cornIndex : cell.corns) {
-            centre += m_corners[cornIndex];
+        for (int cornIndex : cell.corns) { // cycles through the corners in the cell
+            centre += m_corners[cornIndex]; // gets the position of each corner from the cornerindex in the cell
             
         }
-        centre *= 0.25f;
+        centre *= 0.25f; // uses box2d syntax that lets multiply vector
         return centre;
     }
 
