@@ -3,12 +3,12 @@
 #include <string>
 
 struct Textures {
-    uint64_t Debug = 13718016529779414311u;
-    uint64_t Debug0 = 1501760624307900422u;
-    uint64_t Test = 6128689281041194533u;
-    uint64_t aur_naur = 16195376283791962253u;
-    uint64_t ball = 5225819788789863859u;
-    uint64_t horse_fat = 1265999279503785142u;
+    uint64_t Debug = 16105671890965812228u;
+    uint64_t Debug0 = 7047004974639425728u;
+    uint64_t Test = 2449874712956322390u;
+    uint64_t aur_naur = 3210096583211923613u;
+    uint64_t ball = 17707837483333796221u;
+    uint64_t horse_fat = 14957662674859995436u;
 
     inline std::map<std::string, std::string> GetTextures() {
         std::map<std::string, std::string> map;
@@ -23,7 +23,7 @@ struct Textures {
 };
 
 struct Sounds {
-    uint64_t test = 15086333167179663880u;
+    uint64_t test = 17827761153089726170u;
 
     inline std::map<std::string, std::string> GetSounds() {
         std::map<std::string, std::string> map;
@@ -33,44 +33,44 @@ struct Sounds {
 };
 
 struct Fonts {
-    uint64_t OpenSans_Bold = 18218641110960709569u;
-    uint64_t OpenSans_BoldItalic = 13024091119898391375u;
-    uint64_t OpenSans_Condensed_Bold = 14919764598910263845u;
-    uint64_t OpenSans_Condensed_BoldItalic = 33898620003740200u;
-    uint64_t OpenSans_Condensed_ExtraBold = 6157712735007971018u;
-    uint64_t OpenSans_Condensed_ExtraBoldItalic = 11276515552535112333u;
-    uint64_t OpenSans_Condensed_Italic = 10186543856528593220u;
-    uint64_t OpenSans_Condensed_Light = 15012900026793656856u;
-    uint64_t OpenSans_Condensed_LightItalic = 1421376522066116905u;
-    uint64_t OpenSans_Condensed_Medium = 13852931639892788862u;
-    uint64_t OpenSans_Condensed_MediumItalic = 2361335609534174902u;
-    uint64_t OpenSans_Condensed_Regular = 7494130786263383751u;
-    uint64_t OpenSans_Condensed_SemiBold = 2673907469032595194u;
-    uint64_t OpenSans_Condensed_SemiBoldItalic = 16055796091777031203u;
-    uint64_t OpenSans_ExtraBold = 2099464000956417361u;
-    uint64_t OpenSans_ExtraBoldItalic = 10894008372049147386u;
-    uint64_t OpenSans_Italic = 14482838294132719766u;
-    uint64_t OpenSans_Italic_VariableFont_wdth,wght = 6087002732572701798u;
-    uint64_t OpenSans_Light = 192434351041039986u;
-    uint64_t OpenSans_LightItalic = 2939390856899650635u;
-    uint64_t OpenSans_Medium = 17039498864906448372u;
-    uint64_t OpenSans_MediumItalic = 14852958965204785674u;
-    uint64_t OpenSans_Regular = 2544399497738673305u;
-    uint64_t OpenSans_SemiBold = 6854180939799697375u;
-    uint64_t OpenSans_SemiBoldItalic = 1799124700723222149u;
-    uint64_t OpenSans_SemiCondensed_Bold = 13858384759917467487u;
-    uint64_t OpenSans_SemiCondensed_BoldItalic = 14686690485652473659u;
-    uint64_t OpenSans_SemiCondensed_ExtraBold = 10699801352396839347u;
-    uint64_t OpenSans_SemiCondensed_ExtraBoldItalic = 2340613249906148784u;
-    uint64_t OpenSans_SemiCondensed_Italic = 8879318348008732344u;
-    uint64_t OpenSans_SemiCondensed_Light = 14649876522230810411u;
-    uint64_t OpenSans_SemiCondensed_LightItalic = 15995267612355742865u;
-    uint64_t OpenSans_SemiCondensed_Medium = 13427812767353106663u;
-    uint64_t OpenSans_SemiCondensed_MediumItalic = 17634547107124595366u;
-    uint64_t OpenSans_SemiCondensed_Regular = 9377779586138411637u;
-    uint64_t OpenSans_SemiCondensed_SemiBold = 4163883439414375005u;
-    uint64_t OpenSans_SemiCondensed_SemiBoldItalic = 1727944077903941136u;
-    uint64_t OpenSans_VariableFont = 12954013778786213472u;
+    uint64_t OpenSans_Bold = 15907694087263520715u;
+    uint64_t OpenSans_BoldItalic = 8563675908245164909u;
+    uint64_t OpenSans_Condensed_Bold = 359187643146943972u;
+    uint64_t OpenSans_Condensed_BoldItalic = 14849289699928080642u;
+    uint64_t OpenSans_Condensed_ExtraBold = 6947855732792450946u;
+    uint64_t OpenSans_Condensed_ExtraBoldItalic = 3486891722713028513u;
+    uint64_t OpenSans_Condensed_Italic = 4342085688838513660u;
+    uint64_t OpenSans_Condensed_Light = 2217696825746649946u;
+    uint64_t OpenSans_Condensed_LightItalic = 6175883351937481375u;
+    uint64_t OpenSans_Condensed_Medium = 7158168093019054927u;
+    uint64_t OpenSans_Condensed_MediumItalic = 8626495147143287104u;
+    uint64_t OpenSans_Condensed_Regular = 6994305085030512905u;
+    uint64_t OpenSans_Condensed_SemiBold = 8803190280521243502u;
+    uint64_t OpenSans_Condensed_SemiBoldItalic = 14588341052304457896u;
+    uint64_t OpenSans_ExtraBold = 12227810788226587876u;
+    uint64_t OpenSans_ExtraBoldItalic = 8869746834823773578u;
+    uint64_t OpenSans_Italic = 16632617568536746513u;
+    uint64_t OpenSans_Italic_VariableFont_wdth_wght = 6606613461309615998u;
+    uint64_t OpenSans_Light = 168946910481453691u;
+    uint64_t OpenSans_LightItalic = 14816344761813584664u;
+    uint64_t OpenSans_Medium = 3787703417603136849u;
+    uint64_t OpenSans_MediumItalic = 772028055242458903u;
+    uint64_t OpenSans_Regular = 7933080968301474893u;
+    uint64_t OpenSans_SemiBold = 5098837941272300246u;
+    uint64_t OpenSans_SemiBoldItalic = 16659307743882634385u;
+    uint64_t OpenSans_SemiCondensed_Bold = 16787162754279270096u;
+    uint64_t OpenSans_SemiCondensed_BoldItalic = 7342872189256318675u;
+    uint64_t OpenSans_SemiCondensed_ExtraBold = 1439675224711620604u;
+    uint64_t OpenSans_SemiCondensed_ExtraBoldItalic = 7137085836259179529u;
+    uint64_t OpenSans_SemiCondensed_Italic = 8160819281478521801u;
+    uint64_t OpenSans_SemiCondensed_Light = 5791485800500642700u;
+    uint64_t OpenSans_SemiCondensed_LightItalic = 14233983156265692247u;
+    uint64_t OpenSans_SemiCondensed_Medium = 7676232349246516700u;
+    uint64_t OpenSans_SemiCondensed_MediumItalic = 16103702957349022117u;
+    uint64_t OpenSans_SemiCondensed_Regular = 1448807020571299991u;
+    uint64_t OpenSans_SemiCondensed_SemiBold = 6111457202692262930u;
+    uint64_t OpenSans_SemiCondensed_SemiBoldItalic = 126995760760299497u;
+    uint64_t OpenSans_VariableFont = 1462764909749496224u;
 
     inline std::map<std::string, std::string> GetFonts() {
         std::map<std::string, std::string> map;
@@ -91,7 +91,7 @@ struct Fonts {
         map["OpenSans_ExtraBold"] = "./Assets/Open_Sans/static/OpenSans-ExtraBold.ttf";
         map["OpenSans_ExtraBoldItalic"] = "./Assets/Open_Sans/static/OpenSans-ExtraBoldItalic.ttf";
         map["OpenSans_Italic"] = "./Assets/Open_Sans/static/OpenSans-Italic.ttf";
-        map["OpenSans_Italic_VariableFont_wdth,wght"] = "./Assets/Open_Sans/OpenSans-Italic-VariableFont_wdth,wght.ttf";
+        map["OpenSans_Italic_VariableFont_wdth_wght"] = "./Assets/Open_Sans/OpenSans-Italic-VariableFont_wdth,wght.ttf";
         map["OpenSans_Light"] = "./Assets/Open_Sans/static/OpenSans-Light.ttf";
         map["OpenSans_LightItalic"] = "./Assets/Open_Sans/static/OpenSans-LightItalic.ttf";
         map["OpenSans_Medium"] = "./Assets/Open_Sans/static/OpenSans-Medium.ttf";
@@ -123,7 +123,7 @@ struct Assets {
 
     static Assets& Get() {
         static Assets assets;
-        return assets;
+        return assets;         
     };
 };
 
