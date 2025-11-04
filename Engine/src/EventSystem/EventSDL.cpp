@@ -6,6 +6,7 @@
 #include "Architecture/Application.h"
 #include <iostream>
 #include <iomanip>
+#include <unordered_map>
 
 namespace IonixEngine
 {
@@ -15,7 +16,10 @@ namespace IonixEngine
         ImGui_ImplSDL2_ProcessEvent(&e); 
 
         //Store connected controllers 
-        static std::vector<SDL_GameController*> controllers;
+        //static std::vector<SDL_GameController*> controllers;
+
+        static std::unordered_map<int, SDL_GameController*> controllers;
+        static std::unordered_map<int, ControllerManager> controllerManagers;
 
         switch (e.type)
         {
@@ -42,91 +46,97 @@ namespace IonixEngine
             Application::Get().layerInput->m_Input->SetKeyReleased(e.key.keysym.scancode);
             break;
 
-           // Controller
+            // Controller
         case SDL_CONTROLLERDEVICEADDED:
         {
-            if (controllers.size() < MAX_CONNECTIONS) //Allow up to 4 controllers
+            SDL_GameController* controller = SDL_GameControllerOpen(e.cdevice.which);
+            if (controller)
             {
-                SDL_GameController* controller = SDL_GameControllerOpen(e.cdevice.which);
-                if (controller)
-                {
-                    controllers.push_back(controller);
-                    std::cout << "Controller Connected! Total: " << controllers.size() << "\n";
+                int instanceId = SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(controller));
+                controllers[instanceId] = controller;
+                controllerManagers[instanceId] = ControllerManager();
 
-                }
+                std::cout << "Controller " << instanceId << " connected! Total: " << controllers.size() << "\n";
             }
             break;
-
         }
         case SDL_CONTROLLERDEVICEREMOVED:
         {
             int instanceId = e.cdevice.which;
-            for (auto it = controllers.begin(); it != controllers.end(); ++it)
+            if (controllers.count(instanceId))
             {
-                if (SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(*it)) == instanceId)
-                {
-                    SDL_GameControllerClose(*it);
-                    controllers.erase(it);
-                    std::cout << "Controller Disconnected! Total: " << controllers.size() << "\n";
-                    break;
-                }
+                SDL_GameControllerClose(controllers[instanceId]);
+                controllers.erase(instanceId);
+                controllerManagers.erase(instanceId);
+
+                std::cout << "Controller " << instanceId << " disconnected! Total: " << controllers.size() << "\n";
             }
             break;
         }
 
-            case SDL_CONTROLLERBUTTONDOWN:
-                Application::Get().layerInput->m_Input->SetButtonPressed(e.cbutton.button);
-                break;
+
+        case SDL_CONTROLLERBUTTONDOWN:
+        {
+            int instanceId = e.cbutton.which;
+            if (controllerManagers.count(instanceId))
+            {
+                controllerManagers[instanceId].SetButtonPressed(e.cbutton.button);
+                std::cout << "Controller " << instanceId << " pressed button "
+                    << static_cast<int>(e.cbutton.button) << "\n";
+            }
+            break;
+        }
+
             case SDL_CONTROLLERBUTTONUP:
-                Application::Get().layerInput->m_Input->SetButtonReleased(e.cbutton.button);
-                break;
-            case SDL_CONTROLLERAXISMOTION:
-                switch (e.caxis.axis)
+            {
+            int instanceId = e.cbutton.which;
+            if (controllerManagers.count(instanceId))
+            {
+                controllerManagers[instanceId].SetButtonReleased(e.cbutton.button);
+                std::cout << "Controller " << instanceId << " released button "
+                    << static_cast<int>(e.cbutton.button) << "\n";
+            }
+            break;
+            }
+
+
+                case SDL_CONTROLLER_AXIS_LEFTY:
                 {
-                    case SDL_CONTROLLER_AXIS_LEFTX:
-                    {
-                        double val = e.caxis.value;
-                        float normalised = Application::Get().layerInput->m_Input->NormaliseStickAxis(val);
-                        //std::cout << normalised << "\n";
-                        break;
-                    }
-                    case SDL_CONTROLLER_AXIS_LEFTY:
-                    {
-                        double val = e.caxis.value;
-                        float normalised = Application::Get().layerInput->m_Input->NormaliseStickAxis(val);
-                        //std::cout << normalised << "\n";
-                        break;
-                    }
-                    case SDL_CONTROLLER_AXIS_RIGHTX:
-                    {
-                        double val = e.caxis.value;
-                        float normalised = Application::Get().layerInput->m_Input->NormaliseStickAxis(val);
-                        //std::cout << normalised << "\n";
-                        break;
-                    }
-                    case SDL_CONTROLLER_AXIS_RIGHTY:
-                    {
-                        double val = e.caxis.value;
-                        float normalised = Application::Get().layerInput->m_Input->NormaliseStickAxis(val);
-                        //std::cout << normalised << "\n";
-                        break;
-                    }
-                    case SDL_CONTROLLER_AXIS_TRIGGERLEFT:
-                    {
-                        double val = e.caxis.value;
-                        float normalised = Application::Get().layerInput->m_Input->NormaliseTrigger(val); 
-                        //std::cout << normalised << "\n";
-                        break;
-                    }
-                    case SDL_CONTROLLER_AXIS_TRIGGERRIGHT:
-                    {
-                        double val = e.caxis.value;
-                        float normalised = Application::Get().layerInput->m_Input->NormaliseTrigger(val);
-                        //std::cout << normalised << "\n";
-                        break;
-                    }
+                    double val = e.caxis.value;
+                    float normalised = Application::Get().layerInput->m_ControllerManager->NormaliseStickAxis(val);
+                    //std::cout << normalised << "\n";
+                    break;
+                }
+                case SDL_CONTROLLER_AXIS_RIGHTX:
+                {
+                    double val = e.caxis.value;
+                    float normalised = Application::Get().layerInput->m_ControllerManager->NormaliseStickAxis(val);
+                    //std::cout << normalised << "\n";
+                    break;
+                }
+                case SDL_CONTROLLER_AXIS_RIGHTY:
+                {
+                    double val = e.caxis.value;
+                    float normalised = Application::Get().layerInput->m_ControllerManager->NormaliseStickAxis(val);
+                    //std::cout << normalised << "\n";
+                    break;
+                }
+                case SDL_CONTROLLER_AXIS_TRIGGERLEFT:
+                {
+                    double val = e.caxis.value;
+                    float normalised = Application::Get().layerInput->m_ControllerManager->NormaliseTrigger(val);
+                    //std::cout << normalised << "\n";
+                    break;
+                }
+                case SDL_CONTROLLER_AXIS_TRIGGERRIGHT:
+                {
+                    double val = e.caxis.value;
+                    float normalised = Application::Get().layerInput->m_ControllerManager->NormaliseTrigger(val);
+                    //std::cout << normalised << "\n";
+                    break;
+                }
                 break;
                 }
         }
     }
-}
+
