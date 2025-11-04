@@ -5,6 +5,7 @@
 #include "LayerSystem/LayerStack.h"
 #include "LayerSystem/Layers/LayerEditor.h"
 #include "Maf/MafUtils.h"
+#include <chrono>
 #include <iostream>
 #include "LayerSystem/Layers/LayerUI.h"
 #include "LayerSystem/Layers/LayerGraphics.h"
@@ -26,6 +27,8 @@ namespace IonixEngine {
         virtual ~Application();
 
         bool m_Running = true;
+        float deltaTime = 0.0f;
+        float time = 0.0f;
 
         inline Window& GetWindow() { return *m_Window; }
 
@@ -48,7 +51,9 @@ namespace IonixEngine {
         LayerInput* layerInput;
         LayerSound* layerSound;
 
+
     private:
+        chrono::time_point<std::chrono::steady_clock> applicationStart;
         static Application* s_Instance;
         Window* m_Window;
         LayerStack m_LayerStack;

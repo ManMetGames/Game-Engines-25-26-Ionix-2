@@ -4,6 +4,7 @@
 #include "Fysics/Shapes.h"
 #include "LayerSystem/Layers/LayerTexture.hpp"
 #include "imgui.h"
+#include <chrono>
 #include <vector>
 
 
@@ -15,11 +16,12 @@ namespace IonixEngine
 {
     Application& Application::Get() { return *s_Instance; }
 
+
     Application::Application()
         : m_Window(new Window())
     {
         s_Instance = this;
-
+        applicationStart = std::chrono::high_resolution_clock::now();
 
         //Initialise layers...
         layerEditor = new LayerEditor();
@@ -69,20 +71,20 @@ namespace IonixEngine
     void Application::Run()
     {
         m_Running = true;
-
         Scripting::Get().CallHook("OnStart");
         SDL_Renderer* renderer = m_Window->GetSdlRenderer();
 
         //FysicBody testBody = FysicBody();
         
 
-        while (m_Running)
-        {
-			      SDL_RenderClear(renderer);
-			      SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);
-          
-            for (auto layer : m_LayerStack.GetLayers())
-            {
+        while (m_Running) {
+            float lastTime = time;
+            time = static_cast<std::chrono::duration<float>>(chrono::high_resolution_clock::now() - applicationStart).count();
+            deltaTime = time - lastTime;
+
+            SDL_RenderClear(renderer);
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);
+            for (auto layer : m_LayerStack.GetLayers()) {
                 if(layer)
                     layer->OnUpdate();
             }
