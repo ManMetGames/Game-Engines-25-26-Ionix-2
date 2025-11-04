@@ -89,6 +89,9 @@ namespace IonixEngine
 		void UIManager::AddChildToPanel(UIElement element);
 		
 		// Add for new UITypes below
+
+		void AddLabel(int x, int y, float xSize, float ySize, const char* text, const std::string& fontName = "");
+
 		void AddButton(int x, int y, float xSize, float ySize, const char* text, std::function<void()> onClick, const std::string& fontName = "");
 
 		void AddCheckbox(int x, int y, float xSize, float ySize, const char* text, bool* checked, const std::string& fontName = "");
