@@ -91,6 +91,12 @@ public:
         b2Vec2 goalCentre = GetCellCentre(m_cells[goalIndex]);
         return b2Distance(cellCentre, goalCentre);
     }
+    // A* incoming crazy func gotta get wild
+    std::vector<int>FindPath(int startCell, int goalCell) {
+        //get values from node calculate g using b2distance, calc h for the each cell using heuristic function, calc f from both;
+    }
+
+    //also Olesya gonna make a funnel that is fun *for* all!
 
 
 };
