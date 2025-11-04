@@ -16,6 +16,7 @@ if not exist .\Client\AssetBuilder.exe (
 )
 
 cd .\Client
+dir
 echo [ASSETS] Rebuilding asset files
 AssetBuilder.exe
 echo [ASSETS] Rebuilt asset files
