@@ -17,29 +17,23 @@ namespace IonixEngine
         force = new Force();
     }
 
-    //// Searches through the dictionary for an entity.
-    //// Once entity is found, returns the associated rigidbody.
-    //b2Body* FysicsManager::GetBodyFromEntity(Entity* entity)
-    //{
-    //    for (auto& pair : entityBodyMap)
-    //    {
-    //        if (pair.second == entity)
-    //        {
-    //            return pair.first;
-    //        }
-    //    }
-    //}
 
-    //// Searches through the dictionary for a rigidbody.
-    //// Once rigidbody is found, returns the associated entity. - The opposite of the other method.
-    //Entity* FysicsManager::GetEntityFromBody(b2Body* body)
-    //{
-    //    for (auto& pair : entityBodyMap)
-    //    {
-    //        if (pair.first == body)
-    //        {
-    //            return pair.second;
-    //        }
-    //    }
-    //}
+    b2Body* FysicsManager::GetBodyFromEntity(Entity* entity)
+    {
+        for (auto& pair : entityBodyMap)
+        {
+            if (pair.second == entity)
+            {
+                return pair.first;
+            }
+        }
+    }
+
+    Entity* FysicsManager::GetEntityFromBody(b2Body* body)
+    {
+        for (auto& pair : entityBodyMap)
+        {
+            return pair.second;
+        }
+    }
 }

@@ -1,5 +1,6 @@
 #include "LayerSystem/Layers/LayerFysics.h"
 #include "Fysics/FysicsManager.h"
+#include "Architecture/Application.h"
 
 #include <iostream>
 #include <ostream>
@@ -61,4 +62,10 @@ namespace IonixEngine
         body->CreateFixture(&fix);
         return body;
     }
+
+    FysicsManager* LayerFysics::GetFysicsManager()
+    {
+        return fysicsManager;
+    }
+
 }
