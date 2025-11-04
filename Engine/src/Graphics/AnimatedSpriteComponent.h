@@ -17,12 +17,40 @@ namespace IonixEngine {
 		float width, height;
 		int totalFrames;
 		int currentFrame;
+		int endFrame;
+		bool isReversing;
+		int rows, cols;
+		int spriteWidth, spriteHeight;
+		int currentRow, currentCol;
+
+		enum playbackOptions {
+			FORWARD,
+			BACKWARD,
+			FORWARDANDBACKWARD,
+			PLAYONCE,
+			ONEFRAME
+		};
+
+		enum playbackOptions playbackMode;
 
 		bool reverseOnEnd;
-		bool isReversing;
+
 	public:
 		AnimatedSpriteComponent(Entity* entity, std::string alias, int zedOrder);
 		virtual void Render(RenderData* data) override;
+
+		void calculateTotalFrames();
+
 		void getFrame();
+		void setEndFrame(int x);
+
+		void setReverseOnEnd(bool x);
+		void setIsLooping(bool x);
+		void setPlaybackMode(enum playbackOptions x);
+		void setCurrentFrame(int x);
+		void setRows(int x);
+		void setCols(int x);
+		void setSpriteWidth(int x);
+		void setSpriteHeight(int x);
 	};
 }
