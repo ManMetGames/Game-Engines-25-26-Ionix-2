@@ -1,11 +1,14 @@
 #pragma once
 #include <unordered_map>
+#include <string>
+
 namespace IonixEngine
 {
     class UI
     {
     public:
-        void DrawLabel(char* text, int xpos, int ypos, int xsize, int ysize, const char* font);
+        void DrawLabel(char* text, int xpos, int ypos, int xsize, int ysize, std::string font);
+
         bool DrawButton(char* text, int xsize, int ysize, int xpos, int ypos);
 
         float DrawSlider(char* text, static float i, int xsize, int ysize, int xpos, int ypos, int minval, int maxval);

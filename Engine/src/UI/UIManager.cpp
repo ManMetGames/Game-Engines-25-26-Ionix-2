@@ -232,7 +232,7 @@ void IonixEngine::UIManager::RenderElement(UIElement& element)
 	switch (element.type)
 	{
 	case UIType::Label:
-			m_ui->DrawLabel(element.text, element.xSize, element.ySize, element.xPos, element.yPos, "DefaultFont");
+			m_ui->DrawLabel(element.text, element.xSize, element.ySize, element.xPos, element.yPos, element.fontName);
 		break;
 	case UIType::Button:
 		if (m_ui->DrawButton(element.text, element.xSize, element.ySize, element.xPos, element.yPos))

@@ -9,12 +9,13 @@
 
 namespace IonixEngine
 {
-	void UI::DrawLabel(char* text, int xsize, int ysize, int xpos, int ypos ,const char* font)
+	void UI::DrawLabel(char* text, int xsize, int ysize, int xpos, int ypos , std::string font)
 	{
 		
 		ImGui::SetCursorPos(ImVec2(xpos, ypos));
-		
-	    ImFont* fontToPush = Application::Get().layerUI->m_FontLoader->GetFont("Font1Bold");
+		std::unordered_map<std::string, ImFont*>& map = Application::Get().layerUI->GetUIManager().fontLoader.fontMap;
+		ImFont* fontToPush = map[font];
+
 		ImGui::PushFont(fontToPush);
 		ImGui::Text(text, ImVec2(xsize, ysize));
 		ImGui::PopFont();
