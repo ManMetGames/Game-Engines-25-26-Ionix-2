@@ -89,8 +89,6 @@ namespace IonixEngine
 			 SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);
           
             cam->handleInput(1.0f);
-            cam->apply(*rect);
-            cam->renderTexture(0, 0, rect, renderer);
              
 
             for (auto layer : m_LayerStack.GetLayers())
