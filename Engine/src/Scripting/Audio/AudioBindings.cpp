@@ -1,4 +1,4 @@
-#include "Scripting/Bindings/AudioBindings.h"
+#include "Scripting/Audio/AudioBindings.h"
 #include "Scripting/Audio/AudioScripting.h"
 
 namespace IonixEngine {
