@@ -81,6 +81,7 @@ namespace IonixEngine
             float lastTime = time;
             time = static_cast<std::chrono::duration<float>>(chrono::high_resolution_clock::now() - applicationStart).count();
             deltaTime = time - lastTime;
+            std::cout << "\rDT: " << deltaTime;
 
             SDL_RenderClear(renderer);
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);
