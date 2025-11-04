@@ -61,7 +61,7 @@ void IonixEngine::UIManager::AddChildToPanel(UIElement element)
 }
 
 
-void IonixEngine::UIManager::AddLabel(int x, int y, float xSize, float ySize, const char* text)
+void IonixEngine::UIManager::AddLabel(int x, int y, float xSize, float ySize, const char* text, const std::string& fontName = "")
 {
 	UIElement element;
 	element.type = UIType::Label;
@@ -74,7 +74,7 @@ void IonixEngine::UIManager::AddLabel(int x, int y, float xSize, float ySize, co
 	AddChildToPanel(element);
 }
 
-void IonixEngine::UIManager::AddButton(int x, int y, float xSize, float ySize, const char* text, std::function<void()> onClick)
+void IonixEngine::UIManager::AddButton(int x, int y, float xSize, float ySize, const char* text, std::function<void()> onClick, const std::string& fontName = "")
 {
 	UIElement element;
 	element.type = UIType::Button;
@@ -88,7 +88,7 @@ void IonixEngine::UIManager::AddButton(int x, int y, float xSize, float ySize, c
 	AddChildToPanel(element);
 }
 
-void IonixEngine::UIManager::AddCheckbox(int x, int y, float xSize, float ySize, const char* text, bool* checked)
+void IonixEngine::UIManager::AddCheckbox(int x, int y, float xSize, float ySize, const char* text, bool* checked, const std::string& fontName = "")
 {
 	UIElement element;
 	element.type = UIType::Checkbox;
@@ -102,7 +102,7 @@ void IonixEngine::UIManager::AddCheckbox(int x, int y, float xSize, float ySize,
 	AddChildToPanel(element);
 }
 
-void IonixEngine::UIManager::AddSliderFloat(int x, int y, float xSize, float ySize, const char* text, float* value, float min, float max)
+void IonixEngine::UIManager::AddSliderFloat(int x, int y, float xSize, float ySize, const char* text, float* value, float min, float max, const std::string& fontName = "")
 {
 	UIElement element;
 	element.type = UIType::SliderFloat;
@@ -118,7 +118,7 @@ void IonixEngine::UIManager::AddSliderFloat(int x, int y, float xSize, float ySi
 	AddChildToPanel(element);
 }
 
-void IonixEngine::UIManager::AddInputText(int x, int y, float xSize, float ySize, const char* text, char* buffer, size_t bufferSize)
+void IonixEngine::UIManager::AddInputText(int x, int y, float xSize, float ySize, const char* text, char* buffer, size_t bufferSize, const std::string& fontName = "")
 {
 	UIElement element;
 	element.type = UIType::InputText;
@@ -133,7 +133,7 @@ void IonixEngine::UIManager::AddInputText(int x, int y, float xSize, float ySize
 	AddChildToPanel(element);
 }
 
-void IonixEngine::UIManager::AddRadioButton(int x, int y, float xSize, float ySize, const char* text, int* radioValuePointer, int value, bool sameline)
+void IonixEngine::UIManager::AddRadioButton(int x, int y, float xSize, float ySize, const char* text, int* radioValuePointer, int value, bool sameline, const std::string& fontName = "")
 {
 	UIElement element;
 	element.type = UIType::RadioButton;
@@ -151,7 +151,7 @@ void IonixEngine::UIManager::AddRadioButton(int x, int y, float xSize, float ySi
 
 
 
-void IonixEngine::UIManager::AddColorPicker(int x, int y, float xSize, float ySize, const char* label, float* color)
+void IonixEngine::UIManager::AddColorPicker(int x, int y, float xSize, float ySize, const char* label, float* color, const std::string& fontName = "")
 {
 	UIElement element;
 	element.type = UIType::ColorPicker;
@@ -165,22 +165,7 @@ void IonixEngine::UIManager::AddColorPicker(int x, int y, float xSize, float ySi
 	AddChildToPanel(element);
 }
 
-void IonixEngine::UIManager::AddProgressBar(int x, int y, float xSize, float ySize, float maxvalue, float* currentvalue, float incrementamount)
-{
-	UIElement element;
-	element.type = UIType::ProgressBar;
-	element.groupName = currentGroupName;
-	element.xPos = x;
-	element.yPos = y;
-	element.xSize = xSize;
-	element.ySize = ySize;
-	element.maxValue = maxvalue;
-	element.currentValue = currentvalue;
-	element.incrementAmount = incrementamount;
-	AddChildToPanel(element);
-}
-
-void IonixEngine::UIManager::AddDropdown(int x, int y, float xSize, float ySize, const char* text, std::vector<std::string> options, int* currentIndex)
+void IonixEngine::UIManager::AddDropdown(int x, int y, float xSize, float ySize, const char* text, std::vector<std::string> options, int* currentIndex, const std::string& fontName = "")
 {
 	UIElement element;
 	element.type = UIType::Dropdown;
@@ -211,6 +196,16 @@ void IonixEngine::UIManager::RenderElement(UIElement& element)
 	}
 
 	ImGui::SetCursorPos(ImVec2((float)element.xPos, (float)element.yPos));
+	// --- FONT PUSH ---
+	ImFont* font = nullptr;
+	if (!element.fontName.empty())
+	{
+		font = fontLoader.GetFont(element.fontName);
+	}
+	if (font)
+	{
+		ImGui::PushFont(font);
+	}
 	switch (element.type)
 	{
 	case UIType::Label:
@@ -274,7 +269,11 @@ void IonixEngine::UIManager::RenderElement(UIElement& element)
 		}
 		break;
 	
-	
+		// --- FONT POP ---
+		if (font)
+		{
+			ImGui::PopFont();
+		}
 
 		if (element.sameline)
 			ImGui::SameLine();

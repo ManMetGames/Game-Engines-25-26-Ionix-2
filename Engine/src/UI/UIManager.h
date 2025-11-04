@@ -3,6 +3,8 @@
 #include <string>
 #include <functional>
 #include <vector>
+#include "Fontloader.h"
+
 #include "UI/UI.h"
 namespace IonixEngine
 {
@@ -39,6 +41,10 @@ namespace IonixEngine
 		int RadioButtonValue = 0;
 		bool sameline = false;
 		float* color = nullptr; // only for ColorPicker4
+		
+		// Font name for this element
+		std::string fontName;
+
 		float maxValue = 0.0f; // only for ProgressBar
 		float* currentValue = nullptr; // only for ProgressBar
 		float incrementAmount = 0.0f; // only for ProgressBar
@@ -61,7 +67,7 @@ namespace IonixEngine
 
 		UI* m_ui = nullptr;
 	public:
-
+		Fontloader fontLoader;
 		std::vector<UIElement> GetElements()
 		{
 			return elements;
@@ -83,22 +89,22 @@ namespace IonixEngine
 		void UIManager::AddChildToPanel(UIElement element);
 		
 		// Add for new UITypes below
-		void AddLabel(int x, int y, float xSize, float ySize, const char* text);
-		
-		void AddButton(int x, int y, float xSize, float ySize, const char* text, std::function<void()> onClick);
-		
-		void AddCheckbox(int x, int y, float xSize, float ySize, const char* text, bool* checked);
-		
-		void AddSliderFloat(int x, int y, float xSize, float ySize, const char* text, float* value, float min, float max);
-		
-		void AddInputText(int x, int y, float xSize, float ySize, const char* text, char* buffer, size_t bufferSize);
-		
-		void AddRadioButton(int x, int y, float xSize, float ySize, const char* text, int* radioValuePointer, int value, bool sameline);
-		
-		void AddDropdown(int x, int y, float xSize, float ySize, const char* text, std::vector<std::string> options, int* currentIndex);
-		
-		
-		void AddColorPicker(int x, int y, float xSize, float ySize, const char* label, float* color);
+		void AddButton(int x, int y, float xSize, float ySize, const char* text, std::function<void()> onClick, const std::string& fontName = "");
+
+		void AddCheckbox(int x, int y, float xSize, float ySize, const char* text, bool* checked, const std::string& fontName = "");
+
+		void AddSliderFloat(int x, int y, float xSize, float ySize, const char* text, float* value, float min, float max, const std::string& fontName = "");
+
+		void AddInputText(int x, int y, float xSize, float ySize, const char* text, char* buffer, size_t bufferSize, const std::string& fontName = "");
+
+		void AddRadioButton(int x, int y, float xSize, float ySize, const char* text, int* radioValuePointer, int value, bool sameline = false, const std::string& fontName = "");
+
+		void AddDropdown(int x, int y, float xSize, float ySize, const char* text, std::vector<std::string> options, int* currentIndex, const std::string& fontName = "");
+
+		void AddColorPicker(int x, int y, float xSize, float ySize, const char* label, float* color, const std::string& fontName = "");
+
+		void AddColorPicker1(int x, int y, float xSize, float ySize, const char* label, float* color, const std::string& fontName = "");
+
 
 		void AddProgressBar(int x, int y, float xSize, float ySize, float maxvalue, float* currentvalue, float incrementamount);
 
