@@ -13,6 +13,9 @@ namespace IonixEngine {
 		totalFrames =  size.x / size.y;
 		
 		currentFrame = 0;
+
+		SpriteSize(50, 50);
+		SpriteRotation(45);
 	}
 
 	void AnimatedSpriteComponent::Render(RenderData* data)
@@ -44,6 +47,18 @@ namespace IonixEngine {
 		//SDL_Delay(60);
 
 		currentFrame++;
+	}
+
+	void AnimatedSpriteComponent::SpriteSize(int x, int y)
+	{
+		width = x;
+		height = y;
+	}
+
+	void AnimatedSpriteComponent::SpriteRotation(float angleInDegrees) //code uses radians but player will use degrees so it's more user friendly
+	{
+		float radianDegree = angleInDegrees * (M_PI / 180); //converts degrees entered into radian
+		entity->rotation = radianDegree;
 	}
 
 }

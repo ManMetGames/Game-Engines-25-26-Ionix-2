@@ -24,5 +24,7 @@ namespace IonixEngine {
 		AnimatedSpriteComponent(Entity* entity, std::string alias, int zedOrder, int width, int height);
 		virtual void Render(RenderData* data) override;
 		void getFrame();
+		void SpriteSize(int x, int y);
+		void SpriteRotation(float angleInDegrees);
 	};
 }

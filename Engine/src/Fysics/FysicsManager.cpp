@@ -1,6 +1,5 @@
 #pragma once
 #include "Fysics/FysicsManager.h"
-#include "Debug/DebugDraw.h"
 #include "Architecture/Application.h"
 
 namespace IonixEngine
