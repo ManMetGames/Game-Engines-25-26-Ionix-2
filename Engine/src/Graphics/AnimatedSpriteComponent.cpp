@@ -9,7 +9,7 @@ namespace IonixEngine {
 		height = 200;
 		isReversing = false;
 		reverseOnEnd = false;
-		playbackMode = BACKWARD;
+		playbackMode = FORWARDANDBACKWARD;
 
 		rows = 2;
 		cols = 5;
@@ -100,13 +100,15 @@ namespace IonixEngine {
 				break;
 			case FORWARDANDBACKWARD:
 				if (isReversing) {
-
+					isReversing = false;
+					currentFrame = 0;
 					endFrame = totalFrames;
 				}
 				else {
+					isReversing = true;
 					endFrame = 0;
+					currentFrame = totalFrames;
 				}
-				isReversing = !isReversing;
 				break;
 			case PLAYONCE: case ONEFRAME:
 				break;
