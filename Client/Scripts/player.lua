@@ -9,15 +9,15 @@ function player:OnUpdate()
 	local enemy = GetModule("enemy")
 
 	if Input.get_key_down(44) then
-		print("key down")
+		print(Input.get_mouse_x())
 	end
 
 	if Input.get_key_up(44) then
-        print("key up")
+        print(Input.get_mouse_x())
     end
 
 	if Input.get_key_held(44) then
-        print("key held")
+        print(Input.get_mouse_x())
     end
 
 

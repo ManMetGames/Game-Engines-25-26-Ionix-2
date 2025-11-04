@@ -1,6 +1,7 @@
 #include "Scripting/Scripting.h"
 #include "Architecture/Application.h"
 #include "LayerSystem/Layer.h"
+#include "LayerSystem/Layers/SceneLayer.h"
 
 namespace IonixEngine {
 	Scripting* Scripting::s_Instance = nullptr;
@@ -39,6 +40,7 @@ namespace IonixEngine {
 		RegisterAudioBindings();
 		RegisterGraphicsBindings();
 		RegisterEntityBindings();
+		RegisterUIBindings();
 	}
 
 	void Scripting::ExecuteScript(const std::string& scriptName)
@@ -91,6 +93,13 @@ namespace IonixEngine {
 			};
 		auto getKeyHeld = [](int code) -> bool {
 			return Application::Get().layerInput->m_Input->IsKeyHeld(static_cast<SDL_Scancode>(code));
+			};
+
+		auto getMouseX = []() -> int {
+			return Application::Get().layerInput->m_Input->GetMousePosition().x;
+			};
+		auto getMouseY = []() -> int {
+			return Application::Get().layerInput->m_Input->GetMousePosition().y;
 			};
 
 
@@ -154,7 +163,9 @@ namespace IonixEngine {
 		m_LuaState["Input"] = m_LuaState.create_table_with(
 			"get_key_up", getKeyUp,
 			"get_key_down", getKeyDown,
-			"get_key_held", getKeyHeld
+			"get_key_held", getKeyHeld,
+			"get_mouse_x", getMouseX,
+			"get_mouse_y", getMouseY
 		);
 	}
 	void Scripting::RegisterMafsBindings()
@@ -164,6 +175,9 @@ namespace IonixEngine {
 			};
 		auto log = [](float x) -> float {
 			return Maf::Log(x);
+			};
+		auto log10 = [](float value) -> float {
+			return Maf::Log10(value);
 			};
 		auto logCustom = [](float x, float base) -> float {
 			return Maf::Log(x, base);
@@ -253,6 +267,14 @@ namespace IonixEngine {
 			return Maf::mafPI();
 			};
 
+		auto rad2deg = [](float radians) -> float {
+			return Maf::Rad2Deg(radians);
+			};
+
+		auto deg2rad = [](float degrees) -> float {
+			return Maf::Deg2Rad(degrees);
+			};
+
 		m_LuaState["Mafs"] = m_LuaState.create_table_with(
 			"clamp", clamp,
 			"abs", abs,
@@ -260,6 +282,7 @@ namespace IonixEngine {
 			"max", max,
 			"round", round,
 			"log", log,
+			"log_10", log10,
 			"log_custom", logCustom,
 			"square_root", sqrt,
 			"lerp", lerp,
@@ -277,12 +300,14 @@ namespace IonixEngine {
 			"sin", sin,
 			"cos", cos,
 			"tan", tan,
-			"pi", pi
+			"pi", pi,
+			"rad_2_deg", rad2deg,
+			"deg_2_rad", deg2rad
 		);
 	}
 	void Scripting::RegisterAudioBindings()
 	{
-		AudioScripting::Get().Init(m_LuaState);
+		// AudioScripting::Get().Init(m_LuaState);
 
 
 	}
@@ -302,9 +327,9 @@ namespace IonixEngine {
 
 	void Scripting::RegisterEntityBindings()
 	{
-		auto entity = []() -> Entity* {
-			EntityID entityID = Application::Get().layerScene->GetScene()->CreateEntity();
-			return Application::Get().layerScene->GetScene()->GetEntityFromID(entityID);
+		auto createEntity = []() -> Entity* {
+			EntityID entityID = LayerScene::CurrentScene()->CreateEntity();
+			return LayerScene::CurrentScene()->GetEntityFromID(entityID);
 			};
 
 		auto getEntityPos = [](Entity* entity) -> Vec2 {
@@ -312,15 +337,16 @@ namespace IonixEngine {
 			};
 
 		auto setEntityPos = [](Entity* entity, float x, float y) {
+			if (entity == nullptr) return;
 			entity->position = Vec2{ x, y };
 			};
 
 		auto addSpriteComponent = [](Entity* entity, string alias, int zedOrder) {
-			entity->AddComponent(new SpriteComponent(entity, alias, zedOrder));
+			entity->AddComponent(new AnimatedSpriteComponent(entity, alias, zedOrder));
 			};
 
 		m_LuaState["Entity"] = m_LuaState.create_table_with(
-			"create_entity", entity,
+			"create_entity", createEntity,
 			"get_entity_pos", getEntityPos,
 			"set_entity_pos", setEntityPos,
 			"add_sprite_component", addSpriteComponent
@@ -329,15 +355,15 @@ namespace IonixEngine {
 
 	void Scripting::RegisterUIBindings()
 	{
-		auto drawLabel = [this](const char* text, int xsize, int ysize, int xpos, int ypos) {
-			Application::Get().layerUI->m_UI->DrawLabel((char*)text, xsize, ysize, xpos, ypos);
+		auto drawLabel = [this](const char* text, int xsize, int ysize, int xpos, int ypos, const char* font) {
+			Application::Get().layerUI->m_UI->DrawLabel((char*)text, xsize, ysize, xpos, ypos, "");
 			};
 
-		auto drawButton = [this](const char* text, int xsize, int ysize, int xpos, int ypos) -> bool {
+		auto drawButton = [](const char* text, int xsize, int ysize, int xpos, int ypos) -> bool {
 			return Application::Get().layerUI->m_UI->DrawButton((char*)text, xsize, ysize, xpos, ypos);
 			};
 
-		auto drawSlider = [this](const char* text, float i, int xsize, int ysize, int xpos, int ypos, int minval, int maxval) -> float {
+		auto drawSlider = [](const char* text, float i, int xsize, int ysize, int xpos, int ypos, int minval, int maxval) -> float {
 			return Application::Get().layerUI->m_UI->DrawSlider((char*)text, i, xsize, ysize, xpos, ypos, minval, maxval);
 			};
 

@@ -1,4 +1,5 @@
 #pragma once
+#include <cstdint>
 #include <string>
 #include <map>
 #include "TextureData.h"
@@ -9,15 +10,17 @@ namespace IonixEngine
 	class TextureManager
 	{
 	private:
-		std::map<size_t, TextureData> textureDict;
+		std::map<uint64_t, TextureData> textureDict;
 		TextureData errorTexture;
 		SDL_Renderer* renderer;
 	public:
 		TextureManager();
-		static size_t StringToHash(std::string alias);
 		void AddTexture(std::string filepath,std::string alias);
 		TextureData& GetTexture(std::string alias);
-		TextureData& GetTexture(size_t hash);
+		TextureData& GetTexture(uint64_t hash);
+
+		SDL_Texture* GetRawTexture(uint64_t hash);
+
 		void Init();
 		void Shutdown();
 		static TextureManager& Get()

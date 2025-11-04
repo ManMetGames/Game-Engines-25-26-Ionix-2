@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Architecture">
+      <UniqueIdentifier>{282F98C7-1492-276C-BD17-6022A959F3EE}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Architecture\AudioSystem">
+      <UniqueIdentifier>{8E41C409-7A66-138A-A3B1-F8198F3512A8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Architecture\ECS">
+      <UniqueIdentifier>{72770629-5E70-257B-87A2-0A0073FA0487}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Architecture\TextureManager">
+      <UniqueIdentifier>{63BA5C2A-CFC7-8A10-58AE-86FBC4BA56C7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Audio">
+      <UniqueIdentifier>{9718D90C-032D-01BE-CCAE-A41D3882FDEE}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EventSystem">
+      <UniqueIdentifier>{CCE875DF-389E-EED4-C192-E8AB2D47E5D8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fysics">
+      <UniqueIdentifier>{3691F6B3-2233-218A-0BEE-34DEF72EA8DA}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Graphics">
+      <UniqueIdentifier>{1653CE33-0220-293F-2B39-17E717655ECD}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Input">
+      <UniqueIdentifier>{953A660D-014F-8EBE-CAD0-311E36A48AEF}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LayerSystem">
+      <UniqueIdentifier>{87D49461-F389-0D57-7C7E-072EE832045B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LayerSystem\Layers">
+      <UniqueIdentifier>{662D6E48-5211-2F9E-BB71-29F1A7741920}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Maf">
+      <UniqueIdentifier>{5907880B-C510-887C-4E8C-9E7CBA94937C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scripting">
+      <UniqueIdentifier>{985A7358-04C5-27CF-4D03-D974B9AC0524}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI">
+      <UniqueIdentifier>{83755900-6F01-880B-D8AF-880BC45A880B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Window">
+      <UniqueIdentifier>{3DEA79DA-298C-A4B0-1247-B804FE872B01}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="third-party">
+      <UniqueIdentifier>{9DC1EB7C-0977-6472-926B-5E49FE1F5B76}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\Architecture\Application.h">
+      <Filter>Architecture</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Architecture\AudioSystem\AudioData.h">
+      <Filter>Architecture\AudioSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Architecture\AudioSystem\SoundManager.h">
+      <Filter>Architecture\AudioSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Architecture\Macros.h">
+      <Filter>Architecture</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Architecture\Scene.h">
+      <Filter>Architecture</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Architecture\TextureManager\TextureData.h">
+      <Filter>Architecture\TextureManager</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Architecture\TextureManager\TextureManager.h">
+      <Filter>Architecture\TextureManager</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Architecture\main.h">
+      <Filter>Architecture</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Audio\AudioPlayer.h">
+      <Filter>Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="src\EngineIncludes.h" />
+    <ClInclude Include="src\EventSystem\Event.h">
+      <Filter>EventSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="src\EventSystem\EventSDL.h">
+      <Filter>EventSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Fysics\Collider.h">
+      <Filter>Fysics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Fysics\Force.h">
+      <Filter>Fysics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Fysics\FysicBody.h">
+      <Filter>Fysics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Fysics\FysicsManager.h">
+      <Filter>Fysics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Fysics\Gravity.h">
+      <Filter>Fysics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Fysics\Joints.h">
+      <Filter>Fysics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Fysics\Raycast.h">
+      <Filter>Fysics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Fysics\Shapes.h">
+      <Filter>Fysics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Fysics\Utility.h">
+      <Filter>Fysics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\SpriteClass.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\SpriteSorting.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Input\Input.h">
+      <Filter>Input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LayerSystem\Layer.h">
+      <Filter>LayerSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LayerSystem\LayerStack.h">
+      <Filter>LayerSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LayerSystem\Layers\LayerEditor.h">
+      <Filter>LayerSystem\Layers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LayerSystem\Layers\LayerFysics.h">
+      <Filter>LayerSystem\Layers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LayerSystem\Layers\LayerGraphics.h">
+      <Filter>LayerSystem\Layers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LayerSystem\Layers\LayerInput.h">
+      <Filter>LayerSystem\Layers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LayerSystem\Layers\LayerSound.h">
+      <Filter>LayerSystem\Layers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LayerSystem\Layers\LayerUI.h">
+      <Filter>LayerSystem\Layers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LayerSystem\Layers\SceneLayer.h">
+      <Filter>LayerSystem\Layers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Maf\MafUtils.h">
+      <Filter>Maf</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scripting\Scripting.h">
+      <Filter>Scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UI\UI.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UI\UIManager.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Window\Window.h">
+      <Filter>Window</Filter>
+    </ClInclude>
+    <ClInclude Include="src\third-party\ImGuiRenderer.h">
+      <Filter>third-party</Filter>
+    </ClInclude>
+    <ClInclude Include="src\third-party\imgui_impl_sdlrenderer2.h">
+      <Filter>third-party</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Architecture\Application.cpp">
+      <Filter>Architecture</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Architecture\AudioSystem\AudioData.cpp">
+      <Filter>Architecture\AudioSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Architecture\AudioSystem\SoundManager.cpp">
+      <Filter>Architecture\AudioSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Architecture\ECS\Component.cpp">
+      <Filter>Architecture\ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Architecture\ECS\ECS_Test.cpp">
+      <Filter>Architecture\ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Architecture\ECS\Entity.cpp">
+      <Filter>Architecture\ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Architecture\Scene.cpp">
+      <Filter>Architecture</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Architecture\TextureManager\TextureData.cpp">
+      <Filter>Architecture\TextureManager</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Architecture\TextureManager\TextureManager.cpp">
+      <Filter>Architecture\TextureManager</Filter>
+    </ClCompile>
+    <ClCompile Include="src\EventSystem\EventSDL.cpp">
+      <Filter>EventSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Graphics\SpriteClass.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Graphics\SpriteSorting.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Input\Input.cpp">
+      <Filter>Input</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LayerSystem\LayerStack.cpp">
+      <Filter>LayerSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LayerSystem\Layers\LayerEditor.cpp">
+      <Filter>LayerSystem\Layers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LayerSystem\Layers\LayerFysics.cpp">
+      <Filter>LayerSystem\Layers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LayerSystem\Layers\LayerGraphics.cpp">
+      <Filter>LayerSystem\Layers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LayerSystem\Layers\LayerInput.cpp">
+      <Filter>LayerSystem\Layers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LayerSystem\Layers\LayerSound.cpp">
+      <Filter>LayerSystem\Layers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LayerSystem\Layers\LayerTexture.cpp">
+      <Filter>LayerSystem\Layers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LayerSystem\Layers\LayerUI.cpp">
+      <Filter>LayerSystem\Layers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LayerSystem\Layers\SceneLayer.cpp">
+      <Filter>LayerSystem\Layers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Scripting\Scripting.cpp">
+      <Filter>Scripting</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UI\UI.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UI\UIManager.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UI\UIManagercpp.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Window\Window.cpp">
+      <Filter>Window</Filter>
+    </ClCompile>
+    <ClCompile Include="src\third-party\ImGuiRenderer.cpp">
+      <Filter>third-party</Filter>
+    </ClCompile>
+    <ClCompile Include="src\third-party\imgui_impl_sdlrenderer2.cpp">
+      <Filter>third-party</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
