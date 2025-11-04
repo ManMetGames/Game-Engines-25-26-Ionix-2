@@ -86,55 +86,43 @@ namespace IonixEngine
                     case SDL_CONTROLLER_AXIS_LEFTX:
                     {
                         double val = e.caxis.value;
-                        val = (val / 32768);
-                        val = std::ceil(val * 100) / 100;
-                        Application::Get().layerInput->m_Input->NormaliseLeftXAxis(val);
-                        std::cout << val << "\n";
+                        float normalised = Application::Get().layerInput->m_Input->NormaliseStickAxis(val);
+                        //std::cout << normalised << "\n";
                         break;
                     }
                     case SDL_CONTROLLER_AXIS_LEFTY:
                     {
                         double val = e.caxis.value;
-                        val = (val / 32768);
-                        val = std::ceil(val * 100) / 100;
-                        Application::Get().layerInput->m_Input->NormaliseLeftYAxis(val);
-                        std::cout << val << "\n";
+                        float normalised = Application::Get().layerInput->m_Input->NormaliseStickAxis(val);
+                        //std::cout << normalised << "\n";
                         break;
                     }
                     case SDL_CONTROLLER_AXIS_RIGHTX:
                     {
                         double val = e.caxis.value;
-                        val = (val / 32768);
-                        val = std::ceil(val * 100) / 100;
-                        Application::Get().layerInput->m_Input->NormaliseRightXAxis(val);
-                        std::cout << val << "\n";
+                        float normalised = Application::Get().layerInput->m_Input->NormaliseStickAxis(val);
+                        //std::cout << normalised << "\n";
                         break;
                     }
                     case SDL_CONTROLLER_AXIS_RIGHTY:
                     {
                         double val = e.caxis.value;
-                        val = (val / 32768);
-                        val = std::ceil(val * 100) / 100;
-                        Application::Get().layerInput->m_Input->NormaliseRightYAxis(val);
-                        std::cout << val << "\n";
+                        float normalised = Application::Get().layerInput->m_Input->NormaliseStickAxis(val);
+                        //std::cout << normalised << "\n";
                         break;
                     }
                     case SDL_CONTROLLER_AXIS_TRIGGERLEFT:
                     {
                         double val = e.caxis.value;
-                        val = (val / 32768);
-                        val = std::ceil(val * 100) / 100;
-                        Application::Get().layerInput->m_Input->NormaliseLeftTrigger(val); 
-                        std::cout << val << "\n";
+                        float normalised = Application::Get().layerInput->m_Input->NormaliseTrigger(val); 
+                        //std::cout << normalised << "\n";
                         break;
                     }
                     case SDL_CONTROLLER_AXIS_TRIGGERRIGHT:
                     {
                         double val = e.caxis.value;
-                        val = (val / 32768);
-                        val = std::ceil(val * 100) / 100;
-                        Application::Get().layerInput->m_Input->NormaliseRightTrigger(val); 
-                        std::cout << val << "\n";
+                        float normalised = Application::Get().layerInput->m_Input->NormaliseTrigger(val);
+                        //std::cout << normalised << "\n";
                         break;
                     }
                 break;

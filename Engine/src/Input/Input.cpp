@@ -83,41 +83,19 @@ namespace IonixEngine
         currentButton.erase(btn);
     }
 
-    //Controller axes
-    void Input::NormaliseLeftXAxis(float axis)
+    //Controller axis
+    float Input::NormaliseStickAxis(float axis)
     {
-        leftStickHorizontal = static_cast<float>(axis) / 32768.0f;
-        leftStickHorizontal = std::round(leftStickHorizontal * 100.0f) / 100.0f;
+        controllerAxis = static_cast<float>(axis) / 32768.0f;
+        controllerAxis = std::round(controllerAxis * 100.0f) / 100.0f;
+        return controllerAxis;
     }
-
-    void Input::NormaliseLeftYAxis(float axis)
+    
+    float Input::NormaliseTrigger(float axis)
     {
-        leftStickVertical = static_cast<float>(axis) / 32768.0f;
-        leftStickVertical = std::round(leftStickVertical * 100.0f) / 100.0f;
-    }
-
-    void Input::NormaliseRightXAxis(float axis)
-    {
-        rightStickHorizontal = static_cast<float>(axis) / 32768.0f;
-        rightStickHorizontal = std::round(rightStickHorizontal * 100.0f) / 100.0f;
-    }
-
-    void Input::NormaliseRightYAxis(float axis)
-    {
-        rightStickVertical = static_cast<float>(axis) / 32768.0f;
-        rightStickVertical = std::round(rightStickVertical * 100.0f) / 100.0f;
-    }
-
-    void Input::NormaliseLeftTrigger(float axis)
-    {
-        leftTriggerPressure = static_cast<float>(axis) / 3276.0f;
-        leftTriggerPressure = std::round(leftTriggerPressure * 100.0f) / 100.0f;
-    }
-
-    void Input::NormaliseRightTrigger(float axis)
-    {
-        rightTriggerPressure = static_cast<float>(axis) / 32767.0f;
-        rightTriggerPressure = std::round(rightTriggerPressure * 100.0f) / 100.0f;
+        triggerPressure = static_cast<float>(axis) / 32767.0f;
+        triggerPressure = std::round(triggerPressure * 100.0f) / 100.0f;
+        return triggerPressure;
     }
 
     //Frame management
