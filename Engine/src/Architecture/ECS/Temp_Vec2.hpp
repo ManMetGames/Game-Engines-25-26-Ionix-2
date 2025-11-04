@@ -11,12 +11,12 @@ struct Vec3
 };
 
 
-struct Mat2
-{
-    //a,b
-    //c,d
-    float a, b, c, d;
-};
+//struct Mat2
+//{
+//    //a,b
+//    //c,d
+//    float a, b, c, d;
+//};
 
 struct Mat3
 {
@@ -26,17 +26,17 @@ struct Mat3
     float a, b, c, d, e, f, g, h, i;
 };
 
-static Mat2 operator*(const Mat2& left, const Mat2& right)
-{
-    Mat2 output = {
-        (left.a * right.a) + (left.b * right.c),
-        (left.a * right.b) + (left.b * right.d),
-
-        (left.c * right.a) + (left.d * right.c),
-        (left.c * right.b) + (left.d * right.d) };
-
-    return output;
-};
+//static Mat2 operator*(const Mat2& left, const Mat2& right)
+//{
+//    Mat2 output = {
+//        (left.a * right.a) + (left.b * right.c),
+//        (left.a * right.b) + (left.b * right.d),
+//
+//        (left.c * right.a) + (left.d * right.c),
+//        (left.c * right.b) + (left.d * right.d) };
+//
+//    return output;
+//};
 
 static Mat3 operator*(const Mat3& left, const Mat3& right)
 {
@@ -57,13 +57,13 @@ static Mat3 operator*(const Mat3& left, const Mat3& right)
     return output;
 }
 
-static Vec2 operator*(const Vec2& vec, const Mat2& mat)
-{
-    Vec2 output = {
-        (vec.x * mat.a) + (vec.y * mat.b),
-        (vec.x * mat.c) + (vec.y * mat.d) };
-    return output;
-};
+//static Vec2 operator*(const Vec2& vec, const Mat2& mat)
+//{
+//    Vec2 output = {
+//        (vec.x * mat.a) + (vec.y * mat.b),
+//        (vec.x * mat.c) + (vec.y * mat.d) };
+//    return output;
+//};
 
 static Vec3 operator*(const Vec3& vec, const Mat3& mat)
 {
