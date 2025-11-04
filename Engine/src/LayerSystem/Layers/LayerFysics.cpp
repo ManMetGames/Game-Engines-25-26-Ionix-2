@@ -61,4 +61,9 @@ namespace IonixEngine
         body->CreateFixture(&fix);
         return body;
     }
+
+    FysicsManager* LayerFysics::GetFysicsManager()
+    {
+        return fysicsManager;
+    }
 }

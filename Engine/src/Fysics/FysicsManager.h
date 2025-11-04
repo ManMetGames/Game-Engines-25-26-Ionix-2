@@ -4,6 +4,13 @@
 #include "Fysics/Shapes.h"
 #include "Fysics/Joints.h"
 #include "Fysics/Force.h"
+#include "Fysics/Collider.h"
+#include <vector>
+#include <functional>
+#include "Contactlistener.h"
+#include <unordered_map>
+
+using Entity = int;
 
 namespace IonixEngine
 {
@@ -14,11 +21,28 @@ namespace IonixEngine
         PrismaticJoints* joint;
         Force* force;
         b2World* world;
+        ContactListener contactListener;
+
+        using GlobalCollisionCallback = std::function<void(Collider*, Collider*)>;
+        std::vector<GlobalCollisionCallback> globalCollisionCallbacks_;
+
+        std::unordered_map<b2Body*, Entity*> entityBodyMap;
+        std::unordered_map<Entity*, Collider*> entityToColliderMap;
+
 
         static LayerFysics* s_instance;
     public:
         static void SetInstance(LayerFysics* instance) {
             s_instance = instance;
+        }
+
+        b2Body* GetBodyFromEntity(Entity* entity);
+        Entity* GetEntityFromBody(b2Body* entity);
+        Collider* GetColliderForEntity(Entity* entity);
+
+        void RegisterCollisionCallback(const GlobalCollisionCallback& callback)
+        {
+            globalCollisionCallbacks_.push_back(callback);
         }
 
         void Create() 
