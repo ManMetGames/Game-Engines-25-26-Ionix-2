@@ -5,6 +5,7 @@
 #include "LayerSystem/LayerStack.h"
 #include "LayerSystem/Layers/LayerEditor.h"
 #include "Maf/MafUtils.h"
+#include <chrono>
 #include <iostream>
 #include "LayerSystem/Layers/LayerUI.h"
 #include "LayerSystem/Layers/LayerGraphics.h"
@@ -17,10 +18,8 @@
 #include "Audio/AudioPlayer.h"
 
 
-namespace IonixEngine
-{    
-    class ENGINE_API Application
-    {
+namespace IonixEngine {    
+    class ENGINE_API Application {
     public:
         static Application& Get();
 
@@ -28,14 +27,15 @@ namespace IonixEngine
         virtual ~Application();
 
         bool m_Running = true;
+        float deltaTime = 0.0f;
+        float time = 0.0f;
 
         inline Window& GetWindow() { return *m_Window; }
 
         void Run();
         void OnEvent(IonixEvent& e);
         
-        inline Layer* AddLayer(Layer* layer) 
-        {   
+        inline Layer* AddLayer(Layer* layer) {   
             m_LayerStack.PushLayer(layer); 
             layer->OnAttach(); 
 
@@ -51,9 +51,10 @@ namespace IonixEngine
         LayerInput* layerInput;
         LayerSound* layerSound;
 
+
     private:
+        chrono::time_point<std::chrono::steady_clock> applicationStart;
         static Application* s_Instance;
- 
         Window* m_Window;
         LayerStack m_LayerStack;
     };

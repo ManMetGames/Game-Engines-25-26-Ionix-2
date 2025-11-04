@@ -1,4 +1,5 @@
 #include "SceneLayer.h"
+#include "Architecture/Application.h"
 
 namespace IonixEngine
 {
@@ -22,7 +23,7 @@ namespace IonixEngine
     void LayerScene::OnUpdate()
     {
         if (m_Current)
-            m_Current->OnUpdate(0.016f);
+            m_Current->OnUpdate(Application::Get().deltaTime);
     }
 
     void LayerScene::OnEvent(IonixEvent& e)
