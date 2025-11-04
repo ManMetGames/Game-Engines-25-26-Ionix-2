@@ -3,6 +3,8 @@
 #include <iostream>
 #include "ContactListener.h"
 #include "Fysics/Collider.h"
+#include "Fysics/FysicsManager.h"
+#include "Architecture/Application.h"
 
 namespace IonixEngine
 {
