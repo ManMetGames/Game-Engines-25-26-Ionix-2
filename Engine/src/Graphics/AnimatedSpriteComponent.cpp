@@ -9,7 +9,7 @@ namespace IonixEngine {
 		height = 200;
 		isReversing = false;
 		reverseOnEnd = false;
-		playbackMode = BACKWARD;
+		playbackMode = PLAYONCE;
 
 		rows = 2;
 		cols = 5;
@@ -123,7 +123,6 @@ namespace IonixEngine {
 
 	//setters
 	void AnimatedSpriteComponent::setEndFrame(int x) { endFrame = x; }
-	void AnimatedSpriteComponent::setIsLooping(bool x) { looping = x; }
 	void AnimatedSpriteComponent::setPlaybackMode(enum playbackOptions x) { playbackMode = x; }
 	void AnimatedSpriteComponent::setCurrentFrame(int x) { if (!(x > totalFrames)) { currentFrame = x; } }
 	void AnimatedSpriteComponent::setReverseOnEnd(bool x) { reverseOnEnd = x; }
