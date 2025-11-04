@@ -28,4 +28,3 @@ function EntityPlayer:OnUpdate()
 	end
 end
 return EntityPlayer
-

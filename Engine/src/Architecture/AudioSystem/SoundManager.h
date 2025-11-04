@@ -22,6 +22,8 @@ namespace IonixEngine
         Mix_Chunk* GetAudio(uint64_t hash);
         void SetVolume(const std::string& name, float volume); // 0.0f to 1.0f
         void SetVolume(uint64_t hash, float volume); // 0.0f to 1.0f
+        float GetPlayTime(const std::string& alias);
+        float GetPlayTime(uint64_t hash);
 
     private:
         SoundManager() = default;

@@ -93,6 +93,24 @@ void SoundManager::SetVolume(uint64_t hash, float volume) {
   // does not play the sound; volume applies to future 'PlaySound' calls
 }
 
+float SoundManager::GetPlayTime(const std::string& alias) {
+    return GetPlayTime(Get64BitHash(alias));
+}
+
+float SoundManager::GetPlayTime(uint64_t hash) {
+    int freq = 0;
+    Uint16 format = 0;
+    int channels = 0;
+
+    Mix_Chunk* audio = GetAudio(hash);
+    if (audio) {
+        if (!Mix_QuerySpec(&freq, &format, &channels)) { return -1.0f; }
+        return (float)audio->alen / (float)(freq * channels * ((format & 0xFF) / 8.0f));
+    } else {
+        return -1.0f;
+    }
+}
+
 SoundManager::~SoundManager() { Shutdown(); }
 
 } // namespace IonixEngine

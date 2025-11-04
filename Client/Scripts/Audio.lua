@@ -16,6 +16,11 @@ function AudioSystem:OnStart()
 	-- Play sound
 	testSound:Play()
 	print("[Lua] Playing test.wav...")
+
+	-- Play sound
+	testSound:Play(0, 2) -- First overload is the fade in time and the second is the number of loops, -1 for infinite
+	print("[Lua] Test file length is: " .. sm:GetPlayTime("test"))
+	print("[Lua] Playing test.wav...")
 end
 
 function AudioSystem:OnShutdown()
