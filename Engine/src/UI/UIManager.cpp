@@ -259,7 +259,7 @@ void IonixEngine::UIManager::RenderElement(UIElement& element)
 	case UIType::RadioButton:
 		if (element.radioValuePtr)
 		{
-			m_ui->DrawRadioButton(element.xPos, element.yPos, element.text, *element.radioValuePtr, element.RadioButtonValue, element.sameline);
+			m_ui->DrawRadioButton(element.xPos, element.yPos, element.xPos, element.yPos, element.text, element.radioValuePtr, element.RadioButtonValue, element.sameline);
 		}
 		break;
 	case UIType::ColorPicker:

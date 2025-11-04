@@ -84,9 +84,9 @@ namespace IonixEngine
 
         
          std::vector<std::string> dropdownOptions = { "Option 1", "Option 2", "Option 3" };
-         int dropdownIndex = 0;
+         static int dropdownIndex = 0;
          bool checkboxValue = true;
-         int radioValue = 0;
+         static int radioValue = 0;
          static float sliderValue = 0.5f;
          
          
