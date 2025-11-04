@@ -101,7 +101,33 @@ namespace IonixEngine {
 		auto getMouseY = []() -> int {
 			return Application::Get().layerInput->m_Input->GetMousePosition().y;
 			};
-
+		auto getMouseButtonDown = [](int mousecode)-> bool {
+			return Application::Get().layerInput->m_Input->IsMouseButtonDown(static_cast<uint8>(mousecode));
+			};
+		auto getMouseButtonUp = [](int mousecode)-> bool {
+			return Application::Get().layerInput->m_Input->IsMouseButtonUp(static_cast<uint8>(mousecode));
+			};
+		auto setMousePressed = [](int code) {
+			Application::Get().layerInput->m_Input->SetButtonPressed(static_cast<uint8>(code));
+			};
+		auto setMouseReleased = [](int code) {
+			Application::Get().layerInput->m_Input->SetButtonReleased(static_cast<uint8>(code));
+			};
+		auto SetKeyPressed = [](SDL_Scancode code) {
+			Application::Get().layerInput->m_Input->SetKeyPressed(static_cast<SDL_Scancode>(code));
+			};
+		auto SetKeyReleased = [](SDL_Scancode code) {
+			Application::Get().layerInput->m_Input->SetKeyReleased(static_cast<SDL_Scancode>(code));
+			};
+		auto NormaliseStickAxis = [](float axis) {
+			return Application::Get().layerInput->m_Input->NormaliseStickAxis(axis);
+			};
+		auto NormaliseTrigger = [](float axis) {
+			return Application::Get().layerInput->m_Input->NormaliseTrigger(axis);
+			};
+		auto CopyCodesEndFrame = []() {
+			return Application::Get().layerInput->m_Input->CopyCodesEndFrame();
+			};
 
 		m_LuaState["Keys"] = m_LuaState.create_table_with(
 			"ionix_a", SDL_SCANCODE_A,
@@ -165,7 +191,17 @@ namespace IonixEngine {
 			"get_key_down", getKeyDown,
 			"get_key_held", getKeyHeld,
 			"get_mouse_x", getMouseX,
-			"get_mouse_y", getMouseY
+			"get_mouse_y", getMouseY,
+			"getMouseButtonDown", getMouseButtonDown,
+			"getMouseButtonUp", getMouseButtonUp,
+			"setMousePressed", setMousePressed,
+			"SetKeyPressed", SetKeyPressed,
+			"SetKeyReleased",SetKeyReleased,
+			"setMouseReleased", setMouseReleased,
+			"NormaliseStickAxis", NormaliseStickAxis,
+			"NormaliseTrigger", NormaliseTrigger,
+			"CopyCodesEndFrame", CopyCodesEndFrame
+
 		);
 	}
 	void Scripting::RegisterMafsBindings()
