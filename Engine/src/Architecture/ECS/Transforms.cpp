@@ -35,25 +35,35 @@ namespace IonixEngine
     Vec2 Transform::GetGlobalPosition()
     {
         Vec2 position = { 0.0f,0.0f };
+
+        Mat3 transformMat = Mat3{
+            1.0f,0.0f,0.0f,
+            0.0f,1.0f,0.0f,
+            0.0f,0.0f,1.0f };
+
         std::stack<Transform*> pathToParent = getPathToParent();
 
         while (!pathToParent.empty())
         {
+            //Vec2 parentPos = t->localPosition;
+            //float parentRot = t->localRotation;
+
+            //parentPos = Vec2Rotate(parentPos, parentRot);
+
+            //position.x += parentPos.x;
+            //position.y += parentPos.y;
+
+
             Transform* t = pathToParent.top();
-            Vec2 parentPos = t->localPosition;
-            float parentRot = t->localRotation;
 
-            parentPos = Vec2Rotate(parentPos, parentRot);
-
-            position.x += parentPos.x;
-            position.y += parentPos.y;
+            transformMat = transformMat * t->GetTransformMatrix();
 
             pathToParent.pop();
         }
 
-        Vec2 local = Vec2Rotate(localPosition, 0.0f);
-        position.x += local.x;
-        position.y += local.y;
+        transformMat = transformMat * GetTransformMatrix();
+
+        position = { transformMat.c,transformMat.f };
 
         return position;
     }
@@ -88,9 +98,7 @@ namespace IonixEngine
 
         //ordered version
         std::stack<Transform*> pathToParent = getPathToParent();
-        Vec2 scale = pathToParent.top()->localScale;
-        pathToParent.pop();
-
+        Vec2 scale = { 1,1 };
         while (!pathToParent.empty())
         {
             Vec2 parentScale = pathToParent.top()->localScale;
@@ -178,17 +186,17 @@ namespace IonixEngine
 
     Mat3 Transform::GetTransformMatrix()
     {
-        Mat3 output = { 0,0,0,0,0,0,0,0,0 };
+        Mat3 output = { 0 };
 
         Mat3 scale = GetScaleMatrix();
         Mat3 rot = GetRotationMatrix();
         Mat3 translate = GetTranslationMatrix();
 
-        //multiply matrices
-        //scale -> rotation -> displacement
+        //multiply matrices backwards!!!
+        //scale * rotation * translate
 
-        //output = scale * rot;
-        output = rot;
+        output = scale * rot;
+        output = translate * output;
         //SDL_Log("debug log lol %f", output.b);
         return output;
     }

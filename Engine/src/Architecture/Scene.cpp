@@ -21,9 +21,10 @@ namespace IonixEngine {
             SDL_Log("[DEBUG TEST] First entity failed, returning...");
             return;
         }
-        firstEntity->transform.SetLocalPosition(Vec2 { 300, 300 });
+        firstEntity->transform.SetLocalPosition(Vec2 { 500, 300 });
         firstEntity->AddComponent(new SpriteRenderer(firstEntity));
-        firstEntity->AddComponent(new EntityMover(firstEntity, 10));
+        firstEntity->AddComponent(new EntityMover(firstEntity, 60));
+        firstEntity->transform.SetLocalScale(Vec2{ 0.5,1.5 });
 
         #if ECS_FIX_TEST
         EntityMover* mover;
@@ -41,10 +42,11 @@ namespace IonixEngine {
             SDL_Log("[DEBUG TEST] Second entity failed, returning...");
             return;
         }
-        secondEntity->AddComponent(new SpriteRenderer(secondEntity));
-        secondEntity->AddComponent(new EntityMover(secondEntity, -10));
-        secondEntity->transform.SetLocalPosition(Vec2{ 150, 0 });
+        secondEntity->transform.SetLocalPosition(Vec2{ 0, 100 });
         secondEntity->transform.SetParent(&firstEntity->transform, false);
+        secondEntity->transform.SetLocalScale(Vec2{ 1.3,1.25 });
+        secondEntity->AddComponent(new SpriteRenderer(secondEntity));
+        secondEntity->AddComponent(new EntityMover(secondEntity, -60));
 
         EntityID third = CreateEntity();
         Entity* thirdEntity = GetEntityFromID(third);
@@ -53,9 +55,10 @@ namespace IonixEngine {
             SDL_Log("[DEBUG TEST] Third entity failed, returning...");
             return;
         }
-        thirdEntity->AddComponent(new SpriteRenderer(thirdEntity));
-        thirdEntity->transform.SetLocalPosition(Vec2{ -150, 0 });
+        thirdEntity->transform.SetLocalPosition(Vec2{ 0, -100 });
         thirdEntity->transform.SetParent(&secondEntity->transform, false);
+        thirdEntity->AddComponent(new SpriteRenderer(thirdEntity));
+
     }
 
     void Scene::OnUpdate(float dt) {
@@ -65,6 +68,7 @@ namespace IonixEngine {
             // SDL_Log("[DEBUG TEST] Updating entity %zu",i);
             entity->Update(dt);
             // SDL_Log("[DEBUG TEST] Rendering entity %zu", i);
+            //SDL_Log("[DEBUG] entity #%zu pos at: X: %f, Y: %f", i, entity->transform.GetGlobalPosition().x, entity->transform.GetGlobalPosition().y);
             entity->Render(&renderData);
         }
     }

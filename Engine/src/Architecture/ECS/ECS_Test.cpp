@@ -8,7 +8,8 @@ namespace IonixEngine {
 
     void SpriteRenderer::Render(RenderData* data) {
         Vec2 position = entity->transform.GetGlobalPosition();
-        SDL_Rect draw = { static_cast<int>(position.x - 50), static_cast<int>(position.y - 50), 100, 100 };
+        Vec2 scale = entity->transform.GetGlobalScale();
+        SDL_Rect draw = { static_cast<int>(position.x - (50 * scale.x)), static_cast<int>(position.y - (50 * scale.y)), 100 * scale.x, 100 * scale.y };
 
         if (SDL_RenderCopy(data->renderer, image, nullptr, &draw) < 0) {
             SDL_Log("Could not draw texture: %s", SDL_GetError());
