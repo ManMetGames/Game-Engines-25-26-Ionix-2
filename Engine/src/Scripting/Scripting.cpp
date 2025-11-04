@@ -19,8 +19,10 @@ namespace IonixEngine {
             sol::lib::string,
             sol::lib::math,
             sol::lib::table,
-            sol::lib::io
+            sol::lib::io,
+            sol::lib::package
         );
+
 
         RegisterEngineBindings();
 

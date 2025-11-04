@@ -3,118 +3,48 @@
 
 namespace IonixEngine {
 
-
     AudioScripting& AudioScripting::Get() {
         static AudioScripting* s_Instance;
-        if (!s_Instance)
-            s_Instance = new AudioScripting();
+        if (!s_Instance) s_Instance = new AudioScripting();
         return *s_Instance;
     }
 
     void AudioScripting::Init(sol::state& lua)
     {
-
-         // --- Bind SoundManager singleton ---
-        auto getInstance = []() -> SoundManager& {
-            return SoundManager::GetInstance();
+        auto play = [](Entity* e, sol::optional<int> fadeMs, sol::optional<int> loops) {
+            if (!e) return;
+            auto* p = e->GetComponent<AudioPlayer>();
+            if (!p) return;
+            if (!fadeMs) p->Play();
+            else if (!loops) p->Play(*fadeMs);
+            else p->Play(*fadeMs, *loops);
             };
 
-        auto loadSound = [](std::string name, std::string filePath) -> bool {
-            return SoundManager::GetInstance().LoadSound(name, filePath);
-            };
+        auto pause = [](Entity* e) { if (auto* p = e ? e->GetComponent<AudioPlayer>() : nullptr) p->Pause(); };
+        auto resume = [](Entity* e) { if (auto* p = e ? e->GetComponent<AudioPlayer>() : nullptr) p->Resume(); };
+        auto terminate = [](Entity* e) { if (auto* p = e ? e->GetComponent<AudioPlayer>() : nullptr) p->End(); };
+        auto is_playing = [](Entity* e)->bool { if (auto* p = e ? e->GetComponent<AudioPlayer>() : nullptr) return p->IsPlaying(); return false; };
+        auto one_shot = [](Entity* e, std::string name, float scale) { if (auto* p = e ? e->GetComponent<AudioPlayer>() : nullptr) p->PlayOneShot(name, scale); };
+        auto change_vol = [](Entity* e, float v) { if (auto* p = e ? e->GetComponent<AudioPlayer>() : nullptr) p->ChangeVolume(v); };
+        auto toggle_mute = [](Entity* e) { if (auto* p = e ? e->GetComponent<AudioPlayer>() : nullptr) p->ToggleMute(); };
+        auto get_volume = [](Entity* e)->float { if (auto* p = e ? e->GetComponent<AudioPlayer>() : nullptr) return p->volume; return 0.f; };
+        auto get_mute = [](Entity* e)->bool { if (auto* p = e ? e->GetComponent<AudioPlayer>() : nullptr) return p->mute; return false; };
+        auto get_clip = [](Entity* e)->std::string { if (auto* p = e ? e->GetComponent<AudioPlayer>() : nullptr) return p->clip; return {}; };
+        auto get_awake = [](Entity* e)->bool { if (auto* p = e ? e->GetComponent<AudioPlayer>() : nullptr) return p->playOnAwake; return false; };
 
-        auto setVolume = [](std::string name, float volume) {
-            SoundManager::GetInstance().SetVolume(name, volume);
-            };
-
-        auto getAudio = [](std::string name) -> Mix_Chunk* {
-            return SoundManager::GetInstance().GetAudio(name);
-            };
-
-        auto getPlaytime = [](std::string name) -> float {
-            return SoundManager::GetInstance().GetPlayTime(name);
-            };
-         
-        lua["SoundManager"] = lua.create_table_with(
-            "get_sound_manager", getInstance,
-            "load_sound", loadSound,
-            "set_volume", setVolume,
-            "get_audio", getAudio,
-            "get_playtime", getPlaytime
-        );
-        
-         
-         // --- Bind AudioPlayer ---
-
-        auto play = [](Entity* entity, sol::optional<int> fadeMs, sol::optional<int> loops) {
-            auto& player = *entity->GetComponent<AudioPlayer>();
-            if (!fadeMs)
-                player.Play();
-            else if (!loops)
-                player.Play(*fadeMs);
-            else
-                player.Play(*fadeMs, *loops);
-            };
-
-        auto pause = [](Entity* entity) {
-            entity->GetComponent<AudioPlayer>()->Pause();
-            };
-
-        auto resume = [](Entity* entity){
-            entity->GetComponent<AudioPlayer>()->Resume();
-            };
-
-        auto end = [](Entity* entity){
-            entity->GetComponent<AudioPlayer>()->End();
-            };
-
-        auto isPlaying = [](Entity* entity) -> bool {
-            return entity->GetComponent<AudioPlayer>()->IsPlaying();
-            };
-
-        auto oneShot = [](Entity* entity, std::string name, float volumeScale = 1.0f)
-            {
-                entity->GetComponent<AudioPlayer>()->PlayOneShot(name, volumeScale);
-            };
-
-        auto changeVolume = [](Entity* entity, float volume) {
-            entity->GetComponent<AudioPlayer>()->ChangeVolume(volume);
-            };
-
-        auto toggleMute = [](Entity* entity) {
-            entity->GetComponent<AudioPlayer>()->ToggleMute();
-            };
-
-        auto getVolume = [](Entity* entity) -> float {
-            return entity->GetComponent<AudioPlayer>()->volume;
-            };
-
-        auto mute = [](Entity* entity) -> bool {
-            return entity->GetComponent<AudioPlayer>()->mute;
-            };
-
-        auto getClip = [](Entity* entity) -> std::string {
-            return entity->GetComponent<AudioPlayer>()->clip;
-            };
-
-        auto getAwake = [](Entity* entity) -> bool {
-            return entity->GetComponent<AudioPlayer>()->playOnAwake;
-            };
-       
         lua["AudioComponent"] = lua.create_table_with(
             "play", play,
             "pause", pause,
             "resume", resume,
-            "end", end,
-            "is_playing", isPlaying,
-            "play_one_shot", oneShot,
-            "change_volume", changeVolume,
-            "toggle_mute", toggleMute,
-            "get_volume", getVolume,
-            "get_mute", mute,
-            "get_clip", getClip,
-            "get_play_on_awake", getAwake
+            "terminate", terminate,
+            "is_playing", is_playing,
+            "play_one_shot", one_shot,
+            "change_volume", change_vol,
+            "toggle_mute", toggle_mute,
+            "get_volume", get_volume,
+            "get_mute", get_mute,
+            "get_clip", get_clip,
+            "get_play_on_awake", get_awake
         );
     }
-
 }
