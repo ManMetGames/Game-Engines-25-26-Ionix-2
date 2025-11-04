@@ -13,7 +13,7 @@ namespace IonixEngine {
         Entity* entity = GetEntityFromID(en);
         if (!entity) { return; }
         //entity->AddComponent(new SpriteComponent(entity, "pim", 0));
-        entity->AddComponent(new AnimatedSpriteComponent(entity, "Ball", 0));
+        entity->AddComponent(new AnimatedSpriteComponent(entity, "Ball 2", 0));
         entity->position.x = 200;
         entity->position.y = 200;
     }
