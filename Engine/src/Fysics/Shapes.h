@@ -27,9 +27,9 @@ namespace IonixEngine
             std::vector<b2Vec2> vertices;
 
 
-            void SetShape()
+            void SelectCorrectShape(fysicShapeType shapeType)
             {
-                switch (currentShapeType)
+                switch (shapeType)
                 {
                 case fysicShapeType::circle:
                     AddCircle(radius, offset, isTrigger);
@@ -104,6 +104,10 @@ namespace IonixEngine
 
                 fixtureDef.shape = &shape;
                 fixtureDef.isSensor = isTrigger;
+
+                if (fixture != nullptr) {
+                    body->DestroyFixture(fixture);
+                }
                 fixture = body->CreateFixture(&fixtureDef);
             }
         
@@ -118,7 +122,9 @@ namespace IonixEngine
                 fixtureDef.shape = &shape;
                 fixtureDef.isSensor = isTrigger;
 
-                //body->DestroyFixture(fixture);
+                if (fixture != nullptr) {
+                    body->DestroyFixture(fixture);
+                }
                 fixture = body->CreateFixture(&fixtureDef);
 
                 
@@ -137,6 +143,9 @@ namespace IonixEngine
                 fixtureDef.isSensor = true;
                 fixtureDef.density = 1.0f;
 
+                if (fixture != nullptr) {
+                    body->DestroyFixture(fixture);
+                }
                 fixture = body->CreateFixture(&fixtureDef);
             }
 
@@ -151,6 +160,9 @@ namespace IonixEngine
                 fixtureDef.isSensor = isTrigger;
                 fixtureDef.density = 1.0f;
 
+                if (fixture != nullptr) {
+                    body->DestroyFixture(fixture);
+                }
                 fixture = body->CreateFixture(&fixtureDef);
             }
 
@@ -172,6 +184,9 @@ namespace IonixEngine
                     fixtureDef.isSensor = false;
 
                     //Set the body fixture for the created shape with polygons
+                    if (fixture != nullptr) {
+                        body->DestroyFixture(fixture);
+                    }
                     fixture = body->CreateFixture(&fixtureDef);
             }
 
@@ -205,10 +220,14 @@ namespace IonixEngine
                 return radius;
             }
 
-            void SetRadius(float r)
+            void SetRadius(float r, b2Body* bodyToChange, fysicShapeType shapeType)
             {
+                /*b2Fixture* tempFix;
+                tempFix = &bodyToChange->GetFixtureList()[0];
+                tempFix->GetShape()->GetType();*/
                 radius = r;
-                SetShape();
+
+                SelectCorrectShape(shapeType);
             }
 
             float GetWidth()
@@ -216,10 +235,10 @@ namespace IonixEngine
                 return width;
             }
 
-            void SetWidth(float w)
+            void SetWidth(float w, fysicShapeType shapeType)
             {
                 width = w;
-                SetShape();
+                SelectCorrectShape(shapeType);
             }
 
             float GetHeight()
@@ -227,10 +246,10 @@ namespace IonixEngine
                 return height;
             }
 
-            void SetHeight(float h)
+            void SetHeight(float h, fysicShapeType shapeType)
             {
                 height = h;
-                SetShape();
+                SelectCorrectShape(shapeType);
             }
 
             float GetAngle()
@@ -238,10 +257,10 @@ namespace IonixEngine
                 return angle;
             }
 
-            void SetAngle(float a)
+            void SetAngle(float a, fysicShapeType shapeType)
             {
                 angle = a;
-                SetShape();
+                SelectCorrectShape(shapeType);
             }
 
             b2Vec2 GetOffset()
@@ -249,10 +268,10 @@ namespace IonixEngine
                 return offset;
             }
 
-            void SetOffset(b2Vec2& off)
+            void SetOffset(b2Vec2& off, fysicShapeType shapeType)
             {
                 offset = off;
-                SetShape();
+                SelectCorrectShape(shapeType);
             }
 
             bool IsShapeTrigger()
@@ -278,10 +297,10 @@ namespace IonixEngine
                 return vertices;
             }
 
-            void SetVertices(std::vector<b2Vec2>& verts)
+            void SetVertices(std::vector<b2Vec2>& verts, fysicShapeType shapeType)
             {
                 vertices = verts;
-                SetShape();
+                SelectCorrectShape(shapeType);
             }
 
 
