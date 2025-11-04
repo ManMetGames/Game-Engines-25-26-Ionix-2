@@ -12,10 +12,12 @@ namespace IonixEngine {
 
     void UIScripting::Init(sol::state& lua)
     {
-        auto AddLabel = [](const int x, int y, float xSize, float ySize, const char* font) {
-            Application::Get().layerUI->m_UI->AddLabel((char*)x, y, xSize, ySize, font, "");
+        auto AddLabel = [](const int x, int y, float xSize, float ySize, const char* text) {
+            Application::Get().layerUI->m_UI->AddLabel(x,y, xSize, ySize, text);
             };
-
+        auto drawLabel = [](const char* text, int xsize, int ysize, int xpos, int ypos, const char* font) {
+            Application::Get().layerUI->m_UI->DrawLabel((char*)text, xsize, ysize, xpos, ypos, "");
+            };
         auto drawButton = [](const char* text, int xsize, int ysize, int xpos, int ypos) -> bool {
             return Application::Get().layerUI->m_UI->DrawButton((char*)text, xsize, ysize, xpos, ypos);
             };
@@ -26,6 +28,7 @@ namespace IonixEngine {
 
         lua["UI"] = lua.create_table_with(
             "Add_label", AddLabel,
+			"draw_label", drawLabel,
             "draw_button", drawButton,
             "draw_slider", drawSlider
         );
