@@ -1,5 +1,5 @@
 #include "Scripting/Mafs/MafsScripting.h"
-
+#include "Architecture/Application.h"
 namespace IonixEngine
 {
 	MafsScripting* MafsScripting::s_Instance = nullptr;
@@ -117,6 +117,14 @@ namespace IonixEngine
 			return Maf::Deg2Rad(degrees);
 			};*/
 
+		auto deltatime = []() -> float {
+			return Application::Get().deltaTime;
+			};
+
+		auto time = []() -> float {
+			return Application::Get().time;
+			};
+
 		lua["Mafs"] = lua.create_table_with(
 			"clamp", clamp,
 			"abs", abs,
@@ -142,7 +150,9 @@ namespace IonixEngine
 			"sin", sin,
 			"cos", cos,
 			"tan", tan,
-			"pi", pi
+			"pi", pi,
+			"delta_time", deltatime,
+			"time", time
 			/*"rad_2_deg", rad2deg,
 			"deg_2_rad", deg2rad*/
 		);

@@ -88,7 +88,7 @@ namespace IonixEngine
             
             deltaTime = static_cast<double>(currentTick - lastTick) / SDL_GetPerformanceFrequency();
             time += deltaTime;
-
+            
             SDL_RenderClear(renderer);
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);
             for (auto layer : m_LayerStack.GetLayers()) {
@@ -150,12 +150,8 @@ namespace IonixEngine
            MouseCoords mc = layerInput->m_Input->GetMousePosition();
            std::cout << "Mouse X Pos: " << mc.x << " Mouse Y Pos: " << mc.y << std::endl;
            */
-            
-            // Scripting::Get().CallHook("OnUpdate");
 
             layerInput->m_Input->CopyCodesEndFrame();
-
-            // Scripting::Get().CallHook("OnUpdate");
           
             m_Window->OnUpdate();
         }
