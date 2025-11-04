@@ -119,13 +119,6 @@ namespace IonixEngine {
 		auto SetKeyReleased = [](int code) {
 			Application::Get().layerInput->m_Input->SetKeyReleased(static_cast<SDL_Scancode>(code));
 			};
-		auto NormaliseStickAxis = [](float axis) {
-			return Application::Get().layerInput->m_Input->NormaliseStickAxis(axis);
-			};
-		auto NormaliseTrigger = [](float axis) {
-			return Application::Get().layerInput->m_Input->NormaliseTrigger(axis);
-			};
-
 		m_LuaState["Keys"] = m_LuaState.create_table_with(
 			"ionix_a", SDL_SCANCODE_A,
 			"ionix_b", SDL_SCANCODE_B,
@@ -194,9 +187,7 @@ namespace IonixEngine {
 			"set_mouse_pressed", setMousePressed,
 			"set_key_pressed", SetKeyPressed,
 			"set_key_released",SetKeyReleased,
-			"set_mouse_released", setMouseReleased,
-			"normalise_stickAxis", NormaliseStickAxis,
-			"normalise_trigger", NormaliseTrigger
+			"set_mouse_released", setMouseReleased
 
 		);
 	}
