@@ -9,7 +9,7 @@ namespace IonixEngine {
 		height = 200;
 		isReversing = false;
 		reverseOnEnd = false;
-		playbackMode = FORWARDANDBACKWARD;
+		playbackMode = BACKWARD;
 
 		rows = 2;
 		cols = 5;
@@ -53,7 +53,7 @@ namespace IonixEngine {
 			currentCol = 0;
 		}
 		if (src.x < 0) {
-			currentCol = cols - 1;
+			currentCol = cols;
 			currentRow--;
 		}
 
