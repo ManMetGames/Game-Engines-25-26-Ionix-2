@@ -87,105 +87,104 @@ namespace IonixEngine
             if (gravity) gravity->SetGravity(bodyGravity.x, bodyGravity.y, true);
         }
 
-        void FB_GetAngle()
+        float FB_GetAngle(int dicIndex)
         {
-            
+            return BodyDic[dicIndex]->GetAngle();
         }
 
-        void FB_SetAngle()
+        void FB_SetAngle(int dicIndex, float angleInRadians)
         {
-
+            BodyDic[dicIndex]->SetAngle(angleInRadians);
         }
 
-        void FB_GetVel()
+        b2Vec2 FB_GetVel(int dicIndex)
         {
-
+            return BodyDic[dicIndex]->GetLinearVelocity();
         }
 
-        void FB_SetVel()
+        void FB_SetVel(int dicIndex, b2Vec2 vel)
         {
-
+            BodyDic[dicIndex]->SetLinearVelocity(vel);
         }
 
-        void FB_GetAngularVel()
+        float FB_GetAngularVel(int dicIndex)
         {
-
+            return BodyDic[dicIndex]->GetAngularVelocity();
         }
 
-
-        void FB_SetAngularVel()
+        void FB_SetAngularVel(int dicIndex, float vel)
         {
-
+            BodyDic[dicIndex]->SetAngularVelocity(vel);
         }
 
-        bool FB_IsActive()
+        bool FB_IsActive(int dicIndex)
         {
-            return false;
+            return BodyDic[dicIndex]->GetAwake();
         }
 
-        void FB_SetActive()
+        void FB_SetActive(int dicIndex, bool active)
         {
-
+            BodyDic[dicIndex]->SetAwake(active);
         }
 
-        void FB_GetLinearDampaning()
+        float FB_GetLinearDampaning(int dicIndex)
         {
-
+            return BodyDic[dicIndex]->GetLinearDamping();
         }
 
-        void FB_SetLinearDampaning()
+        void FB_SetLinearDampaning(int dicIndex, float linearDampening)
         {
-
+            BodyDic[dicIndex]->SetLinearDamping(linearDampening);
         }
 
-        void FB_GetAngularDampaning()
+        float FB_GetAngularDampaning(int dicIndex)
         {
-
+            return BodyDic[dicIndex]->GetAngularDamping();
         }
 
-        void FB_SetAngularDampaning()
+        void FB_SetAngularDampaning(int dicIndex, float angularDampening)
         {
-
+            BodyDic[dicIndex]->SetAngularDamping(angularDampening);
         }
 
-        void FB_IsSleepAllowed()
+        bool FB_IsSleepAllowed(int dicIndex)
         {
-
+            return BodyDic[dicIndex]->GetAllowSleep();
         }
 
-        void FB_SetSleepAllowed()
+        void FB_SetSleepAllowed(int dicIndex, bool allowSleep)
         {
-
+            BodyDic[dicIndex]->SetAllowSleep(allowSleep);
         }
         
-        void FB_GetFixedRotation()
+        bool FB_GetFixedRotation(int dicIndex)
         {
-
+            return BodyDic[dicIndex]->GetFixedRotation();
         }
 
-        void FB_SetFixedRotation()
+        void FB_SetFixedRotation(int dicIndex, bool fixedRotation)
         {
-
+            BodyDic[dicIndex]->SetFixedRotation(fixedRotation);
         }
 
-        void FB_IsBullet()
+        bool FB_IsBullet(int dicIndex)
         {
-
+            return BodyDic[dicIndex]->GetIsBullet();
         }
 
-        void FB_SetIsBullet()
+        void FB_SetIsBullet(int dicIndex, bool isBullet)
         {
-
+            BodyDic[dicIndex]->SetIsBullet(isBullet);
         }
 
-        void FB_GetGravityScale()
+        float FB_GetGravityScale(int dicIndex)
         {
-
+            return BodyDic[dicIndex]->GetGravityScale();
         }
 
-        void FB_SetGravityScale()
+        void FB_SetGravityScale(int dicIndex, float gravityScale)
         {
-
+            BodyDic[dicIndex]->SetGravityScale(gravityScale);
         }
 
         // ---------- Forces ----------

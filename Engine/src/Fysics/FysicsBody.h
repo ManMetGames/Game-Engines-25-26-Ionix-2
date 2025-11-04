@@ -133,12 +133,11 @@ namespace IonixEngine
             }
             return b2Vec2(0.0f, 0.0f);
         }
-        void SetLinearVelocity(float x, float y)
+        void SetLinearVelocity(b2Vec2 newLinVel)
         {
             if (body)
             {
-                b2Vec2 newVelocity(x, y);
-                body->SetLinearVelocity(newVelocity);
+                body->SetLinearVelocity(newLinVel);
             }
         }
 
