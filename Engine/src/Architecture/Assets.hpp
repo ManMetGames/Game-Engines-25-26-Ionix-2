@@ -4,7 +4,6 @@
 
 struct Textures {
     uint64_t Debug = 16105671890965812228u;
-    uint64_t Debug0 = 7047004974639425728u;
     uint64_t Test = 2449874712956322390u;
     uint64_t aur_naur = 3210096583211923613u;
     uint64_t ball = 17707837483333796221u;
@@ -13,7 +12,6 @@ struct Textures {
     inline std::map<std::string, std::string> GetTextures() {
         std::map<std::string, std::string> map;
         map["Debug"] = "./Assets/Debug.png";
-        map["Debug0"] = "./Assets/Open_Sans/Debug.png";
         map["Test"] = "./Assets/Test.png";
         map["aur_naur"] = "./Assets/aur naur.jpg";
         map["ball"] = "./Assets/ball.png";

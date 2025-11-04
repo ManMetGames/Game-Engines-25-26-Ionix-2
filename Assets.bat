@@ -12,7 +12,11 @@ if not exist .\Client\AssetBuilder.exe (
     cl.exe /Fe:AssetBuilder.exe AssetBuilder.cpp /std:c++17 /EHsc
     echo [ASSETS] Built executable
     del *.obj
+    echo [ASSETS] Rebuilding asset files
+    AssetBuilder.exe
+    echo [ASSETS] Rebuilt asset files
     cd ..
+
 )
 
 cd .\Client
