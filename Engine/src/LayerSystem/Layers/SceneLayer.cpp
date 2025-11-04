@@ -1,5 +1,4 @@
 #include "SceneLayer.h"
-#include "Architecture/Application.h"
 
 namespace IonixEngine
 {
@@ -17,13 +16,12 @@ namespace IonixEngine
             m_Current->OnExit();
             m_Current.reset();
         }
-        Handle().scene = nullptr;
     }
 
     void LayerScene::OnUpdate()
     {
         if (m_Current)
-            m_Current->OnUpdate(Application::Get().deltaTime);
+            m_Current->OnUpdate(0.016f);
     }
 
     void LayerScene::OnEvent(IonixEvent& e)
@@ -39,15 +37,9 @@ namespace IonixEngine
             m_Current->OnExit();
 
         m_Current = std::move(scene);
-        Handle().scene = m_Current.get();
 
         // Call enter on the new scene after becoming active
         if (m_Current)
             m_Current->OnEnter();
-    }
-
-    
-    Scene* LayerScene::CurrentScene() {
-        return LayerScene::Handle().scene;
     }
 }

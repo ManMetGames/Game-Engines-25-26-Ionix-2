@@ -47,13 +47,6 @@ namespace IonixEngine
             SDL_Log("Unable to initialize SDL_mixer: %s", Mix_GetError());
             //return;
         }
-
-        // Initialise Controller
-        if (SDL_Init(SDL_INIT_GAMECONTROLLER) != 0)
-        {
-            SDL_Log("SDL_Init_Error: Controller %s", SDL_GetError());
-            //return;
-        }
         
         // Create SDL window
         m_Window = SDL_CreateWindow(

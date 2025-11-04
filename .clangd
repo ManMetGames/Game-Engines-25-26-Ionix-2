@@ -10,4 +10,3 @@ CompileFlags:
    - "-I./dependencies/bin/box2d/include/box2d/"
    - "-I./Engine/src/"
    - "-DENGINE_EXPORTS"
-   - "-std=c++17"

@@ -1,7 +1,7 @@
 #pragma once
 #include "LayerSystem/Layer.h"
 #include "Architecture/AudioSystem/SoundManager.h"  
-// #include "Scripting/Audio/AudioScripting.h"
+#include "Scripting/Audio/AudioScripting.h"
 #include <SDL.h>          
 
 namespace IonixEngine

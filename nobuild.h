@@ -425,7 +425,6 @@ typedef struct {
     const char **items;
     size_t count;
     size_t capacity;
-    bool silent;
 } Nob_Cmd;
 
 // Example:
@@ -976,13 +975,11 @@ NOBDEF Nob_Proc nob_cmd_run_async_redirect(Nob_Cmd cmd, Nob_Cmd_Redirect redirec
     }
 
     Nob_String_Builder sb = {0};
-    if (!cmd.silent) {
-        nob_cmd_render(cmd, &sb);
-        nob_sb_append_null(&sb);
-            nob_log(NOB_INFO, "CMD: %s", sb.items);
-        nob_sb_free(sb);
-        memset(&sb, 0, sizeof(sb));
-    }
+    nob_cmd_render(cmd, &sb);
+    nob_sb_append_null(&sb);
+    nob_log(NOB_INFO, "CMD: %s", sb.items);
+    nob_sb_free(sb);
+    memset(&sb, 0, sizeof(sb));
 
 #ifdef _WIN32
     // https://docs.microsoft.com/en-us/windows/win32/procthread/creating-a-child-process-with-redirected-input-and-output

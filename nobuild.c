@@ -1,5 +1,4 @@
 #pragma clang diagnostic ignored "-Weverything"
-#include <stdio.h>
 
 #include <string.h>
 #define NOB_IMPLEMENTATION
@@ -16,8 +15,6 @@ void get_sources(const char* path, Nob_File_Paths* source, Nob_File_Paths* heade
 void multi_da_append(Nob_File_Paths* first, Nob_File_Paths* second, const char* path);
 
 void get_libs(Nob_File_Paths* clientInclude, Nob_File_Paths* engineInclude, Nob_File_Paths* clientLibs, Nob_File_Paths* engineLibs, Nob_File_Paths* os_libs);
-
-void build_assets();
 
 const char* basename(const char* path);
 
@@ -36,8 +33,6 @@ int main(int argc, char* argv[]) {
     nob_mkdir_if_not_exists("build/Engine/");
     nob_mkdir_if_not_exists("build/Client/");
 
-    build_assets();
-
     Nob_File_Paths engine_source_files = { 0 };
     Nob_File_Paths engine_header_files = { 0 };
     Nob_File_Paths client_source_files = { 0 };
@@ -48,38 +43,23 @@ int main(int argc, char* argv[]) {
     Nob_File_Paths client_libs = { 0 };
     Nob_File_Paths os_libs = { 0 };
     Nob_File_Paths os_flags = { 0 };
-    Nob_File_Paths warnings = { 0 };
     if (is_windows) nob_da_append(&os_flags, "-fms-runtime-lib=dll");
     if (is_windows) nob_da_append(&os_flags, "-nostdlib");
     if (!is_windows) { nob_da_append(&os_flags, "-fPIC"); }
-    nob_da_append(&os_flags, "-g");
-    nob_da_append(&os_flags, "-O0");
-    nob_da_append(&warnings, "-Wno-switch");
-    nob_da_append(&warnings, "-Wno-unknown-warning-option");
+    if (!is_windows) nob_da_append(&os_flags, "-Wl,-rpath,.");
 
     get_sources("./Engine/src/", &engine_source_files, &engine_header_files, &engine_include);
     get_sources("./Client/src/", &client_source_files, &client_header_files, &client_include);
     get_libs(&client_include, &engine_include, &client_libs, &engine_libs, &os_libs);
 
-
-    if (!is_windows) nob_cmd_append(&engine_source_files, "./dependencies/bin/imgui/imgui.cpp");
-    if (!is_windows) nob_cmd_append(&engine_source_files, "./dependencies/bin/imgui/imgui_demo.cpp");
-    if (!is_windows) nob_cmd_append(&engine_source_files, "./dependencies/bin/imgui/imgui_draw.cpp");
-    if (!is_windows) nob_cmd_append(&engine_source_files, "./dependencies/bin/imgui/imgui_tables.cpp");
-    if (!is_windows) nob_cmd_append(&engine_source_files, "./dependencies/bin/imgui/imgui_widgets.cpp");
-
     const char* version = "-std=c++17";
 
     Nob_Procs procs = { 0 };
     Nob_Cmd cmd = { 0 };
-    cmd.silent = true;
 
     size_t save = nob_temp_save();
 
-    nob_log(NOB_INFO, "Starting engine build...");
-
     for (size_t i = 0; i < engine_source_files.count; i++) {
-        printf("\rStarting build of engine source [%zu / %zu]", i + 1, engine_source_files.count);
         nob_cmd_append(&cmd, "clang++");
         nob_cmd_append(&cmd, "-c");
         nob_cmd_append(&cmd, engine_source_files.items[i]);
@@ -91,10 +71,8 @@ int main(int argc, char* argv[]) {
         nob_cmd_append(&cmd, "-DENGINE_EXPORTS");
         nob_cmd_append(&cmd, "-DBUILD_DLL");
         nob_da_append_many(&cmd, os_flags.items, os_flags.count);
-        nob_da_append_many(&cmd, warnings.items, warnings.count);
         nob_da_append(&procs, nob_cmd_run_async_and_reset(&cmd));
     }
-    printf("\n");
 
     nob_procs_wait_and_reset(&procs);
     nob_temp_rewind(save);
@@ -104,14 +82,13 @@ int main(int argc, char* argv[]) {
 
     if (is_windows) nob_cmd_append(&os_flags, "-Wl,/NODEFAULTLIB:LIBCMT");
     const char* dll = is_windows ? "./build/Client/Engine.dll" : "./build/Client/libengine.so";
-    if (!is_windows) nob_da_append(&os_flags, "-Wl,-rpath,.");
 
     nob_cmd_append(&cmd, "clang++");
     nob_cmd_append(&cmd, "-shared");
     nob_cc_output(&cmd, dll);
     nob_da_foreach(const char*, obj, &objs) if (nob_sv_end_with(nob_sv_from_cstr(*obj), ".o")) { nob_cmd_append(&cmd, nob_temp_sprintf("./build/Engine/%s", *obj)); }
-    nob_da_append_many(&cmd, engine_include.items, engine_include.count);
-    nob_da_append_many(&cmd, engine_libs.items, engine_libs.count);
+    nob_da_foreach(const char*, include_dir, &engine_include) nob_cmd_append(&cmd, *include_dir);
+    nob_da_foreach(const char*, libs_dir, &engine_libs) nob_cmd_append(&cmd, *libs_dir);
     nob_cmd_append(&cmd, version);
     nob_cmd_append(&cmd, "-DENGINE_EXPORTS");
     nob_cmd_append(&cmd, "-DBUILD_DLL");
@@ -121,7 +98,6 @@ int main(int argc, char* argv[]) {
         nob_log(NOB_INFO, "Successfully created engine dll");
         nob_da_append(&client_libs, "-L./build/Client/");
         nob_da_append(&client_libs, is_windows ? "-lEngine" : "-lengine");
-        nob_copy_file(dll, nob_temp_sprintf("./Client/%s", is_windows ? "Engine.dll" : "libengine.so"));
     } else {
         return -1;
     }
@@ -131,16 +107,20 @@ int main(int argc, char* argv[]) {
     nob_cmd_append(&cmd, "clang++");
     nob_cmd_append(&cmd, version);
     nob_da_append_many(&cmd, client_source_files.items, client_source_files.count);
+    if (!is_windows) nob_cmd_append(&cmd, "./dependencies/bin/imgui/backends/imgui_impl_sdl2.cpp");
+    if (!is_windows) nob_cmd_append(&cmd, "./dependencies/bin/imgui/backends/imgui_impl_opengl3.cpp");
+    if (!is_windows) nob_cmd_append(&cmd, "./dependencies/bin/imgui/imgui.cpp");
+    if (!is_windows) nob_cmd_append(&cmd, "./dependencies/bin/imgui/imgui_demo.cpp");
+    if (!is_windows) nob_cmd_append(&cmd, "./dependencies/bin/imgui/imgui_draw.cpp");
+    if (!is_windows) nob_cmd_append(&cmd, "./dependencies/bin/imgui/imgui_tables.cpp");
+    if (!is_windows) nob_cmd_append(&cmd, "./dependencies/bin/imgui/imgui_widgets.cpp");
     nob_cc_output(&cmd, exe);
     nob_da_append_many(&cmd, client_include.items, client_include.count);
     nob_da_append_many(&cmd, engine_include.items, engine_include.count);
     nob_da_append_many(&cmd, client_libs.items, client_libs.count);
     nob_da_append_many(&cmd, os_flags.items, os_flags.count);
-    nob_da_append_many(&cmd, warnings.items, warnings.count);
 
-    if (nob_cmd_run_sync_and_reset(&cmd)) {
-        nob_log(NOB_INFO, "Successfully built client executable");
-    }
+    nob_cmd_run_sync_and_reset(&cmd);
 };
 
 void get_sources(const char* path, Nob_File_Paths* source, Nob_File_Paths* header, Nob_File_Paths* include) {
@@ -217,23 +197,5 @@ const char* basename(const char* path) {
         return nob_temp_strdup(file + 1);
     } else {
         return NULL;
-    }
-}
-
-void build_assets() {
-    Nob_Cmd cmd = { 0 };
-    const char * asset_builder_exe = is_windows ? "AssetBuilder.exe" : "asset_builder";
-    if (!nob_file_exists(nob_temp_sprintf("./Client/%s", asset_builder_exe))) {
-        nob_log(NOB_INFO, "Bootstrapping Asset Builder...");
-        nob_cmd_append(&cmd, "clang++");
-        nob_cc_output(&cmd, asset_builder_exe);
-        nob_cmd_append(&cmd, "./Client/AssetBuilder.cpp");
-        nob_cmd_append(&cmd, "-std=c++17");
-        nob_cmd_run_sync_and_reset(&cmd);
-    }
-    nob_log(NOB_INFO, "Running Asset Builder...");
-    nob_cmd_append(&cmd, nob_temp_sprintf("./Client/%s", asset_builder_exe));
-    if (!nob_cmd_run_sync_and_reset(&cmd)) {
-        nob_log(NOB_ERROR, "Could not run asset builder");
     }
 }

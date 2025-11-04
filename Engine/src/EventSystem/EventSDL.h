@@ -21,6 +21,5 @@ namespace IonixEngine
 
     private:
         EventCallback m_EventCallback;
-        const int MAX_CONNECTIONS = 4;
     };
 }

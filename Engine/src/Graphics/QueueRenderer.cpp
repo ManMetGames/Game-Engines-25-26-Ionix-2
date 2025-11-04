@@ -1,3 +1,4 @@
+#pragma once
 #include "Graphics/QueueRenderer.h"
 #include <vector>
 #include "Architecture/Application.h"

@@ -3,9 +3,9 @@
 
 namespace IonixEngine {
 
+    AudioScripting* AudioScripting::s_Instance = nullptr;
 
     AudioScripting& AudioScripting::Get() {
-        static AudioScripting* s_Instance;
         if (!s_Instance)
             s_Instance = new AudioScripting();
         return *s_Instance;

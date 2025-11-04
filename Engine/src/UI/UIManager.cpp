@@ -1,7 +1,6 @@
 #include "UIManager.h"
 #include <iostream>
 #include <imgui.h>
-#include <string>
 
 
 
@@ -12,7 +11,7 @@ void IonixEngine::UIManager::BeginGroup(const std::string& groupName)
 
 void IonixEngine::UIManager::EndGroup()
 {
-	currentGroupName = std::string("");
+	currentGroupName.clear();
 }
 
 void IonixEngine::UIManager::BeginPanel(const std::string& panelName)

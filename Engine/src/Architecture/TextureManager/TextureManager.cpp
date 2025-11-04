@@ -1,17 +1,19 @@
 #include "TextureManager.h"
 #include "Architecture/Application.h"
 #include "SDL_render.h"
-#include "Architecture/Assets.hpp"
-#include "Architecture/SHA256.hpp"
-#include <cstdint>
 #include <iostream>
-#include <string>
 
-namespace IonixEngine {
-
-    TextureManager::TextureManager() {
+namespace IonixEngine
+{
+    TextureManager::TextureManager()
+    {
         renderer = Application::Get().GetWindow().GetSdlRenderer();
         errorTexture = TextureData();
+    }
+    size_t TextureManager::StringToHash(std::string alias)
+    {
+        size_t hash = std::hash<std::string>{}(alias);
+        return hash;
     }
 
     /// <summary>
@@ -19,9 +21,9 @@ namespace IonixEngine {
     /// </summary>
     /// <param name="filepath">- string, if accessing Assets directory, prepend texture named with "../Assets/"</param>
     /// <param name="alias">- string, the name a texture will go by when being retrieved</param>
-    void TextureManager::AddTexture(std::string filepath,std::string alias) {
-        uint64_t hashName = Get64BitHash(alias);
-        if (textureDict.find(hashName) != textureDict.end()) { return; }
+    void TextureManager::AddTexture(std::string filepath,std::string alias)
+    {
+        size_t hashName = StringToHash(alias);
         SDL_Texture* texture = IMG_LoadTexture(renderer, filepath.c_str());
         if (texture) {
             textureDict[hashName] = TextureData();
@@ -36,14 +38,10 @@ namespace IonixEngine {
         std::string filepath = "./Assets/Debug.png";
         SDL_Texture* debug = IMG_LoadTexture(renderer, filepath.c_str());
         errorTexture.SetData(debug, filepath);
-        for (const std::pair<std::string, std::string>& pair : Assets::Get().textures.GetTextures()) {
-            AddTexture(pair.second, pair.first);
-        }
     }
 
     void TextureManager::Shutdown() {
         textureDict.clear();
-        errorTexture.Free();
     }
 
     /// <summary>
@@ -51,18 +49,22 @@ namespace IonixEngine {
     /// </summary>
     /// <param name="alias">- string, the name used to store a texture with</param>
     /// <returns></returns>
-    TextureData& TextureManager::GetTexture(std::string alias) {
-        auto texture = textureDict.find(Get64BitHash(alias));
-        if (texture != textureDict.end()) {
+    TextureData& TextureManager::GetTexture(std::string alias)
+    {
+        auto texture = textureDict.find(TextureManager::StringToHash(alias));
+        if (texture != textureDict.end())
+        {
             return texture->second;
-        } else {
+        }
+        else
+        {
             //return error texture if requested texture not found
             SDL_Log("Failed to find texture: %s", alias.c_str());
             return errorTexture;
-        }
+        };
     }
-
-    TextureData& TextureManager::GetTexture(uint64_t hash) {
+    TextureData& TextureManager::GetTexture(size_t hash)
+    {
         auto texture = textureDict.find(hash);
         if (texture != textureDict.end())
         {
@@ -73,16 +75,5 @@ namespace IonixEngine {
             //return error texture if requested texture not found
             return errorTexture;
         };
-    }
-
-    SDL_Texture* TextureManager::GetRawTexture(uint64_t hash) {
-        auto texture = textureDict.find(hash);
-        if (texture != textureDict.end()) {
-            return texture->second.GetTexture();
-        } else {
-            //return error texture if requested texture not found
-            SDL_Log("Failed to find texture: %lu", hash);
-            return errorTexture.GetTexture();
-        }
     }
 }

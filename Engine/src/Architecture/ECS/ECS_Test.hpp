@@ -2,6 +2,7 @@
 #include "Entity.hpp"
 #include "Component.hpp"
 #include "SDL_render.h"
+#include "Architecture/TextureManager/TextureManager.h"
 #include <cmath>
 
 namespace IonixEngine {
@@ -15,9 +16,9 @@ namespace IonixEngine {
     };
 
     class EntityMover : public Component {
-        float speed = 0.0f;
+        float time = 0.0f;
     public:
-        EntityMover(Entity* entity, float speed);
+        EntityMover(Entity* entity) : Component(entity, false, false, false) {}
         virtual void Update(float dt) override;
     };
 };

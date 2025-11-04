@@ -64,7 +64,4 @@ dependencies/bin/imgui/obj/
 dependencies/bin/imgui/bin/
 libengine.so
 nobuild.exe.old
-nobuild
-nobuild.old
-Client/
 !Client/Scripts/*.lua

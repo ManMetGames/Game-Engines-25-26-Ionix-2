@@ -25,18 +25,15 @@ namespace IonixEngine
 		ImGui::PopFont();*/
 
 	}
-
-	bool UI::DrawButton(char* text, int xsize, int ysize, int xpos, int ypos) {
+	bool UI::DrawButton(char* text, int xsize, int ysize, int xpos, int ypos)
+	{
 		ImGui::SetCursorPos(ImVec2(xpos, ypos));
 		
-		if (ImGui::Button(text, ImVec2(xsize, ysize))) {
+		if (ImGui::Button(text, ImVec2(xsize, ysize)))
 			return true;
-		} else {
-			return false;
-		}	
 	}
 	
-	float UI::DrawSlider(char* text, float i, int xsize, int ysize, int xpos, int ypos,int minval, int maxval) {
+	float UI::DrawSlider(char* text, static float i, int xsize, int ysize, int xpos, int ypos,int minval, int maxval) {
 		ImGui::SetCursorPos(ImVec2(xpos, ypos));
 		ImGui::SliderFloat(text, &i, minval, maxval );
 		return i;
@@ -54,7 +51,7 @@ namespace IonixEngine
 		ImGui::Checkbox(text, &state);
 	}
 
-	void UI::DrawRadioButton(int xpos, int ypos, char* text, int e, int value, bool sameline)
+	void UI::DrawRadioButton(int xpos, int ypos, char* text, static int e, int value, bool sameline)
 	{
 		ImGui::SetCursorPos(ImVec2(xpos, ypos));
 		if (sameline == true)
