@@ -1,7 +1,7 @@
 #pragma once
 #include "sol/sol.hpp"
 #include "Architecture/Scene.h"
-#include "Scripting/Audio/AudioScripting.h"
+// #include "Scripting/Audio/AudioScripting.h"
 
 namespace IonixEngine
 {
