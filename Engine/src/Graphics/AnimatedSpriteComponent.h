@@ -34,7 +34,6 @@ namespace IonixEngine {
 		enum playbackOptions playbackMode;
 
 		bool reverseOnEnd;
-		bool looping;
 
 	public:
 		AnimatedSpriteComponent(Entity* entity, std::string alias, int zedOrder);
