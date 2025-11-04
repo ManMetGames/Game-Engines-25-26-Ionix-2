@@ -19,12 +19,15 @@ namespace IonixEngine {
 		int currentFrame;
 		int endFrame;
 		bool isReversing;
+		int rows, cols;
+		int spriteWidth, spriteHeight;
 
 		enum playbackOptions {
 			FORWARD,
 			BACKWARD,
 			FORWARDANDBACKWARD,
-			PLAYONCE
+			PLAYONCE,
+			ONEFRAME
 		};
 
 		enum playbackOptions playbackMode;
@@ -41,5 +44,8 @@ namespace IonixEngine {
 		void setReverseOnEnd(bool x);
 		void setIsLooping(bool x);
 		void setPlaybackMode(enum playbackOptions x);
+		void setCurrentFrame(int x);
+		void setRows(int x);
+		void setCols(int x);
 	};
 }

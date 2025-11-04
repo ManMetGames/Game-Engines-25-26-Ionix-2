@@ -5,11 +5,11 @@ namespace IonixEngine {
 	AnimatedSpriteComponent::AnimatedSpriteComponent(Entity* entity, std::string alias, int zedOrder) : Component(entity, false, true, false) {
 		texture = IonixEngine::TextureManager::Get().GetTexture(alias).GetTexture(); //adding sprite image file to the texture manager
 		zOrder = zedOrder;
-		width = 200;
+		width = 200; //size of the sprite
 		height = 200;
 		isReversing = false;
 		reverseOnEnd = false;
-		playbackMode = PLAYONCE;
+		playbackMode = ONEFRAME;
 		
 		//calculating the total frame count
 		SDL_QueryTexture(texture, NULL, NULL, &size.x, &size.y);
@@ -24,8 +24,12 @@ namespace IonixEngine {
 			endFrame = 0;
 			currentFrame = totalFrames - 1;
 			break;
+		case ONEFRAME:
+			currentFrame = 0;
+			break;
 		}
 
+		//setCurrentFrame(2);
 	}
 
 	void AnimatedSpriteComponent::Render(RenderData* data)
@@ -50,7 +54,7 @@ namespace IonixEngine {
 		SDL_Delay(60);
 
 
-		if (currentFrame != endFrame)
+		if ((currentFrame != endFrame) && playbackMode != ONEFRAME)
 		{
 			switch (isReversing)
 			{
@@ -81,7 +85,7 @@ namespace IonixEngine {
 				}
 				isReversing = !isReversing;
 				break;
-			case PLAYONCE:
+			case PLAYONCE: case ONEFRAME:
 				break;
 			}
 		}
@@ -90,14 +94,9 @@ namespace IonixEngine {
 	void AnimatedSpriteComponent::setEndFrame(int x) { endFrame = x; }
 
 	void AnimatedSpriteComponent::setIsLooping(bool x) { looping = x; }
-	void AnimatedSpriteComponent::setPlaybackMode(playbackOptions x) { playbackMode = x; }
+	void AnimatedSpriteComponent::setPlaybackMode(enum playbackOptions x) { playbackMode = x; }
+	void AnimatedSpriteComponent::setCurrentFrame(int x) { if (!(x > totalFrames)) { currentFrame = x; } }
 	void AnimatedSpriteComponent::setReverseOnEnd(bool x) { reverseOnEnd = x; }
+	void AnimatedSpriteComponent::setRows(int x) { rows = x; }
+	void AnimatedSpriteComponent::setCols(int x) { cols = x; }
 }
-
-/*
-TODO
-- UNDO COMMENTED FUNCTION IN UI
-- multiple rows
-- overall make more versatile/usable
-
-*/
