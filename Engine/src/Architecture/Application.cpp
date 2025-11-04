@@ -1,7 +1,13 @@
 #include "Application.h"
 #include "LayerSystem/Layers/LayerTexture.hpp"
+#include "SDL_timer.h"
+#include "imgui.h"
+#include <chrono>
+#include <cstdint>
+#include <vector>
+#include <backends/imgui_impl_sdlrenderer2.h>
+#include <iostream>
 #include <third-party/imgui_impl_sdlrenderer2.h>
-
 
 namespace IonixEngine {
     Application* Application::s_Instance = nullptr;
@@ -11,10 +17,13 @@ namespace IonixEngine
 {
     Application& Application::Get() { return *s_Instance; }
 
+
     Application::Application()
         : m_Window(new Window())
     {
         s_Instance = this;
+        startTick = SDL_GetPerformanceCounter();
+        currentTick = SDL_GetPerformanceCounter();
 
 
         //Initialise layers...
@@ -65,36 +74,94 @@ namespace IonixEngine
     {
         m_Running = true;
 
-        //Scripting::Get().CallHook("OnStart");
+        Scripting::Get().CallHook("OnStart");
+
         SDL_Renderer* renderer = m_Window->GetSdlRenderer();
 
-        while (m_Running)
-        {
-			      SDL_RenderClear(renderer);
-			      SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);
-          
-            for (auto layer : m_LayerStack.GetLayers())
-            {
+        //FysicBody testBody = FysicBody();
+        
+
+        while (m_Running) {
+            uint64_t lastTick = currentTick;
+            currentTick = SDL_GetPerformanceCounter();
+            
+            deltaTime = static_cast<double>(currentTick - lastTick) / SDL_GetPerformanceFrequency();
+            time += deltaTime;
+
+            SDL_RenderClear(renderer);
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);
+            for (auto layer : m_LayerStack.GetLayers()) {
                 if(layer)
                     layer->OnUpdate();
             }
+            
+            Scripting::Get().CallHook("OnUpdate");
+            ImGui::Render();
+            ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), m_Window->GetSdlRenderer());
+            SDL_RenderPresent(m_Window->m_Renderer);
 
+
+           /*if (layerInput->m_Input->IsMouseButtonDown(SDL_BUTTON_LEFT))
+           {
+               if (!isLMouseDown)
+               {
+                   std::cout << "L-Mouse Button Down pressed \n";
+                   isLMouseDown = true;
+               }
+           }
+
+           else if(layerInput->m_Input->IsMouseButtonUp(SDL_BUTTON_LEFT))
+           {
+             std::cout << "L-Mouse Button released \n";
+             isLMouseDown = false;
+           }
+
+
+           if (layerInput->m_Input->IsMouseButtonDown(SDL_BUTTON_RIGHT))
+           {
+               if (!isRMouseDown) {
+                   std::cout << "R-Mouse Button Down pressed \n";
+                   isRMouseDown = true;
+               }
+           }
+
+           else if (layerInput->m_Input->IsMouseButtonUp(SDL_BUTTON_RIGHT))
+           {
+              
+               std::cout << "R-Mouse Button released \n";
+               isRMouseDown = false;
+           }
+
+           if (layerInput->m_Input->IsMouseButtonDown(SDL_BUTTON_MIDDLE))
+           {
+               if (!isMMouseDown) {
+                   std::cout << "M-Mouse Button Down pressed \n";
+                   isMMouseDown = true;
+               }
+           }
+
+           else if (layerInput->m_Input->IsMouseButtonUp(SDL_BUTTON_MIDDLE))
+           {
+               std::cout << "M-Mouse Button released \n";
+               isMMouseDown = false;
+           }
+
+           MouseCoords mc = layerInput->m_Input->GetMousePosition();
+           std::cout << "Mouse X Pos: " << mc.x << " Mouse Y Pos: " << mc.y << std::endl;
+           */
+            
             // Scripting::Get().CallHook("OnUpdate");
-
-
 
             layerInput->m_Input->CopyCodesEndFrame();
 
             // Scripting::Get().CallHook("OnUpdate");
           
             m_Window->OnUpdate();
-            ImGui::Render();
-            ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), Application::Get().GetWindow().m_Renderer);
-            SDL_RenderPresent(renderer);
         }
-
-        for (auto layer : m_LayerStack.GetLayers()) {
-            layer->OnDetach();
+    
+        std::vector<Layer*> layers = m_LayerStack.GetLayers();
+        for (size_t i = layers.size() - 1; i > 0; i--) {
+            layers[i]->OnDetach();
         }
     }
 }

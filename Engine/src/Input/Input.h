@@ -1,6 +1,7 @@
 #pragma once
 #include <unordered_set>
 #include <SDL.h>
+#include <iostream>
 
 namespace IonixEngine
 {
