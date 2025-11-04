@@ -17,6 +17,8 @@ void multi_da_append(Nob_File_Paths* first, Nob_File_Paths* second, const char* 
 
 void get_libs(Nob_File_Paths* clientInclude, Nob_File_Paths* engineInclude, Nob_File_Paths* clientLibs, Nob_File_Paths* engineLibs, Nob_File_Paths* os_libs);
 
+void build_assets();
+
 const char* basename(const char* path);
 
 int main(int argc, char* argv[]) {
@@ -33,6 +35,8 @@ int main(int argc, char* argv[]) {
     nob_mkdir_if_not_exists("build/");
     nob_mkdir_if_not_exists("build/Engine/");
     nob_mkdir_if_not_exists("build/Client/");
+
+    build_assets();
 
     Nob_File_Paths engine_source_files = { 0 };
     Nob_File_Paths engine_header_files = { 0 };

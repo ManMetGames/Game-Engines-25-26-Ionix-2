@@ -25,11 +25,10 @@ std::string get_lua_table(std::map<std::string, std::string>& textures, std::map
 
 uint64_t get_64_bit_hash(const std::string& str);
 
-int main(void) {
+int main(int argc, char* argv[]) {
     std::map<std::string, std::string> textures;
     std::map<std::string, std::string> sounds;
     std::map<std::string, std::string> fonts;
-
 
     for (auto& entry : std::filesystem::recursive_directory_iterator("./Assets")) {
         std::string extension = entry.path().extension().string();
