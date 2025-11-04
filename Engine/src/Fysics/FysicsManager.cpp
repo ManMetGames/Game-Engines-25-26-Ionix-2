@@ -36,4 +36,14 @@ namespace IonixEngine
             return pair.second;
         }
     }
+
+    Collider* FysicsManager::GetColliderForEntity(Entity* entity)
+    {
+        auto it = entityToColliderMap.find(entity);
+        if (it != entityToColliderMap.end())
+        {
+            return it->second;
+        }
+        return nullptr;
+    }
 }

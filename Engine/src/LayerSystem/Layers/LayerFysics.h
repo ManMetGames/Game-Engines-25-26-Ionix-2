@@ -25,9 +25,6 @@ namespace IonixEngine
         
         static LayerFysics* GetInstance();
 
-        b2Body* GetBodyFromEntity(Entity* entity);
-        Entity* GetEntityFromBody(b2Body* entity);
-
         /*LayerFysics::LayerFysics()
         {
         	world->SetContactListener(&listener);

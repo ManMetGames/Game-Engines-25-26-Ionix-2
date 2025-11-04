@@ -7,7 +7,7 @@
 #include "Fysics/Collider.h"
 #include <vector>
 #include <functional>
-#include "../../contactlistener.h"
+#include "Contactlistener.h"
 #include <unordered_map>
 
 using EntityID = int;
@@ -27,6 +27,7 @@ namespace IonixEngine
         std::vector<GlobalCollisionCallback> globalCollisionCallbacks_;
 
         std::unordered_map<b2Body*, Entity*> entityBodyMap;
+        std::unordered_map<Entity*, Collider*> entityToColliderMap;
 
     public:
         static LayerFysics* s_instance;
@@ -36,6 +37,7 @@ namespace IonixEngine
 
         b2Body* GetBodyFromEntity(Entity* entity);
         Entity* GetEntityFromBody(b2Body* entity);
+        Collider* GetColliderForEntity(Entity* entity);
 
         void RegisterCollisionCallback(const GlobalCollisionCallback& callback)
         {
