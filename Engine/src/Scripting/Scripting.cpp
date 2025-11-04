@@ -1,6 +1,7 @@
 #include "Scripting/Scripting.h"
 #include "Architecture/Application.h"
 #include "LayerSystem/Layer.h"
+#include "LayerSystem/Layers/SceneLayer.h"
 
 namespace IonixEngine {
 	Scripting* Scripting::s_Instance = nullptr;
@@ -326,9 +327,9 @@ namespace IonixEngine {
 
 	void Scripting::RegisterEntityBindings()
 	{
-		auto entity = []() -> Entity* {
-			EntityID entityID = Application::Get().layerScene->GetScene()->CreateEntity();
-			return Application::Get().layerScene->GetScene()->GetEntityFromID(entityID);
+		auto createEntity = []() -> Entity* {
+			EntityID entityID = LayerScene::CurrentScene()->CreateEntity();
+			return LayerScene::CurrentScene()->GetEntityFromID(entityID);
 			};
 
 		auto getEntityPos = [](Entity* entity) -> Vec2 {
@@ -345,7 +346,7 @@ namespace IonixEngine {
 			};
 
 		m_LuaState["Entity"] = m_LuaState.create_table_with(
-			"create_entity", entity,
+			"create_entity", createEntity,
 			"get_entity_pos", getEntityPos,
 			"set_entity_pos", setEntityPos,
 			"add_sprite_component", addSpriteComponent
