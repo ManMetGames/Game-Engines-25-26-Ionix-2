@@ -9,7 +9,12 @@ namespace IonixEngine
         b2World* world;
         b2Body* body;
 
-        public:
+    public:
+
+        void SetBody(b2Body* b)
+        {
+            body = b;
+        }
 
         void AddForce(b2Vec2 force, b2Vec2 point)
         {
@@ -38,6 +43,7 @@ namespace IonixEngine
         // Add impulse at the center of mass 
         void AddImpulseToCenter(b2Vec2 impulse)
         {
+            // add forces to my fysics manager for the body dictionary
             if (body)
             {
                 body->ApplyLinearImpulseToCenter(impulse, true);
@@ -60,4 +66,3 @@ namespace IonixEngine
     };
     
 }
-

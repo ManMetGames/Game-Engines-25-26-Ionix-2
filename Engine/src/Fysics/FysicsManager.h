@@ -11,7 +11,6 @@
 
 #include "Gravity.h"
 #include "Maf/MafUtils.h"
-
 using EntityID = int;
 
 namespace IonixEngine
@@ -22,12 +21,7 @@ namespace IonixEngine
         FysicsShapes* shape = new FysicsShapes();
         PrismaticJoints* joint;
         Force* force;
-        Gravity* gravity{nullptr};
-        Gravity* EnsureGravity()
-        {
-            if (!gravity && s_instance) gravity = new Gravity(s_instance->GetWorld());
-            return gravity;
-        }
+        Gravity* gravity;
         
     public:
         static LayerFysics* s_instance;
@@ -83,15 +77,14 @@ namespace IonixEngine
 
         b2Vec2 FB_GetWorldGravity()
         {
-            auto g = EnsureGravity();
-            return g ? g->GetGravity() : b2Vec2(0.f, 0.f);
+            if (!gravity && s_instance) gravity = new Gravity(s_instance->GetWorld());
+            return gravity ? gravity->GetGravity() : b2Vec2(0.f, 0.f);
         }
 
-
-        void FB_SetGravity(const b2Vec2& bodyGravity, bool wake=true)
+        void FB_SetGravity(b2Vec2 bodyGravity)
         {
-            auto g = EnsureGravity();
-            if (g) g->SetGravity(bodyGravity.x, bodyGravity.y, wake);
+            if (!gravity && s_instance) gravity = new Gravity(s_instance->GetWorld());
+            if (gravity) gravity->SetGravity(bodyGravity.x, bodyGravity.y, true);
         }
 
         void FB_GetAngle()
@@ -127,7 +120,7 @@ namespace IonixEngine
 
         bool FB_IsActive()
         {
-
+            return false;
         }
 
         void FB_SetActive()
@@ -194,12 +187,50 @@ namespace IonixEngine
         {
 
         }
-       
 
+        // ---------- Forces ----------
 
+        void FB_AddForce(int dicIndex, b2Vec2 forceVec, b2Vec2 point)
+        {
+            if (!force) force = new Force();
+            force->SetBody(BodyDic[dicIndex]->GetBody());
+            force->AddForce(forceVec, point);
+        }
 
+        void FB_AddForceToCenter(int dicIndex, b2Vec2 forceVec)
+        {
+            if (!force) force = new Force();
+            force->SetBody(BodyDic[dicIndex]->GetBody());
+            force->AddForceToCenter(forceVec);
+        }
 
+        void FB_AddImpulse(int dicIndex, b2Vec2 impulse, b2Vec2 point)
+        {
+            if (!force) force = new Force();
+            force->SetBody(BodyDic[dicIndex]->GetBody());
+            force->AddImpulse(impulse, point);
+        }
 
+        void FB_AddImpulseToCenter(int dicIndex, b2Vec2 impulse)
+        {
+            if (!force) force = new Force();
+            force->SetBody(BodyDic[dicIndex]->GetBody());
+            force->AddImpulseToCenter(impulse);
+        }
+
+        void FB_AddTorque(int dicIndex, float torque)
+        {
+            if (!force) force = new Force();
+            force->SetBody(BodyDic[dicIndex]->GetBody());
+            force->AddTorque(torque);
+        }
+
+        void FB_AddAngularImpulse(int dicIndex, float torque)
+        {
+            if (!force) force = new Force();
+            force->SetBody(BodyDic[dicIndex]->GetBody());
+            force->AddAngularImpulse(torque);
+        }
 
         //-------------------------
         void AddJointToFysicsBody()
