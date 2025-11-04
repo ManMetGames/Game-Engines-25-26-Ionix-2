@@ -8,13 +8,13 @@ namespace IonixEngine {
 		width = 100; //size of the sprite
 		height = 100;
 		isReversing = false;
-		playbackMode = PLAYONCE;
+		playbackMode = FORWARDANDBACKWARD;
 
-		rows = 1;
+		rows = 1; //default spritesheet size, can be changed in appropriate setters
 		cols = 1;
 
 
-		spriteWidth = 32;
+		spriteWidth = 32; //default, can be change in setter
 		spriteHeight = 32;
 		
 		SDL_QueryTexture(texture, NULL, NULL, &size.x, &size.y);
@@ -59,7 +59,6 @@ namespace IonixEngine {
 		//create and send render data to the render queue
 		data->queue->AddToQueue(RenderCall {
 			texture,
-			//SDL_Rect { (int) (entity->position.x - width / 2), (int) (entity->position.y - height / 2), (int) width, (int) height },
 			SDL_Rect { (int) (entity->position.x), (int) (entity->position.y), (int) width, (int) height },
 			SDL_Rect { spriteWidth * currentCol, spriteHeight * currentRow, spriteWidth, spriteHeight },
 		});

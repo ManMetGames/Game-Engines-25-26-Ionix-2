@@ -39,9 +39,6 @@ namespace IonixEngine {
 
 		void calculateTotalFrames();
 
-		void getFrame();
-		void setEndFrame(int x);
-
 		//Setters
 		void setEndFrame(int x);
 		void setPlaybackMode(enum playbackOptions x);
