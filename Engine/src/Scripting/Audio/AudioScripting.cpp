@@ -46,8 +46,14 @@ namespace IonixEngine {
          
          // --- Bind AudioPlayer ---
 
-        auto play = [](Entity* entity, int fadeMilliseconds = 0, int numLoops = 0) {
-            entity->GetComponent<AudioPlayer>()->Play(fadeMilliseconds, numLoops);
+        auto play = [](Entity* entity, sol::optional<int> fadeMs, sol::optional<int> loops) {
+            auto& player = *entity->GetComponent<AudioPlayer>();
+            if (!fadeMs)
+                player.Play();
+            else if (!loops)
+                player.Play(*fadeMs);
+            else
+                player.Play(*fadeMs, *loops);
             };
 
         auto pause = [](Entity* entity) {
