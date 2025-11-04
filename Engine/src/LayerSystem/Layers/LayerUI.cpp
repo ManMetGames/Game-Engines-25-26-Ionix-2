@@ -84,9 +84,9 @@ namespace IonixEngine
 
         
          std::vector<std::string> dropdownOptions = { "Option 1", "Option 2", "Option 3" };
-         int dropdownIndex = 0;
+         static int dropdownIndex = 0;
          bool checkboxValue = true;
-         int radioValue = 0;
+         static int radioValue = 0;
          static float sliderValue = 0.5f;
          
          
@@ -96,7 +96,7 @@ namespace IonixEngine
          uiManager.AddButton(10, 40, 100, 25, "Click Me", []() { printf("Button clicked!\n"); });
          uiManager.AddCheckbox(10, 70, 120, 25, "Enable", &checkboxValue);
          uiManager.AddSliderFloat(10, 100, 150, 25, "Slider", &sliderValue, 0.0f, 1.0f);
-         uiManager.AddRadioButton(10, 130, 100, 25, "Option 1", &radioValue, 0,true);
+         uiManager.AddRadioButton(10, 130, 100, 25, "Option 1", &radioValue, 0, true);
          uiManager.AddRadioButton(120, 130, 100, 25, "Option 2", &radioValue, 1, true);
          uiManager.AddDropdown(10, 160, 150, 25, "Dropdown", dropdownOptions, &dropdownIndex);
          uiManager.AddColorPicker(10, 190, 150, 150, "Pick Color", m_UI->myColor);
