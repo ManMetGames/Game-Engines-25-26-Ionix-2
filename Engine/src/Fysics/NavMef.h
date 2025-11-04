@@ -10,7 +10,7 @@ struct Cell {
     std::vector<int> neighbors;
 };
 
-class NavMesh {
+class NavMef {
 private:
     std::vector<b2Vec2> m_vertices;
     std::vector<Cell> m_cells;
