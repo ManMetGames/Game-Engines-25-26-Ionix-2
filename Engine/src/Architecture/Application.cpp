@@ -49,6 +49,7 @@ namespace IonixEngine
         
         Scripting::Get().Init();
         Scripting::Get().GetLuaState().script_file("Scripts/Settings.lua");
+
     }
         
     Application::~Application() 

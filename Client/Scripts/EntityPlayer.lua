@@ -1,14 +1,22 @@
 local EntityPlayer = {}
 local entity1
+local entity2
 local x = 500
 local y = 500
 local xSpeed = 10
 local ySpeed = 10
 function EntityPlayer:OnStart()
     entity1 = Entity.create_entity()
+    entity2 = Entity.create_entity()
+	
+	print("Entity 1: " .. entity1)
+	print("Entity 2: " .. entity2)
+	
     Texture.add_texture("./Assets/aur naur.jpg", "aur")
     Entity.add_sprite_component(entity1, "aur", 5)
-    Entity.set_entity_pos(entity1, 400, 400)
+    Entity.add_sprite_component(entity2, "fuck", 3)
+    Entity.set_entity_pos(entity1, 200, 400)
+    Entity.set_entity_pos(entity2, 600, 400)
 end
 
 function EntityPlayer:OnUpdate()

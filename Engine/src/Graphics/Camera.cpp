@@ -29,10 +29,10 @@ namespace IonixEngine
 
     void Camera::handleEvent()
     {
-        if (Application::Get().layerInput->m_Input->IsKeyDown(SDL_SCANCODE_U)) {
+        if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_U)) {
             zoom *= 0.9f;
         }
-        else if (Application::Get().layerInput->m_Input->IsKeyDown(SDL_SCANCODE_I))
+        else if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_I))
         {
             zoom *= 1.1f;
         }
