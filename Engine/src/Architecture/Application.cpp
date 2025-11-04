@@ -1,7 +1,4 @@
 #include "Application.h"
-
-#include "Fysics/FysicsBody.h"
-#include "Fysics/Shapes.h"
 #include "LayerSystem/Layers/LayerTexture.hpp"
 #include "SDL_timer.h"
 #include "imgui.h"
@@ -10,7 +7,7 @@
 #include <vector>
 #include <backends/imgui_impl_sdlrenderer2.h>
 #include <iostream>
-
+#include <third-party/imgui_impl_sdlrenderer2.h>
 
 namespace IonixEngine {
     Application* Application::s_Instance = nullptr;
@@ -18,8 +15,6 @@ namespace IonixEngine {
 
 namespace IonixEngine
 {
-
-    
     Application& Application::Get() { return *s_Instance; }
 
 
@@ -29,6 +24,7 @@ namespace IonixEngine
         s_Instance = this;
         startTick = SDL_GetPerformanceCounter();
         currentTick = SDL_GetPerformanceCounter();
+
 
         //Initialise layers...
         layerEditor = new LayerEditor();
@@ -54,9 +50,8 @@ namespace IonixEngine
 
         layerScene = new LayerScene();
         AddLayer(layerScene);
-        
-        Scripting::Get().Init();
-        Scripting::Get().GetLuaState().script_file("Scripts/Settings.lua");
+        //Scripting::Get().Init();
+        //Scripting::Get().GetLuaState().script_file("Scripts/settings.lua");
     }
         
     Application::~Application() 
@@ -99,7 +94,6 @@ namespace IonixEngine
                 if(layer)
                     layer->OnUpdate();
             }
-
             
             Scripting::Get().CallHook("OnUpdate");
             ImGui::Render();
@@ -156,11 +150,13 @@ namespace IonixEngine
            std::cout << "Mouse X Pos: " << mc.x << " Mouse Y Pos: " << mc.y << std::endl;
            */
             
+            // Scripting::Get().CallHook("OnUpdate");
+
             layerInput->m_Input->CopyCodesEndFrame();
 
-                     
+            // Scripting::Get().CallHook("OnUpdate");
+          
             m_Window->OnUpdate();
-
         }
     
         std::vector<Layer*> layers = m_LayerStack.GetLayers();
