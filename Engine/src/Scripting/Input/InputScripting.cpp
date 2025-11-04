@@ -1,8 +1,18 @@
-#include "Scripting/Input/InputBindings.h"
+#include "Scripting/Input/InputScripting.h"
 #include "Architecture/Application.h"
 
 namespace IonixEngine {
-    void RegisterInputBindings(sol::state& lua) {
+    
+    InputScripting* InputScripting::s_Instance = nullptr;
+
+    InputScripting& InputScripting::Get() {
+        if (!s_Instance)
+            s_Instance = new InputScripting();
+        return *s_Instance;
+    }
+
+    void InputScripting::Init(sol::state& lua)
+    {
         auto getKeyUp = [](int code) -> bool {
             return Application::Get().layerInput->m_Input->IsKeyUp(static_cast<SDL_Scancode>(code));
             };
@@ -75,5 +85,6 @@ namespace IonixEngine {
             "get_key_down", getKeyDown,
             "get_key_held", getKeyHeld
         );
+                
     }
 }

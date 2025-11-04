@@ -1,10 +1,19 @@
-#include "Scripting/Entity/EntityBindings.h"
+#include "Scripting/Entity/EntityScripting.h"
 #include "Architecture/Application.h"
 #include "Architecture/ECS/Entity.hpp"
 
 namespace IonixEngine {
 
-    void RegisterEntityBindings(sol::state& lua) {
+    EntityScripting* EntityScripting::s_Instance = nullptr;
+
+    EntityScripting& EntityScripting::Get() {
+        if (!s_Instance)
+            s_Instance = new EntityScripting();
+        return *s_Instance;
+    }
+
+    void EntityScripting::Init(sol::state& lua)
+    {
         auto entity = []() -> Entity* {
             EntityID entityID = Application::Get().layerScene->GetScene()->CreateEntity();
             return Application::Get().layerScene->GetScene()->GetEntityFromID(entityID);

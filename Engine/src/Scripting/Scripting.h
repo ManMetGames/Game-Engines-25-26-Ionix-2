@@ -6,13 +6,13 @@
 #include "LayerSystem/Layer.h"
 
 // Modular binding headers
-#include "Scripting/Audio/AudioBindings.h"
-#include "Scripting/Window/WindowBindings.h"
-#include "Scripting/Input/InputBindings.h"
-#include "Scripting/Mafs/MafsBindings.h"
-#include "Scripting/Graphics/GraphicsBindings.h"
-#include "Scripting/Entity/EntityBindings.h"
-#include "Scripting/UI/UIBindings.h"
+#include "Scripting/Audio/AudioScripting.h"
+#include "Scripting/Window/WindowScripting.h"
+#include "Scripting/Input/InputScripting.h"
+#include "Scripting/Mafs/MafsScripting.h"
+#include "Scripting/Graphics/GraphicsScripting.h"
+#include "Scripting/Entity/EntityScripting.h"
+#include "Scripting/UI/UIScripting.h"
 
 namespace IonixEngine
 {

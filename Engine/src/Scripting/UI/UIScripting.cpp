@@ -1,9 +1,17 @@
-#include "Scripting/UI/UIBindings.h"
+#include "Scripting/UI/UIScripting.h"
 #include "Architecture/Application.h"
 
 namespace IonixEngine {
+    UIScripting* UIScripting::s_Instance = nullptr;
 
-    void RegisterUIBindings(sol::state& lua) {
+    UIScripting& UIScripting::Get() {
+        if (!s_Instance)
+            s_Instance = new UIScripting();
+        return *s_Instance;
+    }
+
+    void UIScripting::Init(sol::state& lua)
+    {
         auto drawLabel = [](const char* text, int xsize, int ysize, int xpos, int ypos, const char* font) {
             Application::Get().layerUI->m_UI->DrawLabel((char*)text, xsize, ysize, xpos, ypos, "");
             };

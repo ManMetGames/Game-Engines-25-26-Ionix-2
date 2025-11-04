@@ -1,8 +1,17 @@
-#include "Scripting/Window/WindowBindings.h"
+#include "Scripting/Window/WindowScripting.h"
 #include "Architecture/Application.h"
 
 namespace IonixEngine {
-    void RegisterWindowBindings(sol::state& lua) {
+    WindowScripting* WindowScripting::s_Instance = nullptr;
+
+    WindowScripting& WindowScripting::Get() {
+        if (!s_Instance)
+            s_Instance = new WindowScripting();
+        return *s_Instance;
+    }
+
+    void WindowScripting::Init(sol::state& lua)
+    {
         auto getWindowTitle = []() -> std::string {
             return Application::Get().GetWindow().m_Data.Title;
             };
