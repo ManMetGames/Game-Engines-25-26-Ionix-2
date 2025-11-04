@@ -5,14 +5,13 @@ namespace IonixEngine {
 	AnimatedSpriteComponent::AnimatedSpriteComponent(Entity* entity, std::string alias, int zedOrder) : Component(entity, false, true, false) {
 		texture = IonixEngine::TextureManager::Get().GetTexture(alias).GetTexture(); //adding sprite image file to the texture manager
 		zOrder = zedOrder;
-		width = 200; //size of the sprite
-		height = 200;
+		width = 100; //size of the sprite
+		height = 100;
 		isReversing = false;
-		reverseOnEnd = false;
 		playbackMode = PLAYONCE;
 
-		rows = 2;
-		cols = 5;
+		rows = 1;
+		cols = 1;
 
 
 		spriteWidth = 32;
@@ -125,9 +124,22 @@ namespace IonixEngine {
 	void AnimatedSpriteComponent::setEndFrame(int x) { endFrame = x; }
 	void AnimatedSpriteComponent::setPlaybackMode(enum playbackOptions x) { playbackMode = x; }
 	void AnimatedSpriteComponent::setCurrentFrame(int x) { if (!(x > totalFrames)) { currentFrame = x; } }
-	void AnimatedSpriteComponent::setReverseOnEnd(bool x) { reverseOnEnd = x; }
 	void AnimatedSpriteComponent::setRows(int x) { rows = x; }
 	void AnimatedSpriteComponent::setCols(int x) { cols = x; }
 	void AnimatedSpriteComponent::setSpriteWidth(int x) { spriteWidth = x; }
 	void AnimatedSpriteComponent::setSpriteHeight(int x) { spriteHeight = x; }
+	void AnimatedSpriteComponent::setZedOrder(int x) { zOrder = x; }
+
+	//getters
+	IonixEngine::AnimatedSpriteComponent::playbackOptions AnimatedSpriteComponent::getPlaybackMode() /*good googly moogly*/ { return playbackOptions(); }
+	int AnimatedSpriteComponent::getCurrentFrame() { return currentFrame; }
+	int AnimatedSpriteComponent::getEndFrame() { return endFrame; }
+	int AnimatedSpriteComponent::getRows() { return rows; }
+	int AnimatedSpriteComponent::getCols() { return cols; }
+	int AnimatedSpriteComponent::getSpriteWidth() { return spriteWidth; }
+	int AnimatedSpriteComponent::getSpriteHeight() { return spriteHeight; }
+	int AnimatedSpriteComponent::getZedOrder() { return zOrder; }
+	int AnimatedSpriteComponent::getTotalFrames() { return totalFrames; }
+	int AnimatedSpriteComponent::getCurrentCol() { return currentCol; }
+	int AnimatedSpriteComponent::getCurrentRow() { return currentRow; }
 }

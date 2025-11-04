@@ -33,8 +33,6 @@ namespace IonixEngine {
 
 		enum playbackOptions playbackMode;
 
-		bool reverseOnEnd;
-
 	public:
 		AnimatedSpriteComponent(Entity* entity, std::string alias, int zedOrder);
 		virtual void Render(RenderData* data) override;
