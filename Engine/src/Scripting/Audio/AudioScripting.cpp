@@ -1,0 +1,62 @@
+#include "Scripting/Audio/AudioScripting.h"
+
+
+namespace IonixEngine {
+
+
+    AudioScripting& AudioScripting::Get() {
+        static AudioScripting* s_Instance;
+        if (!s_Instance)
+            s_Instance = new AudioScripting();
+        return *s_Instance;
+    }
+
+    void AudioScripting::Init(sol::state& lua)
+    {
+
+        auto GetInstance = []() -> SoundManager& {
+            return SoundManager::GetInstance();
+            };
+
+        auto SetVolume = [](std::string name, float volume) {
+            SoundManager::GetInstance().SetVolume(name, volume);
+            };
+
+        // auto GetAudio
+        // 
+        // 
+        // 
+        // // --- Bind SoundManager singleton ---
+        // lua.new_usertype<SoundManager>("SoundManager",
+        //     "GetInstance", &SoundManager::GetInstance,
+        //     "LoadSound", &SoundManager::LoadSound,
+        //     "SetVolume", &SoundManager::SetVolume,
+        //     "GetAudio", &SoundManager::GetAudio,
+        //     "GetPlayTime", sol::overload(
+        //         [](SoundManager& sm, const std::string& alias) { return sm.GetPlayTime(alias); }
+        //     )
+        // );
+        // 
+        // // --- Bind AudioPlayer ---
+        // lua.new_usertype<AudioPlayer>("AudioPlayer",
+        //     sol::constructors<AudioPlayer(Entity*, const std::string&, bool)>(),
+        //     "Play", sol::overload(
+        //         [](AudioPlayer& audioPlayer) { audioPlayer.Play(); },
+        //         [](AudioPlayer& audioPlayer, int fadeMilliseconds) { audioPlayer.Play(fadeMilliseconds); },
+        //         [](AudioPlayer& audioPlayer, int fadeMilliseconds, int numOfLoops) { audioPlayer.Play(fadeMilliseconds, numOfLoops); }
+        //     ),
+        //     "Pause", &AudioPlayer::Pause,
+        //     "Resume", &AudioPlayer::Resume,
+        //     "End", &AudioPlayer::End,
+        //     "IsPlaying", &AudioPlayer::IsPlaying,
+        //     "PlayOneShot", &AudioPlayer::PlayOneShot,
+        //     "ChangeVolume", &AudioPlayer::ChangeVolume,
+        //     "ToggleMute", &AudioPlayer::ToggleMute,
+        //     "volume", &AudioPlayer::volume,
+        //     "mute", &AudioPlayer::mute,
+        //     "clip", &AudioPlayer::clip,
+        //     "playOnAwake", &AudioPlayer::playOnAwake
+        // );
+    }
+
+} // namespace IonixEngine

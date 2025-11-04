@@ -50,8 +50,9 @@ namespace IonixEngine
 
         layerScene = new LayerScene();
         AddLayer(layerScene);
-        //Scripting::Get().Init();
-        //Scripting::Get().GetLuaState().script_file("Scripts/settings.lua");
+
+        Scripting::Get().Init();
+        Scripting::Get().GetLuaState().script_file("Scripts/settings.lua");
     }
         
     Application::~Application() 
