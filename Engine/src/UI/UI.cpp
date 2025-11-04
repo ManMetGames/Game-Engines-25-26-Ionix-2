@@ -102,4 +102,26 @@ namespace IonixEngine
 		return currentValue;
 	}
 
+	float UI::DrawDropdown(int xPos, int yPos, float xSize, float ySize, const char* text, std::vector<std::string> options, int* currentIndex)
+	{
+		ImGui::SetCursorPos(ImVec2(xPos, yPos));
+		
+		const char* currentItem = options[*currentIndex].c_str();
+		if (ImGui::BeginCombo(text, currentItem))
+		{
+			for (size_t n = 0; n < options.size(); n++)
+			{
+				bool isSelected = (*currentIndex == n);
+				if (ImGui::Selectable(options[n].c_str(), isSelected))
+				{
+					*(currentIndex) = n;
+				}
+				if (isSelected)
+					ImGui::SetItemDefaultFocus();
+			}
+			ImGui::EndCombo();
+		}
+		return *currentIndex;
+	}
+
 }
