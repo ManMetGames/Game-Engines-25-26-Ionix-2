@@ -1,8 +1,6 @@
-#include "Scripting/Bindings/EntityBindings.h"
+#include "Scripting/Entity/EntityBindings.h"
 #include "Architecture/Application.h"
-#include "Architecture/ECS/Entity.h"
-#include "Architecture/ECS/EntityID.h"
-#include "Architecture/ECS/Components/AnimatedSpriteComponent.h"
+#include "Architecture/ECS/Entity.hpp"
 
 namespace IonixEngine {
 

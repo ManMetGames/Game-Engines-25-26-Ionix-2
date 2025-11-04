@@ -2,14 +2,17 @@
 #include "sol/sol.hpp"
 #include "Architecture/Scene.h"
 
+#include "Architecture/Application.h"
+#include "LayerSystem/Layer.h"
+
 // Modular binding headers
-#include "Scripting/Bindings/AudioBindings.h"
-#include "Scripting/Bindings/WindowBindings.h"
-#include "Scripting/Bindings/InputBindings.h"
-#include "Scripting/Bindings/MafsBindings.h"
-#include "Scripting/Bindings/GraphicsBindings.h"
-#include "Scripting/Bindings/EntityBindings.h"
-#include "Scripting/Bindings/UIBindings.h"
+#include "Scripting/Audio/AudioBindings.h"
+#include "Scripting/Window/WindowBindings.h"
+#include "Scripting/Input/InputBindings.h"
+#include "Scripting/Mafs/MafsBindings.h"
+#include "Scripting/Graphics/GraphicsBindings.h"
+#include "Scripting/Entity/EntityBindings.h"
+#include "Scripting/UI/UIBindings.h"
 
 namespace IonixEngine
 {

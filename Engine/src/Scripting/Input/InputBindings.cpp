@@ -1,6 +1,5 @@
-#include "Scripting/Bindings/InputBindings.h"
+#include "Scripting/Input/InputBindings.h"
 #include "Architecture/Application.h"
-#include "SDL2/SDL_scancode.h"
 
 namespace IonixEngine {
     void RegisterInputBindings(sol::state& lua) {

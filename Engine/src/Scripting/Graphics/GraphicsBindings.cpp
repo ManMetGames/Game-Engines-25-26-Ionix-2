@@ -1,5 +1,5 @@
-#include "Scripting/Bindings/GraphicsBindings.h"
-#include "Architecture/Graphics/TextureManager.h"
+#include "Scripting/Graphics/GraphicsBindings.h"
+#include "Architecture/TextureManager/TextureManager.h"
 
 namespace IonixEngine {
 

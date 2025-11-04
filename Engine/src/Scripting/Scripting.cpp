@@ -1,15 +1,4 @@
 #include "Scripting/Scripting.h"
-#include "Architecture/Application.h"
-#include "LayerSystem/Layer.h"
-
-// Modular binding headers
-#include "Scripting/Bindings/AudioBindings.h"
-#include "Scripting/Bindings/WindowBindings.h"
-#include "Scripting/Bindings/InputBindings.h"
-#include "Scripting/Bindings/MafsBindings.h"
-#include "Scripting/Bindings/GraphicsBindings.h"
-#include "Scripting/Bindings/EntityBindings.h"
-#include "Scripting/Bindings/UIBindings.h"
 
 namespace IonixEngine {
 
@@ -41,11 +30,11 @@ namespace IonixEngine {
     void Scripting::RegisterEngineBindings() {
         RegisterWindowBindings(m_LuaState);
         RegisterInputBindings(m_LuaState);
-        RegisterMafsBindings(m_LuaState);
         RegisterAudioBindings(m_LuaState);
         RegisterGraphicsBindings(m_LuaState);
         RegisterEntityBindings(m_LuaState);
         RegisterUIBindings(m_LuaState);
+        RegisterMafsBindings(m_LuaState);
     }
 
     void Scripting::ExecuteScript(const std::string& scriptName) {

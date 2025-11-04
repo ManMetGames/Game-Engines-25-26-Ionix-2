@@ -1,4 +1,4 @@
-#include "Scripting/Bindings/WindowBindings.h"
+#include "Scripting/Window/WindowBindings.h"
 #include "Architecture/Application.h"
 
 namespace IonixEngine {

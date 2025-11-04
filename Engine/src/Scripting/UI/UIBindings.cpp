@@ -1,4 +1,4 @@
-#include "Scripting/Bindings/UIBindings.h"
+#include "Scripting/UI/UIBindings.h"
 #include "Architecture/Application.h"
 
 namespace IonixEngine {
