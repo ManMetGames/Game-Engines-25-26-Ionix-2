@@ -64,7 +64,7 @@ Mix_Chunk* SoundManager::GetAudio(uint64_t hash) {
         return m_Sounds[hash].audio;
     }
     else {
-        SDL_Log("[Sound Manager] Sound %ull was not present, returned nullptr", hash);
+        SDL_Log("[Sound Manager] Sound %lu was not present, returned nullptr", hash);
         return nullptr;
     }
 }

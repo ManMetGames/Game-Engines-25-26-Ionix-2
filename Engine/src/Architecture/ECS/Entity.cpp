@@ -17,9 +17,6 @@ namespace IonixEngine {
         transform(this)
     {
         components = std::vector<Component*>();
-        SDL_Log("Entity capacity = %zu",components.capacity());
-        components.reserve(10);
-        SDL_Log("Entity capacity = %zu", components.capacity());
     }
 
     void Entity::Init(Scene* scene) {}

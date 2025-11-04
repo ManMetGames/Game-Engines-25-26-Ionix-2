@@ -81,7 +81,7 @@ namespace IonixEngine {
             return texture->second.GetTexture();
         } else {
             //return error texture if requested texture not found
-            SDL_Log("Failed to find texture: %ull", hash);
+            SDL_Log("Failed to find texture: %lu", hash);
             return errorTexture.GetTexture();
         }
     }

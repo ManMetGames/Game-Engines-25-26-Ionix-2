@@ -3,8 +3,10 @@
 #include "Fysics/FysicsBody.h"
 #include "Fysics/Shapes.h"
 #include "LayerSystem/Layers/LayerTexture.hpp"
+#include "SDL_timer.h"
 #include "imgui.h"
 #include <chrono>
+#include <cstdint>
 #include <vector>
 
 
@@ -21,7 +23,8 @@ namespace IonixEngine
         : m_Window(new Window())
     {
         s_Instance = this;
-        applicationStart = std::chrono::high_resolution_clock::now();
+        startTick = SDL_GetPerformanceCounter();
+        currentTick = SDL_GetPerformanceCounter();
 
         //Initialise layers...
         layerEditor = new LayerEditor();
@@ -78,10 +81,11 @@ namespace IonixEngine
         
 
         while (m_Running) {
-            float lastTime = time;
-            time = static_cast<std::chrono::duration<float>>(chrono::high_resolution_clock::now() - applicationStart).count();
-            deltaTime = time - lastTime;
-            std::cout << "\rDT: " << deltaTime;
+            uint64_t lastTick = currentTick;
+            currentTick = SDL_GetPerformanceCounter();
+            
+            deltaTime = static_cast<double>(currentTick - lastTick) / SDL_GetPerformanceFrequency();
+            time += deltaTime;
 
             SDL_RenderClear(renderer);
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);

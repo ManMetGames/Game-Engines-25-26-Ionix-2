@@ -6,6 +6,7 @@
 #include "LayerSystem/Layers/LayerEditor.h"
 #include "Maf/MafUtils.h"
 #include <chrono>
+#include <cstdint>
 #include <iostream>
 #include "LayerSystem/Layers/LayerUI.h"
 #include "LayerSystem/Layers/LayerGraphics.h"
@@ -53,7 +54,8 @@ namespace IonixEngine {
 
 
     private:
-        chrono::time_point<std::chrono::steady_clock> applicationStart;
+        uint64_t startTick;
+        uint64_t currentTick;
         static Application* s_Instance;
         Window* m_Window;
         LayerStack m_LayerStack;

@@ -1,7 +1,6 @@
 #include "Scene.h"
 #include "Architecture/Application.h"
 #include "Architecture/ECS/ECS_Test.hpp"
-#include "LayerSystem/Layers/SceneLayer.h"
 #include "SDL_log.h"
 #include <cstdio>
 
@@ -13,7 +12,6 @@ namespace IonixEngine {
         renderData.renderer = Application::Get().GetWindow().GetSdlRenderer();
         renderData.queue = Application::Get().layerGraphics->GetQueue();
 
-        SDL_Log("[Scene] Current scene %p == %p", (void*) this, (void*) LayerScene::CurrentScene());
         EntityID first = CreateEntity();
         Entity* firstEntity = GetEntityFromID(first);
         if (!firstEntity)
@@ -24,16 +22,7 @@ namespace IonixEngine {
         firstEntity->transform.SetLocalPosition(Vec2 { 500, 300 });
         firstEntity->AddComponent(new SpriteRenderer(firstEntity));
         firstEntity->AddComponent(new EntityMover(firstEntity, 60));
-        firstEntity->transform.SetLocalScale(Vec2{ 0.5,1.5 });
-
-        #if ECS_FIX_TEST
-        EntityMover* mover;
-        if (firstEntity->TryGetComponent(&mover)) {
-            SDL_Log("Found EntityMover component");
-        } else {
-            SDL_Log("Did not found EntityMover component");
-        }
-        #endif
+        // firstEntity->transform.SetLocalScale(Vec2{ 0.5,1.5 });
 
         EntityID second = CreateEntity();
         Entity* secondEntity = GetEntityFromID(second);
@@ -44,7 +33,7 @@ namespace IonixEngine {
         }
         secondEntity->transform.SetLocalPosition(Vec2{ 0, 100 });
         secondEntity->transform.SetParent(&firstEntity->transform, false);
-        secondEntity->transform.SetLocalScale(Vec2{ 1.3,1.25 });
+        // secondEntity->transform.SetLocalScale(Vec2{ 1.3,1.25 });
         secondEntity->AddComponent(new SpriteRenderer(secondEntity));
         secondEntity->AddComponent(new EntityMover(secondEntity, -60));
 
