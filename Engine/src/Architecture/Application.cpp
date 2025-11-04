@@ -67,6 +67,9 @@ namespace IonixEngine
 
     }
 
+    Camera* cam = new Camera();
+    SDL_Rect* rect = new SDL_Rect();
+
     void Application::Run()
     {
         m_Running = true;
@@ -78,87 +81,32 @@ namespace IonixEngine
         Scripting::Get().CallHook("OnStart");
 
         SDL_Renderer* renderer = m_Window->GetSdlRenderer();
-
         //FysicBody testBody = FysicBody();
-        
 
         while (m_Running)
         {
-			      SDL_RenderClear(renderer);
-			      SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);
+			 SDL_RenderClear(renderer);
+			 SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);
           
+            cam->handleInput(1.0f);
+            cam->apply(*rect);
+            cam->renderTexture(0, 0, rect, renderer);
+             
+
             for (auto layer : m_LayerStack.GetLayers())
             {
                 if(layer)
                     layer->OnUpdate();
             }
-
             
             Scripting::Get().CallHook("OnUpdate");
 
-
-           /*if (layerInput->m_Input->IsMouseButtonDown(SDL_BUTTON_LEFT))
-           {
-               if (!isLMouseDown)
-               {
-                   std::cout << "L-Mouse Button Down pressed \n";
-                   isLMouseDown = true;
-               }
-           }
-
-           else if(layerInput->m_Input->IsMouseButtonUp(SDL_BUTTON_LEFT))
-           {
-             std::cout << "L-Mouse Button released \n";
-             isLMouseDown = false;
-           }
-
-
-           if (layerInput->m_Input->IsMouseButtonDown(SDL_BUTTON_RIGHT))
-           {
-               if (!isRMouseDown) {
-                   std::cout << "R-Mouse Button Down pressed \n";
-                   isRMouseDown = true;
-               }
-           }
-
-           else if (layerInput->m_Input->IsMouseButtonUp(SDL_BUTTON_RIGHT))
-           {
-              
-               std::cout << "R-Mouse Button released \n";
-               isRMouseDown = false;
-           }
-
-           if (layerInput->m_Input->IsMouseButtonDown(SDL_BUTTON_MIDDLE))
-           {
-               if (!isMMouseDown) {
-                   std::cout << "M-Mouse Button Down pressed \n";
-                   isMMouseDown = true;
-               }
-           }
-
-           else if (layerInput->m_Input->IsMouseButtonUp(SDL_BUTTON_MIDDLE))
-           {
-               std::cout << "M-Mouse Button released \n";
-               isMMouseDown = false;
-           }
-
-           MouseCoords mc = layerInput->m_Input->GetMousePosition();
-           std::cout << "Mouse X Pos: " << mc.x << " Mouse Y Pos: " << mc.y << std::endl;
-           */
-            
             layerInput->m_Input->CopyCodesEndFrame();
-
-            SDL_Rect* rect = new SDL_Rect();
-            Camera* cam = new Camera();
-            cam->handleInput(1.0f);
-            cam->apply(*rect);
-
                      
             m_Window->OnUpdate();
             ImGui::Render();
             ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), Application::Get().GetWindow().m_Renderer);
             SDL_RenderPresent(renderer);
-
         }
 
         for (auto layer : m_LayerStack.GetLayers()) {

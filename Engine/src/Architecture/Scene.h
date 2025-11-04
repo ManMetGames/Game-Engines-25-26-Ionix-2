@@ -31,11 +31,13 @@ namespace IonixEngine
         
         bool DestroyEntity(EntityID entityId);
         
+		std::vector<Entity>& GetEntities() { return m_Entities; }
 
         // Get the number of currently stored entities
         inline std::size_t Count() const { return m_Entities.size(); }
         
         Entity* GetEntityFromID(EntityID id);
+
 
     private:
         std::vector<Entity> m_Entities;

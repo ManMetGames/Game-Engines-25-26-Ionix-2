@@ -25,6 +25,8 @@ namespace IonixEngine
         // Access the current scene (non-owning)
         Scene* GetScene() const { return m_Current.get(); }
 
+		std::vector<Entity>& GetEntities() { return GetScene()->GetEntities(); }
+
     private:
         std::unique_ptr<Scene> m_Current;
     };
