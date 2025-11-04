@@ -232,6 +232,13 @@ namespace IonixEngine
             force->AddAngularImpulse(torque);
         }
 
+        void FB_ClearForces(int dicIndex)
+        {
+            if (!force) force = new Force();
+            force->SetBody(BodyDic[dicIndex]->GetBody());
+            force->ClearForces();
+        }
+
         //-------------------------
         void AddJointToFysicsBody()
         {

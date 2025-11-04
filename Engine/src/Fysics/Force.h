@@ -63,6 +63,17 @@ namespace IonixEngine
                 body->ApplyAngularImpulse(torque, true);
             }
         }
+
+        // Clear all forces/velocities on this body
+        void ClearForces()
+        {
+            if (body)
+            {
+                body->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
+                body->SetAngularVelocity(0.0f);
+            }
+        }
+        
     };
     
 }
