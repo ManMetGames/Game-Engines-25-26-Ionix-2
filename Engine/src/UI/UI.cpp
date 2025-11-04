@@ -9,12 +9,13 @@
 
 namespace IonixEngine
 {
-	void UI::DrawLabel(char* text, int xsize, int ysize, int xpos, int ypos ,const char* font)
+	void UI::DrawLabel(char* text, int xsize, int ysize, int xpos, int ypos , std::string font)
 	{
 		
 		ImGui::SetCursorPos(ImVec2(xpos, ypos));
-		
-	    ImFont* fontToPush = Application::Get().layerUI->m_FontLoader->GetFont("Font1Bold");
+		std::unordered_map<std::string, ImFont*>& map = Application::Get().layerUI->GetUIManager().fontLoader.fontMap;
+		ImFont* fontToPush = map[font];
+
 		ImGui::PushFont(fontToPush);
 		ImGui::Text(text, ImVec2(xsize, ysize));
 		ImGui::PopFont();
@@ -25,18 +26,15 @@ namespace IonixEngine
 		ImGui::PopFont();*/
 
 	}
-
-	bool UI::DrawButton(char* text, int xsize, int ysize, int xpos, int ypos) {
+	bool UI::DrawButton(char* text, int xsize, int ysize, int xpos, int ypos)
+	{
 		ImGui::SetCursorPos(ImVec2(xpos, ypos));
 		
-		if (ImGui::Button(text, ImVec2(xsize, ysize))) {
+		if (ImGui::Button(text, ImVec2(xsize, ysize)))
 			return true;
-		} else {
-			return false;
-		}	
 	}
 	
-	float UI::DrawSlider(char* text, float i, int xsize, int ysize, int xpos, int ypos,int minval, int maxval) {
+	float UI::DrawSlider(char* text, static float i, int xsize, int ysize, int xpos, int ypos,int minval, int maxval) {
 		ImGui::SetCursorPos(ImVec2(xpos, ypos));
 		ImGui::SliderFloat(text, &i, minval, maxval );
 		return i;
@@ -54,14 +52,18 @@ namespace IonixEngine
 		ImGui::Checkbox(text, &state);
 	}
 
-	void UI::DrawRadioButton(int xpos, int ypos, char* text, int e, int value, bool sameline)
+	void UI::DrawRadioButton(int xpos, int ypos, char* text, int &e, int value, bool sameline)
 	{
 		ImGui::SetCursorPos(ImVec2(xpos, ypos));
 		if (sameline == true)
 		{
 			ImGui::RadioButton(text, &e, value); ImGui::SameLine();
 		}
-		ImGui::RadioButton(text, &e, value);
+
+		else
+		{
+			ImGui::RadioButton(text, &e, value);
+		}
 	}
 	float UI::DrawColorPicker(int x, int y, float xSize, float ySize, const char* label, float* color)
 	{
@@ -71,7 +73,7 @@ namespace IonixEngine
 	}
 	
 
-	float UI::ProgressBar(int xPos, int yPos, float xSize, float ySize, float maxValue, float& currentValue, float incrementAmount)
+	float UI::DrawProgressBar(int xPos, int yPos, float xSize, float ySize, float maxValue, float& currentValue, float incrementAmount)
 	{
 		ImGui::SetCursorPos(ImVec2(xPos, yPos));
 		
