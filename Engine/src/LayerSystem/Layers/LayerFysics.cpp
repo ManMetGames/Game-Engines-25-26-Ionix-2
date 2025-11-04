@@ -1,15 +1,12 @@
 #include "LayerSystem/Layers/LayerFysics.h"
 #include "Fysics/FysicsManager.h"
-
 #include <iostream>
 #include <ostream>
-
 #include "EventSystem/Event.h"
 
 namespace IonixEngine
 {
     LayerFysics* LayerFysics::instance = nullptr;
-    LayerFysics* FysicsManager::s_instance = nullptr;
 
     LayerFysics* LayerFysics::GetInstance() {
         return instance;
@@ -17,7 +14,6 @@ namespace IonixEngine
 
     void LayerFysics::OnAttach() // call first says archie or brok
     {
-        FysicsManager::SetInstance(this);
         //Set Gravity
         b2Vec2 gravity = b2Vec2(0.0f, -9.8f);
         //Create the world

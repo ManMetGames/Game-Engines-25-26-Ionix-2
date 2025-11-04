@@ -1,5 +1,4 @@
 #pragma once
-#include "LayerSystem/Layers/LayerFysics.h"
 #include "Fysics/FysicsBody.h"
 #include "Fysics/Shapes.h"
 #include "Fysics/Joints.h"
@@ -7,13 +6,15 @@
 #include "Fysics/Collider.h"
 #include <vector>
 #include <functional>
-#include "Contactlistener.h"
 #include <unordered_map>
+#include "Contactlistener.h"
 
 using Entity = int;
 
 namespace IonixEngine
 {
+    class LayerFysics;
+
     class FysicsManager
     {
     private:
@@ -23,27 +24,27 @@ namespace IonixEngine
         b2World* world;
         ContactListener contactListener;
 
-        using GlobalCollisionCallback = std::function<void(Collider*, Collider*)>;
-        std::vector<GlobalCollisionCallback> globalCollisionCallbacks_;
+        //using GlobalCollisionCallback = std::function<void(Collider*, Collider*)>;
+       // std::vector<GlobalCollisionCallback> globalCollisionCallbacks_;
 
         std::unordered_map<b2Body*, Entity*> entityBodyMap;
-        std::unordered_map<Entity*, Collider*> entityToColliderMap;
+        //std::unordered_map<Entity*, Collider*> entityToColliderMap;
 
 
-        static LayerFysics* s_instance;
+        //static LayerFysics* s_instance;
     public:
-        static void SetInstance(LayerFysics* instance) {
-            s_instance = instance;
-        }
+        //static void SetInstance(LayerFysics* instance) {
+        //    s_instance = instance;
+        //}
 
         b2Body* GetBodyFromEntity(Entity* entity);
         Entity* GetEntityFromBody(b2Body* entity);
-        Collider* GetColliderForEntity(Entity* entity);
+        //Collider* GetColliderForEntity(Entity* entity);
 
-        void RegisterCollisionCallback(const GlobalCollisionCallback& callback)
-        {
-            globalCollisionCallbacks_.push_back(callback);
-        }
+        //void RegisterCollisionCallback(const GlobalCollisionCallback& callback)
+        //{
+        //    globalCollisionCallbacks_.push_back(callback);
+        //}
 
         void Create() 
         {   

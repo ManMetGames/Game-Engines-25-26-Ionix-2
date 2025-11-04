@@ -2,6 +2,7 @@
 #include "Fysics/FysicsManager.h"
 //#include "Debug/DebugDraw.h"
 #include "Architecture/Application.h"
+#include "LayerSystem/Layers/LayerFysics.h"
 
 namespace IonixEngine
 {
@@ -37,7 +38,7 @@ namespace IonixEngine
         }
     }
 
-    Collider* FysicsManager::GetColliderForEntity(Entity* entity)
+    /*Collider* FysicsManager::GetColliderForEntity(Entity* entity)
     {
         auto it = entityToColliderMap.find(entity);
         if (it != entityToColliderMap.end())
@@ -45,5 +46,5 @@ namespace IonixEngine
             return it->second;
         }
         return nullptr;
-    }
+    }*/
 }

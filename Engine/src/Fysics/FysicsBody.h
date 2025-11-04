@@ -1,7 +1,5 @@
 #pragma once
 #include <sol/sol.hpp>
-
-#include "LayerSystem/Layers/LayerFysics.h"
 #include "Fysics/Shapes.h"
 
 namespace IonixEngine

@@ -1,11 +1,11 @@
 #pragma once
 #include "LayerSystem/Layer.h"
-#include "box2d.h"
-#include <Fysics/FysicsManager.h>
 
 namespace IonixEngine
 {
-    
+    class box2d;
+    class FysicsManager;
+
     class LayerFysics : public Layer
     {
     public:

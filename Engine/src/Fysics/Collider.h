@@ -9,20 +9,20 @@ namespace IonixEngine
 {
     class Collider
     {
-        b2World* world;
+        /*b2World* world;
         FysicsShapes shape;
 
         using CollisionCallback = std::function<void(Collider* other)>;
-        std::vector<CollisionCallback> collisionCallbacks_;
+        std::vector<CollisionCallback> collisionCallbacks_;*/
 
     public:
 
         Collider()
         {
-            world = LayerFysics::GetInstance()->GetWorld();
+            //world = LayerFysics::GetInstance()->GetWorld();
         }
 
-        Collider(b2Body* body)
+        /*Collider(b2Body* body)
         {
             world = LayerFysics::GetInstance()->GetWorld();
             shape.AttatchBody(body);
@@ -43,6 +43,7 @@ namespace IonixEngine
 
         void SetWorld(b2World* newWorld) { world = newWorld; }
         b2World* GetWorld() const { return world; }
+        */
     };
 }
 
