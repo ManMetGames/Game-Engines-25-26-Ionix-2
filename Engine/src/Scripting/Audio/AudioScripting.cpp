@@ -20,7 +20,7 @@ namespace IonixEngine {
             };
 
         auto loadSound = [](std::string name, std::string filePath) -> bool {
-            SoundManager::GetInstance().LoadSound(name, filePath);
+            return SoundManager::GetInstance().LoadSound(name, filePath);
             };
 
         auto setVolume = [](std::string name, float volume) {
@@ -28,11 +28,11 @@ namespace IonixEngine {
             };
 
         auto getAudio = [](std::string name) -> Mix_Chunk* {
-            SoundManager::GetInstance().GetAudio(name);
+            return SoundManager::GetInstance().GetAudio(name);
             };
 
         auto getPlaytime = [](std::string name) -> float {
-            SoundManager::GetInstance().GetPlayTime(name);
+            return SoundManager::GetInstance().GetPlayTime(name);
             };
          
         lua["SoundManager"] = lua.create_table_with(
@@ -45,14 +45,6 @@ namespace IonixEngine {
         
          
          // --- Bind AudioPlayer ---
-
-        auto play = [](Entity* entity) {
-            entity->GetComponent<AudioPlayer>()->Play();
-            };
-
-        auto play = [](Entity* entity, int fadeMilliseconds = 0) {
-            entity->GetComponent<AudioPlayer>()->Play(fadeMilliseconds);
-            };
 
         auto play = [](Entity* entity, int fadeMilliseconds = 0, int numLoops = 0) {
             entity->GetComponent<AudioPlayer>()->Play(fadeMilliseconds, numLoops);
