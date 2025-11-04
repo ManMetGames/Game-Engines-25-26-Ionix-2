@@ -121,12 +121,7 @@ int main(int argc, char* argv[]) {
         nob_log(NOB_INFO, "Successfully created engine dll");
         nob_da_append(&client_libs, "-L./build/Client/");
         nob_da_append(&client_libs, is_windows ? "-lEngine" : "-lengine");
-        nob_da_append(&cmd, is_windows ? "copy" : "cp");
-        nob_da_append(&cmd, dll);
-        nob_da_append(&cmd, "./Client/");
-        if (nob_cmd_run_sync_and_reset(&cmd)) {
-            nob_log(NOB_INFO, "Copied engine dll into Client folder...");
-        }
+        nob_copy_file(dll, nob_temp_sprintf("./Client/%s", is_windows ? "Engine.dll" : "libengine.so"));
     } else {
         return -1;
     }
@@ -222,5 +217,23 @@ const char* basename(const char* path) {
         return nob_temp_strdup(file + 1);
     } else {
         return NULL;
+    }
+}
+
+void build_assets() {
+    Nob_Cmd cmd = { 0 };
+    const char * asset_builder_exe = is_windows ? "AssetBuilder.exe" : "asset_builder";
+    if (!nob_file_exists(nob_temp_sprintf("./Client/%s", asset_builder_exe))) {
+        nob_log(NOB_INFO, "Bootstrapping Asset Builder...");
+        nob_cmd_append(&cmd, "clang++");
+        nob_cc_output(&cmd, asset_builder_exe);
+        nob_cmd_append(&cmd, "./Client/AssetBuilder.cpp");
+        nob_cmd_append(&cmd, "-std=c++17");
+        nob_cmd_run_sync_and_reset(&cmd);
+    }
+    nob_log(NOB_INFO, "Running Asset Builder...");
+    nob_cmd_append(&cmd, nob_temp_sprintf("./Client/%s", asset_builder_exe));
+    if (!nob_cmd_run_sync_and_reset(&cmd)) {
+        nob_log(NOB_ERROR, "Could not run asset builder");
     }
 }
