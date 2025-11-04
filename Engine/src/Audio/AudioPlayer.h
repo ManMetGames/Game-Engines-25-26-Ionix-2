@@ -16,7 +16,6 @@ namespace IonixEngine
         float volume = 128.0f;
         bool mute = false;
         std::string clip = "";
-        bool loop = false;
         bool playOnAwake = false;
 
         // Constructor
@@ -27,7 +26,7 @@ namespace IonixEngine
         void Update(float deltaTime) override;
         void Destroy() override;
 
-        void Play(int fadeMilliseconds = 0)
+        void Play(int fadeMilliseconds = 0, int numOfLoops = 0)
         {
             if (clip.empty())
             {
@@ -42,16 +41,15 @@ namespace IonixEngine
                 return;
             }
 
-            int loopCount = loop ? -1 : 0;
 
             // Choose fade in or instant start
             if (fadeMilliseconds > 0)
             {
-                m_Channel = Mix_FadeInChannel(-1, chunk, loopCount, fadeMilliseconds);
+                m_Channel = Mix_FadeInChannel(-1, chunk, numOfLoops, fadeMilliseconds);
             }
             else
             {
-                m_Channel = Mix_PlayChannel(-1, chunk, loopCount);
+                m_Channel = Mix_PlayChannel(-1, chunk, numOfLoops);
             }
 
             // Apply volume/mute

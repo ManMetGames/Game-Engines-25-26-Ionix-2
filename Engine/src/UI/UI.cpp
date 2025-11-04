@@ -68,7 +68,7 @@ namespace IonixEngine
 	}
 	
 
-	float UI::ProgressBar(int xPos, int yPos, float xSize, float ySize, float maxValue, float& currentValue, float incrementAmount)
+	float UI::DrawProgressBar(int xPos, int yPos, float xSize, float ySize, float maxValue, float& currentValue, float incrementAmount)
 	{
 		ImGui::SetCursorPos(ImVec2(xPos, yPos));
 		

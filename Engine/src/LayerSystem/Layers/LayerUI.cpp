@@ -38,6 +38,7 @@ namespace IonixEngine
     void LayerUI::OnAttach() 
     {
         m_UI = new UI();
+		uiManager.setUIRenderer(m_UI);
         //Get window and renderer
         SDL_Window* window = Application::Get().GetWindow().GetSdlWindow();
         SDL_Renderer* renderer = Application::Get().GetWindow().GetSdlRenderer();

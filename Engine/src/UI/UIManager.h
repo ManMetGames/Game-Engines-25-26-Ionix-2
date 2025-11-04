@@ -5,6 +5,7 @@
 #include <vector>
 #include "Fontloader.h"
 
+#include "UI/UI.h"
 namespace IonixEngine
 {
 	enum UIType
@@ -18,6 +19,7 @@ namespace IonixEngine
 		RadioButton,
 		Dropdown,
 		ColorPicker,
+		ProgressBar,
 	};
 	struct UIElement
 	{
@@ -43,6 +45,9 @@ namespace IonixEngine
 		// Font name for this element
 		std::string fontName;
 
+		float maxValue = 0.0f; // only for ProgressBar
+		float* currentValue = nullptr; // only for ProgressBar
+		float incrementAmount = 0.0f; // only for ProgressBar
 		std::vector<UIElement> children;
 		bool isChildGroup = false;
 
@@ -59,6 +64,8 @@ namespace IonixEngine
 		std::vector<UIElement*> groupStack; 
 
 		void RenderElement(UIElement& element);
+
+		UI* m_ui = nullptr;
 	public:
 		Fontloader fontLoader;
 		std::vector<UIElement> GetElements()
@@ -67,6 +74,10 @@ namespace IonixEngine
 		}
 
 		std::vector<UIElement> elements;
+		void setUIRenderer(UI* ui)
+		{
+			m_ui = ui;
+		}
 		void UIManager::BeginGroup(const std::string& groupName);
 		
 		void UIManager::EndGroup();
@@ -94,6 +105,8 @@ namespace IonixEngine
 
 		void AddColorPicker1(int x, int y, float xSize, float ySize, const char* label, float* color, const std::string& fontName = "");
 
+
+		void AddProgressBar(int x, int y, float xSize, float ySize, float maxvalue, float* currentvalue, float incrementamount);
 
 		void RenderUI();
 		

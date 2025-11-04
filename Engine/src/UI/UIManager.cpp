@@ -209,10 +209,10 @@ void IonixEngine::UIManager::RenderElement(UIElement& element)
 	switch (element.type)
 	{
 	case UIType::Label:
-		ImGui::Text("%s", element.text);
+			m_ui->DrawLabel(element.text, element.xSize, element.ySize, element.xPos, element.yPos, "DefaultFont");
 		break;
 	case UIType::Button:
-		if (ImGui::Button(element.text))
+		if (m_ui->DrawButton(element.text, element.xSize, element.ySize, element.xPos, element.yPos))
 		{
 			if (element.onClick)
 				element.onClick();
@@ -220,28 +220,34 @@ void IonixEngine::UIManager::RenderElement(UIElement& element)
 		break;
 	case UIType::Checkbox:
 		if (element.checked)
-			ImGui::Checkbox(element.text, element.checked);
+			m_ui->DrawCheckbox(0, element.text, element.xPos, element.yPos, element.xSize, element.ySize);
 		break;
 	case UIType::SliderFloat:
 		if (element.sliderValue)
-			ImGui::SliderFloat(element.text, element.sliderValue, element.sliderMin, element.slidermax);
+			*element.sliderValue = m_ui->DrawSlider(element.text, *element.sliderValue, element.xSize, element.ySize, element.xPos, element.yPos, element.sliderMin, element.slidermax); 
 		break;
 	case UIType::InputText:
 		if (element.inputBuffer)
-			ImGui::InputText(element.text, element.inputBuffer, element.inputBufferSize);
-		break;
+		{
+			ImGui::SetCursorPos(ImVec2(element.xPos, element.yPos));
+			ImGui::InputText(element.text, element.inputBuffer, element.inputBufferSize);		
+		}
+			break;
 	case UIType::RadioButton:
 		if (element.radioValuePtr)
 		{
-			if (ImGui::RadioButton(element.text, *element.radioValuePtr == element.RadioButtonValue))
-			{
-				*element.radioValuePtr = element.RadioButtonValue;
-			}
+			m_ui->DrawRadioButton(element.xPos, element.yPos, element.text, *element.radioValuePtr, element.RadioButtonValue, element.sameline);
 		}
 		break;
 	case UIType::ColorPicker:
 		if (element.color)
-			ImGui::ColorEdit4(element.text, element.color);
+			m_ui->DrawColorPicker(element.xPos, element.yPos, element.xSize, element.ySize, element.text, element.color);
+		break;
+	case UIType::ProgressBar:
+		if (element.currentValue)
+		{
+			m_ui->DrawProgressBar(element.xPos, element.yPos, element.xSize, element.ySize, element.maxValue, *element.currentValue, element.incrementAmount);
+		}
 		break;
 	case UIType::Dropdown:
 		ImGui::SetCursorPos(ImVec2(element.xPos, element.yPos));
