@@ -72,18 +72,40 @@ namespace IonixEngine
         Scripting::Get().CallHook("OnStart");
         SDL_Renderer* renderer = m_Window->GetSdlRenderer();
 
-
-        
+        // timings initialisation for fixed update
+        m_LastFrameTime = SDL_GetTicks64();
+        m_FixedTimeAccumulator = 0.0f;
+        m_FixedTimeStep = 1.0f / 60.0f; // 60 Hz
 
         while (m_Running)
         {
-			      SDL_RenderClear(renderer);
-			      SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);
+		      SDL_RenderClear(renderer);
+		      SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);
           
+            // delta time calculation
+            Uint64 currentTime = SDL_GetTicks64();
+            float realDeltaTime = (currentTime - m_LastFrameTime) / 1000.0f; // Convert to seconds
+            m_LastFrameTime = currentTime;
+            
+            // fixed update time accumulation
+            m_FixedTimeAccumulator += realDeltaTime;
+            
+            // variable update loop
             for (auto layer : m_LayerStack.GetLayers())
             {
                 if(layer)
                     layer->OnUpdate();
+            }
+            
+            // fixed update loop
+            while (m_FixedTimeAccumulator >= m_FixedTimeStep)
+            {
+                for (auto layer : m_LayerStack.GetLayers())
+                {
+                    if(layer)
+                        layer->OnFixedUpdate();
+                }
+                m_FixedTimeAccumulator -= m_FixedTimeStep;
             }
 
             if (layerInput->m_Input->IsKeyDown(SDL_SCANCODE_SPACE))

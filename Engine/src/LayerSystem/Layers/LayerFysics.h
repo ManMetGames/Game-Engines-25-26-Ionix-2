@@ -14,6 +14,7 @@ namespace IonixEngine
 		virtual void OnAttach() override;
 		virtual void OnDetach() override;
 		virtual void OnUpdate() override;
+		virtual void OnFixedUpdate() override;
 		virtual void OnEvent(IonixEvent& e) override;
 
 		b2Body* CreateGroundBox(float x = 0.f, float y = 0.f, float hx = 50.f, float hy = 1.f, float angle = 0.f, float friction = 0.6f, float restitution = 0.f);

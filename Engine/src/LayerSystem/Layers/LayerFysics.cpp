@@ -40,14 +40,20 @@ namespace IonixEngine
     
     void LayerFysics::OnUpdate()
     {
+        // physics stepping now happens in OnFixedUpdate()
+    }
+    
+    void LayerFysics::OnFixedUpdate()
+    {
         if (!fysicsManager) return;
         
         b2World* world = fysicsManager->GetWorld();
         if (!world) return;
         
+        // step physics simulation at fixed timestep
         world->Step(timeStep, velocityIterations, positionIterations);
         
-        // Sync physics transforms to entities
+        // sync physics transforms to entities
         auto& bodyMap = fysicsManager->GetBodyMap();
         for (auto& [body, entity] : bodyMap)
         {
