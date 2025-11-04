@@ -8,7 +8,15 @@
 struct Cell {
     std::array<int, 3> verts;
     std::vector<int> neighbors;
+    float heuristicValue;
 };
+
+//struct GridCell {
+//    bool canPass;
+//    Cell cell;
+//    float cost;
+//
+//};
 
 class NavMef {
 private:
@@ -42,6 +50,7 @@ public:
         // cells
         for (int i = 0; i < threeCount; i++) {
             m_cells[i].verts = { indices[i * 3], indices[i * 3 + 1], indices[i * 3 + 2] };
+            m_cells[i].heuristicValue = CalculateHeuristic(m_cells[i].verts);
         }
 
         // check adjacent triangles with their edges
@@ -56,6 +65,10 @@ public:
     }
 
     const std::vector<Cell>& GetCells() const { return m_cells; }
+
+    float CalculateHeuristic(const std::array<int, 3>) {
+
+    }
 
 
 };
