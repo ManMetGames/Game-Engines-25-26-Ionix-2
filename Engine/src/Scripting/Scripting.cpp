@@ -113,10 +113,10 @@ namespace IonixEngine {
 		auto setMouseReleased = [](int code) {
 			Application::Get().layerInput->m_Input->SetButtonReleased(static_cast<uint8>(code));
 			};
-		auto SetKeyPressed = [](SDL_Scancode code) {
+		auto SetKeyPressed = [](int code) {
 			Application::Get().layerInput->m_Input->SetKeyPressed(static_cast<SDL_Scancode>(code));
 			};
-		auto SetKeyReleased = [](SDL_Scancode code) {
+		auto SetKeyReleased = [](int code) {
 			Application::Get().layerInput->m_Input->SetKeyReleased(static_cast<SDL_Scancode>(code));
 			};
 		auto NormaliseStickAxis = [](float axis) {
@@ -124,9 +124,6 @@ namespace IonixEngine {
 			};
 		auto NormaliseTrigger = [](float axis) {
 			return Application::Get().layerInput->m_Input->NormaliseTrigger(axis);
-			};
-		auto CopyCodesEndFrame = []() {
-			return Application::Get().layerInput->m_Input->CopyCodesEndFrame();
 			};
 
 		m_LuaState["Keys"] = m_LuaState.create_table_with(
@@ -192,15 +189,14 @@ namespace IonixEngine {
 			"get_key_held", getKeyHeld,
 			"get_mouse_x", getMouseX,
 			"get_mouse_y", getMouseY,
-			"getMouseButtonDown", getMouseButtonDown,
-			"getMouseButtonUp", getMouseButtonUp,
-			"setMousePressed", setMousePressed,
-			"SetKeyPressed", SetKeyPressed,
-			"SetKeyReleased",SetKeyReleased,
-			"setMouseReleased", setMouseReleased,
-			"NormaliseStickAxis", NormaliseStickAxis,
-			"NormaliseTrigger", NormaliseTrigger,
-			"CopyCodesEndFrame", CopyCodesEndFrame
+			"get_mouse_button_down", getMouseButtonDown,
+			"get_mouse_button_up", getMouseButtonUp,
+			"set_mouse_pressed", setMousePressed,
+			"set_key_pressed", SetKeyPressed,
+			"set_key_released",SetKeyReleased,
+			"set_mouse_released", setMouseReleased,
+			"normalise_stickAxis", NormaliseStickAxis,
+			"normalise_trigger", NormaliseTrigger
 
 		);
 	}
