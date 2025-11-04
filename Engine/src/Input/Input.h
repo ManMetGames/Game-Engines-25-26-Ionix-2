@@ -40,6 +40,13 @@ namespace IonixEngine
 
         //Controller axis normalization
         void NormaliseLeftXAxis(float axis);
+        void NormaliseLeftYAxis(float axis);
+
+        void NormaliseRightXAxis(float axis);
+        void NormaliseRightYAxis(float axis);
+
+        void NormaliseLeftTrigger(float axis);
+        void NormaliseRightTrigger(float axis);
 
         //Update state
         void CopyCodesEndFrame();
@@ -65,7 +72,7 @@ namespace IonixEngine
         float leftStickHorizontal = 0.0f;
         float rightStickVertical = 0.0f;
         float rightStickHorizontal = 0.0f;
-        float leftTrigger = 0.0f;
-        float rightTrigger = 0.0f;
+        float leftTriggerPressure = 0.0f;
+        float rightTriggerPressure = 0.0f;
     };
 }

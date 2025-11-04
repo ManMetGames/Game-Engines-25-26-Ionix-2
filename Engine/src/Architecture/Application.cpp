@@ -1,5 +1,6 @@
 #include "Application.h"
 #include "LayerSystem/Layers/LayerTexture.hpp"
+#include <third-party/imgui_impl_sdlrenderer2.h>
 
 
 namespace IonixEngine {
@@ -283,6 +284,8 @@ namespace IonixEngine
             // Scripting::Get().CallHook("OnUpdate");
           
             m_Window->OnUpdate();
+            ImGui::Render();
+            ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), Application::Get().GetWindow().m_Renderer);
             SDL_RenderPresent(renderer);
         }
 

@@ -90,6 +90,36 @@ namespace IonixEngine
         leftStickHorizontal = std::round(leftStickHorizontal * 100.0f) / 100.0f;
     }
 
+    void Input::NormaliseLeftYAxis(float axis)
+    {
+        leftStickVertical = static_cast<float>(axis) / 32768.0f;
+        leftStickVertical = std::round(leftStickVertical * 100.0f) / 100.0f;
+    }
+
+    void Input::NormaliseRightXAxis(float axis)
+    {
+        rightStickHorizontal = static_cast<float>(axis) / 32768.0f;
+        rightStickHorizontal = std::round(rightStickHorizontal * 100.0f) / 100.0f;
+    }
+
+    void Input::NormaliseRightYAxis(float axis)
+    {
+        rightStickVertical = static_cast<float>(axis) / 32768.0f;
+        rightStickVertical = std::round(rightStickVertical * 100.0f) / 100.0f;
+    }
+
+    void Input::NormaliseLeftTrigger(float axis)
+    {
+        leftTriggerPressure = static_cast<float>(axis) / 3276.0f;
+        leftTriggerPressure = std::round(leftTriggerPressure * 100.0f) / 100.0f;
+    }
+
+    void Input::NormaliseRightTrigger(float axis)
+    {
+        rightTriggerPressure = static_cast<float>(axis) / 32767.0f;
+        rightTriggerPressure = std::round(rightTriggerPressure * 100.0f) / 100.0f;
+    }
+
     //Frame management
     void Input::CopyCodesEndFrame()
     {
