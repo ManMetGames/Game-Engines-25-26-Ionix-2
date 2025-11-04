@@ -1,37 +1,40 @@
 #pragma once
-#include "LayerSystem/Layers/LayerFysics.h"
 #include "Fysics/FysicsBody.h"
 #include "Fysics/Shapes.h"
-#include "Fysics/Joints.h"
 #include "Fysics/Force.h"
+#include "Architecture/ECS/Entity.hpp"
 
 #include <unordered_map>
-#include <vector>
-#include <functional>
-
-#include "Gravity.h"
-#include "Maf/MafUtils.h"
-using EntityID = int;
+#include "box2d.h"
 
 namespace IonixEngine
 {
     class FysicsManager
     {
     private:
-        FysicsShapes* shape = new FysicsShapes();
-        PrismaticJoints* joint;
+ 
+        b2World* world;
+        FysicsShapes* shapes;
         Force* force;
-        Gravity* gravity;
-        
+        std::unordered_map<b2Body*, Entity*> entityBodyMap;
+
     public:
-        static LayerFysics* s_instance;
-        std::unordered_map<int, FysicsBody*> BodyDic;
-        int BodyIncrement = 0;
+        FysicsManager();
+        ~FysicsManager();
 
-        static void SetInstance(LayerFysics* instance) {
-            s_instance = instance;
-        }
+        FysicsShapes* GetShapes() { return shapes; }
+        Force* GetForce() { return force; }
+        b2World* GetWorld() { return world; }
+        std::unordered_map<b2Body*, Entity*>& GetBodyMap() { return entityBodyMap; }
+        
+        b2Body* GetBodyFromEntity(Entity* entity);
+        Entity* GetEntityFromBody(b2Body* body);
 
+        // these relied on static s_instance and BodyDic which are now gone.
+        // you'll need to refactor them to use the instance approach.
+
+        /*
+        // Body management
         void FB_Create()
         {
             FysicsBody* body = new FysicsBody(s_instance->GetWorld());
@@ -111,7 +114,6 @@ namespace IonixEngine
         {
 
         }
-
 
         void FB_SetAngularVel()
         {
@@ -239,11 +241,10 @@ namespace IonixEngine
             force->ClearForces();
         }
 
-        //-------------------------
         void AddJointToFysicsBody()
         {
 
         }
-
+        */
     };
 }

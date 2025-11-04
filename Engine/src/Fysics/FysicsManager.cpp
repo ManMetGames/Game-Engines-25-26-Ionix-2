@@ -1,39 +1,48 @@
-/*#include "Fysics/FysicsManager.h"
-#include "Fysics/Collider.h"
-#include <iostream>
+#include "FysicsManager.h"
 
-void IonixEngine::FysicsManager::RegisterCollisionCallback(CollisionCallback callback)
+namespace IonixEngine
 {
-	collisionCallbacks_.push_back(std::move(callback));
-}
-
-void IonixEngine::FysicsManager::EmitCollision(EntityID a, EntityID b)
-{
-	for (auto& callback : collisionCallbacks_)
+	FysicsManager::FysicsManager()
 	{
-		callback(a, b);
+		b2Vec2 gravity(0.0f, 9.8f);
+		world = new b2World(gravity);
+
+		shapes = new FysicsShapes();
+		force = new Force();
 	}
-}
 
-void IonixEngine::FysicsManager::Update()
-{
-	static bool callbackRegistered = false;
-	if (!callbackRegistered)
+	FysicsManager::~FysicsManager()
 	{
-		RegisterCollisionCallback([](EntityID a, EntityID b) 
+		// helpers
+		delete shapes;
+		delete force;
+
+		// cleans up all bodies in the map
+		entityBodyMap.clear();
+
+		// (this also destroys all bodies/fixtures/joints)
+		delete world;
+	}
+
+	b2Body* FysicsManager::GetBodyFromEntity(Entity* entity)
+	{
+		for (auto& pair : entityBodyMap)
 		{
-				std::cout << "[Callback Fired] Entity " << a << " collided with Entity " << b << "\n";
-		});
-		callbackRegistered = true;
+			if (pair.second == entity)
+			{
+				return pair.first;
+			}
+		}
+		return nullptr;
 	}
 
-	Collider collider(this);
-
-	Collider::Rect rectA{ 0.0f, 0.0f, 2.0f, 2.0f };
-	Collider::Rect rectB{ 1.0f, 1.0f, 2.0f, 2.0f };
-
-	if (collider.isTouching(rectA, rectB))
+	Entity* FysicsManager::GetEntityFromBody(b2Body* body)
 	{
-		std::cout << "[FysicsManager::Update] Collision detected!\n";
+		auto it = entityBodyMap.find(body);
+		if (it != entityBodyMap.end())
+		{
+			return it->second;
+		}
+		return nullptr;
 	}
-}*/
+}
