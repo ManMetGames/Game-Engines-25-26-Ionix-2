@@ -2,8 +2,8 @@
 #include "SDL_stdinc.h"
 #include <cstdint>
 #include <string>
-#include "Assets.hpp"
-#include "SHA256.hpp"
+#include "Architecture/Assets.hpp"
+#include "Architecture/SHA256.hpp"
 #include <SDL_mixer.h> // i think this is right I cant tell.
 
 namespace IonixEngine {

@@ -1,8 +1,8 @@
 #include "TextureManager.h"
 #include "Architecture/Application.h"
 #include "SDL_render.h"
-#include "Assets.hpp"
-#include "SHA256.hpp"
+#include "Architecture/Assets.hpp"
+#include "Architecture/SHA256.hpp"
 #include <cstdint>
 #include <iostream>
 #include <string>
