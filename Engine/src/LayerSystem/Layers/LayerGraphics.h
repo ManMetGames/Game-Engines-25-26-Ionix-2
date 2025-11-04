@@ -2,6 +2,7 @@
 #include "LayerSystem/Layer.h"
 #include "Graphics/SpriteClass.h"
 #include "Graphics/QueueRenderer.h"
+#include "Graphics/Camera.h"
 
 namespace IonixEngine
 {

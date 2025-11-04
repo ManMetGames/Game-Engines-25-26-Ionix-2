@@ -148,6 +148,11 @@ namespace IonixEngine
             
             layerInput->m_Input->CopyCodesEndFrame();
 
+            SDL_Rect* rect = new SDL_Rect();
+            Camera* cam = new Camera();
+            cam->handleInput(1.0f);
+            cam->apply(*rect);
+
                      
             m_Window->OnUpdate();
             ImGui::Render();
