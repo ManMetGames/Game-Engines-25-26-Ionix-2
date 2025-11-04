@@ -45,7 +45,7 @@ namespace IonixEngine
            // Controller
         case SDL_CONTROLLERDEVICEADDED:
         {
-            if (controllers.size() < MAX_CONNECTIONS) //Allow up to 4 controllers
+            if (controllers.size() < 4) //Allow up to 4 controllers
             {
                 SDL_GameController* controller = SDL_GameControllerOpen(e.cdevice.which);
                 if (controller)
