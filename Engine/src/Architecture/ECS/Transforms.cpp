@@ -35,7 +35,6 @@ namespace IonixEngine
     Vec2 Transform::GetGlobalPosition()
     {
         Vec2 position = { 0.0f,0.0f };
-
         Mat3 transformMat = Mat3{
             1.0f,0.0f,0.0f,
             0.0f,1.0f,0.0f,
@@ -53,18 +52,13 @@ namespace IonixEngine
             //position.x += parentPos.x;
             //position.y += parentPos.y;
 
-
             Transform* t = pathToParent.top();
-
             transformMat = transformMat * t->GetLocalTransformMatrix();
-
             pathToParent.pop();
         }
 
         transformMat = transformMat * GetLocalTransformMatrix();
-
         position = { transformMat.c,transformMat.f };
-
         return position;
     }
 
@@ -121,26 +115,42 @@ namespace IonixEngine
 
     void Transform::SetGlobalPosition(Vec2 newPosition)
     {
-        Vec2 parentPos = parentTransform->GetGlobalPosition();
-        float parentRot = parentTransform->GetLocalRotation();
-
-        Vec2 difference = { newPosition.x - parentPos.x, newPosition.y - parentPos.y };
-        difference = Vec2Rotate(difference, -parentRot);
-
-        localPosition = difference;
+        if (parentTransform) {
+            Mat3 globalPos = GetGlobalTransformMatrix();
+            Mat3 newPosMatrix = {
+                1.0f,0.0f,newPosition.x,
+                0.0f,1.0f,newPosition.y,
+                0.0f,0.0f,1.0f };
+            localPosition = { newPosition };
+        }
+        else { localPosition = newPosition; }
     }
 
     void Transform::SetGlobalRotation(float rot)
     {
-        float accumulator = 0.0f;
-        Transform* parent = parentTransform;
-        while (parent)
-        {
-            accumulator += parent->localRotation;
-            parent = parent->parentTransform;
-        }
-        localRotation = rot - accumulator;
-        localRotation = fmod(localRotation, 360.0f);
+        //get global matrix, get negative rot matrix, use both to create a difference matrix
+        //use difference matrix to get local rotation
+        float radRotation = rot * DEG2RAD;
+        Mat3 globalRot = GetGlobalRotationMatrix();
+
+        Mat3 diffRotationMatrix = {
+            cosf(-radRotation),-sinf(-radRotation),0.0f,
+            sinf(-radRotation),cosf(-radRotation),0.0f,
+            0.0f,0.0f,1.0f };
+
+        diffRotationMatrix = diffRotationMatrix * globalRot;
+
+        localRotation = asinf(diffRotationMatrix.d) / DEG2RAD;
+    }
+
+    void Transform::SetGlobalScale(Vec2 scale)
+    {
+        Mat3 globalScale = GetGlobalScaleMatrix();
+
+        float newX = (scale.x / globalScale.a) * localScale.x;
+        float newY = (scale.y / globalScale.e) * localScale.y;
+
+        localScale = Vec2{ newX,newY };
     }
 
     Vec2 Transform::GetLocalPosition()
@@ -171,8 +181,8 @@ namespace IonixEngine
         float angle = localRotation * DEG2RAD;
 
         return Mat3{
-            cosf(angle),sinf(angle),0.0f,
-            -sinf(angle),cosf(angle),0.0f,
+            cosf(angle),-sinf(angle),0.0f,
+            sinf(angle),cosf(angle),0.0f,
             0.0f,0.0f,1.0f };
     }
 
@@ -213,10 +223,7 @@ namespace IonixEngine
         std::stack<Transform*> pathToParent = getPathToParent();
         while (!pathToParent.empty())
         {
-            Transform* currentParent = pathToParent.top();
-
-            output = output * currentParent->GetLocalScaleMatrix();
-
+            output = output * pathToParent.top()->GetLocalScaleMatrix();
             pathToParent.pop();
         }
         output = output * GetLocalScaleMatrix();
@@ -234,8 +241,7 @@ namespace IonixEngine
         std::stack<Transform*> pathToParent = getPathToParent();
         while (!pathToParent.empty())
         {
-            Transform* currentParent = pathToParent.top();
-            output = output * currentParent->GetLocalRotationMatrix();
+            output = output * pathToParent.top()->GetLocalRotationMatrix();
             pathToParent.pop();
         }
         output = output * GetLocalRotationMatrix();
@@ -252,8 +258,7 @@ namespace IonixEngine
         std::stack<Transform*> pathToParent = getPathToParent();
         while (!pathToParent.empty())
         {
-            Transform* currentParent = pathToParent.top();
-            output = output * currentParent->GetLocalTranslationMatrix();
+            output = output * pathToParent.top()->GetLocalTranslationMatrix();
             pathToParent.pop();
         }
         output = output * GetLocalTranslationMatrix();
@@ -270,8 +275,7 @@ namespace IonixEngine
         std::stack<Transform*> pathToParent = getPathToParent();
         while (!pathToParent.empty())
         {
-            Transform* currentParent = pathToParent.top();
-            output = output * currentParent->GetLocalTransformMatrix();
+            output = output * pathToParent.top()->GetLocalTransformMatrix();
             pathToParent.pop();
         }
         output = output * GetLocalTransformMatrix();

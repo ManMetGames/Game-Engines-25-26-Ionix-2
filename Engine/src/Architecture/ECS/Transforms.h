@@ -30,7 +30,7 @@ namespace IonixEngine
 
 		void SetGlobalPosition(Vec2 transform);
 		void SetGlobalRotation(float rot);
-
+		void SetGlobalScale(Vec2 scale);
 
 		Vec2 GetLocalPosition();
 		float GetLocalRotation();
