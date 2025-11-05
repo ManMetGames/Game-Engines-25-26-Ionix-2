@@ -41,6 +41,11 @@ namespace IonixEngine
 		Mat3 GetLocalTranslationMatrix();
 		Mat3 GetLocalTransformMatrix();
 
+		Mat3 GetGlobalScaleMatrix();
+		Mat3 GetGlobalRotationMatrix();
+		Mat3 GetGlobalTranslationMatrix();
+		Mat3 GetGlobalTransformMatrix();
+
 		void SetLocalPosition(Vec2 newPos);
 		void SetLocalRotation(float newRot);
 		void SetLocalScale(Vec2 newScale);

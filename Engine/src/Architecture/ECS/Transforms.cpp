@@ -98,7 +98,7 @@ namespace IonixEngine
 
         //ordered version
         std::stack<Transform*> pathToParent = getPathToParent();
-        Vec2 scale = { 1,1 };
+        Vec2 scale = { 1.0f,1.0f };
         while (!pathToParent.empty())
         {
             Vec2 parentScale = pathToParent.top()->localScale;
@@ -161,9 +161,9 @@ namespace IonixEngine
     Mat3 Transform::GetLocalScaleMatrix()
     {
         return Mat3{
-            localScale.x,0,0,
-            0,localScale.y,0,
-            0,0,1 };
+            localScale.x,0.0f,0.0f,
+            0.0f,localScale.y,0.0f,
+            0.0f,0.0f,1.0f };
     }
 
     Mat3 Transform::GetLocalRotationMatrix()
@@ -171,17 +171,17 @@ namespace IonixEngine
         float angle = localRotation * DEG2RAD;
 
         return Mat3{
-            cosf(angle),sinf(angle),0,
-            -sinf(angle),cosf(angle),0,
-            0,0,1 };
+            cosf(angle),sinf(angle),0.0f,
+            -sinf(angle),cosf(angle),0.0f,
+            0.0f,0.0f,1.0f };
     }
 
     Mat3 Transform::GetLocalTranslationMatrix()
     {
         return Mat3{
-            1,0,localPosition.x,
-            0,1,localPosition.y,
-            0,0,1 };
+            1.0f,0.0f,localPosition.x,
+            0.0f,1.0f,localPosition.y,
+            0.0f,0.0f,1.0f };
     }
 
     Mat3 Transform::GetLocalTransformMatrix()
@@ -200,6 +200,81 @@ namespace IonixEngine
         output = scale * rot;
         output = translate * output;
         //SDL_Log("debug log lol %f", output.b);
+        return output;
+    }
+
+    Mat3 Transform::GetGlobalScaleMatrix()
+    {
+        Mat3 output = {
+            1.0f,0.0f,0.0f,
+            0.0f,1.0f,0.0f,
+            0.0f,0.0f,1.0f
+        };
+        std::stack<Transform*> pathToParent = getPathToParent();
+        while (!pathToParent.empty())
+        {
+            Transform* currentParent = pathToParent.top();
+
+            output = output * currentParent->GetLocalScaleMatrix();
+
+            pathToParent.pop();
+        }
+        output = output * GetLocalScaleMatrix();
+        return output;
+    }
+
+
+    Mat3 Transform::GetGlobalRotationMatrix()
+    {
+        Mat3 output = {
+            1.0f,0.0f,0.0f,
+            0.0f,1.0f,0.0f,
+            0.0f,0.0f,1.0f
+        };
+        std::stack<Transform*> pathToParent = getPathToParent();
+        while (!pathToParent.empty())
+        {
+            Transform* currentParent = pathToParent.top();
+            output = output * currentParent->GetLocalRotationMatrix();
+            pathToParent.pop();
+        }
+        output = output * GetLocalRotationMatrix();
+        return output;
+    }
+
+    Mat3 Transform::GetGlobalTranslationMatrix()
+    {
+        Mat3 output = {
+            1.0f,0.0f,0.0f,
+            0.0f,1.0f,0.0f,
+            0.0f,0.0f,1.0f
+        };
+        std::stack<Transform*> pathToParent = getPathToParent();
+        while (!pathToParent.empty())
+        {
+            Transform* currentParent = pathToParent.top();
+            output = output * currentParent->GetLocalTranslationMatrix();
+            pathToParent.pop();
+        }
+        output = output * GetLocalTranslationMatrix();
+        return output;
+    }
+
+    Mat3 Transform::GetGlobalTransformMatrix()
+    {
+        Mat3 output = {
+            1.0f,0.0f,0.0f,
+            0.0f,1.0f,0.0f,
+            0.0f,0.0f,1.0f
+        };
+        std::stack<Transform*> pathToParent = getPathToParent();
+        while (!pathToParent.empty())
+        {
+            Transform* currentParent = pathToParent.top();
+            output = output * currentParent->GetLocalTransformMatrix();
+            pathToParent.pop();
+        }
+        output = output * GetLocalTransformMatrix();
         return output;
     }
 
