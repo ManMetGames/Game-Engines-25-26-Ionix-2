@@ -56,12 +56,12 @@ namespace IonixEngine
 
             Transform* t = pathToParent.top();
 
-            transformMat = transformMat * t->GetTransformMatrix();
+            transformMat = transformMat * t->GetLocalTransformMatrix();
 
             pathToParent.pop();
         }
 
-        transformMat = transformMat * GetTransformMatrix();
+        transformMat = transformMat * GetLocalTransformMatrix();
 
         position = { transformMat.c,transformMat.f };
 
@@ -158,7 +158,7 @@ namespace IonixEngine
         return localScale;
     }
 
-    Mat3 Transform::GetScaleMatrix()
+    Mat3 Transform::GetLocalScaleMatrix()
     {
         return Mat3{
             localScale.x,0,0,
@@ -166,7 +166,7 @@ namespace IonixEngine
             0,0,1 };
     }
 
-    Mat3 Transform::GetRotationMatrix()
+    Mat3 Transform::GetLocalRotationMatrix()
     {
         float angle = localRotation * DEG2RAD;
 
@@ -176,7 +176,7 @@ namespace IonixEngine
             0,0,1 };
     }
 
-    Mat3 Transform::GetTranslationMatrix()
+    Mat3 Transform::GetLocalTranslationMatrix()
     {
         return Mat3{
             1,0,localPosition.x,
@@ -184,13 +184,15 @@ namespace IonixEngine
             0,0,1 };
     }
 
-    Mat3 Transform::GetTransformMatrix()
+    Mat3 Transform::GetLocalTransformMatrix()
     {
+        //if performance is an issue, may want to use a single matrix for combined transforms,
+        //rather than creating it everytime from the three constituent matrices
         Mat3 output = { 0 };
 
-        Mat3 scale = GetScaleMatrix();
-        Mat3 rot = GetRotationMatrix();
-        Mat3 translate = GetTranslationMatrix();
+        Mat3 scale = GetLocalScaleMatrix();
+        Mat3 rot = GetLocalRotationMatrix();
+        Mat3 translate = GetLocalTranslationMatrix();
 
         //multiply matrices backwards!!!
         //scale * rotation * translate
