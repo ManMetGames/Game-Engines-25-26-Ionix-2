@@ -11,7 +11,7 @@
 
 namespace IonixEngine
 {
-    bool checkboxValue;
+    
     /*enum UIType
     {
         Label,
@@ -38,6 +38,7 @@ namespace IonixEngine
     void LayerUI::OnAttach() 
     {
         m_UI = new UI();
+		uiManager.setUIRenderer(m_UI);
         //Get window and renderer
         SDL_Window* window = Application::Get().GetWindow().GetSdlWindow();
         SDL_Renderer* renderer = Application::Get().GetWindow().GetSdlRenderer();
@@ -45,6 +46,7 @@ namespace IonixEngine
         // Setup Dear ImGui context
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
+        uiManager.fontLoader.LoadFonts();
         ImGuiIO& io = ImGui::GetIO(); (void)io;
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
@@ -68,7 +70,6 @@ namespace IonixEngine
         ImGui_ImplSDLRenderer2_Init(renderer);
 
         std::cout << "ImGui Initialised " << std::endl;
-
     }
 
     void LayerUI::OnDetach() {}
@@ -84,20 +85,24 @@ namespace IonixEngine
         
          std::vector<std::string> dropdownOptions = { "Option 1", "Option 2", "Option 3" };
          static int dropdownIndex = 0;
-         
+         bool checkboxValue = true;
          static int radioValue = 0;
          static float sliderValue = 0.5f;
          
+         
          uiManager.BeginPanel("Test Panel");
 
-         uiManager.AddLabel(10, 10, 100, 20, "Test Label");
+         uiManager.AddLabel(20, 20, 100, 20, "Test Label");
          uiManager.AddButton(10, 40, 100, 25, "Click Me", []() { printf("Button clicked!\n"); });
          uiManager.AddCheckbox(10, 70, 120, 25, "Enable", &checkboxValue);
          uiManager.AddSliderFloat(10, 100, 150, 25, "Slider", &sliderValue, 0.0f, 1.0f);
-         uiManager.AddRadioButton(10, 130, 100, 25, "Option 1", &radioValue, 0,true);
+         uiManager.AddRadioButton(10, 130, 100, 25, "Option 1", &radioValue, 0, true);
          uiManager.AddRadioButton(120, 130, 100, 25, "Option 2", &radioValue, 1, true);
          uiManager.AddDropdown(10, 160, 150, 25, "Dropdown", dropdownOptions, &dropdownIndex);
          uiManager.AddColorPicker(10, 190, 150, 150, "Pick Color", m_UI->myColor);
+		 
+		
+
 
 
          // Render the UI

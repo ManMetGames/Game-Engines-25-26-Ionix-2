@@ -3,6 +3,7 @@
 #include <imgui.h>
 
 
+
 void IonixEngine::UIManager::BeginGroup(const std::string& groupName)
 {
 	currentGroupName = groupName;
@@ -60,7 +61,7 @@ void IonixEngine::UIManager::AddChildToPanel(UIElement element)
 }
 
 
-void IonixEngine::UIManager::AddLabel(int x, int y, float xSize, float ySize, const char* text)
+void IonixEngine::UIManager::AddLabel(int x, int y, float xSize, float ySize, const char* text, const std::string& fontName)
 {
 	UIElement element;
 	element.type = UIType::Label;
@@ -70,10 +71,11 @@ void IonixEngine::UIManager::AddLabel(int x, int y, float xSize, float ySize, co
 	element.xSize = xSize;
 	element.ySize = ySize;
 	element.text = const_cast<char*>(text);
+	element.fontName = fontName;
 	AddChildToPanel(element);
 }
 
-void IonixEngine::UIManager::AddButton(int x, int y, float xSize, float ySize, const char* text, std::function<void()> onClick)
+void IonixEngine::UIManager::AddButton(int x, int y, float xSize, float ySize, const char* text, std::function<void()> onClick, const std::string& fontName)
 {
 	UIElement element;
 	element.type = UIType::Button;
@@ -84,10 +86,11 @@ void IonixEngine::UIManager::AddButton(int x, int y, float xSize, float ySize, c
 	element.ySize = ySize;
 	element.text = const_cast<char*>(text);
 	element.onClick = onClick;
+	element.fontName = fontName;
 	AddChildToPanel(element);
 }
 
-void IonixEngine::UIManager::AddCheckbox(int x, int y, float xSize, float ySize, const char* text, bool* checked)
+void IonixEngine::UIManager::AddCheckbox(int x, int y, float xSize, float ySize, const char* text, bool* checked, const std::string& fontName)
 {
 	UIElement element;
 	element.type = UIType::Checkbox;
@@ -98,10 +101,11 @@ void IonixEngine::UIManager::AddCheckbox(int x, int y, float xSize, float ySize,
 	element.ySize = ySize;
 	element.text = const_cast<char*>(text);
 	element.checked = checked;
+	element.fontName = fontName;
 	AddChildToPanel(element);
 }
 
-void IonixEngine::UIManager::AddSliderFloat(int x, int y, float xSize, float ySize, const char* text, float* value, float min, float max)
+void IonixEngine::UIManager::AddSliderFloat(int x, int y, float xSize, float ySize, const char* text, float* value, float min, float max, const std::string& fontName)
 {
 	UIElement element;
 	element.type = UIType::SliderFloat;
@@ -114,10 +118,11 @@ void IonixEngine::UIManager::AddSliderFloat(int x, int y, float xSize, float ySi
 	element.sliderValue = value;
 	element.sliderMin = min;
 	element.slidermax = max;
+	element.fontName = fontName;
 	AddChildToPanel(element);
 }
 
-void IonixEngine::UIManager::AddInputText(int x, int y, float xSize, float ySize, const char* text, char* buffer, size_t bufferSize)
+void IonixEngine::UIManager::AddInputText(int x, int y, float xSize, float ySize, const char* text, char* buffer, size_t bufferSize, const std::string& fontName)
 {
 	UIElement element;
 	element.type = UIType::InputText;
@@ -129,10 +134,11 @@ void IonixEngine::UIManager::AddInputText(int x, int y, float xSize, float ySize
 	element.text = const_cast<char*>(text);
 	element.inputBuffer = buffer;
 	element.inputBufferSize = bufferSize;
+	element.fontName = fontName;
 	AddChildToPanel(element);
 }
 
-void IonixEngine::UIManager::AddRadioButton(int x, int y, float xSize, float ySize, const char* text, int* radioValuePointer, int value, bool sameline)
+void IonixEngine::UIManager::AddRadioButton(int x, int y, float xSize, float ySize, const char* text, int* radioValuePointer, int value, bool sameline, const std::string& fontName)
 {
 	UIElement element;
 	element.type = UIType::RadioButton;
@@ -145,12 +151,13 @@ void IonixEngine::UIManager::AddRadioButton(int x, int y, float xSize, float ySi
 	element.radioValuePtr = radioValuePointer;
 	element.RadioButtonValue = value;
 	element.sameline = sameline;
+	element.fontName = fontName;
 	AddChildToPanel(element);
 }
 
 
 
-void IonixEngine::UIManager::AddColorPicker(int x, int y, float xSize, float ySize, const char* label, float* color)
+void IonixEngine::UIManager::AddColorPicker(int x, int y, float xSize, float ySize, const char* label, float* color, const std::string& fontName)
 {
 	UIElement element;
 	element.type = UIType::ColorPicker;
@@ -161,10 +168,11 @@ void IonixEngine::UIManager::AddColorPicker(int x, int y, float xSize, float ySi
 	element.ySize = ySize;
 	element.text = const_cast<char*>(label);
 	element.color = color;
+	element.fontName = fontName;
 	AddChildToPanel(element);
 }
 
-void IonixEngine::UIManager::AddDropdown(int x, int y, float xSize, float ySize, const char* text, std::vector<std::string> options, static int* currentIndex)
+void IonixEngine::UIManager::AddDropdown(int x, int y, float xSize, float ySize, const char* text, std::vector<std::string> options, int* currentIndex, const std::string& fontName)
 {
 	UIElement element;
 	element.type = UIType::Dropdown;
@@ -174,9 +182,25 @@ void IonixEngine::UIManager::AddDropdown(int x, int y, float xSize, float ySize,
 	element.xSize = xSize;
 	element.ySize = ySize;
 	element.text = const_cast<char*>(text);
-	element.dropdownOptions = options;
+	element.dropdownOptions = options;	
 	element.dropdownCurrentIndex = currentIndex;
+	element.fontName = fontName;
 
+	AddChildToPanel(element);
+}
+void IonixEngine::UIManager::AddProgressBar(int x, int y, float xSize, float ySize, float maxvalue, float* currentvalue, float incrementamount, const std::string& fontName)
+{
+	UIElement element;
+	element.type = UIType::ProgressBar;
+	element.groupName = currentGroupName;
+	element.xPos = x;
+	element.yPos = y;
+	element.xSize = xSize;
+	element.ySize = ySize;
+	element.maxValue = maxvalue;
+	element.currentValue = currentvalue;
+	element.incrementAmount = incrementamount;
+	element.fontName = fontName;
 	AddChildToPanel(element);
 }
 
@@ -195,13 +219,23 @@ void IonixEngine::UIManager::RenderElement(UIElement& element)
 	}
 
 	ImGui::SetCursorPos(ImVec2((float)element.xPos, (float)element.yPos));
+	// --- FONT PUSH ---
+	ImFont* font = nullptr;
+	if (!element.fontName.empty())
+	{
+		font = fontLoader.GetFont(element.fontName);
+	}
+	if (font)
+	{
+		ImGui::PushFont(font);
+	}
 	switch (element.type)
 	{
 	case UIType::Label:
-		ImGui::Text("%s", element.text);
+			m_ui->DrawLabel(element.text, element.xSize, element.ySize, element.xPos, element.yPos, element.fontName);
 		break;
 	case UIType::Button:
-		if (ImGui::Button(element.text))
+		if (m_ui->DrawButton(element.text, element.xSize, element.ySize, element.xPos, element.yPos))
 		{
 			if (element.onClick)
 				element.onClick();
@@ -209,28 +243,34 @@ void IonixEngine::UIManager::RenderElement(UIElement& element)
 		break;
 	case UIType::Checkbox:
 		if (element.checked)
-			ImGui::Checkbox(element.text, element.checked);
+			m_ui->DrawCheckbox(0, element.text, element.xPos, element.yPos, element.xSize, element.ySize);
 		break;
 	case UIType::SliderFloat:
 		if (element.sliderValue)
-			ImGui::SliderFloat(element.text, element.sliderValue, element.sliderMin, element.slidermax);
+			*element.sliderValue = m_ui->DrawSlider(element.text, *element.sliderValue, element.xSize, element.ySize, element.xPos, element.yPos, element.sliderMin, element.slidermax); 
 		break;
 	case UIType::InputText:
 		if (element.inputBuffer)
-			ImGui::InputText(element.text, element.inputBuffer, element.inputBufferSize);
-		break;
+		{
+			ImGui::SetCursorPos(ImVec2(element.xPos, element.yPos));
+			ImGui::InputText(element.text, element.inputBuffer, element.inputBufferSize);		
+		}
+			break;
 	case UIType::RadioButton:
 		if (element.radioValuePtr)
 		{
-			if (ImGui::RadioButton(element.text, *element.radioValuePtr == element.RadioButtonValue))
-			{
-				*element.radioValuePtr = element.RadioButtonValue;
-			}
+			m_ui->DrawRadioButton(element.xPos, element.yPos, element.text, *element.radioValuePtr, element.RadioButtonValue, element.sameline);
 		}
 		break;
 	case UIType::ColorPicker:
 		if (element.color)
-			ImGui::ColorEdit4(element.text, element.color);
+			m_ui->DrawColorPicker(element.xPos, element.yPos, element.xSize, element.ySize, element.text, element.color);
+		break;
+	case UIType::ProgressBar:
+		if (element.currentValue)
+		{
+			m_ui->DrawProgressBar(element.xPos, element.yPos, element.xSize, element.ySize, element.maxValue, *element.currentValue, element.incrementAmount);
+		}
 		break;
 	case UIType::Dropdown:
 		ImGui::SetCursorPos(ImVec2(element.xPos, element.yPos));
@@ -252,12 +292,17 @@ void IonixEngine::UIManager::RenderElement(UIElement& element)
 		}
 		break;
 	
-	
+		// --- FONT POP ---
+		if (font)
+		{
+			ImGui::PopFont();
+		}
 
 		if (element.sameline)
 			ImGui::SameLine();
 	}
 }
+
 void IonixEngine::UIManager::RenderUI()
 {
 	;
@@ -265,5 +310,8 @@ void IonixEngine::UIManager::RenderUI()
 	{
 		RenderElement(element);
 	}
+
+	
+
 }
 
