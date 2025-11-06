@@ -21,6 +21,7 @@ namespace IonixEngine
         std::unordered_map<int, bool> checkboxMap;
         bool& getCheckboxState(int index) { return checkboxMap[index]; }
         float DrawProgressBar(int xpos, int ypos, float xsize, float ysize, float maxvalue, float& currentvalue, float incrementamount);
+        float DrawDropdown(int xPos, int yPos, float xSize, float ySize, const char* text, std::vector<std::string> options, int* currentIndex);
 
         
 

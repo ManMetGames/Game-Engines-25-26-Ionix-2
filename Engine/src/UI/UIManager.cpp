@@ -273,25 +273,11 @@ void IonixEngine::UIManager::RenderElement(UIElement& element)
 		}
 		break;
 	case UIType::Dropdown:
-		ImGui::SetCursorPos(ImVec2(element.xPos, element.yPos));
-		int currentIndex = *(element.dropdownCurrentIndex);
-		const char* currentItem = element.dropdownOptions[currentIndex].c_str();
-		if (ImGui::BeginCombo(element.text, currentItem))
+		if (element.dropdownCurrentIndex)
 		{
-			for (size_t n = 0; n < element.dropdownOptions.size(); n++)
-			{
-				bool isSelected = (currentIndex == n);
-				if (ImGui::Selectable(element.dropdownOptions[n].c_str(), isSelected))
-				{
-					*(element.dropdownCurrentIndex) = n;
-				}
-				if (isSelected)
-					ImGui::SetItemDefaultFocus();
-			}
-			ImGui::EndCombo();
+			m_ui->DrawDropdown(element.xPos, element.yPos, element.ySize, element.xSize, element.text, element.dropdownOptions, element.dropdownCurrentIndex);
 		}
 		break;
-	
 		// --- FONT POP ---
 		if (font)
 		{
