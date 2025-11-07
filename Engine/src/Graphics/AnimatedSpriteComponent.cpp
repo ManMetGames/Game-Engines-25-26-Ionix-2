@@ -5,17 +5,16 @@ namespace IonixEngine {
 	AnimatedSpriteComponent::AnimatedSpriteComponent(Entity* entity, std::string alias, int zedOrder) : Component(entity, false, true, false) {
 		texture = IonixEngine::TextureManager::Get().GetTexture(alias).GetTexture(); //adding sprite image file to the texture manager
 		zOrder = zedOrder;
-		width = 200; //size of the sprite
-		height = 200;
+		width = 100; //size of the sprite
+		height = 100;
 		isReversing = false;
-		reverseOnEnd = false;
-		playbackMode = PLAYONCE;
+		playbackMode = FORWARDANDBACKWARD;
 
-		rows = 2;
-		cols = 5;
+		rows = 1; //default spritesheet size, can be changed in appropriate setters
+		cols = 1;
 
 
-		spriteWidth = 32;
+		spriteWidth = 32; //default, can be change in setter
 		spriteHeight = 32;
 		
 		SDL_QueryTexture(texture, NULL, NULL, &size.x, &size.y);
@@ -60,7 +59,6 @@ namespace IonixEngine {
 		//create and send render data to the render queue
 		data->queue->AddToQueue(RenderCall {
 			texture,
-			//SDL_Rect { (int) (entity->position.x - width / 2), (int) (entity->position.y - height / 2), (int) width, (int) height },
 			SDL_Rect { (int) (entity->position.x), (int) (entity->position.y), (int) width, (int) height },
 			SDL_Rect { spriteWidth * currentCol, spriteHeight * currentRow, spriteWidth, spriteHeight },
 		});
@@ -125,9 +123,22 @@ namespace IonixEngine {
 	void AnimatedSpriteComponent::setEndFrame(int x) { endFrame = x; }
 	void AnimatedSpriteComponent::setPlaybackMode(enum playbackOptions x) { playbackMode = x; }
 	void AnimatedSpriteComponent::setCurrentFrame(int x) { if (!(x > totalFrames)) { currentFrame = x; } }
-	void AnimatedSpriteComponent::setReverseOnEnd(bool x) { reverseOnEnd = x; }
 	void AnimatedSpriteComponent::setRows(int x) { rows = x; }
 	void AnimatedSpriteComponent::setCols(int x) { cols = x; }
 	void AnimatedSpriteComponent::setSpriteWidth(int x) { spriteWidth = x; }
 	void AnimatedSpriteComponent::setSpriteHeight(int x) { spriteHeight = x; }
+	void AnimatedSpriteComponent::setZedOrder(int x) { zOrder = x; }
+
+	//getters
+	IonixEngine::AnimatedSpriteComponent::playbackOptions AnimatedSpriteComponent::getPlaybackMode() /*good googly moogly*/ { return playbackOptions(); }
+	int AnimatedSpriteComponent::getCurrentFrame() { return currentFrame; }
+	int AnimatedSpriteComponent::getEndFrame() { return endFrame; }
+	int AnimatedSpriteComponent::getRows() { return rows; }
+	int AnimatedSpriteComponent::getCols() { return cols; }
+	int AnimatedSpriteComponent::getSpriteWidth() { return spriteWidth; }
+	int AnimatedSpriteComponent::getSpriteHeight() { return spriteHeight; }
+	int AnimatedSpriteComponent::getZedOrder() { return zOrder; }
+	int AnimatedSpriteComponent::getTotalFrames() { return totalFrames; }
+	int AnimatedSpriteComponent::getCurrentCol() { return currentCol; }
+	int AnimatedSpriteComponent::getCurrentRow() { return currentRow; }
 }
