@@ -29,7 +29,7 @@ namespace IonixEngine {
             };
 
         auto addSpriteComponent = [](Entity* entity, std::string alias, int zedOrder) {
-            entity->AddComponent(new AnimatedSpriteComponent(entity, alias, zedOrder));
+            entity->AddComponent(new SpriteComponent(entity, alias, zedOrder));
             };
 
         auto addAudioPlayerComponent = [](Entity* entity, std::string clip = "", bool playOnAwake = false) {
