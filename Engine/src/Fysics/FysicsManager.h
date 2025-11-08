@@ -2,6 +2,7 @@
 #include "Fysics/FysicsBody.h"
 #include "Fysics/Shapes.h"
 #include "Fysics/Force.h"
+#include "Fysics/RigidBodyTransform.h"
 #include "Architecture/ECS/Entity.hpp"
 
 #include <unordered_map>
@@ -17,6 +18,7 @@ namespace IonixEngine
         FysicsShapes* shapes;
         Force* force;
         std::unordered_map<b2Body*, Entity*> entityBodyMap;
+        std::unordered_map<b2Body*, RigidBodyTransform> transformMap;
 
     public:
         FysicsManager();
@@ -26,6 +28,7 @@ namespace IonixEngine
         Force* GetForce() { return force; }
         b2World* GetWorld() { return world; }
         std::unordered_map<b2Body*, Entity*>& GetBodyMap() { return entityBodyMap; }
+        std::unordered_map<b2Body*, RigidBodyTransform>& GetTransformMap() { return transformMap; }
         
         b2Body* GetBodyFromEntity(Entity* entity);
         Entity* GetEntityFromBody(b2Body* body);

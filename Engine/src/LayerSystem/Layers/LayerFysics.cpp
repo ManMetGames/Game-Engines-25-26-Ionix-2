@@ -1,5 +1,7 @@
 #include "LayerSystem/Layers/LayerFysics.h"
 #include "Fysics/FysicsManager.h"
+#include "Architecture/Application.h"
+#include "Maf/MafUtils.h"
 
 #include <iostream>
 #include <ostream>
@@ -40,7 +42,34 @@ namespace IonixEngine
     
     void LayerFysics::OnUpdate()
     {
-        // physics stepping now happens in OnFixedUpdate()
+        if (!fysicsManager) return;
+        
+        // get interpolation alpha (0.0 to 1.0) representing progress between physics frames
+        float alpha = Application::Get().GetPhysicsInterpolationAlpha();
+        
+        auto& bodyMap = fysicsManager->GetBodyMap();
+        auto& transformMap = fysicsManager->GetTransformMap();
+        
+        // interpolate visual positions for all physics bodies
+        for (auto& [body, entity] : bodyMap)
+        {
+            // skip if no transform data exists yet
+            if (transformMap.find(body) == transformMap.end()) continue;
+            
+            auto& transform = transformMap[body];
+            
+            // lerp position between previous and current physics states
+            float lerpedX = Maf::mafLerp(transform.previousPosition.x, transform.currentPosition.x, alpha);
+            float lerpedY = Maf::mafLerp(transform.previousPosition.y, transform.currentPosition.y, alpha);
+            
+            // lerp rotation
+            float lerpedRotation = Maf::mafLerp(transform.previousRotation, transform.currentRotation, alpha);
+            
+            // apply interpolated values to entity (convert from meters to pixels)
+            entity->position.x = lerpedX * ppm;
+            entity->position.y = lerpedY * ppm;
+            entity->rotation = lerpedRotation;
+        }
     }
     
     void LayerFysics::OnFixedUpdate()
@@ -50,19 +79,35 @@ namespace IonixEngine
         b2World* world = fysicsManager->GetWorld();
         if (!world) return;
         
+        auto& bodyMap = fysicsManager->GetBodyMap();
+        auto& transformMap = fysicsManager->GetTransformMap();
+        
+        // before physics step, save current state as previous
+        for (auto& [body, entity] : bodyMap)
+        {
+            if (transformMap.find(body) == transformMap.end())
+            {
+                // first time seeing this body - initialize with current state
+                transformMap[body] = RigidBodyTransform(body->GetPosition(), body->GetAngle());
+            }
+            else
+            {
+                // move current to previous
+                auto& transform = transformMap[body];
+                transform.previousPosition = transform.currentPosition;
+                transform.previousRotation = transform.currentRotation;
+            }
+        }
+        
         // step physics simulation at fixed timestep
         world->Step(timeStep, velocityIterations, positionIterations);
         
-        // sync physics transforms to entities
-        auto& bodyMap = fysicsManager->GetBodyMap();
+        // AFTER physics step, update current state
         for (auto& [body, entity] : bodyMap)
         {
-            if (!body->IsAwake()) continue;
-            
-            b2Vec2 pos = body->GetPosition();
-            entity->position.x = pos.x * ppm;
-            entity->position.y = pos.y * ppm;
-            entity->rotation = body->GetAngle();
+            auto& transform = transformMap[body];
+            transform.currentPosition = body->GetPosition();
+            transform.currentRotation = body->GetAngle();
         }
     } 
     void LayerFysics::OnEvent(IonixEvent& e)

@@ -43,6 +43,11 @@ namespace IonixEngine {
             return layer;
         }
         
+        inline float GetPhysicsInterpolationAlpha() const 
+        {
+            return m_FixedTimeAccumulator / m_FixedTimeStep;
+        }
+        
         LayerScene* layerScene;
         LayerEditor* layerEditor;
         LayerUI* layerUI;
