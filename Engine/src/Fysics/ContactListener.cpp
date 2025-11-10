@@ -17,6 +17,8 @@ namespace IonixEngine
 		b2Body* bodyA = fixtureA->GetBody();
 		b2Body* bodyB = fixtureB->GetBody();
 
+		std::cout << "=== COLLISION BEGIN ===" << std::endl;
+
 		Entity* colObject1 = Application::Get().layerFysics->GetFysicsManager()->GetEntityFromBody(bodyA); 
 		Entity* colObject2 = Application::Get().layerFysics->GetFysicsManager()->GetEntityFromBody(bodyB); 
 
@@ -24,6 +26,7 @@ namespace IonixEngine
 
 		if (colObject1 && colObject2)
 		{
+			std::cout << "Entities found for collision!" << std::endl;
 			//Collider* col1 = Application::Get().layerFysics->GetFysicsManager()->GetColliderForEntity(colObject1);
 			//Collider* col2 = Application::Get().layerFysics->GetFysicsManager()->GetColliderForEntity(colObject2);
 
@@ -37,6 +40,7 @@ namespace IonixEngine
 				//col2->EmitCollision(col1);
 			//}
 		}
+		std::cout << "=======================" << std::endl;
 	}
 
 	void ContactListener::EndContact(b2Contact* contact)
