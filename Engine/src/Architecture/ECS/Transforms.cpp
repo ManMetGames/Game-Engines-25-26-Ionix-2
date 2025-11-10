@@ -152,7 +152,7 @@ namespace IonixEngine
         }
         else
         {
-            localRotation = rot;
+            SetLocalRotation(rot);
         }
     }
 
