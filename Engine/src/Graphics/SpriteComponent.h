@@ -39,6 +39,11 @@ namespace IonixEngine {
 
 		void calculateTotalFrames();
 
+		//utility functions
+
+		void changeTexture(std::string alias);
+		void initialiseSpritesheet();
+
 		//Setters
 		void setEndFrame(int x);
 		void setPlaybackMode(enum playbackOptions x);

@@ -8,10 +8,10 @@ namespace IonixEngine {
 		width = 100; //size of the sprite
 		height = 100;
 		isReversing = false;
-		playbackMode = ONEFRAME;
+		playbackMode = FORWARD;
 
 		rows = 1; //default spritesheet size, can be changed in appropriate setters
-		cols = 1;
+		cols = 6;
 
 
 		spriteWidth = 32; //default, can be change in setters
@@ -21,24 +21,7 @@ namespace IonixEngine {
 
 		calculateTotalFrames();
 
-		switch (playbackMode) {
-		case FORWARD: case FORWARDANDBACKWARD: case PLAYONCE:
-			endFrame = totalFrames;
-			currentFrame = 0;
-			currentRow = 0; //0 indexed
-			currentCol = 0; //0 indexed
-			break;
-		case BACKWARD:
-			isReversing = true;
-			endFrame = 0;
-			currentFrame = totalFrames;
-			currentCol = cols - 1;
-			currentRow = rows - 1;
-			break;
-		case ONEFRAME:
-			currentFrame = 0;
-			break;
-		}
+		initialiseSpritesheet();
 	}
 
 	void SpriteComponent::Render(RenderData* data)
@@ -89,6 +72,11 @@ namespace IonixEngine {
 				currentFrame = 0;
 				currentCol = 0;
 				currentRow = 0;
+				changeTexture("Ball 2");
+				setCols(5);
+				setRows(2);
+				calculateTotalFrames();
+				initialiseSpritesheet();
 				break;
 			case BACKWARD:
 				currentFrame = totalFrames;
@@ -116,6 +104,34 @@ namespace IonixEngine {
 	void SpriteComponent::calculateTotalFrames()
 	{
 		totalFrames = rows * cols;
+		endFrame = totalFrames;
+	}
+
+	void SpriteComponent::changeTexture(std::string alias)
+	{
+		texture = IonixEngine::TextureManager::Get().GetTexture(alias).GetTexture();
+	}
+
+	void SpriteComponent::initialiseSpritesheet()
+	{
+		switch (playbackMode) {
+		case FORWARD: case FORWARDANDBACKWARD: case PLAYONCE:
+			endFrame = totalFrames;
+			currentFrame = 0;
+			currentRow = 0; //0 indexed
+			currentCol = 0; //0 indexed
+			break;
+		case BACKWARD:
+			isReversing = true;
+			endFrame = 0;
+			currentFrame = totalFrames;
+			currentCol = cols - 1;
+			currentRow = rows - 1;
+			break;
+		case ONEFRAME:
+			currentFrame = 0;
+			break;
+		}
 	}
 
 	//setters
