@@ -1,11 +1,12 @@
 #pragma once
+#include <box2d.h>
 #include <sol/sol.hpp>
-#include "Fysics/Shapes.h"
 
 namespace IonixEngine
 {
     enum class fysicsBodyType {staticBody, dynamicBody, kinematicBody};
-    
+    class Shapes;
+
     class FysicsBody
     {
     private:

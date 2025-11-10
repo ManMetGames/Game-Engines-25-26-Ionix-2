@@ -3,17 +3,13 @@
 #include <iostream>
 #include <ostream>
 #include "EventSystem/Event.h"
+#include "Architecture/ECS/Entity.hpp"
 
 namespace IonixEngine
 {
-    LayerFysics* LayerFysics::instance = nullptr;
-
-    LayerFysics* LayerFysics::GetInstance() {
-        return instance;
-    }
-
-    void LayerFysics::OnAttach() // call first says archie or brok
+    void LayerFysics::OnAttach()
     {
+        fysicsManager = new FysicsManager();
         //Set Gravity
         b2Vec2 gravity = b2Vec2(0.0f, -9.8f);
         //Create the world
@@ -25,14 +21,38 @@ namespace IonixEngine
         b2PolygonShape g; g.SetAsBox(50.f, 1.f);
         ground->CreateFixture(&g, 0.f);
     }
-    void LayerFysics::OnDetach() 
+
+    void LayerFysics::OnDetach()
     {
         delete world; world = nullptr;
+        delete fysicsManager; fysicsManager = nullptr;
     }
+
+    LayerFysics* LayerFysics::instance = nullptr;
+
+    LayerFysics* LayerFysics::GetInstance() {
+        return instance;
+    }
+  
     void LayerFysics::OnUpdate()
     {
-        if (!world) return; //cheeky early return to see if world is attatched
-        world->Step(timeStep, velocityIterations, positionIterations); // world step on update
+        if (!fysicsManager->GetWorld()) return; //cheeky early return to see if world is attatched
+        fysicsManager->GetWorld()->Step(timeStep, velocityIterations, positionIterations); // world step on update
+
+        std::unordered_map<b2Body*, Entity*> bodyEntityMap = fysicsManager->GetBodyMap();
+
+        for (auto b : bodyEntityMap)
+        {
+            if (!b.first->IsAwake()) continue; // Skip bodies that are not awake
+            Entity * ent = b.second;
+            b2Vec2 pos = b.first->GetPosition();
+
+            ent->position.x = pos.x * 100.0f;
+            ent->position.y = pos.y * 100.0f;
+
+            float angle = b.first->GetAngle();
+            ent->rotation = b.first->GetAngle() * (180.0f / M_PI);
+        }
     } 
     void LayerFysics::OnEvent(IonixEvent& e)
     {

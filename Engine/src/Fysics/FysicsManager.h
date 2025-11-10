@@ -36,6 +36,16 @@ namespace IonixEngine
         //static void SetInstance(LayerFysics* instance) {
         //    s_instance = instance;
         //}
+        FysicsManager();
+        ~FysicsManager()
+        {
+            delete world;
+        }
+
+        FysicsShapes* GetShape() { return shape; }
+        Force* GetForce() { return force; }
+        b2World* GetWorld() { return world; }
+        std::unordered_map<b2Body*, Entity*>& GetBodyMap() { return entityBodyMap; }
 
         b2Body* GetBodyFromEntity(Entity* entity);
         Entity* GetEntityFromBody(b2Body* entity);
