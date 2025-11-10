@@ -124,7 +124,7 @@ namespace IonixEngine
                 0.0f,0.0f,1.0f };
             //SDL_Log("[Transforms] DiffMatrix = %f, %f", diffMatrix.c, diffMatrix.f);
 
-            Mat3 newGlobalPos = diffMatrix * globalPos;
+            Mat3 newGlobalPos = globalPos * diffMatrix;
             //SDL_Log("[Transforms] newGlobal pos: %f %f %f    %f %f %f    %f %f %f",newGlobalPos.a, newGlobalPos.b, newGlobalPos.c, newGlobalPos.d, newGlobalPos.e, newGlobalPos.f, newGlobalPos.g, newGlobalPos.h, newGlobalPos.i);
             localPosition = { newGlobalPos.c,newGlobalPos.f };
             //SDL_Log("[Transforms] Setting global position to: %f, %f (Local Pos = %f, %f)", newPosition.x, newPosition.y, newGlobalPos.c, newGlobalPos.f);
@@ -137,16 +137,23 @@ namespace IonixEngine
         //get global matrix, get negative rot matrix, use both to create a difference matrix
         //use difference matrix to get local rotation
         float radRotation = rot * DEG2RAD;
-        Mat3 globalRot = GetGlobalRotationMatrix();
 
-        Mat3 diffRotationMatrix = {
-            cosf(-radRotation),-sinf(-radRotation),0.0f,
-            sinf(-radRotation),cosf(-radRotation),0.0f,
-            0.0f,0.0f,1.0f };
+        if (parentTransform)
+        {
+            Mat3 globalRot = parentTransform->GetGlobalRotationMatrix();
+            Mat3 diffRotationMatrix = {
+                cosf(-radRotation),-sinf(-radRotation),0.0f,
+                sinf(-radRotation),cosf(-radRotation),0.0f,
+                0.0f,0.0f,1.0f };
 
-        diffRotationMatrix = diffRotationMatrix * globalRot;
-
-        localRotation = asinf(diffRotationMatrix.d) / DEG2RAD;
+            diffRotationMatrix = globalRot * diffRotationMatrix;
+            //use local setter instead of direct setting, because it has a modulo clamp on it
+            SetLocalRotation(asinf(diffRotationMatrix.d) / DEG2RAD);
+        }
+        else
+        {
+            localRotation = rot;
+        }
     }
 
     void Transform::SetGlobalScale(Vec2 scale)
