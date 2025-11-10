@@ -1,9 +1,9 @@
 #pragma once
 #include "LayerSystem/Layer.h"
+#include <box2d.h>
 
 namespace IonixEngine
 {
-    class box2d;
     class FysicsManager;
 
     class LayerFysics : public Layer
@@ -28,7 +28,7 @@ namespace IonixEngine
     private:
         static LayerFysics* instance;
         b2World* world{ nullptr };
-        FysicsManager* fysicsManager;
+        FysicsManager* fysicsManager{ nullptr };
         
         float timeStep{ 1.f / 60.f };
         int32 velocityIterations{ 6 };
