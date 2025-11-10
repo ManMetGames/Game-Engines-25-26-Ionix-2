@@ -1,5 +1,5 @@
 #pragma once
-#include "box2d.h"
+#include <box2d.h>
 #include <iostream>
 #include "ContactListener.h"
 #include "Fysics/Collider.h"
@@ -17,8 +17,8 @@ namespace IonixEngine
 		b2Body* bodyA = fixtureA->GetBody();
 		b2Body* bodyB = fixtureB->GetBody();
 
-		Entity* colObject1 = Application::Get().layerFysics->GetFysicsManager()->GetEntityFromBody(bodyA); // #0230230asda
-		Entity* colObject2 = Application::Get().layerFysics->GetFysicsManager()->GetEntityFromBody(bodyB); // #0230230asdb
+		Entity* colObject1 = Application::Get().layerFysics->GetFysicsManager()->GetEntityFromBody(bodyA); 
+		Entity* colObject2 = Application::Get().layerFysics->GetFysicsManager()->GetEntityFromBody(bodyB); 
 
 		std::cout << "Collision started!" << std::endl;
 
@@ -29,13 +29,34 @@ namespace IonixEngine
 
 			//if (col1 && col2)
 			//{
-				EntityCollisionEvent event(*colObject1, *colObject2);
+				EntityCollisionEvent event(fixtureA, fixtureB);
 				IonixEngine::EventSDL::EventCallback m_EventCallback;
 				m_EventCallback(event);
 
 				//col1->EmitCollision(col2);
 				//col2->EmitCollision(col1);
 			//}
+		}
+	}
+
+	void ContactListener::EndContact(b2Contact* contact)
+	{
+		b2Fixture* fixtureA = contact->GetFixtureA();
+		b2Fixture* fixtureB = contact->GetFixtureB();
+
+		b2Body* bodyA = fixtureA->GetBody();
+		b2Body* bodyB = fixtureB->GetBody();
+
+		Entity* colObject1 = Application::Get().layerFysics->GetFysicsManager()->GetEntityFromBody(bodyA);
+		Entity* colObject2 = Application::Get().layerFysics->GetFysicsManager()->GetEntityFromBody(bodyB);
+
+		std::cout << "Collision ended!" << std::endl;
+
+		if (colObject1 && colObject2)
+		{
+			EntityCollisionEvent event(fixtureA, fixtureB);
+			IonixEngine::EventSDL::EventCallback m_EventCallback;
+			m_EventCallback(event);
 		}
 	}
 }

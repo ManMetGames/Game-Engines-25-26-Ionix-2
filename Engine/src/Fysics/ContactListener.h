@@ -1,5 +1,6 @@
 #pragma once
 #include <box2d.h>
+#include "EventSystem/Event.h"
 #include <iostream>
 
 namespace IonixEngine
@@ -9,11 +10,7 @@ namespace IonixEngine
     public:
 
         void BeginContact(b2Contact* contact) override;
-
-        void EndContact(b2Contact* contact) override
-        {
-            std::cout << "Collision ended!" << std::endl;
-        }
+        void EndContact(b2Contact* contact) override;
     };
     
 }

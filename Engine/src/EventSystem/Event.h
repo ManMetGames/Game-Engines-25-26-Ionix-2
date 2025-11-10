@@ -1,13 +1,16 @@
 #pragma once
 #include "Architecture/Macros.h"
 #include "Architecture/ECS/Entity.hpp"
+#include <box2d.h>
 namespace IonixEngine
 {
     enum class IonixEventType
     {
         None = 0,
         WindowClosed,
-        EntityCollision
+        EntityCollision,
+        CollisionBegin,
+        CollisionEnd,
         // ...
     };
 
@@ -33,10 +36,17 @@ namespace IonixEngine
     class EntityCollisionEvent : public IonixEvent
     {
     public:
-        EntityCollisionEvent(Entity ent1, Entity ent2) : IonixEvent(IonixEventType::EntityCollision), ent1(ent1), ent2(ent2) {}
+        EntityCollisionEvent(b2Fixture* fixA, b2Fixture* fixB) : IonixEvent(IonixEventType::EntityCollision), fixtureA(fixA), fixtureB(fixB) 
+        {
+        	bodyA = fixtureA->GetBody();
+            bodyB = fixtureB->GetBody();
+        }
 
     private:
-        Entity ent1, ent2;
+        b2Fixture* fixtureA;
+        b2Fixture* fixtureB;
+        b2Body* bodyA;
+        b2Body* bodyB;
     };
 
 

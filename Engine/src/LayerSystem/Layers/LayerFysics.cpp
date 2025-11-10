@@ -15,6 +15,9 @@ namespace IonixEngine
         //Create the world
         world = new b2World(gravity);
 
+        contactListener = new ContactListener();
+        world->SetContactListener(contactListener);
+
         //create default ground box
         b2BodyDef groundDef; groundDef.position.Set(0.f, -1.f);
         b2Body* ground = world->CreateBody(&groundDef);
@@ -24,6 +27,7 @@ namespace IonixEngine
 
     void LayerFysics::OnDetach()
     {
+        delete contactListener; contactListener = nullptr;
         delete world; world = nullptr;
         delete fysicsManager; fysicsManager = nullptr;
     }
