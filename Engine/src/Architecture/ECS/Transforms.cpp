@@ -116,12 +116,18 @@ namespace IonixEngine
     void Transform::SetGlobalPosition(Vec2 newPosition)
     {
         if (parentTransform) {
-            Mat3 globalPos = GetGlobalTransformMatrix();
-            Mat3 newPosMatrix = {
-                1.0f,0.0f,newPosition.x,
-                0.0f,1.0f,newPosition.y,
+            Mat3 globalPos = parentTransform->GetGlobalTransformMatrix();
+            //SDL_Log("[Transforms] GlobalPosMatrix = %f, %f", globalPos.c, globalPos.f);
+            Mat3 diffMatrix = {
+                1.0f,0.0f,-newPosition.x,
+                0.0f,1.0f,-newPosition.y,
                 0.0f,0.0f,1.0f };
-            localPosition = { newPosition };
+            //SDL_Log("[Transforms] DiffMatrix = %f, %f", diffMatrix.c, diffMatrix.f);
+
+            Mat3 newGlobalPos = diffMatrix * globalPos;
+            //SDL_Log("[Transforms] newGlobal pos: %f %f %f    %f %f %f    %f %f %f",newGlobalPos.a, newGlobalPos.b, newGlobalPos.c, newGlobalPos.d, newGlobalPos.e, newGlobalPos.f, newGlobalPos.g, newGlobalPos.h, newGlobalPos.i);
+            localPosition = { newGlobalPos.c,newGlobalPos.f };
+            //SDL_Log("[Transforms] Setting global position to: %f, %f (Local Pos = %f, %f)", newPosition.x, newPosition.y, newGlobalPos.c, newGlobalPos.f);
         }
         else { localPosition = newPosition; }
     }

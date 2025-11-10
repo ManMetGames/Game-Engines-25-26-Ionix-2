@@ -22,7 +22,7 @@ namespace IonixEngine {
         firstEntity->transform.SetLocalPosition(Vec2 { 500, 300 });
         firstEntity->AddComponent(new SpriteRenderer(firstEntity));
         firstEntity->AddComponent(new EntityMover(firstEntity, 60));
-        // firstEntity->transform.SetLocalScale(Vec2{ 0.5,1.5 });
+        //firstEntity->transform.SetLocalScale(Vec2{ 0.5,1 });
 
         EntityID second = CreateEntity();
         Entity* secondEntity = GetEntityFromID(second);
@@ -31,9 +31,9 @@ namespace IonixEngine {
             SDL_Log("[DEBUG TEST] Second entity failed, returning...");
             return;
         }
-        secondEntity->transform.SetLocalPosition(Vec2{ 0, 100 });
-        secondEntity->transform.SetParent(&firstEntity->transform, false);
-        // secondEntity->transform.SetLocalScale(Vec2{ 1.3,1.25 });
+        secondEntity->transform.SetGlobalPosition(Vec2{ 500, 200 });
+        secondEntity->transform.SetParent(&firstEntity->transform, true);
+        //secondEntity->transform.SetLocalScale(Vec2{ 1,1 });
         secondEntity->AddComponent(new SpriteRenderer(secondEntity));
         secondEntity->AddComponent(new EntityMover(secondEntity, -60));
 
@@ -44,8 +44,8 @@ namespace IonixEngine {
             SDL_Log("[DEBUG TEST] Third entity failed, returning...");
             return;
         }
-        thirdEntity->transform.SetLocalPosition(Vec2{ 0, -100 });
-        thirdEntity->transform.SetParent(&secondEntity->transform, false);
+        thirdEntity->transform.SetGlobalPosition(Vec2{ 500, 300 });
+        thirdEntity->transform.SetParent(&secondEntity->transform, true);
         thirdEntity->AddComponent(new SpriteRenderer(thirdEntity));
 
     }
