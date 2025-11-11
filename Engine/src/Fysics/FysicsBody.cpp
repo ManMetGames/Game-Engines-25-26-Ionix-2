@@ -6,7 +6,6 @@ namespace IonixEngine
 {
     FysicsBody::FysicsBody(Entity* entity, std::string alias, b2World* world) : Component(entity, true, true, false)
     {
-        if (!world) world = nullptr;
         b2BodyDef bodyDef;
         bodyDef.type = b2_dynamicBody;
         bodyDef.position.Set(0, 10);

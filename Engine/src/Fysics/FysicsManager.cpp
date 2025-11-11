@@ -1,4 +1,5 @@
 #include "FysicsManager.h"
+#include "Architecture/Application.h"
 
 namespace IonixEngine
 {
@@ -6,6 +7,13 @@ namespace IonixEngine
 	{
 		b2Vec2 gravity(0.0f, 9.8f);
 		world = new b2World(gravity);
+
+		// create and configure collision listener
+		collisionListener = new CollisionListener(this);
+		collisionListener->SetEventCallback([](IonixEvent& e) {
+			Application::Get().OnEvent(e);
+		});
+		world->SetContactListener(collisionListener);
 
 		shapes = new FysicsShapes();
 		force = new Force();

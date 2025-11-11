@@ -3,10 +3,14 @@
 
 namespace IonixEngine
 {
+    class Entity;
+
     enum class IonixEventType
     {
         None = 0,
-        WindowClosed
+        WindowClosed,
+        CollisionEnter,
+        CollisionExit
         // ...
     };
 
