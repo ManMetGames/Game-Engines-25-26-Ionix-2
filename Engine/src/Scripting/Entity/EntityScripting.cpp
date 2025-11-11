@@ -36,12 +36,44 @@ namespace IonixEngine {
             entity->AddComponent(new AudioPlayer(entity, clip, playOnAwake));
             };
 
+        auto getSpriteComponent = [](Entity* entity) {
+            return entity->GetComponent<AnimatedSpriteComponent>();
+            };
+
+        auto getAudioPlayerComponent = [](Entity* entity) {
+            return entity->GetComponent<AudioPlayer>();
+            };
+
+        auto tryGetSpriteComponent = [](Entity* entity, AnimatedSpriteComponent** spriteComponent) -> bool {
+            return entity->TryGetComponent<AnimatedSpriteComponent>(spriteComponent);
+            };
+
+        auto tryGetAudioComponent = [](Entity* entity, AudioPlayer** audioComponent) -> bool {
+            return entity->TryGetComponent<AudioPlayer>(audioComponent);
+            };
+
+        auto hasSpriteComponent = [](Entity* entity) -> bool {
+            return entity->HasComponent<AnimatedSpriteComponent>();
+            };
+
+        auto hasAudioComponent = [](Entity* entity) -> bool {
+            return entity->HasComponent<AudioPlayer>();
+            };
+
+
+
         lua["Entity"] = lua.create_table_with(
             "create_entity", entity,
             "get_entity_pos", getEntityPos,
             "set_entity_pos", setEntityPos,
             "add_sprite_component", addSpriteComponent,
-            "add_audio_component", addAudioPlayerComponent
+            "add_audio_component", addAudioPlayerComponent,
+            "get_sprite_component", getSpriteComponent,
+            "get_audio_component", getAudioPlayerComponent,
+            "try_get_sprite_component", tryGetSpriteComponent,
+            "try_get_audio_component", tryGetAudioComponent,
+            "has_sprite_component", hasSpriteComponent,
+            "has_audio_component", hasAudioComponent
         );
     }
 
