@@ -18,18 +18,7 @@ namespace IonixEngine
         else if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_A)) x = -speed * deltaTime;
         else if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_D)) x = speed * deltaTime;
         else { x = 0; y = 0; }
-        handleEvent();
 
-        std::vector<Entity>& entities = Application::Get().layerScene->GetEntities();
-
-        for (auto it = entities.begin(); it != entities.end(); ++it) {
-            it->position.y += y;
-            it->position.x += x;
-        }
-    }
-
-    void Camera::handleEvent()
-    {
         if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_U)) {
             zoom *= 0.9f;
         }
@@ -39,5 +28,35 @@ namespace IonixEngine
         }
         if (zoom < 0.2f) zoom = 0.2f;
         if (zoom > 5.0f) zoom = 5.0f;
+
+        std::vector<Entity>& entities = Application::Get().layerScene->GetEntities();
+
+        for (auto it = entities.begin(); it != entities.end(); ++it) {
+            it->position.y += y;
+            it->position.x += x;
+        }
+
+        class Camera {
+        public:
+            uint32_t cullingMask;
+
+            Camera() : cullingMask(0xFFFFFFFF) {}// Default to render all layers
+
+            void SetCullingMask(uint32_t mask) {
+                cullingMask = mask;
+            }
+
+            void AddLayerToMask(Layer layer) {
+                cullingMask |= layer;
+            }
+
+            void RemoveLayerFromMask(Layer layer) {
+                cullingMask &= ~layer;
+            }
+
+            bool IsLayerVisible(Layer layer) const {
+                return (cullingMask & layer) != 0;
+            }
+        };
     }
-}
+
