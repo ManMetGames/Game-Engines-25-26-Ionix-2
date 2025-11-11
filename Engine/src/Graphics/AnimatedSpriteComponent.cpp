@@ -5,8 +5,8 @@ namespace IonixEngine {
 	AnimatedSpriteComponent::AnimatedSpriteComponent(Entity* entity, std::string alias, int zedOrder) : Component(entity, false, true, false) {
 		texture = IonixEngine::TextureManager::Get().GetTexture(alias).GetTexture(); //adding sprite image file to the texture manager
 		zOrder = zedOrder;
-		width = 100; //size of the sprite
-		height = 100;
+		width = 200; //size of the sprite
+		height = 200;
 		isReversing = false;
 		playbackMode = FORWARDANDBACKWARD;
 
