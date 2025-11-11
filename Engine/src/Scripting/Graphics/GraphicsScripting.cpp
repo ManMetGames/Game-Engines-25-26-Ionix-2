@@ -60,6 +60,35 @@ namespace IonixEngine {
             spriteComponent->getCurrentRow();
             };
 
+        auto setCurrentFrame = [](AnimatedSpriteComponent* spriteComponent, int x) -> int {
+            spriteComponent->setCurrentFrame(x);
+            };
+
+        auto setEndFrame = [](AnimatedSpriteComponent* spriteComponent, int x) -> int {
+            spriteComponent->setEndFrame(x);
+            };
+
+
+        auto setRows = [](AnimatedSpriteComponent* spriteComponent, int x) -> int {
+            spriteComponent->setRows(x);
+            };
+
+        auto setColumns = [](AnimatedSpriteComponent* spriteComponent, int x) -> int {
+            spriteComponent->setCols(x);
+            };
+
+        auto setWidth = [](AnimatedSpriteComponent* spriteComponent, int x) -> int {
+            spriteComponent->setSpriteWidth(x);
+            };
+
+        auto setHeight = [](AnimatedSpriteComponent* spriteComponent, int x) -> int {
+            spriteComponent->setSpriteHeight(x);
+            };
+
+        auto setZedOrder = [](AnimatedSpriteComponent* spriteComponent, int x) -> int {
+            spriteComponent->setZedOrder(x);
+            };
+
         
         lua["Texture"] = lua.create_table_with(
             "add_texture", texture
@@ -75,7 +104,14 @@ namespace IonixEngine {
             "zed_order", getZedOrder,
             "total_frames", getTotalFrames,
             "current_column", getCurrentColumn,
-            "current_row", getCurrentRow
+            "current_row", getCurrentRow,
+            "set_current_frame", setCurrentFrame,
+            "set_end_frame", setEndFrame,
+            "set_rows", setRows,
+            "set_columns", setColumns,
+            "set_width", setWidth,
+            "set_height", setHeight,
+            "set_zed_order", setZedOrder
         );
     }
 
