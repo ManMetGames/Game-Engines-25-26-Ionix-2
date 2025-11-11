@@ -28,6 +28,8 @@ namespace IonixEngine
         virtual ~Application();
 
         bool m_Running = true;
+        float deltaTime = 0.0f;
+        float time = 0.0f;
 
         inline Window& GetWindow() { return *m_Window; }
 
@@ -52,8 +54,9 @@ namespace IonixEngine
         LayerSound* layerSound;
 
     private:
+        uint64_t startTick;
+        uint64_t currentTick;
         static Application* s_Instance;
- 
         Window* m_Window;
         LayerStack m_LayerStack;
     };

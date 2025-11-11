@@ -46,7 +46,7 @@ namespace IonixEngine
             m_Current->OnEnter();
     }
 
-    
+
     Scene* LayerScene::CurrentScene() {
         return LayerScene::Handle().scene;
     }

@@ -1,10 +1,13 @@
 #include "Application.h"
-
-#include "Fysics/FysicsBody.h"
-#include "Fysics/Shapes.h"
 #include "LayerSystem/Layers/LayerTexture.hpp"
+#include "SDL_timer.h"
+#include "imgui.h"
+#include <chrono>
+#include <cstdint>
+#include <vector>
 #include <backends/imgui_impl_sdlrenderer2.h>
 #include <iostream>
+#include <third-party/imgui_impl_sdlrenderer2.h>
 
 
 namespace IonixEngine {
@@ -21,6 +24,8 @@ namespace IonixEngine
         : m_Window(new Window())
     {
         s_Instance = this;
+        startTick = SDL_GetPerformanceCounter();
+        currentTick = SDL_GetPerformanceCounter();
 
         //Initialise layers...
         layerEditor = new LayerEditor();
@@ -75,10 +80,6 @@ namespace IonixEngine
     {
         m_Running = true;
 
-        bool isLMouseDown = false;
-        bool isRMouseDown = false;
-        bool isMMouseDown = false;
-
         Scripting::Get().CallHook("OnStart");
 
         SDL_Renderer* renderer = m_Window->GetSdlRenderer();
@@ -86,8 +87,14 @@ namespace IonixEngine
 
         while (m_Running)
         {
-			 SDL_RenderClear(renderer);
-			 SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);
+            uint64_t lastTick = currentTick;
+            currentTick = SDL_GetPerformanceCounter();
+
+            deltaTime = static_cast<double>(currentTick - lastTick) / SDL_GetPerformanceFrequency();
+            time += deltaTime;
+
+			SDL_RenderClear(renderer);
+			SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);
           
             cam->handleInput(1.0f);
              
@@ -99,17 +106,18 @@ namespace IonixEngine
             }
             
             Scripting::Get().CallHook("OnUpdate");
+            ImGui::Render();
+            ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), Application::Get().GetWindow().m_Renderer);
+            SDL_RenderPresent(renderer);
 
             layerInput->m_Input->CopyCodesEndFrame();
                      
             m_Window->OnUpdate();
-            ImGui::Render();
-            ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), Application::Get().GetWindow().m_Renderer);
-            SDL_RenderPresent(renderer);
         }
 
-        for (auto layer : m_LayerStack.GetLayers()) {
-            layer->OnDetach();
+        std::vector<Layer*> layers = m_LayerStack.GetLayers();
+        for (size_t i = layers.size() - 1; i > 0; i--) {
+            layers[i]->OnDetach();
         }
     }
 }

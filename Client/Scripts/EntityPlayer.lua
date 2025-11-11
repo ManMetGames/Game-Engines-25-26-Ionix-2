@@ -9,9 +9,6 @@ function EntityPlayer:OnStart()
     entity1 = Entity.create_entity()
     entity2 = Entity.create_entity()
 	
-	print("Entity 1: " .. entity1)
-	print("Entity 2: " .. entity2)
-	
     Texture.add_texture("./Assets/aur naur.jpg", "aur")
     Entity.add_sprite_component(entity1, "aur", 5)
     Entity.add_sprite_component(entity2, "fuck", 3)

@@ -6,6 +6,9 @@
 
 namespace IonixEngine
 {
+    struct SceneHandle {
+        Scene* scene = nullptr;
+    };
     // Layer that hosts the single active Scene and bridges updates/events to it
     class ENGINE_API LayerScene : public Layer
     {
@@ -25,9 +28,14 @@ namespace IonixEngine
         // Access the current scene (non-owning)
         Scene* GetScene() const { return m_Current.get(); }
 
-		std::vector<Entity>& GetEntities() { return GetScene()->GetEntities(); }
+        static Scene* CurrentScene();
 
+        std::vector<Entity>& GetEntities() { return GetScene()->GetEntities(); }
     private:
         std::unique_ptr<Scene> m_Current;
+        static SceneHandle& Handle() {
+            static SceneHandle handle;
+            return handle;
+        }
     };
 }
