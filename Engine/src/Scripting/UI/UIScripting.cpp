@@ -35,7 +35,7 @@ namespace IonixEngine {
 			    "draw_label", drawLabel,
           "draw_button", DrawButton,
 			    "add_button", AddButton,
-			    "add_slider", AddSlider,
+			    "add_slider", AddSlider
 			
         );
     }
