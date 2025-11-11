@@ -16,8 +16,8 @@ namespace IonixEngine
     public:
         // Constructors
         FysicsBody(Entity* entity, std::string alias, b2World* world);
-        FysicsBody(Entity* entity, std::string alias, b2World* world, float xPos, float yPos, fysicsBodyType b_type, bool rotationLocked);
-        FysicsBody(Entity* entity, std::string alias, b2World* world, float xPos, float yPos, fysicsBodyType b_type, bool rotationLocked, float gravityScale);
+        /*FysicsBody(Entity* entity, std::string alias, b2World* world, float xPos, float yPos, fysicsBodyType b_type, bool rotationLocked);
+        FysicsBody(Entity* entity, std::string alias, b2World* world, float xPos, float yPos, fysicsBodyType b_type, bool rotationLocked, float gravityScale);*/
 
         // Body access
         b2Body* GetBody();

@@ -15,10 +15,13 @@ namespace IonixEngine
 
         //Get fysics manager
         FysicsManager& fysics_manager = *Application::Get().layerFysics->GetFysicsManager();
-        b2Body* body = Application::Get().layerFysics->GetWorld()->CreateBody(&bodyDef);
+        b2Body* body = fysics_manager.GetWorld()->CreateBody(&bodyDef);
+        body->SetTransform(b2Vec2(entity->position.x / 100, entity->position.y / 100), entity->rotation);
+        body->GetUserData().pointer = (uintptr_t)(entity);
+        fysics_manager.GetBodyMap()[body] = entity;
     }
 
-    FysicsBody::FysicsBody(Entity* entity, std::string alias, b2World* world, float xPos, float yPos, fysicsBodyType b_type, bool rotationLocked) : Component(entity, true, true, false)
+    /*FysicsBody::FysicsBody(Entity* entity, std::string alias, b2World* world, float xPos, float yPos, fysicsBodyType b_type, bool rotationLocked) : Component(entity, true, true, false)
     {
         if (!world) world = nullptr;
         b2BodyDef bodyDef;
@@ -53,7 +56,7 @@ namespace IonixEngine
         bodyDef.fixedRotation = rotationLocked;
         bodyDef.gravityScale = gravityScale;
         body = world->CreateBody(&bodyDef);
-    }
+    }*/
 
     b2Body* FysicsBody::GetBody() { return body; }
 
