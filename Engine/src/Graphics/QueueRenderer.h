@@ -12,12 +12,19 @@ using namespace std;
 namespace IonixEngine {
 
 	struct RenderCall { //render data
+	public:
 		SDL_Texture* texture;
 		SDL_Rect dest;
 		SDL_Rect src;
 		int32_t z;
 		double rotation = 0.0;
 		Entity* entity;
+		int flipX = -1;
+
+		RenderCall() {}
+		RenderCall(SDL_Texture* t, SDL_Rect d, SDL_Rect s, int32_t z, double r, Entity* e, int f) :
+			texture(t), dest(d), src(s), z(z), rotation(r), entity(e), flipX(f) {};
+
 	};
 
 	class QueueRenderer //Singleton

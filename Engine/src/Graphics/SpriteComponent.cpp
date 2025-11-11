@@ -13,14 +13,14 @@ namespace IonixEngine {
 	void SpriteComponent::Render(RenderData* data)
 	{
 		//create and send render data to the render queue
-		data->queue->AddToQueue(RenderCall {
+		/*data->queue->AddToQueue(RenderCall{
 			texture,
 			SDL_Rect { (int) (entity->position.x - width / 2), (int) (entity->position.y - height / 2), (int) width, (int) height },
 			SDL_Rect { (int)(entity->position.x - width / 2), (int)(entity->position.y - height / 2), (int)width, (int)height },
 			0,
 			entity->rotation,
 			entity
-		});
+		});*/
 	}
 
 }

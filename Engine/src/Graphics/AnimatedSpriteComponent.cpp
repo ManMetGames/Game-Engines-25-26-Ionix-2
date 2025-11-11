@@ -1,9 +1,8 @@
 #include "AnimatedSpriteComponent.h"
-#include <Graphics/QueueRenderer.h>
 #include<SDL.h>
 
 namespace IonixEngine {
-	AnimatedSpriteComponent::AnimatedSpriteComponent(Entity* entity, std::string alias, int zedOrder, int w, int h) : Component(entity, false, true, false) {
+	AnimatedSpriteComponent::AnimatedSpriteComponent(Entity* entity, std::string alias, int zedOrder, int w, int h, int flipX) : Component(entity, false, true, false) {
 		texture = IonixEngine::TextureManager::Get().GetTexture(alias).GetTexture(); //adding sprite image file to the texture manager
 		zOrder = zedOrder;
 		width = w;
@@ -11,13 +10,19 @@ namespace IonixEngine {
 		
 		//calculating the total frame count
 		SDL_QueryTexture(texture, NULL, NULL, &size.x, &size.y);
+		SDL_RendererFlip::SDL_FLIP_NONE;
 		totalFrames =  size.x / size.y;
 
 		currentFrame = 0;
 
-		SpriteSize(50, 50);
+		/*if (flipX) flipMode = SDL_FLIP_HORIZONTAL;
+		if (flipY) flipMode = SDL_FLIP_VERTICAL;
+		else flipMode = SDL_FLIP_NONE;
+		*/
+		SpriteSize(100, 100);
 		SpriteRotation(45);
 		SetColours(1, 1, 1, .2);
+		FlipSprite(true, false);
 	}
 
 	void AnimatedSpriteComponent::Render(RenderData* data)
@@ -33,14 +38,19 @@ namespace IonixEngine {
 		src.w = size.y;
 		src.h = size.y;
 
-		//create and send render data to the render queue
-		data->queue->AddToQueue(RenderCall {
+		RenderCall rCall(
 			texture,
-			SDL_Rect { (int) (entity->position.x - width / 2), (int) (entity->position.y - height / 2), (int) width, (int) height },
-			SDL_Rect { src.x, src.y, src.w, src.h },
+			SDL_Rect{ (int)(entity->position.x - width / 2), (int)(entity->position.y - height / 2), (int)width, (int)height },
+			SDL_Rect{ src.x, src.y, src.w, src.h },
 			zOrder,
 			entity->rotation,
-			entity
+			entity,
+			flipX = -1
+		);
+
+		//create and send render data to the render queue
+		data->queue->AddToQueue(RenderCall {
+			rCall
 		});
 
 
@@ -64,6 +74,15 @@ namespace IonixEngine {
 		entity->rotation = radianDegree;
 	}
 
+	void AnimatedSpriteComponent::FlipSprite(bool FlipX, bool FlipY)
+	{
+		//if (FlipX)
+			//flipMode = SDL_FLIP_HORIZONTAL;
+
+		//if (FlipY)
+			//flipMode = SDL_FLIP_VERTICAL;
+	}
+
 	void AnimatedSpriteComponent::SetColours(int red, int green, int blue, int alpha)
 	{
 		//Uint32* passThis = (Uint32*)image->pixels;
@@ -74,9 +93,7 @@ namespace IonixEngine {
 			0x000000FF,
 			0xFF000000);
 
-
-
-
+		
 		red = RED;
 		green = GREEN;
 		blue = BLUE;

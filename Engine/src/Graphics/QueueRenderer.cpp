@@ -20,9 +20,13 @@ namespace IonixEngine {
 		while (!sprites.empty()) {
 			RenderCall call = sprites.front();
 			double rot = 0;
+			SDL_RendererFlip flipMode = SDL_RendererFlip::SDL_FLIP_NONE;
+			// Seems to be rotating large amounts 			
+			//if(call.entity)
+				//rot = call.entity->rotation;
 
-			if(call.entity)
-				rot = call.entity->rotation;
+			if (call.flipX != -1)
+				flipMode = SDL_RendererFlip::SDL_FLIP_HORIZONTAL;
 
 			SDL_RenderCopyEx(
 				Application::Get().GetWindow().GetSdlRenderer(),
@@ -31,7 +35,7 @@ namespace IonixEngine {
 				&call.dest,
 				rot,
 				nullptr,
-				SDL_FLIP_NONE
+				flipMode
 			);
 			sprites.pop();
 		}
