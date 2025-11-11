@@ -1,39 +1,52 @@
 #pragma once
-#include "LayerSystem/Layers/LayerFysics.h"
 #include "Fysics/FysicsBody.h"
 #include "Fysics/Shapes.h"
-#include "Fysics/Joints.h"
 #include "Fysics/Force.h"
+#include "Fysics/Joints.h"
+#include "Fysics/RigidBodyTransform.h"
+#include "Fysics/CollisionListener.h"
+#include "Architecture/ECS/Entity.hpp"
+
+#include <unordered_map>
+#include "box2d.h"
 
 namespace IonixEngine
 {
     class FysicsManager
     {
     private:
-        FysicsShapes* shape;
-        PrismaticJoints* joint;
-        Force* force;
+ 
         b2World* world;
+        CollisionListener* collisionListener;
+        FysicsShapes* shapes;
+        Force* force;
+        PrismaticJoints* prismaticJoint;
+        WeldJoints* weldJoint;
+        PulleyJoints* pulleyJoint;
+        RevoluteJoints* revoluteJoint;
+        DistanceJoints* distanceJoint;
+        std::unordered_map<b2Body*, Entity*> entityBodyMap;
+        std::unordered_map<b2Body*, RigidBodyTransform> transformMap; //used for interpolation
 
-        static LayerFysics* s_instance;
     public:
-        static void SetInstance(LayerFysics* instance) {
-            s_instance = instance;
-        }
+        static FysicsManager* GetManager();
+        FysicsManager();
+        ~FysicsManager();
 
-        void Create() 
-        {   
-            FysicsBody* body = new FysicsBody(world);
-            FysicsBody* bodyb = new FysicsBody(world);
-            shape = new FysicsShapes();
-            shape->AttatchBody(body->GetBody());
-            shape->AddBox();
-            shape->AttatchBody(bodyb->GetBody());
-            shape->AddBox();
+        FysicsShapes* GetShapes() { return shapes; }
+        Force* GetForce() { return force; }
 
-            joint = new PrismaticJoints();
-            joint->setJoint(body->GetBody(), bodyb->GetBody(), b2Vec2_zero, 1.0f, 1.0f, true, 1.0f, 1.0f, true);
+        PrismaticJoints* GetPrismaticJoint() { return prismaticJoint;}
+        WeldJoints* GetWeldJoint() { return weldJoint;}
+        PulleyJoints* GetPulleyJoint() { return pulleyJoint;}
+        RevoluteJoints* GetRevoluteJoint() { return revoluteJoint;}
+        DistanceJoints* GetDistanceJoint() { return distanceJoint;}
 
-        }
+        b2World* GetWorld() { return world; }
+        std::unordered_map<b2Body*, Entity*>& GetBodyMap() { return entityBodyMap; }
+        std::unordered_map<b2Body*, RigidBodyTransform>& GetTransformMap() { return transformMap; } //used for interpolation
+        
+        b2Body* GetBodyFromEntity(Entity* entity);
+        Entity* GetEntityFromBody(b2Body* body);
     };
 }
