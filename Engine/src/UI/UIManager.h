@@ -13,6 +13,9 @@ namespace IonixEngine
 		SliderFloat,
 		InputText,
 		Panel,
+		RadioButton,
+		Dropdown,
+		ColorPicker,
 	};
 	struct UIElement
 	{
@@ -30,9 +33,16 @@ namespace IonixEngine
 		float slidermax = 1.0f;// only for sliders
 		char* inputBuffer = nullptr; // only for input text
 		size_t inputBufferSize; // only for input text
-
+		int* radioValuePtr = nullptr;
+		int RadioButtonValue = 0;
+		bool sameline = false;
+		float* color = nullptr; // only for ColorPicker4
+		
 		std::vector<UIElement> children;
 		bool isChildGroup = false;
+
+		std::vector<std::string> dropdownOptions;
+		int* dropdownCurrentIndex = nullptr;
 		
 	};
 
@@ -40,18 +50,27 @@ namespace IonixEngine
 	{
 	private: 
 		std::string currentGroupName; 
-		std::vector<UIElement> elements;
+
 		std::vector<UIElement*> groupStack; 
 
 		void RenderElement(UIElement& element);
 	public:
-		void UIManager::BeginGroup(const std::string& groupName);
+		void BeginGroup(const std::string& groupName);
+
+		std::vector<UIElement> GetElements()
+		{
+			return elements;
+		}
+
+		std::vector<UIElement> elements;
 		
-		void UIManager::EndGroup();
+		void EndGroup();
 
-		void UIManager::BeginPanel(const std::string& panelName);
+		void BeginPanel(const std::string& panelName);
 
-		void UIManager::EndPanel();
+		void EndPanel();
+
+		void AddChildToPanel(UIElement element);
 		
 		// Add for new UITypes below
 		void AddLabel(int x, int y, float xSize, float ySize, const char* text);
@@ -64,6 +83,13 @@ namespace IonixEngine
 		
 		void AddInputText(int x, int y, float xSize, float ySize, const char* text, char* buffer, size_t bufferSize);
 		
+		void AddRadioButton(int x, int y, float xSize, float ySize, const char* text, int* radioValuePointer, int value, bool sameline);
+		
+		void AddDropdown(int x, int y, float xSize, float ySize, const char* text, std::vector<std::string> options, int* currentIndex);
+		
+		
+		void AddColorPicker(int x, int y, float xSize, float ySize, const char* label, float* color);
+
 		void RenderUI();
 		
 	};

@@ -62,6 +62,10 @@ dependencies
 imgui.ini
 dependencies/bin/imgui/obj/
 dependencies/bin/imgui/bin/
-client
 libengine.so
 nobuild.exe.old
+nobuild
+nobuild.old
+Client/*
+!Client/Scripts/
+!Client/Scripts/*.lua
