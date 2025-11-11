@@ -66,5 +66,6 @@ libengine.so
 nobuild.exe.old
 nobuild
 nobuild.old
-Client/
+Client/*
+!Client/Scripts/
 !Client/Scripts/*.lua
