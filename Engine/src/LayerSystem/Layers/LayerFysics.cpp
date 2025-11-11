@@ -13,7 +13,7 @@ namespace IonixEngine
     LayerFysics* LayerFysics::instance = nullptr;
 
     LayerFysics* LayerFysics::GetInstance() {
-        return instance;
+        return Application::Get().layerFysics;
     }
 
     b2World* LayerFysics::GetWorld() {
