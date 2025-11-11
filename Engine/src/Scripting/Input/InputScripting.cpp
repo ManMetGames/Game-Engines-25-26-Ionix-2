@@ -22,6 +22,7 @@ namespace IonixEngine {
         auto getKeyHeld = [](int code) -> bool {
             return Application::Get().layerInput->m_Input->IsKeyHeld(static_cast<SDL_Scancode>(code));
             };
+
         auto getMouseX = []() -> int {
             return Application::Get().layerInput->m_Input->GetMousePosition().x;
             };
@@ -34,11 +35,34 @@ namespace IonixEngine {
         auto getMouseButtonUp = [](int mousecode)-> bool {
             return Application::Get().layerInput->m_Input->IsMouseButtonUp(static_cast<uint8>(mousecode));
             };
-        auto SetKeyPressed = [](int code) {
-            Application::Get().layerInput->m_Input->SetKeyPressed(static_cast<SDL_Scancode>(code));
+
+        auto getButtonDown = [](int btn) -> bool {
+            return Application::Get().layerInput->m_Input->IsButtonDown(static_cast<uint8>(btn));
             };
-        auto SetKeyReleased = [](int code) {
-            Application::Get().layerInput->m_Input->SetKeyReleased(static_cast<SDL_Scancode>(code));
+        auto getButtonUp = [](int btn) -> bool {
+            return Application::Get().layerInput->m_Input->IsButtonUp(static_cast<uint8>(btn));
+            };
+        auto getButtonHeld = [](int btn) -> bool {
+            return Application::Get().layerInput->m_Input->IsButtonHeld(static_cast<uint8>(btn));
+            };
+
+        auto getLeftStickX = []() -> float {
+            return Application::Get().layerInput->m_Input->NormaliseStickAxis(SDL_GameControllerGetAxis(nullptr, SDL_CONTROLLER_AXIS_LEFTX));
+            };
+        auto getLeftStickY = []() -> float {
+            return Application::Get().layerInput->m_Input->NormaliseStickAxis(SDL_GameControllerGetAxis(nullptr, SDL_CONTROLLER_AXIS_LEFTY));
+            };
+        auto getRightStickX = []() -> float {
+            return Application::Get().layerInput->m_Input->NormaliseStickAxis(SDL_GameControllerGetAxis(nullptr, SDL_CONTROLLER_AXIS_RIGHTX));
+            };
+        auto getRightStickY = []() -> float {
+            return Application::Get().layerInput->m_Input->NormaliseStickAxis(SDL_GameControllerGetAxis(nullptr, SDL_CONTROLLER_AXIS_RIGHTY));
+            };
+        auto getLeftTrigger = []() -> float {
+            return Application::Get().layerInput->m_Input->NormaliseTrigger(SDL_GameControllerGetAxis(nullptr, SDL_CONTROLLER_AXIS_TRIGGERLEFT));
+            };
+        auto getRightTrigger = []() -> float {
+            return Application::Get().layerInput->m_Input->NormaliseTrigger(SDL_GameControllerGetAxis(nullptr, SDL_CONTROLLER_AXIS_TRIGGERRIGHT));
             };
 
         lua["Keys"] = lua.create_table_with(
@@ -68,47 +92,49 @@ namespace IonixEngine {
             "ionix_x", SDL_SCANCODE_X,
             "ionix_y", SDL_SCANCODE_Y,
             "ionix_z", SDL_SCANCODE_Z,
-            "ionix_1", SDL_SCANCODE_1,
-            "ionix_2", SDL_SCANCODE_2,
-            "ionix_3", SDL_SCANCODE_3,
-            "ionix_4", SDL_SCANCODE_4,
-            "ionix_5", SDL_SCANCODE_5,
-            "ionix_6", SDL_SCANCODE_6,
-            "ionix_7", SDL_SCANCODE_7,
-            "ionix_8", SDL_SCANCODE_8,
-            "ionix_9", SDL_SCANCODE_9,
-            "ionix_0", SDL_SCANCODE_0,
-            "ionix_return", SDL_SCANCODE_RETURN,
-            "ionix_escape", SDL_SCANCODE_ESCAPE,
-            "ionix_backspace", SDL_SCANCODE_BACKSPACE,
-            "ionix_tab", SDL_SCANCODE_TAB,
             "ionix_space", SDL_SCANCODE_SPACE,
-            "ionix_minus", SDL_SCANCODE_MINUS,
-            "ionix_equals", SDL_SCANCODE_EQUALS,
-            "ionix_leftbracket", SDL_SCANCODE_LEFTBRACKET,
-            "ionix_rightbracket", SDL_SCANCODE_RIGHTBRACKET,
-            "ionix_backslash", SDL_SCANCODE_BACKSLASH,
-            "ionix_lctrl", SDL_SCANCODE_LCTRL,
-            "ionix_lshift", SDL_SCANCODE_LSHIFT,
-            "ionix_lalt", SDL_SCANCODE_LALT,
-            "ionix_lgui", SDL_SCANCODE_LGUI,
-            "ionix_rctrl", SDL_SCANCODE_RCTRL,
-            "ionix_rshift", SDL_SCANCODE_RSHIFT,
-            "ionix_ralt", SDL_SCANCODE_RALT,
-            "ionix_rgui", SDL_SCANCODE_RGUI
+            "ionix_escape", SDL_SCANCODE_ESCAPE,
+            "ionix_return", SDL_SCANCODE_RETURN,
+            "ionix_tab", SDL_SCANCODE_TAB,
+            "ionix_backspace", SDL_SCANCODE_BACKSPACE
         );
-
+        lua["Buttons"] = lua.create_table_with(
+            "ionix_a", SDL_CONTROLLER_BUTTON_A,
+            "ionix_b", SDL_CONTROLLER_BUTTON_B,
+            "ionix_x", SDL_CONTROLLER_BUTTON_X,
+            "ionix_y", SDL_CONTROLLER_BUTTON_Y,
+            "ionix_back", SDL_CONTROLLER_BUTTON_BACK,
+            "ionix_guide", SDL_CONTROLLER_BUTTON_GUIDE,
+            "ionix_start", SDL_CONTROLLER_BUTTON_START,
+            "ionix_left_stick", SDL_CONTROLLER_BUTTON_LEFTSTICK,
+            "ionix_right_stick", SDL_CONTROLLER_BUTTON_RIGHTSTICK,
+            "ionix_left_shoulder", SDL_CONTROLLER_BUTTON_LEFTSHOULDER,
+            "ionix_right_shoulder", SDL_CONTROLLER_BUTTON_RIGHTSHOULDER,
+            "ionix_dpad_up", SDL_CONTROLLER_BUTTON_DPAD_UP,
+            "ionix_dpad_down", SDL_CONTROLLER_BUTTON_DPAD_DOWN,
+            "ionix_dpad_left", SDL_CONTROLLER_BUTTON_DPAD_LEFT,
+            "ionix_dpad_right", SDL_CONTROLLER_BUTTON_DPAD_RIGHT
+        );
         lua["Input"] = lua.create_table_with(
             "get_key_up", getKeyUp,
             "get_key_down", getKeyDown,
             "get_key_held", getKeyHeld,
+
             "get_mouse_x", getMouseX,
             "get_mouse_y", getMouseY,
             "get_mouse_button_down", getMouseButtonDown,
             "get_mouse_button_up", getMouseButtonUp,
-            "set_key_pressed", SetKeyPressed,
-            "set_key_released", SetKeyReleased
+            
+            "get_button_down", getButtonDown,
+            "get_button_up", getButtonUp,
+            "get_button_held", getButtonHeld,
+            
+            "get_left_stick_x", getLeftStickX,
+            "get_left_stick_y", getLeftStickY,
+            "get_right_stick_x", getRightStickX,
+            "get_right_stick_y", getRightStickY,
+            "get_left_trigger", getLeftTrigger,
+            "get_right_trigger", getRightTrigger
         );
-                
     }
 }
