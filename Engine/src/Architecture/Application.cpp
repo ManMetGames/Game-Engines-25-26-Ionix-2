@@ -74,10 +74,13 @@ namespace IonixEngine
     Camera* cam = new Camera(0.0f, 0.0f, 1.0f, 800, 600, true);
     Camera* cam2 = new Camera(10.0f, 10.0f, 1.0f, 800, 600, false);
 
+
     void Application::Run()
     {
         m_Running = true;
 
+	    cam->Init();
+	    cam2->Init();
         Scripting::Get().CallHook("OnStart");
 
         SDL_Renderer* renderer = m_Window->GetSdlRenderer();

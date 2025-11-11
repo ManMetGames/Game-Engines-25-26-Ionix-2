@@ -7,9 +7,11 @@ namespace IonixEngine
     Camera::Camera(float startX, float startY, float startZoom, int height, int width, bool isFocused)
 		: x(startX), y(startY), zoom(startZoom), h(height), w(width), isFocused(isFocused)
     {
-		EntityID id = Application::Get().layerScene->GetScene()->CreateEntity();
-		Entity* camEntity = Application::Get().layerScene->GetScene()->GetEntityFromID(id);
-		Application::Get().layerGraphics->AddCamera(*camEntity);
+    }
+
+    void Camera::Init() 
+    {
+		Application::Get().layerGraphics->m_Cameras.push_back(this);
     }
 
     void Camera::handleInput(float deltaTime)
@@ -26,13 +28,13 @@ namespace IonixEngine
         if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_U)) {
             zoom *= 0.9f;
         }
-        else if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_I))
-        {
+        else if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_I)) {
             zoom *= 1.1f;
         }
 
-        if (Application::Get().layerInput->m_Input->IsKeyDown(SDL_SCANCODE_C)) {
-            //Application::Get().layerScene->GetCameras()
+        if (Application::Get().layerInput->m_Input->IsKeyDown(SDL_SCANCODE_C)) 
+        {
+
         }
 
         if (zoom < 0.2f) zoom = 0.2f;
@@ -40,7 +42,7 @@ namespace IonixEngine
 
         std::vector<Entity>& entities = Application::Get().layerScene->GetEntities();
 
-        for (auto it = entities.begin(); it != entities.end(); ++it) {
+        for (auto it = entities.begin(); it != entities.end(); ++it) {            
             it->position.y += y;
             it->position.x += x;
         }
