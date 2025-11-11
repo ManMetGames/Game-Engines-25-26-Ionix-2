@@ -16,8 +16,7 @@ namespace IonixEngine {
 	}   //all of this is TEMPORARY because we're TESTING - it's in the name, that's why it says TEMP everywhere. We'll change this soon, thanks
 
 	void QueueRenderer::RenderFromQueue() {
-		//OrderQueueByZ(sprites);
-		//cout << sprites.size() << endl;
+		OrderQueueByZ(sprites);
 
 		while (!sprites.empty()) {
 			RenderCall call = sprites.front();
@@ -77,15 +76,24 @@ namespace IonixEngine {
 	void QueueRenderer::OrderQueueByZ(queue<RenderCall>& sprites) //Called first
 	{
 		std::vector<RenderCall> temp; //Creates temporary vector from queue
+		int originalQueueLength = sprites.size();
 
-		for (int i = 0; i < sprites.size(); i++)
+		for (int i = 0; i < originalQueueLength; i++)
 		{
-			temp[i] = sprites.front();
+			temp.push_back(sprites.front());
 			sprites.pop();
 		} //Adds all items from queue to this array to be sorted
 
 		MergeCaller(temp, 0, sprites.size() - 1); //Perform merge sort
 		ArrToQueueConverter(temp, sprites); //Convert vector to sorted queue again at the end!
+
+		queue<RenderCall> temporary = sprites;
+
+		for (int i = 0; i < sprites.size(); i++)
+		{
+			cout << temporary.front().z << endl;
+			temporary.pop();
+		}
 	}
 
 	void QueueRenderer::MergeCaller(vector<RenderCall> temp, int left, int right) //Takes the vector created from the queue and sorts it, called second
