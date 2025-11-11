@@ -36,6 +36,11 @@ namespace IonixEngine {
             entity->AddComponent(new AudioPlayer(entity, clip, playOnAwake));
             };
 
+        auto getSpriteComponent = [](Entity* entity) {
+            entity->GetComponent<AnimatedSpriteComponent>();
+            };
+
+
         lua["Entity"] = lua.create_table_with(
             "create_entity", entity,
             "get_entity_pos", getEntityPos,
