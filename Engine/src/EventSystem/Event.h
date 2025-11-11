@@ -11,7 +11,6 @@ namespace IonixEngine
         WindowClosed,
         CollisionEnter,
         CollisionExit
-        WindowClosed
         // ...
     };
 
