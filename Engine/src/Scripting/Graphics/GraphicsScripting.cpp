@@ -1,7 +1,7 @@
 #include "Scripting/Graphics/GraphicsScripting.h"
 #include "Architecture/TextureManager/TextureManager.h"
 #include "GraphicsScripting.h"
-#include <Graphics/AnimatedSpriteComponent.h>
+#include <Graphics/SpriteComponent.h>
 
 namespace IonixEngine {
 
@@ -19,81 +19,81 @@ namespace IonixEngine {
             TextureManager::Get().AddTexture(filePath, alias);
             };
 
-        auto getCurrentFrame = [](AnimatedSpriteComponent* spriteComponent ) -> int{
+        auto getCurrentFrame = [](SpriteComponent* spriteComponent ) -> int{
             return spriteComponent->getCurrentFrame();
         };
 
-        auto getEndFrame = [](AnimatedSpriteComponent* spriteComponent) -> int {
+        auto getEndFrame = [](SpriteComponent* spriteComponent) -> int {
             return spriteComponent->getEndFrame();
             };
 
 
-        auto getRows = [](AnimatedSpriteComponent* spriteComponent) -> int {
+        auto getRows = [](SpriteComponent* spriteComponent) -> int {
             return spriteComponent->getRows();
             };
 
-        auto getColumns = [](AnimatedSpriteComponent* spriteComponent) -> int {
+        auto getColumns = [](SpriteComponent* spriteComponent) -> int {
             return spriteComponent->getCols();
             };
 
-        auto getWidth = [](AnimatedSpriteComponent* spriteComponent) -> int {
+        auto getWidth = [](SpriteComponent* spriteComponent) -> int {
             return spriteComponent->getSpriteWidth();
             };
 
-        auto getHeight = [](AnimatedSpriteComponent* spriteComponent) -> int {
+        auto getHeight = [](SpriteComponent* spriteComponent) -> int {
             return spriteComponent->getSpriteHeight();
             };
 
-        auto getZedOrder = [](AnimatedSpriteComponent* spriteComponent) -> int {
+        auto getZedOrder = [](SpriteComponent* spriteComponent) -> int {
             return spriteComponent->getZedOrder();
             };
 
-        auto getTotalFrames = [](AnimatedSpriteComponent* spriteComponent) -> int {
+        auto getTotalFrames = [](SpriteComponent* spriteComponent) -> int {
             return spriteComponent->getTotalFrames();
             };
 
-        auto getCurrentColumn = [](AnimatedSpriteComponent* spriteComponent) -> int {
+        auto getCurrentColumn = [](SpriteComponent* spriteComponent) -> int {
             return spriteComponent->getCurrentCol();
             };
 
-        auto getCurrentRow = [](AnimatedSpriteComponent* spriteComponent) -> int {
+        auto getCurrentRow = [](SpriteComponent* spriteComponent) -> int {
             return spriteComponent->getCurrentRow();
             };
 
-        auto setCurrentFrame = [](AnimatedSpriteComponent* spriteComponent, int x) {
+        auto setCurrentFrame = [](SpriteComponent* spriteComponent, int x) {
             spriteComponent->setCurrentFrame(x);
             };
 
-        auto setEndFrame = [](AnimatedSpriteComponent* spriteComponent, int x) {
+        auto setEndFrame = [](SpriteComponent* spriteComponent, int x) {
             spriteComponent->setEndFrame(x);
             };
 
 
-        auto setRows = [](AnimatedSpriteComponent* spriteComponent, int x) {
+        auto setRows = [](SpriteComponent* spriteComponent, int x) {
             spriteComponent->setRows(x);
             };
 
-        auto setColumns = [](AnimatedSpriteComponent* spriteComponent, int x) {
+        auto setColumns = [](SpriteComponent* spriteComponent, int x) {
             spriteComponent->setCols(x);
             };
 
-        auto setWidth = [](AnimatedSpriteComponent* spriteComponent, int x) {
+        auto setWidth = [](SpriteComponent* spriteComponent, int x) {
             spriteComponent->setSpriteWidth(x);
             };
 
-        auto setHeight = [](AnimatedSpriteComponent* spriteComponent, int x) {
+        auto setHeight = [](SpriteComponent* spriteComponent, int x) {
             spriteComponent->setSpriteHeight(x);
             };
 
-        auto setZedOrder = [](AnimatedSpriteComponent* spriteComponent, int x) {
+        auto setZedOrder = [](SpriteComponent* spriteComponent, int x) {
             spriteComponent->setZedOrder(x);
             };
 
-        auto getPlaybackMode = [](AnimatedSpriteComponent* spriteComponent) -> int{
+        auto getPlaybackMode = [](SpriteComponent* spriteComponent) -> int{
             return spriteComponent->getPlaybackMode();
         };
 
-        auto setPlaybackMode = [](AnimatedSpriteComponent* spriteComponent, int playbackMode) {
+        auto setPlaybackMode = [](SpriteComponent* spriteComponent, int playbackMode) {
             spriteComponent->setPlaybackMode(static_cast<IonixEngine::playbackOptions>(playbackMode));
             };
 

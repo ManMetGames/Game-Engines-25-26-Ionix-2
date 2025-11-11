@@ -12,8 +12,8 @@ function EntityPlayer:OnStart()
 	print(Entity.has_sprite_component(entity1))
 	Entity.add_sprite_component(entity1, "ball", 0)
 	Entity.set_entity_pos(entity1, x, y)
-	--sprite1 = Entity.get_sprite_component(entity1)
-	
+	sprite1 = Entity.get_sprite_component(entity1)
+	--Sprite.set_playback_mode(sprite1, 3)
 end
 
 function EntityPlayer:OnUpdate()

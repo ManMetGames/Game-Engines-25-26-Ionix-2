@@ -29,7 +29,7 @@ namespace IonixEngine {
             };
 
         auto addSpriteComponent = [](Entity* entity, std::string alias, int zedOrder) {
-            entity->AddComponent(new AnimatedSpriteComponent(entity, alias, zedOrder));
+            entity->AddComponent(new SpriteComponent(entity, alias, zedOrder));
             };
 
         auto addAudioPlayerComponent = [](Entity* entity, std::string clip = "", bool playOnAwake = false) {
@@ -37,7 +37,7 @@ namespace IonixEngine {
             };
 
         auto getSpriteComponent = [](Entity* entity) {
-            return entity->GetComponent<AnimatedSpriteComponent>();
+            return entity->GetComponent<SpriteComponent>();
             };
 
         auto getAudioPlayerComponent = [](Entity* entity) {
@@ -45,9 +45,9 @@ namespace IonixEngine {
             };
 
         /*auto tryGetSpriteComponent = [](Entity* entity) -> auto {
-            AnimatedSpriteComponent** comp;
-            struct result {bool isOK; AnimatedSpriteComponent* comp; };
-            return result{ entity->TryGetComponent<AnimatedSpriteComponent>(comp), *comp };
+            SpriteComponent** comp;
+            struct result {bool isOK; SpriteComponent* comp; };
+            return result{ entity->TryGetComponent<SpriteComponent>(comp), *comp };
             };
          
         auto tryGetAudioComponent = [](Entity* entity) -> std::tuple<bool, AudioPlayer*> {
@@ -56,7 +56,7 @@ namespace IonixEngine {
             };*/
 
         auto hasSpriteComponent = [](Entity* entity) -> bool {
-            return entity->HasComponent<AnimatedSpriteComponent>();
+            return entity->HasComponent<SpriteComponent>();
             };
 
         auto hasAudioComponent = [](Entity* entity) -> bool {

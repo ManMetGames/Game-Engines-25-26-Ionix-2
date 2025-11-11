@@ -11,7 +11,7 @@ namespace IonixEngine {
 		width = 100; //size of the sprite
 		height = 100;
 		isReversing = false;
-		playbackMode = FORWARD;
+		playbackMode = playbackOptions::FORWARD;
 
 		rows = 1; //default spritesheet size, can be changed in appropriate setters
 		cols = 5;
@@ -33,7 +33,7 @@ namespace IonixEngine {
 		width = 100; //size of the sprite
 		height = 100;
 		isReversing = false;
-		playbackMode = FORWARD;
+		playbackMode = playbackOptions::FORWARD;
 
 		rows = 1; //default spritesheet size, can be changed in appropriate setters
 		cols = 5;
@@ -76,7 +76,7 @@ namespace IonixEngine {
 		SDL_Delay(60);
 
 
-		if ((currentFrame != endFrame) && playbackMode != ONEFRAME)
+		if ((currentFrame != endFrame) && playbackMode != playbackOptions::ONEFRAME)
 		{
 			switch (isReversing)
 			{
@@ -93,17 +93,17 @@ namespace IonixEngine {
 
 		else {
 			switch (playbackMode) {
-			case FORWARD:
+			case playbackOptions::FORWARD:
 				currentFrame = 0;
 				currentCol = 0;
 				currentRow = 0;
 				break;
-			case BACKWARD:
+			case playbackOptions::BACKWARD:
 				currentFrame = totalFrames;
 				currentCol = cols - 1;
 				currentRow = rows - 1;
 				break;
-			case FORWARDANDBACKWARD:
+			case playbackOptions::FORWARDANDBACKWARD:
 				if (isReversing) {
 					isReversing = false;
 					currentFrame = 0;
@@ -115,7 +115,7 @@ namespace IonixEngine {
 					currentFrame = totalFrames;
 				}
 				break;
-			case PLAYONCE: case ONEFRAME:
+			case playbackOptions::PLAYONCE: case playbackOptions::ONEFRAME:
 				break;
 			}
 		}
@@ -135,20 +135,20 @@ namespace IonixEngine {
 	void SpriteComponent::initialiseSpritesheet()
 	{
 		switch (playbackMode) {
-		case FORWARD: case FORWARDANDBACKWARD: case PLAYONCE:
+		case playbackOptions::FORWARD: case playbackOptions::FORWARDANDBACKWARD: case playbackOptions::PLAYONCE:
 			endFrame = totalFrames;
 			currentFrame = 0;
 			currentRow = 0; //0 indexed
 			currentCol = 0; //0 indexed
 			break;
-		case BACKWARD:
+		case playbackOptions::BACKWARD:
 			isReversing = true;
 			endFrame = 0;
 			currentFrame = totalFrames;
 			currentCol = cols - 1;
 			currentRow = rows - 1;
 			break;
-		case ONEFRAME:
+		case playbackOptions::ONEFRAME:
 			currentFrame = 0;
 			break;
 		}
@@ -165,7 +165,7 @@ namespace IonixEngine {
 	void SpriteComponent::setZedOrder(int x) { zOrder = x; }
 
 	//getters
-	IonixEngine::SpriteComponent::playbackOptions SpriteComponent::getPlaybackMode() /*oh lawd he big*/ { return playbackOptions(); }
+	IonixEngine::playbackOptions SpriteComponent::getPlaybackMode() /*oh lawd he big*/ { return playbackOptions(); }
 	int SpriteComponent::getCurrentFrame() { return currentFrame; }
 	int SpriteComponent::getEndFrame() { return endFrame; }
 	int SpriteComponent::getRows() { return rows; }
