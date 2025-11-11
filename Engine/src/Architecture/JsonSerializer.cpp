@@ -53,12 +53,35 @@ namespace IonixEngine
 		addline(newLine);
 	}
 
+	void JsonSerializer::AddBoolField(std::string fieldName, bool fieldData)
+	{
+		std::string newLine = getNewField(fieldName);
+		newLine.append(std::to_string(fieldData));
+		addline(newLine);
+	}
+
 	void JsonSerializer::AddIntField(std::string fieldName, int fieldData)
 	{
 		std::string newLine = getNewField(fieldName);
 		//newLine.append("\"");
 		newLine.append(std::to_string(fieldData));
 		//newLine.append("\"");
+		addline(newLine);
+	}
+
+	void JsonSerializer::AddFloatField(std::string fieldName, float fieldData)
+	{
+		std::string newLine = getNewField(fieldName);
+		newLine.append(std::to_string(fieldData));
+		addline(newLine);
+	}
+
+	void JsonSerializer::AddDoubleField(std::string fieldName, double fieldData)
+	{
+		std::string newLine = getNewField(fieldName);
+		char buf[32];
+		sprintf(buf, "%.16lf", fieldData);
+		newLine.append(buf);
 		addline(newLine);
 	}
 
@@ -74,8 +97,8 @@ namespace IonixEngine
 
 	void JsonSerializer::IoTest()
 	{
-		addline("dicks");
-		addline("I'M GOING TO KILL YOU");
+		addline("test");
+		addline("test 2");
 		FinalizeJsonFile();
 	}
 }

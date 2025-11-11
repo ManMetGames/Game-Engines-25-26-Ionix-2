@@ -25,7 +25,13 @@ namespace IonixEngine
 		void SetFilePath(const std::string& newFilepath);
 		
 		void AddStringField(std::string fieldName, std::string fieldData);
+		void AddBoolField(std::string fieldName, bool fieldData);
 		void AddIntField(std::string fieldName, int fieldData);
+		void AddFloatField(std::string fieldName, float fieldData);
+		void AddDoubleField(std::string fieldName, double fieldData);
+
+		void NewArray(std::string arrayName);
+		void NewObject(std::string objectName);
 
 		void FinalizeJsonFile();
 		void IoTest();
