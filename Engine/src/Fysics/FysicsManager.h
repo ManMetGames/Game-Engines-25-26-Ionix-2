@@ -2,6 +2,7 @@
 #include "Fysics/FysicsBody.h"
 #include "Fysics/Shapes.h"
 #include "Fysics/Force.h"
+#include "Fysics/Joints.h"
 #include "Fysics/RigidBodyTransform.h"
 #include "Architecture/ECS/Entity.hpp"
 
@@ -17,6 +18,11 @@ namespace IonixEngine
         b2World* world;
         FysicsShapes* shapes;
         Force* force;
+        PrismaticJoints* prismaticJoint;
+        WeldJoints* weldJoint;
+        PulleyJoints* pulleyJoint;
+        RevoluteJoints* revoluteJoint;
+        DistanceJoints* distanceJoint;
         std::unordered_map<b2Body*, Entity*> entityBodyMap;
         std::unordered_map<b2Body*, RigidBodyTransform> transformMap; //used for interpolation
 
@@ -26,6 +32,13 @@ namespace IonixEngine
 
         FysicsShapes* GetShapes() { return shapes; }
         Force* GetForce() { return force; }
+
+        PrismaticJoints* GetPrismaticJoint() { return prismaticJoint;}
+        WeldJoints* GetWeldJoint() { return weldJoint;}
+        PulleyJoints* GetPulleyJoint() { return pulleyJoint;}
+        RevoluteJoints* GetRevoluteJoint() { return revoluteJoint;}
+        DistanceJoints* GetDistanceJoint() { return distanceJoint;}
+
         b2World* GetWorld() { return world; }
         std::unordered_map<b2Body*, Entity*>& GetBodyMap() { return entityBodyMap; }
         std::unordered_map<b2Body*, RigidBodyTransform>& GetTransformMap() { return transformMap; } //used for interpolation
