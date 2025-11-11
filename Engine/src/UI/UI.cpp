@@ -19,14 +19,19 @@ namespace IonixEngine
 		ImGui::PushFont(fontToPush);
 		ImGui::Text(text, ImVec2(xsize, ysize));
 		ImGui::PopFont();
+
+		/*ImFont* BoldFontPush = Application::Get().layerUI->m_FontLoader->GetFont("FontBold");
+		ImGui::PushFont(BoldFontPush);
+		ImGui::Text(text, ImVec2(xsize, ysize));
+		ImGui::PopFont();*/
+
 	}
 	bool UI::DrawButton(char* text, int xsize, int ysize, int xpos, int ypos)
 	{
 		ImGui::SetCursorPos(ImVec2(xpos, ypos));
 		
-		if (ImGui::Button(text, ImVec2(xsize, ysize))) {
+		if (ImGui::Button(text, ImVec2(xsize, ysize)))
 			return true;
-		}
 	}
 	
 	float UI::DrawSlider(char* text, static float i, int xsize, int ysize, int xpos, int ypos,int minval, int maxval) {
@@ -72,7 +77,7 @@ namespace IonixEngine
 	{
 		ImGui::SetCursorPos(ImVec2(xPos, yPos));
 		
-
+		
 		// Positive = increase, Negative = decrease
 		currentValue += incrementAmount;
 		
@@ -88,7 +93,7 @@ namespace IonixEngine
 		
 		ImGui::ProgressBar(progress, ImVec2(xSize, ySize), buf);
 		
-		return currentValue; 
+		return currentValue;
 	}
 
 	float UI::DrawDropdown(int xPos, int yPos, float xSize, float ySize, const char* text, std::vector<std::string> options, int* currentIndex)
