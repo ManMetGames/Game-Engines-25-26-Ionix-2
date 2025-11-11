@@ -4,6 +4,7 @@
 #include "Input/ControllerManager.h"
 
 
+
 namespace IonixEngine
 {
     class LayerInput : public Layer
@@ -17,6 +18,7 @@ namespace IonixEngine
         virtual void OnEvent(IonixEvent& e) override;
         Input* m_Input;  
         ControllerManager* m_ControllerManager;
+    
 
     private:
         void OnWindowClosedEvent(WindowClosedEvent& e);

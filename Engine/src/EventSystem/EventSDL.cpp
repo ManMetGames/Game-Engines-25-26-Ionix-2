@@ -21,6 +21,14 @@ namespace IonixEngine
         static std::unordered_map<int, SDL_GameController*> controllers;
         static std::unordered_map<int, ControllerManager> controllerManagers;
 
+        //microphone
+        static std::unordered_map<SDL_AudioDeviceID, SDL_AudioSpec> microphones;
+        static std::unordered_map<SDL_AudioDeviceID, MicrophoneManager> microphoneManagers;
+
+      
+
+        
+
         switch (e.type)
         {
         case SDL_WINDOWEVENT:
@@ -45,6 +53,30 @@ namespace IonixEngine
         case SDL_KEYUP:
             Application::Get().layerInput->m_Input->SetKeyReleased(e.key.keysym.scancode);
             break;
+
+
+            //Microphone Connected 
+        case SDL_AUDIODEVICEADDED:
+        {
+            const char* deviceName = SDL_GetAudioDeviceName(e.adevice.which, SDL_TRUE);
+                if (deviceName)
+                {
+                    
+                  
+
+                   
+                }
+                break;
+        }
+
+        //Microphone disconnected
+        case SDL_AUDIODEVICEREMOVED:
+        {
+
+           
+        }
+        
+        
 
             // Controller
         case SDL_CONTROLLERDEVICEADDED:
