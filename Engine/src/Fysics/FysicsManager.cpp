@@ -9,6 +9,11 @@ namespace IonixEngine
 
 		shapes = new FysicsShapes();
 		force = new Force();
+		prismaticJoint = new PrismaticJoints();
+		weldJoint = new WeldJoints();
+		pulleyJoint = new PulleyJoints();
+		revoluteJoint = new RevoluteJoints();
+		distanceJoint = new DistanceJoints();
 	}
 
 	FysicsManager::~FysicsManager()
