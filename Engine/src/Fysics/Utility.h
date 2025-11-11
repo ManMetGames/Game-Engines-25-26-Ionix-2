@@ -1,5 +1,5 @@
 #pragma once
-#include "LayerSystem/Layers/LayerFysics.h"
+//#include "LayerSystem/Layers/LayerFysics.h"
 
 namespace IonixEngine
 {
@@ -12,7 +12,7 @@ namespace IonixEngine
 
         Utility()
         {
-            world = LayerFysics::GetInstance()->GetWorld();
+            //world = LayerFysics::GetInstance()->GetWorld();
         }
 
         void setScale(const b2Vec3& newScale) { scale = newScale; }

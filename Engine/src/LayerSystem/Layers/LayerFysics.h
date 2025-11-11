@@ -1,6 +1,7 @@
 #pragma once
 #include "LayerSystem/Layer.h"
-#include "box2d.h"
+#include <box2d.h>
+#include "Fysics/ContactListener.h"
 
 namespace IonixEngine
 {
@@ -30,6 +31,8 @@ namespace IonixEngine
 	private:
 		static LayerFysics* instance;
 		FysicsManager* fysicsManager{ nullptr };
+		b2World* world{ nullptr };
+		ContactListener* contactListener{ nullptr };
 
 		float timeStep{ 1.f / 60.f };
 		int32 velocityIterations{ 6 };

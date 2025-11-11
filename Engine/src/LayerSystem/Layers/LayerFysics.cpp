@@ -5,8 +5,8 @@
 
 #include <iostream>
 #include <ostream>
-
 #include "EventSystem/Event.h"
+#include "Architecture/ECS/Entity.hpp"
 
 namespace IonixEngine
 {
@@ -24,6 +24,9 @@ namespace IonixEngine
     {
         instance = this;
         fysicsManager = new FysicsManager();
+
+        contactListener = new ContactListener();
+        world->SetContactListener(contactListener);
 
         //create default ground box
         b2World* world = fysicsManager->GetWorld();
@@ -135,5 +138,10 @@ namespace IonixEngine
         b2FixtureDef fix; fix.shape = &shape; fix.density = 0.f; fix.friction = friction; fix.restitution = restitution;
         body->CreateFixture(&fix);
         return body;
+    }
+
+    FysicsManager* LayerFysics::GetFysicsManager()
+    {
+        return fysicsManager;
     }
 }

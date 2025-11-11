@@ -1,12 +1,11 @@
 #pragma once
+#include <box2d.h>
 #include <sol/sol.hpp>
-#include "Architecture/ECS/Component.hpp"
-#include "LayerSystem/Layers/LayerFysics.h"
-#include "Fysics/Shapes.h"
 
 namespace IonixEngine
 {
-    enum class fysicsBodyType { staticBody, dynamicBody, kinematicBody };
+    enum class fysicsBodyType {staticBody, dynamicBody, kinematicBody};
+    class Shapes;
 
     class FysicsBody : public Component
     {
