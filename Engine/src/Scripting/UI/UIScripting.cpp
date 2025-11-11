@@ -20,14 +20,14 @@ namespace IonixEngine {
             return Application::Get().layerUI->m_UI->DrawButton((char*)text, xsize, ysize, xpos, ypos);
             };
 
-        auto drawSlider = [](const char* text, float i, int xsize, int ysize, int xpos, int ypos, int minval, int maxval) -> float {
-            return Application::Get().layerUI->m_UI->DrawSlider((char*)text, i, xsize, ysize, xpos, ypos, minval, maxval);
+        auto addSlider = [](const char* label, float value, int xsize, int ysize, int xpos, int ypos, float minval, float maxval) -> float {
+            return Application::Get().layerUI->m_UI->AddSlider((char*)label, value, xsize, ysize, xpos, ypos, minval, maxval);
             };
 
         lua["UI"] = lua.create_table_with(
             "draw_label", drawLabel,
             "draw_button", drawButton,
-            "draw_slider", drawSlider
+            "add_slider", addSlider
         );
     }
 

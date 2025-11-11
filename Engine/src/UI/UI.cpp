@@ -36,10 +36,10 @@ namespace IonixEngine
 		}	
 	}
 	
-	float UI::DrawSlider(char* text, float i, int xsize, int ysize, int xpos, int ypos,int minval, int maxval) {
+	float UI::AddSlider(char* label, float value, int xsize, int ysize, int xpos, int ypos,float minval, float maxval) {
 		ImGui::SetCursorPos(ImVec2(xpos, ypos));
-		ImGui::SliderFloat(text, &i, minval, maxval );
-		return i;
+		ImGui::SliderFloat(label, &value, minval, maxval );
+		return value;
 
 	}
 	
