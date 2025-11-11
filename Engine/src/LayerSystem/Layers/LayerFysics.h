@@ -1,11 +1,10 @@
 #pragma once
 #include "LayerSystem/Layer.h"
-#include <box2d.h>
-#include "Fysics/ContactListener.h"
+#include "box2d.h"
 
 namespace IonixEngine
 {
-    class FysicsManager;
+	class FysicsManager;
 
 	class LayerFysics : public Layer
 	{
@@ -25,20 +24,17 @@ namespace IonixEngine
 			return fysicsManager;
 		}
 		b2World* GetWorld();
-        
-        static LayerFysics* GetInstance();
-        
-    private:
-        static LayerFysics* instance;
-        b2World* world{ nullptr };
-        FysicsManager* fysicsManager{ nullptr };
-        ContactListener* contactListener{ nullptr };
-        
-        float timeStep{ 1.f / 60.f };
-        int32 velocityIterations{ 6 };
-        int32 positionIterations{ 2 };
-        float ppm{ 100.f };
 
 		static LayerFysics* GetInstance();
+
+	private:
+		static LayerFysics* instance;
+		FysicsManager* fysicsManager{ nullptr };
+
+		float timeStep{ 1.f / 60.f };
+		int32 velocityIterations{ 6 };
+		int32 positionIterations{ 2 };
+		float ppm{ 100.f }; // pixels per meter
+
 	};
 }
