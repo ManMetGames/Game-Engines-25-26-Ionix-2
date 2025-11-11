@@ -1,5 +1,6 @@
 #include "Graphics/QueueRenderer.h"
 #include <vector>
+#include <iostream>
 #include "Architecture/Application.h"
 #include "SDL_render.h"
 
@@ -19,6 +20,7 @@ namespace IonixEngine {
 		OrderQueueByZ(sprites);
 
 		while (!sprites.empty()) {
+			/*cout << sprites.size() << endl;*/
 			RenderCall call = sprites.front();
 			SDL_RenderCopy(Application::Get().GetWindow().GetSdlRenderer(), call.texture, &call.src, &call.dest);
 			sprites.pop();
@@ -41,6 +43,7 @@ namespace IonixEngine {
 		{
 			rightHand[j] = arr[mid + 1 + j];
 		}
+
 		int i = 0, j = 0, k = left;
 
 		while (i < n1 && j < n2)
@@ -77,27 +80,32 @@ namespace IonixEngine {
 	{
 		std::vector<RenderCall> temp; //Creates temporary vector from queue
 		int originalQueueLength = sprites.size();
+		int n = sprites.size();
 
 		for (int i = 0; i < originalQueueLength; i++)
 		{
+			cout << sprites.front().z << endl;
 			temp.push_back(sprites.front());
 			sprites.pop();
 		} //Adds all items from queue to this array to be sorted
 
-		MergeCaller(temp, 0, sprites.size() - 1); //Perform merge sort
+		MergeCaller(temp, 0, originalQueueLength - 1); //Perform merge sort
 		ArrToQueueConverter(temp, sprites); //Convert vector to sorted queue again at the end!
 
 		queue<RenderCall> temporary = sprites;
 
 		for (int i = 0; i < sprites.size(); i++)
 		{
-			cout << temporary.front().z << endl;
 			temporary.pop();
 		}
 	}
 
+	//0, 1
 	void QueueRenderer::MergeCaller(vector<RenderCall> temp, int left, int right) //Takes the vector created from the queue and sorts it, called second
 	{
+		/*cout << left << endl;
+		cout << right << endl;*/
+
 		if (left >= right)
 		{
 			return;
@@ -107,10 +115,10 @@ namespace IonixEngine {
 		//int left = 0;				 
 		//int right = temp.size() - 1;
 		int mid = left + (right - left) / 2;
-
 		MergeCaller(temp, left, mid);
 		MergeCaller(temp, mid + 1, right);
 		Merger(temp, left, mid, right);
+
 	}
 
 	void QueueRenderer::ClearQueue(queue<RenderCall>& sprites)
