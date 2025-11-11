@@ -67,20 +67,16 @@ namespace IonixEngine {
 		//This is just here so we can see the animation play at a normal speed
 		//THIS WILL BE REMOVED
 		SDL_Delay(60);
+		// NOTE: Use Application.Get().deltaTime to switch to next animation based on rate
 
 
-		if ((currentFrame != endFrame) && playbackMode != ONEFRAME)
-		{
-			switch (isReversing)
-			{
-			case true:
+		if ((currentFrame != endFrame) && playbackMode != ONEFRAME) {
+			if (isReversing) {
 				currentFrame--;
 				currentCol--;
-				break;
-			case false:
+			} else {
 				currentFrame++;
 				currentCol++;
-				break;
 			}
 		}
 
