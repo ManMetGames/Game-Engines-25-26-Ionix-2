@@ -1,8 +1,11 @@
 #include "Scripting/Input/InputScripting.h"
 #include "Architecture/Application.h"
+#include <SDL.h>
+#include <SDL_gamecontroller.h>
+#include <cmath>
 
 namespace IonixEngine {
-    
+
     InputScripting* InputScripting::s_Instance = nullptr;
 
     InputScripting& InputScripting::Get() {
@@ -11,8 +14,34 @@ namespace IonixEngine {
         return *s_Instance;
     }
 
+    // Detect & open all controllers
+    void InputScripting::RefreshControllers()
+    {
+        for (auto* c : m_Controllers)
+            if (c) SDL_GameControllerClose(c);
+        m_Controllers.clear();
+
+        int num = SDL_NumJoysticks();
+        for (int i = 0; i < num; i++)
+        {
+            if (SDL_IsGameController(i))
+            {
+                SDL_GameController* ctrl = SDL_GameControllerOpen(i);
+                if (ctrl)
+                {
+                    m_Controllers.push_back(ctrl);
+                    std::cout << "[LuaInput] Controller " << i << ": "
+                        << SDL_GameControllerName(ctrl) << " connected\n";
+                }
+            }
+        }
+    }
+
     void InputScripting::Init(sol::state& lua)
     {
+        RefreshControllers();
+
+        // --- Keyboard ---
         auto getKeyUp = [](int code) -> bool {
             return Application::Get().layerInput->m_Input->IsKeyUp(static_cast<SDL_Scancode>(code));
             };
@@ -23,6 +52,7 @@ namespace IonixEngine {
             return Application::Get().layerInput->m_Input->IsKeyHeld(static_cast<SDL_Scancode>(code));
             };
 
+        // --- Mouse ---
         auto getMouseX = []() -> int {
             return Application::Get().layerInput->m_Input->GetMousePosition().x;
             };
@@ -36,35 +66,31 @@ namespace IonixEngine {
             return Application::Get().layerInput->m_Input->IsMouseButtonUp(static_cast<uint8>(mousecode));
             };
 
-        auto getButtonDown = [](int btn) -> bool {
-            return Application::Get().layerInput->m_Input->IsButtonDown(static_cast<uint8>(btn));
-            };
-        auto getButtonUp = [](int btn) -> bool {
-            return Application::Get().layerInput->m_Input->IsButtonUp(static_cast<uint8>(btn));
-            };
-        auto getButtonHeld = [](int btn) -> bool {
-            return Application::Get().layerInput->m_Input->IsButtonHeld(static_cast<uint8>(btn));
-            };
-
-        auto getLeftStickX = []() -> float {
-            return Application::Get().layerInput->m_Input->NormaliseStickAxis(SDL_GameControllerGetAxis(nullptr, SDL_CONTROLLER_AXIS_LEFTX));
-            };
-        auto getLeftStickY = []() -> float {
-            return Application::Get().layerInput->m_Input->NormaliseStickAxis(SDL_GameControllerGetAxis(nullptr, SDL_CONTROLLER_AXIS_LEFTY));
-            };
-        auto getRightStickX = []() -> float {
-            return Application::Get().layerInput->m_Input->NormaliseStickAxis(SDL_GameControllerGetAxis(nullptr, SDL_CONTROLLER_AXIS_RIGHTX));
-            };
-        auto getRightStickY = []() -> float {
-            return Application::Get().layerInput->m_Input->NormaliseStickAxis(SDL_GameControllerGetAxis(nullptr, SDL_CONTROLLER_AXIS_RIGHTY));
-            };
-        auto getLeftTrigger = []() -> float {
-            return Application::Get().layerInput->m_Input->NormaliseTrigger(SDL_GameControllerGetAxis(nullptr, SDL_CONTROLLER_AXIS_TRIGGERLEFT));
-            };
-        auto getRightTrigger = []() -> float {
-            return Application::Get().layerInput->m_Input->NormaliseTrigger(SDL_GameControllerGetAxis(nullptr, SDL_CONTROLLER_AXIS_TRIGGERRIGHT));
+        // --- Controller Buttons (per controller index) ---
+        auto getButtonDown = [this](int index, int btn) -> bool {
+            if (index < 0 || index >= (int)m_Controllers.size() || !m_Controllers[index])
+                return false;
+            return SDL_GameControllerGetButton(
+                m_Controllers[index], static_cast<SDL_GameControllerButton>(btn)
+            );
             };
 
+        // --- Controller Axes ---
+        auto getStickAxis = [this](int index, SDL_GameControllerAxis axis, float divisor) -> float {
+            if (index < 0 || index >= (int)m_Controllers.size() || !m_Controllers[index])
+                return 0.0f;
+            float val = static_cast<float>(SDL_GameControllerGetAxis(m_Controllers[index], axis)) / divisor;
+            return std::round(val * 100.0f) / 100.0f;
+            };
+
+        auto getLeftStickX = [=](int index) { return getStickAxis(index, SDL_CONTROLLER_AXIS_LEFTX, 32768.0f); };
+        auto getLeftStickY = [=](int index) { return getStickAxis(index, SDL_CONTROLLER_AXIS_LEFTY, 32768.0f); };
+        auto getRightStickX = [=](int index) { return getStickAxis(index, SDL_CONTROLLER_AXIS_RIGHTX, 32768.0f); };
+        auto getRightStickY = [=](int index) { return getStickAxis(index, SDL_CONTROLLER_AXIS_RIGHTY, 32768.0f); };
+        auto getLeftTrigger = [=](int index) { return getStickAxis(index, SDL_CONTROLLER_AXIS_TRIGGERLEFT, 32767.0f); };
+        auto getRightTrigger = [=](int index) { return getStickAxis(index, SDL_CONTROLLER_AXIS_TRIGGERRIGHT, 32767.0f); };
+
+        // --- Lua Constants ---
         lua["Keys"] = lua.create_table_with(
             "ionix_a", SDL_SCANCODE_A,
             "ionix_b", SDL_SCANCODE_B,
@@ -98,37 +124,38 @@ namespace IonixEngine {
             "ionix_tab", SDL_SCANCODE_TAB,
             "ionix_backspace", SDL_SCANCODE_BACKSPACE
         );
+
         lua["Buttons"] = lua.create_table_with(
             "ionix_a", SDL_CONTROLLER_BUTTON_A,
             "ionix_b", SDL_CONTROLLER_BUTTON_B,
             "ionix_x", SDL_CONTROLLER_BUTTON_X,
             "ionix_y", SDL_CONTROLLER_BUTTON_Y,
-            "ionix_back", SDL_CONTROLLER_BUTTON_BACK,
-            "ionix_guide", SDL_CONTROLLER_BUTTON_GUIDE,
             "ionix_start", SDL_CONTROLLER_BUTTON_START,
-            "ionix_left_stick", SDL_CONTROLLER_BUTTON_LEFTSTICK,
-            "ionix_right_stick", SDL_CONTROLLER_BUTTON_RIGHTSTICK,
-            "ionix_left_shoulder", SDL_CONTROLLER_BUTTON_LEFTSHOULDER,
-            "ionix_right_shoulder", SDL_CONTROLLER_BUTTON_RIGHTSHOULDER,
+            "ionix_back", SDL_CONTROLLER_BUTTON_BACK,
             "ionix_dpad_up", SDL_CONTROLLER_BUTTON_DPAD_UP,
             "ionix_dpad_down", SDL_CONTROLLER_BUTTON_DPAD_DOWN,
             "ionix_dpad_left", SDL_CONTROLLER_BUTTON_DPAD_LEFT,
-            "ionix_dpad_right", SDL_CONTROLLER_BUTTON_DPAD_RIGHT
+            "ionix_dpad_right", SDL_CONTROLLER_BUTTON_DPAD_RIGHT,
+            "ionix_left_shoulder", SDL_CONTROLLER_BUTTON_LEFTSHOULDER,
+            "ionix_right_shoulder", SDL_CONTROLLER_BUTTON_RIGHTSHOULDER,
+            "ionix_left_stick", SDL_CONTROLLER_BUTTON_LEFTSTICK,
+            "ionix_right_stick", SDL_CONTROLLER_BUTTON_RIGHTSTICK
         );
+
         lua["Input"] = lua.create_table_with(
+            // Keyboard
             "get_key_up", getKeyUp,
             "get_key_down", getKeyDown,
             "get_key_held", getKeyHeld,
 
+            // Mouse
             "get_mouse_x", getMouseX,
             "get_mouse_y", getMouseY,
             "get_mouse_button_down", getMouseButtonDown,
             "get_mouse_button_up", getMouseButtonUp,
-            
+
+            // Controller
             "get_button_down", getButtonDown,
-            "get_button_up", getButtonUp,
-            "get_button_held", getButtonHeld,
-            
             "get_left_stick_x", getLeftStickX,
             "get_left_stick_y", getLeftStickY,
             "get_right_stick_x", getRightStickX,
