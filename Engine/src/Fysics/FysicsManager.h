@@ -29,6 +29,7 @@ namespace IonixEngine
         std::unordered_map<b2Body*, RigidBodyTransform> transformMap; //used for interpolation
 
     public:
+        static FysicsManager* GetManager();
         FysicsManager();
         ~FysicsManager();
 
