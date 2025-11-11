@@ -7,7 +7,7 @@ local ySpeed = 10
 local t = 2
 function EntityPlayer:OnStart()
 	entity1 = Entity.create_entity()
-	Entity.add_sprite_component(entity1, "ball", 0)
+	Entity.add_sprite_component(entity1, "Test", 0)
 end
 
 function EntityPlayer:OnUpdate()
