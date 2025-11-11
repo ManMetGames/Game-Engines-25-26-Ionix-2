@@ -24,7 +24,7 @@ public:
 	void OrderQueueByZ(queue<int> &sprites);
 	void RenderFromQueue();
 	void Merger(std::vector<int> arr, int left, int mid, int right);
-	void MergeCaller(queue<int> &sprites, std::vector<int> arr, int left, int right);
+	void MergeCaller(vector<int> temp, int left, int right);
 	void ArrToQueueConverter(std::vector<int> temp, queue<int>& sprites);
 	void ClearQueue(queue<int> &sprites);
 	static QueueRenderer& Get()

@@ -8,7 +8,7 @@ void QueueRenderer::AddToQueue(string spriteName)
 
 void QueueRenderer::Merger(std::vector<int> arr, int left, int mid, int right)
 {
-	const int n1 = mid - left + 1;
+	int n1 = mid - left + 1;
 	int n2 = right - mid;
 
 	std::vector<int> leftHand(n1);
@@ -26,7 +26,7 @@ void QueueRenderer::Merger(std::vector<int> arr, int left, int mid, int right)
 
 	while (i < n1 && j < n2)
 	{
-		if (leftHand[i] < rightHand[j])
+		if (leftHand[i] <= rightHand[j])
 		{
 			arr[k] = leftHand[i];
 			i++;
@@ -54,31 +54,34 @@ void QueueRenderer::Merger(std::vector<int> arr, int left, int mid, int right)
 	}
 }
 
-void QueueRenderer::OrderQueueByZ(queue<int>& sprites)
+void QueueRenderer::OrderQueueByZ(queue<int>& sprites) //Called first
 {
-	std::vector<int> temp(sprites.size());
-	//int temp[(sprites.size())]; //Creates temporary array from queue
+	std::vector<int> temp; //Creates temporary vector from queue
 
 	for (int i = 0; i < sprites.size(); i++)
 	{
 		temp[i] = sprites.front();
-	}
+	} //Adds all items from queue to this array to be sorted
 
-	MergeCaller(sprites, temp, 0, sprites.size() - 1);
+	MergeCaller(temp, 0, sprites.size() - 1); //Perform merge sort
+	ArrToQueueConverter(temp, sprites); //Convert vector to sorted queue again at the end!
 }
 
-void QueueRenderer::MergeCaller(queue<int>& sprites, std::vector<int> temp, int left, int right)
+void QueueRenderer::MergeCaller(vector<int> temp, int left, int right) //Takes the vector created from the queue and sorts it, called second
 {
-	int length = sprites.size(); //Returns queue length
-	int left = 0;				 
-	int right = sprites.size() - 1;
+	if (left >= right)
+	{
+		return;
+	}
+
+	//int length = temp.size(); //Returns queue length
+	//int left = 0;				 
+	//int right = temp.size() - 1;
 	int mid = left + (right - left) / 2;
 
-	MergeCaller(sprites, temp, left, mid);
-	MergeCaller(sprites, temp, mid + 1, right);
+	MergeCaller(temp, left, mid);
+	MergeCaller(temp, mid + 1, right);
 	Merger(temp, left, mid, right);
-
-	ArrToQueueConverter(temp, sprites); //Convert vector to queue at the end!
 }
 
 void QueueRenderer::ClearQueue(queue<int>& sprites)
