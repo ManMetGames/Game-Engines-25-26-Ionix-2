@@ -6,16 +6,14 @@ local y = 500
 local xSpeed = 10
 local ySpeed = 10
 local t = 10
+local ok
 function EntityPlayer:OnStart()
 	entity1 = Entity.create_entity()
 	print(Entity.has_sprite_component(entity1))
 	Entity.add_sprite_component(entity1, "ball", 0)
 	Entity.set_entity_pos(entity1, x, y)
-	sprite1 = Entity.get_sprite_component(entity1)
-	-- DOESNT WORK	
-	-- if Entity.try_get_sprite_component(entity1, sprite1) then	
-	-- 	Sprite.set_width(sprite1, 50)
-	-- end
+	--sprite1 = Entity.get_sprite_component(entity1)
+	
 end
 
 function EntityPlayer:OnUpdate()

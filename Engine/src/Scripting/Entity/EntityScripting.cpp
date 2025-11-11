@@ -44,13 +44,16 @@ namespace IonixEngine {
             return entity->GetComponent<AudioPlayer>();
             };
 
-        auto tryGetSpriteComponent = [](Entity* entity, AnimatedSpriteComponent** spriteComponent) -> bool {
-            return entity->TryGetComponent<AnimatedSpriteComponent>(spriteComponent);
+        /*auto tryGetSpriteComponent = [](Entity* entity) -> auto {
+            AnimatedSpriteComponent** comp;
+            struct result {bool isOK; AnimatedSpriteComponent* comp; };
+            return result{ entity->TryGetComponent<AnimatedSpriteComponent>(comp), *comp };
             };
-
-        auto tryGetAudioComponent = [](Entity* entity, AudioPlayer** audioComponent) -> bool {
-            return entity->TryGetComponent<AudioPlayer>(audioComponent);
-            };
+         
+        auto tryGetAudioComponent = [](Entity* entity) -> std::tuple<bool, AudioPlayer*> {
+            AudioPlayer** comp;
+            return std::make_tuple(entity->TryGetComponent<AudioPlayer>(comp), *comp);  
+            };*/
 
         auto hasSpriteComponent = [](Entity* entity) -> bool {
             return entity->HasComponent<AnimatedSpriteComponent>();
@@ -60,7 +63,7 @@ namespace IonixEngine {
             return entity->HasComponent<AudioPlayer>();
             };
 
-
+        
 
         lua["Entity"] = lua.create_table_with(
             "create_entity", entity,
