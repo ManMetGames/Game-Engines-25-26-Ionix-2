@@ -44,8 +44,8 @@ namespace IonixEngine {
 		}
 
 		//sort algorithm stuff
-		void Merger(vector<RenderCall> arr, int left, int mid, int right);
-		void MergeCaller(queue<RenderCall>& sprites, vector<RenderCall> arr, int left, int right);
+		void Merger(vector<RenderCall> temp, int left, int mid, int right);
+		void MergeCaller(vector<RenderCall> temp, int left, int right);
 		void ArrToQueueConverter(vector<RenderCall> temp, queue<RenderCall>& sprites);
 
 	};

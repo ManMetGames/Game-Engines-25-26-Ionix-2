@@ -16,6 +16,9 @@ namespace IonixEngine {
 	}   //all of this is TEMPORARY because we're TESTING - it's in the name, that's why it says TEMP everywhere. We'll change this soon, thanks
 
 	void QueueRenderer::RenderFromQueue() {
+		//OrderQueueByZ(sprites);
+		//cout << sprites.size() << endl;
+
 		while (!sprites.empty()) {
 			RenderCall call = sprites.front();
 			SDL_RenderCopy(Application::Get().GetWindow().GetSdlRenderer(), call.texture, &call.src, &call.dest);
@@ -25,7 +28,7 @@ namespace IonixEngine {
 
 	void QueueRenderer::Merger(std::vector<RenderCall> arr, int left, int mid, int right)
 	{
-		const int n1 = mid - left + 1;
+		int n1 = mid - left + 1;
 		int n2 = right - mid;
 
 		std::vector<RenderCall> leftHand(n1);
@@ -43,7 +46,7 @@ namespace IonixEngine {
 
 		while (i < n1 && j < n2)
 		{
-			if (leftHand[i].z < rightHand[j].z)
+			if (leftHand[i].z <= rightHand[j].z)
 			{
 				arr[k] = leftHand[i];
 				i++;
@@ -71,31 +74,35 @@ namespace IonixEngine {
 		}
 	}
 
-	void QueueRenderer::OrderQueueByZ(queue<RenderCall>& sprites)
+	void QueueRenderer::OrderQueueByZ(queue<RenderCall>& sprites) //Called first
 	{
-		std::vector<RenderCall> temp(sprites.size());
-		//int temp[(sprites.size())]; //Creates temporary array from queue
+		std::vector<RenderCall> temp; //Creates temporary vector from queue
 
 		for (int i = 0; i < sprites.size(); i++)
 		{
 			temp[i] = sprites.front();
-		}
+			sprites.pop();
+		} //Adds all items from queue to this array to be sorted
 
-		MergeCaller(sprites, temp, 0, sprites.size() - 1);
+		MergeCaller(temp, 0, sprites.size() - 1); //Perform merge sort
+		ArrToQueueConverter(temp, sprites); //Convert vector to sorted queue again at the end!
 	}
 
-	void QueueRenderer::MergeCaller(queue<RenderCall>& sprites, std::vector<RenderCall> temp, int left, int right)
+	void QueueRenderer::MergeCaller(vector<RenderCall> temp, int left, int right) //Takes the vector created from the queue and sorts it, called second
 	{
-		int length = sprites.size(); //Returns queue length
-		/*left = 0;
-		right = sprites.size() - 1;*/
+		if (left >= right)
+		{
+			return;
+		}
+
+		//int length = temp.size(); //Returns queue length
+		//int left = 0;				 
+		//int right = temp.size() - 1;
 		int mid = left + (right - left) / 2;
 
-		MergeCaller(sprites, temp, left, mid);
-		MergeCaller(sprites, temp, mid + 1, right);
+		MergeCaller(temp, left, mid);
+		MergeCaller(temp, mid + 1, right);
 		Merger(temp, left, mid, right);
-
-		ArrToQueueConverter(temp, sprites); //Convert vector to queue at the end!
 	}
 
 	void QueueRenderer::ClearQueue(queue<RenderCall>& sprites)
