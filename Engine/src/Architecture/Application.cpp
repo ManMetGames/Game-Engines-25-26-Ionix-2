@@ -81,10 +81,7 @@ namespace IonixEngine
 
             // Scripting::Get().CallHook("OnUpdate");
 
-            if (layerInput->m_ControllerManager->IsButtonDown(SDL_CONTROLLER_BUTTON_A))
-            {
-                std::cout << "A\n";
-            }
+         
 
             layerInput->m_Input->CopyCodesEndFrame();
 
