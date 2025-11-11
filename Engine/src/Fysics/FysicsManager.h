@@ -4,19 +4,12 @@
 #include "Fysics/Force.h"
 #include "Fysics/RigidBodyTransform.h"
 #include "Architecture/ECS/Entity.hpp"
+
 #include <unordered_map>
 #include "box2d.h"
-#include "Fysics/Collider.h"
-#include <vector>
-#include <functional>
-#include "Contactlistener.h"
-
-using Entity = int;
 
 namespace IonixEngine
 {
-    class LayerFysics;
-
     class FysicsManager
     {
     private:

@@ -2,7 +2,6 @@
 #include "LayerSystem/Layers/LayerFysics.h"
 #include "Maf/MafUtils.h"
 #include "Fysics/FysicsManager.h"
-#include "Fysics/Shapes.h"
 
 #include <iostream>
 
@@ -17,7 +16,7 @@ namespace IonixEngine
 
         Collider(FysicsManager* manager) : fysicsManager(manager)
         {
-            //world = LayerFysics::GetInstance()->GetWorld();
+            world = LayerFysics::GetInstance()->GetWorld();
         }
 
         struct Contact {         //Contact struct
