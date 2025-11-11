@@ -73,8 +73,8 @@ namespace IonixEngine {
             "add_audio_component", addAudioPlayerComponent,
             "get_sprite_component", getSpriteComponent,
             "get_audio_component", getAudioPlayerComponent,
-            "try_get_sprite_component", tryGetSpriteComponent,
-            "try_get_audio_component", tryGetAudioComponent,
+            /*"try_get_sprite_component", tryGetSpriteComponent,
+            "try_get_audio_component", tryGetAudioComponent,*/
             "has_sprite_component", hasSpriteComponent,
             "has_audio_component", hasAudioComponent
         );
