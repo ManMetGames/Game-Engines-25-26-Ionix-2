@@ -81,6 +81,8 @@ namespace IonixEngine
 
         SDL_Renderer* renderer = m_Window->GetSdlRenderer();
 
+        cam->SetBackgroundColor(50, 80, 200, 255);
+
         //FysicBody testBody = FysicBody();
         
 
@@ -91,14 +93,15 @@ namespace IonixEngine
             deltaTime = static_cast<double>(currentTick - lastTick) / SDL_GetPerformanceFrequency();
             time += deltaTime;
             
-            SDL_RenderClear(renderer);
-            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);
+            cam->ClearBackground(renderer);
             for (auto layer : m_LayerStack.GetLayers()) {
                 if(layer)
                     layer->OnUpdate();
             }
 
-            cam->handleInput(1.0f);
+            cam->handleInput(static_cast<float>(deltaTime));
+
+
             
             Scripting::Get().CallHook("OnUpdate");
             ImGui::Render();
