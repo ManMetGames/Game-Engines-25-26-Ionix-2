@@ -1,3 +1,4 @@
+
 #pragma once
 #include <sol/sol.hpp>
 #include "Architecture/ECS/Component.hpp"
