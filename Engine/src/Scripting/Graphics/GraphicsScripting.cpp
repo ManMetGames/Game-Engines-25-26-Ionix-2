@@ -60,32 +60,32 @@ namespace IonixEngine {
             return spriteComponent->getCurrentRow();
             };
 
-        auto setCurrentFrame = [](AnimatedSpriteComponent* spriteComponent, int x) -> int {
+        auto setCurrentFrame = [](AnimatedSpriteComponent* spriteComponent, int x) {
             spriteComponent->setCurrentFrame(x);
             };
 
-        auto setEndFrame = [](AnimatedSpriteComponent* spriteComponent, int x) -> int {
+        auto setEndFrame = [](AnimatedSpriteComponent* spriteComponent, int x) {
             spriteComponent->setEndFrame(x);
             };
 
 
-        auto setRows = [](AnimatedSpriteComponent* spriteComponent, int x) -> int {
+        auto setRows = [](AnimatedSpriteComponent* spriteComponent, int x) {
             spriteComponent->setRows(x);
             };
 
-        auto setColumns = [](AnimatedSpriteComponent* spriteComponent, int x) -> int {
+        auto setColumns = [](AnimatedSpriteComponent* spriteComponent, int x) {
             spriteComponent->setCols(x);
             };
 
-        auto setWidth = [](AnimatedSpriteComponent* spriteComponent, int x) -> int {
+        auto setWidth = [](AnimatedSpriteComponent* spriteComponent, int x) {
             spriteComponent->setSpriteWidth(x);
             };
 
-        auto setHeight = [](AnimatedSpriteComponent* spriteComponent, int x) -> int {
+        auto setHeight = [](AnimatedSpriteComponent* spriteComponent, int x) {
             spriteComponent->setSpriteHeight(x);
             };
 
-        auto setZedOrder = [](AnimatedSpriteComponent* spriteComponent, int x) -> int {
+        auto setZedOrder = [](AnimatedSpriteComponent* spriteComponent, int x) {
             spriteComponent->setZedOrder(x);
             };
 
@@ -94,12 +94,8 @@ namespace IonixEngine {
         };
 
         auto setPlaybackMode = [](AnimatedSpriteComponent* spriteComponent, int playbackMode) {
-            spriteComponent->setPlaybackMode(static_cast<IonixEngine::AnimatedSpriteComponent::playbackOptions>(playbackMode));
+            spriteComponent->setPlaybackMode(static_cast<IonixEngine::playbackOptions>(playbackMode));
             };
-
-        auto setPlaybackMode = []() {
-
-        };
 
         
         lua["Texture"] = lua.create_table_with(
@@ -123,7 +119,9 @@ namespace IonixEngine {
             "set_columns", setColumns,
             "set_width", setWidth,
             "set_height", setHeight,
-            "set_zed_order", setZedOrder
+            "set_zed_order", setZedOrder,
+            "get_playback_mode", getPlaybackMode,
+            "set_playback_mode", setPlaybackMode
         );
     }
 

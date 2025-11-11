@@ -7,6 +7,14 @@
 
 namespace IonixEngine {
 
+	enum playbackOptions {
+		FORWARD,
+		BACKWARD,
+		FORWARDANDBACKWARD,
+		PLAYONCE,
+		ONEFRAME
+	};
+
 	class AnimatedSpriteComponent : public Component {
 		// for now we will assume all spritesheets are 1 row	and of uniform size (32x32, 64x64 etc.)
 		// will improve later on	
@@ -28,13 +36,7 @@ namespace IonixEngine {
 
 	public:
 
-		enum playbackOptions {
-			FORWARD,
-			BACKWARD,
-			FORWARDANDBACKWARD,
-			PLAYONCE,
-			ONEFRAME
-		};
+		
 
 		AnimatedSpriteComponent(Entity* entity, std::string alias, int zedOrder);
 		virtual void Render(RenderData* data) override;
