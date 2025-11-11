@@ -4,6 +4,7 @@
 #include <vector>
 #include <array>
 #include <iostream>
+#include <queue>
 
 struct Cell {
     std::array<int, 4> corns; // index of cell
@@ -17,6 +18,11 @@ struct Node {
     float f;
     int previousCell;
 
+};
+struct CompareNode {
+    bool operator()(const Node& a, const Node& b) const {
+        return a.f > b.f; // switches the priority queue to smallet f first instead of largest 
+    }
 };
 
 //struct GridCell {
@@ -94,6 +100,58 @@ public:
     // A* incoming crazy func gotta get wild
     std::vector<int>FindPath(int startCell, int goalCell) {
         //get values from node calculate g using b2distance, calc h for the each cell using heuristic function, calc f from both;
+        if (startCell < 0 || goalCell < 0 || m_cells.size() >= startCell || m_cells.size() >= goalCell) {
+            return{}; // wrong size check
+        }
+        const int cellCount = m_cells.size();
+        std::vector<Node> nodes(cellCount);
+        // initialise nodes 
+        for (int i; i < cellCount; i++) {
+            nodes[i].cellIndex = i;
+            nodes[i].h = CalculateHeuristic(i, cellCount);
+            nodes[i].g = std::numeric_limits<float>::infinity();
+            nodes[i].f = std::numeric_limits<float>::infinity();
+            nodes[i].previousCell = -1;
+        }
+        nodes[startCell].g = 0;
+        nodes[startCell].f = nodes[startCell].h;
+        std::priority_queue<Node, std::vector<Node>, CompareNode> openList;
+        openList.push(nodes[startCell]);
+        //closed list 
+        std::vector<bool> closeList(startCell, false);
+        //while loop to calc distance between nodes
+        while (!openList.empty()) {
+            Node currentNode = openList.top();
+            openList.pop();
+            int currentIndex = currentNode.cellIndex;
+            if (closeList[currentIndex] == true) {
+                continue;
+            }
+            closeList[currentIndex] = true;
+            if (currentIndex == goalCell) {
+                //found path
+                break;
+            }
+            //find adjacencys of cell
+            for (int adjacencyIndex : m_cells[currentIndex].neighbors) {
+                if (closeList[adjacencyIndex]) {
+                    continue;
+                }
+                // calc distance
+                float distanceBetween = b2Distance(GetCellCentre(m_cells[currentIndex]), GetCellCentre(m_cells[adjacencyIndex]));
+                float checkG = nodes[currentIndex].g + distanceBetween;
+                //if adjacent closer record it
+                if (checkG < nodes[adjacencyIndex].g) {
+                    nodes[adjacencyIndex].previousCell = currentIndex;
+                    nodes[adjacencyIndex].g = checkG;
+                    nodes[adjacencyIndex].f = nodes[currentIndex].g + nodes[currentIndex].h;
+                    openList.push(nodes[adjacencyIndex]);
+                }
+            }
+            //think I need to reconstruct path here not sure
+        }
+
+
     }
 
     //also Olesya gonna make a funnel that is fun *for* all!
