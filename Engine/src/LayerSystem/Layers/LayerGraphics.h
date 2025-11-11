@@ -7,6 +7,8 @@ namespace IonixEngine
 {
     class LayerGraphics : public Layer
     {
+		//Vector of all cameras in the scene
+        std::vector<Entity>& cameras;
 
         //SDL_Window win;
         //SDL_Renderer* renderer;
@@ -24,6 +26,11 @@ namespace IonixEngine
         virtual void OnUpdate() override;
         virtual void OnEvent(IonixEvent& e) override;
         QueueRenderer* GetQueue();
+
+		void AddCamera(Entity& entity)
+		{
+            cameras.push_back(entity);
+		}
     private:
     };
 }

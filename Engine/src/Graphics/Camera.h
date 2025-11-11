@@ -10,10 +10,10 @@ namespace IonixEngine
 		float y;
 		int h, w;
 		float zoom;
+		bool isFocused;
 
-		Camera(float startX = 0.0f, float startY = 0.0f, float startZoom = 1.0f, int height = 800, int width = 600);
+		Camera(float startX = 0.0f, float startY = 0.0f, float startZoom = 1.0f, int height = 800, int width = 600, bool isFocused = false);
 
 		void handleInput(float deltaTime);
-		void handleEvent();
 	};
 }
