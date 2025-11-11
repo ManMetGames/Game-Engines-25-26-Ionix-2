@@ -34,12 +34,6 @@ namespace IonixEngine {
         auto getMouseButtonUp = [](int mousecode)-> bool {
             return Application::Get().layerInput->m_Input->IsMouseButtonUp(static_cast<uint8>(mousecode));
             };
-        auto setMousePressed = [](int code) {
-            Application::Get().layerInput->m_Input->SetButtonPressed(static_cast<uint8>(code));
-            };
-        auto setMouseReleased = [](int code) {
-            Application::Get().layerInput->m_Input->SetButtonReleased(static_cast<uint8>(code));
-            };
         auto SetKeyPressed = [](int code) {
             Application::Get().layerInput->m_Input->SetKeyPressed(static_cast<SDL_Scancode>(code));
             };
@@ -112,10 +106,8 @@ namespace IonixEngine {
             "get_mouse_y", getMouseY,
             "get_mouse_button_down", getMouseButtonDown,
             "get_mouse_button_up", getMouseButtonUp,
-            "set_mouse_pressed", setMousePressed,
             "set_key_pressed", SetKeyPressed,
-            "set_key_released", SetKeyReleased,
-            "set_mouse_released", setMouseReleased
+            "set_key_released", SetKeyReleased
         );
                 
     }
