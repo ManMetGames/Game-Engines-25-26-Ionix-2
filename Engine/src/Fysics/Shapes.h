@@ -1,3 +1,5 @@
+
+
 #pragma once
 #include "LayerSystem/Layers/LayerFysics.h"
 
@@ -24,7 +26,7 @@ namespace IonixEngine
         float angle = 0.0f;
         bool isTrigger = false;
         b2Vec2 offset = { 0.0f, 0.0f };
-        std::vector<b2Vec2> vertices ;
+        std::vector<b2Vec2> vertices;
 
 
         void SelectCorrectShape(Entity* entity, fysicShapeType shapeType)
@@ -35,7 +37,7 @@ namespace IonixEngine
                 AddCircle(entity, radius, offset, isTrigger);
                 break;
             case fysicShapeType::box:
-                AddBox(entity, b2Vec2 { width, height }, offset, angle, isTrigger);
+                AddBox(entity, b2Vec2{ width, height }, offset, angle, isTrigger);
                 break;
             case fysicShapeType::polygon:
                 AddPolygon(entity);
