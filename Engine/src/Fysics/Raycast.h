@@ -1,15 +1,15 @@
 #pragma once
-#include "LayerSystem/Layers/LayerFysics.h"
+//#include "LayerSystem/Layers/LayerFysics.h"
 
 namespace IonixEngine
 {
     class Raycast
     {
-        b2World* world;
+        //b2World* world;
 
         Raycast()
         {
-            world = LayerFysics::GetInstance()->GetWorld();
+            //world = LayerFysics::GetInstance()->GetWorld();
         }
     };
     

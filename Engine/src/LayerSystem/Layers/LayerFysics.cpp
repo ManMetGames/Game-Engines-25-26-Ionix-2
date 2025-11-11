@@ -2,11 +2,10 @@
 #include "Fysics/FysicsManager.h"
 #include "Architecture/Application.h"
 #include "Maf/MafUtils.h"
-
 #include <iostream>
 #include <ostream>
-
 #include "EventSystem/Event.h"
+#include "Architecture/ECS/Entity.hpp"
 
 namespace IonixEngine
 {
@@ -24,20 +23,23 @@ namespace IonixEngine
     {
         instance = this;
         fysicsManager = new FysicsManager();
+        contactListener = new ContactListener();
 
         //create default ground box
+        /*
         b2World* world = fysicsManager->GetWorld();
         b2BodyDef groundDef; groundDef.position.Set(0.f, -1.f);
         b2Body* ground = world->CreateBody(&groundDef);
         b2PolygonShape g; g.SetAsBox(50.f, 1.f);
         ground->CreateFixture(&g, 0.f);
+        */
     }
-    
-    void LayerFysics::OnDetach() 
+
+    void LayerFysics::OnDetach()
     {
-        instance = nullptr;
-        delete fysicsManager;
-        fysicsManager = nullptr;
+        delete contactListener; contactListener = nullptr;
+        delete world; world = nullptr;
+        delete fysicsManager; fysicsManager = nullptr;
     }
     
     void LayerFysics::OnUpdate()
@@ -108,8 +110,35 @@ namespace IonixEngine
             auto& transform = transformMap[body];
             transform.currentPosition = body->GetPosition();
             transform.currentRotation = body->GetAngle();
+
+
+    LayerFysics* LayerFysics::instance = nullptr;
+
+    LayerFysics* LayerFysics::GetInstance() {
+        return instance;
+    }
+  
+    void LayerFysics::OnUpdate()
+    {
+        if (!fysicsManager->GetWorld()) return; //cheeky early return to see if world is attatched
+        fysicsManager->GetWorld()->Step(timeStep, velocityIterations, positionIterations); // world step on update
+
+        std::unordered_map<b2Body*, Entity*> bodyEntityMap = fysicsManager->GetBodyMap();
+
+        for (auto b : bodyEntityMap)
+        {
+            if (!b.first->IsAwake()) continue; // Skip bodies that are not awake
+            Entity * ent = b.second;
+            b2Vec2 pos = b.first->GetPosition();
+
+            ent->position.x = pos.x * 100.0f;
+            ent->position.y = pos.y * 100.0f;
+
+            float angle = b.first->GetAngle();
+            ent->rotation = b.first->GetAngle() * (180.0f / M_PI);
         }
     } 
+
     void LayerFysics::OnEvent(IonixEvent& e)
     {
         // Switch statement routes the event and invokes the relevant event handler
@@ -135,5 +164,10 @@ namespace IonixEngine
         b2FixtureDef fix; fix.shape = &shape; fix.density = 0.f; fix.friction = friction; fix.restitution = restitution;
         body->CreateFixture(&fix);
         return body;
+    }
+
+    FysicsManager* LayerFysics::GetFysicsManager()
+    {
+        return fysicsManager;
     }
 }

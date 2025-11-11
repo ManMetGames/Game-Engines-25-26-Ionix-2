@@ -4,11 +4,14 @@ namespace IonixEngine
 {
 	FysicsManager::FysicsManager()
 	{
-		b2Vec2 gravity(0.0f, 9.8f);
-		world = new b2World(gravity);
+		b2Vec2 gravity = b2Vec2(0.0f, 9.8f);
+        world = new b2World(gravity);
 
-		shapes = new FysicsShapes();
-		force = new Force();
+        // Collision callback system - not ECS
+        world->SetContactListener(&contactListener);
+
+        shape = new FysicsShapes();
+        force = new Force();
 	}
 
 	FysicsManager::~FysicsManager()
@@ -45,4 +48,23 @@ namespace IonixEngine
 		}
 		return nullptr;
 	}
+
+    b2Body* FysicsManager::GetBodyFromEntity(Entity* entity)
+    {
+        for (auto& pair : entityBodyMap)
+        {
+            if (pair.second == entity)
+            {
+                return pair.first;
+            }
+        }
+    }
+
+    Entity* FysicsManager::GetEntityFromBody(b2Body* body)
+    {
+        for (auto& pair : entityBodyMap)
+        {
+            return pair.second;
+        }
+    }
 }
