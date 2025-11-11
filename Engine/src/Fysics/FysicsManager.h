@@ -18,7 +18,7 @@ namespace IonixEngine
         FysicsShapes* shapes;
         Force* force;
         std::unordered_map<b2Body*, Entity*> entityBodyMap;
-        std::unordered_map<b2Body*, RigidBodyTransform> transformMap;
+        std::unordered_map<b2Body*, RigidBo     dyTransform> transformMap; //used for interpolation
 
     public:
         FysicsManager();
@@ -28,7 +28,7 @@ namespace IonixEngine
         Force* GetForce() { return force; }
         b2World* GetWorld() { return world; }
         std::unordered_map<b2Body*, Entity*>& GetBodyMap() { return entityBodyMap; }
-        std::unordered_map<b2Body*, RigidBodyTransform>& GetTransformMap() { return transformMap; }
+        std::unordered_map<b2Body*, RigidBodyTransform>& GetTransformMap() { return transformMap; } //used for interpolation
         
         b2Body* GetBodyFromEntity(Entity* entity);
         Entity* GetEntityFromBody(b2Body* body);

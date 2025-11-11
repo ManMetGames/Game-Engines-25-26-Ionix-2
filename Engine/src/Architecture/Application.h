@@ -43,7 +43,7 @@ namespace IonixEngine {
             return layer;
         }
         
-        inline float GetPhysicsInterpolationAlpha() const 
+        inline float GetPhysicsInterpolationAlpha() const //method used to interpolate between physics states
         {
             return m_FixedTimeAccumulator / m_FixedTimeStep;
         }
