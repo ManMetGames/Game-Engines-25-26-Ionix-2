@@ -37,6 +37,8 @@ namespace IonixEngine
         
         Entity* GetEntityFromID(EntityID id);
 
+        std::vector<Entity>& GetEntities() { return m_Entities; }
+
     private:
         std::vector<Entity> m_Entities;
         std::unordered_map<EntityID, std::size_t> m_IdToIndex;

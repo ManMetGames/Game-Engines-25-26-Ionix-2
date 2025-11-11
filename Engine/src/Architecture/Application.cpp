@@ -71,6 +71,8 @@ namespace IonixEngine
 
     }
 
+    Camera* cam = new Camera();
+
     void Application::Run()
     {
         m_Running = true;
@@ -95,6 +97,8 @@ namespace IonixEngine
                 if(layer)
                     layer->OnUpdate();
             }
+
+            cam->handleInput(1.0f);
             
             Scripting::Get().CallHook("OnUpdate");
             ImGui::Render();
