@@ -19,8 +19,10 @@ namespace IonixEngine {
             sol::lib::string,
             sol::lib::math,
             sol::lib::table,
-            sol::lib::io
+            sol::lib::io,
+            sol::lib::package
         );
+
 
         RegisterEngineBindings();
 
@@ -28,13 +30,13 @@ namespace IonixEngine {
     }
 
     void Scripting::RegisterEngineBindings() {
+        MafsScripting::Get().Init(m_LuaState);
         WindowScripting::Get().Init(m_LuaState);
         InputScripting::Get().Init(m_LuaState);
         AudioScripting::Get().Init(m_LuaState);
         GraphicsScripting::Get().Init(m_LuaState);
         EntityScripting::Get().Init(m_LuaState);
-        UIScripting::Get().Init(m_LuaState);
-        MafsScripting::Get().Init(m_LuaState);
+        UIScripting::Get().Init(m_LuaState);       
     }
 
     void Scripting::ExecuteScript(const std::string& scriptName) {

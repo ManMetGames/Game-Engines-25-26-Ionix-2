@@ -22,6 +22,30 @@ namespace IonixEngine {
         auto getKeyHeld = [](int code) -> bool {
             return Application::Get().layerInput->m_Input->IsKeyHeld(static_cast<SDL_Scancode>(code));
             };
+        auto getMouseX = []() -> int {
+            return Application::Get().layerInput->m_Input->GetMousePosition().x;
+            };
+        auto getMouseY = []() -> int {
+            return Application::Get().layerInput->m_Input->GetMousePosition().y;
+            };
+        auto getMouseButtonDown = [](int mousecode)-> bool {
+            return Application::Get().layerInput->m_Input->IsMouseButtonDown(static_cast<uint8>(mousecode));
+            };
+        auto getMouseButtonUp = [](int mousecode)-> bool {
+            return Application::Get().layerInput->m_Input->IsMouseButtonUp(static_cast<uint8>(mousecode));
+            };
+        auto setMousePressed = [](int code) {
+            Application::Get().layerInput->m_Input->SetButtonPressed(static_cast<uint8>(code));
+            };
+        auto setMouseReleased = [](int code) {
+            Application::Get().layerInput->m_Input->SetButtonReleased(static_cast<uint8>(code));
+            };
+        auto SetKeyPressed = [](int code) {
+            Application::Get().layerInput->m_Input->SetKeyPressed(static_cast<SDL_Scancode>(code));
+            };
+        auto SetKeyReleased = [](int code) {
+            Application::Get().layerInput->m_Input->SetKeyReleased(static_cast<SDL_Scancode>(code));
+            };
 
         lua["Keys"] = lua.create_table_with(
             "ionix_a", SDL_SCANCODE_A,
@@ -83,7 +107,15 @@ namespace IonixEngine {
         lua["Input"] = lua.create_table_with(
             "get_key_up", getKeyUp,
             "get_key_down", getKeyDown,
-            "get_key_held", getKeyHeld
+            "get_key_held", getKeyHeld,
+            "get_mouse_x", getMouseX,
+            "get_mouse_y", getMouseY,
+            "get_mouse_button_down", getMouseButtonDown,
+            "get_mouse_button_up", getMouseButtonUp,
+            "set_mouse_pressed", setMousePressed,
+            "set_key_pressed", SetKeyPressed,
+            "set_key_released", SetKeyReleased,
+            "set_mouse_released", setMouseReleased
         );
                 
     }
