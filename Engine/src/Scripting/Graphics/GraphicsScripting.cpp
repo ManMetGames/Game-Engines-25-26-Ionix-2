@@ -20,44 +20,44 @@ namespace IonixEngine {
             };
 
         auto getCurrentFrame = [](AnimatedSpriteComponent* spriteComponent ) -> int{
-            spriteComponent->getCurrentFrame();
+            return spriteComponent->getCurrentFrame();
         };
 
         auto getEndFrame = [](AnimatedSpriteComponent* spriteComponent) -> int {
-            spriteComponent->getEndFrame();
+            return spriteComponent->getEndFrame();
             };
 
 
         auto getRows = [](AnimatedSpriteComponent* spriteComponent) -> int {
-            spriteComponent->getRows();
+            return spriteComponent->getRows();
             };
 
         auto getColumns = [](AnimatedSpriteComponent* spriteComponent) -> int {
-            spriteComponent->getCols();
+            return spriteComponent->getCols();
             };
 
         auto getWidth = [](AnimatedSpriteComponent* spriteComponent) -> int {
-            spriteComponent->getSpriteWidth();
+            return spriteComponent->getSpriteWidth();
             };
 
         auto getHeight = [](AnimatedSpriteComponent* spriteComponent) -> int {
-            spriteComponent->getSpriteHeight();
+            return spriteComponent->getSpriteHeight();
             };
 
         auto getZedOrder = [](AnimatedSpriteComponent* spriteComponent) -> int {
-            spriteComponent->getZedOrder();
+            return spriteComponent->getZedOrder();
             };
 
         auto getTotalFrames = [](AnimatedSpriteComponent* spriteComponent) -> int {
-            spriteComponent->getTotalFrames();
+            return spriteComponent->getTotalFrames();
             };
 
         auto getCurrentColumn = [](AnimatedSpriteComponent* spriteComponent) -> int {
-            spriteComponent->getCurrentCol();
+            return spriteComponent->getCurrentCol();
             };
 
         auto getCurrentRow = [](AnimatedSpriteComponent* spriteComponent) -> int {
-            spriteComponent->getCurrentRow();
+            return spriteComponent->getCurrentRow();
             };
 
         auto setCurrentFrame = [](AnimatedSpriteComponent* spriteComponent, int x) -> int {
@@ -88,6 +88,18 @@ namespace IonixEngine {
         auto setZedOrder = [](AnimatedSpriteComponent* spriteComponent, int x) -> int {
             spriteComponent->setZedOrder(x);
             };
+
+        auto getPlaybackMode = [](AnimatedSpriteComponent* spriteComponent) -> int{
+            return spriteComponent->getPlaybackMode();
+        };
+
+        auto setPlaybackMode = [](AnimatedSpriteComponent* spriteComponent, int playbackMode) {
+            spriteComponent->setPlaybackMode(static_cast<IonixEngine::AnimatedSpriteComponent::playbackOptions>(playbackMode));
+            };
+
+        auto setPlaybackMode = []() {
+
+        };
 
         
         lua["Texture"] = lua.create_table_with(

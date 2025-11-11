@@ -23,6 +23,11 @@ namespace IonixEngine {
 		int spriteWidth, spriteHeight;
 		int currentRow, currentCol;
 
+		
+		enum playbackOptions playbackMode;
+
+	public:
+
 		enum playbackOptions {
 			FORWARD,
 			BACKWARD,
@@ -31,9 +36,6 @@ namespace IonixEngine {
 			ONEFRAME
 		};
 
-		enum playbackOptions playbackMode;
-
-	public:
 		AnimatedSpriteComponent(Entity* entity, std::string alias, int zedOrder);
 		virtual void Render(RenderData* data) override;
 
