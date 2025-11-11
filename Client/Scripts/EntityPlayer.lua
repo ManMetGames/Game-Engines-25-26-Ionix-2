@@ -2,8 +2,8 @@ local EntityPlayer = {}
 local entity1
 local x = 500
 local y = 500
-local xSpeed = 10
-local ySpeed = 10
+local xSpeed = 25
+local ySpeed = 25
 local t = 2
 function EntityPlayer:OnStart()
 	entity1 = Entity.create_entity()

@@ -11,7 +11,7 @@ namespace IonixEngine {
 		playbackMode = FORWARDANDBACKWARD;
 
 		rows = 1; //default spritesheet size, can be changed in appropriate setters
-		cols = 1;
+		cols = 5;
 
 
 		spriteWidth = 32; //default, can be change in setter
@@ -33,7 +33,7 @@ namespace IonixEngine {
 			isReversing = true;
 			endFrame = 0;
 			currentFrame = totalFrames;
-			currentCol = cols - 1;
+			currentCol = cols - 5;
 			currentRow = rows - 1;
 			break;
 		case ONEFRAME:
@@ -93,7 +93,7 @@ namespace IonixEngine {
 				break;
 			case BACKWARD:
 				currentFrame = totalFrames;
-				currentCol = cols - 1;
+				currentCol = cols - 5;
 				currentRow = rows - 1;
 				break;
 			case FORWARDANDBACKWARD:
