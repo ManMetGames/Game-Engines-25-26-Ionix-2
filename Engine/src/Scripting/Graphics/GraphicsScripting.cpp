@@ -19,50 +19,63 @@ namespace IonixEngine {
             TextureManager::Get().AddTexture(filePath, alias);
             };
 
-        auto current_frame = [](AnimatedSpriteComponent* spriteComponent ) -> int{
+        auto getCurrentFrame = [](AnimatedSpriteComponent* spriteComponent ) -> int{
             spriteComponent->getCurrentFrame();
         };
 
-        auto end_frame = [](AnimatedSpriteComponent* spriteComponent) -> int {
+        auto getEndFrame = [](AnimatedSpriteComponent* spriteComponent) -> int {
             spriteComponent->getEndFrame();
             };
 
 
-        auto rows = [](AnimatedSpriteComponent* spriteComponent) -> int {
+        auto getRows = [](AnimatedSpriteComponent* spriteComponent) -> int {
             spriteComponent->getRows();
             };
 
-        auto columns = [](AnimatedSpriteComponent* spriteComponent) -> int {
+        auto getColumns = [](AnimatedSpriteComponent* spriteComponent) -> int {
             spriteComponent->getCols();
             };
 
-        auto width = [](AnimatedSpriteComponent* spriteComponent) -> int {
+        auto getWidth = [](AnimatedSpriteComponent* spriteComponent) -> int {
             spriteComponent->getSpriteWidth();
             };
 
-        auto height = [](AnimatedSpriteComponent* spriteComponent) -> int {
+        auto getHeight = [](AnimatedSpriteComponent* spriteComponent) -> int {
             spriteComponent->getSpriteHeight();
             };
 
-        auto zed_order = [](AnimatedSpriteComponent* spriteComponent) -> int {
+        auto getZedOrder = [](AnimatedSpriteComponent* spriteComponent) -> int {
             spriteComponent->getZedOrder();
             };
 
-        auto total_frames = [](AnimatedSpriteComponent* spriteComponent) -> int {
+        auto getTotalFrames = [](AnimatedSpriteComponent* spriteComponent) -> int {
             spriteComponent->getTotalFrames();
             };
 
-        auto current_column = [](AnimatedSpriteComponent* spriteComponent) -> int {
+        auto getCurrentColumn = [](AnimatedSpriteComponent* spriteComponent) -> int {
             spriteComponent->getCurrentCol();
             };
 
-        auto current_row = [](AnimatedSpriteComponent* spriteComponent) -> int {
+        auto getCurrentRow = [](AnimatedSpriteComponent* spriteComponent) -> int {
             spriteComponent->getCurrentRow();
             };
 
         
         lua["Texture"] = lua.create_table_with(
             "add_texture", texture
+        );
+
+        lua["Sprite"] = lua.create_table_with(
+            "current_frame", getCurrentFrame,
+            "end_frame", getEndFrame,
+            "rows", getRows,
+            "columns", getColumns,
+            "width", getWidth,
+            "height", getHeight,
+            "zed_order", getZedOrder,
+            "total_frames", getTotalFrames,
+            "current_column", getCurrentColumn,
+            "current_row", getCurrentRow
         );
     }
 
