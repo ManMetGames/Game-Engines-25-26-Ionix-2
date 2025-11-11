@@ -10,7 +10,7 @@ class QueueRenderer //Singleton
 
 private:
 	//member variables
-	queue<int>* sprites; //change string type later to sprite/texture
+	queue<int> sprites; //change string type later to sprite/texture
 	//static pointer
 	static QueueRenderer* queueRendPtr;
 

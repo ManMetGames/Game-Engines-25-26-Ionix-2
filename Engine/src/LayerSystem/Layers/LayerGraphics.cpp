@@ -4,6 +4,7 @@
 #include <iostream>
 #include "Architecture/Application.h"
 #include "SDL_render.h"
+#include "Graphics/QueueRenderer.h"
 
 namespace IonixEngine
 {

@@ -98,4 +98,6 @@ void QueueRenderer::ArrToQueueConverter(std::vector<int> temp, queue<int>& sprit
 	{
 		sprites.push(temp[i]);
 	}
+
+	cout << sprites.size() << endl;
 }
