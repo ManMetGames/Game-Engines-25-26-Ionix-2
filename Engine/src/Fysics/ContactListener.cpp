@@ -32,7 +32,7 @@ namespace IonixEngine
 
 			//if (col1 && col2)
 			//{
-				EntityCollisionEvent event(fixtureA, fixtureB);
+				EntityCollisionEvent event(colObject1, colObject2);
 				IonixEngine::EventSDL::EventCallback m_EventCallback;
 				m_EventCallback(event);
 
@@ -58,7 +58,7 @@ namespace IonixEngine
 
 		if (colObject1 && colObject2)
 		{
-			EntityCollisionEvent event(fixtureA, fixtureB);
+			EntityCollisionEvent event(colObject1, colObject2);
 			IonixEngine::EventSDL::EventCallback m_EventCallback;
 			m_EventCallback(event);
 		}

@@ -36,17 +36,15 @@ namespace IonixEngine
     class EntityCollisionEvent : public IonixEvent
     {
     public:
-        EntityCollisionEvent(b2Fixture* fixA, b2Fixture* fixB) : IonixEvent(IonixEventType::EntityCollision), fixtureA(fixA), fixtureB(fixB) 
+        EntityCollisionEvent(Entity* entA, Entity* entB) : IonixEvent(IonixEventType::EntityCollision), entityA(entA), entityB(entB)
         {
-        	bodyA = fixtureA->GetBody();
-            bodyB = fixtureB->GetBody();
+            if (entA) entA->Collision(entB);
+            if (entB) entB->Collision(entA);
         }
 
     private:
-        b2Fixture* fixtureA;
-        b2Fixture* fixtureB;
-        b2Body* bodyA;
-        b2Body* bodyB;
+        Entity* entityA;
+        Entity* entityB;
     };
 
 
