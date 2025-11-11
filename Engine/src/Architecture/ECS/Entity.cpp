@@ -1,48 +1,52 @@
 #include "Entity.hpp"
 #include "Component.hpp"
-#include <type_traits>
+#include "Architecture/Scene.h"
 #include <vector>
+#include <cmath>
+
+#include "SDL_log.h"
 
 namespace IonixEngine {
 
-Entity::Entity(EntityID id) : 
-    id(id),
-    position(Vec2 { 0, 0 }), 
-    zOrder(0), 
-    rotation(0), 
-    remove(false)
-{
-    components = std::vector<Component*>();
-}
-
-void Entity::Init(Scene* scene) { }
-
-void Entity::Render(RenderData* data) {
-    for (Component* component : components) {
-        if (!component->CanRender()) { continue; } 
-        component->Render(data);
+    Entity::Entity(EntityID id) :
+        id(id),
+        position(Vec2{ 0, 0 }),
+        zOrder(0),
+        rotation(0),
+        remove(false),
+        transform(this)
+    {
+        components = std::vector<Component*>();
     }
-}
 
-void Entity::Update(float dt) {
-    for (Component* component : components) {
-        if (component->IsTag()) { continue; }
-        component->Update(dt);
-    }
-}
+    void Entity::Init(Scene* scene) {}
 
-void Entity::Collision(Entity* other) {
-    for (Component* component : components) {
-        if (component->IsTag()) { continue; }
-        component->Collide(other);
+    void Entity::Render(RenderData* data) {
+        for (Component* component : components) {
+            if (!component->CanRender()) { continue; }
+            component->Render(data);
+        }
     }
-}
 
-void Entity::Destroy(Scene* scene) {
-    for (Component* component : components) {
-        if (component->IsTag()) { continue; }
-        component->Destroy();
+    void Entity::Update(float dt) {
+        for (Component* component : components) {
+            if (component->IsTag()) { continue; }
+            component->Update(dt);
+        }
     }
-    remove = true; // Mark for removal
-}
+
+    void Entity::Collision(Entity* other) {
+        for (Component* component : components) {
+            if (component->IsTag()) { continue; }
+            component->Collide(other);
+        }
+    }
+
+    void Entity::Destroy(Scene* scene) {
+        for (Component* component : components) {
+            if (component->IsTag()) { continue; }
+            component->Destroy();
+        }
+        remove = true; // Mark for removal
+    }
 }

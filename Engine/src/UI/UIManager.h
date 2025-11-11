@@ -55,6 +55,7 @@ namespace IonixEngine
 
 		void RenderElement(UIElement& element);
 	public:
+		void BeginGroup(const std::string& groupName);
 
 		std::vector<UIElement> GetElements()
 		{
@@ -62,15 +63,14 @@ namespace IonixEngine
 		}
 
 		std::vector<UIElement> elements;
-		void UIManager::BeginGroup(const std::string& groupName);
 		
-		void UIManager::EndGroup();
+		void EndGroup();
 
-		void UIManager::BeginPanel(const std::string& panelName);
+		void BeginPanel(const std::string& panelName);
 
-		void UIManager::EndPanel();
+		void EndPanel();
 
-		void UIManager::AddChildToPanel(UIElement element);
+		void AddChildToPanel(UIElement element);
 		
 		// Add for new UITypes below
 		void AddLabel(int x, int y, float xSize, float ySize, const char* text);
