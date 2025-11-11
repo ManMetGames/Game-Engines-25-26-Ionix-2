@@ -48,7 +48,7 @@ namespace IonixEngine {
 
 		//This is just here so we can see the animation play at a normal speed
 		//THIS WILL BE REMOVED
-		SDL_Delay(60);
+		//SDL_Delay(60);
 
 
 		if ((currentFrame != endFrame) && playbackMode != ONEFRAME)
