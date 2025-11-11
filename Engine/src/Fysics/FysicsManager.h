@@ -33,6 +33,8 @@ namespace IonixEngine
         b2Body* GetBodyFromEntity(Entity* entity);
         Entity* GetEntityFromBody(b2Body* body);
 
+        static FysicsManager* GetManager();
+
         // these relied on static s_instance and BodyDic which are now gone.
         // you'll need to refactor them to use the instance approach.
 

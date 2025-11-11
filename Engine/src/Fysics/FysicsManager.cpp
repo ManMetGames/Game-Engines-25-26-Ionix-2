@@ -1,7 +1,12 @@
 #include "FysicsManager.h"
+#include "Architecture/Application.h"
 
 namespace IonixEngine
 {
+	FysicsManager* FysicsManager::GetManager() {
+		return Application::Get().layerFysics->GetFysicsManager();
+	}
+
 	FysicsManager::FysicsManager()
 	{
 		b2Vec2 gravity(0.0f, 9.8f);
