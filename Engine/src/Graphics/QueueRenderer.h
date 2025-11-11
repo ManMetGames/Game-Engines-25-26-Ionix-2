@@ -20,10 +20,13 @@ namespace IonixEngine {
 		double rotation = 0.0;
 		Entity* entity;
 		int flipX = -1;
+		int flipY = -1;
+		Uint8 alpha = 255;
+		SDL_BlendMode blendMode = SDL_BLENDMODE_BLEND;
 
 		RenderCall() {}
-		RenderCall(SDL_Texture* t, SDL_Rect d, SDL_Rect s, int32_t z, double r, Entity* e, int f) :
-			texture(t), dest(d), src(s), z(z), rotation(r), entity(e), flipX(f) {};
+		RenderCall(SDL_Texture* t, SDL_Rect d, SDL_Rect s, int32_t z, double r, Entity* e, int xFlip, int yFlip, Uint8 alpha) :
+			texture(t), dest(d), src(s), z(z), rotation(r), entity(e), flipX(xFlip), flipY(yFlip) {};
 
 	};
 

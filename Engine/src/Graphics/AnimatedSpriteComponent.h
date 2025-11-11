@@ -29,6 +29,7 @@ namespace IonixEngine {
 		int totalFrames;
 		int currentFrame;
 		int flipX;
+		int flipY;
 
 		bool reverseOnEnd;
 		bool isReversing;
@@ -40,7 +41,7 @@ namespace IonixEngine {
 		Uint8 ALPHA;
 		
 	public:
-		AnimatedSpriteComponent(Entity* entity, std::string alias, int zedOrder, int width, int height, int flipX = -1);
+		AnimatedSpriteComponent(Entity* entity, std::string alias, int zedOrder, int width, int height, int flipX, int flipY);
 		virtual void Render(RenderData* data) override;
 		void getFrame();
 		void SpriteSize(int x, int y);

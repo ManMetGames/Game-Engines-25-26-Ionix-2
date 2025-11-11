@@ -25,8 +25,15 @@ namespace IonixEngine {
 			//if(call.entity)
 				//rot = call.entity->rotation;
 
-			if (call.flipX != -1)
-				flipMode = SDL_RendererFlip::SDL_FLIP_HORIZONTAL;
+			flipMode = call.flipX == -1 ? SDL_RendererFlip::SDL_FLIP_NONE : SDL_RendererFlip::SDL_FLIP_HORIZONTAL;
+			flipMode = call.flipY == -1 ? SDL_RendererFlip::SDL_FLIP_NONE : SDL_RendererFlip::SDL_FLIP_VERTICAL;
+			//flipMode == call.flipX != -1 && call.flipY != 1 ? SDL_RendererFlip::SDL_FLIP_HORIZONTAL | SDL_RendererFlip::SDL_FLIP_VERTICAL : SDL_RendererFlip::SDL_FLIP_NONE;
+
+			//if (call.flipX != -1 && call.flipY != -1)
+				//flipMode == (SDL_FLIP_HORIZONTAL | SDL_FLIP_VERTICAL);
+
+			SDL_SetTextureBlendMode(call.texture, call.blendMode);
+			SDL_SetTextureAlphaMod(call.texture, call.alpha);
 
 			SDL_RenderCopyEx(
 				Application::Get().GetWindow().GetSdlRenderer(),

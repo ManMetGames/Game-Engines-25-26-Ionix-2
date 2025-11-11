@@ -331,8 +331,8 @@ namespace IonixEngine {
 			entity->position = Vec2{ x, y };
 			};
 
-		auto addSpriteComponent = [](Entity* entity, string alias, int zedOrder, int width, int height, FlipMode flip = SDL_FLIP_NONE) {
-			entity->AddComponent(new AnimatedSpriteComponent(entity, alias, zedOrder, width, height, flip));
+		auto addSpriteComponent = [](Entity* entity, string alias, int zedOrder, int width, int height, int flipX = -1, int flipY = -1) {
+			entity->AddComponent(new AnimatedSpriteComponent(entity, alias, zedOrder, width, height, flipX, flipY));
 			};
 
 		m_LuaState["Entity"] = m_LuaState.create_table_with(

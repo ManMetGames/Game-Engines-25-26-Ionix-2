@@ -9,13 +9,13 @@ namespace IonixEngine {
         renderData.renderer = Application::Get().GetWindow().GetSdlRenderer();
         renderData.queue = Application::Get().layerGraphics->GetQueue();
 
-        EntityID en = CreateEntity();
-        Entity* entity = GetEntityFromID(en);
-        if (!entity) { return; }
+        //EntityID en = CreateEntity();
+        //Entity* entity = GetEntityFromID(en);
+        //if (!entity) { return; }
         //entity->AddComponent(new SpriteComponent(entity, "pim", 0));
-        entity->AddComponent(new AnimatedSpriteComponent(entity, "Square", 0, 100, 100, -1));
-        entity->position.x = 100;
-        entity->position.y = 100;
+        //entity->AddComponent(new AnimatedSpriteComponent(entity, "Square", 0, 100, 100, -1));
+        //entity->position.x = 100;
+        //entity->position.y = 100;
         //entity->AddComponent(new EntityMover(entity));
     }
 

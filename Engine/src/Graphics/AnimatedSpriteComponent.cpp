@@ -2,7 +2,7 @@
 #include<SDL.h>
 
 namespace IonixEngine {
-	AnimatedSpriteComponent::AnimatedSpriteComponent(Entity* entity, std::string alias, int zedOrder, int w, int h, int flipX) : Component(entity, false, true, false) {
+	AnimatedSpriteComponent::AnimatedSpriteComponent(Entity* entity, std::string alias, int zedOrder, int w, int h, int flipX, int flipY) : Component(entity, false, true, false) {
 		texture = IonixEngine::TextureManager::Get().GetTexture(alias).GetTexture(); //adding sprite image file to the texture manager
 		zOrder = zedOrder;
 		width = w;
@@ -10,7 +10,7 @@ namespace IonixEngine {
 		
 		//calculating the total frame count
 		SDL_QueryTexture(texture, NULL, NULL, &size.x, &size.y);
-		SDL_RendererFlip::SDL_FLIP_NONE;
+		//SDL_RendererFlip::SDL_FLIP_NONE;
 		totalFrames =  size.x / size.y;
 
 		currentFrame = 0;
@@ -22,7 +22,10 @@ namespace IonixEngine {
 		SpriteSize(100, 100);
 		SpriteRotation(45);
 		SetColours(1, 1, 1, .2);
-		FlipSprite(true, false);
+		//FlipSprite(true, false);
+
+		this->flipX = flipX;
+		this->flipY = flipY;
 	}
 
 	void AnimatedSpriteComponent::Render(RenderData* data)
@@ -45,7 +48,8 @@ namespace IonixEngine {
 			zOrder,
 			entity->rotation,
 			entity,
-			flipX = -1
+			flipX,
+			flipY
 		);
 
 		//create and send render data to the render queue
