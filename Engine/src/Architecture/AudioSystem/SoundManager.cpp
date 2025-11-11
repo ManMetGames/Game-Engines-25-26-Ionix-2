@@ -1,7 +1,10 @@
 #include "SoundManager.h"
 #include "SDL_stdinc.h"
+#include <cstdint>
+#include <string>
+#include "Architecture/Assets.hpp"
+#include "Architecture/SHA256.hpp"
 #include <SDL_mixer.h> // i think this is right I cant tell.
-#include <iostream>
 
 namespace IonixEngine {
 
@@ -12,20 +15,9 @@ SoundManager &SoundManager::GetInstance() {
 }
 
 bool SoundManager::Init(int freq, SDL_AudioFormat format, int channels, int chunksize) {
-  SDL_AudioSpec desiredSpec{};
-  desiredSpec.freq = freq;
-  desiredSpec.format = format;
-  desiredSpec.channels = channels;
-  desiredSpec.samples = chunksize;
-  desiredSpec.callback = nullptr; // this is the callback, it might need changing one day.
-
-  m_Device = SDL_OpenAudioDevice(nullptr, 0, &desiredSpec, &m_DeviceSpec, 0);
-  if (!m_Device) {
-    SDL_Log("Failed to open audio device: %s", SDL_GetError());
-    return false;
+  for (const std::pair<std::string, std::string>& pair : Assets::Get().sounds.GetSounds()) {
+      LoadSound(pair.first, pair.second);
   }
-
-  SDL_PauseAudioDevice(m_Device, 0); // what do you think it does???
   return true;
 }
 
@@ -40,12 +32,14 @@ void SoundManager::Shutdown() {
 }
 
 bool SoundManager::LoadSound(const std::string &name, const std::string &filePath) {
-    m_Sounds[name] = AudioData();
-    AudioData* clip = &m_Sounds[name];
+    uint64_t hash = Get64BitHash(name);
+    m_Sounds[hash] = AudioData();
+    AudioData* clip = &m_Sounds[hash];
     Mix_Chunk* audio = Mix_LoadWAV(filePath.c_str());
 
     if (audio) {
-        m_Sounds[name].audio = audio;
+        m_Sounds[hash].audio = audio;
+        SDL_Log("[Sound Manager] Loaded sound at %s with alias %s", filePath.c_str(), name.c_str());
         return true;
     }
     SDL_Log("[Sound Manager] Could not load audio file: %s due to: %s", filePath.c_str(), Mix_GetError());
@@ -53,12 +47,24 @@ bool SoundManager::LoadSound(const std::string &name, const std::string &filePat
 }
 
 Mix_Chunk* SoundManager::GetAudio(const std::string& name) {
-    auto it = m_Sounds.find(name);
+    uint64_t hash = Get64BitHash(name);
+    auto it = m_Sounds.find(hash);
     if (it != m_Sounds.end()) {
-        return m_Sounds[name].audio;
+        return m_Sounds[hash].audio;
     }
     else {
         SDL_Log("[Sound Manager] Sound %s was not present, returned nullptr", name.c_str());
+        return nullptr;
+    }
+}
+
+Mix_Chunk* SoundManager::GetAudio(uint64_t hash) {
+    auto it = m_Sounds.find(hash);
+    if (it != m_Sounds.end()) {
+        return m_Sounds[hash].audio;
+    }
+    else {
+        SDL_Log("[Sound Manager] Sound %lu was not present, returned nullptr", hash);
         return nullptr;
     }
 }
@@ -77,26 +83,34 @@ Mix_Chunk* SoundManager::GetAudio(const std::string& name) {
 //}
 
 void SoundManager::SetVolume(const std::string &name, float volume) {
-  m_Volumes[name] = SDL_clamp(volume, 0, 1);
+  uint64_t hash = Get64BitHash(name);
+  m_Volumes[hash] = SDL_clamp(volume, 0, 1);
   // does not play the sound; volume applies to future 'PlaySound' calls
 }
 
-float SoundManager::GetPlayTime(const std::string& alias)
-{
+void SoundManager::SetVolume(uint64_t hash, float volume) {
+  m_Volumes[hash] = SDL_clamp(volume, 0, 1);
+  // does not play the sound; volume applies to future 'PlaySound' calls
+}
+
+float SoundManager::GetPlayTime(const std::string& alias) {
+    return GetPlayTime(Get64BitHash(alias));
+}
+
+float SoundManager::GetPlayTime(uint64_t hash) {
     int freq = 0;
     Uint16 format = 0;
     int channels = 0;
 
-    Mix_Chunk* audio = GetAudio(alias);
-    if (audio) 
-    {
+    Mix_Chunk* audio = GetAudio(hash);
+    if (audio) {
         if (!Mix_QuerySpec(&freq, &format, &channels)) { return -1.0f; }
-        return (float)audio->alen / (float)(freq * channels * ((format & 0xFF) / 8));
-    }
-    else {
+        return (float)audio->alen / (float)(freq * channels * ((format & 0xFF) / 8.0f));
+    } else {
         return -1.0f;
     }
 }
+
 SoundManager::~SoundManager() { Shutdown(); }
 
 } // namespace IonixEngine
