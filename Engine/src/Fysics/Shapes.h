@@ -3,10 +3,9 @@
 
 #include <sol/sol.hpp>
 
-
-
 namespace IonixEngine
 {
+    class Entity;
     enum class fysicShapeType { circle, box, polygon, none };
 
     class FysicsShapes
@@ -24,21 +23,21 @@ namespace IonixEngine
         float angle = 0.0f;
         bool isTrigger = false;
         b2Vec2 offset = { 0.0f, 0.0f };
-        std::vector<b2Vec2> vertices;
+        std::vector<b2Vec2> vertices ;
 
 
-        void SelectCorrectShape(fysicShapeType shapeType)
+        void SelectCorrectShape(Entity* entity, fysicShapeType shapeType)
         {
             switch (shapeType)
             {
             case fysicShapeType::circle:
-                AddCircle(radius, offset, isTrigger);
+                AddCircle(entity, radius, offset, isTrigger);
                 break;
             case fysicShapeType::box:
-                AddBox(width, height, offset, angle, isTrigger);
+                AddBox(entity, b2Vec2 { width, height }, offset, angle, isTrigger);
                 break;
             case fysicShapeType::polygon:
-                AddPolygon(vertices);
+                AddPolygon(entity);
                 break;
             default:
                 break;
@@ -94,65 +93,16 @@ namespace IonixEngine
 
 
     //DEFAULT CONSTRUCTOR FOR REFERENCE
-        void AddCircle()
-        {
-            b2CircleShape shape;
 
-            shape.m_radius = radius;
-            shape.m_p = offset;
-            b2FixtureDef fixtureDef;
-
-            fixtureDef.shape = &shape;
-            fixtureDef.isSensor = isTrigger;
-
-            if (fixture != nullptr) {
-                body->DestroyFixture(fixture);
-            }
-            fixture = body->CreateFixture(&fixtureDef);
-        }
-
-        void AddCircle(float radius, b2Vec2 offset = { 0.0f, 0.0f }, bool isTrigger = false)
-        {
-            b2CircleShape shape;
-
-            shape.m_radius = radius;
-            shape.m_p = offset;
-            b2FixtureDef fixtureDef;
-
-            fixtureDef.shape = &shape;
-            fixtureDef.isSensor = isTrigger;
-
-            if (fixture != nullptr) {
-                body->DestroyFixture(fixture);
-            }
-            fixture = body->CreateFixture(&fixtureDef);
-
-
-        }
+        void AddCircle(Entity* entity, float radius = 1, b2Vec2 offset = { 0.0f, 0.0f }, bool isTrigger = false);
 
 
         // Box -------------------------------------------------------
-        void AddBox()
+        void AddBox(Entity* entity, b2Vec2 size = { 1, 1 }, b2Vec2 offset = { 0.0f, 0.0f }, float angle = 0.0f, bool isTrigger = false);
+        /*void AddBox(Entity* entity, b2Vec2 size = { 1, 1 }, b2Vec2 offset = {0.0f, 0.0f}, float angle = 0.0f, bool isTrigger = false)
         {
             b2PolygonShape shape;
-            shape.SetAsBox(0.5f, 0.5f, b2Vec2_zero, 0.0f);
-
-            b2FixtureDef fixtureDef;
-
-            fixtureDef.shape = &shape;
-            fixtureDef.isSensor = true;
-            fixtureDef.density = 1.0f;
-
-            if (fixture != nullptr) {
-                body->DestroyFixture(fixture);
-            }
-            fixture = body->CreateFixture(&fixtureDef);
-        }
-
-        void AddBox(float width, float height, b2Vec2 offset = { 0.0f, 0.0f }, float angle = 0.0f, bool isTrigger = false)
-        {
-            b2PolygonShape shape;
-            shape.SetAsBox(width * 0.5f, height * 0.5f, offset, angle);
+            shape.SetAsBox(offset.x, offset.y, size, angle);
 
             b2FixtureDef fixtureDef;
 
@@ -164,31 +114,33 @@ namespace IonixEngine
                 body->DestroyFixture(fixture);
             }
             fixture = body->CreateFixture(&fixtureDef);
-        }
+        }*/
 
 
+        void AddPolygon(Entity* entity);
         //Add Polygon ---------------------------------------------------------
+        void AddPolygon(Entity* entity, std::vector<b2Vec2>& vertices);
 
-        void AddPolygon(std::vector<b2Vec2>& vertices) {
-            if (vertices.size() < 3 || vertices.size() > b2_maxPolygonVertices)
-                return;
+        //void AddPolygon(std::vector<b2Vec2>& vertices) {
+        //    if (vertices.size() < 3 || vertices.size() > b2_maxPolygonVertices)
+        //        return;
 
-            b2PolygonShape shape;
+        //    b2PolygonShape shape;
 
-            //Set the polygon shape with the vertices data and their total count
-            shape.Set(vertices.data(), static_cast<int32>(vertices.size()));
+        //    //Set the polygon shape with the vertices data and their total count
+        //    shape.Set(vertices.data(), static_cast<int32>(vertices.size()));
 
-            b2FixtureDef fixtureDef;
+        //    b2FixtureDef fixtureDef;
 
-            fixtureDef.shape = &shape;
-            fixtureDef.isSensor = false;
+        //    fixtureDef.shape = &shape;
+        //    fixtureDef.isSensor = false;
 
-            //Set the body fixture for the created shape with polygons
-            if (fixture != nullptr) {
-                body->DestroyFixture(fixture);
-            }
-            fixture = body->CreateFixture(&fixtureDef);
-        }
+        //    //Set the body fixture for the created shape with polygons
+        //    if (fixture != nullptr) {
+        //        body->DestroyFixture(fixture);
+        //    }
+        //    fixture = body->CreateFixture(&fixtureDef);
+        //}
 
         /*b2Fixture* GetFixture()
         {
@@ -220,14 +172,14 @@ namespace IonixEngine
             return radius;
         }
 
-        void SetRadius(float r, b2Body* bodyToChange, fysicShapeType shapeType)
+        void SetRadius(Entity* entity, float r, b2Body* bodyToChange, fysicShapeType shapeType)
         {
             /*b2Fixture* tempFix;
             tempFix = &bodyToChange->GetFixtureList()[0];
             tempFix->GetShape()->GetType();*/
             radius = r;
 
-            SelectCorrectShape(shapeType);
+            SelectCorrectShape(entity, shapeType);
         }
 
         float GetWidth()
@@ -238,7 +190,7 @@ namespace IonixEngine
         void SetWidth(float w, fysicShapeType shapeType)
         {
             width = w;
-            SelectCorrectShape(shapeType);
+            SelectCorrectShape(nullptr, shapeType);
         }
 
         float GetHeight()
@@ -249,7 +201,7 @@ namespace IonixEngine
         void SetHeight(float h, fysicShapeType shapeType)
         {
             height = h;
-            SelectCorrectShape(shapeType);
+            SelectCorrectShape(nullptr, shapeType);
         }
 
         float GetAngle()
@@ -260,7 +212,7 @@ namespace IonixEngine
         void SetAngle(float a, fysicShapeType shapeType)
         {
             angle = a;
-            SelectCorrectShape(shapeType);
+            SelectCorrectShape(nullptr, shapeType);
         }
 
         b2Vec2 GetOffset()
@@ -271,7 +223,7 @@ namespace IonixEngine
         void SetOffset(b2Vec2& off, fysicShapeType shapeType)
         {
             offset = off;
-            SelectCorrectShape(shapeType);
+            SelectCorrectShape(nullptr, shapeType);
         }
 
         bool IsShapeTrigger()
@@ -300,7 +252,7 @@ namespace IonixEngine
         void SetVertices(std::vector<b2Vec2>& verts, fysicShapeType shapeType)
         {
             vertices = verts;
-            SelectCorrectShape(shapeType);
+            SelectCorrectShape(nullptr, shapeType);
         }
 
 
