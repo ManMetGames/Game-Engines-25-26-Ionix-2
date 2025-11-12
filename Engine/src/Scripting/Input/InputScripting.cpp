@@ -14,7 +14,6 @@ namespace IonixEngine {
         return *s_Instance;
     }
 
-    // Detect & open all controllers
     void InputScripting::RefreshControllers()
     {
         for (auto* c : m_Controllers)
@@ -41,7 +40,6 @@ namespace IonixEngine {
     {
         RefreshControllers();
 
-        // --- Keyboard ---
         auto getKeyUp = [](int code) -> bool {
             return Application::Get().layerInput->m_Input->IsKeyUp(static_cast<SDL_Scancode>(code));
             };
@@ -52,7 +50,6 @@ namespace IonixEngine {
             return Application::Get().layerInput->m_Input->IsKeyHeld(static_cast<SDL_Scancode>(code));
             };
 
-        // --- Mouse ---
         auto getMouseX = []() -> int {
             return Application::Get().layerInput->m_Input->GetMousePosition().x;
             };
@@ -66,7 +63,6 @@ namespace IonixEngine {
             return Application::Get().layerInput->m_Input->IsMouseButtonUp(static_cast<uint8>(mousecode));
             };
 
-        // --- Controller Buttons (per controller index) ---
         auto getButtonDown = [this](int index, int btn) -> bool {
             if (index < 0 || index >= (int)m_Controllers.size() || !m_Controllers[index])
                 return false;
@@ -75,7 +71,6 @@ namespace IonixEngine {
             );
             };
 
-        // --- Controller Axes ---
         auto getStickAxis = [this](int index, SDL_GameControllerAxis axis, float divisor) -> float {
             if (index < 0 || index >= (int)m_Controllers.size() || !m_Controllers[index])
                 return 0.0f;
@@ -90,7 +85,6 @@ namespace IonixEngine {
         auto getLeftTrigger = [=](int index) { return getStickAxis(index, SDL_CONTROLLER_AXIS_TRIGGERLEFT, 32767.0f); };
         auto getRightTrigger = [=](int index) { return getStickAxis(index, SDL_CONTROLLER_AXIS_TRIGGERRIGHT, 32767.0f); };
 
-        // --- Lua Constants ---
         lua["Keys"] = lua.create_table_with(
             "ionix_a", SDL_SCANCODE_A,
             "ionix_b", SDL_SCANCODE_B,
@@ -122,7 +116,31 @@ namespace IonixEngine {
             "ionix_escape", SDL_SCANCODE_ESCAPE,
             "ionix_return", SDL_SCANCODE_RETURN,
             "ionix_tab", SDL_SCANCODE_TAB,
-            "ionix_backspace", SDL_SCANCODE_BACKSPACE
+            "ionix_backspace", SDL_SCANCODE_BACKSPACE,
+            "ionix_1", SDL_SCANCODE_1,
+            "ionix_2", SDL_SCANCODE_2,
+            "ionix_3", SDL_SCANCODE_3,
+            "ionix_4", SDL_SCANCODE_4,
+            "ionix_5", SDL_SCANCODE_5,
+            "ionix_6", SDL_SCANCODE_6,
+            "ionix_7", SDL_SCANCODE_7,
+            "ionix_8", SDL_SCANCODE_8,
+            "ionix_9", SDL_SCANCODE_9,
+            "ionix_0", SDL_SCANCODE_0,
+            "ionix_space", SDL_SCANCODE_SPACE,
+            "ionix_minus", SDL_SCANCODE_MINUS,
+            "ionix_equals", SDL_SCANCODE_EQUALS,
+            "ionix_leftbracket", SDL_SCANCODE_LEFTBRACKET,
+            "ionix_rightbracket", SDL_SCANCODE_RIGHTBRACKET,
+            "ionix_backslash", SDL_SCANCODE_BACKSLASH,
+            "ionix_lctrl", SDL_SCANCODE_LCTRL,
+            "ionix_lshift", SDL_SCANCODE_LSHIFT,
+            "ionix_lalt", SDL_SCANCODE_LALT,
+            "ionix_lgui", SDL_SCANCODE_LGUI,
+            "ionix_rctrl", SDL_SCANCODE_RCTRL,
+            "ionix_rshift", SDL_SCANCODE_RSHIFT,
+            "ionix_ralt", SDL_SCANCODE_RALT,
+            "ionix_rgui", SDL_SCANCODE_RGUI
         );
 
         lua["Buttons"] = lua.create_table_with(
@@ -143,18 +161,15 @@ namespace IonixEngine {
         );
 
         lua["Input"] = lua.create_table_with(
-            // Keyboard
             "get_key_up", getKeyUp,
             "get_key_down", getKeyDown,
             "get_key_held", getKeyHeld,
 
-            // Mouse
             "get_mouse_x", getMouseX,
             "get_mouse_y", getMouseY,
             "get_mouse_button_down", getMouseButtonDown,
             "get_mouse_button_up", getMouseButtonUp,
 
-            // Controller
             "get_button_down", getButtonDown,
             "get_left_stick_x", getLeftStickX,
             "get_left_stick_y", getLeftStickY,
