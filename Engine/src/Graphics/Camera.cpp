@@ -5,13 +5,12 @@
 namespace IonixEngine
 {
     Camera::Camera(float startX, float startY, float startZoom, int height, int width, bool isFocused)
-		: x(startX), y(startY), zoom(startZoom), h(height), w(width), isFocused(isFocused)
+		: x(startX-50), y(startY-50), zoom(startZoom), h(height), w(width), isFocused(isFocused)
     {
     }
 
     void Camera::Init() 
     {
-		SDL_Log("[Camera] Initializing camera at position X: %f, Y: %f", x, y);
         MoveCamera(x, y);
         Application::Get().layerGraphics->m_Cameras.push_back(this);
         std::vector<Camera*> cams = Application::Get().layerGraphics->m_Cameras;
