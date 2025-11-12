@@ -42,7 +42,14 @@ namespace IonixEngine
 
         if (Application::Get().layerInput->m_Input->IsKeyDown(SDL_SCANCODE_C)) 
         {
-
+            isFocused = false;
+            if (camIndex + 1 >= Application::Get().layerGraphics->m_Cameras.size()) { //this if else statement just handles if the camera is trying to access an index that is outside the range of the vector
+                Application::Get().layerGraphics->m_Cameras[0]->isFocused = true;
+            }
+            else {
+                Application::Get().layerGraphics->m_Cameras[camIndex + 1]->isFocused = true;
+            }
+            Application::Get().layerInput->m_Input->SetKeyReleased(SDL_SCANCODE_C); //this just stops the function from triggering on all cameras at the same time, returning the focus to camera 0
         }
 
         if (zoom < 0.2f) zoom = 0.2f;
