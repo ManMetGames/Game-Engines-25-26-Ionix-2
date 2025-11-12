@@ -1,8 +1,14 @@
 -- Scripts/TestCamera.lua
 -- Demonstrates using the Camera bindings from Lua
 
+local cam = nil  -- declare camera at module scope
+
 function OnStart()
     print("TestCamera.lua: OnStart called")
+
+    -- Create a new camera instance
+    cam = Camera.create()
+    print("Camera created")
 
     -- Initialize the camera's render texture
     Camera.init_render_texture(cam)
