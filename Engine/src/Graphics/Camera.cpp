@@ -11,7 +11,15 @@ namespace IonixEngine
 
     void Camera::Init() 
     {
-		Application::Get().layerGraphics->m_Cameras.push_back(this);
+        Application::Get().layerGraphics->m_Cameras.push_back(this);
+        std::vector<Camera*> cams = Application::Get().layerGraphics->m_Cameras;
+        for (auto it = cams.begin(); it != cams.end(); ++it) 
+        {
+            if(*it == this)
+            {
+				camIndex = cams.size() - 1;
+            }
+        }
     }
 
     void Camera::handleInput(float deltaTime)
