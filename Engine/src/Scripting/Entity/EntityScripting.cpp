@@ -35,6 +35,31 @@ namespace IonixEngine {
         auto addAudioPlayerComponent = [](Entity* entity, std::string clip = "", bool playOnAwake = false) {
             entity->AddComponent(new AudioPlayer(entity, clip, playOnAwake));
             };
+        auto entity = []() -> Entity* {
+            EntityID entityID = Application::Get().layerScene->GetScene()->CreateEntity();
+            return Application::Get().layerScene->GetScene()->GetEntityFromID(entityID);
+            };
+
+        lua["Entity"] = lua.create_table_with(
+            "create_entity", entity,
+            "get_entity_pos", getEntityPos,
+            "set_entity_pos", setEntityPos,
+            "add_sprite_component", addSpriteComponent,
+            "add_audio_component", addAudioPlayerComponent
+        );
+        // --- New Camera bindings ---
+        auto initRenderTexture = [](Camera* cam, SDL_Renderer* renderer) {
+            if (cam) cam->InitRenderTexture(renderer);
+            };
+
+        auto renderToTexture = [](Camera* cam, SDL_Renderer* renderer) {
+            if (cam) cam->RenderToTexture(renderer);
+            };
+
+        lua["Camera"] = lua.create_table_with(
+            "init_render_texture", initRenderTexture,
+            "render_to_texture", renderToTexture
+        );
 
         lua["Entity"] = lua.create_table_with(
             "create_entity", entity,

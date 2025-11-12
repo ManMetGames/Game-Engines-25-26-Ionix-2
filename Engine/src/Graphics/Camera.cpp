@@ -58,4 +58,21 @@ namespace IonixEngine
             std::cerr << "Failed to create render texture: " << SDL_GetError() << std::endl; //error message
         }
     }
+    void Camera::RenderToTexture(SDL_Renderer* renderer) {
+        if (!renderTexture) return;
+
+        SDL_SetRenderTarget(renderer, renderTexture);
+
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_RenderClear(renderer);
+
+        // Flush the graphics queue into this texture
+        Application::Get().layerGraphics->GetQueue()->RenderFromQueue();
+
+        SDL_SetRenderTarget(renderer, NULL);
+    }
+
+    SDL_Texture* Camera::GetRenderTexture() const {
+        return renderTexture;
+    }
 }
