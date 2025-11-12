@@ -106,9 +106,14 @@ namespace IonixEngine
             cam2->handleInput(deltaTime);
             
             Scripting::Get().CallHook("OnUpdate");
+
+			//cam2->RenderToScreen(renderer, 300, 0, 400, 300);
+
             ImGui::Render();
             ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), m_Window->GetSdlRenderer());
             SDL_RenderPresent(m_Window->m_Renderer);
+
+			
 
             layerInput->m_Input->CopyCodesEndFrame();
           

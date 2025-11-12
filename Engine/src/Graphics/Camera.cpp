@@ -1,6 +1,7 @@
 #include "Camera.h"
 #include <iostream>
 #include "Architecture/Application.h"
+#include <SDL.h>
 
 namespace IonixEngine
 {
@@ -11,6 +12,7 @@ namespace IonixEngine
 
     void Camera::Init() 
     {
+		InitRenderTexture(Application::Get().GetWindow().m_Renderer);
         MoveCamera(x, y);
         Application::Get().layerGraphics->m_Cameras.push_back(this);
         std::vector<Camera*> cams = Application::Get().layerGraphics->m_Cameras;
@@ -89,6 +91,54 @@ namespace IonixEngine
         MoveCamera(cameras[nextIndex]->camDeltaX - cameras[camIndex]->camDeltaX, cameras[nextIndex]->camDeltaY - cameras[camIndex]->camDeltaY, false);
 
         Application::Get().layerInput->m_Input->SetKeyReleased(SDL_SCANCODE_C); //this just stops the function from triggering on all cameras at the same time, returning the focus to camera 0
+    }
+
+    void Camera::InitRenderTexture(SDL_Renderer* renderer) {
+        // Use camera width/height for texture size
+        rtWidth = w;
+        rtHeight = h;
+
+        // Creates a texture for render taget
+        renderTexture = SDL_CreateTexture(
+            renderer,
+            SDL_PIXELFORMAT_RGBA8888,     // 32 bit texture formating
+            SDL_TEXTUREACCESS_TARGET,     // allows for SDL rendering
+            rtWidth,
+            rtHeight
+        );
+
+        if (!renderTexture) {
+            std::cerr << "Failed to create render texture: " << SDL_GetError() << std::endl; //error message
+        }
+    }
+
+    void Camera::RenderToTexture(SDL_Renderer* renderer) {
+        if (!renderTexture) return;
+
+        SDL_SetRenderTarget(renderer, renderTexture);
+
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_RenderClear(renderer);
+
+        // Flush the graphics queue into this texture
+        Application::Get().layerGraphics->GetQueue()->RenderFromQueue();
+
+        SDL_SetRenderTarget(renderer, NULL);
+    }
+
+    SDL_Texture* Camera::GetRenderTexture() const {
+        return renderTexture;
+    }
+
+
+    void Camera::RenderToScreen(SDL_Renderer* renderer, float posX, float posY, float sizeX, float sizeY) 
+    {
+        RenderToTexture(renderer);
+        SDL_Texture* camTex = GetRenderTexture();
+        if (camTex) {
+            SDL_Rect destRect = { posX, posY, sizeX, sizeY }; // position + size on screen
+            SDL_RenderCopy(renderer, camTex, NULL, &destRect);
+        }
     }
 
 }
