@@ -1,3 +1,4 @@
+/*
 #include "AnimatedSpriteComponent.h"
 #include <Graphics/QueueRenderer.h>
 
@@ -130,7 +131,7 @@ namespace IonixEngine {
 	void AnimatedSpriteComponent::setZedOrder(int x) { zOrder = x; }
 
 	//getters
-	IonixEngine::AnimatedSpriteComponent::playbackOptions AnimatedSpriteComponent::getPlaybackMode() /*good googly moogly*/ { return playbackOptions(); }
+	IonixEngine::AnimatedSpriteComponent::playbackOptions AnimatedSpriteComponent::getPlaybackMode() /*good googly moogly#1# { return playbackOptions(); }
 	int AnimatedSpriteComponent::getCurrentFrame() { return currentFrame; }
 	int AnimatedSpriteComponent::getEndFrame() { return endFrame; }
 	int AnimatedSpriteComponent::getRows() { return rows; }
@@ -142,3 +143,4 @@ namespace IonixEngine {
 	int AnimatedSpriteComponent::getCurrentCol() { return currentCol; }
 	int AnimatedSpriteComponent::getCurrentRow() { return currentRow; }
 }
+*/
