@@ -15,5 +15,16 @@ namespace IonixEngine
 
 		void handleInput(float deltaTime);
 		void handleEvent();
+
+		//Render Texture Functions
+		void InitRenderTexture(SDL_Renderer* renderer);   // sets texture as render target
+		void RenderToTexture(SDL_Renderer* renderer);     // renders/draws texture and resets
+		SDL_Texture* GetRenderTexture() const;            // retives texture
+
+	private:
+		// --- New members ---
+		SDL_Texture* renderTexture = nullptr;  // holds texture obj
+		int rtWidth = 0;                       // texture dimentions
+		int rtHeight = 0;
 	};
 }
