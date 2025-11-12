@@ -40,4 +40,22 @@ namespace IonixEngine
         if (zoom < 0.2f) zoom = 0.2f;
         if (zoom > 5.0f) zoom = 5.0f;
     }
+    void Camera::InitRenderTexture(SDL_Renderer* renderer) {
+        // Use camera width/height for texture size
+        rtWidth = w;
+        rtHeight = h;
+
+        // Creates a texture for render taget
+        renderTexture = SDL_CreateTexture(
+            renderer,
+            SDL_PIXELFORMAT_RGBA8888,     // 32 bit texture formating
+            SDL_TEXTUREACCESS_TARGET,     // allows for SDL rendering
+            rtWidth,
+            rtHeight
+        );
+
+        if (!renderTexture) {
+            std::cerr << "Failed to create render texture: " << SDL_GetError() << std::endl; //error message
+        }
+    }
 }
