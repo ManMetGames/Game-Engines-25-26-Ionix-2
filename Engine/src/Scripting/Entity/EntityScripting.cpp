@@ -1,6 +1,13 @@
 #include "Scripting/Entity/EntityScripting.h"
 #include "Architecture/Application.h"
 #include "Architecture/ECS/Entity.hpp"
+#include "Graphics/Camera.h"
+#include <SDL.h>
+#include <SDL_render.h>
+#include "sol/sol.hpp"
+
+// Extern declaration of global camera (defined in Application.cpp)
+extern IonixEngine::Camera* cam;
 
 namespace IonixEngine {
 
@@ -14,6 +21,7 @@ namespace IonixEngine {
 
     void EntityScripting::Init(sol::state& lua)
     {
+        // --- Entity bindings ---
         auto entity = []() -> Entity* {
             EntityID entityID = Application::Get().layerScene->GetScene()->CreateEntity();
             return Application::Get().layerScene->GetScene()->GetEntityFromID(entityID);
@@ -35,25 +43,14 @@ namespace IonixEngine {
         auto addAudioPlayerComponent = [](Entity* entity, std::string clip = "", bool playOnAwake = false) {
             entity->AddComponent(new AudioPlayer(entity, clip, playOnAwake));
             };
-        auto entity = []() -> Entity* {
-            EntityID entityID = Application::Get().layerScene->GetScene()->CreateEntity();
-            return Application::Get().layerScene->GetScene()->GetEntityFromID(entityID);
+
+        // --- Camera bindings (no SDL_Renderer exposed to Lua) ---
+        auto initRenderTexture = [](Camera* cam) {
+            if (cam) cam->InitRenderTexture(Application::Get().GetWindow().GetSdlRenderer());
             };
 
-        lua["Entity"] = lua.create_table_with(
-            "create_entity", entity,
-            "get_entity_pos", getEntityPos,
-            "set_entity_pos", setEntityPos,
-            "add_sprite_component", addSpriteComponent,
-            "add_audio_component", addAudioPlayerComponent
-        );
-        // --- New Camera bindings ---
-        auto initRenderTexture = [](Camera* cam, SDL_Renderer* renderer) {
-            if (cam) cam->InitRenderTexture(renderer);
-            };
-
-        auto renderToTexture = [](Camera* cam, SDL_Renderer* renderer) {
-            if (cam) cam->RenderToTexture(renderer);
+        auto renderToTexture = [](Camera* cam) {
+            if (cam) cam->RenderToTexture(Application::Get().GetWindow().GetSdlRenderer());
             };
 
         lua["Camera"] = lua.create_table_with(
@@ -61,6 +58,10 @@ namespace IonixEngine {
             "render_to_texture", renderToTexture
         );
 
+        // Expose global camera pointer
+        lua["cam"] = cam;
+
+        // Expose Entity functions
         lua["Entity"] = lua.create_table_with(
             "create_entity", entity,
             "get_entity_pos", getEntityPos,
@@ -69,5 +70,4 @@ namespace IonixEngine {
             "add_audio_component", addAudioPlayerComponent
         );
     }
-
 }

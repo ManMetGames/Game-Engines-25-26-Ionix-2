@@ -1,6 +1,7 @@
 #include "Camera.h"
 #include <iostream>
 #include "Architecture/Application.h"
+#include <SDL_render.h>
 
 namespace IonixEngine
 {
