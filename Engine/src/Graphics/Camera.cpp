@@ -5,12 +5,14 @@
 namespace IonixEngine
 {
     Camera::Camera(float startX, float startY, float startZoom, int height, int width, bool isFocused)
-		: x(startX), y(startY), xOffset(startX), yOffset(startY), zoom(startZoom), h(height), w(width), isFocused(isFocused)
+		: x(startX), y(startY), zoom(startZoom), h(height), w(width), isFocused(isFocused)
     {
     }
 
     void Camera::Init() 
     {
+		SDL_Log("[Camera] Initializing camera at position X: %f, Y: %f", x, y);
+        MoveCamera(x, y);
         Application::Get().layerGraphics->m_Cameras.push_back(this);
         std::vector<Camera*> cams = Application::Get().layerGraphics->m_Cameras;
         for (auto it = cams.begin(); it != cams.end(); ++it) 
@@ -27,50 +29,67 @@ namespace IonixEngine
         if (!isFocused) return;
         const float speed = 3.0f;
 
-        if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_W)) y = -speed * deltaTime;
-        if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_S)) y = speed * deltaTime;
-        if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_A)) x = -speed * deltaTime;
-        if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_D)) x = speed * deltaTime;
+        /*float moveX = 0.0f;
+        float moveY = 0.0f;
+
+        if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_W)) moveY = -speed;
+        if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_S)) moveY = speed;
+        if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_A)) moveX = -speed;
+        if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_D)) moveX = speed;
 		if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_W) == false &&
 			Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_S) == false) y = 0.0f;
 		if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_A) == false &&
-			Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_D) == false) x = 0.0f;
+			Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_D) == false) x = 0.0f;*/
 
         
-        if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_U)) {
+        if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_U)) 
+        {
             zoom *= 0.9f;
         }
-        else if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_I)) {
+        else if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_I)) 
+        {
             zoom *= 1.1f;
         }
 
         if (Application::Get().layerInput->m_Input->IsKeyDown(SDL_SCANCODE_C)) 
         {
-            isFocused = false;
-            if (camIndex + 1 >= Application::Get().layerGraphics->m_Cameras.size()) { //this if else statement just handles if the camera is trying to access an index that is outside the range of the vector
-                Application::Get().layerGraphics->m_Cameras[0]->isFocused = true;
-				MoveCamera(-xOffset, -yOffset); //moving camera back to the position of camera 0
-            }
-            else {
-                Application::Get().layerGraphics->m_Cameras[camIndex + 1]->isFocused = true;
-                MoveCamera(Application::Get().layerGraphics->m_Cameras[camIndex + 1]->xOffset, Application::Get().layerGraphics->m_Cameras[camIndex + 1]->yOffset);
-            }
-            Application::Get().layerInput->m_Input->SetKeyReleased(SDL_SCANCODE_C); //this just stops the function from triggering on all cameras at the same time, returning the focus to camera 0
+            SwitchCamera();
         }
 
         if (zoom < 0.2f) zoom = 0.2f;
         if (zoom > 5.0f) zoom = 5.0f;
 
-		MoveCamera(x, y);
+        /*if (moveX != 0.0f || moveY != 0.0f)
+        {
+            MoveCamera(moveX, moveY);
+        }*/
     }
 
-	void Camera::MoveCamera(float deltaX, float deltaY)
+	void Camera::MoveCamera(float deltaX, float deltaY, bool moveCamDelta)
 	{
+        if (moveCamDelta) {
+            camDeltaX += deltaX;
+			camDeltaY += deltaY;
+        }
+
         std::vector<Entity>& entities = Application::Get().layerScene->GetEntities();
 
         for (auto it = entities.begin(); it != entities.end(); ++it) {
-            it->position.y += deltaX;
-            it->position.x += deltaY;
+            it->position.x += deltaX;
+            it->position.y += deltaY;
         }
 	}
+    
+    void Camera::SwitchCamera() 
+    {
+        isFocused = false;
+        auto& cameras = Application::Get().layerGraphics->m_Cameras;
+        int nextIndex = (camIndex + 1) % cameras.size();
+        cameras[nextIndex]->isFocused = true;
+
+        MoveCamera(cameras[nextIndex]->camDeltaX - cameras[camIndex]->camDeltaX, cameras[nextIndex]->camDeltaY - cameras[camIndex]->camDeltaY, false);
+
+        Application::Get().layerInput->m_Input->SetKeyReleased(SDL_SCANCODE_C); //this just stops the function from triggering on all cameras at the same time, returning the focus to camera 0
+    }
+
 }

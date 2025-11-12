@@ -6,8 +6,8 @@ namespace IonixEngine
 	class Camera
 	{
 	public:
-		float x, xOffset;
-		float y, yOffset;
+		float x, camDeltaX;
+		float y, camDeltaY;
 		int h, w;
 		float zoom;
 		bool isFocused;
@@ -18,6 +18,7 @@ namespace IonixEngine
 		void Init();
 
 		void handleInput(float deltaTime);
-		void MoveCamera(float deltaX, float deltaY);
+		void MoveCamera(float deltaX, float deltaY, bool moveCamDelta = true);
+		void SwitchCamera();
 	};
 }
