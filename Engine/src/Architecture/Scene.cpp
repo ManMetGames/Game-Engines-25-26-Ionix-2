@@ -80,7 +80,7 @@ namespace IonixEngine {
     EntityID Scene::CreateEntity() {
         const EntityID entityId = m_NextId++;
         const std::size_t index = m_Entities.size();
-        m_Entities.push_back(Entity{ entityId });
+        m_Entities.push_back(Entity{ entityId , 1});
         m_IdToIndex[entityId] = index;
         return entityId;
     }

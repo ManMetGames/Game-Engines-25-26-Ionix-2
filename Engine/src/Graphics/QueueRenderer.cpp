@@ -15,6 +15,22 @@ namespace IonixEngine {
 		sprites.push(sprite); //needs to be changed because this doesn't take strings anymore
 	}   //all of this is TEMPORARY because we're TESTING - it's in the name, that's why it says TEMP everywhere. We'll change this soon, thanks
 
+	void QueueRenderer::RemoveFromQueue(RenderCall sprite)
+	{
+		queue<RenderCall> tempQueue;
+		for (int i = 0; i < sprites.size(); i++) {
+			RenderCall call = sprites.front();
+			if(call.texture == sprite.texture && call.dest.x == sprite.dest.x && call.dest.y == sprite.dest.y && call.src.x == sprite.src.x && call.src.y == sprite.src.y && call.z == sprite.z)
+			{
+				sprites.pop();
+				break;
+			}
+			tempQueue.push(call);
+			sprites.pop();
+		}
+		sprites = tempQueue;
+	}
+
 	void QueueRenderer::RenderFromQueue() {
 		while (!sprites.empty()) {
 			RenderCall call = sprites.front();

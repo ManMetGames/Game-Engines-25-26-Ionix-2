@@ -35,6 +35,7 @@ namespace IonixEngine {
 
         inline bool HasPhysics() { return hasPhysics; }
         inline bool CanRender() { return canRender; }
+		inline void SetCanRender(bool canRend) { canRender = canRend; }
         inline bool IsTag() { return isTag; }
     };
 };

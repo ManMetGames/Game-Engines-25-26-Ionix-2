@@ -15,27 +15,18 @@ namespace IonixEngine {
 
     class Scene;
 
-    class RenderData;
-
-    // Layer flags
-    enum LayerFlags : uint32_t {
-        LAYER_DEFAULT = 0,
-        LAYER_UI = 1,
-        LAYER_PLAYER = 2,
-       
-    };
- 
+    class RenderData; 
 
     class Entity {
     private:
         bool remove;
-        int layer = 0;
     public:
         Vec2 position;
         float rotation;
         int32_t zOrder;
         EntityID id;
         Transform transform;
+        int layer = 0;
               
         std::vector<Component*> components;
 

@@ -34,6 +34,7 @@ namespace IonixEngine {
 		QueueRenderer(const QueueRenderer& obj) = delete; //prevent copis
 		QueueRenderer();
 		void AddToQueue(RenderCall sprite);
+		void RemoveFromQueue(RenderCall sprite);
 		void OrderQueueByZ(queue<RenderCall>& sprites);
 		void RenderFromQueue();
 		void ClearQueue(queue<RenderCall>& sprites);

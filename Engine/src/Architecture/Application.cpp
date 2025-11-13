@@ -71,8 +71,8 @@ namespace IonixEngine
 
     }
 
-    Camera* cam = new Camera(0.0f, 0.0f, 1.0f, 800, 600, true);
-    Camera* cam2 = new Camera(100.0f, 100.0f, 1.0f, 800, 600, false);
+    Camera* cam = new Camera(0.0f, 0.0f, 1.0f, 800, 600, true, 0);
+    Camera* cam2 = new Camera(100.0f, 100.0f, 1.0f, 800, 600, false, 1);
 
 
     void Application::Run()
@@ -107,7 +107,8 @@ namespace IonixEngine
             
             Scripting::Get().CallHook("OnUpdate");
 
-			//cam2->RenderToScreen(renderer, 300, 0, 400, 300);
+            cam->RenderToScreen(renderer, 0, 0, Application::Get().GetWindow().m_Data.Width, Application::Get().GetWindow().m_Data.Height);
+			cam2->RenderToScreen(renderer, 0, 0, Application::Get().GetWindow().m_Data.Width, Application::Get().GetWindow().m_Data.Height);
 
             ImGui::Render();
             ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), m_Window->GetSdlRenderer());

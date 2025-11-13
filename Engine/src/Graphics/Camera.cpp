@@ -5,8 +5,8 @@
 
 namespace IonixEngine
 {
-    Camera::Camera(float startX, float startY, float startZoom, int height, int width, bool isFocused)
-		: x(startX-50), y(startY-50), zoom(startZoom), h(height), w(width), isFocused(isFocused)
+    Camera::Camera(float startX, float startY, float startZoom, int height, int width, bool isFocused, int renderLayer)
+		: x(startX - 50), y(startY - 50), zoom(startZoom), h(height), w(width), isFocused(isFocused), renderLayer(renderLayer)
     {
     }
 
@@ -113,6 +113,7 @@ namespace IonixEngine
     }
 
     void Camera::RenderToTexture(SDL_Renderer* renderer) {
+        if (!isFocused) return;
         if (!renderTexture) return;
 
         SDL_SetRenderTarget(renderer, renderTexture);
@@ -120,8 +121,36 @@ namespace IonixEngine
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
 
-        // Flush the graphics queue into this texture
-        Application::Get().layerGraphics->GetQueue()->RenderFromQueue();
+        std::vector<Entity>& entities = Application::Get().layerScene->GetEntities();
+
+        for (auto it = entities.begin(); it != entities.end(); ++it) 
+        {
+            if (it->layer != renderLayer) 
+            {
+                for (auto it2 = it->components.begin(); it2 != it->components.end(); ++it2) 
+                {
+                    Component* comp = *it2;
+                    if (comp->CanRender()) 
+                    {
+                        comp->SetCanRender(false);
+                        SDL_RenderClear(renderer);
+                    }
+				}
+            }
+            else if (it->layer == renderLayer) 
+            {
+                for (auto it2 = it->components.begin(); it2 != it->components.end(); ++it2) 
+                {
+                    Component* comp = *it2;
+                    if (!comp->CanRender()) 
+                    {
+                        comp->SetCanRender(true);
+                    }
+                }
+			}
+        }
+            // Flush the graphics queue into this texture
+            Application::Get().layerGraphics->GetQueue()->RenderFromQueue();
 
         SDL_SetRenderTarget(renderer, NULL);
     }
