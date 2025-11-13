@@ -8,13 +8,14 @@
 
 namespace IonixEngine {
 
-    Entity::Entity(EntityID id) :
+    Entity::Entity(EntityID id, int startLayer) :
         id(id),
         position(Vec2{ 0, 0 }),
         zOrder(0),
         rotation(0),
         remove(false),
-        transform(this)
+        transform(this),
+        layer(startLayer)
     {
         components = std::vector<Component*>();
     }

@@ -17,33 +17,31 @@ namespace IonixEngine {
 
     class RenderData;
 
-    enum RenderLayer {
-        LAYER_BACKGROUND = 1 << 0, // 0001
-        LAYER_MIDGROUND = 1 << 1, // 0010
-        LAYER_UI = 1 << 2, // 0100
-        LAYER_DEBUG = 1 << 3, // 1000
+    // Layer flags
+    enum LayerFlags : uint32_t {
+        LAYER_DEFAULT = 0,
+        LAYER_UI = 1,
+        LAYER_PLAYER = 2,
+       
     };
-
  
 
     class Entity {
     private:
         bool remove;
-
+        int layer = 0;
     public:
         Vec2 position;
         float rotation;
         int32_t zOrder;
         EntityID id;
         Transform transform;
-        uint32_t renderLayer;
-      
-        Entity(EntityID id);
-
-        
+              
         std::vector<Component*> components;
 
         // May want to add a pointer to scene entity belongs to?
+
+        Entity(EntityID id, int startLayer = 0);
 
         void Init(Scene* scene);
         void Render(RenderData* data);
