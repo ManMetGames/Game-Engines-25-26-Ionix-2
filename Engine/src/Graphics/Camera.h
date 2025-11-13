@@ -1,6 +1,7 @@
 #pragma once
 #include <SDL.h>
 #include <SDL_render.h>
+#include <cstdint>
 
 namespace IonixEngine
 {
@@ -17,9 +18,17 @@ namespace IonixEngine
 		int rtWidth = 0;                       // texture dimentions
 		int rtHeight = 0;
 
+		// Culling mask: bitflags for layers this camera will render.
+		// Default = all bits set (renders everything).
+		uint32_t cullingMask = 0xFFFFFFFFu;
+
 		Camera(float startX = 0.0f, float startY = 0.0f, float startZoom = 1.0f, int height = 800, int width = 600, bool isFocused = false);
 
 		void Init();
+
+		// Culling mask API
+		inline void SetCullingMask(uint32_t mask) { cullingMask = mask; }
+		inline uint32_t GetCullingMask() const { return cullingMask; }
 
 		void handleInput(float deltaTime);
 		void MoveCamera(float deltaX, float deltaY, bool moveCamDelta = true);

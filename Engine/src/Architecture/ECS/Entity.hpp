@@ -17,6 +17,15 @@ namespace IonixEngine {
 
     class RenderData;
 
+    // Layer flags for culling masks (extend as needed)
+    enum LayerFlags : uint32_t {
+        LAYER_DEFAULT = 1u << 0,
+        LAYER_UI      = 1u << 1,
+        LAYER_PLAYER  = 1u << 2,
+        LAYER_ENEMY   = 1u << 3,
+        LAYER_ALL     = 0xFFFFFFFFu
+    };
+
     class Entity {
     private:
         bool remove;
@@ -27,6 +36,9 @@ namespace IonixEngine {
         int32_t zOrder;
         EntityID id;
         Transform transform;
+
+        // Bitmask of layers this entity belongs to (default = LAYER_DEFAULT)
+        uint32_t layerMask = LAYER_DEFAULT;
 
         Entity(EntityID id);
 
@@ -39,6 +51,9 @@ namespace IonixEngine {
         void Update(float dt);
         void Collision(Entity* other);
         void Destroy(Scene* scene);
+
+        inline void SetLayerMask(uint32_t mask) { layerMask = mask; }
+        inline uint32_t GetLayerMask() const { return layerMask; }
 
         template<typename T> T* GetComponent() {
             static_assert(std::is_base_of<Component, T>::value, "Type does not inherit component");

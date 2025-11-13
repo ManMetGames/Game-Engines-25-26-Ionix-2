@@ -1,6 +1,7 @@
 #include "Entity.hpp"
 #include "Component.hpp"
 #include "Architecture/Scene.h"
+#include "Architecture/Application.h"
 #include <vector>
 #include <cmath>
 
@@ -22,6 +23,27 @@ namespace IonixEngine {
     void Entity::Init(Scene* scene) {}
 
     void Entity::Render(RenderData* data) {
+        // Determine active camera (focused). If none, use first camera.
+        Camera* activeCam = nullptr;
+        if (Application::Get().layerGraphics) {
+            auto& cams = Application::Get().layerGraphics->m_Cameras;
+            for (auto cam : cams) {
+                if (cam && cam->isFocused) {
+                    activeCam = cam;
+                    break;
+                }
+            }
+            if (!activeCam && !cams.empty()) activeCam = cams.front();
+        }
+
+        // If we have an active camera, cull this entity if masks don't overlap.
+        if (activeCam) {
+            if ((activeCam->GetCullingMask() & layerMask) == 0u) {
+                // Culled for this camera; skip rendering components.
+                return;
+            }
+        }
+
         for (Component* component : components) {
             if (!component->CanRender()) { continue; }
             component->Render(data);

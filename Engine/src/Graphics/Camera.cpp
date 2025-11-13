@@ -6,7 +6,7 @@
 namespace IonixEngine
 {
     Camera::Camera(float startX, float startY, float startZoom, int height, int width, bool isFocused)
-		: x(startX-50), y(startY-50), zoom(startZoom), h(height), w(width), isFocused(isFocused)
+		: x(startX-50), y(startY-50), zoom(startZoom), h(height), w(width), isFocused(isFocused), cullingMask(0xFFFFFFFFu)
     {
     }
 
