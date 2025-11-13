@@ -123,34 +123,34 @@ namespace IonixEngine
 
         std::vector<Entity>& entities = Application::Get().layerScene->GetEntities();
 
-        for (auto it = entities.begin(); it != entities.end(); ++it) 
+		auto& layerGraphics = Application::Get().layerGraphics;
+        for (auto it = entities.begin(); it != entities.end(); ++it)
         {
-            if (it->layer != renderLayer) 
+            if (it->layer != renderLayer)
             {
-                for (auto it2 = it->components.begin(); it2 != it->components.end(); ++it2) 
+                for (auto it2 = it->components.begin(); it2 != it->components.end(); ++it2)
                 {
                     Component* comp = *it2;
-                    if (comp->CanRender()) 
+                    if (comp->CanRender())
                     {
                         comp->SetCanRender(false);
-                        SDL_RenderClear(renderer);
                     }
-				}
+                }
             }
-            else if (it->layer == renderLayer) 
+            else if (it->layer == renderLayer)
             {
-                for (auto it2 = it->components.begin(); it2 != it->components.end(); ++it2) 
+                for (auto it2 = it->components.begin(); it2 != it->components.end(); ++it2)
                 {
                     Component* comp = *it2;
-                    if (!comp->CanRender()) 
+                    if (!comp->CanRender())
                     {
                         comp->SetCanRender(true);
                     }
                 }
-			}
+            }
         }
-            // Flush the graphics queue into this texture
-            Application::Get().layerGraphics->GetQueue()->RenderFromQueue();
+        // Flush the graphics queue into this texture
+        Application::Get().layerGraphics->GetQueue()->RenderFromQueue();
 
         SDL_SetRenderTarget(renderer, NULL);
     }
