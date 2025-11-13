@@ -59,6 +59,7 @@ namespace IonixEngine {
             // SDL_Log("[DEBUG TEST] Rendering entity %zu", i);
             //SDL_Log("[DEBUG] entity #%zu pos at: X: %f, Y: %f", i, entity->transform.GetGlobalPosition().x, entity->transform.GetGlobalPosition().y);
             entity->Render(&renderData);
+            
         }
     }
 

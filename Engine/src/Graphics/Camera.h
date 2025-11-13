@@ -17,6 +17,8 @@ namespace IonixEngine
 		int rtWidth = 0;                       // texture dimentions
 		int rtHeight = 0;
 
+		uint32_t cullingMask = 0xFFFFFFFF; 
+
 		Camera(float startX = 0.0f, float startY = 0.0f, float startZoom = 1.0f, int height = 800, int width = 600, bool isFocused = false);
 
 		void Init();
@@ -30,5 +32,7 @@ namespace IonixEngine
 		void RenderToTexture(SDL_Renderer* renderer);     // renders/draws texture and resets
 		SDL_Texture* GetRenderTexture() const;            // retives texture
 		void RenderToScreen(SDL_Renderer* renderer, float posX, float posY, float sizeX, float sizeY);
+		
+
 	};
 }

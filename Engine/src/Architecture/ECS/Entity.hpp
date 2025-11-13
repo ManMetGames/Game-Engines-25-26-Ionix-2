@@ -17,6 +17,15 @@ namespace IonixEngine {
 
     class RenderData;
 
+    enum RenderLayer {
+        LAYER_BACKGROUND = 1 << 0, // 0001
+        LAYER_MIDGROUND = 1 << 1, // 0010
+        LAYER_UI = 1 << 2, // 0100
+        LAYER_DEBUG = 1 << 3, // 1000
+    };
+
+ 
+
     class Entity {
     private:
         bool remove;
@@ -27,9 +36,11 @@ namespace IonixEngine {
         int32_t zOrder;
         EntityID id;
         Transform transform;
-
+        uint32_t renderLayer;
+      
         Entity(EntityID id);
 
+        
         std::vector<Component*> components;
 
         // May want to add a pointer to scene entity belongs to?
