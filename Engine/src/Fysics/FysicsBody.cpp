@@ -59,13 +59,15 @@ namespace IonixEngine
 
     b2Body* FysicsBody::GetBody() { return body; }
 
-    b2Vec2 FysicsBody::GetPosition() const
+    b2Vec2 FysicsBody::GetPosition(Entity* entity) const
     {
+        b2Body* body = Application::Get().layerFysics->GetFysicsManager()->GetBodyFromEntity(entity);
         return body ? body->GetPosition() : b2Vec2(0.0f, 0.0f);
     }
 
-    void FysicsBody::SetPosition(float x, float y)
+    void FysicsBody::SetPosition(Entity* entity, float x, float y)
     {
+        b2Body* body = Application::Get().layerFysics->GetFysicsManager()->GetBodyFromEntity(entity);
         if (body)
         {
             b2Vec2 newPos(x, y);
@@ -73,13 +75,15 @@ namespace IonixEngine
         }
     }
 
-    float FysicsBody::GetAngle() const
+    float FysicsBody::GetAngle(Entity* entity) const
     {
+        b2Body* body = Application::Get().layerFysics->GetFysicsManager()->GetBodyFromEntity(entity);
         return body ? body->GetAngle() : 0.0f;
     }
 
-    void FysicsBody::SetAngle(float angleInRadians)
+    void FysicsBody::SetAngle(Entity* entity, float angleInRadians)
     {
+        b2Body* body = Application::Get().layerFysics->GetFysicsManager()->GetBodyFromEntity(entity);
         if (body)
         {
             b2Vec2 currentPos = body->GetPosition();
@@ -87,13 +91,15 @@ namespace IonixEngine
         }
     }
 
-    b2Vec2 FysicsBody::GetLinearVelocity() const
+    b2Vec2 FysicsBody::GetLinearVelocity(Entity* entity) const
     {
+        b2Body* body = Application::Get().layerFysics->GetFysicsManager()->GetBodyFromEntity(entity);
         return body ? body->GetLinearVelocity() : b2Vec2(0.0f, 0.0f);
     }
 
-    void FysicsBody::SetLinearVelocity(float x, float y)
+    void FysicsBody::SetLinearVelocity(Entity* entity, float x, float y)
     {
+        b2Body* body = Application::Get().layerFysics->GetFysicsManager()->GetBodyFromEntity(entity);
         if (body)
         {
             b2Vec2 newVelocity(x, y);
@@ -101,28 +107,33 @@ namespace IonixEngine
         }
     }
 
-    float FysicsBody::GetAngularVelocity() const
+    float FysicsBody::GetAngularVelocity(Entity* entity) const
     {
+        b2Body* body = Application::Get().layerFysics->GetFysicsManager()->GetBodyFromEntity(entity);
         return body ? body->GetAngularVelocity() : 0.0f;
     }
 
-    void FysicsBody::SetAngularVelocity(float x)
+    void FysicsBody::SetAngularVelocity(Entity* entity, float x)
     {
+        b2Body* body = Application::Get().layerFysics->GetFysicsManager()->GetBodyFromEntity(entity);
         if (body) body->SetAngularVelocity(x);
     }
 
-    void FysicsBody::SetAwake(bool flag)
+    void FysicsBody::SetAwake(Entity* entity, bool flag)
     {
+        b2Body* body = Application::Get().layerFysics->GetFysicsManager()->GetBodyFromEntity(entity);
         if (body) body->SetAwake(flag);
     }
 
-    bool FysicsBody::GetAwake()
+    bool FysicsBody::GetAwake(Entity* entity)
     {
+        b2Body* body = Application::Get().layerFysics->GetFysicsManager()->GetBodyFromEntity(entity);
         return body ? body->IsAwake() : false;
     }
 
-    void FysicsBody::RotatePosition(float angle)
+    void FysicsBody::RotatePosition(Entity* entity, float angle)
     {
+        b2Body* body = Application::Get().layerFysics->GetFysicsManager()->GetBodyFromEntity(entity);
         if (body)
         {
             float currentAngle = body->GetAngle();
@@ -131,45 +142,74 @@ namespace IonixEngine
         }
     }
 
-    float FysicsBody::GetLinearDamping() { return body->GetLinearDamping(); }
+    float FysicsBody::GetLinearDamping(Entity* entity)
+    { 
+        b2Body* body = Application::Get().layerFysics->GetFysicsManager()->GetBodyFromEntity(entity);
+        return body->GetLinearDamping(); 
+    }
 
-    void FysicsBody::SetLinearDamping(float linearDamping)
+    void FysicsBody::SetLinearDamping(Entity* entity, float linearDamping)
     {
+        b2Body* body = Application::Get().layerFysics->GetFysicsManager()->GetBodyFromEntity(entity);
         body->SetLinearDamping(linearDamping);
     }
 
-    float FysicsBody::GetAngularDamping() { return body->GetAngularDamping(); }
+    float FysicsBody::GetAngularDamping(Entity* entity) 
+    {
+        b2Body* body = Application::Get().layerFysics->GetFysicsManager()->GetBodyFromEntity(entity);
+        return body->GetAngularDamping(); 
+    }
 
-    void FysicsBody::SetAngularDamping(float angularDamping)
+    void FysicsBody::SetAngularDamping(Entity* entity, float angularDamping)
     {
         body->SetAngularDamping(angularDamping);
     }
 
-    bool FysicsBody::GetAllowSleep() { return body->IsSleepingAllowed(); }
+    bool FysicsBody::GetAllowSleep(Entity* entity) 
+    { 
+        b2Body* body = Application::Get().layerFysics->GetFysicsManager()->GetBodyFromEntity(entity);
+        return body->IsSleepingAllowed();
+    }
 
-    void FysicsBody::SetAllowSleep(bool flag)
+    void FysicsBody::SetAllowSleep(Entity* entity, bool flag)
     {
+        b2Body* body = Application::Get().layerFysics->GetFysicsManager()->GetBodyFromEntity(entity);
         body->SetSleepingAllowed(flag);
     }
 
-    bool FysicsBody::GetFixedRotation() { return body->IsFixedRotation(); }
+    bool FysicsBody::GetFixedRotation(Entity* entity) 
+    { 
+        b2Body* body = Application::Get().layerFysics->GetFysicsManager()->GetBodyFromEntity(entity);
+        return body->IsFixedRotation(); 
+    }
 
-    void FysicsBody::SetFixedRotation(bool flag)
+    void FysicsBody::SetFixedRotation(Entity* entity, bool flag)
     {
+        b2Body* body = Application::Get().layerFysics->GetFysicsManager()->GetBodyFromEntity(entity);
         body->SetFixedRotation(flag);
     }
 
-    bool FysicsBody::GetIsBullet() { return body->IsBullet(); }
+    bool FysicsBody::GetIsBullet(Entity* entity)
+    { 
+        b2Body* body = Application::Get().layerFysics->GetFysicsManager()->GetBodyFromEntity(entity);
+        return body->IsBullet();
+    }
 
-    void FysicsBody::SetIsBullet(bool flag)
+    void FysicsBody::SetIsBullet(Entity* entity, bool flag)
     {
+        b2Body* body = Application::Get().layerFysics->GetFysicsManager()->GetBodyFromEntity(entity);
         body->SetBullet(flag);
     }
 
-    float FysicsBody::GetGravityScale() { return body->GetGravityScale(); }
+    float FysicsBody::GetGravityScale(Entity* entity)
+    { 
+        b2Body* body = Application::Get().layerFysics->GetFysicsManager()->GetBodyFromEntity(entity);
+        return body->GetGravityScale(); 
+    }
 
-    void FysicsBody::SetGravityScale(float gravityScale)
+    void FysicsBody::SetGravityScale(Entity* entity, float gravityScale)
     {
+        b2Body* body = Application::Get().layerFysics->GetFysicsManager()->GetBodyFromEntity(entity);
         body->SetGravityScale(gravityScale);
     }
 }
