@@ -24,46 +24,46 @@ namespace IonixEngine
         b2Body* GetBody();
 
         // Position
-        b2Vec2 GetPosition() const;
-        void SetPosition(float x, float y);
+        b2Vec2 GetPosition(Entity* entity) const;
+        void SetPosition(Entity* entity, float x, float y);
 
         // Angle
-        float GetAngle() const;
-        void SetAngle(float angleInRadians);
+        float GetAngle(Entity* entity) const;
+        void SetAngle(Entity* entity, float angleInRadians);
 
         // Velocity
-        b2Vec2 GetLinearVelocity() const;
-        void SetLinearVelocity(float x, float y);
-        float GetAngularVelocity() const;
-        void SetAngularVelocity(float x);
+        b2Vec2 GetLinearVelocity(Entity* entity) const;
+        void SetLinearVelocity(Entity* entity, float x, float y);
+        float GetAngularVelocity(Entity* entity) const;
+        void SetAngularVelocity(Entity* entity, float x);
 
         // Awake
-        void SetAwake(bool flag);
-        bool GetAwake();
+        void SetAwake(Entity* entity, bool flag);
+        bool GetAwake(Entity* entity);
 
         // Rotation
-        void RotatePosition(float angle);
+        void RotatePosition(Entity* entity, float angle);
 
         // Damping
-        float GetLinearDamping();
-        void SetLinearDamping(float linearDamping);
-        float GetAngularDamping();
-        void SetAngularDamping(float angularDamping);
+        float GetLinearDamping(Entity* entity);
+        void SetLinearDamping(Entity* entity, float linearDamping);
+        float GetAngularDamping(Entity* entity);
+        void SetAngularDamping(Entity* entity, float angularDamping);
 
         // Sleep
-        bool GetAllowSleep();
-        void SetAllowSleep(bool flag);
+        bool GetAllowSleep(Entity* entity);
+        void SetAllowSleep(Entity* entity, bool flag);
 
         // Fixed rotation
-        bool GetFixedRotation();
-        void SetFixedRotation(bool flag);
+        bool GetFixedRotation(Entity* entity);
+        void SetFixedRotation(Entity* entity, bool flag);
 
         // Bullet
-        bool GetIsBullet();
-        void SetIsBullet(bool flag);
+        bool GetIsBullet(Entity* entity);
+        void SetIsBullet(Entity* entity, bool flag);
 
         // Gravity
-        float GetGravityScale();
-        void SetGravityScale(float gravityScale);
+        float GetGravityScale(Entity* entity);
+        void SetGravityScale(Entity* entity, float gravityScale);
     };
 }
