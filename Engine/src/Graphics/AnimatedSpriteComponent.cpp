@@ -130,7 +130,7 @@ namespace IonixEngine {
 	void AnimatedSpriteComponent::setZedOrder(int x) { zOrder = x; }
 
 	//getters
-	IonixEngine::playbackOptions AnimatedSpriteComponent::getPlaybackMode() /*good googly moogly*/ { return playbackOptions(); }
+	IonixEngine::AnimatedSpriteComponent::playbackOptions AnimatedSpriteComponent::getPlaybackMode() /*good googly moogly*/ { return playbackOptions(); }
 	int AnimatedSpriteComponent::getCurrentFrame() { return currentFrame; }
 	int AnimatedSpriteComponent::getEndFrame() { return endFrame; }
 	int AnimatedSpriteComponent::getRows() { return rows; }

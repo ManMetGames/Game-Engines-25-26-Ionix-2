@@ -28,8 +28,8 @@ namespace IonixEngine {
             entity->position = Vec2{ x, y };
             };
 
-        auto addSpriteComponent = [](Entity* entity, std::string alias, int width, int height, int zedOrder) {
-            entity->AddComponent(new SpriteComponent(entity, alias, width, height, zedOrder));
+        auto addSpriteComponent = [](Entity* entity, std::string alias, int zedOrder) {
+            entity->AddComponent(new SpriteComponent(entity, alias, zedOrder));
             };
 
         auto addAudioPlayerComponent = [](Entity* entity, std::string clip = "", bool playOnAwake = false) {
