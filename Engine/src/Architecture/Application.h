@@ -43,6 +43,11 @@ namespace IonixEngine {
             return layer;
         }
         
+        inline float GetPhysicsInterpolationAlpha() const //method used to interpolate between physics states
+        {
+            return m_FixedTimeAccumulator / m_FixedTimeStep;
+        }
+        
         LayerScene* layerScene;
         LayerEditor* layerEditor;
         LayerUI* layerUI;
@@ -59,6 +64,11 @@ namespace IonixEngine {
         static Application* s_Instance;
         Window* m_Window;
         LayerStack m_LayerStack;
+        
+        // fixed update timing
+        float m_FixedTimeStep = 1.0f / 60.0f;  // 60 Hz fixed update
+        float m_FixedTimeAccumulator = 0.0f;
+        Uint64 m_LastFrameTime = 0;
     };
 
     Application* CreateApplication();

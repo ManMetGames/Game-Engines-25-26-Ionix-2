@@ -10,6 +10,8 @@ namespace IonixEngine
         return MouseCoords(x, y);
     }
 
+
+
     //Keyboard
     bool Input::IsKeyDown(SDL_Scancode code) const
     {
@@ -107,6 +109,14 @@ void Input::SetButtonPressed(Uint8 btn)
 void Input::SetButtonReleased(Uint8 btn)
 {
     currentButton.erase(btn);
+}
+  
+  //Frame management
+void Input::CopyCodesEndFrame()
+{
+    previousKeys = currentKeys;
+    previousMouse = currentMouse;
+
 }
 
 // Controller axis (from main)

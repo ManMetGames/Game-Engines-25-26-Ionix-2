@@ -29,19 +29,54 @@ namespace IonixEngine {
             };
 
         auto addSpriteComponent = [](Entity* entity, std::string alias, int zedOrder) {
-            entity->AddComponent(new AnimatedSpriteComponent(entity, alias, zedOrder));
+            entity->AddComponent(new SpriteComponent(entity, alias, zedOrder));
             };
 
         auto addAudioPlayerComponent = [](Entity* entity, std::string clip = "", bool playOnAwake = false) {
             entity->AddComponent(new AudioPlayer(entity, clip, playOnAwake));
             };
 
+        auto getSpriteComponent = [](Entity* entity) {
+            return entity->GetComponent<SpriteComponent>();
+            };
+
+        auto getAudioPlayerComponent = [](Entity* entity) {
+            return entity->GetComponent<AudioPlayer>();
+            };
+
+        /*auto tryGetSpriteComponent = [](Entity* entity) -> auto {
+            SpriteComponent** comp;
+            struct result {bool isOK; SpriteComponent* comp; };
+            return result{ entity->TryGetComponent<SpriteComponent>(comp), *comp };
+            };
+         
+        auto tryGetAudioComponent = [](Entity* entity) -> std::tuple<bool, AudioPlayer*> {
+            AudioPlayer** comp;
+            return std::make_tuple(entity->TryGetComponent<AudioPlayer>(comp), *comp);  
+            };*/
+
+        auto hasSpriteComponent = [](Entity* entity) -> bool {
+            return entity->HasComponent<SpriteComponent>();
+            };
+
+        auto hasAudioComponent = [](Entity* entity) -> bool {
+            return entity->HasComponent<AudioPlayer>();
+            };
+
+        
+
         lua["Entity"] = lua.create_table_with(
             "create_entity", entity,
             "get_entity_pos", getEntityPos,
             "set_entity_pos", setEntityPos,
             "add_sprite_component", addSpriteComponent,
-            "add_audio_component", addAudioPlayerComponent
+            "add_audio_component", addAudioPlayerComponent,
+            "get_sprite_component", getSpriteComponent,
+            "get_audio_component", getAudioPlayerComponent,
+            /*"try_get_sprite_component", tryGetSpriteComponent,
+            "try_get_audio_component", tryGetAudioComponent,*/
+            "has_sprite_component", hasSpriteComponent,
+            "has_audio_component", hasAudioComponent
         );
     }
 

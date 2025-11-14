@@ -1,5 +1,7 @@
 #include "LayerSystem/Layers/LayerFysics.h"
 #include "Fysics/FysicsManager.h"
+#include "Architecture/Application.h"
+#include "Maf/MafUtils.h"
 
 #include <iostream>
 #include <ostream>
@@ -9,34 +11,104 @@
 namespace IonixEngine
 {
     LayerFysics* LayerFysics::instance = nullptr;
-    LayerFysics* FysicsManager::s_instance = nullptr;
 
     LayerFysics* LayerFysics::GetInstance() {
-        return instance;
+        return Application::Get().layerFysics;
+    }
+
+    b2World* LayerFysics::GetWorld() {
+        return fysicsManager ? fysicsManager->GetWorld() : nullptr;
     }
 
     void LayerFysics::OnAttach() // call first says archie or brok
     {
-        FysicsManager::SetInstance(this);
-        //Set Gravity
-        b2Vec2 gravity = b2Vec2(0.0f, -9.8f);
-        //Create the world
-        world = new b2World(gravity);
+        instance = this;
+        fysicsManager = new FysicsManager();
 
         //create default ground box
+        b2World* world = fysicsManager->GetWorld();
         b2BodyDef groundDef; groundDef.position.Set(0.f, -1.f);
         b2Body* ground = world->CreateBody(&groundDef);
         b2PolygonShape g; g.SetAsBox(50.f, 1.f);
         ground->CreateFixture(&g, 0.f);
     }
+    
     void LayerFysics::OnDetach() 
     {
-        delete world; world = nullptr;
+        instance = nullptr;
+        delete fysicsManager;
+        fysicsManager = nullptr;
     }
+    
     void LayerFysics::OnUpdate()
     {
-        if (!world) return; //cheeky early return to see if world is attatched
-        world->Step(timeStep, velocityIterations, positionIterations); // world step on update
+        if (!fysicsManager) return;
+        
+        // get interpolation alpha (0.0 to 1.0) representing progress between physics frames
+        float alpha = Application::Get().GetPhysicsInterpolationAlpha();
+        
+        auto& bodyMap = fysicsManager->GetBodyMap();
+        auto& transformMap = fysicsManager->GetTransformMap();
+        
+        // interpolate visual positions for all physics bodies
+        for (auto& [body, entity] : bodyMap)
+        {
+            // skip if no transform data exists yet
+            if (transformMap.find(body) == transformMap.end()) continue;
+            
+            auto& transform = transformMap[body];
+            
+            // lerp position between previous and current physics states
+            float lerpedX = Maf::mafLerp(transform.previousPosition.x, transform.currentPosition.x, alpha);
+            float lerpedY = Maf::mafLerp(transform.previousPosition.y, transform.currentPosition.y, alpha);
+            
+            // lerp rotation
+            float lerpedRotation = Maf::mafLerp(transform.previousRotation, transform.currentRotation, alpha);
+            
+            // apply interpolated values to entity (convert from meters to pixels)
+            entity->position.x = lerpedX * ppm;
+            entity->position.y = lerpedY * ppm;
+            entity->rotation = lerpedRotation;
+        }
+    }
+    
+    void LayerFysics::OnFixedUpdate()
+    {
+        if (!fysicsManager) return;
+        
+        b2World* world = fysicsManager->GetWorld();
+        if (!world) return;
+        
+        auto& bodyMap = fysicsManager->GetBodyMap();
+        auto& transformMap = fysicsManager->GetTransformMap();
+        
+        // before physics step, save current state as previous
+        for (auto& [body, entity] : bodyMap)
+        {
+            if (transformMap.find(body) == transformMap.end())
+            {
+                // first time seeing this body - initialize with current state
+                transformMap[body] = RigidBodyTransform(body->GetPosition(), body->GetAngle());
+            }
+            else
+            {
+                // move current to previous
+                auto& transform = transformMap[body];
+                transform.previousPosition = transform.currentPosition;
+                transform.previousRotation = transform.currentRotation;
+            }
+        }
+        
+        // step physics simulation at fixed timestep
+        world->Step(timeStep, velocityIterations, positionIterations);
+        
+        // AFTER physics step, update current state
+        for (auto& [body, entity] : bodyMap)
+        {
+            auto& transform = transformMap[body];
+            transform.currentPosition = body->GetPosition();
+            transform.currentRotation = body->GetAngle();
+        }
     } 
     void LayerFysics::OnEvent(IonixEvent& e)
     {
@@ -53,7 +125,10 @@ namespace IonixEngine
 
     b2Body* LayerFysics::CreateGroundBox(float x, float y, float hx, float hy, float angle, float friction, float restitution)
     {
+        if (!fysicsManager) return nullptr;
+        b2World* world = fysicsManager->GetWorld();
         if (!world) return nullptr;
+        
         b2BodyDef def; def.position.Set(x, y);
         b2Body* body = world->CreateBody(&def);
         b2PolygonShape shape; shape.SetAsBox(hx, hy, b2Vec2(0.f, 0.f), angle);

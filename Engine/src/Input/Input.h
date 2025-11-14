@@ -39,22 +39,9 @@ namespace IonixEngine
         void SetMousePressed(Uint8 code);
         void SetMouseReleased(Uint8 code);
 
-        //Controller buttons
-        bool IsButtonDown(Uint8 btn) const;
-        bool IsButtonUp(Uint8 btn) const;
-        bool IsButtonHeld(Uint8 btn) const;
-        void SetButtonPressed(Uint8 btn);
-        void SetButtonReleased(Uint8 btn);
-
-        //Controller axis and trigger normalization
-        float NormaliseStickAxis(float axis);
-        float NormaliseTrigger(float axis);
-
         //Update state
         void CopyCodesEndFrame();
 
-        //Getters
-        float GetXStickHor() { return controllerAxis; }
 
         // for Mouse Up
         void SetMouseReleased(Uint8 code);
@@ -88,13 +75,6 @@ namespace IonixEngine
         std::unordered_set<Uint8> currentMouse;
         std::unordered_set<Uint8> previousMouse;
 
-        //Controller buttons
-        std::unordered_set<Uint8> currentButton;
-        std::unordered_set<Uint8> previousButton;
-
-        //Controller axis
-        float controllerAxis = 0.0f;
-        float triggerPressure = 0.0f;
     };
 }
 
