@@ -13,6 +13,7 @@ namespace IonixEngine
         virtual void OnAttach() { }
         virtual void OnDetach() { }
         virtual void OnUpdate() { }
+        virtual void OnFixedUpdate() { }
         virtual void OnEvent(IonixEvent& e) { }
     };
 }
