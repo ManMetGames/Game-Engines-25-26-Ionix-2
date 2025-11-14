@@ -5,11 +5,11 @@ namespace IonixEngine {
 
 	//Constructors
 
-	SpriteComponent::SpriteComponent(Entity* entity, std::string alias, int zedOrder) : Component(entity, false, true, false) {
+	SpriteComponent::SpriteComponent(Entity* entity, std::string alias, int x, int y, int zedOrder) : Component(entity, false, true, false) {
 		texture = IonixEngine::TextureManager::Get().GetTexture(alias).GetTexture(); //adding sprite image file to the texture manager
 		zOrder = zedOrder;
-		width = 100; //size of the sprite
-		height = 100;
+		width = x;
+		height = y;
 		isReversing = false;
 		playbackMode = playbackOptions::FORWARD;
 
@@ -27,11 +27,11 @@ namespace IonixEngine {
 		initialiseSpritesheet();
 	}
 
-	SpriteComponent::SpriteComponent(Entity* entity, uint64_t hash, int zedOrder) : Component(entity, false, true, false) {
+	SpriteComponent::SpriteComponent(Entity* entity, uint64_t hash, int x, int y, int zedOrder) : Component(entity, false, true, false) {
 		texture = IonixEngine::TextureManager::Get().GetTexture(hash).GetTexture(); //adding sprite image file to the texture manager
 		zOrder = zedOrder;
-		width = 100; //size of the sprite
-		height = 100;
+		width = x; //size of the sprite
+		height = y;
 		isReversing = false;
 		playbackMode = playbackOptions::FORWARD;
 
@@ -163,6 +163,8 @@ namespace IonixEngine {
 	void SpriteComponent::setSpriteWidth(int x) { spriteWidth = x; }
 	void SpriteComponent::setSpriteHeight(int x) { spriteHeight = x; }
 	void SpriteComponent::setZedOrder(int x) { zOrder = x; }
+	void SpriteComponent::setWidth(int x) { width = x; }
+	void SpriteComponent::setHeight(int x) { height = x; }
 
 	//getters
 	IonixEngine::playbackOptions SpriteComponent::getPlaybackMode() /*oh lawd he big*/ { return playbackOptions(); }
@@ -176,4 +178,6 @@ namespace IonixEngine {
 	int SpriteComponent::getTotalFrames() { return totalFrames; }
 	int SpriteComponent::getCurrentCol() { return currentCol; }
 	int SpriteComponent::getCurrentRow() { return currentRow; }
+	int SpriteComponent::getWidth() { return width; }
+	int SpriteComponent::getHeight() { return height; }
 }

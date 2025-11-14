@@ -35,8 +35,8 @@ namespace IonixEngine {
 		enum playbackOptions playbackMode;
 
 	public:
-		SpriteComponent(Entity* entity, std::string alias, int zedOrder);
-		SpriteComponent(Entity* entity, uint64_t hash, int zedOrder);
+		SpriteComponent(Entity* entity, std::string alias, int width, int height, int zedOrder);
+		SpriteComponent(Entity* entity, uint64_t hash, int width, int height, int zedOrder);
 		virtual void Render(RenderData* data) override;
 
 		void calculateTotalFrames();
@@ -55,6 +55,8 @@ namespace IonixEngine {
 		void setSpriteWidth(int x);
 		void setSpriteHeight(int x);
 		void setZedOrder(int x);
+		void setWidth(int x);
+		void setHeight(int x);
 
 		//Getters
 		playbackOptions getPlaybackMode();
@@ -68,5 +70,7 @@ namespace IonixEngine {
 		int getTotalFrames();
 		int getCurrentCol();
 		int getCurrentRow();
+		int getWidth();
+		int getHeight();
 	};
 }
