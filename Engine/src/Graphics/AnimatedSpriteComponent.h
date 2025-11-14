@@ -5,7 +5,16 @@
 #include "Architecture/TextureManager/TextureManager.h"
 #include <iostream>
 
+
 namespace IonixEngine {
+
+	enum playbackOptions {
+		FORWARD,
+		BACKWARD,
+		FORWARDANDBACKWARD,
+		PLAYONCE,
+		ONEFRAME
+	};
 
 	class AnimatedSpriteComponent : public Component {
 		// for now we will assume all spritesheets are 1 row	and of uniform size (32x32, 64x64 etc.)
@@ -22,14 +31,6 @@ namespace IonixEngine {
 		int rows, cols;
 		int spriteWidth, spriteHeight;
 		int currentRow, currentCol;
-
-		enum playbackOptions {
-			FORWARD,
-			BACKWARD,
-			FORWARDANDBACKWARD,
-			PLAYONCE,
-			ONEFRAME
-		};
 
 		enum playbackOptions playbackMode;
 
