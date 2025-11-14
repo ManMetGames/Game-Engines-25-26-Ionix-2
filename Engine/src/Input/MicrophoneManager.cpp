@@ -23,6 +23,7 @@ namespace IonixEngine
         //Uint32 size;                /**< Audio buffer size in bytes (calculated) */
         //SDL_AudioCallback callback; /**< Callback that feeds the audio device (NULL to use SDL_QueueAudio()). */
         //void* userdata;             /**< Userdata passed to callback (ignored for NULL callbacks). */
+        return true;
 	}
     void MicrophoneManager::closeDevice() 
     {

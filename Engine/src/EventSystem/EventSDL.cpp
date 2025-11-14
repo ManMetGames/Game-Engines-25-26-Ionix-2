@@ -7,6 +7,7 @@
 #include <iostream>
 #include <iomanip>
 #include <unordered_map>
+#include <Input/MicrophoneManager.h>
 
 namespace IonixEngine
 {
@@ -23,11 +24,7 @@ namespace IonixEngine
 
         //microphone
         static std::unordered_map<SDL_AudioDeviceID, SDL_AudioSpec> microphones;
-        static std::unordered_map<SDL_AudioDeviceID, MicrophoneManager> microphoneManagers;
-
-      
-
-        
+        static std::unordered_map<SDL_AudioDeviceID, MicrophoneManager> microphoneManagers;   
 
         switch (e.type)
         {
