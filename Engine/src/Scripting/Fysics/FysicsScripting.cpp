@@ -1,6 +1,7 @@
 #include "Scripting/Fysics/FysicsScripting.h"
 #include "Architecture/Application.h"
 #include "Fysics/FysicsBody.h"
+#include "Fysics/FysicsManager.h"
 namespace IonixEngine
 {
 	FysicsScripting* FysicsScripting::s_Instance = nullptr;
@@ -102,6 +103,37 @@ namespace IonixEngine
 
 
 		//-----------Force Methods----------
+		auto addFysicsForce = [](Entity* entity, b2Vec2 force, b2Vec2 point) {		
+			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddForce(entity, force, point);
+			};
+
+		auto addFysicsForceToCenter = [](Entity* entity, b2Vec2 force) {
+			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddForceToCenter(entity, force);
+			};
+
+		auto addFysicsAddImpulse = [](Entity* entity, b2Vec2 impulse, b2Vec2 point) {
+			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddImpulse(entity, impulse, point);
+			};
+
+		auto addFysicsAddImpulseToCenter = [](Entity* entity, b2Vec2 impulse) {
+			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddImpulseToCenter(entity, impulse);
+			};
+
+		auto addFysicsTorque = [](Entity* entity, float torque) {
+			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddTorque(entity, torque);
+			};
+
+		auto addFysicsAngularImpulse = [](Entity* entity, float torque) {
+			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddAngularImpulse(entity, torque);
+			};
+
+		auto clearFysicsForces = [](Entity* entity) {
+			Application::Get().layerFysics->GetFysicsManager()->GetForce()->ClearForces(entity);
+			};
+
+
+
+		//----------Collision Methods----------
 
 
 
