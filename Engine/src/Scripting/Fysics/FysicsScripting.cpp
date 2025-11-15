@@ -13,6 +13,8 @@ namespace IonixEngine
 
 	void FysicsScripting::Init(sol::state& lua)
 	{
+
+		//------------Fysics Body Methods---------------
 		auto getFysicsPos = [](Entity* entity) -> b2Vec2 {
 			return entity->GetComponent<FysicsBody>()->GetPosition(entity);
 			};
@@ -80,6 +82,26 @@ namespace IonixEngine
 		auto setFysicsAllowSleep = [](Entity* entity, bool flag) {
 			entity->GetComponent<FysicsBody>()->SetAllowSleep(entity, flag);
 			};
+
+		auto getFysicsFixedRotation = [](Entity* entity) -> bool {
+			return entity->GetComponent<FysicsBody>()->GetFixedRotation(entity);
+			};
+
+		auto setFysicsFixedRotation = [](Entity* entity, bool flag) {
+			entity->GetComponent<FysicsBody>()->SetFixedRotation(entity, flag);
+			};
+
+		auto getFysicsIsBullet = [](Entity* entity) -> bool {
+			return entity->GetComponent<FysicsBody>()->GetIsBullet(entity);
+			};
+
+		auto setFysicsIsBulletp = [](Entity* entity, bool flag) {
+			entity->GetComponent<FysicsBody>()->SetIsBullet(entity, flag);
+			};
+
+
+
+		//-----------Force Methods----------
 
 
 
