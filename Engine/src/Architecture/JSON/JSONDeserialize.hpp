@@ -5,8 +5,6 @@
 #include <string>
 namespace IonixEngine {
 
-void printfln(const char* format, ...);
-
 class JSONDeserialize {
     std::string data = std::string();
     size_t pos = 0;
