@@ -1,7 +1,7 @@
 #include "Scripting/Entity/EntityScripting.h"
 #include "Architecture/Application.h"
 #include "Architecture/ECS/Entity.hpp"
-
+#include "Fysics/FysicsBody.h"
 namespace IonixEngine {
 
     EntityScripting* EntityScripting::s_Instance = nullptr;
@@ -35,6 +35,10 @@ namespace IonixEngine {
         auto addAudioPlayerComponent = [](Entity* entity, std::string clip = "", bool playOnAwake = false) {
             entity->AddComponent(new AudioPlayer(entity, clip, playOnAwake));
             };
+        
+        auto addFysicsBodyComponent = [](Entity* entity) {
+            entity->AddComponent(new FysicsBody(entity, "", Application::Get().layerFysics->GetWorld()));
+            };
 
         auto getSpriteComponent = [](Entity* entity) {
             return entity->GetComponent<SpriteComponent>();
@@ -42,6 +46,10 @@ namespace IonixEngine {
 
         auto getAudioPlayerComponent = [](Entity* entity) {
             return entity->GetComponent<AudioPlayer>();
+            };
+
+        auto getFysicsBodyComponent = [](Entity* entity) {
+            entity->GetComponent<FysicsBody>();
             };
 
         /*auto tryGetSpriteComponent = [](Entity* entity) -> auto {
@@ -61,6 +69,10 @@ namespace IonixEngine {
 
         auto hasAudioComponent = [](Entity* entity) -> bool {
             return entity->HasComponent<AudioPlayer>();
+            };
+
+        auto hasFysicsBodyComponent = [](Entity* entity) -> bool {
+            return entity->HasComponent<FysicsBody>();
             };
 
         
