@@ -96,7 +96,7 @@ namespace IonixEngine
 			return entity->GetComponent<FysicsBody>()->GetIsBullet(entity);
 			};
 
-		auto setFysicsIsBulletp = [](Entity* entity, bool flag) {
+		auto setFysicsIsBullet = [](Entity* entity, bool flag) {
 			entity->GetComponent<FysicsBody>()->SetIsBullet(entity, flag);
 			};
 
@@ -138,6 +138,46 @@ namespace IonixEngine
 
 
 
+
+
+
+
+
+
+
+
+
+
+		lua["Fysics"] = lua.create_table_with(
+			"get_pos", getFysicsPos,
+			"set_pos", setFysicsPos,
+			"get_angle", getFysicsAngle,
+			"set_angle", setFysicsAngle,
+			"get_linear_velocity", getFysicsLinearVelocity,
+			"set_linear_velocity", setFysicsLinearVelocity,
+			"get_angular_velocity", getFysicsAngularVelocity,
+			"set_angular_velocity", setFysicsAngularVelocity,
+			"get_awake", getFysicsAwake,
+			"set_awake", setFysicsAwake,
+			"rotate_pos", rotateFysicsPosition,
+			"get_linear_damping", getFysicsLinearDamping,
+			"set_linear_damping", setFysicsLinearDamping,
+			"get_angular_damping", getFysicsAngularDamping,
+			"set_angular_damping", setFysicsAngularDamping,
+			"get_allow_sleep", getFysicsAllowSleep,
+			"set_allow_sleep", setFysicsAllowSleep,
+			"get_fixed_rotation", getFysicsFixedRotation,
+			"set_fixed_rotation", setFysicsFixedRotation,
+			"get_is_bullet", getFysicsIsBullet,
+			"set_is_bullet", setFysicsIsBullet,
+			"add_force", addFysicsForce,
+			"add_force_to_center", addFysicsForceToCenter,
+			"add_impulse", addFysicsAddImpulse,
+			"add_impulse_to_center", addFysicsAddImpulseToCenter,
+			"add_torque", addFysicsTorque,
+			"add_angular_impulse", addFysicsAngularImpulse,
+			"clear_forces", clearFysicsForces
+		);
 	}
 }
 

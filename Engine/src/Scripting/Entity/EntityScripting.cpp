@@ -83,12 +83,16 @@ namespace IonixEngine {
             "set_entity_pos", setEntityPos,
             "add_sprite_component", addSpriteComponent,
             "add_audio_component", addAudioPlayerComponent,
+            "add_fysics_component", addFysicsBodyComponent,
             "get_sprite_component", getSpriteComponent,
             "get_audio_component", getAudioPlayerComponent,
+            "get_fysics_component", getFysicsBodyComponent,
             /*"try_get_sprite_component", tryGetSpriteComponent,
             "try_get_audio_component", tryGetAudioComponent,*/
             "has_sprite_component", hasSpriteComponent,
-            "has_audio_component", hasAudioComponent
+            "has_audio_component", hasAudioComponent,
+            "has_fysics_component", hasFysicsBodyComponent
+
         );
     }
 
