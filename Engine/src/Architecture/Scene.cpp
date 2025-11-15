@@ -37,16 +37,16 @@ namespace IonixEngine {
         secondEntity->AddComponent(new SpriteRenderer(secondEntity)); //NOT ADDED
         secondEntity->AddComponent(new EntityMover(secondEntity, -60));
 
-        EntityID third = CreateEntity();
-        Entity* thirdEntity = GetEntityFromID(third);
-        if (!thirdEntity)
-        {
-            SDL_Log("[DEBUG TEST] Third entity failed, returning...");
-            return;
-        }
-        thirdEntity->transform.SetLocalPosition(Vec2{ 0, -100 });
-        thirdEntity->transform.SetParent(&secondEntity->transform, false);
-        thirdEntity->AddComponent(new AnimatedSpriteComponent(thirdEntity, "ball", 1)); //ADDED TO QUEUE
+        //EntityID third = CreateEntity();
+        //Entity* thirdEntity = GetEntityFromID(third);
+        //if (!thirdEntity)
+        //{
+        //    SDL_Log("[DEBUG TEST] Third entity failed, returning...");
+        //    return;
+        //}
+        //thirdEntity->transform.SetLocalPosition(Vec2{ 0, -100 });
+        //thirdEntity->transform.SetParent(&secondEntity->transform, false);
+        //thirdEntity->AddComponent(new AnimatedSpriteComponent(thirdEntity, "ball", 1)); //ADDED TO QUEUE
 
     }
 

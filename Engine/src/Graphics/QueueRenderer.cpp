@@ -80,14 +80,14 @@ namespace IonixEngine {
 	{
 		std::vector<RenderCall> temp; //Creates temporary vector from queue
 		int originalQueueLength = sprites.size();
-		int n = sprites.size();
 
-		for (int i = 0; i < originalQueueLength; i++)
+		for (int i = 0; i < originalQueueLength; i++) //Adds all items from queue to this vector to be sorted
 		{
-			cout << sprites.front().z << endl;
+			cout << originalQueueLength << endl;
 			temp.push_back(sprites.front());
 			sprites.pop();
-		} //Adds all items from queue to this array to be sorted
+			cout << temp[i].texture << endl; //From this, it seems only one type of item is being added to the queue
+		}
 
 		MergeCaller(temp, 0, originalQueueLength - 1); //Perform merge sort
 		ArrToQueueConverter(temp, sprites); //Convert vector to sorted queue again at the end!
