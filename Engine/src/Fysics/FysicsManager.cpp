@@ -35,7 +35,7 @@ namespace IonixEngine
 		delete force;
 
 		// cleans up all bodies in the map
-		entityBodyMap.clear();
+		bodyEntityMap.clear();
 
 		// (this also destroys all bodies/fixtures/joints)
 		delete world;
@@ -43,7 +43,7 @@ namespace IonixEngine
 
 	b2Body* FysicsManager::GetBodyFromEntity(Entity* entity)
 	{
-		for (auto& pair : entityBodyMap)
+		for (auto& pair : bodyEntityMap)
 		{
 			if (pair.second == entity)
 			{
@@ -55,11 +55,17 @@ namespace IonixEngine
 
 	Entity* FysicsManager::GetEntityFromBody(b2Body* body)
 	{
-		auto it = entityBodyMap.find(body);
-		if (it != entityBodyMap.end())
+		auto it = bodyEntityMap.find(body);
+		if (it != bodyEntityMap.end())
 		{
 			return it->second;
 		}
 		return nullptr;
+	}
+
+	void FysicsManager::AddEntityBodyPair(Entity* entity, b2Body* body)
+	{
+		entityBodyMap[entity] = body;
+		bodyEntityMap[body] = entity;
 	}
 }
