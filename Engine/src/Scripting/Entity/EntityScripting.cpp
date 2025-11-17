@@ -40,6 +40,10 @@ namespace IonixEngine {
             entity->AddComponent(new FysicsBody(entity, "", Application::Get().layerFysics->GetWorld()));
             };
 
+        auto addFysicsBodyComponentWithType = [](Entity* entity, int b_type, bool rotationLocked) {
+            entity->AddComponent(new FysicsBody(entity, b_type, rotationLocked));
+            };
+
         auto getSpriteComponent = [](Entity* entity) {
             return entity->GetComponent<SpriteComponent>();
             };
@@ -84,6 +88,7 @@ namespace IonixEngine {
             "add_sprite_component", addSpriteComponent,
             "add_audio_component", addAudioPlayerComponent,
             "add_fysics_component", addFysicsBodyComponent,
+            "add_fysics_component", addFysicsBodyComponentWithType,
             "get_sprite_component", getSpriteComponent,
             "get_audio_component", getAudioPlayerComponent,
             "get_fysics_component", getFysicsBodyComponent,

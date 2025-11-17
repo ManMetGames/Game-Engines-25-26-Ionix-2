@@ -9,7 +9,8 @@ namespace IonixEngine
 
 	FysicsManager::FysicsManager()
 	{
-		b2Vec2 gravity(0.0f, 9.8f);
+		//b2Vec2 gravity(0.0f, 9.8f);
+		b2Vec2 gravity(0.0f, 0.1f); // Temp while testing forces
 		world = new b2World(gravity);
 
 		// create and configure collision listener
@@ -65,7 +66,7 @@ namespace IonixEngine
 
 	void FysicsManager::AddEntityBodyPair(Entity* entity, b2Body* body)
 	{
-		entityBodyMap[entity] = body;
+		//entityBodyMap[entity] = body; // Not needed as we have helper methods which get what we need from 1 data structure.
 		bodyEntityMap[body] = entity;
 	}
 }

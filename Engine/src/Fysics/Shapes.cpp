@@ -24,7 +24,7 @@ namespace IonixEngine {
     void FysicsShapes::AddBox(Entity* entity, b2Vec2 size, b2Vec2 offset, float angle, bool isTrigger)
     {
         b2PolygonShape shape;
-        shape.SetAsBox(offset.x, offset.y, size, angle);
+        shape.SetAsBox(size.x / 2, size.y / 2, offset, angle);
 
         b2FixtureDef fixtureDef;
 
@@ -36,6 +36,7 @@ namespace IonixEngine {
             body->DestroyFixture(fixture);
         }
         fixture = FysicsManager::GetManager()->GetBodyFromEntity(entity)->CreateFixture(&fixtureDef);
+        fixture = nullptr; // not the best - change to local scope instead of class attribute.
     }
 
 

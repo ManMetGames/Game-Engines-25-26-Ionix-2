@@ -12,7 +12,7 @@ namespace IonixEngine {
         renderData.renderer = Application::Get().GetWindow().GetSdlRenderer();
         renderData.queue = Application::Get().layerGraphics->GetQueue();
 
-        EntityID first = CreateEntity();
+        /*EntityID first = CreateEntity();
         Entity* firstEntity = GetEntityFromID(first);
         if (!firstEntity)
         {
@@ -47,7 +47,7 @@ namespace IonixEngine {
         thirdEntity->transform.SetLocalPosition(Vec2{ 0, -100 });
         thirdEntity->transform.SetParent(&secondEntity->transform, false);
         thirdEntity->AddComponent(new SpriteComponent(thirdEntity, "ball",100,100, 0));
-
+        */
     }
 
     void Scene::OnUpdate(float dt) {
