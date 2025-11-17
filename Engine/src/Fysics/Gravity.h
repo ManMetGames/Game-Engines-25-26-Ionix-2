@@ -1,30 +1,23 @@
 #pragma once
-//#include "LayerSystem/Layers/LayerFysics.h"
-
-// Now managed via FysicsManager directly. Set gravity is still a nice method to have, just needs updating for new system
+#include "LayerSystem/Layers/LayerFysics.h"
 
 namespace IonixEngine
 {
     class Gravity
     {
-        //b2World* world;
-
-        Gravity() 
+        b2World* world{nullptr};
+    public:
+        explicit Gravity(b2World* w): world(w) {}
+        void SetGravity(float x, float y, bool wake=true)
         {
-            //world = LayerFysics::GetInstance()->GetWorld();
+            if (!world) return;
+            world->SetGravity(b2Vec2(x, y));
+            if (wake) for (b2Body* b = world->GetBodyList(); b; b = b->GetNext()) b->SetAwake(true);
         }
-
-        void Gravity::SetGravity(float x, float y, bool wake)
+        b2Vec2 GetGravity() const
         {
-            //if (!world) return;
-            //world->SetGravity(b2Vec2(x, y));
-            //if (wake) for (b2Body* b = world->GetBodyList();b;b = b->GetNext()) b->SetAwake(true);
+            return world ? world->GetGravity() : b2Vec2(0.f, 0.f);
         }
-
-        //b2Vec2 Gravity::GetGravity() const
-        //{
-            //return world ? world->GetGravity() : b2Vec2(0.f, 0.f);
-        //}
     };
 }
 

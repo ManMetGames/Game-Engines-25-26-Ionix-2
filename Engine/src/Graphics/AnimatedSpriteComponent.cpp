@@ -1,119 +1,144 @@
 #include "AnimatedSpriteComponent.h"
-#include<SDL.h>
+#include <Graphics/QueueRenderer.h>
 
 namespace IonixEngine {
-	AnimatedSpriteComponent::AnimatedSpriteComponent(Entity* entity, std::string alias, int zedOrder, int w, int h, int flipX, int flipY) : Component(entity, false, true, false) {
+	AnimatedSpriteComponent::AnimatedSpriteComponent(Entity* entity, std::string alias, int zedOrder) : Component(entity, false, true, false) {
 		texture = IonixEngine::TextureManager::Get().GetTexture(alias).GetTexture(); //adding sprite image file to the texture manager
 		zOrder = zedOrder;
-		width = w;
-		height = h;
+		width = 100; //size of the sprite
+		height = 100;
+		isReversing = false;
+		playbackMode = FORWARDANDBACKWARD;
+
+		rows = 1; //default spritesheet size, can be changed in appropriate setters
+		cols = 1;
+
+
+		spriteWidth = 32; //default, can be change in setter
+		spriteHeight = 32;
 		
-		//calculating the total frame count
 		SDL_QueryTexture(texture, NULL, NULL, &size.x, &size.y);
-		//SDL_RendererFlip::SDL_FLIP_NONE;
-		totalFrames =  size.x / size.y;
 
-		currentFrame = 0;
+		//totalFrames =  size.x / size.y;
+		calculateTotalFrames();
 
-		/*if (flipX) flipMode = SDL_FLIP_HORIZONTAL;
-		if (flipY) flipMode = SDL_FLIP_VERTICAL;
-		else flipMode = SDL_FLIP_NONE;
-		*/
-		SpriteSize(100, 100);
-		SpriteRotation(45);
-		SetColours(1, 1, 1, .2);
-		//FlipSprite(true, false);
-
-		this->flipX = flipX;
-		this->flipY = flipY;
+		switch (playbackMode) {
+		case FORWARD: case FORWARDANDBACKWARD: case PLAYONCE:
+			endFrame = totalFrames;
+			currentFrame = 0;
+			currentRow = 0; //0 indexed
+			currentCol = 0; //0 indexed
+			break;
+		case BACKWARD:
+			isReversing = true;
+			endFrame = 0;
+			currentFrame = totalFrames;
+			currentCol = cols - 1;
+			currentRow = rows - 1;
+			break;
+		case ONEFRAME:
+			currentFrame = 0;
+			break;
+		}
 	}
 
 	void AnimatedSpriteComponent::Render(RenderData* data)
 	{
-		if (currentFrame > totalFrames - 1)
-		{
-			currentFrame = 0;
-		}
-
 		// src is the indivudal frame we're rendering
-		src.x = size.y * currentFrame;
-		src.y = 0;
-		src.w = size.y;
-		src.h = size.y;
+		src.x = spriteWidth * currentCol;
 
-		RenderCall rCall(
-			texture,
-			SDL_Rect{ (int)(entity->position.x - width / 2), (int)(entity->position.y - height / 2), (int)width, (int)height },
-			SDL_Rect{ src.x, src.y, src.w, src.h },
-			zOrder,
-			entity->rotation,
-			entity,
-			flipX,
-			flipY
-		);
+		if (src.x > size.x) {
+			currentRow++;
+			currentCol = 0;
+		}
+		if (src.x < 0) {
+			currentCol = cols;
+			currentRow--;
+		}
 
 		//create and send render data to the render queue
 		data->queue->AddToQueue(RenderCall {
-			rCall
+			texture,
+			SDL_Rect { (int) (entity->position.x), (int) (entity->position.y), (int) width, (int) height },
+			SDL_Rect { spriteWidth * currentCol, spriteHeight * currentRow, spriteWidth, spriteHeight },
 		});
 
 
 		//This is just here so we can see the animation play at a normal speed
 		//THIS WILL BE REMOVED
-		//SDL_Delay(60);
+		// SDL_Delay(60);
 
-		currentFrame++;
+
+		if ((currentFrame != endFrame) && playbackMode != ONEFRAME)
+		{
+			switch (isReversing)
+			{
+			case true:
+				currentFrame--;
+				currentCol--;
+				break;
+			case false:
+				currentFrame++;
+				currentCol++;
+				break;
+			}
+		}
+
+		else {
+			switch (playbackMode) {
+			case FORWARD:
+				currentFrame = 0;
+				currentCol = 0;
+				currentRow = 0;
+				break;
+			case BACKWARD:
+				currentFrame = totalFrames;
+				currentCol = cols - 1;
+				currentRow = rows - 1;
+				break;
+			case FORWARDANDBACKWARD:
+				if (isReversing) {
+					isReversing = false;
+					currentFrame = 0;
+					endFrame = totalFrames;
+				}
+				else {
+					isReversing = true;
+					endFrame = 0;
+					currentFrame = totalFrames;
+				}
+				break;
+			case PLAYONCE: case ONEFRAME:
+				break;
+			}
+		}
 	}
 
-	void AnimatedSpriteComponent::SpriteSize(int x, int y)
-
+	void AnimatedSpriteComponent::calculateTotalFrames()
 	{
-		width = x;
-		height = y;
+		totalFrames = rows * cols;
 	}
 
-	void AnimatedSpriteComponent::SpriteRotation(float angleInDegrees) //code uses radians but player will use degrees so it's more user friendly
-	{
-		float radianDegree = angleInDegrees * (M_PI / 180); //converts degrees entered into radian
-		entity->rotation = radianDegree;
-	}
+	//setters
+	void AnimatedSpriteComponent::setEndFrame(int x) { endFrame = x; }
+	void AnimatedSpriteComponent::setPlaybackMode(enum playbackOptions x) { playbackMode = x; }
+	void AnimatedSpriteComponent::setCurrentFrame(int x) { if (!(x > totalFrames)) { currentFrame = x; } }
+	void AnimatedSpriteComponent::setRows(int x) { rows = x; }
+	void AnimatedSpriteComponent::setCols(int x) { cols = x; }
+	void AnimatedSpriteComponent::setSpriteWidth(int x) { spriteWidth = x; }
+	void AnimatedSpriteComponent::setSpriteHeight(int x) { spriteHeight = x; }
+	void AnimatedSpriteComponent::setZedOrder(int x) { zOrder = x; }
 
-	void AnimatedSpriteComponent::FlipSprite(bool FlipX, bool FlipY)
-	{
-		//if (FlipX)
-			//flipMode = SDL_FLIP_HORIZONTAL;
-
-		//if (FlipY)
-			//flipMode = SDL_FLIP_VERTICAL;
-	}
-
-	void AnimatedSpriteComponent::SetColours(int red, int green, int blue, int alpha)
-	{
-		//Uint32* passThis = (Uint32*)image->pixels;
-
-		image = SDL_CreateRGBSurface(SDL_SWSURFACE, 640, 480, 32,
-			0x00FF0000,
-			0x0000FF00,
-			0x000000FF,
-			0xFF000000);
-
-		
-		red = RED;
-		green = GREEN;
-		blue = BLUE;
-		alpha = ALPHA;
-
-		SDL_SetSurfaceColorMod(image, red, green, blue);
-
-		//SDL_GetRGBA(passThis[0], image->format, &RED, &GREEN, &BLUE, &ALPHA);
-	}
-
+	//getters
+	IonixEngine::AnimatedSpriteComponent::playbackOptions AnimatedSpriteComponent::getPlaybackMode() /*good googly moogly*/ { return playbackOptions(); }
+	int AnimatedSpriteComponent::getCurrentFrame() { return currentFrame; }
+	int AnimatedSpriteComponent::getEndFrame() { return endFrame; }
+	int AnimatedSpriteComponent::getRows() { return rows; }
+	int AnimatedSpriteComponent::getCols() { return cols; }
+	int AnimatedSpriteComponent::getSpriteWidth() { return spriteWidth; }
+	int AnimatedSpriteComponent::getSpriteHeight() { return spriteHeight; }
+	int AnimatedSpriteComponent::getZedOrder() { return zOrder; }
+	int AnimatedSpriteComponent::getTotalFrames() { return totalFrames; }
+	int AnimatedSpriteComponent::getCurrentCol() { return currentCol; }
+	int AnimatedSpriteComponent::getCurrentRow() { return currentRow; }
 }
-
-/*
-TODO
-- UNDO COMMENTED FUNCTION IN UI
-- multiple rows
-- overall make more versatile/usable
-
-*/

@@ -1,6 +1,9 @@
 #pragma once
 #include "LayerSystem/Layer.h"
 #include "Input/Input.h"
+#include "Input/ControllerManager.h"
+
+
 
 namespace IonixEngine
 {
@@ -14,6 +17,8 @@ namespace IonixEngine
         virtual void OnUpdate() override;
         virtual void OnEvent(IonixEvent& e) override;
         Input* m_Input;  
+        ControllerManager* m_ControllerManager;
+    
 
     private:
         void OnWindowClosedEvent(WindowClosedEvent& e);

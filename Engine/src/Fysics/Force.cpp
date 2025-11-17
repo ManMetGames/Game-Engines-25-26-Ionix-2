@@ -1,38 +1,72 @@
-#pragma once
-#include "Fysics/Force.h"
+#include "Force.h"
 #include "Architecture/Application.h"
+#include "FysicsManager.h"
 
-void IonixEngine::Force::AddForce(Entity* entity, float xForce, float yForce, float xForceOrigin, float yForceOrigin)
-{
-	// Look how I use the entity (will be passed by the end user in Lua).
-	// I pass it to one of the two helper functions to extract the physics body that is associated with the entity the end user wants to add force to.
-	b2Body* body = Application::Get().layerFysics->GetFysicsManager()->GetBodyFromEntity(entity);
-
-	// The rest is as you would expect...
-    if (body)
+namespace IonixEngine
+{	
+    void Force::AddForce(Entity* entity, b2Vec2 force, b2Vec2 point)
     {
-        body->ApplyForce(b2Vec2(xForce, yForce), b2Vec2(xForceOrigin, yForceOrigin), true);
-    }
-}
-
-// Look how the identical workflow applies - be mindful of the scaling.
-void IonixEngine::Force::AddImpulseForce(Entity* entity, float xForce, float yForce, float xForceOrigin, float yForceOrigin)
-{
-    b2Body* body = Application::Get().layerFysics->GetFysicsManager()->GetBodyFromEntity(entity);
-
-    if (body)
-    {
-        // Impulses are in Newton-seconds or kg m/s
-        b2Vec2 impulse(xForce, yForce);
-        b2Vec2 point = body->GetWorldCenter();  // Apply at center of mass for now
-
-        // If specific point is given (not 0,0), convert from pixels to meters (Box2D - meters, SDL2 - pixels)
-        if (xForceOrigin != 0 || yForceOrigin != 0)
+        b2Body* body = Application::Get().layerFysics->GetFysicsManager()->GetBodyFromEntity(entity);
+        if (body)
         {
-            point.x /= 100.0f;
-            point.y /= 100.0f;
+            body->ApplyForce(force, point, true);
         }
+    }
 
-        body->ApplyLinearImpulse(impulse, point, true);
+    void Force::AddForceToCenter(Entity* entity, b2Vec2 force)
+    {
+        b2Body* body = Application::Get().layerFysics->GetFysicsManager()->GetBodyFromEntity(entity);
+        if (body)
+        {
+            body->ApplyForceToCenter(force, true);
+        }
+    }
+    // Add impulse
+    void Force::AddImpulse(Entity* entity, b2Vec2 impulse, b2Vec2 point)
+    {
+        b2Body* body = Application::Get().layerFysics->GetFysicsManager()->GetBodyFromEntity(entity);
+        if (body)
+        {
+            body->ApplyLinearImpulse(impulse, point, true);
+        }
+    }
+
+    // Add impulse at the center of mass 
+    void Force::AddImpulseToCenter(Entity* entity, b2Vec2 impulse)
+    {
+        b2Body* body = Application::Get().layerFysics->GetFysicsManager()->GetBodyFromEntity(entity);
+        // add forces to my fysics manager for the body dictionary
+        if (body)
+        {
+            body->ApplyLinearImpulseToCenter(impulse, true);
+        }
+    }
+    //Add Torque
+    void Force::AddTorque(Entity* entity, float torque)
+    {
+        b2Body* body = Application::Get().layerFysics->GetFysicsManager()->GetBodyFromEntity(entity);
+        if (body)
+        {
+            body->ApplyTorque(torque, true);
+        }
+    }
+    //Add impulse with torque
+    void Force::AddAngularImpulse(Entity* entity, float torque)
+    {
+        b2Body* body = Application::Get().layerFysics->GetFysicsManager()->GetBodyFromEntity(entity);
+        if (body) {
+            body->ApplyAngularImpulse(torque, true);
+        }
+    }
+
+    // Clear all forces/velocities on this body
+    void Force::ClearForces(Entity* entity)
+    {
+        b2Body* body = Application::Get().layerFysics->GetFysicsManager()->GetBodyFromEntity(entity);
+        if (body)
+        {
+            body->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
+            body->SetAngularVelocity(0.0f);
+        }
     }
 }

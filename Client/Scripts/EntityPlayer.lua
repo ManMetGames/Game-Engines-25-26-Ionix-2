@@ -1,32 +1,44 @@
 local EntityPlayer = {}
-local floor_entity
-local spawn_height = 600
-
+local entity1
+local sprite1
+local x = 500
+local y = 500
+local xSpeed = 10
+local ySpeed = 10
+local t = 10
+local ok
 function EntityPlayer:OnStart()
-    floor_entity = Entity.create_entity()
-    Texture.add_texture("./Assets/square.png", "aur")
-    Entity.add_sprite_component(floor_entity, "aur", 5, 32, 32, 1, 1)
-    Entity.set_entity_pos(floor_entity, 640, 700)
-    Fysics.add_rigidbody_component(floor_entity, "floor", 0)
-    Fysics.add_collider(floor_entity, 0, 0.1, false)
+	entity1 = Entity.create_entity()
+	print(Entity.has_sprite_component(entity1))
+	Entity.add_sprite_component(entity1, "ball", 100, 100, 0)
+	Entity.set_entity_pos(entity1, x, y)
+	sprite1 = Entity.get_sprite_component(entity1)
+	--Sprite.set_playback_mode(sprite1, 3)
 end
 
 function EntityPlayer:OnUpdate()
-    if Input.get_key_down(Keys.ionix_d) then
-        local box = Entity.create_entity()
-        Entity.add_sprite_component(box, "aur", 5, 32, 32, 1, 1)
+	if entity1 == nil then
+		return
+	end
+	
+	-- x = Mafs.lerp(x, 700, t)	
+	-- t = Mafs.delta_time() * t
 
-        Entity.set_entity_pos(box, 640, spawn_height)
+	
 
-        Fysics.add_rigidbody_component(box, "box" .. tostring(box), 2)
-        Fysics.add_collider(box, 0, 0.1, false)
+	Entity.set_entity_pos(entity1, x, y)
 
-        local random_x = (math.random() - 0.5) * 2
-        local upward_y = -2 - math.random() * 2
-
-        Fysics.add_force(box, random_x, upward_y, 0, 0)
-
-        print("Spawned box with force: " .. random_x .. ", " .. upward_y)
-    end
+	if Input.get_key_held(Keys.ionix_d) then
+		x = x + xSpeed
+	end
+	if Input.get_key_held(Keys.ionix_a) then
+		x = x - xSpeed
+	end
+	if Input.get_key_held(Keys.ionix_w) then
+		y = y - ySpeed
+	end
+	if Input.get_key_held(Keys.ionix_s) then
+		y = y + ySpeed
+	end
 end
 return EntityPlayer

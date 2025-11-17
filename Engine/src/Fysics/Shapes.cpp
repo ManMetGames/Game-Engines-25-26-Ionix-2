@@ -1,39 +1,72 @@
-#pragma once
-#include "Fysics/Shapes.h"
-#include "Architecture/Application.h"
-#include <unordered_map>
+#include "Shapes.h"
+#include "Architecture/ECS/Entity.hpp"
+#include "Fysics/FysicsManager.h"
 
-namespace IonixEngine
-{
-    void FysicsShapes::AddCollider(Entity* entity, int colliderType, float density, bool isTrigger)
-    {
-		// Brand new fixture def (rigidbodies can support multiple if needed)
+namespace IonixEngine {
+    //add circle
+    void FysicsShapes::AddCircle(Entity* entity, float radius, b2Vec2 offset, bool isTrigger) {
+        b2CircleShape shape;
+
+        shape.m_radius = radius;
+        shape.m_p = offset;
         b2FixtureDef fixtureDef;
-		
-		// Create shape 
+
+        fixtureDef.shape = &shape;
+        fixtureDef.isSensor = isTrigger;
+
+        if (fixture) {
+            body->DestroyFixture(fixture);
+        }
+        fixture = FysicsManager::GetManager()->GetBodyFromEntity(entity)->CreateFixture(&fixtureDef);
+    }
+
+    //add box
+    void FysicsShapes::AddBox(Entity* entity, b2Vec2 size, b2Vec2 offset, float angle, bool isTrigger)
+    {
+        b2PolygonShape shape;
+        shape.SetAsBox(offset.x, offset.y, size, angle);
+
+        b2FixtureDef fixtureDef;
+
+        fixtureDef.shape = &shape;
+        fixtureDef.isSensor = isTrigger;
+        fixtureDef.density = 1.0f;
+
+        if (fixture) {
+            body->DestroyFixture(fixture);
+        }
+        fixture = FysicsManager::GetManager()->GetBodyFromEntity(entity)->CreateFixture(&fixtureDef);
+    }
+
+
+    void FysicsShapes::AddPolygon(Entity* entity)
+    {
+        static std::vector<b2Vec2> defaultVertices = { {0, 1}, { 0.6, 0.6 }, { 0.3, -0.5f }, { -0.3, -0.5f}, {-0.6, 0.6f } };
+        AddPolygon(entity, defaultVertices);
+    }
+
+    //add polygon
+    void FysicsShapes::AddPolygon(Entity* entity, std::vector<b2Vec2>& vertices) {
+        if (vertices.size() < 3 || vertices.size() > b2_maxPolygonVertices)
+            return;
+
         b2PolygonShape shape;
 
-		// What collider type - again, extend for circle/polygon or go your initial method of having inidividual methods - both completely fine.
-        switch (colliderType)
-        {
-        case 0: // Box Collider
-            shape.SetAsBox(0.15, 0.15, b2Vec2_zero, 0.0f);
-            fixtureDef.shape = &shape;
-            break;
+        //Set the polygon shape with the vertices data and their total count
+        shape.Set(vertices.data(), static_cast<int32>(vertices.size()));
+
+        b2FixtureDef fixtureDef;
+
+        fixtureDef.shape = &shape;
+        fixtureDef.isSensor = false;
+
+        //Set the body fixture for the created shape with polygons
+        if (fixture) {
+            body->DestroyFixture(fixture);
         }
-    
-		// Making sure to use the data passed into the method.
-        fixtureDef.isSensor = isTrigger;
-        fixtureDef.density = density;
-
-		// Access the dictionary
-		std::unordered_map<b2Body*, Entity*>& bodyMap = Application::Get().layerFysics->GetFysicsManager()->GetBodyMap();
-
-		// Get the rigidbody associated with the entity we want to add a collider to.
-		b2Body* body = Application::Get().layerFysics->GetFysicsManager()->GetBodyFromEntity(entity);
-
-		// Add the fixture to the rigidbody. Done.
-        body->CreateFixture(&fixtureDef);
+        fixture = FysicsManager::GetManager()->GetBodyFromEntity(entity)->CreateFixture(&fixtureDef);
     }
-}
 
+
+
+}

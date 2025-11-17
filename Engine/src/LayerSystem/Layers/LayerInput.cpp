@@ -8,6 +8,7 @@ namespace IonixEngine
     void LayerInput::OnAttach() 
     {
         m_Input = new Input();
+        m_ControllerManager = new ControllerManager();
     }
 
     void LayerInput::OnDetach() {}

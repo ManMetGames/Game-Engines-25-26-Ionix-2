@@ -1,44 +1,71 @@
-#pragma once
-#include "Fysics/FysicsManager.h"
+#include "FysicsManager.h"
 #include "Architecture/Application.h"
 
 namespace IonixEngine
 {
-    FysicsManager::FysicsManager()
-    {
-        b2Vec2 gravity = b2Vec2(0.0f, 9.8f);
-        world = new b2World(gravity);
-		
-		// Collision callback system - not ECS
-		world->SetContactListener(&contactListener);
+	FysicsManager* FysicsManager::GetManager() {
+		return Application::Get().layerFysics->GetFysicsManager();
+	}
+
+	FysicsManager::FysicsManager()
+	{
+		b2Vec2 gravity(0.0f, 9.8f);
+		world = new b2World(gravity);
+
+		// create and configure collision listener
+		collisionListener = new CollisionListener(this);
+		collisionListener->SetEventCallback([](IonixEvent& e) {
+			Application::Get().OnEvent(e);
+		});
+		world->SetContactListener(collisionListener);
 
 		shapes = new FysicsShapes();
-        force = new Force();
-    }
+		force = new Force();
+		prismaticJoint = new PrismaticJoints();
+		weldJoint = new WeldJoints();
+		pulleyJoint = new PulleyJoints();
+		revoluteJoint = new RevoluteJoints();
+		distanceJoint = new DistanceJoints();
+	}
 
-	// Searches through the dictionary for an entity.
-	// Once entity is found, returns the associated rigidbody.
-    b2Body* FysicsManager::GetBodyFromEntity(Entity* entity)
-    {
-        for(auto& pair : entityBodyMap)
-        {
-            if(pair.second == entity)
-            {
-                return pair.first;
-            }
+	FysicsManager::~FysicsManager()
+	{
+		// helpers
+		delete shapes;
+		delete force;
+
+		// cleans up all bodies in the map
+		bodyEntityMap.clear();
+
+		// (this also destroys all bodies/fixtures/joints)
+		delete world;
+	}
+
+	b2Body* FysicsManager::GetBodyFromEntity(Entity* entity)
+	{
+		for (auto& pair : bodyEntityMap)
+		{
+			if (pair.second == entity)
+			{
+				return pair.first;
+			}
 		}
-    }
+		return nullptr;
+	}
 
-	// Searches through the dictionary for a rigidbody.
-	// Once rigidbody is found, returns the associated entity. - The opposite of the other method.
-    Entity* FysicsManager::GetEntityFromBody(b2Body* body)
-    {
-        for (auto& pair : entityBodyMap)
-        {
-            if (pair.first == body)
-            {
-                return pair.second;
-            }
-        }
-    }
+	Entity* FysicsManager::GetEntityFromBody(b2Body* body)
+	{
+		auto it = bodyEntityMap.find(body);
+		if (it != bodyEntityMap.end())
+		{
+			return it->second;
+		}
+		return nullptr;
+	}
+
+	void FysicsManager::AddEntityBodyPair(Entity* entity, b2Body* body)
+	{
+		entityBodyMap[entity] = body;
+		bodyEntityMap[body] = entity;
+	}
 }
