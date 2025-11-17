@@ -13,7 +13,7 @@ namespace IonixEngine
         b2Body* body;
 
     public:
-        FysicsMaterialComponent(Entity* entity, std::string alias, b2World* world, float friction, float restitution);
+        b2Fixture* GetFixture(Entity* entity);
         void UpdateMaterial(Entity* entity, float friction, float restitution);
         float GetFriction(Entity* entity);
         float GetRestitution(Entity* entity);
