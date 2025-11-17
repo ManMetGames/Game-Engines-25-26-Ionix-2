@@ -10,7 +10,7 @@ local ok
 function EntityPlayer:OnStart()
 	entity1 = Entity.create_entity()
 	print(Entity.has_sprite_component(entity1))
-	Entity.add_sprite_component(entity1, "ball", 0)
+	Entity.add_sprite_component(entity1, "ball", 100, 100, 0)
 	Entity.set_entity_pos(entity1, x, y)
 	sprite1 = Entity.get_sprite_component(entity1)
 	--Sprite.set_playback_mode(sprite1, 3)

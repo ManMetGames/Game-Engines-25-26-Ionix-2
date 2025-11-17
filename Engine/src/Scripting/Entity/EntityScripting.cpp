@@ -1,7 +1,7 @@
 #include "Scripting/Entity/EntityScripting.h"
 #include "Architecture/Application.h"
 #include "Architecture/ECS/Entity.hpp"
-
+#include "Fysics/FysicsBody.h"
 namespace IonixEngine {
 
     EntityScripting* EntityScripting::s_Instance = nullptr;
@@ -35,6 +35,10 @@ namespace IonixEngine {
         auto addAudioPlayerComponent = [](Entity* entity, std::string clip = "", bool playOnAwake = false) {
             entity->AddComponent(new AudioPlayer(entity, clip, playOnAwake));
             };
+        
+        auto addFysicsBodyComponent = [](Entity* entity) {
+            entity->AddComponent(new FysicsBody(entity, "", Application::Get().layerFysics->GetWorld()));
+            };
 
         auto getSpriteComponent = [](Entity* entity) {
             return entity->GetComponent<SpriteComponent>();
@@ -42,6 +46,10 @@ namespace IonixEngine {
 
         auto getAudioPlayerComponent = [](Entity* entity) {
             return entity->GetComponent<AudioPlayer>();
+            };
+
+        auto getFysicsBodyComponent = [](Entity* entity) {
+            entity->GetComponent<FysicsBody>();
             };
 
         /*auto tryGetSpriteComponent = [](Entity* entity) -> auto {
@@ -63,6 +71,10 @@ namespace IonixEngine {
             return entity->HasComponent<AudioPlayer>();
             };
 
+        auto hasFysicsBodyComponent = [](Entity* entity) -> bool {
+            return entity->HasComponent<FysicsBody>();
+            };
+
         
 
         lua["Entity"] = lua.create_table_with(
@@ -71,12 +83,16 @@ namespace IonixEngine {
             "set_entity_pos", setEntityPos,
             "add_sprite_component", addSpriteComponent,
             "add_audio_component", addAudioPlayerComponent,
+            "add_fysics_component", addFysicsBodyComponent,
             "get_sprite_component", getSpriteComponent,
             "get_audio_component", getAudioPlayerComponent,
+            "get_fysics_component", getFysicsBodyComponent,
             /*"try_get_sprite_component", tryGetSpriteComponent,
             "try_get_audio_component", tryGetAudioComponent,*/
             "has_sprite_component", hasSpriteComponent,
-            "has_audio_component", hasAudioComponent
+            "has_audio_component", hasAudioComponent,
+            "has_fysics_component", hasFysicsBodyComponent
+
         );
     }
 
