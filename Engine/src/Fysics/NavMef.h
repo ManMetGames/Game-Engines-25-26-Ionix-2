@@ -149,6 +149,22 @@ public:
                 }
             }
             //think I need to reconstruct path here not sure
+            // --- Reconstruct the path ---
+            std::vector<int> path;
+            int current = goalCell;
+
+            if (nodes[current].previousCell == -1) {
+                return {};
+            }
+
+            while (current != -1) {
+                path.push_back(current);
+                current = nodes[current].previousCell;
+            }
+
+            std::reverse(path.begin(), path.end());
+            return path;
+
         }
 
 
