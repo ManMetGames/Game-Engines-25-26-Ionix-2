@@ -8,9 +8,11 @@ local ySpeed = 10
 local t = 10
 local ok
 function EntityPlayer:OnStart()
+	local assets = GetModule("Assets")
 	entity1 = Entity.create_entity()
 	print(Entity.has_sprite_component(entity1))
-	Entity.add_sprite_component(entity1, "ball", 100, 100, 0)
+	print(assets.textures.ball)
+	Entity.add_sprite_component(entity1, assets.textures.ball, 100, 100, 0)
 	Entity.set_entity_pos(entity1, x, y)
 	sprite1 = Entity.get_sprite_component(entity1)
 	--Sprite.set_playback_mode(sprite1, 3)

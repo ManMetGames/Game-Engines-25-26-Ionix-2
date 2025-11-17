@@ -156,11 +156,11 @@ bool JSONDeserialize::GetString(const std::string& fieldname, std::string* out) 
 }
 
 bool JSONDeserialize::BeginArray(const std::string& fieldname) {
-
+    return false;
 }
 
 bool JSONDeserialize::EndArray() {
-
+    return false;
 }
 
 bool JSONDeserialize::End() {
