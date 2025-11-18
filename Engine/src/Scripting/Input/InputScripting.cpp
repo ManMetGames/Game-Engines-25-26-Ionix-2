@@ -97,6 +97,10 @@ namespace IonixEngine {
         auto getLeftTrigger = [=](int index) { return getStickAxis(index, SDL_CONTROLLER_AXIS_TRIGGERLEFT, 32767.0f); };
         auto getRightTrigger = [=](int index) { return getStickAxis(index, SDL_CONTROLLER_AXIS_TRIGGERRIGHT, 32767.0f); };
 
+		auto copycodesendframe = [](int code) {
+			return code;
+			};
+
         lua["Keys"] = lua.create_table_with(
             "ionix_a", SDL_SCANCODE_A,
             "ionix_b", SDL_SCANCODE_B,
@@ -192,7 +196,9 @@ namespace IonixEngine {
             "get_right_stick_x", getRightStickX,
             "get_right_stick_y", getRightStickY,
             "get_left_trigger", getLeftTrigger,
-            "get_right_trigger", getRightTrigger
+            "get_right_trigger", getRightTrigger,
+
+			"get_copy_codes_end_frame", copycodesendframe
         );
     }
 }
