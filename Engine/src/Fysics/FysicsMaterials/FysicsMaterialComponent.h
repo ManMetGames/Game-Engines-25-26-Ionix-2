@@ -14,7 +14,8 @@ namespace IonixEngine
 
     public:
         b2Fixture* GetFixture(Entity* entity);
-        void UpdateMaterial(Entity* entity, float friction, float restitution);
+        void SetFriction(Entity* entity, float friction);
+        void SetRestitution(Entity* entity, float restitution);
         float GetFriction(Entity* entity);
         float GetRestitution(Entity* entity);
     };

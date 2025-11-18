@@ -146,12 +146,20 @@ namespace IonixEngine
 			};
 
 		//Material Changes
-		auto fysicsUpdateMaterial = [](Entity* entity, float friction, float restitution) {
-			Application::Get().layerFysics->GetFysicsManager()->GetMaterial()->UpdateMaterial(entity, friction, restitution);
+		auto fysicsSetFriction = [](Entity* entity, float friction) {
+			Application::Get().layerFysics->GetFysicsManager()->GetMaterial()->SetFriction(entity, friction);
+		};
+		
+		auto fysicsSetRestitution = [](Entity* entity, float restitution) {
+			Application::Get().layerFysics->GetFysicsManager()->GetMaterial()->SetRestitution(entity, restitution);
 		};
 
 		auto getFriction = [](Entity* entity)-> float {
 			return Application::Get().layerFysics->GetFysicsManager()->GetMaterial()->GetFriction(entity);
+		};
+
+		auto getRestitution = [](Entity* entity)-> float {
+			return Application::Get().layerFysics->GetFysicsManager()->GetMaterial()->GetRestitution(entity);
 		};
 
 
@@ -170,6 +178,11 @@ namespace IonixEngine
 
 			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddBox(entity, size, offset, angle, isTrigger);
 			};
+
+		auto addPolygonCollider = [](Entity* entity, std::vector<b2Vec2>& vertices) {
+
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddPolygon(entity, vertices);
+		};
 
 
 
@@ -211,8 +224,11 @@ namespace IonixEngine
 			"add_angular_impulse", addFysicsAngularImpulse,
 			"clear_forces", clearFysicsForces,
 			"add_box_collider", addBoxCollider,
-			"set_material_properties", fysicsUpdateMaterial,
-			"get_material_friction", getFriction
+			"set_friction", fysicsSetFriction,
+			"set_restitution", fysicsSetRestitution,
+			"get_friction", getFriction,
+			"get_restitution", getRestitution,
+			"add_polygon_collider", addPolygonCollider
 		);
 	}
 }

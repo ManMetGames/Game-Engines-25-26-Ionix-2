@@ -4,9 +4,13 @@
 
 namespace IonixEngine
 {
-    void FysicsMaterialComponent::UpdateMaterial(Entity* entity, float friction, float restitution)
+    void FysicsMaterialComponent::SetFriction(Entity* entity, float friction)
     {
         GetFixture(entity)->SetFriction(friction);
+    }
+
+    void FysicsMaterialComponent::SetRestitution(Entity* entity, float restitution)
+    {
         GetFixture(entity)->SetRestitution(restitution);
     }
 

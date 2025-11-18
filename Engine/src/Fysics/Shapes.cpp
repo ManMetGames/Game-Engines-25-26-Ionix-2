@@ -3,6 +3,11 @@
 #include "Fysics/FysicsManager.h"
 
 namespace IonixEngine {
+
+    
+
+
+    
     //add circle
     void FysicsShapes::AddCircle(Entity* entity, float radius, b2Vec2 offset, bool isTrigger) {
         b2CircleShape shape;
@@ -72,6 +77,7 @@ namespace IonixEngine {
             body->DestroyFixture(fixture);
         }
         fixture = FysicsManager::GetManager()->GetBodyFromEntity(entity)->CreateFixture(&fixtureDef);
+
     }
 
 

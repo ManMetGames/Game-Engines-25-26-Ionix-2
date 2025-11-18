@@ -60,17 +60,31 @@ function ExampleScript:OnStart()
 		-- sprite as single frame (4 = manual/no anim)
 		local s = Entity.add_sprite_component(tile, tex, tileSize, tileSize, 0)
 		Sprite.set_playback_mode(s, 4)
+		
+        ------------------------------------------------------
+        -- creates 1 ground collider the size of all of the tiles combined
+        ------------------------------------------------------
+		
+		if i == 30 then
+            ground = Entity.create_entity()--[[ 
+            Entity.set_entity_pos(ground, tileSize, floorY)
+            Entity.add_fysics_component(ground, 0, false)  -- static
+            Fysics.add_box_collider(ground, i, 1, 0, 0, 0, false)  -- not a trigger  ]]
+            
+            local floorPoints = {
+                {0, floorY},
+                {992, floorY},
+                {992, floorY - 10},
+                {0, floorY - 10}
+            }
+            
+            Fysics.add_polygon_collider(ground, floorPoints)
 
-		------------------------------------------------------
-		-- add physics body + collider
-		------------------------------------------------------
+        end
+
 	end
 
-        ground = Entity.create_entity()
-        Entity.set_entity_pos(ground, tileSize, floorY)
-        --Issue is that tile is created in for loop
-		Entity.add_fysics_component(ground, 0, false)  -- static
-		Fysics.add_box_collider(ground, 32, 1, 0, 0, 0, false)  -- not a trigger
+
 end
 
 ----------------------------------------------------------
@@ -87,20 +101,16 @@ function ExampleScript:OnUpdate()
 	end
 
 	if Input.get_key_down(Keys.ionix_b) then
-        Fysics.set_material_properties(player, 5, 0)
+        Fysics.set_friction(player, 5)
+        local friction = Fysics.get_friction(player)
+        print("Currnet Friction: ", friction)
 	end	
 	
-    if Input.get_key_down(Keys.ionix_p) then
-        Fysics.set_material_properties(player, 0, 0)
-    end	
-		
-	
-	if Input.get_key_down(Keys.ionix_n) then
-        local friction = Fysics.get_material_friction(player)
-        local rotation = Fysics.get_fixed_rotation(player)
+    if Input.get_key_down(Keys.ionix_n) then
+        Fysics.set_friction(player, 0)
+        local friction = Fysics.get_friction(player)
         print("Currnet Friction: ", friction)
-        print("Current Rotation: ", rotation)
-	end
+    end	
 
 
    
