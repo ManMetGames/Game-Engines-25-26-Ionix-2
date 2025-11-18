@@ -1,5 +1,6 @@
 #include "FysicsManager.h"
 #include "Architecture/Application.h"
+#include <Testing/Box2D/DebugDraw.h>
 
 namespace IonixEngine
 {
@@ -11,6 +12,15 @@ namespace IonixEngine
 	{
 		b2Vec2 gravity(0.0f, 9.8f);
 		world = new b2World(gravity);
+
+		DebugDraw* debugDraw = new DebugDraw(Application::Get().GetWindow().GetSdlRenderer(), 30.0f);
+		debugDraw->SetFlags(
+			b2Draw::e_shapeBit
+			| b2Draw::e_jointBit
+			| b2Draw::e_centerOfMassBit
+		);
+
+		world->SetDebugDraw(debugDraw);
 
 		// create and configure collision listener
 		collisionListener = new CollisionListener(this);
@@ -35,7 +45,7 @@ namespace IonixEngine
 		delete force;
 
 		// cleans up all bodies in the map
-		entityBodyMap.clear();
+		bodyEntityMap.clear();
 
 		// (this also destroys all bodies/fixtures/joints)
 		delete world;
@@ -43,7 +53,7 @@ namespace IonixEngine
 
 	b2Body* FysicsManager::GetBodyFromEntity(Entity* entity)
 	{
-		for (auto& pair : entityBodyMap)
+		for (auto& pair : bodyEntityMap)
 		{
 			if (pair.second == entity)
 			{
@@ -55,11 +65,17 @@ namespace IonixEngine
 
 	Entity* FysicsManager::GetEntityFromBody(b2Body* body)
 	{
-		auto it = entityBodyMap.find(body);
-		if (it != entityBodyMap.end())
+		auto it = bodyEntityMap.find(body);
+		if (it != bodyEntityMap.end())
 		{
 			return it->second;
 		}
 		return nullptr;
+	}
+
+	void FysicsManager::AddEntityBodyPair(Entity* entity, b2Body* body)
+	{
+		//entityBodyMap[entity] = body; // Not needed as we have helper methods which get what we need from 1 data structure.
+		bodyEntityMap[body] = entity;
 	}
 }

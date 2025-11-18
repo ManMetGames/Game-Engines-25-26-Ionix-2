@@ -14,14 +14,21 @@ namespace IonixEngine
 
 	void FysicsScripting::Init(sol::state& lua)
 	{
+		//------------Box2D Vec2 Binding--------------- VERY USEFUL! Can use this in many methods below.
+		lua.new_usertype<b2Vec2>("Vec2",
+			sol::constructors<b2Vec2(), b2Vec2(float, float)>(),
+			"x", &b2Vec2::x,
+			"y", &b2Vec2::y
+		);
+
 
 		//------------Fysics Body Methods---------------
 		auto getFysicsPos = [](Entity* entity) -> b2Vec2 {
 			return entity->GetComponent<FysicsBody>()->GetPosition(entity);
 			};
 
-		auto setFysicsPos = [](Entity* entity, float x, float y) {
-			entity->GetComponent<FysicsBody>()->SetPosition(entity, x, y);
+		auto setFysicsPos = [](Entity* entity, b2Vec2 vec2) {
+			entity->GetComponent<FysicsBody>()->SetPosition(entity, vec2.x, vec2.y);
 			};
 
 		auto getFysicsAngle = [](Entity* entity) -> float{
@@ -36,8 +43,8 @@ namespace IonixEngine
 			return entity->GetComponent<FysicsBody>()->GetLinearVelocity(entity);
 			};
 
-		auto setFysicsLinearVelocity = [](Entity* entity, float x, float y) {
-			entity->GetComponent<FysicsBody>()->SetLinearVelocity(entity, x, y);
+		auto setFysicsLinearVelocity = [](Entity* entity, b2Vec2 vec2) {
+			entity->GetComponent<FysicsBody>()->SetLinearVelocity(entity, vec2.x, vec2.y);
 			};
 
 		auto getFysicsAngularVelocity = [](Entity* entity) -> float {
@@ -103,20 +110,20 @@ namespace IonixEngine
 
 
 		//-----------Force Methods----------
-		auto addFysicsForce = [](Entity* entity, b2Vec2 force, b2Vec2 point) {		
-			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddForce(entity, force, point);
+		auto addFysicsForce = [](Entity* entity, b2Vec2 impulseVec2, b2Vec2 originVec2) {
+			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddForce(entity, impulseVec2, originVec2);
 			};
 
-		auto addFysicsForceToCenter = [](Entity* entity, b2Vec2 force) {
-			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddForceToCenter(entity, force);
+		auto addFysicsForceToCenter = [](Entity* entity, b2Vec2 originVec2) {
+			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddForceToCenter(entity, originVec2);
 			};
 
-		auto addFysicsAddImpulse = [](Entity* entity, b2Vec2 impulse, b2Vec2 point) {
-			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddImpulse(entity, impulse, point);
+		auto addFysicsAddImpulse = [](Entity* entity, b2Vec2 impulseVec2, b2Vec2 forceVec2) {
+			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddImpulse(entity, impulseVec2, forceVec2);
 			};
 
-		auto addFysicsAddImpulseToCenter = [](Entity* entity, b2Vec2 impulse) {
-			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddImpulseToCenter(entity, impulse);
+		auto addFysicsAddImpulseToCenter = [](Entity* entity, b2Vec2 forceVec2) {
+			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddImpulseToCenter(entity, forceVec2);
 			};
 
 		auto addFysicsTorque = [](Entity* entity, float torque) {
@@ -135,8 +142,9 @@ namespace IonixEngine
 
 		//----------Collision Methods----------
 
-
-
+		auto addBoxCollider = [](Entity* entity, b2Vec2 size, b2Vec2 offset, float angle, bool isTrigger) {
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddBox(entity, size, offset, angle, isTrigger);
+			};
 
 
 
@@ -176,7 +184,8 @@ namespace IonixEngine
 			"add_impulse_to_center", addFysicsAddImpulseToCenter,
 			"add_torque", addFysicsTorque,
 			"add_angular_impulse", addFysicsAngularImpulse,
-			"clear_forces", clearFysicsForces
+			"clear_forces", clearFysicsForces,
+			"add_box_collider", addBoxCollider
 		);
 	}
 }
