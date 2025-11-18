@@ -155,22 +155,21 @@ namespace IonixEngine
 
 
 		//----------Joints Methods----------
-		auto getPrismaticJoint = [](Entity* entityA, Entity* entityB) {
+		auto addPrismaticJoint = [](Entity* entityA, Entity* entityB) {
 			return Application::Get().layerFysics->GetFysicsManager()->GetPrismaticJoint();
 			};
-		auto getWeldJoint = [](Entity* entityA, Entity* entityB) {
+		auto addWeldJoint = [](Entity* entityA, Entity* entityB) {
 			return Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint();
 			};
-		auto getPulleyJoint = [](Entity* entityA, Entity* entityB) {
+		auto addPulleyJoint = [](Entity* entityA, Entity* entityB) {
 			return Application::Get().layerFysics->GetFysicsManager()->GetPulleyJoint();
 			};
-		auto getRevoluteJoint = [](Entity* entityA, Entity* entityB) {
+		auto addRevoluteJoint = [](Entity* entityA, Entity* entityB) {
 			return Application::Get().layerFysics->GetFysicsManager()->GetRevoluteJoint();
 			};
-		auto getDistanceJoint = [](Entity* entityA, Entity* entityB) {
+		auto addDistanceJoint = [](Entity* entityA, Entity* entityB) {
 			return Application::Get().layerFysics->GetFysicsManager()->GetDistanceJoint();
 			};
-
 
 
 
@@ -237,11 +236,11 @@ namespace IonixEngine
 			"get_gravity_scale", GetGravityScale,
 			"set_gravity_scale", SetGravityScale,
 			"add_box_collider", addBoxCollider,
-			"get_prismatic_joint", getPrismaticJoint,
-			"get_weld_joint", getWeldJoint,
-			"get_pulley_joint", getPulleyJoint,
-			"get_revolute_joint", getRevoluteJoint,
-			"get_distance_joint", getDistanceJoint,
+			"get_prismatic_joint", addPrismaticJoint,
+			"get_weld_joint", addWeldJoint,
+			"get_pulley_joint", addPulleyJoint,
+			"get_revolute_joint", addRevoluteJoint,
+			"get_distance_joint", addDistanceJoint,
 			"add_box_collider", addBoxCollider
 		);
 	}
