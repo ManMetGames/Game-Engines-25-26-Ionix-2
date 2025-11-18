@@ -31,10 +31,10 @@ namespace IonixEngine
             switch (shapeType)
             {
             case fysicShapeType::circle:
-                AddCircle(entity, radius, offset, isTrigger);
+                AddCircle(entity, radius, offset, isTrigger, 0x0001, 0xFFFF);
                 break;
             case fysicShapeType::box:
-                AddBox(entity, b2Vec2 { width, height }, offset, angle, isTrigger);
+                AddBox(entity, b2Vec2 { width, height }, offset, angle, isTrigger, 0x0001, 0xFFFF);
                 break;
             case fysicShapeType::polygon:
                 AddPolygon(entity);
