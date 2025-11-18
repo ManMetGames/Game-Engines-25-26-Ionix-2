@@ -46,7 +46,7 @@ namespace IonixEngine {
         }
         thirdEntity->transform.SetLocalPosition(Vec2{ 0, -100 });
         thirdEntity->transform.SetParent(&secondEntity->transform, false);
-        thirdEntity->AddComponent(new AnimatedSpriteComponent(thirdEntity, "ball", 0));
+        thirdEntity->AddComponent(new SpriteComponent(thirdEntity, "ball", 0));
 
     }
 

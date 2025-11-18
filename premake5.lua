@@ -16,11 +16,13 @@ project "Engine"
 
     files {
         "%{prj.name}/src/**.h",
+        "%{prj.name}/src/**.hpp",
         "%{prj.name}/src/**.cpp"
     }
 
     vpaths {
         ["Source Files/*"] = "%{prj.name}/src/**.cpp",
+        ["Source Files/*"] = "%{prj.name}/src/**.hpp",
         ["Header Files/*"] = "%{prj.name}/src/**.h"
     }
 

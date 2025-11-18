@@ -1,237 +1,69 @@
+
 #pragma once
 #include <sol/sol.hpp>
-
+#include "Architecture/ECS/Component.hpp"
 #include "LayerSystem/Layers/LayerFysics.h"
 #include "Fysics/Shapes.h"
 
 namespace IonixEngine
 {
-    enum class fysicsBodyType {staticBody, dynamicBody, kinematicBody};
-    
-    class FysicsBody
+    enum class fysicsBodyType { staticBody, dynamicBody, kinematicBody };
+
+    class FysicsBody : public Component
     {
     private:
         b2Body* body;
+
     public:
-        FysicsBody(b2World* world)
-        {
-            if (!world) world = nullptr;
-            b2BodyDef bodyDef;
-            bodyDef.type = b2_dynamicBody;
-            bodyDef.position.Set(0, 10);
-            bodyDef.awake = true;
-            bodyDef.fixedRotation = false;
-            body = world->CreateBody(&bodyDef);
-            
-        }
-        
-        FysicsBody(b2World* world, float xPos, float yPos, fysicsBodyType b_type, bool rotationLocked)
-        {
-            if (!world) world = nullptr;
-            b2BodyDef bodyDef;
-            switch (b_type)
-            {
-                case fysicsBodyType::staticBody:
-                    bodyDef.type = b2_staticBody;
-                     break;
-                case fysicsBodyType::dynamicBody:
-                    bodyDef.type = b2_dynamicBody;
-                    break;
-                case fysicsBodyType::kinematicBody:
-                    bodyDef.type = b2_kinematicBody;
-                    break;
-            }
-            bodyDef.position.Set(xPos, yPos);
-            bodyDef.awake = true;
-            bodyDef.fixedRotation = rotationLocked;
-            body = world->CreateBody(&bodyDef);
-        }
+        // Constructors
+        FysicsBody(Entity* entity, std::string alias, b2World* world);
+        /*FysicsBody(Entity* entity, std::string alias, b2World* world, float xPos, float yPos, fysicsBodyType b_type, bool rotationLocked);
+        FysicsBody(Entity* entity, std::string alias, b2World* world, float xPos, float yPos, fysicsBodyType b_type, bool rotationLocked, float gravityScale);*/
 
-        FysicsBody(b2World* world, float xPos, float yPos, fysicsBodyType b_type, bool rotationLocked, float gravityScale)
-        {
-            if (!world) world = nullptr;
-            b2BodyDef bodyDef;
-            switch (b_type)
-            {
-            case fysicsBodyType::staticBody:
-                bodyDef.type = b2_staticBody;
-                break;
-            case fysicsBodyType::dynamicBody:
-                bodyDef.type = b2_dynamicBody;
-                break;
-            case fysicsBodyType::kinematicBody:
-                bodyDef.type = b2_kinematicBody;
-                break;
-            }
-            bodyDef.position.Set(xPos, yPos);
-            bodyDef.awake = true;
-            bodyDef.fixedRotation = rotationLocked;
-            bodyDef.gravityScale = gravityScale;
-            body = world->CreateBody(&bodyDef);
-        }
-        //get body def
-        b2Body* GetBody()
-        {
-            return body;
-        }
-        //Get & Set Position
-        b2Vec2 GetPosition() const
-        {
-            if (body)
-            {
-                return body->GetPosition();
-            }
-            return b2Vec2(0.0f, 0.0f);            
-        }
+        // Body access
+        b2Body* GetBody();
 
-        void SetPosition(float x, float y)
-        {
-            if (body)
-            {
-                b2Vec2 newPos(x, y);
-                body->SetTransform(newPos, body->GetAngle());//Sets the position, and makes sure the angle doesnt change
-            }
-        }
+        // Position
+        b2Vec2 GetPosition() const;
+        void SetPosition(float x, float y);
 
-        //Get & Set Angle
+        // Angle
+        float GetAngle() const;
+        void SetAngle(float angleInRadians);
 
-        float GetAngle() const
-        {
-            if (body)
-            {
-                return body->GetAngle();
-            }
-            return 0.0f;
-        }
+        // Velocity
+        b2Vec2 GetLinearVelocity() const;
+        void SetLinearVelocity(float x, float y);
+        float GetAngularVelocity() const;
+        void SetAngularVelocity(float x);
 
-        void SetAngle(float angleInRadians)
-        {
-            if (body)
-            {
-                b2Vec2 currentPos = body->GetPosition();
-                body->SetTransform(currentPos, angleInRadians);
-            }
-        }
+        // Awake
+        void SetAwake(bool flag);
+        bool GetAwake();
 
-        //Get&Set Linear Velocity
-        b2Vec2 GetLinearVelocity() const
-        {
-            if (body)
-            {
-                return body->GetLinearVelocity();
-            }
-            return b2Vec2(0.0f, 0.0f);
-        }
-        void SetLinearVelocity(float x, float y)
-        {
-            if (body)
-            {
-                b2Vec2 newVelocity(x, y);
-                body->SetLinearVelocity(newVelocity);
-            }
-        }
+        // Rotation
+        void RotatePosition(float angle);
 
-        //Get&Set Angular Velocity
-        float GetAngularVelocity() const
-        {
-            if (body)
-            {
-                return body->GetAngularVelocity();
-            }
-            return 0.0f;
-        }
-        void SetAngularVelocity(float x)
-        {
-            if (body)
-            {
-                body->SetAngularVelocity(x);
-            }
-        }
-        
-        //Set Active
-        void SetAwake(bool flag) {
-            if (body) {
-                body->SetAwake(flag);
-            }
-        }
-        //Get Active 
-        bool GetAwake() {
-            return body->IsAwake();
-        }
-        
-        //Rotate Position or Body - doesnt set the angle to be something like Set Angle adds rotation to current body
-        void RotatePosition(float angle) {
-            float currentAngle = body->GetAngle(); 
-            float newAngle = currentAngle + angle; // adding rotation to current rotation
-            body->SetTransform(body->GetPosition(), newAngle);
-        }
+        // Damping
+        float GetLinearDamping();
+        void SetLinearDamping(float linearDamping);
+        float GetAngularDamping();
+        void SetAngularDamping(float angularDamping);
 
-        //Linear Damping
-        float GetLinearDamping()
-        {
-                return body->GetLinearDamping();
-        }
+        // Sleep
+        bool GetAllowSleep();
+        void SetAllowSleep(bool flag);
 
-        void SetLinearDamping(float linearDamping)
-        {
-                body->SetLinearDamping(linearDamping);
-        }
+        // Fixed rotation
+        bool GetFixedRotation();
+        void SetFixedRotation(bool flag);
 
-        //Angular Damping
-        float GetAngularDamping()
-        {
-            return body->GetAngularDamping();
-        }
+        // Bullet
+        bool GetIsBullet();
+        void SetIsBullet(bool flag);
 
-        void SetAngularDamping(float angularDamping)
-        {
-            body->SetAngularDamping(angularDamping);
-        }
-
-        //Allow Sleep
-        bool GetAllowSleep()
-        {
-            return body->IsSleepingAllowed();
-        }
-
-        void SetAllowSleep(bool flag)
-        {
-            body->SetSleepingAllowed(flag);
-        }
-
-        //Fixed Rotation
-        bool GetFixedRotation()
-        {
-            return body->IsFixedRotation();
-        }
-
-        void SetFixedRotation(bool flag)
-        {
-            body->SetFixedRotation(flag);
-        }
-
-        //Bullet
-        bool GetIsBullet()
-        {
-            return body->IsBullet();
-        }
-
-        void SetIsBullet(bool flag)
-        {
-            body->SetBullet(flag);
-        }
-
-        //Gravity Scale
-        float GetGravityScale()
-        {
-            return body->GetGravityScale();
-        }
-
-        void SetGravityScale(float gravityScale)
-        {
-            body->SetGravityScale(gravityScale);
-        }
-        
+        // Gravity
+        float GetGravityScale();
+        void SetGravityScale(float gravityScale);
     };
 }
-
