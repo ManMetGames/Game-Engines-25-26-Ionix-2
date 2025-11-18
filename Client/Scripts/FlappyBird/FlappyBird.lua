@@ -30,6 +30,7 @@ function ExampleScript:OnStart()
 	Texture.add_texture("./Assets/key.png", "key")
     Texture.add_texture("./Assets/FlappyBird.png", "FlappyBird")
     Texture.add_texture("./Assets/Background.png", "Background")
+    Texture.add_texture("./Assets/Pipe.png", "Pipe")
     ------------------------------------------------------
     -- Create player1
     ------------------------------------------------------
@@ -58,32 +59,33 @@ function ExampleScript:OnStart()
     Entity.add_fysics_component(player2, 2, false) -- dynamic body
     Fysics.add_box_collider(player2, .5, .4, 0, 0, 0, false, 0x0002, 0xFFFD)
 
-    local tileSize = 64
-    local floorY = 600
+    
+   
+
+    
 
 	------------------------------------------------------
 	-- pick texture for left / middle / right
 	------------------------------------------------------
 	local tex = "middle"
-
+    local PipeSizeY = 128
+    local PipeSizeX = 64
+    local floorY = 600
+    local tileSize = 64
+    local pipe
 	for i = 0, 30 do
 		local tile = Entity.create_entity()
+        pipe = Entity.create_entity()
 		local xPos = i * tileSize
 
 		------------------------------------------------------
 		-- place sprite
 		------------------------------------------------------
 		Entity.set_entity_pos(tile, xPos, floorY)
-
 		-- sprite as single frame (4 = manual/no anim)
 		local s = Entity.add_sprite_component(tile, "Sand", tileSize, tileSize, 0)
 		Sprite.set_playback_mode(s, 4)
 
-		------------------------------------------------------
-		-- add physics body + collider
-		------------------------------------------------------
-		Entity.add_fysics_component(tile, 0, false)  -- static
-		Fysics.add_box_collider(tile, 1, 1, 0, 0, 0, false)  -- not a trigger
 	end
 end
 
