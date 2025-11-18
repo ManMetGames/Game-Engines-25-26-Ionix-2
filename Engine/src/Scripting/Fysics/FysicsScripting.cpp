@@ -145,7 +145,16 @@ namespace IonixEngine
 			Application::Get().layerFysics->GetFysicsManager()->GetForce()->ClearForces(entity);
 			};
 
+		auto AddCircle = [](Entity* entity, float radius, b2Vec2 offset, bool isTrigger) {
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddCircle(entity, radius, offset, isTrigger);
+			};
+		auto AddBox = [](Entity* entity, b2Vec2 size, b2Vec2 offset, float angle, bool isTrigger) {
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddBox(entity, size, offset, angle, isTrigger);
+			};
 
+		auto addPolygon = [](Entity* entity) {
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddPolygon(entity);
+			};
 
 		//----------Collision Methods----------
 
@@ -173,6 +182,9 @@ namespace IonixEngine
 
 
 		lua["Fysics"] = lua.create_table_with(
+			"add_circle",AddCircle,
+			"add_box",AddBox,
+			"add_polygon",addPolygon,
 			"get_pos", getFysicsPos,
 			"set_pos", setFysicsPos,
 			"get_angle", getFysicsAngle,
