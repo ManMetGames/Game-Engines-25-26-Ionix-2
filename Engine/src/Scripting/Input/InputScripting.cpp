@@ -49,6 +49,12 @@ namespace IonixEngine {
         auto getKeyHeld = [](int code) -> bool {
             return Application::Get().layerInput->m_Input->IsKeyHeld(static_cast<SDL_Scancode>(code));
             };
+		auto getKeyPressed = [](int code) -> bool {
+			Application::Get().layerInput->m_Input->SetKeyPressed(static_cast<SDL_Scancode>(code));
+			};
+        auto getKeyReleased = [](int code) -> bool {
+            Application::Get().layerInput->m_Input->SetKeyReleased(static_cast<SDL_Scancode>(code));
+            };
 
         auto getMouseX = []() -> int {
             return Application::Get().layerInput->m_Input->GetMousePosition().x;
@@ -62,6 +68,12 @@ namespace IonixEngine {
         auto getMouseButtonUp = [](int mousecode)-> bool {
             return Application::Get().layerInput->m_Input->IsMouseButtonUp(static_cast<uint8>(mousecode));
             };
+		auto getMousePressed = [](int code) -> bool {
+			Application::Get().layerInput->m_Input->SetMousePressed(static_cast<uint8>(code));
+			};
+		auto getMouseReleased = [](int code) -> bool {
+			Application::Get().layerInput->m_Input->SetMouseReleased(static_cast<uint8>(code));
+			};
 
         auto getButtonDown = [this](int index, int btn) -> bool {
             if (index < 0 || index >= (int)m_Controllers.size() || !m_Controllers[index])
@@ -164,11 +176,15 @@ namespace IonixEngine {
             "get_key_up", getKeyUp,
             "get_key_down", getKeyDown,
             "get_key_held", getKeyHeld,
+			"get_key_pressed", getKeyPressed,
+			"get_key_released", getKeyReleased,
 
             "get_mouse_x", getMouseX,
             "get_mouse_y", getMouseY,
             "get_mouse_button_down", getMouseButtonDown,
             "get_mouse_button_up", getMouseButtonUp,
+			"get_mouse_pressed", getMousePressed,
+			"get_mouse_released", getMouseReleased,
 
             "get_button_down", getButtonDown,
             "get_left_stick_x", getLeftStickX,
