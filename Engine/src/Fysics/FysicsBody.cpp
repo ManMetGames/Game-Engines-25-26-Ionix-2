@@ -18,25 +18,34 @@ namespace IonixEngine
         body->SetTransform(b2Vec2(entity->position.x / 100, entity->position.y / 100), entity->rotation);
         body->GetUserData().pointer = (uintptr_t)(entity);
         fysics_manager.GetBodyMap()[body] = entity;
+
+        // Important that we keep reference to the bodies that are created via this data structure
+        Application::Get().layerFysics->GetFysicsManager()->AddEntityBodyPair(entity, body);
     }
 
-    /*FysicsBody::FysicsBody(Entity* entity, std::string alias, b2World* world, float xPos, float yPos, fysicsBodyType b_type, bool rotationLocked) : Component(entity, true, true, false)
+    FysicsBody::FysicsBody(Entity* entity, int bodyType, bool rotationLocked) : Component(entity, true, true, false)
     {
-        if (!world) world = nullptr;
         b2BodyDef bodyDef;
 
-        switch (b_type)
+        switch (bodyType)
         {
-            case fysicsBodyType::staticBody: bodyDef.type = b2_staticBody; break;
-            case fysicsBodyType::dynamicBody: bodyDef.type = b2_dynamicBody; break;
-            case fysicsBodyType::kinematicBody: bodyDef.type = b2_kinematicBody; break;
+            case 0: bodyDef.type = b2_staticBody; break;
+            case 1: bodyDef.type = b2_kinematicBody; break;
+            case 2: bodyDef.type = b2_dynamicBody; break;
         }
 
-        bodyDef.position.Set(xPos, yPos);
         bodyDef.awake = true;
         bodyDef.fixedRotation = rotationLocked;
-        body = world->CreateBody(&bodyDef);
+        bodyDef.position.x = entity->position.x / 100;
+        bodyDef.position.y = entity->position.y / 100;
+
+        body = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->CreateBody(&bodyDef);
+
+
+        // Important that we keep reference to the bodies that are created via this data structure
+        Application::Get().layerFysics->GetFysicsManager()->AddEntityBodyPair(entity, body);
     }
+    /*
 
     FysicsBody::FysicsBody(Entity* entity, std::string alias, b2World* world, float xPos, float yPos, fysicsBodyType b_type, bool rotationLocked, float gravityScale) : Component(entity, true, true, false)
     {

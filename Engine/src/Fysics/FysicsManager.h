@@ -25,7 +25,7 @@ namespace IonixEngine
         PulleyJoints* pulleyJoint;
         RevoluteJoints* revoluteJoint;
         DistanceJoints* distanceJoint;
-        std::unordered_map<b2Body*, Entity*> entityBodyMap;
+        std::unordered_map<b2Body*, Entity*> bodyEntityMap;
         std::unordered_map<b2Body*, RigidBodyTransform> transformMap; //used for interpolation
 
     public:
@@ -43,10 +43,12 @@ namespace IonixEngine
         DistanceJoints* GetDistanceJoint() { return distanceJoint;}
 
         b2World* GetWorld() { return world; }
-        std::unordered_map<b2Body*, Entity*>& GetBodyMap() { return entityBodyMap; }
+        std::unordered_map<b2Body*, Entity*>& GetBodyMap() { return bodyEntityMap; }
         std::unordered_map<b2Body*, RigidBodyTransform>& GetTransformMap() { return transformMap; } //used for interpolation
         
         b2Body* GetBodyFromEntity(Entity* entity);
         Entity* GetEntityFromBody(b2Body* body);
+
+        void AddEntityBodyPair(Entity* entity, b2Body* body);
     };
 }
