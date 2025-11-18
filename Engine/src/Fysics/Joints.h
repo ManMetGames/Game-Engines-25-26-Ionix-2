@@ -1,202 +1,264 @@
+
 #pragma once
 #include "LayerSystem/Layers/LayerFysics.h"
 
 namespace IonixEngine
 {
-     class Joints    
+    class Entity;
+    class Joints
     {
     private:
+        b2Joint* joint;
+    protected:
+        b2Body* _bodyA = nullptr;
+        b2Body* _bodyB = nullptr;
+        b2Vec2 _anchorA = b2Vec2(0, 0);
+        b2Vec2 _anchorB = b2Vec2(0, 0);
         b2JointUserData userData;
 
     public:
-        b2World* world;    
+
+        Joints();
+
+        virtual void setJoint() {};
+
+        virtual b2Joint* getJoint();
+
+        void destroyJoint(b2Joint* joint);
+
+        b2Body* getBodyA(b2Joint* joint);
+
+        void setBodyA(b2Joint* joint, b2Body* newBody);
+
+        b2Body* getBodyB(b2Joint* joint);
+
+        void setBodyB(b2Joint* joint, b2Body* newBody);
+
+        b2Vec2 getAnchorA(b2Joint* joint);
+
+        void setAnchorA(b2Joint* joint, b2Vec2 newAnchor);
+
+        b2Vec2 getAnchorB(b2Joint* joint);
 
 
-        Joints()
-        {
-            world = LayerFysics::GetInstance()->GetWorld();          
-        }              
+        void setAnchorB(b2Joint* joint, b2Vec2 newAnchor);
 
-        void destroyJoint(b2Joint* joint) {
-            world->DestroyJoint(joint);
-        }
-    
-        b2Body* getBodyA(b2Joint* joint) {
-            return joint->GetBodyA();
-        }
-     
-        b2Body* getBodyB(b2Joint* joint) {
-            return joint->GetBodyB();
-        }
+        b2JointUserData getUserData(b2Joint* joint);
 
-        b2Vec2 getAnchorA(b2Joint* joint) {
-            return joint->GetAnchorA();
-        }
+        bool getCollideConntected(b2Joint* joint);
 
-        b2Vec2 getAnchorB(b2Joint* joint) {
-            return joint->GetAnchorB();
-        }
+        b2Vec2 getReactionForce(b2Joint* joint, float inverseDeltaTime);
 
-        void getUserData(b2Joint* joint) {
-           userData = joint->GetUserData();
-        }     
+        float getReactionTorque(b2Joint* joint, float inverseDeltaTime);
+
+        b2JointType getType(b2Joint* joint);
+
+        bool isEnabled(b2Joint* joint);
+
+        void shiftOrigin(b2Joint* joint, b2Vec2 newOrigin);
+
     };
 
-    class PrismaticJoints : public Joints{
+    class PrismaticJoints : public Joints {
     private:
         b2PrismaticJoint* joint;
+
+        b2Vec2 _worldAxis;
+        float _lowerTranslation;
+        float _upperTranslation;
+        bool _enableLimit;
+        float _maxMotorForce;
+        float _motorSpeed;
+        bool _enableMotor;
+
     public:
 
-      void setJoint(b2Body* bodyA, b2Body* bodyB, b2Vec2 worldAxis, float lowerTranslation, float upperTranslation, bool enableLimit, float maxMotorForce, float motorSpeed, bool enableMotor) {
-         b2PrismaticJointDef jointDef;
-         jointDef.Initialize(bodyA, bodyB, bodyA->GetWorldCenter(), worldAxis);
-         jointDef.lowerTranslation = lowerTranslation;
-         jointDef.upperTranslation = upperTranslation;
-         jointDef.enableLimit = enableLimit;
-         jointDef.maxMotorForce = maxMotorForce;
-         jointDef.motorSpeed = motorSpeed;
-         jointDef.enableMotor = enableMotor;
+        using Joints::Joints;
 
-         joint = (b2PrismaticJoint*)world->CreateJoint(&jointDef);
+        void setJoint() override;
 
-      }
-      b2Joint* getJoint() {
-          return joint;
-      }
+        void setJoint(Entity* entityA, Entity* entityB, b2Vec2 worldAxis, float lowerTranslation, float upperTranslation, bool enableLimit, float maxMotorForce, float motorSpeed, bool enableMotor);
 
-      float getJointTranslation() {
-          return joint->GetJointTranslation();
-      }
-    
-      float getJointSpeed() {
-          return joint->GetJointSpeed();
-      }
+        b2Joint* getJoint() override;
 
-      float getMotorForce(float inverseDeltaTime) {
-          return joint->GetMotorForce(inverseDeltaTime);
-      }
+        float getJointTranslation();
 
-      void SetMotorSpeed(float speed) {
-          joint->SetMotorSpeed(speed);
-      }
+        void setJointTranslation(float lowerTranslation, float upperTranslation);
 
-      void SetMotorForce(float force) {
-          joint->SetMaxMotorForce(force);
-      }
+        float getJointSpeed();
+
+        float getMotorForce(float inverseDeltaTime);
+
+        float getMaxMotorForce();
+
+        void setMaxMotorForce(float force);
+
+        float getMotorSpeed();
+
+        void setMotorSpeed(float speed);
+
+        b2Vec2 getWorldAxis();
+
+        void setWorldAxis(b2Vec2 newWorldAxis);
+
+        float getLowerTranslation();
+
+        void setLowerTranslation(float newLowerTranslation);
+
+        float getUpperTranslation();
+
+        void setUpperTranslation(float newUpperTranslation);
+
+        bool getEnableLimit();
+
+        void setEnableLimit(bool newEnableLimit);
+
+        bool getEnableMotor();
+
+        void setEnableMotor(bool newEnableMotor);
     };
 
-    class WeldJoints : Joints {
+    class WeldJoints : public Joints {
     private:
         b2WeldJoint* joint;
 
     public:
 
-        void setJoint(b2Body* bodyA, b2Body* bodyB) {
-            b2WeldJointDef jointDef;
+        using Joints::Joints;
 
-            b2Vec2 anchor = bodyA->GetWorldCenter();
+        void setJoint() override;
 
-            jointDef.Initialize(bodyA,bodyB,anchor);
+        void setJoint(Entity* entityA, Entity* entityB);
 
-            joint = (b2WeldJoint*)world->CreateJoint(&jointDef);
+        b2Joint* getJoint() override;
 
-        }
+        void setDamping(float damping);
 
-        b2Joint* getJoint() {
-            return joint;
-        }
+        float getDamping();
+
+        void setStiffness(float stiffness);
+
+        float getStiffness();
     };
 
     class PulleyJoints : public Joints {
     private:
         b2PulleyJoint* joint;
+        b2Vec2 _position1;
+        b2Vec2 _position2;
+        float _ratio;
+        float _lengthA;
+        float _lengthB;
 
     public:
 
-        void setJoint(b2Body* bodyA, b2Body* bodyB, b2Vec2 p1, b2Vec2 p2, float ratio, float lengthA, float lengthB) {
+        using Joints::Joints;
 
-            b2Vec2 anchorA = bodyA->GetWorldCenter();
-            b2Vec2 anchorB = bodyB->GetWorldCenter();
+        void setJoint()override;
 
-            b2Vec2 groundAnchorA(p1.x, p1.y + lengthA);
-            b2Vec2 groundAnchorB(p1.x, p1.y + lengthB);
+        void setJoint(Entity* entityA, Entity* entityB, b2Vec2 p1, b2Vec2 p2, float ratio, float lengthA, float lengthB);
 
-            b2PulleyJointDef jointDef;
-            jointDef.Initialize(bodyA, bodyB, groundAnchorA, groundAnchorB, anchorA, anchorB, ratio);
+        b2Joint* getJoint() override;
 
-            joint = (b2PulleyJoint*)world->CreateJoint(&jointDef);
-        }
+        float getLengthA();
 
-        float getLengthA() {
-            return joint->GetLengthA();
-        }
+        void setLengthA(float newLengthA);
 
-        float getLengthB() {
-            return joint->GetLengthA();
-        }
+        float getLengthB();
 
-        b2Joint* getJoint() {
-            return joint;
-        }
+        void setLengthB(float newLengthB);
+
+        float getCurrentLengthA();
+
+        float getCurrentLengthB();
+
+        float getRatio();
+
+        void setRatio(float newRatio);
+
+        b2Vec2 getGroundAnchorA();
+
+        b2Vec2 getGroundAnchorB();
+
+        b2Vec2 getPosition1();
+
+        void setPosition1(b2Vec2 newPosition);
+
+        b2Vec2 getPosition2();
+
+        void setPosition2(b2Vec2 newPosition);
     };
 
     class DistanceJoints : public Joints {
     private:
         b2DistanceJoint* joint;
+        float _length = -1.0f;
 
     public:
 
-        void setJoint(b2Body* bodyA, b2Body* bodyB, const b2Vec2& anchorA, const b2Vec2& anchorB, float length = -1.0f) {
+        using Joints::Joints;
 
-            b2DistanceJointDef jointDef;
-            jointDef.Initialize(bodyA, bodyB, anchorA, anchorB);
-            if (length > 0.0f) jointDef.length = length;
+        void setJoint() override;
 
-            joint = (b2DistanceJoint*)world->CreateJoint(&jointDef);
-        }
+        void setJoint(Entity* entityA, Entity* entityB, const b2Vec2& anchorA, const b2Vec2& anchorB, float length = -1.0f);
 
-        float getLength() { return joint->GetLength(); }
-        void setLength(float l) { joint->SetLength(l); }
+        float getLength();
 
-        b2Vec2 getAnchorA() { return joint->GetAnchorA(); }
-        b2Vec2 getAnchorB() { return joint->GetAnchorB(); }
+        void setLength(float l);
 
-        b2Joint* getJoint() { return joint; }
+        b2Joint* getJoint() override;
+
+
     };
 
     class RevoluteJoints : public Joints {
     private:
         b2RevoluteJoint* joint;
+        bool _enableLimit;
+        float _lowerAngle;
+        float _upperAngle;
+        bool _enableMotor;
+        float _motorSpeed;
+        float _maxMotorTorque;
 
     public:
-        void setJoint(b2Body* bodyA, b2Body* bodyB, const b2Vec2& anchor, bool enableLimit = false, float lowerAngle = 0.0f, float upperAngle = 0.0f, bool enableMotor = false, float motorSpeed = 0.0f, float maxMotorTorque = 0.0f) {
 
-            b2RevoluteJointDef def;
-            def.Initialize(bodyA, bodyB, anchor);
+        using Joints::Joints;
 
-            def.enableLimit = enableLimit;
-            def.lowerAngle = lowerAngle;
-            def.upperAngle = upperAngle;
+        void setJoint() override;
 
-            def.enableMotor = enableMotor;
-            def.motorSpeed = motorSpeed;
-            def.maxMotorTorque = maxMotorTorque;
+        void setJoint(Entity* entityA, Entity* entityB, bool enableLimit = false, float lowerAngle = 0.0f, float upperAngle = 0.0f, bool enableMotor = false, float motorSpeed = 0.0f, float maxMotorTorque = 0.0f);
 
-            joint = (b2RevoluteJoint*)world->CreateJoint(&def);
-        }
+        float getJointAngle();
 
-        float getJointAngle() { return joint->GetJointAngle(); }
-        float getJointSpeed() { return joint->GetJointSpeed(); }
+        float getJointSpeed();
 
-        void setMotorSpeed(float speed) { joint->SetMotorSpeed(speed); }
-        void setMaxMotorTorque(float torque) { joint->SetMaxMotorTorque(torque); }
+        float getMotorSpeed();
 
-        float getMotorTorque(float inv_dt) { return joint->GetMotorTorque(inv_dt); }
+        void setMotorSpeed(float speed);
 
-        b2Vec2 getAnchorA() { return joint->GetAnchorA(); }
-        b2Vec2 getAnchorB() { return joint->GetAnchorB(); }
+        float getMotorTorque(float inv_dt);
 
-        b2Joint* getJoint() { return joint; }
+        void setMaxMotorTorque(float torque);
+
+        bool getEnableLimit();
+
+        void setEnableLimit(bool newEnableLimit);
+
+        bool getEnableMotor();
+
+        void setEnableMotor(bool newEnableMotor);
+
+        float getLowerAngle();
+
+        void setLowerAngle(float newLowerAngle);
+
+        float getUpperAngle();
+
+        void setUpperAngle(float newUpperAngle);
+
+        b2Joint* getJoint() override;
     };
-}
 
+
+}

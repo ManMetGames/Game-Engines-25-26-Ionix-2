@@ -1,6 +1,7 @@
 #pragma once
 #include <cmath>
 #include <algorithm>
+#include <SDL_stdinc.h>
 
 namespace Maf
 {

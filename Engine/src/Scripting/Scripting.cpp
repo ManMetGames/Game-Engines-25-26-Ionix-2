@@ -31,6 +31,7 @@ namespace IonixEngine {
 
     void Scripting::RegisterEngineBindings() {
         MafsScripting::Get().Init(m_LuaState);
+        FysicsScripting::Get().Init(m_LuaState);
         WindowScripting::Get().Init(m_LuaState);
         InputScripting::Get().Init(m_LuaState);
         AudioScripting::Get().Init(m_LuaState);
