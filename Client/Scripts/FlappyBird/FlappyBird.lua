@@ -34,18 +34,18 @@ function ExampleScript:OnStart()
     -- Create player1
     ------------------------------------------------------
     player1 = Entity.create_entity()
-    player2 = Entity.create_entity()
-
     Entity.set_entity_pos(player1, x, 300)
-    Entity.set_entity_pos(player2, x, 200)
-
     local playerSprite1 = Entity.add_sprite_component(player1, "FlappyBird", 100, 100, 0)
-    local playerSprite2 = Entity.add_sprite_component(player2, "FlappyBird", 100, 100, 0)
-
     Sprite.set_width(playerSprite1, 64)
     Sprite.set_height(playerSprite1, 64)
 	Sprite.set_playback_mode(playerSprite1, 4)
 
+    ------------------------------------------------------
+    -- Create player2
+    ------------------------------------------------------
+    player2 = Entity.create_entity()
+    Entity.set_entity_pos(player2, x, 200)
+    local playerSprite2 = Entity.add_sprite_component(player2, "FlappyBird", 100, 100, 0)
     Sprite.set_width(playerSprite2, 64)
     Sprite.set_height(playerSprite2, 64)
 	Sprite.set_playback_mode(playerSprite2, 4)
@@ -103,6 +103,10 @@ function ExampleScript:OnUpdate()
 	if Input.get_key_down(Keys.ionix_space) then
         -- Set velocity directly to cancel out falling momentum
         vy1 = -5  -- Jump velocity for player1
+	end
+
+    if Input.get_key_down(Keys.ionix_w) then
+        -- Set velocity directly to cancel out falling momentum
         vy2 = -5  -- Jump velocity for player2
 	end
 
