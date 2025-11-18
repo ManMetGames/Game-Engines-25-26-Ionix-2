@@ -40,20 +40,19 @@ function ExampleScript:OnStart()
 
     local tileSize = 32
     local floorY = 610
-
 	------------------------------------------------------
 	-- pick texture for left / middle / right
 	------------------------------------------------------
 	local tex = "middle"
 
 	for i = 0, 30 do
-		local tile = Entity.create_entity()
+		local tile = Entity.create_entity() --Creates an entity called tile 
 		local xPos = i * tileSize
 
 		------------------------------------------------------
 		-- place sprite
 		------------------------------------------------------
-		Entity.set_entity_pos(tile, xPos, floorY)
+		Entity.set_entity_pos(tile, xPos, floorY) --Sets Position of Entity tile, at xPos and floorY
 
 		-- sprite as single frame (4 = manual/no anim)
 		local s = Entity.add_sprite_component(tile, tex, tileSize, tileSize, 0)
@@ -77,7 +76,8 @@ function ExampleScript:OnUpdate()
     local vy = vel.y
 
 	if Input.get_key_down(Keys.ionix_space) then
-        Fysics.add_force_to_center(player, 0, -45)
+        Fysics.add_force_to_center(player, 0, -70)
+		
 	end
     ------------------------------------------------------
     -- movement
