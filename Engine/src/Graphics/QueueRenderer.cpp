@@ -16,11 +16,10 @@ namespace IonixEngine {
 	}   //all of this is TEMPORARY because we're TESTING - it's in the name, that's why it says TEMP everywhere. We'll change this soon, thanks
 
 	void QueueRenderer::RenderFromQueue() {
-		printf("Render queue size: %zu\n", sprites.size());
 		while (!sprites.empty()) {
 			//std::cout << "Got render call\n";
 			RenderCall call = sprites.front();
-			printf("Render call: Src [ %d, %d, %d, %d ] Dest: [ %d, %d, %d, %d ]\n", call.src.x, call.src.y, call.src.w, call.src.h, call.dest.x, call.dest.y, call.dest.w, call.dest.h);
+			//printf("Render call: Src [ %d, %d, %d, %d ] Dest: [ %d, %d, %d, %d ]\n", call.src.x, call.src.y, call.src.w, call.src.h, call.dest.x, call.dest.y, call.dest.w, call.dest.h);
 			SDL_RenderCopy(Application::Get().GetWindow().GetSdlRenderer(), call.texture, &call.src, &call.dest);
 			sprites.pop();
 		}

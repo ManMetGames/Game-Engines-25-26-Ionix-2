@@ -20,7 +20,7 @@ namespace IonixEngine
         {
             if(*it == this)
             {
-				camIndex = cams.size() - 1;
+                camIndex = cams.size() - 1;
             }
         }
     }
@@ -85,10 +85,11 @@ namespace IonixEngine
     {
         isFocused = false;
         auto& cameras = Application::Get().layerGraphics->m_Cameras;
+		SDL_Log("[Camera] Total cameras available: %d", cameras.size());
         int nextIndex = (camIndex + 1) % cameras.size();
+		SDL_Log("[Camera] Switching to camera index: %d", nextIndex);
         cameras[nextIndex]->isFocused = true;
         Application::Get().currentCam = *cameras[nextIndex];
-
         MoveCamera(cameras[nextIndex]->camDeltaX - cameras[camIndex]->camDeltaX, cameras[nextIndex]->camDeltaY - cameras[camIndex]->camDeltaY, false);
 
         Application::Get().layerInput->m_Input->SetKeyReleased(SDL_SCANCODE_C); //this just stops the function from triggering on all cameras at the same time, returning the focus to camera 0
