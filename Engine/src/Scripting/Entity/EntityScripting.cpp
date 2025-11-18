@@ -28,17 +28,16 @@ namespace IonixEngine {
             entity->position = Vec2{ x, y };
             };
 
-        auto addSpriteComponent = [](Entity* entity, uint32_t hash, int width, int height, int zedOrder) {
-            std::cout << hash << std::endl;
-            entity->AddComponent(new SpriteComponent(entity, hash, width, height, zedOrder));
+        auto addSpriteComponent = [](Entity* entity, std::string hash, int width, int height, int zedOrder) -> SpriteComponent* {
+            return entity->AddComponent(new SpriteComponent(entity, hash, width, height, zedOrder));
             };
 
         auto addAudioPlayerComponent = [](Entity* entity, std::string clip = "", bool playOnAwake = false) {
             entity->AddComponent(new AudioPlayer(entity, clip, playOnAwake));
             };
         
-        auto addFysicsBodyComponent = [](Entity* entity) {
-            entity->AddComponent(new FysicsBody(entity, "", Application::Get().layerFysics->GetWorld()));
+        auto addFysicsBodyComponent = [](Entity* entity, int bodyType, bool rotationLocked) {
+            entity->AddComponent(new FysicsBody(entity, bodyType, rotationLocked));
             };
 
         auto getSpriteComponent = [](Entity* entity) {
@@ -108,7 +107,8 @@ namespace IonixEngine {
             "get_audio_component", getAudioPlayerComponent,
             "get_fysics_component", getFysicsBodyComponent,
             "try_get_sprite_component", tryGetSpriteComponent,
-            //"try_get_audio_component", tryGetAudioComponent,
+            "try_get_audio_component", tryGetAudioComponent,
+            "try_get_fysics_component", tryGetFysicsBodyComponent,
             "has_sprite_component", hasSpriteComponent,
             "has_audio_component", hasAudioComponent,
             "has_fysics_component", hasFysicsBodyComponent
