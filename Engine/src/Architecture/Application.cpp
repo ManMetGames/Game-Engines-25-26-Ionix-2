@@ -71,7 +71,7 @@ namespace IonixEngine
 
     }
     Camera* cam = new Camera(0.0f, 0.0f, 1.0f, 800, 600, true, 0, 0, 0, 0);
-    Camera* cam2 = new Camera(100.0f, 100.0f, 1.0f, 800, 600, false, 0, 0, 0, 0);
+    Camera* cam2 = new Camera(100.0f, 100.0f, 1.0f, 800, 600, false, 255, 255, 255, 0);
 
 
     void Application::Run()
@@ -84,34 +84,18 @@ namespace IonixEngine
 
         SDL_Renderer* renderer = m_Window->GetSdlRenderer();
 
-        cam->SetBackgroundColor(50, 80, 200, 255);
-
         //FysicBody testBody = FysicBody();
         
 
         while (m_Running) {
-            /*uint64_t lastTick = currentTick;
+            uint64_t lastTick = currentTick;
             currentTick = SDL_GetPerformanceCounter();
             
             deltaTime = static_cast<double>(currentTick - lastTick) / SDL_GetPerformanceFrequency();
-            time += deltaTime;*/
-            
-            if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_1))
-                cam->SetColor(255, 0, 0, 255); // RED
-
-            if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_2))
-                cam->SetColor(0, 255, 0, 255); // GREEN
-
-            if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_3))
-                cam->SetColor(0, 0, 255, 255); // BLUE
-
-            if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_4))
-                cam->SetColor(0, 0, 0, 0); // BLACK
-
-            if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_5))
-                cam->SetColor(255, 255, 255, 255); // WHITE
+            time += deltaTime;
             
             cam->ClearBackground(renderer);
+            
             for (auto layer : m_LayerStack.GetLayers()) {
                 if(layer)
                     layer->OnUpdate();
@@ -122,13 +106,9 @@ namespace IonixEngine
             
             Scripting::Get().CallHook("OnUpdate");
 
-			//cam2->RenderToScreen(renderer, 300, 0, 400, 300);
-
             ImGui::Render();
             ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), m_Window->GetSdlRenderer());
             SDL_RenderPresent(m_Window->m_Renderer);
-
-			
 
             layerInput->m_Input->CopyCodesEndFrame();
           
