@@ -11,6 +11,7 @@ LoadModule("Audio", "Scripts/Audio.lua")
 LoadModule("Enemy", "Scripts/Enemy.lua")
 LoadModule("Player", "Scripts/Player.lua")
 LoadModule("ExampleScript", "Scripts/ExampleScript.lua")
+LoadModule("GroundedScript", "Scripts/GroundedScript.lua")
 
 -- Lifecycle hooks
 function OnStart()

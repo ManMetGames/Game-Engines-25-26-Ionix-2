@@ -1,4 +1,4 @@
-local ExampleScript = {}
+local ExampleScript = {player}
 
 local player
 local goal
@@ -7,8 +7,12 @@ local goalSprite
 local x = 200
 local goalX = 500
 local goalY = 500
-local y = 300
+local y = 0
 local t = 10
+local width =  100
+local height = 100
+local xBoxCollider = 1 + (0.02 * (width - 75))
+local yBoxCollider = 1 + (0.02 * (height - 75))
 
 local function CheckGoalProximity(player, goal, threshold, respawnX, respawnY)
     
@@ -32,7 +36,7 @@ function ExampleScript:OnStart()
     ------------------------------------------------------
     player = Entity.create_entity()
     Entity.set_entity_pos(player, x, y)
-    playerSprite = Entity.add_sprite_component(player, "ball", 75, 75, 0)
+    playerSprite = Entity.add_sprite_component(player, "ball", width, height, 0)
 	Sprite.set_playback_mode(playerSprite, 4)
 
     Entity.add_fysics_component(player, 2, false) -- dynamic body
@@ -40,6 +44,7 @@ function ExampleScript:OnStart()
 
     local tileSize = 32
     local floorY = 610
+
 
 	------------------------------------------------------
 	-- pick texture for left / middle / right
@@ -63,7 +68,7 @@ function ExampleScript:OnStart()
 		-- add physics body + collider
 		------------------------------------------------------
 		Entity.add_fysics_component(tile, 0, false)  -- static
-		Fysics.add_box_collider(tile, 1, 1, 0, 0, 0, false)  -- not a trigger
+		Fysics.add_box_collider(tile, xBoxCollider, yBoxCollider, 0, 0, 0, false)  -- not a trigger
 	end
 end
 
