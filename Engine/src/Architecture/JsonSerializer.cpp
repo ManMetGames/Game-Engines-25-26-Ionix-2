@@ -6,8 +6,7 @@ namespace IonixEngine
 	//adds indentation and newline commands automatically
 	void JsonSerializer::addline(std::string content,std::string lineEnd)
 	{
-		std::string indent = getIndent();
-		finalJsonFile.append(indent);
+		finalJsonFile.append(getIndent());
 		finalJsonFile.append(content);
 		finalJsonFile.append(lineEnd);
 		finalJsonFile.append("\n");
@@ -19,6 +18,30 @@ namespace IonixEngine
 		finalJsonFile.append("\"");
 		finalJsonFile.append(fieldName);
 		finalJsonFile.append("\": ");
+	}
+
+	void JsonSerializer::beginArray(std::string arrayName, JsonIndent indentType)
+	{
+		switch (indents.top())
+		{
+		case Object:
+			addline(getNewField(arrayName), "");
+		case MultiArray:
+			finalJsonFile.append(getIndent());
+			finalJsonFile.append("[\n");
+			indents.push(indentType);
+			break;
+		}
+
+	}
+
+	void JsonSerializer::finishArray()
+	{
+		indents.pop();
+		std::string indent = getIndent();
+		finalJsonFile.erase(finalJsonFile.end() - 2);
+		finalJsonFile.append(indent);
+		finalJsonFile.append("],\n");
 	}
 
 	//returns a field name string which can be appended to the output json string
@@ -41,7 +64,7 @@ namespace IonixEngine
 		}
 		else
 		{
-			output = std::string(output.size() * indentSize, ' ');
+			output = std::string(indents.size() * indentSize, ' ');
 		}
 		return output;
 	}
@@ -67,46 +90,82 @@ namespace IonixEngine
 
 	void JsonSerializer::AddStringField(std::string fieldName, std::string fieldData)
 	{
-		std::string newLine = getNewField(fieldName);
-		newLine.append("\"");
-		newLine.append(fieldData);
-		newLine.append("\"");
-		addline(newLine);
+		if (indents.top() != Object)
+		{
+			std::cout << "Cannot add a string field, add an object first" << std::endl;
+		}
+		else
+		{
+			std::string newLine;
+			newLine = getNewField(fieldName);
+			newLine += '"';
+			newLine.append(fieldData);
+			newLine += '"';
+			addline(newLine);
+		}
 	}
 
 	void JsonSerializer::AddBoolField(std::string fieldName, bool fieldData)
 	{
-		std::string newLine = getNewField(fieldName);
-		//newLine.append(std::to_string(fieldData));
-		char buf[32];
-		sprintf(buf, "%s", fieldData ? "true" : "false");
-		newLine.append(buf);
-		addline(newLine);
+		if (indents.top() != Object)
+		{
+			std::cout << "Cannot add a boolean field, add an object first" << std::endl;
+		}
+		else
+		{
+			std::string newLine;
+			newLine = getNewField(fieldName);
+			char buf[32];
+			sprintf(buf, "%s", fieldData ? "true" : "false");
+			newLine.append(buf);
+			addline(newLine);
+		}
 	}
 
 	void JsonSerializer::AddIntField(std::string fieldName, int fieldData)
 	{
-		std::string newLine = getNewField(fieldName);
-		//newLine.append("\"");
-		newLine.append(std::to_string(fieldData));
-		//newLine.append("\"");
-		addline(newLine);
+		if (indents.top() != Object)
+		{
+			std::cout << "Cannot add a integer field, add an object first" << std::endl;
+		}
+		else
+		{
+			std::string newLine = getNewField(fieldName);
+			//newLine.append("\"");
+			newLine.append(std::to_string(fieldData));
+			//newLine.append("\"");
+			addline(newLine);
+		}
 	}
 
 	void JsonSerializer::AddFloatField(std::string fieldName, float fieldData)
 	{
-		std::string newLine = getNewField(fieldName);
-		newLine.append(std::to_string(fieldData));
-		addline(newLine);
+		if (indents.top() != Object)
+		{
+			std::cout << "Cannot add a float field, add an object first" << std::endl;
+		}
+		else
+		{
+			std::string newLine = getNewField(fieldName);
+			newLine.append(std::to_string(fieldData));
+			addline(newLine);
+		}
 	}
 
 	void JsonSerializer::AddDoubleField(std::string fieldName, double fieldData)
 	{
-		std::string newLine = getNewField(fieldName);
-		char buf[32];
-		sprintf(buf, "%.16lf", fieldData);
-		newLine.append(buf);
-		addline(newLine);
+		if (indents.top() != Object)
+		{
+			std::cout << "Cannot add a string field, add an object first" << std::endl;
+		}
+		else
+		{
+			std::string newLine = getNewField(fieldName);
+			char buf[32];
+			sprintf(buf, "%.16lf", fieldData);
+			newLine.append(buf);
+			addline(newLine);
+		}
 	}
 
 	void JsonSerializer::AddObject(std::string objectName)
@@ -118,11 +177,9 @@ namespace IonixEngine
 		case Object:
 		case ObjectArray:
 			newLine = getNewField(objectName);
-			//newLine.append("\n");
 			addline(newLine,"");
 			indent = getIndent();
 			finalJsonFile.append(indent);
-			//addline("{");
 			finalJsonFile.append("{\n");
 			indents.push(JsonIndent::Object);
 			break;
@@ -142,6 +199,7 @@ namespace IonixEngine
 		switch (indents.top())
 		{
 		case Object:
+			std::cout << "Ending object" << std::endl;
 			indents.pop();
 			finalJsonFile.erase(finalJsonFile.end() - 2);
 			addline("}");
@@ -152,18 +210,121 @@ namespace IonixEngine
 		}
 	}
 
+	void JsonSerializer::AddStringArray(std::string arrayName, std::vector<std::string> stringVector)
+	{
+		beginArray(arrayName);
+		for (std::string stringElement : stringVector)
+		{
+			std::string newline;
+			newline += '"';
+			newline.append(stringElement);
+			newline += '"';
+			addline(newline);
+		}
+		finishArray();
+	}
+
+	void JsonSerializer::AddBoolArray(std::string arrayName, std::vector<bool> boolVector)
+	{
+		beginArray(arrayName);
+		for (bool boolElement:boolVector)
+		{
+			std::string newline;
+			char buf[32];
+			sprintf(buf, "%s", boolElement ? "true" : "false");
+			newline.append(buf);
+			addline(newline);
+		}
+		finishArray();
+	}
+
+	void JsonSerializer::AddIntArray(std::string arrayName, std::vector<int> intVector)
+	{
+		beginArray(arrayName);
+		for (int num : intVector)
+		{
+			addline(std::to_string(num));
+		}
+		finishArray();
+	}
+
+	void JsonSerializer::AddFloatArray(std::string arrayName, std::vector<float> floatVector)
+	{
+		beginArray(arrayName);
+		for (float num : floatVector)
+		{
+			addline(std::to_string(num));
+		}
+		finishArray();
+	}
+
+	void JsonSerializer::AddDoubleArray(std::string arrayName, std::vector<double> doubleVector)
+	{
+		beginArray(arrayName);
+		for (double num : doubleVector)
+		{
+			std::string newline;
+			char buf[32];
+			sprintf(buf, "%.16lf", num);
+			newline.append(buf);
+			addline(newline);
+		}
+		finishArray();
+	}
+
+	//
+	void JsonSerializer::AddObjectArray(std::string arrayName)
+	{
+		beginArray(arrayName, ObjectArray);
+		addline("{","");
+		indents.push(Object);
+	}
+
+	void JsonSerializer::NextObjectInArray()
+	{
+		finalJsonFile.erase(finalJsonFile.end() - 2);
+		indents.pop();
+		addline("},","");
+		addline("{", "");
+		indents.push(Object);
+	}
+
+	void JsonSerializer::EndObjectArray()
+	{
+		finalJsonFile.erase(finalJsonFile.end() - 2);
+		indents.pop();
+		addline("}");
+		finalJsonFile.erase(finalJsonFile.end() - 2);
+		indents.pop();
+		addline("]");
+	}
+
+	//void JsonSerializer::AddMultiArray(std::string arrayName)
+	//{
+	//	beginArray(arrayName,MultiArray);
+	//	//indents.push(MultiArray);
+	//}
+
+	//void JsonSerializer::NextArrayInMulti()
+	//{
+	//}
+
 	void JsonSerializer::FinalizeJsonFile()
 	{
 		while (indents.size() > 1)
 		{
+			std::cout << indents.top() << std::endl;
 			switch (indents.top())
 			{
 			case Object:
 				EndObject();
 				break;
+			case ObjectArray:
+				EndObjectArray();
+				break;
 			default:
-				addline(":D", "]");
 				indents.pop();
+				addline("AAAAA");
 				break;
 			}
 		}

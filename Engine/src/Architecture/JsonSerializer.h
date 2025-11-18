@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <stack>
+#include <vector>
 #include <iostream>
 #include <fstream>
 
@@ -10,7 +11,9 @@ namespace IonixEngine
 	{
 		Object,
 		ObjectArray,
-		MetaArray,
+		MultiArray,
+
+		Array
 	};
 
 	class JsonSerializer
@@ -24,6 +27,8 @@ namespace IonixEngine
 
 		void addline(std::string content, std::string lineEnd = ",");
 		void newField(std::string fieldName);
+		void beginArray(std::string arrayName, JsonIndent indentType = Array);
+		void finishArray();
 		std::string getNewField(std::string fieldName);
 		std::string getIndent();
 
@@ -38,10 +43,22 @@ namespace IonixEngine
 		void AddFloatField(std::string fieldName, float fieldData);
 		void AddDoubleField(std::string fieldName, double fieldData);
 
-		void NewArray(std::string arrayName);
-		void NewObject(std::string objectName);
 		void AddObject(std::string objectName);
 		void EndObject();
+
+		void AddStringArray(std::string arrayName, std::vector<std::string> stringVector);
+		void AddBoolArray(std::string arrayName, std::vector<bool> boolVector);
+		void AddIntArray(std::string arrayName, std::vector<int> intVector);
+		void AddFloatArray(std::string arrayName, std::vector<float> floatVector);
+		void AddDoubleArray(std::string arrayName, std::vector<double> doubleVector);
+		
+		void AddObjectArray(std::string arrayName);
+		void NextObjectInArray();
+		void EndObjectArray();
+
+		//void AddMultiArray(std::string arrayName);
+		//void NextArrayInMulti();
+		//void EndMultiArray();
 
 		void FinalizeJsonFile();
 		void IoTest();
