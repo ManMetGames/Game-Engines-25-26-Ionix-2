@@ -164,7 +164,7 @@ namespace IonixEngine
 		auto getPulleyJoint = [](Entity* entityA, Entity* entityB) {
 			return Application::Get().layerFysics->GetFysicsManager()->GetPulleyJoint();
 			};
-		auto getRevoluteJoin = [](Entity* entityA, Entity* entityB) {
+		auto getRevoluteJoint = [](Entity* entityA, Entity* entityB) {
 			return Application::Get().layerFysics->GetFysicsManager()->GetRevoluteJoint();
 			};
 		auto getDistanceJoint = [](Entity* entityA, Entity* entityB) {
@@ -240,7 +240,7 @@ namespace IonixEngine
 			"get_prismatic_joint", getPrismaticJoint,
 			"get_weld_joint", getWeldJoint,
 			"get_pulley_joint", getPulleyJoint,
-			"get_revolute_joint", getRevoluteJoin,
+			"get_revolute_joint", getRevoluteJoint,
 			"get_distance_joint", getDistanceJoint,
 			"add_box_collider", addBoxCollider
 		);
