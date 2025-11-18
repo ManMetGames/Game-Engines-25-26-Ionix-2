@@ -164,15 +164,49 @@ namespace IonixEngine
 
 		//----------Joint Methods----------
 
-		auto setPrismaticJoint = [](Entity* entityA, Entity* entityB, b2Vec2 worldAxis, float lowerTranslation, float upperTranslation, bool enableLimit, float maxMotorForce, float motorSpeed, bool enableMotor) {
+		auto setPrismaticJoint = [](Entity* entityA, Entity* entityB, float worldAxisX, float worldAxisY, float lowerTranslation, float upperTranslation, bool enableLimit, float maxMotorForce, float motorSpeed, bool enableMotor) {
+			b2Vec2 worldAxis;
+			worldAxis.x = worldAxisX;
+			worldAxis.y = worldAxisY;
+
 			Application::Get().layerFysics->GetFysicsManager()->GetPrismaticJoint()->setJoint(entityA, entityB, worldAxis, lowerTranslation, upperTranslation, enableLimit, maxMotorForce, motorSpeed, enableMotor);
 	    };
+		auto setWeldJoint = [](Entity* entityA, Entity* entityB) {
+			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->setJoint(entityA, entityB);
+		};
+		auto setPulleyJoint = [](Entity* entityA, Entity* entityB, float position1X, float position1Y, float position2X, float position2Y , float ratio, float lengthA, float lengthB) {
 
+			b2Vec2 p1; b2Vec2 p2;
+			p1.x = position1X;
+			p1.y = position1Y;
 
+			p2.x = position2X;
+			p2.y = position2Y;
 
+			Application::Get().layerFysics->GetFysicsManager()->GetPulleyJoint()->setJoint(entityA, entityB, p1, p2, ratio, lengthA, lengthB);
+	    };
+		auto setRevoluteJoint = [](Entity* entityA, Entity* entityB, bool enableLimit, float lowerAngle, float upperAngle, bool enableMotor, float motorSpeed, float maxMotorTorque) {
+			Application::Get().layerFysics->GetFysicsManager()->GetRevoluteJoint()->setJoint(entityA, entityB, enableLimit, lowerAngle, upperAngle, enableMotor, motorSpeed, maxMotorTorque);
+		};
+		auto setDistanceJoint = [](Entity* entityA, Entity* entityB, float anchorAX, float anchorAY, float anchorBX, float anchorBY, float length) {
+			b2Vec2 anchorA; b2Vec2 anchorB;
+			anchorA.x = anchorAX;
+			anchorA.y = anchorAY;
 
+			anchorB.x = anchorBX;
+			anchorB.y = anchorBY;
 
-
+			Application::Get().layerFysics->GetFysicsManager()->GetDistanceJoint()->setJoint(entityA, entityB, anchorA, anchorB, length);
+		};
+		auto destroyWeldJoint = [](int jointID) {
+			if (Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointCount() <= 0) { return; }
+			b2Joint* jointList = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointList();
+			for (int i = 0; i <jointID; i++) {
+				jointList->GetNext();
+			}
+			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->destroyJoint(jointList);
+		};
+		
 
 		lua["Fysics"] = lua.create_table_with(
 			"get_pos", getFysicsPos,
@@ -204,7 +238,13 @@ namespace IonixEngine
 			"add_angular_impulse", addFysicsAngularImpulse,
 			"clear_forces", clearFysicsForces,
 			"add_box_collider", addBoxCollider,
-			"create_prismatic_joint", setPrismaticJoint
+			"create_prismatic_joint", setPrismaticJoint,
+			"create_weld_joint", setWeldJoint,
+			"create_pulley_joint", setPulleyJoint,
+			"create_revolute_joint", setRevoluteJoint,
+			"create_distance_joint", setDistanceJoint,
+			"destroy_joint", destroyWeldJoint
+	
 		);
 	}
 }
