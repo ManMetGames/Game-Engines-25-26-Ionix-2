@@ -16,15 +16,18 @@ namespace IonixEngine
 		SDL_Texture* renderTexture = nullptr;  // holds texture obj
 		int rtWidth = 0;                       // texture dimentions
 		int rtHeight = 0;
+		Uint8 bg_r, bg_g, bg_b, bg_a; // background color
+		SDL_Color currentColor;
+		
+		Camera(float startX = 0.0f, float startY = 0.0f, float startZoom = 1.0f, int height = 800, int width = 600, bool isFocused = false, Uint8 bg_r = 0, Uint8 bg_b = 0, Uint8 bg_g = 0, Uint8 bg_a = 0);
 
-		Camera(float startX = 0.0f, float startY = 0.0f, float startZoom = 1.0f, int height = 800, int width = 600, bool isFocused = false);
-
+		void SetColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 		void Init();
-
+		SDL_Color GetColor() const { return currentColor; }
 		void handleInput(float deltaTime);
 		void MoveCamera(float deltaX, float deltaY, bool moveCamDelta = true);
 		void SwitchCamera();
-    void Apply(SDL_Renderer* renderer);
+		void SetZoom(SDL_Renderer* renderer);
 		void ClearBackground(SDL_Renderer* renderer);
 		void SetBackgroundColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 

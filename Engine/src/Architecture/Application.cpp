@@ -8,7 +8,6 @@
 #include <backends/imgui_impl_sdlrenderer2.h>
 #include <iostream>
 #include <third-party/imgui_impl_sdlrenderer2.h>
-#include "Graphics/CameraColour.h"
 
 namespace IonixEngine {
     Application* Application::s_Instance = nullptr;
@@ -71,9 +70,8 @@ namespace IonixEngine
         }
 
     }
-    CameraColour* camColour = new CameraColour(cam);
-    Camera* cam = new Camera(0.0f, 0.0f, 1.0f, 800, 600, true);
-    Camera* cam2 = new Camera(100.0f, 100.0f, 1.0f, 800, 600, false);
+    Camera* cam = new Camera(0.0f, 0.0f, 1.0f, 800, 600, true, 0, 0, 0, 0);
+    Camera* cam2 = new Camera(100.0f, 100.0f, 1.0f, 800, 600, false, 0, 0, 0, 0);
 
 
     void Application::Run()
@@ -99,21 +97,20 @@ namespace IonixEngine
             time += deltaTime;*/
             
             if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_1))
-                camColour->SetColor(255, 0, 0, 255); // RED
+                cam->SetColor(255, 0, 0, 255); // RED
 
             if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_2))
-                camColour->SetColor(0, 255, 0, 255); // GREEN
+                cam->SetColor(0, 255, 0, 255); // GREEN
 
             if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_3))
-                camColour->SetColor(0, 0, 255, 255); // BLUE
+                cam->SetColor(0, 0, 255, 255); // BLUE
 
             if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_4))
-                camColour->SetColor(0, 0, 0, 0); // BLACK
+                cam->SetColor(0, 0, 0, 0); // BLACK
 
             if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_5))
-                camColour->SetColor(255, 255, 255, 255); // WHITE
-
-            camColour->Update();
+                cam->SetColor(255, 255, 255, 255); // WHITE
+            
             cam->ClearBackground(renderer);
             for (auto layer : m_LayerStack.GetLayers()) {
                 if(layer)

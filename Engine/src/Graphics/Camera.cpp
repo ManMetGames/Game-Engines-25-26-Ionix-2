@@ -6,13 +6,13 @@
 namespace IonixEngine
 {
     Camera::Camera(float startX, float startY, float startZoom,
-        int height, int width, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+        int height, int width, bool isFocused, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
         : x(startX), y(startY), zoom(startZoom), h(height), w(width),
-        bg_r(r), bg_g(g), bg_b(b), bg_a(a)
+        bg_r(r), bg_g(g), bg_b(b), bg_a(a), isFocused(isFocused)
     {
     }
 
-    void Camera::Apply(SDL_Renderer* renderer)
+    void Camera::SetZoom(SDL_Renderer* renderer)
     {
         SDL_RenderSetScale(renderer, zoom, zoom);
     }
@@ -38,31 +38,25 @@ namespace IonixEngine
         }
     }
 
+    void Camera::SetColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+    {
+        SetBackgroundColor(r, g, b, a);
+    }
+
     void Camera::handleInput(float deltaTime)
     {
         if (!isFocused) return;
         const float speed = 3.0f;
-
-        /*float moveX = 0.0f;
-        float moveY = 0.0f;
-
-        if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_W)) moveY = -speed;
-        if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_S)) moveY = speed;
-        if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_A)) moveX = -speed;
-        if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_D)) moveX = speed;
-		if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_W) == false &&
-			Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_S) == false) y = 0.0f;
-		if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_A) == false &&
-			Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_D) == false) x = 0.0f;*/
-
         
         if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_O)) 
         {
             zoom *= 0.9f;
+            SetZoom(Application::Get().GetWindow().m_Renderer);
         }
         else if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_I)) 
         {
             zoom *= 1.1f;
+            SetZoom(Application::Get().GetWindow().m_Renderer);
         }
 
         if (Application::Get().layerInput->m_Input->IsKeyDown(SDL_SCANCODE_C)) 
@@ -72,11 +66,6 @@ namespace IonixEngine
 
         if (zoom < 0.2f) zoom = 0.2f;
         if (zoom > 5.0f) zoom = 5.0f;
-
-        /*if (moveX != 0.0f || moveY != 0.0f)
-        {
-            MoveCamera(moveX, moveY);
-        }*/
     }
   
   void Camera::SetBackgroundColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a)
