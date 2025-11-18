@@ -40,6 +40,14 @@ function ExampleScript:OnStart()
 
     Entity.add_fysics_component(player, 2, false) -- dynamic body
     Fysics.add_box_collider(player, .5, .4, 0, 0, 0, false)
+    
+    -- Get and log the current gravity scale
+    local currentGravityScale = Fysics.get_gravity_scale(player)
+    print("Previous gravity scale: " .. currentGravityScale)
+    
+    -- Set gravity scale to 1 (default)
+    Fysics.set_gravity_scale(player, 1)
+    print("New gravity scale: 1")
 
     local tileSize = 64
     local floorY = 600
@@ -80,7 +88,8 @@ function ExampleScript:OnUpdate()
     local vy = vel.y
 
 	if Input.get_key_down(Keys.ionix_space) then
-        Fysics.add_force_to_center(player, 0, -45)
+        -- Set velocity directly to cancel out falling momentum
+        vy = -5  -- Jump velocity (negative is up)
 	end
     ------------------------------------------------------
     -- movement

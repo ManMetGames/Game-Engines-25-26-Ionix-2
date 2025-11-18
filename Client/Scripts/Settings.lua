@@ -7,9 +7,6 @@ function LoadModule(name, path)
 end
 
 -- Load all game modules here
-LoadModule("Audio", "Scripts/Audio.lua")
-LoadModule("Enemy", "Scripts/Enemy.lua")
-LoadModule("Player", "Scripts/Player.lua")
 LoadModule("ExampleScript", "Scripts/ExampleScript.lua")
 
 -- Lifecycle hooks
