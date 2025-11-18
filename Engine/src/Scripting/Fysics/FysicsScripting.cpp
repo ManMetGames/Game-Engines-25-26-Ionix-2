@@ -157,7 +157,7 @@ namespace IonixEngine
 
 		//----------Collision Methods----------
 
-		auto addBoxCollider = [](Entity* entity, float sizeX, float sizeY, int offsetX, int offsetY, float angle, bool isTrigger) {
+		auto addBoxCollider = [](Entity* entity, float sizeX, float sizeY, int offsetX, int offsetY, float angle, bool isTrigger, sol::optional<uint16> categoryBits, sol::optional<uint16> maskBits) {
 
 			b2Vec2 size;
 			size.x = sizeX;
@@ -167,16 +167,11 @@ namespace IonixEngine
 			offset.x = offsetX;
 			offset.y = offsetY;
 
-			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddBox(entity, size, offset, angle, isTrigger);
-			};
+			uint16 category = categoryBits.value_or(0x0001);
+			uint16 mask = maskBits.value_or(0xFFFF);
 
-
-
-
-
-
-
-
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddBox(entity, size, offset, angle, isTrigger, category, mask);
+		};
 
 
 
