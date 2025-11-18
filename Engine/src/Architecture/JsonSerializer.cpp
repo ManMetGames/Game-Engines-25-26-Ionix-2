@@ -51,7 +51,7 @@ namespace IonixEngine
 		filePath(filepath),
 		indentSize(indentSize)
 	{
-		indents.push(JsonIndent::None);
+		indents.push(Object);
 		finalJsonFile = "{\n";
 	}
 
@@ -115,7 +115,6 @@ namespace IonixEngine
 		std::string indent;
 		switch (indents.top())
 		{
-		case None:
 		case Object:
 		case ObjectArray:
 			newLine = getNewField(objectName);
@@ -136,6 +135,10 @@ namespace IonixEngine
 
 	void JsonSerializer::EndObject()
 	{
+		if (indents.size() == 1)
+		{
+			std::cout << "Invalid call to end object" << std::endl;
+		}
 		switch (indents.top())
 		{
 		case Object:

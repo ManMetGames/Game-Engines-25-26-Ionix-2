@@ -8,16 +8,9 @@ namespace IonixEngine
 {
 	enum JsonIndent
 	{
-		None,
 		Object,
 		ObjectArray,
 		MetaArray,
-
-		StringArray,
-		BoolArray,
-		IntArray,
-		FloatArray,
-		DoubleArray
 	};
 
 	class JsonSerializer
