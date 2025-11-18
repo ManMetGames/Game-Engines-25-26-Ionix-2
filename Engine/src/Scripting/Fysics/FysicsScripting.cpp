@@ -107,6 +107,14 @@ namespace IonixEngine
 			entity->GetComponent<FysicsBody>()->SetIsBullet(entity, flag);
 			};
 
+		auto getFysicsGravityScale = [](Entity* entity) -> float {
+			return entity->GetComponent<FysicsBody>()->GetGravityScale(entity);
+			};
+
+		auto setFysicsGravityScale = [](Entity* entity, float gravityScale) {
+			entity->GetComponent<FysicsBody>()->SetGravityScale(entity, gravityScale);
+			};
+
 
 
 		//-----------Force Methods----------
@@ -194,6 +202,8 @@ namespace IonixEngine
 			"set_fixed_rotation", setFysicsFixedRotation,
 			"get_is_bullet", getFysicsIsBullet,
 			"set_is_bullet", setFysicsIsBullet,
+			"get_gravity_scale", getFysicsGravityScale,
+			"set_gravity_scale", setFysicsGravityScale,
 			"add_force", addFysicsForce,
 			"add_force_to_center", addFysicsForceToCenter,
 			"add_impulse", addFysicsAddImpulse,
