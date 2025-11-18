@@ -40,7 +40,7 @@ namespace IonixEngine
         //Microphone
 
         // bool IsAudioRecording();
-        // void SetRecordingAudioStart();
+        // void SetRecordingAudioStart();  -- Potentially Push to Talk?
         // void SetRecordingAudioStop();
 
 
