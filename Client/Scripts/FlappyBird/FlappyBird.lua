@@ -50,13 +50,13 @@ function ExampleScript:OnStart()
     Sprite.set_height(playerSprite2, 64)
 	Sprite.set_playback_mode(playerSprite2, 4)
 
-    -- PLAYER 1 PHYSICS
+    -- PLAYER 1 PHYSICS (Category: 0x0002, Mask: 0xFFFD - ignores category 0x0002)
     Entity.add_fysics_component(player1, 2, false) -- dynamic body
-    Fysics.add_box_collider(player1, .5, .4, 0, 0, 0, false)
+    Fysics.add_box_collider(player1, .5, .4, 0, 0, 0, false, 0x0002, 0xFFFD)
 
-    -- PLAYER 2 PHYSICS 
+    -- PLAYER 2 PHYSICS (Category: 0x0002, Mask: 0xFFFD - ignores category 0x0002)
     Entity.add_fysics_component(player2, 2, false) -- dynamic body
-    Fysics.add_box_collider(player2, .5, .4, 0, 0, 0, false)
+    Fysics.add_box_collider(player2, .5, .4, 0, 0, 0, false, 0x0002, 0xFFFD)
 
     local tileSize = 64
     local floorY = 600
