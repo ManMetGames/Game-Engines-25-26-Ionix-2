@@ -241,7 +241,7 @@ namespace IonixEngine
 			"get_weld_joint", getWeldJoint,
 			"get_pulley_joint", getPulleyJoint,
 			"get_revolute_joint", getRevoluteJoin,
-			"get_distance_joint", getDistanceJoint
+			"get_distance_joint", getDistanceJoint,
 			"add_box_collider", addBoxCollider
 		);
 	}
