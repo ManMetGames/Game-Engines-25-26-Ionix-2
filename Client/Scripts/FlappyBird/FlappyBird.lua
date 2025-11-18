@@ -24,13 +24,14 @@ function ExampleScript:OnStart()
     -- Load textures
     ------------------------------------------------------
     Texture.add_texture("./Assets/FlappyBird.png", "FlappyBird")
+    Texture.add_texture("./Assets/FlappyBird2.png", "FlappyBird2")
     Texture.add_texture("./Assets/Background.png", "Background")
     ------------------------------------------------------
     -- Create player1
     ------------------------------------------------------
     player1 = Entity.create_entity()
     Entity.set_entity_pos(player1, x, 300)
-    local playerSprite1 = Entity.add_sprite_component(player1, "FlappyBird", 100, 100, 0)
+    local playerSprite1 = Entity.add_sprite_component(player1, "FlappyBird2", 100, 100, 0)
     Sprite.set_width(playerSprite1, 64)
     Sprite.set_height(playerSprite1, 64)
 	Sprite.set_playback_mode(playerSprite1, 4)
