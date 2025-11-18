@@ -27,9 +27,6 @@ namespace IonixEngine {
 			SDL_RenderCopy(Application::Get().GetWindow().GetSdlRenderer(), call.texture, &call.src, &call.dest);
 			sprites.pop();
 		}
-
-
-
 	}
 
 	void QueueRenderer::Merger(std::vector<RenderCall> arr, int left, int mid, int right)
@@ -83,6 +80,8 @@ namespace IonixEngine {
 
 	void QueueRenderer::OrderQueueByZ(queue<RenderCall>& sprites) //Called first
 	{
+		cout << sprites.front().z << endl;
+
 		queue<RenderCall> tempQueue = sprites; //Creates temporary queue from sprites to avoid conflicts
 		std::vector<RenderCall> tempVector; //Creates temporary vector from queue
 		int originalQueueLength = sprites.size();
@@ -105,31 +104,20 @@ namespace IonixEngine {
 		{
 			temporary.pop();
 		}
-
-		cout << sprites.front().texture << endl;
-
-
 	}
 
 	//0, 1
 	void QueueRenderer::MergeCaller(vector<RenderCall> temp, int left, int right) //Takes the vector created from the queue and sorts it, called second
 	{
-		/*cout << left << endl;
-		cout << right << endl;*/
-
 		if (left >= right)
 		{
 			return;
 		}
 
-		//int length = temp.size(); //Returns queue length
-		//int left = 0;				 
-		//int right = temp.size() - 1;
 		int mid = left + (right - left) / 2;
 		MergeCaller(temp, left, mid);
 		MergeCaller(temp, mid + 1, right);
 		Merger(temp, left, mid, right);
-
 	}
 
 	void QueueRenderer::ClearQueue(queue<RenderCall>& sprites)

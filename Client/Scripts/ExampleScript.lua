@@ -32,7 +32,7 @@ function ExampleScript:OnStart()
     ------------------------------------------------------
     player = Entity.create_entity()
     Entity.set_entity_pos(player, x, y)
-    playerSprite = Entity.add_sprite_component(player, "ball", 75, 75, 1)
+    playerSprite = Entity.add_sprite_component(player, "ball", 75, 75, 3)
 	Sprite.set_playback_mode(playerSprite, 4)
 
     Entity.add_fysics_component(player, 2, false) -- dynamic body
