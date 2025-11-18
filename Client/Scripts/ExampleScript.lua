@@ -9,6 +9,7 @@ local goalX = 500
 local goalY = 500
 local y = 300
 local t = 10
+local ground
 
 local function CheckGoalProximity(player, goal, threshold, respawnX, respawnY)
     
@@ -63,9 +64,13 @@ function ExampleScript:OnStart()
 		------------------------------------------------------
 		-- add physics body + collider
 		------------------------------------------------------
-		Entity.add_fysics_component(tile, 0, false)  -- static
-		Fysics.add_box_collider(tile, 1, 1, 0, 0, 0, false)  -- not a trigger
 	end
+
+        ground = Entity.create_entity()
+        Entity.set_entity_pos(ground, tileSize, floorY)
+        --Issue is that tile is created in for loop
+		Entity.add_fysics_component(ground, 0, false)  -- static
+		Fysics.add_box_collider(ground, 32, 1, 0, 0, 0, false)  -- not a trigger
 end
 
 ----------------------------------------------------------
