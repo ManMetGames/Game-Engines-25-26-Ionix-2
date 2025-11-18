@@ -18,6 +18,7 @@ namespace IonixEngine {
 	void QueueRenderer::RenderFromQueue() {
 		while (!sprites.empty()) {
 			RenderCall call = sprites.front();
+			printf("Call: src: [ %d, %d, %d, %d ] dest: [ %d, %d, %d, %d ]\n", call.src.x, call.src.y, call.src.w, call.src.h, call.dest.x, call.dest.y, call.dest.w, call.dest.h);
 			SDL_RenderCopy(Application::Get().GetWindow().GetSdlRenderer(), call.texture, &call.src, &call.dest);
 			sprites.pop();
 		}
