@@ -55,13 +55,17 @@ namespace IonixEngine
             //Microphone Connected 
         case SDL_AUDIODEVICEADDED:
         {
-            const char* deviceName = SDL_GetAudioDeviceName(e.adevice.which, SDL_TRUE);
+            /* const char* deviceName = SDL_GetAudioDeviceName(e.adevice.which, SDL_TRUE);
                 if (deviceName)
                 {
                     
                   
                 }
                 break;
+            */
+
+
+
         }
 
         //Microphone disconnected

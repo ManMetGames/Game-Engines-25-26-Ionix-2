@@ -37,6 +37,12 @@ namespace IonixEngine
         //Update state
         void CopyCodesEndFrame();
 
+        //Microphone
+
+        // bool IsAudioRecording();
+        // void SetRecordingAudioStart();
+        // void SetRecordingAudioStop();
+
 
     private:
         //Keyboard
@@ -46,6 +52,31 @@ namespace IonixEngine
         //Mouse
         std::unordered_set<Uint8> currentMouse;
         std::unordered_set<Uint8> previousMouse;
+
+        //Microphone
+        // hey i don't know if any of this is actually going to be useful
+        // -Clay
+
+        // max number of supported devices
+        const int maxRecordingDevices = 10;
+
+        // max recording time
+        const int maxRecordingSeconds = 30;
+
+        // max recording time (with padding - ensures all audio is captured)
+        const int recordingBufferSeconds = maxRecordingSeconds + 1;
+
+        // various recording states
+        enum recordingState
+        {
+            SELECTING_DEVICE,
+            STOPPED,
+            RECORDING,
+            RECORDED,
+            PLAYBACK,
+            ERROR
+        };
+
 
     };
 }
