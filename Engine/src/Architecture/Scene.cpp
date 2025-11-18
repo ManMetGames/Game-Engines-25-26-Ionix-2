@@ -12,7 +12,7 @@ namespace IonixEngine {
         renderData.renderer = Application::Get().GetWindow().GetSdlRenderer();
         renderData.queue = Application::Get().layerGraphics->GetQueue();
 
-        /*EntityID first = CreateEntity();
+        EntityID first = CreateEntity();
         Entity* firstEntity = GetEntityFromID(first);
         if (!firstEntity)
         {
@@ -33,7 +33,7 @@ namespace IonixEngine {
         }
         secondEntity->transform.SetLocalPosition(Vec2{ 0, 100 });
         secondEntity->transform.SetParent(&firstEntity->transform, false);
-        // secondEntity->transform.SetLocalScale(Vec2{ 1.3,1.25 });
+        secondEntity->transform.SetLocalScale(Vec2{ 1.3,1.25 });
         secondEntity->AddComponent(new SpriteRenderer(secondEntity));
         secondEntity->AddComponent(new EntityMover(secondEntity, -60));
 
@@ -47,7 +47,7 @@ namespace IonixEngine {
         thirdEntity->transform.SetLocalPosition(Vec2{ 0, -100 });
         thirdEntity->transform.SetParent(&secondEntity->transform, false);
         thirdEntity->AddComponent(new SpriteComponent(thirdEntity, "ball",100,100, 0));
-        */
+        
     }
 
     void Scene::OnUpdate(float dt) {

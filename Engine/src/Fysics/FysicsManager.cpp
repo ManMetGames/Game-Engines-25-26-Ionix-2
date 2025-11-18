@@ -1,5 +1,6 @@
 #include "FysicsManager.h"
 #include "Architecture/Application.h"
+#include <Testing/Box2D/DebugDraw.h>
 
 namespace IonixEngine
 {
@@ -9,9 +10,17 @@ namespace IonixEngine
 
 	FysicsManager::FysicsManager()
 	{
-		//b2Vec2 gravity(0.0f, 9.8f);
-		b2Vec2 gravity(0.0f, 0.1f); // Temp while testing forces
+		b2Vec2 gravity(0.0f, 9.8f);
 		world = new b2World(gravity);
+
+		DebugDraw* debugDraw = new DebugDraw(Application::Get().GetWindow().GetSdlRenderer(), 30.0f);
+		debugDraw->SetFlags(
+			b2Draw::e_shapeBit
+			| b2Draw::e_jointBit
+			| b2Draw::e_centerOfMassBit
+		);
+
+		world->SetDebugDraw(debugDraw);
 
 		// create and configure collision listener
 		collisionListener = new CollisionListener(this);

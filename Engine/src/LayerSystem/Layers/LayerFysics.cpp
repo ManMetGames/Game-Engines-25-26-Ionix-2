@@ -26,11 +26,11 @@ namespace IonixEngine
         fysicsManager = new FysicsManager();
 
         //create default ground box
-        b2World* world = fysicsManager->GetWorld();
+        /*b2World* world = fysicsManager->GetWorld();
         b2BodyDef groundDef; groundDef.position.Set(0.f, -2.f); // roughly 600 pixels down from the top
         b2Body* ground = world->CreateBody(&groundDef);
         b2PolygonShape g; g.SetAsBox(50.f, 1.f);
-        ground->CreateFixture(&g, 0.f);
+        ground->CreateFixture(&g, 0.f);*/
     }
     
     void LayerFysics::OnDetach() 
@@ -71,19 +71,7 @@ namespace IonixEngine
             entity->rotation = lerpedRotation;
         }*/
 
-        fysicsManager->GetWorld()->Step(timeStep, velocityIterations, positionIterations);
 
-        // AFTER physics step, update current visual state
-        for (auto& val : bodyMap)
-        {
-            Vec2 pos;
-            pos.x = val.first->GetPosition().x * ppm;
-            pos.y = val.first->GetPosition().y * ppm;
-
-            // Make sure this is += and not just assign or it will never combine physics + non-physics positions
-            val.second->position.x += pos.x;
-            val.second->position.y += pos.y;
-        }
     }
     
     void LayerFysics::OnFixedUpdate()
@@ -96,6 +84,21 @@ namespace IonixEngine
         auto& bodyMap = fysicsManager->GetBodyMap();
         auto& transformMap = fysicsManager->GetTransformMap();
         
+        fysicsManager->GetWorld()->Step(timeStep, velocityIterations, positionIterations);
+        fysicsManager->GetWorld()->DebugDraw();
+        
+
+        // AFTER physics step, update current visual state
+        for (auto& val : bodyMap)
+        {
+            Vec2 pos;
+            pos.x = val.first->GetPosition().x * ppm;
+            pos.y = val.first->GetPosition().y * ppm;
+
+            val.second->position.x = pos.x;
+            val.second->position.y = pos.y;
+        }
+
         // before physics step, save current state as previous
         /*for (auto& [body, entity] : bodyMap)
         {

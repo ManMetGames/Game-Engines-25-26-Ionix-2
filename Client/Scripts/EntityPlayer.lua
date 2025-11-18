@@ -1,62 +1,114 @@
 local EntityPlayer = {}
-local entity1
-local floorBox
-local sprite1
+
+local player
+local goal
+local playerSprite
+local goalSprite
 local x = 200
+local goalX = 500
+local goalY = 500
 local y = 300
-local xSpeed = 10
-local ySpeed = 11
 local t = 10
-local ok
 
+local function CheckGoalProximity(player, goal, threshold, respawnX, respawnY)
+    
+end
+
+----------------------------------------------------------
+-- OnStart
+----------------------------------------------------------
 function EntityPlayer:OnStart()
-	-- Create a player entity and add a dynamic rigidbody with box collider to it.
-	player = Entity.create_entity()
-	Entity.add_sprite_component(player, "ball", 100, 100, 0)
 
-	Entity.add_fysics_component(player, 2, false) -- dynamic / non-trigger
-	Fysics.add_box_collider(player, 1, 1, 0, 0, 0, true)
-	Entity.set_entity_pos(player, x, y)	
-	
-	theFloor = Entity.create_entity()
-	Entity.add_sprite_component(theFloor, "ball", 100, 100, 0)
+    ------------------------------------------------------
+    -- Load textures
+    ------------------------------------------------------
+    Texture.add_texture("./Assets/left.png", "left")
+    Texture.add_texture("./Assets/middle.png", "middle")
+	Texture.add_texture("./Assets/right.png", "right")
+	Texture.add_texture("./Assets/player.png", "player")
+	Texture.add_texture("./Assets/key.png", "key")
+    ------------------------------------------------------
+    -- Create player
+    ------------------------------------------------------
+    player = Entity.create_entity()
+    Entity.set_entity_pos(player, x, y)
+    playerSprite = Entity.add_sprite_component(player, "ball", 75, 75, 0)
+	Sprite.set_playback_mode(playerSprite, 4)
 
-	Entity.add_fysics_component(theFloor, 2, false) -- dynamic / non-trigger
-	Fysics.add_box_collider(theFloor, 1, 1, 0, 0, 0, true)
-	Entity.set_entity_pos(theFloor, x + 100, y)	
-	-- multiple entity issue
+    Entity.add_fysics_component(player, 2, false) -- dynamic body
+    Fysics.add_box_collider(player, .5, .5, 0, 0, 0, false)
 
-	
-	--sprite1 = Entity.get_sprite_component(entity1)
-	--Sprite.set_playback_mode(sprite1, 3)
+    local tileSize = 32
+    local floorY = 610
+
+	------------------------------------------------------
+    -- Create goal
+    ------------------------------------------------------
+    goal = Entity.create_entity()
+    Entity.set_entity_pos(goal, goalX, goalY)
+    goalSprite = Entity.add_sprite_component(goal, "key", 100, 100, 0)
+	Sprite.set_playback_mode(goalSprite, 4)
+
+    Entity.add_fysics_component(goal, 0, false) -- static body
+    Fysics.add_box_collider(goal, 1, 1, 0, 0, 0, true) -- is trigger - needs work
+
+
+    local tileSize = 32
+    local floorY = 610
+
+	------------------------------------------------------
+	-- pick texture for left / middle / right
+	------------------------------------------------------
+	local tex = "middle"
+
+	for i = 0, 30 do
+		local tile = Entity.create_entity()
+		local xPos = i * tileSize
+
+		------------------------------------------------------
+		-- place sprite
+		------------------------------------------------------
+		Entity.set_entity_pos(tile, xPos, floorY)
+
+		-- sprite as single frame (4 = manual/no anim)
+		local s = Entity.add_sprite_component(tile, tex, tileSize, tileSize, 0)
+		Sprite.set_playback_mode(s, 4)
+
+		------------------------------------------------------
+		-- add physics body + collider
+		------------------------------------------------------
+		Entity.add_fysics_component(tile, 0, false)  -- static
+		Fysics.add_box_collider(tile, 1, 1, 0, 0, 0, false)  -- not a trigger
+	end
 end
 
+----------------------------------------------------------
+-- OnUpdate
+----------------------------------------------------------
 function EntityPlayer:OnUpdate()
-	if entity1 == nil then
-		return
-	end
-	
-	-- x = Mafs.lerp(x, 700, t)	
-	-- t = Mafs.delta_time() * t
-	
+    -- get current velocity
+    local vel = Fysics.get_linear_velocity(player)
+    local vx = vel.x
+    local vy = vel.y
+
 	if Input.get_key_down(Keys.ionix_space) then
-		Fysics.add_impulse_to_center(entity1, 0, -15)
-		--x = x + xSpeed
+        Fysics.add_force_to_center(player, 0, -15)
 	end
+    ------------------------------------------------------
+    -- movement
+    ------------------------------------------------------
+    if Input.get_key_held(Keys.ionix_d) then
+        vx = 1.5
+    elseif Input.get_key_held(Keys.ionix_a) then
+        vx = -1.5
+    else
+        vx = 0
+    end
+
+    Fysics.set_linear_velocity(player, vx, vy)
 	
-	if Input.get_key_held(Keys.ionix_d) then
-		x = x + xSpeed
-	end
-	if Input.get_key_held(Keys.ionix_a) then
-		x = x - xSpeed
-	end
-	if Input.get_key_held(Keys.ionix_w) then
-		y = y - ySpeed
-	end
-	if Input.get_key_held(Keys.ionix_s) then
-		y = y + ySpeed
-	end
-	
-	--Entity.set_entity_pos(entity1, x, y)
+	-- To do...
+	CheckGoalProximity(player, goal, 50, x, y)
 end
+
 return EntityPlayer

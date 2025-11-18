@@ -14,6 +14,13 @@ namespace IonixEngine
 
 	void FysicsScripting::Init(sol::state& lua)
 	{
+		//------------Box2D Vec2 Binding--------------- VERY USEFUL! Can use this in many methods below.
+		lua.new_usertype<b2Vec2>("Vec2",
+			sol::constructors<b2Vec2(), b2Vec2(float, float)>(),
+			"x", &b2Vec2::x,
+			"y", &b2Vec2::y
+		);
+
 
 		//------------Fysics Body Methods---------------
 		auto getFysicsPos = [](Entity* entity) -> b2Vec2 {
@@ -142,7 +149,7 @@ namespace IonixEngine
 
 		//----------Collision Methods----------
 
-		auto addBoxCollider = [](Entity* entity, int sizeX, int sizeY, int offsetX, int offsetY, float angle, bool isTrigger) {
+		auto addBoxCollider = [](Entity* entity, float sizeX, float sizeY, int offsetX, int offsetY, float angle, bool isTrigger) {
 
 			b2Vec2 size;
 			size.x = sizeX;
@@ -152,7 +159,7 @@ namespace IonixEngine
 			offset.x = offsetX;
 			offset.y = offsetY;
 
-			Application::Get().layerFysics->GetFysicsManager() ->GetShapes()->AddBox(entity, size, offset, angle, isTrigger);
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddBox(entity, size, offset, angle, isTrigger);
 			};
 
 
