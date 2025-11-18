@@ -61,6 +61,7 @@ namespace IonixEngine {
 			texture,
 			SDL_Rect { (int) (entity->position.x), (int) (entity->position.y), (int) width, (int) height },
 			SDL_Rect { spriteWidth * currentCol, spriteHeight * currentRow, spriteWidth, spriteHeight },
+			zOrder
 		});
 
 

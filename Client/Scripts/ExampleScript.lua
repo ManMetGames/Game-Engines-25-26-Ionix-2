@@ -56,7 +56,7 @@ function ExampleScript:OnStart()
 		Entity.set_entity_pos(tile, xPos, floorY)
 
 		-- sprite as single frame (4 = manual/no anim)
-		local s = Entity.add_sprite_component(tile, tex, tileSize, tileSize, 0)
+		local s = Entity.add_sprite_component(tile, tex, tileSize, tileSize, 1)
 		Sprite.set_playback_mode(s, 4)
 
 		------------------------------------------------------

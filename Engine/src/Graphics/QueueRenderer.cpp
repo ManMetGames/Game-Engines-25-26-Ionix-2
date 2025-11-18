@@ -19,7 +19,9 @@ namespace IonixEngine {
 	void QueueRenderer::RenderFromQueue() {
 		if (sprites.size() >= 2)
 		{
+			cout << sprites.front().z << endl;
 			OrderQueueByZ(sprites);
+
 		}
 
 		while (!sprites.empty()) {
