@@ -27,7 +27,7 @@ function ExampleScript:OnStart()
 	Texture.add_texture("./Assets/right.png", "right")
 	Texture.add_texture("./Assets/player.png", "player")
 	Texture.add_texture("./Assets/key.png", "key")
-    Texture.add_texture("./Assets/FlappyBird.png", "FlappyBird")
+    Texture.add_texture("./Assets/FlappyBird.jpeg", "FlappyBird")
     ------------------------------------------------------
     -- Create player
     ------------------------------------------------------
