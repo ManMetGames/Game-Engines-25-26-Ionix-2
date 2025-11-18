@@ -3,9 +3,8 @@
 #include <string>
 
 struct Textures {
-    uint64_t BetterLetters = 2464976856345177249u;
     uint64_t Debug = 13718016529779414311u;
-    uint64_t Letters = 16351359864206833473u;
+    uint64_t Fat_Mario = 12091809935407899684u;
     uint64_t Test = 6128689281041194533u;
     uint64_t ball = 5225819788789863859u;
     uint64_t ball2 = 8540420223266660866u;
@@ -13,9 +12,8 @@ struct Textures {
 
     inline std::map<std::string, std::string> GetTextures() {
         std::map<std::string, std::string> map;
-        map["BetterLetters"] = "./Assets/BetterLetters.png";
         map["Debug"] = "./Assets/Debug.png";
-        map["Letters"] = "./Assets/Letters.png";
+        map["Fat_Mario"] = "./Assets/Fat Mario.png";
         map["Test"] = "./Assets/Test.png";
         map["ball"] = "./Assets/ball.png";
         map["ball2"] = "./Assets/ball2.png";

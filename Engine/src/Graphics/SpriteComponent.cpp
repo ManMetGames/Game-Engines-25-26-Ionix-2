@@ -14,8 +14,8 @@ namespace IonixEngine {
 		playbackMode = playbackOptions::FORWARD;
 
 		//setRowsAndCols(2, 8);
-		cols = 8;
-		rows = 2;
+		cols = 6;
+		rows = 1;
 
 
 		spriteWidth = 32; //default, can be change in setters
@@ -37,8 +37,8 @@ namespace IonixEngine {
 		playbackMode = playbackOptions::FORWARD;
 
 		//setRowsAndCols(2, 8);
-		cols = 8;
-		rows = ;
+		cols = 6;
+		rows = 1;
 
 
 		spriteWidth = 32; //default, can be change in setters

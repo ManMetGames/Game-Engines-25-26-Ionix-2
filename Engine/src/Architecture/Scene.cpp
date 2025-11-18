@@ -21,9 +21,13 @@ namespace IonixEngine {
             return;
         }
         firstEntity->transform.SetLocalPosition(Vec2 { 500, 300 });
-        firstEntity->AddComponent(new SpriteComponent(firstEntity, Assets::Get().textures.BetterLetters, 100, 100, 0));
+        firstEntity->AddComponent(new SpriteComponent(firstEntity, Assets::Get().textures.Fat_Mario, 100, 100, 0));
         //firstEntity->AddComponent(new EntityMover(firstEntity, 60));
         firstEntity->transform.SetLocalScale(Vec2{ 0.5,1.5 });
+        firstEntity->GetComponent<SpriteComponent>()->setWidth(16);
+        firstEntity->GetComponent<SpriteComponent>()->setHeight(16);
+        firstEntity->GetComponent<SpriteComponent>()->setCols(4);
+        firstEntity->GetComponent<SpriteComponent>()->setRows(1);
 
         //EntityID second = CreateEntity();
         //Entity* secondEntity = GetEntityFromID(second);
