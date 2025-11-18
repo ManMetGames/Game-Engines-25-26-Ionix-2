@@ -7,7 +7,7 @@ function LoadModule(name, path)
 end
 
 -- Load all game modules here
-LoadModule("ExampleScript", "Scripts/ExampleScript.lua")
+LoadModule("FlappyBird", "Scripts/FlappyBird/FlappyBird.lua")
 
 -- Lifecycle hooks
 function OnStart()
