@@ -4,8 +4,16 @@ namespace IonixEngine
 {
 	void JsonSerializer::addline(std::string content)
 	{
-		//std::string indent = std::string(indentSize, '	');
-		finalJsonFile.append("	");
+		std::string indent;
+		if (tabIndent)
+		{
+			indent = std::string(indents.size(), '	');
+		}
+		else
+		{
+			indent = std::string(indent.size() * indentSize, ' ');
+		}
+		finalJsonFile.append(indent);
 		finalJsonFile.append(content);
 		finalJsonFile.append(",\n");
 	}
@@ -26,11 +34,12 @@ namespace IonixEngine
 		return output;
 	}
 
-	JsonSerializer::JsonSerializer(std::string filepath, int indentSize) :
+	JsonSerializer::JsonSerializer(std::string filepath, bool tabIndent, int indentSize) :
+		tabIndent(tabIndent),
 		filePath(filepath),
-		indentSize(indentSize),
-		indentLevel(0)
+		indentSize(indentSize)
 	{
+		indents.push(JsonIndent::None);
 		finalJsonFile = "{\n";
 	}
 

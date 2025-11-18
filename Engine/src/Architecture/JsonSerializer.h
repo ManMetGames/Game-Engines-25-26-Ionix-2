@@ -6,12 +6,25 @@
 
 namespace IonixEngine
 {
+	enum JsonIndent
+	{
+		None,
+		Object,
+		ObjectArray,
+
+		StringArray,
+		BoolArray,
+		IntArray,
+		FloatArray,
+		DoubleArray
+	};
+
 	class JsonSerializer
 	{
 	private:
-		int indentLevel;
 		int indentSize;
-		std::stack<int> indents;
+		bool tabIndent;
+		std::stack<JsonIndent> indents;
 		std::string finalJsonFile;
 		std::string filePath;
 
@@ -20,7 +33,7 @@ namespace IonixEngine
 		std::string getNewField(std::string fieldName);
 
 	public:
-		JsonSerializer(std::string filepath, int indentSize = 4);
+		JsonSerializer(std::string filepath, bool tabIndent = true, int indentSize = 4);
 		std::string GetFilePath();
 		void SetFilePath(const std::string& newFilepath);
 		
