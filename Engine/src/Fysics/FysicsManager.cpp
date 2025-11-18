@@ -1,5 +1,6 @@
 #include "FysicsManager.h"
 #include "Architecture/Application.h"
+#include <Testing/Box2D/DebugDraw.h>
 
 namespace IonixEngine
 {
@@ -11,6 +12,15 @@ namespace IonixEngine
 	{
 		b2Vec2 gravity(0.0f, 9.8f);
 		world = new b2World(gravity);
+
+		DebugDraw* debugDraw = new DebugDraw(Application::Get().GetWindow().GetSdlRenderer(), 30.0f);
+		debugDraw->SetFlags(
+			b2Draw::e_shapeBit
+			| b2Draw::e_jointBit
+			| b2Draw::e_centerOfMassBit
+		);
+
+		world->SetDebugDraw(debugDraw);
 
 		// create and configure collision listener
 		collisionListener = new CollisionListener(this);
@@ -65,7 +75,7 @@ namespace IonixEngine
 
 	void FysicsManager::AddEntityBodyPair(Entity* entity, b2Body* body)
 	{
-		entityBodyMap[entity] = body;
+		//entityBodyMap[entity] = body; // Not needed as we have helper methods which get what we need from 1 data structure.
 		bodyEntityMap[body] = entity;
 	}
 }

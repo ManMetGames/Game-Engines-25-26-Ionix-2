@@ -28,8 +28,9 @@ namespace IonixEngine {
             entity->position = Vec2{ x, y };
             };
 
-        auto addSpriteComponent = [](Entity* entity, std::string alias, int width, int height, int zedOrder) {
-            entity->AddComponent(new SpriteComponent(entity, alias, width, height, zedOrder));
+        auto addSpriteComponent = [](Entity* entity, std::string alias, int width, int height, int zedOrder) -> const SpriteComponent*{
+            //entity->AddComponent(new SpriteComponent(entity, alias, width, height, zedOrder));
+            return entity->AddComponent(new SpriteComponent(entity, alias, width, height, zedOrder));
             };
 
         auto addAudioPlayerComponent = [](Entity* entity, std::string clip = "", bool playOnAwake = false) {
@@ -38,6 +39,10 @@ namespace IonixEngine {
         
         auto addFysicsBodyComponent = [](Entity* entity) {
             entity->AddComponent(new FysicsBody(entity, "", Application::Get().layerFysics->GetWorld()));
+            };
+
+        auto addFysicsBodyComponentWithType = [](Entity* entity, int b_type, bool rotationLocked) {
+            entity->AddComponent(new FysicsBody(entity, b_type, rotationLocked));
             };
 
         auto getSpriteComponent = [](Entity* entity) {
@@ -84,6 +89,7 @@ namespace IonixEngine {
             "add_sprite_component", addSpriteComponent,
             "add_audio_component", addAudioPlayerComponent,
             "add_fysics_component", addFysicsBodyComponent,
+            "add_fysics_component", addFysicsBodyComponentWithType,
             "get_sprite_component", getSpriteComponent,
             "get_audio_component", getAudioPlayerComponent,
             "get_fysics_component", getFysicsBodyComponent,

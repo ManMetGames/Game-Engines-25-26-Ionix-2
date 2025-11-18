@@ -26,11 +26,11 @@ namespace IonixEngine
         fysicsManager = new FysicsManager();
 
         //create default ground box
-        b2World* world = fysicsManager->GetWorld();
-        b2BodyDef groundDef; groundDef.position.Set(0.f, -1.f);
+        /*b2World* world = fysicsManager->GetWorld();
+        b2BodyDef groundDef; groundDef.position.Set(0.f, -2.f); // roughly 600 pixels down from the top
         b2Body* ground = world->CreateBody(&groundDef);
         b2PolygonShape g; g.SetAsBox(50.f, 1.f);
-        ground->CreateFixture(&g, 0.f);
+        ground->CreateFixture(&g, 0.f);*/
     }
     
     void LayerFysics::OnDetach() 
@@ -51,7 +51,7 @@ namespace IonixEngine
         auto& transformMap = fysicsManager->GetTransformMap();
         
         // interpolate visual positions for all physics bodies
-        for (auto& [body, entity] : bodyMap)
+        /*for (auto& [body, entity] : bodyMap)
         {
             // skip if no transform data exists yet
             if (transformMap.find(body) == transformMap.end()) continue;
@@ -69,7 +69,9 @@ namespace IonixEngine
             entity->position.x = lerpedX * ppm;
             entity->position.y = lerpedY * ppm;
             entity->rotation = lerpedRotation;
-        }
+        }*/
+
+
     }
     
     void LayerFysics::OnFixedUpdate()
@@ -82,8 +84,23 @@ namespace IonixEngine
         auto& bodyMap = fysicsManager->GetBodyMap();
         auto& transformMap = fysicsManager->GetTransformMap();
         
+        fysicsManager->GetWorld()->Step(timeStep, velocityIterations, positionIterations);
+        //fysicsManager->GetWorld()->DebugDraw();
+        
+
+        // AFTER physics step, update current visual state
+        for (auto& val : bodyMap)
+        {
+            Vec2 pos;
+            pos.x = val.first->GetPosition().x * ppm;
+            pos.y = val.first->GetPosition().y * ppm;
+
+            val.second->position.x = pos.x;
+            val.second->position.y = pos.y;
+        }
+
         // before physics step, save current state as previous
-        for (auto& [body, entity] : bodyMap)
+        /*for (auto& [body, entity] : bodyMap)
         {
             if (transformMap.find(body) == transformMap.end())
             {
@@ -97,18 +114,20 @@ namespace IonixEngine
                 transform.previousPosition = transform.currentPosition;
                 transform.previousRotation = transform.currentRotation;
             }
-        }
+        }*/
         
         // step physics simulation at fixed timestep
-        world->Step(timeStep, velocityIterations, positionIterations);
-        
-        // AFTER physics step, update current state
-        for (auto& [body, entity] : bodyMap)
-        {
-            auto& transform = transformMap[body];
-            transform.currentPosition = body->GetPosition();
-            transform.currentRotation = body->GetAngle();
-        }
+        //world->Step(timeStep, velocityIterations, positionIterations);
+        //
+        //// AFTER physics step, update current state
+        //for (auto& val : bodyMap)
+        //{
+        //    Vec2 pos;
+        //    pos.x = val.first->GetPosition().x * ppm;
+        //    pos.y = val.first->GetPosition().y * ppm;
+
+        //    val.second->transform.SetGlobalPosition(pos);
+        //}
     } 
     void LayerFysics::OnEvent(IonixEvent& e)
     {
