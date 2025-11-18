@@ -2,5 +2,15 @@
     "int": 10,
     "float": 4.5,
     "bool": false,
-    "string": "please work"
+    "string": "please work",
+    "array": [
+        1,
+        2,
+        3,
+        4
+    ],
+    "object": {
+        "int": 5,
+        "string": "please work again"
+    }
 }
