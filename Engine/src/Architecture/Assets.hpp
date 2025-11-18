@@ -19,6 +19,7 @@ struct Textures {
         map["Debug"] = "./Assets/Debug.png";
         map["Test"] = "./Assets/Test.png";
         map["ball"] = "./Assets/ball.png";
+        map["coolSquare"] = "./Assets/coolSquare.png";
         map["ball2"] = "./Assets/ball2.png";
         map["horse_fat"] = "./Assets/horse-fat.gif";
         map["key"] = "./Assets/key.png";

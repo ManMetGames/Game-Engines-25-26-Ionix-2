@@ -17,11 +17,11 @@ namespace IonixEngine {
 		cols = 5;
 
 
-		spriteWidth = 32; //default, can be change in setters
-		spriteHeight = 32;
-		
+
 		SDL_QueryTexture(texture, NULL, NULL, &size.x, &size.y);
 
+		spriteWidth = size.x; //default, can be change in setters
+		spriteHeight = size.y;
 		calculateTotalFrames();
 
 		initialiseSpritesheet();
@@ -44,6 +44,8 @@ namespace IonixEngine {
 
 		SDL_QueryTexture(texture, NULL, NULL, &size.x, &size.y);
 
+		spriteWidth = size.x; //default, can be change in setters
+		spriteHeight = size.y;
 		calculateTotalFrames();
 
 		initialiseSpritesheet();
