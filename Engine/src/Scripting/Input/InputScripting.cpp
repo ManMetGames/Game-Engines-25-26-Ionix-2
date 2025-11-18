@@ -93,6 +93,12 @@ namespace IonixEngine {
             float val = static_cast<float>(SDL_GameControllerGetAxis(m_Controllers[index], axis)) / divisor;
             return std::round(val * 100.0f) / 100.0f;
             };
+        auto NormaliseStickAxis = [](float axis) {
+            return Application::Get().layerInput->m_ControllerManager->NormaliseStickAxis(axis);
+            };
+        auto NormaliseTrigger = [](float axis) {
+            return Application::Get().layerInput->m_ControllerManager->NormaliseTrigger(axis);
+            };
 
         auto getLeftStickX = [=](int index) { return getStickAxis(index, SDL_CONTROLLER_AXIS_LEFTX, 32768.0f); };
         auto getLeftStickY = [=](int index) { return getStickAxis(index, SDL_CONTROLLER_AXIS_LEFTY, 32768.0f); };
@@ -203,6 +209,8 @@ namespace IonixEngine {
             "get_right_trigger", getRightTrigger,
 
 			"get_copy_codes_end_frame", copycodesendframe
+            "normalise_stick_axis",NormaliseStickAxis,
+            "normalise_trigger", NormaliseTrigger
         );
     }
 }
