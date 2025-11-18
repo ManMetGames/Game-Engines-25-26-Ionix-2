@@ -77,7 +77,7 @@ else if (layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_SPACE))
         {
             std::cout << "Button A on the controller was pressed once \n";
         }
-    //else if (layerInput->m_Input->IsButtonUp(SDL_CONTROLLER_BUTTON_A))
+    else if (layerInput->m_Input->IsButtonUp(SDL_CONTROLLER_BUTTON_A))
         {
             std::cout << "Button A on the controller has been lifted \n";
         }
