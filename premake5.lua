@@ -68,7 +68,7 @@ project "Engine"
         }
 
     postbuildcommands {
-        '{COPY} "%{cfg.buildtarget.relpath}" "%{wks.location}/bin/' .. outputdir .. '/Client/"'
+        '{COPYFILE} "%{cfg.buildtarget.relpath}" "%{wks.location}/bin/' .. outputdir .. '/Client/"'
     }
 
     filter "configurations:Debug"

@@ -4,7 +4,7 @@
 
 namespace IonixEngine {
     //add circle
-    void FysicsShapes::AddCircle(Entity* entity, float radius, b2Vec2 offset, bool isTrigger) {
+    void FysicsShapes::AddCircle(Entity* entity, float radius, b2Vec2 offset, bool isTrigger, uint16 categoryBits, uint16 maskBits) {
         b2CircleShape shape;
 
         shape.m_radius = radius;
@@ -13,6 +13,8 @@ namespace IonixEngine {
 
         fixtureDef.shape = &shape;
         fixtureDef.isSensor = isTrigger;
+        fixtureDef.filter.categoryBits = categoryBits;
+        fixtureDef.filter.maskBits = maskBits;
 
         if (fixture) {
             body->DestroyFixture(fixture);
@@ -25,7 +27,9 @@ namespace IonixEngine {
         b2Vec2 size,   
         b2Vec2 offset,
         float angle,
-        bool isTrigger)
+        bool isTrigger,
+        uint16 categoryBits,
+        uint16 maskBits)
     {
         body = FysicsManager::GetManager()->GetBodyFromEntity(entity);
         b2PolygonShape shape;
@@ -38,6 +42,8 @@ namespace IonixEngine {
         fixtureDef.shape = &shape;
         fixtureDef.isSensor = isTrigger;
         fixtureDef.density = 1.0f;
+        fixtureDef.filter.categoryBits = categoryBits;
+        fixtureDef.filter.maskBits = maskBits;
 
         //if (fixture)
         //    body->DestroyFixture(fixture);
