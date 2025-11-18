@@ -12,6 +12,8 @@ namespace IonixEngine {
 		height = y;
 		isReversing = false;
 		playbackMode = playbackOptions::FORWARD;
+		xBoxCollider = 1 + (0.02 * (width - 75));
+		yBoxCollider = 1 + (0.02 * (height - 75));
 
 		rows = 1; //default spritesheet size, can be changed in appropriate setters
 		cols = 5;
@@ -19,7 +21,7 @@ namespace IonixEngine {
 
 		spriteWidth = 32; //default, can be change in setters
 		spriteHeight = 32;
-		
+
 		SDL_QueryTexture(texture, NULL, NULL, &size.x, &size.y);
 
 		calculateTotalFrames();
@@ -34,7 +36,8 @@ namespace IonixEngine {
 		height = y;
 		isReversing = false;
 		playbackMode = playbackOptions::FORWARD;
-
+		xBoxCollider = 1 + (0.02 * (width - 75));
+		yBoxCollider = 1 + (0.02 * (height - 75));
 		rows = 1; //default spritesheet size, can be changed in appropriate setters
 		cols = 5;
 
@@ -64,11 +67,11 @@ namespace IonixEngine {
 		}
 
 		//create and send render data to the render queue
-		data->queue->AddToQueue(RenderCall {
+		data->queue->AddToQueue(RenderCall{
 			texture,
-			SDL_Rect { (int) (entity->position.x), (int) (entity->position.y), (int) width, (int) height },
+			SDL_Rect { (int)(entity->position.x), (int)(entity->position.y), (int)width, (int)height },
 			SDL_Rect { spriteWidth * currentCol, spriteHeight * currentRow, spriteWidth, spriteHeight },
-		});
+			});
 
 
 		//This is just here so we can see the animation play at a normal speed
@@ -165,6 +168,8 @@ namespace IonixEngine {
 	void SpriteComponent::setZedOrder(int x) { zOrder = x; }
 	void SpriteComponent::setWidth(int x) { width = x; }
 	void SpriteComponent::setHeight(int x) { height = x; }
+	void SpriteComponent::setXBoxCollider(int x) { xBoxCollider = x; }
+	void SpriteComponent::setYBoxCollider(int x) { yBoxCollider = x; }
 
 	//getters
 	IonixEngine::playbackOptions SpriteComponent::getPlaybackMode() /*oh lawd he big*/ { return playbackOptions(); }
@@ -180,4 +185,6 @@ namespace IonixEngine {
 	int SpriteComponent::getCurrentRow() { return currentRow; }
 	int SpriteComponent::getWidth() { return width; }
 	int SpriteComponent::getHeight() { return height; }
+	int SpriteComponent::getXBoxCollider() { return xBoxCollider; }
+	int SpriteComponent::getYBoxCollider() { return yBoxCollider; }
 }

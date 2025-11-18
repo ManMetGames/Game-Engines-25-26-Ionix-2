@@ -27,6 +27,8 @@ namespace IonixEngine {
 		int endFrame;
 		bool isReversing;
 		int rows, cols;
+		float xBoxCollider;
+		float yBoxCollider;
 		int spriteWidth, spriteHeight;
 		int currentRow, currentCol;
 
@@ -57,6 +59,8 @@ namespace IonixEngine {
 		void setZedOrder(int x);
 		void setWidth(int x);
 		void setHeight(int x);
+		void setXBoxCollider(int x);
+		void setYBoxCollider(int x);
 
 		//Getters
 		playbackOptions getPlaybackMode();
@@ -72,5 +76,7 @@ namespace IonixEngine {
 		int getCurrentRow();
 		int getWidth();
 		int getHeight();
+		int getXBoxCollider();
+		int getYBoxCollider();
 	};
 }
