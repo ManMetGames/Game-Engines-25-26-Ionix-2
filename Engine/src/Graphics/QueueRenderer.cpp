@@ -11,20 +11,25 @@ namespace IonixEngine {
 		sprites = queue<RenderCall>();// queue of render data
 	}
 
-	//
 	void QueueRenderer::AddToQueue(RenderCall sprite)
 	{
-		sprites.push(sprite); //needs to be changed because this doesn't take strings anymore
-		OrderQueueByZ(sprites);
-	}   //all of this is TEMPORARY because we're TESTING - it's in the name, that's why it says TEMP everywhere. We'll change this soon, thanks
+		sprites.push(sprite);
+	}
 
 	void QueueRenderer::RenderFromQueue() {
+		if (sprites.size() >= 2)
+		{
+			OrderQueueByZ(sprites);
+		}
 
 		while (!sprites.empty()) {
 			RenderCall call = sprites.front();
 			SDL_RenderCopy(Application::Get().GetWindow().GetSdlRenderer(), call.texture, &call.src, &call.dest);
 			sprites.pop();
 		}
+
+
+
 	}
 
 	void QueueRenderer::Merger(std::vector<RenderCall> arr, int left, int mid, int right)
@@ -78,19 +83,18 @@ namespace IonixEngine {
 
 	void QueueRenderer::OrderQueueByZ(queue<RenderCall>& sprites) //Called first
 	{
-		queue<RenderCall> tempQueue = sprites;
+		queue<RenderCall> tempQueue = sprites; //Creates temporary queue from sprites to avoid conflicts
 		std::vector<RenderCall> tempVector; //Creates temporary vector from queue
 		int originalQueueLength = sprites.size();
-		//cout << originalQueueLength << endl;
 
 		for (int i = 0; i < originalQueueLength; i++) //Adds all items from queue to this vector to be sorted
 		{
 			tempVector.push_back(tempQueue.front());
 			tempQueue.pop();
 
-			cout << tempVector[i].z << endl;
+			/*cout << tempVector.back().texture << endl;
+			cout << tempQueue.front().texture << endl;*/
 		}
-		cout << tempVector[0].z << endl;
 
 		MergeCaller(tempVector, 0, originalQueueLength - 1); //Perform merge sort
 		ArrToQueueConverter(tempVector, sprites); //Convert vector to sorted queue again at the end!
@@ -101,6 +105,10 @@ namespace IonixEngine {
 		{
 			temporary.pop();
 		}
+
+		cout << sprites.front().texture << endl;
+
+
 	}
 
 	//0, 1
