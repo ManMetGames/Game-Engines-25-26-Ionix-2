@@ -24,6 +24,9 @@ namespace IonixEngine
 		void handleInput(float deltaTime);
 		void MoveCamera(float deltaX, float deltaY, bool moveCamDelta = true);
 		void SwitchCamera();
+    void Apply(SDL_Renderer* renderer);
+		void ClearBackground(SDL_Renderer* renderer);
+		void SetBackgroundColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 
 		//Render Texture Functions
 		void InitRenderTexture(SDL_Renderer* renderer);   // sets texture as render target

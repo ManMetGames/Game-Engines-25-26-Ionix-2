@@ -5,10 +5,23 @@
 
 namespace IonixEngine
 {
-    Camera::Camera(float startX, float startY, float startZoom, int height, int width, bool isFocused)
-		: x(startX-50), y(startY-50), zoom(startZoom), h(height), w(width), isFocused(isFocused)
+    Camera::Camera(float startX, float startY, float startZoom,
+        int height, int width, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+        : x(startX), y(startY), zoom(startZoom), h(height), w(width),
+        bg_r(r), bg_g(g), bg_b(b), bg_a(a)
     {
     }
+
+    void Camera::Apply(SDL_Renderer* renderer)
+    {
+        SDL_RenderSetScale(renderer, zoom, zoom);
+    }
+
+    void Camera::ClearBackground(SDL_Renderer* renderer)
+    {
+        SDL_SetRenderDrawColor(renderer, bg_r, bg_g, bg_b, bg_a);
+        SDL_RenderClear(renderer);
+    }       
 
     void Camera::Init() 
     {
@@ -43,7 +56,7 @@ namespace IonixEngine
 			Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_D) == false) x = 0.0f;*/
 
         
-        if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_U)) 
+        if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_O)) 
         {
             zoom *= 0.9f;
         }
@@ -65,6 +78,14 @@ namespace IonixEngine
             MoveCamera(moveX, moveY);
         }*/
     }
+  
+  void Camera::SetBackgroundColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+    {
+        bg_r = r;
+        bg_g = g;
+        bg_b = b;
+        bg_a = a;
+  }
 
 	void Camera::MoveCamera(float deltaX, float deltaY, bool moveCamDelta)
 	{

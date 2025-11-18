@@ -8,6 +8,7 @@
 #include <backends/imgui_impl_sdlrenderer2.h>
 #include <iostream>
 #include <third-party/imgui_impl_sdlrenderer2.h>
+#include "Graphics/CameraColour.h"
 
 namespace IonixEngine {
     Application* Application::s_Instance = nullptr;
@@ -70,7 +71,7 @@ namespace IonixEngine
         }
 
     }
-
+    CameraColour* camColour = new CameraColour(cam);
     Camera* cam = new Camera(0.0f, 0.0f, 1.0f, 800, 600, true);
     Camera* cam2 = new Camera(100.0f, 100.0f, 1.0f, 800, 600, false);
 
@@ -85,18 +86,35 @@ namespace IonixEngine
 
         SDL_Renderer* renderer = m_Window->GetSdlRenderer();
 
+        cam->SetBackgroundColor(50, 80, 200, 255);
+
         //FysicBody testBody = FysicBody();
         
 
         while (m_Running) {
-            uint64_t lastTick = currentTick;
+            /*uint64_t lastTick = currentTick;
             currentTick = SDL_GetPerformanceCounter();
             
             deltaTime = static_cast<double>(currentTick - lastTick) / SDL_GetPerformanceFrequency();
-            time += deltaTime;
+            time += deltaTime;*/
             
-            SDL_RenderClear(renderer);
-            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);
+            if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_1))
+                camColour->SetColor(255, 0, 0, 255); // RED
+
+            if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_2))
+                camColour->SetColor(0, 255, 0, 255); // GREEN
+
+            if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_3))
+                camColour->SetColor(0, 0, 255, 255); // BLUE
+
+            if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_4))
+                camColour->SetColor(0, 0, 0, 0); // BLACK
+
+            if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_5))
+                camColour->SetColor(255, 255, 255, 255); // WHITE
+
+            camColour->Update();
+            cam->ClearBackground(renderer);
             for (auto layer : m_LayerStack.GetLayers()) {
                 if(layer)
                     layer->OnUpdate();
