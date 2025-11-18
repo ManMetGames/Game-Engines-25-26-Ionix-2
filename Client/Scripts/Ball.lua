@@ -1,68 +1,100 @@
 local ball = {}
-local xSpeed = 2
-local ySpeed = 2
-local x, y
-local screenWidth, screenHeight
+
 local ballEntity
-local spriteSize = 32
-local spriteHalf = spriteSize / 2
+local speedX = 6
+local speedY = 6
+local ballSize = 32
 
-local function safe_call(fn, ...)
-    if not ballEntity then
-        print("[Lua] ballEntity is nil; skipping engine call")
-        return nil
-    end
-    print("[Lua] ballEntity pointer:", tostring(ballEntity))
-    local ok, res = pcall(fn, ...)
-    if not ok then
-        print("[Lua] engine call failed:", res, "entity:", tostring(ballEntity))
-        return nil
-    end
-    return res
+----------------------------------------------------------
+-- Create walls around the screen
+----------------------------------------------------------
+local function CreateWall(x, y, w, h)
+    local wall = Entity.create_entity()
+    Entity.set_entity_pos(wall, x, y)
+
+    -- Static physics body
+    Entity.add_fysics_component(wall, 0, false)
+
+    -- Convert pixel size to collider scale (Box2D units)
+    Fysics.add_box_collider(wall, w / 100, h / 100, 0, 0, 0, false)
+
+    return wall
 end
 
+----------------------------------------------------------
+-- OnStart
+----------------------------------------------------------
 function ball:OnStart()
-    screenWidth = Window.get_width()
-    screenHeight = Window.get_height()
+    local screenW = Window.get_width()
+    local screenH = Window.get_height()
 
+    ------------------------------------------------------
+    -- Create the ball
+    ------------------------------------------------------
     ballEntity = Entity.create_entity()
-    if not ballEntity then
-        print("[Lua] Entity.create_entity() returned nil")
-        return
-    end
 
-    safe_call(function() Entity.add_sprite_component(ballEntity, "PimBall", spriteSize, spriteSize, 255) end)
+    -- Center it on screen
+    Entity.set_entity_pos(ballEntity, screenW / 2, screenH / 2)
 
-    x = screenWidth / 2
-    y = screenHeight / 2
-    safe_call(function() Entity.set_entity_pos(ballEntity, x, y) end)
+    Entity.add_sprite_component(ballEntity, "PimBall", ballSize, ballSize, 1)
+
+    ------------------------------------------------------
+    -- Add physics body (dynamic)
+    ------------------------------------------------------
+    Entity.add_fysics_component(ballEntity, 2, false)
+    Fysics.add_box_collider(ballEntity, 0.16, 0.16, 0, 0, 0, false)
+    -- collider size ~ ballSize / 200 if ballSize = 32
+
+    ------------------------------------------------------
+    -- Build screen boundary walls
+    ------------------------------------------------------
+    -- Left wall
+    CreateWall(-20, screenH/2, 40, screenH)
+
+    -- Right wall
+    CreateWall(screenW + 20, screenH/2, 40, screenH)
+
+    -- Top wall
+    CreateWall(screenW/2, -20, screenW, 40)
+
+    -- Bottom wall
+    CreateWall(screenW/2, screenH + 20, screenW, 40)
+
+    ------------------------------------------------------
+    -- Initial velocity
+    ------------------------------------------------------
+    Fysics.set_linear_velocity(ballEntity, speedX, speedY)
 end
 
+----------------------------------------------------------
+-- OnUpdate
+----------------------------------------------------------
 function ball:OnUpdate()
-    screenWidth = Window.get_width()
-    screenHeight = Window.get_height()
+    -- Read current velocity
+    local vel = Fysics.get_linear_velocity(ballEntity)
 
-    x = x + xSpeed
-    y = y + ySpeed
+    ------------------------------------------------------
+    -- Maintain constant speed after bouncing
+    ------------------------------------------------------
+    local finalX = speedX
+    local finalY = speedY
 
-    local minX, maxX = spriteHalf, screenWidth - spriteHalf
-    local minY, maxY = spriteHalf, screenHeight - spriteHalf
-
-    if x > maxX then x = maxX; xSpeed = -xSpeed
-    elseif x < minX then x = minX; xSpeed = -xSpeed end
-
-    if y > maxY then y = maxY; ySpeed = -ySpeed
-    elseif y < minY then y = minY; ySpeed = -ySpeed end
-
-    safe_call(function() Entity.set_entity_pos(ballEntity, x, y) end)
-end
-
-function ball:OnDestroy()
-    -- clear reference so Lua won't call into a freed entity
-    if ballEntity then
-        print("[Lua] OnDestroy clearing ballEntity:", tostring(ballEntity))
+    ------------------------------------------------------
+    -- Check if velocity reversed by collision
+    ------------------------------------------------------
+    if vel.x ~= 0 then
+        -- Maintain sign of bounce
+        finalX = (vel.x > 0) and math.abs(speedX) or -math.abs(speedX)
     end
-    ballEntity = nil
+
+    if vel.y ~= 0 then
+        finalY = (vel.y > 0) and math.abs(speedY) or -math.abs(speedY)
+    end
+
+    ------------------------------------------------------
+    -- Apply stable velocity (prevents Box2D slowdown)
+    ------------------------------------------------------
+    Fysics.set_linear_velocity(ballEntity, finalX, finalY)
 end
 
 return ball
