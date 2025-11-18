@@ -162,9 +162,11 @@ namespace IonixEngine
 			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddBox(entity, size, offset, angle, isTrigger);
 			};
 
+		//----------Joint Methods----------
 
-
-
+		auto setPrismaticJoint = [](Entity* entityA, Entity* entityB, b2Vec2 worldAxis, float lowerTranslation, float upperTranslation, bool enableLimit, float maxMotorForce, float motorSpeed, bool enableMotor) {
+			Application::Get().layerFysics->GetFysicsManager()->GetPrismaticJoint()->setJoint(entityA, entityB, worldAxis, lowerTranslation, upperTranslation, enableLimit, maxMotorForce, motorSpeed, enableMotor);
+	    };
 
 
 
@@ -201,7 +203,8 @@ namespace IonixEngine
 			"add_torque", addFysicsTorque,
 			"add_angular_impulse", addFysicsAngularImpulse,
 			"clear_forces", clearFysicsForces,
-			"add_box_collider", addBoxCollider
+			"add_box_collider", addBoxCollider,
+			"create_prismatic_joint", setPrismaticJoint
 		);
 	}
 }
