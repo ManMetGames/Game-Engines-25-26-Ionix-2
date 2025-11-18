@@ -27,6 +27,7 @@ function ExampleScript:OnStart()
 	Texture.add_texture("./Assets/right.png", "right")
 	Texture.add_texture("./Assets/player.png", "player")
 	Texture.add_texture("./Assets/key.png", "key")
+    Texture.add_texture("./Assets/FlappyBird.png", "FlappyBird")
     ------------------------------------------------------
     -- Create player
     ------------------------------------------------------
@@ -38,10 +39,10 @@ function ExampleScript:OnStart()
 	Sprite.set_playback_mode(playerSprite, 4)
 
     Entity.add_fysics_component(player, 2, false) -- dynamic body
-    Fysics.add_box_collider(player, .5, .5, 0, 0, 0, false)
+    Fysics.add_box_collider(player, .5, .2, 0, 0, 0, false)
 
     local tileSize = 64
-    local floorY = 610
+    local floorY = 600
 
 	------------------------------------------------------
 	-- pick texture for left / middle / right
@@ -58,7 +59,7 @@ function ExampleScript:OnStart()
 		Entity.set_entity_pos(tile, xPos, floorY)
 
 		-- sprite as single frame (4 = manual/no anim)
-		local s = Entity.add_sprite_component(tile, tex, tileSize, tileSize, 0)
+		local s = Entity.add_sprite_component(tile, "Sand", tileSize, tileSize, 0)
 		Sprite.set_playback_mode(s, 4)
 
 		------------------------------------------------------

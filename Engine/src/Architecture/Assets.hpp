@@ -5,6 +5,7 @@
 struct Textures {
     uint64_t Debug = 16105671890965812228u;
     uint64_t FlappyBird = 12156800037729862389u;
+    uint64_t Sand = 4972914212072997432u;
     uint64_t Test = 2449874712956322390u;
     uint64_t ball = 17707837483333796221u;
     uint64_t ball2 = 14716692011604621444u;
@@ -14,6 +15,7 @@ struct Textures {
         std::map<std::string, std::string> map;
         map["Debug"] = "./Assets/Debug.png";
         map["FlappyBird"] = "./Assets/FlappyBird.png";
+        map["Sand"] = "./Assets/Sand.png";
         map["Test"] = "./Assets/Test.png";
         map["ball"] = "./Assets/ball.png";
         map["ball2"] = "./Assets/ball2.png";
