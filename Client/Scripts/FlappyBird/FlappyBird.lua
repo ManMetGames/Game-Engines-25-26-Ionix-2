@@ -23,11 +23,6 @@ function ExampleScript:OnStart()
     ------------------------------------------------------
     -- Load textures
     ------------------------------------------------------
-    Texture.add_texture("./Assets/left.png", "left")
-    Texture.add_texture("./Assets/middle.png", "middle")
-	Texture.add_texture("./Assets/right.png", "right")
-	Texture.add_texture("./Assets/player1.png", "player1")
-	Texture.add_texture("./Assets/key.png", "key")
     Texture.add_texture("./Assets/FlappyBird.png", "FlappyBird")
     Texture.add_texture("./Assets/Background.png", "Background")
     ------------------------------------------------------
