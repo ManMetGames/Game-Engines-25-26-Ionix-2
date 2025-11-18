@@ -21,6 +21,7 @@ namespace IonixEngine
 		finalJsonFile.append("\n");
 	}
 
+	//appends a field name string to the output json string
 	void JsonSerializer::newField(std::string fieldName)
 	{
 		finalJsonFile.append("\"");
@@ -28,6 +29,7 @@ namespace IonixEngine
 		finalJsonFile.append("\": ");
 	}
 
+	//returns a field name string which can be appended to the output json string
 	std::string JsonSerializer::getNewField(std::string fieldName)
 	{
 		std::string output;
