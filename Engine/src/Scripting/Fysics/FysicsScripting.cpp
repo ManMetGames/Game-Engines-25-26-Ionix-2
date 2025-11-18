@@ -27,8 +27,8 @@ namespace IonixEngine
 			return entity->GetComponent<FysicsBody>()->GetPosition(entity);
 			};
 
-		auto setFysicsPos = [](Entity* entity, float x, float y) {
-			entity->GetComponent<FysicsBody>()->SetPosition(entity, x, y);
+		auto setFysicsPos = [](Entity* entity, b2Vec2 vec2) {
+			entity->GetComponent<FysicsBody>()->SetPosition(entity, vec2.x, vec2.y);
 			};
 
 		auto getFysicsAngle = [](Entity* entity) -> float{
@@ -43,8 +43,8 @@ namespace IonixEngine
 			return entity->GetComponent<FysicsBody>()->GetLinearVelocity(entity);
 			};
 
-		auto setFysicsLinearVelocity = [](Entity* entity, float x, float y) {
-			entity->GetComponent<FysicsBody>()->SetLinearVelocity(entity, x, y);
+		auto setFysicsLinearVelocity = [](Entity* entity, b2Vec2 vec2) {
+			entity->GetComponent<FysicsBody>()->SetLinearVelocity(entity, vec2.x, vec2.y);
 			};
 
 		auto getFysicsAngularVelocity = [](Entity* entity) -> float {
@@ -110,27 +110,20 @@ namespace IonixEngine
 
 
 		//-----------Force Methods----------
-		auto addFysicsForce = [](Entity* entity, int impulseX, int impulseY, int forcePosX, int forcePosY) {
-
-			b2Vec2 force; force.x = impulseX; force.y = impulseY;
-			b2Vec2 origin; origin.x = forcePosX; origin.y = forcePosY;
-
-			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddForce(entity, force, origin);
+		auto addFysicsForce = [](Entity* entity, b2Vec2 impulseVec2, b2Vec2 originVec2) {
+			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddForce(entity, impulseVec2, originVec2);
 			};
 
-		auto addFysicsForceToCenter = [](Entity* entity, int forceX, int forceY) {
-			b2Vec2 origin; origin.x = forceX; origin.y = forceY;
-
-			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddForceToCenter(entity, origin);
+		auto addFysicsForceToCenter = [](Entity* entity, b2Vec2 originVec2) {
+			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddForceToCenter(entity, originVec2);
 			};
 
-		auto addFysicsAddImpulse = [](Entity* entity, int impulseX, int impulseY, int forcePosX, int forcePosY) {
-			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddImpulse(entity, impulseX, impulseY, forcePosX, forcePosY);
+		auto addFysicsAddImpulse = [](Entity* entity, b2Vec2 impulseVec2, b2Vec2 forceVec2) {
+			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddImpulse(entity, impulseVec2, forceVec2);
 			};
 
-		auto addFysicsAddImpulseToCenter = [](Entity* entity, int forceX, int forceY) {
-			b2Vec2 force; force.x = forceX; force.y = forceY;
-			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddImpulseToCenter(entity, force);
+		auto addFysicsAddImpulseToCenter = [](Entity* entity, b2Vec2 forceVec2) {
+			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddImpulseToCenter(entity, forceVec2);
 			};
 
 		auto addFysicsTorque = [](Entity* entity, float torque) {
@@ -149,16 +142,7 @@ namespace IonixEngine
 
 		//----------Collision Methods----------
 
-		auto addBoxCollider = [](Entity* entity, float sizeX, float sizeY, int offsetX, int offsetY, float angle, bool isTrigger) {
-
-			b2Vec2 size;
-			size.x = sizeX;
-			size.y = sizeY;
-
-			b2Vec2 offset;
-			offset.x = offsetX;
-			offset.y = offsetY;
-
+		auto addBoxCollider = [](Entity* entity, b2Vec2 size, b2Vec2 offset, float angle, bool isTrigger) {
 			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddBox(entity, size, offset, angle, isTrigger);
 			};
 
