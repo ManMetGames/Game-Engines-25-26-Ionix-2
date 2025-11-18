@@ -6,15 +6,7 @@ namespace IonixEngine
 	//adds indentation and newline commands automatically
 	void JsonSerializer::addline(std::string content,std::string lineEnd)
 	{
-		std::string indent;
-		if (tabIndent)
-		{
-			indent = std::string(indents.size(), '	');
-		}
-		else
-		{
-			indent = std::string(indent.size() * indentSize, ' ');
-		}
+		std::string indent = getIndent();
 		finalJsonFile.append(indent);
 		finalJsonFile.append(content);
 		finalJsonFile.append(lineEnd);
@@ -36,6 +28,21 @@ namespace IonixEngine
 		output.append("\"");
 		output.append(fieldName);
 		output.append("\": ");
+		return output;
+	}
+
+	//returns a string with correct indent style and length
+	std::string JsonSerializer::getIndent()
+	{
+		std::string output;
+		if (tabIndent)
+		{
+			output = std::string(indents.size(), '	');
+		}
+		else
+		{
+			output = std::string(output.size() * indentSize, ' ');
+		}
 		return output;
 	}
 
@@ -114,7 +121,7 @@ namespace IonixEngine
 			newLine = getNewField(objectName);
 			//newLine.append("\n");
 			addline(newLine,"");
-			indent = std::string(indents.size(), '	');
+			indent = getIndent();
 			finalJsonFile.append(indent);
 			//addline("{");
 			finalJsonFile.append("{\n");

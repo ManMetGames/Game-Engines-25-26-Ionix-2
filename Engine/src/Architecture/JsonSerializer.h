@@ -32,6 +32,7 @@ namespace IonixEngine
 		void addline(std::string content, std::string lineEnd = ",");
 		void newField(std::string fieldName);
 		std::string getNewField(std::string fieldName);
+		std::string getIndent();
 
 	public:
 		JsonSerializer(std::string filepath, bool tabIndent = true, int indentSize = 4);
