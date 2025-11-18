@@ -75,6 +75,10 @@ namespace IonixEngine {
         fixture = FysicsManager::GetManager()->GetBodyFromEntity(entity)->CreateFixture(&fixtureDef);
     }
 
+    void FysicsShapes::AddBoxCollider(Entity* entity, b2Vec2 size) {
+        AddBox(entity, size, { 0,1 }, 0, 1.0f, false);
+    }
+
 
 
 }

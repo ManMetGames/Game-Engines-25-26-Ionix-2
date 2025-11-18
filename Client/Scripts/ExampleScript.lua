@@ -36,7 +36,7 @@ function ExampleScript:OnStart()
 	Sprite.set_playback_mode(playerSprite, 4)
 
     Entity.add_fysics_component(player, 2, false) -- dynamic body
-    Fysics.add_box_collider(player, .5, .5, 0, 0, 0, 1, false)
+    Fysics.add_box_collider(player, .5, .5)
 
     local tileSize = 32
     local floorY = 610
@@ -45,7 +45,8 @@ function ExampleScript:OnStart()
 	-- pick texture for left / middle / right
 	------------------------------------------------------
 	local tex = "middle"
-
+    local tileSet = Entity.create_entity()
+    Entity.set_entity_pos(tileSet, 0, floorY)
 	for i = 0, 30 do
 		local tile = Entity.create_entity()
 		local xPos = i * tileSize
@@ -62,9 +63,11 @@ function ExampleScript:OnStart()
 		------------------------------------------------------
 		-- add physics body + collider
 		------------------------------------------------------
-		Entity.add_fysics_component(tile, 0, false)  -- static
-		Fysics.add_box_collider(tile, 1, 1, 0, 0, 0, 1, false)  -- not a trigger
+		--Entity.add_fysics_component(tile, 0, false)  -- static
+		--Fysics.add_box_collider(tile, 1, 1, 0, 0, 0, 1, false)  -- not a trigger
 	end
+    Entity.add_fysics_component(tileSet, 0, false)
+    Fysics.add_box_collider(tileSet, tileSize, 1)
 end
 
 ----------------------------------------------------------

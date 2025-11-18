@@ -142,6 +142,7 @@ namespace IonixEngine
         //    }
         //    fixture = body->CreateFixture(&fixtureDef);
         //}
+        void AddBoxCollider(Entity* entity, b2Vec2 size);
 
         /*b2Fixture* GetFixture()
         {
