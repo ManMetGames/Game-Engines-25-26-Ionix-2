@@ -2,6 +2,7 @@
 #include "Architecture/Application.h"
 #include "Fysics/FysicsBody.h"
 #include "Fysics/FysicsManager.h"
+#include "Fysics/joints.h"
 namespace IonixEngine
 {
 	FysicsScripting* FysicsScripting::s_Instance = nullptr;
@@ -139,6 +140,31 @@ namespace IonixEngine
 			};
 
 
+		//----------Joints Methods----------
+		auto getPrismaticJoint = [](Entity* entityA, Entity* entityB) {
+			return Application::Get().layerFysics->GetFysicsManager()->GetPrismaticJoint();
+			};
+		auto getWeldJoint = [](Entity* entityA, Entity* entityB) {
+			return Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint();
+			};
+		auto getPulleyJoint = [](Entity* entityA, Entity* entityB) {
+			return Application::Get().layerFysics->GetFysicsManager()->GetPulleyJoint();
+			};
+		auto getRevoluteJoin = [](Entity* entityA, Entity* entityB) {
+			return Application::Get().layerFysics->GetFysicsManager()->GetRevoluteJoint();
+			};
+		auto getDistanceJoint = [](Entity* entityA, Entity* entityB) {
+			return Application::Get().layerFysics->GetFysicsManager()->GetDistanceJoint();
+			};
+
+
+
+
+
+
+
+
+
 
 		//----------Collision Methods----------
 
@@ -185,7 +211,13 @@ namespace IonixEngine
 			"add_angular_impulse", addFysicsAngularImpulse,
 			"clear_forces", clearFysicsForces,
 			"get_gravity_scale", GetGravityScale,
-			"set_gravity_scale", SetGravityScale
+			"set_gravity_scale", SetGravityScale,
+			"add_box_collider", addBoxCollider,
+			"get_prismatic_joint", getPrismaticJoint,
+			"get_weld_joint", getWeldJoint,
+			"get_pulley_joint", getPulleyJoint,
+			"get_revolute_joint", getRevoluteJoin,
+			"get_distance_joint", getDistanceJoint
 		);
 	}
 }
