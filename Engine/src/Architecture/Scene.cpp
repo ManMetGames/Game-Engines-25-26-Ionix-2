@@ -20,7 +20,7 @@ namespace IonixEngine {
             return;
         }
         firstEntity->transform.SetLocalPosition(Vec2 { 500, 300 });
-        firstEntity->AddComponent(new SpriteRenderer(firstEntity)); //NOT ADDED
+        firstEntity->AddComponent(new SpriteRenderer(firstEntity));
         firstEntity->AddComponent(new EntityMover(firstEntity, 60));
         // firstEntity->transform.SetLocalScale(Vec2{ 0.5,1.5 });
 
@@ -34,19 +34,19 @@ namespace IonixEngine {
         secondEntity->transform.SetLocalPosition(Vec2{ 0, 100 });
         secondEntity->transform.SetParent(&firstEntity->transform, false);
         // secondEntity->transform.SetLocalScale(Vec2{ 1.3,1.25 });
-        secondEntity->AddComponent(new SpriteRenderer(secondEntity)); //NOT ADDED
+        secondEntity->AddComponent(new SpriteRenderer(secondEntity));
         secondEntity->AddComponent(new EntityMover(secondEntity, -60));
 
-        //EntityID third = CreateEntity();
-        //Entity* thirdEntity = GetEntityFromID(third);
-        //if (!thirdEntity)
-        //{
-        //    SDL_Log("[DEBUG TEST] Third entity failed, returning...");
-        //    return;
-        //}
-        //thirdEntity->transform.SetLocalPosition(Vec2{ 0, -100 });
-        //thirdEntity->transform.SetParent(&secondEntity->transform, false);
-        //thirdEntity->AddComponent(new AnimatedSpriteComponent(thirdEntity, "ball", 1)); //ADDED TO QUEUE
+        EntityID third = CreateEntity();
+        Entity* thirdEntity = GetEntityFromID(third);
+        if (!thirdEntity)
+        {
+            SDL_Log("[DEBUG TEST] Third entity failed, returning...");
+            return;
+        }
+        thirdEntity->transform.SetLocalPosition(Vec2{ 0, -100 });
+        thirdEntity->transform.SetParent(&secondEntity->transform, false);
+        thirdEntity->AddComponent(new SpriteComponent(thirdEntity, "ball",100,100, 0));
 
     }
 

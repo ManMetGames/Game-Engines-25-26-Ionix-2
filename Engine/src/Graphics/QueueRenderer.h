@@ -5,7 +5,7 @@
 #include <string>
 #include <array>
 #include "Graphics/SpriteComponent.h"
-#include "Graphics/AnimatedSpriteComponent.h"
+#include "Graphics/SpriteComponent.h"
 //#include <mutex>
 using namespace std;
 
