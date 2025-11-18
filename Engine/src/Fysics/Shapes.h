@@ -31,10 +31,10 @@ namespace IonixEngine
             switch (shapeType)
             {
             case fysicShapeType::circle:
-                AddCircle(entity, radius, offset, isTrigger);
+                AddCircle(entity, radius, offset, isTrigger, 0x0001, 0xFFFF);
                 break;
             case fysicShapeType::box:
-                AddBox(entity, b2Vec2 { width, height }, offset, angle, isTrigger);
+                AddBox(entity, b2Vec2 { width, height }, offset, angle, isTrigger, 0x0001, 0xFFFF);
                 break;
             case fysicShapeType::polygon:
                 AddPolygon(entity);
@@ -94,11 +94,11 @@ namespace IonixEngine
 
     //DEFAULT CONSTRUCTOR FOR REFERENCE
 
-        void AddCircle(Entity* entity, float radius = 1, b2Vec2 offset = { 0.0f, 0.0f }, bool isTrigger = false);
+        void AddCircle(Entity* entity, float radius = 1, b2Vec2 offset = { 0.0f, 0.0f }, bool isTrigger = false, uint16 categoryBits = 0x0001, uint16 maskBits = 0xFFFF);
 
 
         // Box -------------------------------------------------------
-        void AddBox(Entity* entity, b2Vec2 size = { 1, 1 }, b2Vec2 offset = { 0.0f, 0.0f }, float angle = 0.0f, bool isTrigger = false);
+        void AddBox(Entity* entity, b2Vec2 size = { 1, 1 }, b2Vec2 offset = { 0.0f, 0.0f }, float angle = 0.0f, bool isTrigger = false, uint16 categoryBits = 0x0001, uint16 maskBits = 0xFFFF);
         /*void AddBox(Entity* entity, b2Vec2 size = { 1, 1 }, b2Vec2 offset = {0.0f, 0.0f}, float angle = 0.0f, bool isTrigger = false)
         {
             b2PolygonShape shape;
