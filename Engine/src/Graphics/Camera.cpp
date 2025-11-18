@@ -11,6 +11,11 @@ namespace IonixEngine
     {
     }
 
+    void Camera::Apply(SDL_Renderer* renderer)
+    {
+        SDL_RenderSetScale(renderer, zoom, zoom);
+    }
+
     void Camera::ClearBackground(SDL_Renderer* renderer)
     {
         SDL_SetRenderDrawColor(renderer, bg_r, bg_g, bg_b, bg_a);
@@ -27,7 +32,7 @@ namespace IonixEngine
         else if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_D)) x = speed * deltaTime;
         else { x = 0; y = 0; }
         
-        if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_U)) {
+        if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_O)) {
             zoom *= 0.9f;
         }
         else if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_I))

@@ -118,6 +118,7 @@ namespace IonixEngine
             }
 
             cam->handleInput(static_cast<float>(deltaTime));
+            cam->Apply(renderer);
 
 
             

@@ -18,6 +18,7 @@ namespace IonixEngine
 			Uint8 r = 0, Uint8 g = 0, Uint8 b = 0, Uint8 a = 255);
 
 		void handleInput(float deltaTime);
+		void Apply(SDL_Renderer* renderer);
 		void ClearBackground(SDL_Renderer* renderer);
 		void SetBackgroundColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 	};
