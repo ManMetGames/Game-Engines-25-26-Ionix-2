@@ -145,6 +145,15 @@ namespace IonixEngine
 			Application::Get().layerFysics->GetFysicsManager()->GetForce()->ClearForces(entity);
 			};
 
+		//Material Changes
+		auto fysicsUpdateMaterial = [](Entity* entity, float friction, float restitution) {
+			Application::Get().layerFysics->GetFysicsManager()->GetMaterial()->UpdateMaterial(entity, friction, restitution);
+		};
+
+		auto getFriction = [](Entity* entity)-> float {
+			return Application::Get().layerFysics->GetFysicsManager()->GetMaterial()->GetFriction(entity);
+		};
+
 
 
 		//----------Collision Methods----------
@@ -201,7 +210,9 @@ namespace IonixEngine
 			"add_torque", addFysicsTorque,
 			"add_angular_impulse", addFysicsAngularImpulse,
 			"clear_forces", clearFysicsForces,
-			"add_box_collider", addBoxCollider
+			"add_box_collider", addBoxCollider,
+			"set_material_properties", fysicsUpdateMaterial,
+			"get_material_friction", getFriction
 		);
 	}
 }

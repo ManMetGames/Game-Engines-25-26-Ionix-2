@@ -10,7 +10,7 @@ namespace IonixEngine
     class FysicsMaterialComponent : public Component
     {
     private:
-        b2Body* body;
+        b2Fixture* fixture;
 
     public:
         b2Fixture* GetFixture(Entity* entity);

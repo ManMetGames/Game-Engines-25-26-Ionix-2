@@ -18,6 +18,7 @@ end
 -- OnStart
 ----------------------------------------------------------
 function ExampleScript:OnStart()
+    
 
     ------------------------------------------------------
     -- Load textures
@@ -35,7 +36,7 @@ function ExampleScript:OnStart()
     playerSprite = Entity.add_sprite_component(player, "ball", 75, 75, 0)
 	Sprite.set_playback_mode(playerSprite, 4)
 
-    Entity.add_fysics_component(player, 2, false) -- dynamic body
+    Entity.add_fysics_component(player, 2, true) -- dynamic body
     Fysics.add_box_collider(player, .5, .5, 0, 0, 0, false)
 
     local tileSize = 32
@@ -79,6 +80,25 @@ function ExampleScript:OnUpdate()
 	if Input.get_key_down(Keys.ionix_space) then
         Fysics.add_force_to_center(player, 0, -45)
 	end
+
+	if Input.get_key_down(Keys.ionix_b) then
+        Fysics.set_material_properties(player, 5, 0)
+	end	
+	
+    if Input.get_key_down(Keys.ionix_p) then
+        Fysics.set_material_properties(player, 0, 0)
+    end	
+		
+	
+	if Input.get_key_down(Keys.ionix_n) then
+        local friction = Fysics.get_material_friction(player)
+        local rotation = Fysics.get_fixed_rotation(player)
+        print("Currnet Friction: ", friction)
+        print("Current Rotation: ", rotation)
+	end
+
+
+   
     ------------------------------------------------------
     -- movement
     ------------------------------------------------------
