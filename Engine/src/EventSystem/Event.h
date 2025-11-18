@@ -3,10 +3,14 @@
 
 namespace IonixEngine
 {
+    class Entity;
+
     enum class IonixEventType
     {
         None = 0,
-        WindowClosed
+        WindowClosed,
+        CollisionEnter,
+        CollisionExit
         // ...
     };
 
@@ -26,6 +30,27 @@ namespace IonixEngine
     {
     public:
         WindowClosedEvent() : IonixEvent(IonixEventType::WindowClosed) {}
+    };
+
+    // Collision Events
+    class CollisionEnterEvent : public IonixEvent
+    {
+    public:
+        Entity* EntityA;
+        Entity* EntityB;
+
+        CollisionEnterEvent(Entity* entityA, Entity* entityB)
+            : IonixEvent(IonixEventType::CollisionEnter), EntityA(entityA), EntityB(entityB) {}
+    };
+
+    class CollisionExitEvent : public IonixEvent
+    {
+    public:
+        Entity* EntityA;
+        Entity* EntityB;
+
+        CollisionExitEvent(Entity* entityA, Entity* entityB)
+            : IonixEvent(IonixEventType::CollisionExit), EntityA(entityA), EntityB(entityB) {}
     };
 
     // .. add more as needed...

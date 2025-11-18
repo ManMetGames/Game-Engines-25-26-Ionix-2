@@ -1,4 +1,8 @@
 #include "Application.h"
+
+#include "Fysics/FysicsBody.h"
+#include "Fysics/FysicsManager.h"
+#include "Fysics/Shapes.h"
 #include "LayerSystem/Layers/LayerTexture.hpp"
 #include "SDL_timer.h"
 #include "imgui.h"
@@ -84,19 +88,40 @@ namespace IonixEngine
 
         SDL_Renderer* renderer = m_Window->GetSdlRenderer();
 
-        //FysicBody testBody = FysicBody();
-        
+        // timings initialisation for fixed update
+        m_LastFrameTime = SDL_GetTicks64();
+        m_FixedTimeAccumulator = 0.0f;
+        m_FixedTimeStep = 1.0f / 60.0f; // 60 Hz
 
-        while (m_Running) {
+        while (m_Running)
+        {
+            
             uint64_t lastTick = currentTick;
             currentTick = SDL_GetPerformanceCounter();
             
             deltaTime = static_cast<double>(currentTick - lastTick) / SDL_GetPerformanceFrequency();
             time += deltaTime;
+		    
             
-            cam->ClearBackground(renderer);
+            SDL_RenderClear(renderer);
             
-            for (auto layer : m_LayerStack.GetLayers()) {
+            // fixed update time accumulation
+            m_FixedTimeAccumulator += deltaTime;
+            
+            // fixed update loop
+            while (m_FixedTimeAccumulator >= m_FixedTimeStep)
+            {
+                for (auto layer : m_LayerStack.GetLayers())
+                {
+                    if(layer)
+                        layer->OnFixedUpdate();
+                }
+                m_FixedTimeAccumulator -= m_FixedTimeStep;
+            }
+            
+            // variable update loop
+            for (auto layer : m_LayerStack.GetLayers())
+            {
                 if(layer)
                     layer->OnUpdate();
             }

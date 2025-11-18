@@ -10,6 +10,7 @@
 #include "Scripting/Window/WindowScripting.h"
 #include "Scripting/Input/InputScripting.h"
 #include "Scripting/Mafs/MafsScripting.h"
+#include "Scripting/Fysics/FysicsScripting.h"
 #include "Scripting/Graphics/GraphicsScripting.h"
 #include "Scripting/Entity/EntityScripting.h"
 #include "Scripting/UI/UIScripting.h"

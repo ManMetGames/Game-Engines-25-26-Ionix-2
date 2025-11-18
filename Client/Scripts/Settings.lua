@@ -10,7 +10,7 @@ end
 LoadModule("Audio", "Scripts/Audio.lua")
 LoadModule("Enemy", "Scripts/Enemy.lua")
 LoadModule("Player", "Scripts/Player.lua")
-LoadModule("EntityPlayer", "Scripts/EntityPlayer.lua")
+LoadModule("ExampleScript", "Scripts/ExampleScript.lua")
 
 -- Lifecycle hooks
 function OnStart()
