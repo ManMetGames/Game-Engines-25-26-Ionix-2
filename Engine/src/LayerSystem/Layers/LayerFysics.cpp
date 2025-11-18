@@ -26,11 +26,11 @@ namespace IonixEngine
         fysicsManager = new FysicsManager();
 
         //create default ground box
-        b2World* world = fysicsManager->GetWorld();
-        b2BodyDef groundDef; groundDef.position.Set(0.f, -1.f);
+        /*b2World* world = fysicsManager->GetWorld();
+        b2BodyDef groundDef; groundDef.position.Set(0.f, -2.f); // roughly 600 pixels down from the top
         b2Body* ground = world->CreateBody(&groundDef);
         b2PolygonShape g; g.SetAsBox(50.f, 1.f);
-        ground->CreateFixture(&g, 0.f);
+        ground->CreateFixture(&g, 0.f);*/
     }
     
     void LayerFysics::OnDetach() 
@@ -82,7 +82,7 @@ namespace IonixEngine
         auto& bodyMap = fysicsManager->GetBodyMap();
         auto& transformMap = fysicsManager->GetTransformMap();
         
-        // before physics step, save current state as previous
+        // BEFORE physics step, save current state as previous
         for (auto& [body, entity] : bodyMap)
         {
             if (transformMap.find(body) == transformMap.end())
@@ -100,14 +100,26 @@ namespace IonixEngine
         }
         
         // step physics simulation at fixed timestep
-        world->Step(timeStep, velocityIterations, positionIterations);
+        fysicsManager->GetWorld()->Step(timeStep, velocityIterations, positionIterations);
+        //fysicsManager->GetWorld()->DebugDraw();
         
-        // AFTER physics step, update current state
-        for (auto& [body, entity] : bodyMap)
+        // AFTER physics step, update current state in transformMap and entity positions
+        for (auto& val : bodyMap)
         {
-            auto& transform = transformMap[body];
-            transform.currentPosition = body->GetPosition();
-            transform.currentRotation = body->GetAngle();
+            Vec2 pos;
+            pos.x = val.first->GetPosition().x * ppm;
+            pos.y = val.first->GetPosition().y * ppm;
+
+            val.second->position.x = pos.x;
+            val.second->position.y = pos.y;
+            
+            // update current transform state for interpolation
+            if (transformMap.find(val.first) != transformMap.end())
+            {
+                auto& transform = transformMap[val.first];
+                transform.currentPosition = val.first->GetPosition();
+                transform.currentRotation = val.first->GetAngle();
+            }
         }
     } 
     void LayerFysics::OnEvent(IonixEvent& e)

@@ -12,42 +12,42 @@ namespace IonixEngine {
         renderData.renderer = Application::Get().GetWindow().GetSdlRenderer();
         renderData.queue = Application::Get().layerGraphics->GetQueue();
 
-        EntityID first = CreateEntity();
-        Entity* firstEntity = GetEntityFromID(first);
-        if (!firstEntity)
-        {
-            SDL_Log("[DEBUG TEST] First entity failed, returning...");
-            return;
-        }
-        firstEntity->transform.SetLocalPosition(Vec2 { 500, 300 });
-        firstEntity->AddComponent(new SpriteRenderer(firstEntity));
-        firstEntity->AddComponent(new EntityMover(firstEntity, 60));
-        // firstEntity->transform.SetLocalScale(Vec2{ 0.5,1.5 });
+        //EntityID first = CreateEntity();
+        //Entity* firstEntity = GetEntityFromID(first);
+        //if (!firstEntity)
+        //{
+        //    SDL_Log("[DEBUG TEST] First entity failed, returning...");
+        //    return;
+        //}
+        //firstEntity->transform.SetLocalPosition(Vec2 { 500, 300 });
+        //firstEntity->AddComponent(new SpriteRenderer(firstEntity));
+        //firstEntity->AddComponent(new EntityMover(firstEntity, 60));
+        //// firstEntity->transform.SetLocalScale(Vec2{ 0.5,1.5 });
 
-        EntityID second = CreateEntity();
-        Entity* secondEntity = GetEntityFromID(second);
-        if (!secondEntity)
-        {
-            SDL_Log("[DEBUG TEST] Second entity failed, returning...");
-            return;
-        }
-        secondEntity->transform.SetLocalPosition(Vec2{ 0, 100 });
-        secondEntity->transform.SetParent(&firstEntity->transform, false);
-        // secondEntity->transform.SetLocalScale(Vec2{ 1.3,1.25 });
-        secondEntity->AddComponent(new SpriteRenderer(secondEntity));
-        secondEntity->AddComponent(new EntityMover(secondEntity, -60));
+        //EntityID second = CreateEntity();
+        //Entity* secondEntity = GetEntityFromID(second);
+        //if (!secondEntity)
+        //{
+        //    SDL_Log("[DEBUG TEST] Second entity failed, returning...");
+        //    return;
+        //}
+        //secondEntity->transform.SetLocalPosition(Vec2{ 0, 100 });
+        //secondEntity->transform.SetParent(&firstEntity->transform, false);
+        //secondEntity->transform.SetLocalScale(Vec2{ 1.3,1.25 });
+        //secondEntity->AddComponent(new SpriteRenderer(secondEntity));
+        //secondEntity->AddComponent(new EntityMover(secondEntity, -60));
 
-        EntityID third = CreateEntity();
-        Entity* thirdEntity = GetEntityFromID(third);
-        if (!thirdEntity)
-        {
-            SDL_Log("[DEBUG TEST] Third entity failed, returning...");
-            return;
-        }
-        thirdEntity->transform.SetLocalPosition(Vec2{ 0, -100 });
-        thirdEntity->transform.SetParent(&secondEntity->transform, false);
-        thirdEntity->AddComponent(new SpriteComponent(thirdEntity, "ball",100,100, 0));
-
+        //EntityID third = CreateEntity();
+        //Entity* thirdEntity = GetEntityFromID(third);
+        //if (!thirdEntity)
+        //{
+        //    SDL_Log("[DEBUG TEST] Third entity failed, returning...");
+        //    return;
+        //}
+        //thirdEntity->transform.SetLocalPosition(Vec2{ 0, -100 });
+        //thirdEntity->transform.SetParent(&secondEntity->transform, false);
+        //thirdEntity->AddComponent(new SpriteComponent(thirdEntity, "ball",100,100, 0));
+        
     }
 
     void Scene::OnUpdate(float dt) {

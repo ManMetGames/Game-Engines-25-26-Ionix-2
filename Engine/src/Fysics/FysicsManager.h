@@ -26,7 +26,6 @@ namespace IonixEngine
         RevoluteJoints* revoluteJoint;
         DistanceJoints* distanceJoint;
         std::unordered_map<b2Body*, Entity*> bodyEntityMap;
-        std::unordered_map<Entity*, b2Body*> entityBodyMap;
         std::unordered_map<b2Body*, RigidBodyTransform> transformMap; //used for interpolation
 
     public:

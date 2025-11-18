@@ -22,12 +22,16 @@ namespace IonixEngine
         }
     }
     // Add impulse
-    void Force::AddImpulse(Entity* entity, b2Vec2 impulse, b2Vec2 point)
+    void Force::AddImpulse(Entity* entity, int impulseX, int impulseY, int forcePosX, int forcePosY)
     {
+        b2Vec2 force(impulseX, impulseY);
+        b2Vec2 forceOrigin(forcePosX, forcePosY);
+
+        // Body was not being added to the world!!!
         b2Body* body = Application::Get().layerFysics->GetFysicsManager()->GetBodyFromEntity(entity);
         if (body)
         {
-            body->ApplyLinearImpulse(impulse, point, true);
+            body->ApplyLinearImpulse(force, forceOrigin, true);
         }
     }
 
