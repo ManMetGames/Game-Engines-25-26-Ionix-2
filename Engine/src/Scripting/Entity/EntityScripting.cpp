@@ -54,34 +54,31 @@ namespace IonixEngine {
             };
 
         auto tryGetSpriteComponent = [](Entity* entity) -> auto {
-            SpriteComponent* comp = new SpriteComponent();
-            SpriteComponent** comp2 = &comp;
+            SpriteComponent* comp = nullptr;
             std::pair<bool, SpriteComponent*> result;
-            bool hasComp = entity->TryGetComponent<SpriteComponent>(comp2);
+            bool hasComp = entity->TryGetComponent<SpriteComponent>(&comp);
 
-            result = std::make_pair(hasComp, *comp2);
+            result = std::make_pair(hasComp, comp);
             
             return result;
             };
          
         auto tryGetAudioComponent = [](Entity* entity) -> auto {
-            AudioPlayer* comp = new AudioPlayer();
-            AudioPlayer** comp2 = &comp;
+            AudioPlayer* comp = nullptr;
             std::pair<bool, AudioPlayer*> result;
-            bool hasComp = entity->TryGetComponent<AudioPlayer>(comp2);
+            bool hasComp = entity->TryGetComponent<AudioPlayer>(&comp);
 
-            result = std::make_pair(hasComp, *comp2);
+            result = std::make_pair(hasComp, comp);
 
             return result;
             };
 
         auto tryGetFysicsBodyComponent = [](Entity* entity) -> auto {
-            FysicsBody* comp = new FysicsBody();
-            FysicsBody** comp2 = &comp;
+            FysicsBody* comp = nullptr;
             std::pair<bool, FysicsBody*> result;
-            bool hasComp = entity->TryGetComponent<FysicsBody>(comp2);
+            bool hasComp = entity->TryGetComponent<FysicsBody>(&comp);
 
-            result = std::make_pair(hasComp, *comp2);
+            result = std::make_pair(hasComp, comp);
 
             return result;
             };

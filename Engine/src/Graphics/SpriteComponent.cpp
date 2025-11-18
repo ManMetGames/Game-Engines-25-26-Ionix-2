@@ -22,7 +22,7 @@ namespace IonixEngine {
 		
 		SDL_QueryTexture(texture, NULL, NULL, &size.x, &size.y);
 
-		calculateTotalFrames();
+		calculateTotalFrames(); 
 
 		initialiseSpritesheet();
 	}

@@ -16,7 +16,6 @@ namespace IonixEngine
 
     public:
         // Constructors
-        FysicsBody() {}
         FysicsBody(Entity* entity, std::string alias, b2World* world);
         FysicsBody(Entity* entity, int b_type, bool rotationLocked);
 
