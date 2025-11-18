@@ -43,7 +43,9 @@ namespace IonixEngine {
         //if (fixture)
         //    body->DestroyFixture(fixture);
 
-        fixture = body->CreateFixture(&fixtureDef);        
+        fixture = body->CreateFixture(&fixtureDef);  
+        currentShape = shape;
+        //cool
     }
 
 
@@ -73,11 +75,21 @@ namespace IonixEngine {
             body->DestroyFixture(fixture);
         }
         fixture = FysicsManager::GetManager()->GetBodyFromEntity(entity)->CreateFixture(&fixtureDef);
+        currentShape = shape;
     }
     // to improve create shape variable (that uses b2PolygonShape) in shape then have a add collider function that checks the amount of verticies on the shape if 4 create a box collider using the size
     // if more than 4 create a polygon uses the verticies on the shape
     void FysicsShapes::AddBoxCollider(Entity* entity, b2Vec2 size) {
-        AddBox(entity, size, { 0,1 }, 0, 1.0f, false);
+        if (currentShape.m_count == 4) {
+            AddBox(entity, size, { 0,0 }, 0, 1.0f, false);
+        }
+        else {
+            std::vector<b2Vec2> verts;
+            for (auto i = 0; i < 5; i++) {
+                verts.push_back(currentShape.m_vertices[i]);
+            }
+            AddPolygon(entity, verts);
+        }
     }
 
 

@@ -17,6 +17,7 @@ namespace IonixEngine
         b2Body* body = nullptr;
 
         fysicShapeType currentShapeType = fysicShapeType::none;
+        b2PolygonShape currentShape;
         float radius = 0.5f;
         float width = 1.0f;
         float height = 1.0f;
