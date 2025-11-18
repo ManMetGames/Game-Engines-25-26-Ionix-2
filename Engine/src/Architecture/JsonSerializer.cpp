@@ -56,7 +56,10 @@ namespace IonixEngine
 	void JsonSerializer::AddBoolField(std::string fieldName, bool fieldData)
 	{
 		std::string newLine = getNewField(fieldName);
-		newLine.append(std::to_string(fieldData));
+		//newLine.append(std::to_string(fieldData));
+		char buf[32];
+		sprintf(buf, "%s", fieldData ? "true" : "false");
+		newLine.append(buf);
 		addline(newLine);
 	}
 
