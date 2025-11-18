@@ -6,9 +6,9 @@
 namespace IonixEngine
 {
     Camera::Camera(float startX, float startY, float startZoom,
-        int height, int width, bool isFocused, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+        int height, int width, bool isFocused, int renderLayer, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
         : x(startX), y(startY), zoom(startZoom), h(height), w(width),
-        bg_r(r), bg_g(g), bg_b(b), bg_a(a), isFocused(isFocused)
+        bg_r(r), bg_g(g), bg_b(b), bg_a(a), isFocused(isFocused), renderLayer(renderLayer)
     {
     }
 

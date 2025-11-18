@@ -70,8 +70,8 @@ namespace IonixEngine
         }
 
     }
-    Camera* cam = new Camera(0.0f, 0.0f, 1.0f, 800, 600, true, 0, 0, 0, 0);
-    Camera* cam2 = new Camera(100.0f, 100.0f, 1.0f, 800, 600, false, 255, 255, 255, 0);
+    Camera* cam = new Camera(0.0f, 0.0f, 1.0f, 800, 600, true, 0, 0, 0, 0, 0);
+    Camera* cam2 = new Camera(100.0f, 100.0f, 1.0f, 800, 600, false, 1, 255, 255, 255, 0);
 
 
     void Application::Run()
@@ -82,10 +82,7 @@ namespace IonixEngine
 	    cam2->Init();
         Scripting::Get().CallHook("OnStart");
 
-        SDL_Renderer* renderer = m_Window->GetSdlRenderer();
-
-        //FysicBody testBody = FysicBody();
-        
+        SDL_Renderer* renderer = m_Window->GetSdlRenderer();        
 
         while (m_Running) {
             uint64_t lastTick = currentTick;
