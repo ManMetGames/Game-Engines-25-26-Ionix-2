@@ -87,6 +87,7 @@ namespace IonixEngine
         auto& cameras = Application::Get().layerGraphics->m_Cameras;
         int nextIndex = (camIndex + 1) % cameras.size();
         cameras[nextIndex]->isFocused = true;
+        Application::Get().currentCam = *cameras[nextIndex];
 
         MoveCamera(cameras[nextIndex]->camDeltaX - cameras[camIndex]->camDeltaX, cameras[nextIndex]->camDeltaY - cameras[camIndex]->camDeltaY, false);
 

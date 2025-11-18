@@ -1,4 +1,5 @@
 #include "SpriteComponent.h"
+#include "Architecture/Application.h"
 #include <Graphics/QueueRenderer.h>
 
 namespace IonixEngine {
@@ -51,8 +52,8 @@ namespace IonixEngine {
 
 	void SpriteComponent::Render(RenderData* data)
 	{
+		
 		// src is the indivudal frame we're rendering
-		src.x = spriteWidth * currentCol;
 
 		if (src.x > size.x) {
 			currentRow++;
@@ -64,11 +65,13 @@ namespace IonixEngine {
 		}
 
 		//create and send render data to the render queue
-		data->queue->AddToQueue(RenderCall {
+		Vec2 position = entity->transform.GetGlobalPosition();
+		data->queue->AddToQueue(RenderCall{
 			texture,
-			SDL_Rect { (int) (entity->position.x), (int) (entity->position.y), (int) width, (int) height },
+			SDL_Rect { (int)(position.x), (int)(position.y), (int)width, (int)height },
 			SDL_Rect { spriteWidth * currentCol, spriteHeight * currentRow, spriteWidth, spriteHeight },
 		});
+		src.x = spriteWidth * currentCol;
 
 
 		//This is just here so we can see the animation play at a normal speed

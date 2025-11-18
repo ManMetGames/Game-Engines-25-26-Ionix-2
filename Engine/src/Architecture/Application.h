@@ -43,6 +43,10 @@ namespace IonixEngine {
 
             return layer;
         }
+
+        Camera* cam = new Camera(0.0f, 0.0f, 1.0f, 800, 600, true, 0);
+        Camera* cam2 = new Camera(100.0f, 100.0f, 1.0f, 800, 600, false, 1);
+        Camera& currentCam = *cam;
         
         inline float GetPhysicsInterpolationAlpha() const //method used to interpolate between physics states
         {

@@ -1,5 +1,7 @@
 #include "ECS_Test.hpp"
 #include "Architecture/TextureManager/TextureManager.h"
+#include "Architecture/ECS/Component.hpp"
+#include <Graphics/QueueRenderer.h>
 
 namespace IonixEngine {
     SpriteRenderer::SpriteRenderer(Entity* entity) : Component(entity, false, true, false) {
@@ -11,9 +13,11 @@ namespace IonixEngine {
         Vec2 scale = entity->transform.GetGlobalScale();
         SDL_Rect draw = { static_cast<int>(position.x - (50 * scale.x)), static_cast<int>(position.y - (50 * scale.y)), static_cast<int>(100 * scale.x), static_cast<int>(100 * scale.y) };
 
-        if (SDL_RenderCopy(data->renderer, image, nullptr, &draw) < 0) {
-            SDL_Log("Could not draw texture: %s", SDL_GetError());
-        }
+        data->queue->AddToQueue(RenderCall{
+            image,
+            SDL_Rect { (int)(position.x), (int)(position.y), (int)100, (int)100},
+            SDL_Rect { 0, 0, 298, 325 },
+        });
     }
 
 

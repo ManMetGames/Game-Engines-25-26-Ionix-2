@@ -16,7 +16,7 @@ namespace IonixEngine
 		SDL_Texture* renderTexture = nullptr;  // holds texture obj
 		int rtWidth = 0;                       // texture dimentions
 		int rtHeight = 0;
-		int renderLayer;
+		int renderLayer = 0;
 
 		Camera(float startX = 0.0f, float startY = 0.0f, float startZoom = 1.0f, int height = 800, int width = 600, bool isFocused = false, int renderLayer = 0);
 
