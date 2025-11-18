@@ -32,4 +32,14 @@ namespace IonixEngine
             SDL_CloseAudio();
         }
     }
+
+    void MicrophoneManager::MicrophoneRecordingStates()
+    {
+        if (SELECTING_DEVICE){}
+        if (STOPPED){}
+        if(RECORDING){}
+        if(RECORDED){}
+        if(PLAYBACK){}
+        if(ERROR){}
+    }
 }

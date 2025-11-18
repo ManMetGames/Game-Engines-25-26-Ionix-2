@@ -66,17 +66,6 @@ namespace IonixEngine
         // max recording time (with padding - ensures all audio is captured)
         const int recordingBufferSeconds = maxRecordingSeconds + 1;
 
-        // various recording states
-        enum recordingState
-        {
-            SELECTING_DEVICE,
-            STOPPED,
-            RECORDING,
-            RECORDED,
-            PLAYBACK,
-            ERROR
-        };
-
 
     };
 }
