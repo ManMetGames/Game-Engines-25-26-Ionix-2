@@ -1,4 +1,4 @@
-local EntityPlayer = {}
+local ExampleScript = {}
 
 local player
 local goal
@@ -17,7 +17,7 @@ end
 ----------------------------------------------------------
 -- OnStart
 ----------------------------------------------------------
-function EntityPlayer:OnStart()
+function ExampleScript:OnStart()
 
     ------------------------------------------------------
     -- Load textures
@@ -37,21 +37,6 @@ function EntityPlayer:OnStart()
 
     Entity.add_fysics_component(player, 2, false) -- dynamic body
     Fysics.add_box_collider(player, .5, .5, 0, 0, 0, false)
-
-    local tileSize = 32
-    local floorY = 610
-
-	------------------------------------------------------
-    -- Create goal
-    ------------------------------------------------------
-    goal = Entity.create_entity()
-    Entity.set_entity_pos(goal, goalX, goalY)
-    goalSprite = Entity.add_sprite_component(goal, "key", 100, 100, 0)
-	Sprite.set_playback_mode(goalSprite, 4)
-
-    Entity.add_fysics_component(goal, 0, false) -- static body
-    Fysics.add_box_collider(goal, 1, 1, 0, 0, 0, true) -- is trigger - needs work
-
 
     local tileSize = 32
     local floorY = 610
@@ -85,22 +70,22 @@ end
 ----------------------------------------------------------
 -- OnUpdate
 ----------------------------------------------------------
-function EntityPlayer:OnUpdate()
+function ExampleScript:OnUpdate()
     -- get current velocity
     local vel = Fysics.get_linear_velocity(player)
     local vx = vel.x
     local vy = vel.y
 
 	if Input.get_key_down(Keys.ionix_space) then
-        Fysics.add_force_to_center(player, 0, -15)
+        Fysics.add_force_to_center(player, 0, -45)
 	end
     ------------------------------------------------------
     -- movement
     ------------------------------------------------------
     if Input.get_key_held(Keys.ionix_d) then
-        vx = 1.5
+        vx = 2.5
     elseif Input.get_key_held(Keys.ionix_a) then
-        vx = -1.5
+        vx = -2.5
     else
         vx = 0
     end
@@ -111,4 +96,4 @@ function EntityPlayer:OnUpdate()
 	CheckGoalProximity(player, goal, 50, x, y)
 end
 
-return EntityPlayer
+return ExampleScript
