@@ -79,7 +79,7 @@ namespace IonixEngine
     {
         m_Running = true;
 
-        Scripting::Get().CallHook("OnStart");
+        
 
         SDL_Renderer* renderer = m_Window->GetSdlRenderer();
 
@@ -96,11 +96,11 @@ namespace IonixEngine
             
             deltaTime = static_cast<double>(currentTick - lastTick) / SDL_GetPerformanceFrequency();
             time += deltaTime;
-		    
-            
+		  
             SDL_RenderClear(renderer);
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);
-            
+
+            Scripting::Get().CallHook("OnStart");
             // fixed update time accumulation
             m_FixedTimeAccumulator += deltaTime;
             
@@ -120,8 +120,8 @@ namespace IonixEngine
             {
                 if(layer)
                     layer->OnUpdate();
+                    
             }
-            
             Scripting::Get().CallHook("OnUpdate");
             ImGui::Render();
             ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), m_Window->GetSdlRenderer());
