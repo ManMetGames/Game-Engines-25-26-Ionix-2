@@ -32,14 +32,14 @@ function ExampleScript:OnStart()
     -- Create player
     ------------------------------------------------------
     player = Entity.create_entity()
-    Entity.set_entity_pos(player, x, y)
+    Entity.set_entity_pos(player, x, 300)
     playerSprite = Entity.add_sprite_component(player, "FlappyBird", 100, 100, 0)
     Sprite.set_width(playerSprite, 64)
     Sprite.set_height(playerSprite, 64)
 	Sprite.set_playback_mode(playerSprite, 4)
 
     Entity.add_fysics_component(player, 2, false) -- dynamic body
-    Fysics.add_box_collider(player, .5, .2, 0, 0, 0, false)
+    Fysics.add_box_collider(player, .5, .4, 0, 0, 0, false)
 
     local tileSize = 64
     local floorY = 600
