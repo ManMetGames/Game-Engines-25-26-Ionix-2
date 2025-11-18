@@ -156,11 +156,37 @@ bool JSONDeserialize::GetString(const std::string& fieldname, std::string* out) 
 }
 
 bool JSONDeserialize::BeginArray(const std::string& fieldname) {
+    size_t newPos = pos;
+    if (data[pos] != '"') {
+        newPos = data.find('"', pos);
+        if (newPos == data.npos) { printf("[JSON Deserialize] Could not find start of field after char %zu\n", pos); return false; }
+        pos = newPos;
+    }
+    newPos = data.find(std::basic_string_view(fieldname.c_str()).data(), pos);
+    if (newPos == data.npos) { printf("[JSON Deserialize] Could not find fieldname: %s after char %zu\n", fieldname.c_str(), pos); return false; }
+    pos = newPos;
+    newPos = data.find(':', pos);
+    if (newPos == data.npos) { printf("[JSON Deserialize] Malformed JSON after char %zu, expected ':'\n", pos); return false; }
+    pos = newPos;
 
+    newPos = data.find('[', pos);
+    if (newPos == data.npos) { printf("[JSON Deserialize] Could not find start of array after char %zu", pos); return false; }
+    pos = newPos;
+    if (data[pos + 1] == ']') {
+        return false;
+    }
+
+    return true;
 }
 
 bool JSONDeserialize::EndArray() {
+    size_t value = objectContext.top();
+    objectContext.pop();
+    return value = objectContext.size();
+}
 
+bool JSONDeserialize::HasNext() {
+    return data[pos + 1] == ',';
 }
 
 bool JSONDeserialize::End() {

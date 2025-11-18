@@ -22,7 +22,7 @@ public:
 
     // Arrays
     bool BeginArray(const std::string& fieldname);
-    bool HasArray();
+    bool HasNext();
     bool EndArray();
 
     // Members
