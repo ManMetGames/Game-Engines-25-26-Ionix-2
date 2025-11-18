@@ -1,5 +1,5 @@
 local ExampleScript = {}
-
+local Background
 local player1
 local player2
 local goal
@@ -35,12 +35,11 @@ function ExampleScript:OnStart()
     ------------------------------------------------------
     player1 = Entity.create_entity()
     player2 = Entity.create_entity()
-
     Entity.set_entity_pos(player1, x, 300)
     Entity.set_entity_pos(player2, x, 200)
 
-    local playerSprite1 = Entity.add_sprite_component(player1, "FlappyBird", 100, 100, 0)
-    local playerSprite2 = Entity.add_sprite_component(player2, "FlappyBird", 100, 100, 0)
+    local playerSprite1 = Entity.add_sprite_component(player1, "FlappyBird", 100, 100, 1)
+    local playerSprite2 = Entity.add_sprite_component(player2, "FlappyBird", 100, 100, 1)
 
     Sprite.set_width(playerSprite1, 64)
     Sprite.set_height(playerSprite1, 64)
@@ -60,7 +59,14 @@ function ExampleScript:OnStart()
 
     local tileSize = 64
     local floorY = 600
-
+    ------------------------------------------------------
+	-- Background Texture
+	------------------------------------------------------
+    Background = Entity.create_entity()
+    local BgBackground = Entity.add_sprite_component(Background, "Background", 960,250, 0)
+    Sprite.set_width(BgBackground, 1280)
+    Sprite.set_height(BgBackground, 1280)
+    Sprite.set_playback_mode(BgBackground, 4)
 	------------------------------------------------------
 	-- pick texture for left / middle / right
 	------------------------------------------------------
@@ -85,6 +91,7 @@ function ExampleScript:OnStart()
 		Entity.add_fysics_component(tile, 0, false)  -- static
 		Fysics.add_box_collider(tile, 1, 1, 0, 0, 0, false)  -- not a trigger
 	end
+
 end
 
 ----------------------------------------------------------
