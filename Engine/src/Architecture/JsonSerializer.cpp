@@ -2,7 +2,9 @@
 
 namespace IonixEngine
 {
-	void JsonSerializer::addline(std::string content)
+	//appends a new line to the output json string, parameter content is the content of the new line
+	//adds indentation and newline commands automatically
+	void JsonSerializer::addline(std::string content,std::string lineEnd)
 	{
 		std::string indent;
 		if (tabIndent)
@@ -15,7 +17,8 @@ namespace IonixEngine
 		}
 		finalJsonFile.append(indent);
 		finalJsonFile.append(content);
-		finalJsonFile.append(",\n");
+		finalJsonFile.append(lineEnd);
+		finalJsonFile.append("\n");
 	}
 
 	void JsonSerializer::newField(std::string fieldName)
@@ -97,8 +100,61 @@ namespace IonixEngine
 		addline(newLine);
 	}
 
+	void JsonSerializer::AddObject(std::string objectName)
+	{
+		std::string newLine;
+		std::string indent;
+		switch (indents.top())
+		{
+		case None:
+		case Object:
+		case ObjectArray:
+			newLine = getNewField(objectName);
+			//newLine.append("\n");
+			addline(newLine,"");
+			indent = std::string(indents.size(), '	');
+			finalJsonFile.append(indent);
+			//addline("{");
+			finalJsonFile.append("{\n");
+			indents.push(JsonIndent::Object);
+			break;
+		default:
+			std::cout << "Invalid object creation" << std::endl;
+			break;
+		}
+
+	}
+
+	void JsonSerializer::EndObject()
+	{
+		switch (indents.top())
+		{
+		case Object:
+			indents.pop();
+			finalJsonFile.erase(finalJsonFile.end() - 2);
+			addline("}");
+			break;
+		default:
+			std::cout << "Invalid call to end object" << std::endl;
+			break;
+		}
+	}
+
 	void JsonSerializer::FinalizeJsonFile()
 	{
+		while (indents.size() > 1)
+		{
+			switch (indents.top())
+			{
+			case Object:
+				EndObject();
+				break;
+			default:
+				addline(":D", "]");
+				indents.pop();
+				break;
+			}
+		}
 		finalJsonFile.erase(finalJsonFile.end() - 2);
 		finalJsonFile.append("}");
 		std::ofstream fileWriter;

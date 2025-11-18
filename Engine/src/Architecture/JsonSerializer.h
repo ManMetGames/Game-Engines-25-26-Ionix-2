@@ -11,6 +11,7 @@ namespace IonixEngine
 		None,
 		Object,
 		ObjectArray,
+		MetaArray,
 
 		StringArray,
 		BoolArray,
@@ -28,7 +29,7 @@ namespace IonixEngine
 		std::string finalJsonFile;
 		std::string filePath;
 
-		void addline(std::string content);
+		void addline(std::string content, std::string lineEnd = ",");
 		void newField(std::string fieldName);
 		std::string getNewField(std::string fieldName);
 
@@ -45,6 +46,8 @@ namespace IonixEngine
 
 		void NewArray(std::string arrayName);
 		void NewObject(std::string objectName);
+		void AddObject(std::string objectName);
+		void EndObject();
 
 		void FinalizeJsonFile();
 		void IoTest();
