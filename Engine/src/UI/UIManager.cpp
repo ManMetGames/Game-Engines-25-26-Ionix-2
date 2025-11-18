@@ -3,61 +3,48 @@
 #include <imgui.h>
 
 
-
+/*
 void IonixEngine::UIManager::BeginGroup(const std::string& groupName)
 {
 	currentGroupName = groupName;
 }
-
+*/
+/*
 void IonixEngine::UIManager::EndGroup()
 {
 	currentGroupName.clear();
 }
-
+*/
 void IonixEngine::UIManager::BeginPanel(const std::string& panelName)
 {
-	UIElement panel;
-	panel.type = UIType::Panel;
-	panel.groupName = panelName;
-	panel.isChildGroup = true;
+	UIElement element;
+	element.type = UIType::Panel;
+	elements.push_back(element);
+	//panel.groupName = panelName;
+	//panel.isChildGroup = true;
 
-	if (!groupStack.empty())
-	{
-		groupStack.back()->children.push_back(panel);
-	}
-	else
-	{
-		elements.push_back(panel);
-	}
+	//if (!groupStack.empty())
+	//{
+	//	groupStack.back()->children.push_back(panel);
+	//}
+	//else
+	//{
+		//elements.push_back(element);
+	//}
 
-	if (!groupStack.empty())
-	{
-		groupStack.push_back(&groupStack.back()->children.back());
-	}
-	else
-	{
-		groupStack.push_back(&elements.back());
-	}
-}
-
-void IonixEngine::UIManager::EndPanel()
-{
-	if (!groupStack.empty())
-	{
-		groupStack.pop_back();
-	}
+	//if (!groupStack.empty())
+	//{
+	//	groupStack.push_back(&groupStack.back()->children.back());
+	//}
+	//else
+	//{
+	//	groupStack.push_back(&elements.back());
+	//}
 }
 
 void IonixEngine::UIManager::AddChildToPanel(UIElement element)
 {
-	if (!groupStack.empty())
-	{
-		groupStack.back()->children.push_back(element);
-	}
-	else
-	{
-		elements.push_back(element);
-	}
+	elements.push_back(element);	
 }
 
 
@@ -65,7 +52,7 @@ void IonixEngine::UIManager::AddLabel(int x, int y, float xSize, float ySize, co
 {
 	UIElement element;
 	element.type = UIType::Label;
-	element.groupName = currentGroupName;
+	//element.groupName = currentGroupName;
 	element.xPos = x;
 	element.yPos = y;
 	element.xSize = xSize;
@@ -79,7 +66,7 @@ void IonixEngine::UIManager::AddButton(int x, int y, float xSize, float ySize, c
 {
 	UIElement element;
 	element.type = UIType::Button;
-	element.groupName = currentGroupName;
+	//element.groupName = currentGroupName;
 	element.xPos = x;
 	element.yPos = y;
 	element.xSize = xSize;
@@ -92,9 +79,10 @@ void IonixEngine::UIManager::AddButton(int x, int y, float xSize, float ySize, c
 
 void IonixEngine::UIManager::AddCheckbox(int x, int y, float xSize, float ySize, const char* text, bool* checked, const std::string& fontName)
 {
+
 	UIElement element;
 	element.type = UIType::Checkbox;
-	element.groupName = currentGroupName;
+	//element.groupName = currentGroupName;
 	element.xPos = x;
 	element.yPos = y;
 	element.xSize = xSize;
@@ -109,7 +97,7 @@ void IonixEngine::UIManager::AddSliderFloat(int x, int y, float xSize, float ySi
 {
 	UIElement element;
 	element.type = UIType::SliderFloat;
-	element.groupName = currentGroupName;
+	//element.groupName = currentGroupName;
 	element.xPos = x;
 	element.yPos = y;
 	element.xSize = xSize;
@@ -126,7 +114,7 @@ void IonixEngine::UIManager::AddInputText(int x, int y, float xSize, float ySize
 {
 	UIElement element;
 	element.type = UIType::InputText;
-	element.groupName = currentGroupName;
+	//element.groupName = currentGroupName;
 	element.xPos = x;
 	element.yPos = y;
 	element.xSize = xSize;
@@ -142,7 +130,7 @@ void IonixEngine::UIManager::AddRadioButton(int x, int y, float xSize, float ySi
 {
 	UIElement element;
 	element.type = UIType::RadioButton;
-	element.groupName = currentGroupName;
+	//element.groupName = currentGroupName;
 	element.xPos = x;
 	element.yPos = y;
 	element.xSize = xSize;
@@ -161,7 +149,7 @@ void IonixEngine::UIManager::AddColorPicker(int x, int y, float xSize, float ySi
 {
 	UIElement element;
 	element.type = UIType::ColorPicker;
-	element.groupName = currentGroupName;
+	//element.groupName = currentGroupName;
 	element.xPos = x;
 	element.yPos = y;
 	element.xSize = xSize;
@@ -172,11 +160,16 @@ void IonixEngine::UIManager::AddColorPicker(int x, int y, float xSize, float ySi
 	AddChildToPanel(element);
 }
 
+void IonixEngine::UIManager::ClearElements()
+{
+	elements.clear();
+}
+
 void IonixEngine::UIManager::AddDropdown(int x, int y, float xSize, float ySize, const char* text, std::vector<std::string> options, int* currentIndex, const std::string& fontName)
 {
 	UIElement element;
 	element.type = UIType::Dropdown;
-	element.groupName = currentGroupName;
+	//element.groupName = currentGroupName;
 	element.xPos = x;
 	element.yPos = y;
 	element.xSize = xSize;
@@ -192,7 +185,7 @@ void IonixEngine::UIManager::AddProgressBar(int x, int y, float xSize, float ySi
 {
 	UIElement element;
 	element.type = UIType::ProgressBar;
-	element.groupName = currentGroupName;
+	//element.groupName = currentGroupName;
 	element.xPos = x;
 	element.yPos = y;
 	element.xSize = xSize;
@@ -204,20 +197,30 @@ void IonixEngine::UIManager::AddProgressBar(int x, int y, float xSize, float ySi
 	AddChildToPanel(element);
 }
 
+void IonixEngine::UIManager::EndPanel()
+{
+	ImGui::EndChild();
+	return;
+}
+
 void IonixEngine::UIManager::RenderElement(UIElement& element)
 {
-	if (element.type == UIType::Panel)
-	{
-		ImGui::SetCursorPos(ImVec2(element.xPos, element.yPos));
-		ImGui::BeginChild(element.groupName.c_str(), ImVec2(element.xSize, element.ySize), true);
+	//ImGui::SetCursorPos(ImVec2(element.xPos, element.yPos));
+	
+	//if (element.type == UIType::Panel)
+	//{
+		//ImGui::SetCursorPos(ImVec2(element.xPos, element.yPos));
+		/*
 		for (auto& child : element.children)
 		{
 			RenderElement(child);
 		}
-		ImGui::EndChild();
-		return;
-	}
-
+		*/
+		//ImGui::EndChild();
+		//return;
+	//}
+	
+	ImGui::Render;
 	ImGui::SetCursorPos(ImVec2((float)element.xPos, (float)element.yPos));
 	// --- FONT PUSH ---
 	ImFont* font = nullptr;
@@ -292,12 +295,10 @@ void IonixEngine::UIManager::RenderElement(UIElement& element)
 void IonixEngine::UIManager::RenderUI()
 {
 	;
-	for (auto& element : groupStack.front()->children)
+	for (auto& element : elements)
 	{
 		RenderElement(element);
+
 	}
-
-	
-
 }
 

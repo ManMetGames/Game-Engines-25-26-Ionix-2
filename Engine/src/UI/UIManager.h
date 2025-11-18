@@ -59,9 +59,9 @@ namespace IonixEngine
 	class UIManager
 	{
 	private: 
-		std::string currentGroupName; 
+		//std::string currentGroupName; 
 
-		std::vector<UIElement*> groupStack; 
+		//std::vector<UIElement*> groupStack; 
 
 		void RenderElement(UIElement& element);
 
@@ -78,9 +78,9 @@ namespace IonixEngine
 		{
 			m_ui = ui;
 		}
-		void UIManager::BeginGroup(const std::string& groupName);
+		//void UIManager::BeginGroup(const std::string& groupName);
 		
-		void UIManager::EndGroup();
+		//void UIManager::EndGroup();
 
 		void UIManager::BeginPanel(const std::string& panelName);
 
@@ -106,7 +106,8 @@ namespace IonixEngine
 
 		void AddColorPicker(int x, int y, float xSize, float ySize, const char* label, float* color, const std::string& fontName="");
 
-		
+		void ClearElements();
+
 
 
 		void AddProgressBar(int x, int y, float xSize, float ySize, float maxvalue, float* currentvalue, float incrementamount, const std::string& fontName="");

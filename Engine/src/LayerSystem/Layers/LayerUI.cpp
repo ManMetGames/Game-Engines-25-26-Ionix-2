@@ -108,7 +108,9 @@ namespace IonixEngine
 
          // Render the UI
          uiManager.RenderUI();
-         uiManager.EndPanel();
+         uiManager.elements;
+         uiManager.ClearElements();
+         //uiManager.EndPanel();
         
 		
          // Rendering
