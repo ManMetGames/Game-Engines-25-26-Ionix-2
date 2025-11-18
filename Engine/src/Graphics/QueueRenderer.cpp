@@ -80,7 +80,7 @@ namespace IonixEngine {
 
 	void QueueRenderer::OrderQueueByZ(queue<RenderCall>& sprites) //Called first
 	{
-		cout << sprites.front().z << endl;
+		//cout << sprites.front().z << endl;
 
 		queue<RenderCall> tempQueue = sprites; //Creates temporary queue from sprites to avoid conflicts
 		std::vector<RenderCall> tempVector; //Creates temporary vector from queue
