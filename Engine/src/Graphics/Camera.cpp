@@ -150,5 +150,19 @@ namespace IonixEngine
             SDL_RenderCopy(renderer, camTex, NULL, &destRect);
         }
     }
+    
+    void Camera::Rotate(float angle)
+    {
+        std::vector<Entity>& entities = Application::Get().layerScene->GetEntities();
+        
+        for (auto it = entities.begin(); it != entities.end(); ++it) 
+        {
+            it->rotation += angle;
+            
+            if (it->rotation > 360.0f) it->rotation -= 360.0f;
+            if (it->rotation < 0.0f) it->rotation += 360.0f;
+            SDL_Log("Entity Rotation: %f", it->rotation);
+        }
+    }
 
 }

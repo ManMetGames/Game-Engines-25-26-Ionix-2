@@ -36,5 +36,6 @@ namespace IonixEngine
 		void RenderToTexture(SDL_Renderer* renderer);     // renders/draws texture and resets
 		SDL_Texture* GetRenderTexture() const;            // retives texture
 		void RenderToScreen(SDL_Renderer* renderer, float posX, float posY, float sizeX, float sizeY);
+		void Rotate(float angle);
 	};
 }

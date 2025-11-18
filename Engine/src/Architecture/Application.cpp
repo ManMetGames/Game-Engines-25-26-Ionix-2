@@ -100,6 +100,11 @@ namespace IonixEngine
                 if(layer)
                     layer->OnUpdate();
             }
+            
+            if (Application::Get().layerInput->m_Input->IsKeyDown(SDL_SCANCODE_Q))
+            {
+                cam->Rotate(100.0f);
+            }
 
             cam->handleInput(deltaTime);
             cam2->handleInput(deltaTime);
