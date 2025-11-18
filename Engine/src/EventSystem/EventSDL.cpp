@@ -60,8 +60,6 @@ namespace IonixEngine
                 {
                     
                   
-
-                   
                 }
                 break;
         }
@@ -72,8 +70,7 @@ namespace IonixEngine
 
            
         }
-        
-        
+ 
 
             // Controller
         case SDL_CONTROLLERDEVICEADDED:
