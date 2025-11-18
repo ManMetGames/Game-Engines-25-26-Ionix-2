@@ -36,7 +36,7 @@ namespace IonixEngine {
 
 	public:
 		SpriteComponent(Entity* entity, std::string alias, int width, int height, int zedOrder);
-		SpriteComponent(Entity* entity, uint64_t hash, int width, int height, int zedOrder);
+		SpriteComponent(Entity* entity, uint32_t hash, int width, int height, int zedOrder);
 		virtual void Render(RenderData* data) override;
 
 		void calculateTotalFrames();
@@ -59,7 +59,7 @@ namespace IonixEngine {
 		void setHeight(int x);
 
 		//Getters
-		playbackOptions getPlaybackMode();
+		IonixEngine::playbackOptions getPlaybackMode();
 		int getCurrentFrame();
 		int getEndFrame();
 		int getRows();

@@ -1,121 +1,99 @@
-local ExampleScript = {}
+-- local ExampleScript = {}
 
-local player1
-local player2
-local goal
-local playerSprite
-local goalSprite
-local x = 200
-local goalX = 500
-local goalY = 500
-local y = 300
-local t = 10
+-- local player
+-- local goal
+-- local playerSprite
+-- local goalSprite
+-- local x = 200
+-- local goalX = 500
+-- local goalY = 500
+-- local y = 300
+-- local t = 10
 
-local function CheckGoalProximity(player, goal, threshold, respawnX, respawnY)
+-- local function CheckGoalProximity(player, goal, threshold, respawnX, respawnY)
     
-end
+-- end
 
-----------------------------------------------------------
--- OnStart
-----------------------------------------------------------
-function ExampleScript:OnStart()
+-- ----------------------------------------------------------
+-- -- OnStart
+-- ----------------------------------------------------------
+-- function ExampleScript:OnStart()
 
-    ------------------------------------------------------
-    -- Load textures
-    ------------------------------------------------------
-    Texture.add_texture("./Assets/left.png", "left")
-    Texture.add_texture("./Assets/middle.png", "middle")
-	Texture.add_texture("./Assets/right.png", "right")
-	Texture.add_texture("./Assets/player1.png", "player1")
-	Texture.add_texture("./Assets/key.png", "key")
-    Texture.add_texture("./Assets/FlappyBird.png", "FlappyBird")
-    Texture.add_texture("./Assets/Background.png", "Background")
-    ------------------------------------------------------
-    -- Create player1
-    ------------------------------------------------------
-    player1 = Entity.create_entity()
-    Entity.set_entity_pos(player1, x, 300)
-    local playerSprite1 = Entity.add_sprite_component(player1, "FlappyBird", 100, 100, 0)
-    Sprite.set_width(playerSprite1, 64)
-    Sprite.set_height(playerSprite1, 64)
-	Sprite.set_playback_mode(playerSprite1, 4)
+--     ------------------------------------------------------
+--     -- Load textures
+--     ------------------------------------------------------
+--     Texture.add_texture("./Assets/left.png", "left")
+--     Texture.add_texture("./Assets/middle.png", "middle")
+-- 	Texture.add_texture("./Assets/right.png", "right")
+-- 	Texture.add_texture("./Assets/player.png", "player")
+-- 	Texture.add_texture("./Assets/key.png", "key")
+--     ------------------------------------------------------
+--     -- Create player
+--     ------------------------------------------------------
+--     player = Entity.create_entity()
+--     Entity.set_entity_pos(player, x, y)
+--     playerSprite = Entity.add_sprite_component(player, "ball", 75, 75, 0)
+-- 	Sprite.set_playback_mode(playerSprite, 4)
 
-    ------------------------------------------------------
-    -- Create player2
-    ------------------------------------------------------
-    player2 = Entity.create_entity()
-    Entity.set_entity_pos(player2, x, 200)
-    local playerSprite2 = Entity.add_sprite_component(player2, "FlappyBird", 100, 100, 0)
-    Sprite.set_width(playerSprite2, 64)
-    Sprite.set_height(playerSprite2, 64)
-	Sprite.set_playback_mode(playerSprite2, 4)
+--     Entity.add_fysics_component(player, 2, false) -- dynamic body
+--     Fysics.add_box_collider(player, .5, .5, 0, 0, 0, false)
 
-    -- PLAYER 1 PHYSICS
-    Entity.add_fysics_component(player1, 2, false) -- dynamic body
-    Fysics.add_box_collider(player1, .5, .4, 0, 0, 0, false)
+--     local tileSize = 32
+--     local floorY = 610
 
-    -- PLAYER 2 PHYSICS 
-    Entity.add_fysics_component(player2, 2, false) -- dynamic body
-    Fysics.add_box_collider(player2, .5, .4, 0, 0, 0, false)
+-- 	------------------------------------------------------
+-- 	-- pick texture for left / middle / right
+-- 	------------------------------------------------------
+-- 	local tex = "middle"
 
-    local tileSize = 64
-    local floorY = 600
+-- 	for i = 0, 30 do
+-- 		local tile = Entity.create_entity()
+-- 		local xPos = i * tileSize
 
-	------------------------------------------------------
-	-- pick texture for left / middle / right
-	------------------------------------------------------
-	local tex = "middle"
+-- 		------------------------------------------------------
+-- 		-- place sprite
+-- 		------------------------------------------------------
+-- 		Entity.set_entity_pos(tile, xPos, floorY)
 
-	for i = 0, 30 do
-		local tile = Entity.create_entity()
-		local xPos = i * tileSize
+-- 		-- sprite as single frame (4 = manual/no anim)
+-- 		local s = Entity.add_sprite_component(tile, tex, tileSize, tileSize, 0)
+-- 		Sprite.set_playback_mode(s, 4)
 
-		------------------------------------------------------
-		-- place sprite
-		------------------------------------------------------
-		Entity.set_entity_pos(tile, xPos, floorY)
+-- 		------------------------------------------------------
+-- 		-- add physics body + collider
+-- 		------------------------------------------------------
+-- 		Entity.add_fysics_component(tile, 0, false)  -- static
+-- 		Fysics.add_box_collider(tile, 1, 1, 0, 0, 0, false)  -- not a trigger
+-- 	end
+-- end
 
-		-- sprite as single frame (4 = manual/no anim)
-		local s = Entity.add_sprite_component(tile, "Sand", tileSize, tileSize, 0)
-		Sprite.set_playback_mode(s, 4)
+-- ----------------------------------------------------------
+-- -- OnUpdate
+-- ----------------------------------------------------------
+-- function ExampleScript:OnUpdate()
+--     -- get current velocity
+--     local vel = Fysics.get_linear_velocity(player)
+--     local vx = vel.x
+--     local vy = vel.y
 
-		------------------------------------------------------
-		-- add physics body + collider
-		------------------------------------------------------
-		Entity.add_fysics_component(tile, 0, false)  -- static
-		Fysics.add_box_collider(tile, 1, 1, 0, 0, 0, false)  -- not a trigger
-	end
-end
+-- 	if Input.get_key_down(Keys.ionix_space) then
+--         Fysics.add_force_to_center(player, 0, -45)
+-- 	end
+--     ------------------------------------------------------
+--     -- movement
+--     ------------------------------------------------------
+--     if Input.get_key_held(Keys.ionix_d) then
+--         vx = 2.5
+--     elseif Input.get_key_held(Keys.ionix_a) then
+--         vx = -2.5
+--     else
+--         vx = 0
+--     end
 
-----------------------------------------------------------
--- OnUpdate
-----------------------------------------------------------
-function ExampleScript:OnUpdate()
-    -- get current velocity
-    local vel1 = Fysics.get_linear_velocity(player1)
-    local vel2 = Fysics.get_linear_velocity(player2)
-    
-    -- Constant rightward movement
-    local vx = 2.5
-    local vy1 = vel1.y
-    local vy2 = vel2.y
-
-	if Input.get_key_down(Keys.ionix_space) then
-        -- Set velocity directly to cancel out falling momentum
-        vy1 = -5  -- Jump velocity for player1
-	end
-
-    if Input.get_key_down(Keys.ionix_w) then
-        -- Set velocity directly to cancel out falling momentum
-        vy2 = -5  -- Jump velocity for player2
-	end
-
-    Fysics.set_linear_velocity(player1, vx, vy1)
-    Fysics.set_linear_velocity(player2, vx, vy2)
+--     Fysics.set_linear_velocity(player, vx, vy)
 	
-	-- To do...
-	CheckGoalProximity(player1, goal, 50, x, y)
-    CheckGoalProximity(player2, goal, 50, x, y)
-end
+-- 	-- To do...
+-- 	CheckGoalProximity(player, goal, 50, x, y)
+-- end
 
-return ExampleScript
+-- return ExampleScript

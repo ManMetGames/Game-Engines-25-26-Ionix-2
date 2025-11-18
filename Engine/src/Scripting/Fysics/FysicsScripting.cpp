@@ -2,6 +2,7 @@
 #include "Architecture/Application.h"
 #include "Fysics/FysicsBody.h"
 #include "Fysics/FysicsManager.h"
+#include "Fysics/joints.h"
 namespace IonixEngine
 {
 	FysicsScripting* FysicsScripting::s_Instance = nullptr;
@@ -27,8 +28,8 @@ namespace IonixEngine
 			return entity->GetComponent<FysicsBody>()->GetPosition(entity);
 			};
 
-		auto setFysicsPos = [](Entity* entity, float x, float y) {
-			entity->GetComponent<FysicsBody>()->SetPosition(entity, x, y);
+		auto setFysicsPos = [](Entity* entity, b2Vec2 vec2) {
+			entity->GetComponent<FysicsBody>()->SetPosition(entity, vec2.x, vec2.y);
 			};
 
 		auto getFysicsAngle = [](Entity* entity) -> float{
@@ -43,8 +44,8 @@ namespace IonixEngine
 			return entity->GetComponent<FysicsBody>()->GetLinearVelocity(entity);
 			};
 
-		auto setFysicsLinearVelocity = [](Entity* entity, float x, float y) {
-			entity->GetComponent<FysicsBody>()->SetLinearVelocity(entity, x, y);
+		auto setFysicsLinearVelocity = [](Entity* entity, b2Vec2 vec2) {
+			entity->GetComponent<FysicsBody>()->SetLinearVelocity(entity, vec2.x, vec2.y);
 			};
 
 		auto getFysicsAngularVelocity = [](Entity* entity) -> float {
@@ -107,38 +108,29 @@ namespace IonixEngine
 			entity->GetComponent<FysicsBody>()->SetIsBullet(entity, flag);
 			};
 
-		auto getFysicsGravityScale = [](Entity* entity) -> float {
+		auto GetGravityScale = [](Entity* entity) -> float {
 			return entity->GetComponent<FysicsBody>()->GetGravityScale(entity);
 			};
-
-		auto setFysicsGravityScale = [](Entity* entity, float gravityScale) {
+		auto SetGravityScale = [](Entity* entity, float gravityScale) {
 			entity->GetComponent<FysicsBody>()->SetGravityScale(entity, gravityScale);
 			};
 
 
-
 		//-----------Force Methods----------
-		auto addFysicsForce = [](Entity* entity, int impulseX, int impulseY, int forcePosX, int forcePosY) {
-
-			b2Vec2 force; force.x = impulseX; force.y = impulseY;
-			b2Vec2 origin; origin.x = forcePosX; origin.y = forcePosY;
-
-			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddForce(entity, force, origin);
+		auto addFysicsForce = [](Entity* entity, b2Vec2 impulseVec2, b2Vec2 originVec2) {
+			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddForce(entity, impulseVec2, originVec2);
 			};
 
-		auto addFysicsForceToCenter = [](Entity* entity, int forceX, int forceY) {
-			b2Vec2 origin; origin.x = forceX; origin.y = forceY;
-
-			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddForceToCenter(entity, origin);
+		auto addFysicsForceToCenter = [](Entity* entity, b2Vec2 originVec2) {
+			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddForceToCenter(entity, originVec2);
 			};
 
-		auto addFysicsAddImpulse = [](Entity* entity, int impulseX, int impulseY, int forcePosX, int forcePosY) {
-			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddImpulse(entity, impulseX, impulseY, forcePosX, forcePosY);
+		auto addFysicsAddImpulse = [](Entity* entity, b2Vec2 impulseVec2, b2Vec2 forceVec2) {
+			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddImpulse(entity, impulseVec2, forceVec2);
 			};
 
-		auto addFysicsAddImpulseToCenter = [](Entity* entity, int forceX, int forceY) {
-			b2Vec2 force; force.x = forceX; force.y = forceY;
-			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddImpulseToCenter(entity, force);
+		auto addFysicsAddImpulseToCenter = [](Entity* entity, b2Vec2 forceVec2) {
+			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddImpulseToCenter(entity, forceVec2);
 			};
 
 		auto addFysicsTorque = [](Entity* entity, float torque) {
@@ -154,28 +146,44 @@ namespace IonixEngine
 			};
 
 
+		//----------Joints Methods----------
+		auto addPrismaticJoint = [](Entity* entityA, Entity* entityB) {
+			return Application::Get().layerFysics->GetFysicsManager()->GetPrismaticJoint();
+			};
+		auto addWeldJoint = [](Entity* entityA, Entity* entityB) {
+			return Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint();
+			};
+		auto addPulleyJoint = [](Entity* entityA, Entity* entityB) {
+			return Application::Get().layerFysics->GetFysicsManager()->GetPulleyJoint();
+			};
+		auto addRevoluteJoint = [](Entity* entityA, Entity* entityB) {
+			return Application::Get().layerFysics->GetFysicsManager()->GetRevoluteJoint();
+			};
+		auto addDistanceJoint = [](Entity* entityA, Entity* entityB) {
+			return Application::Get().layerFysics->GetFysicsManager()->GetDistanceJoint();
+			};
+
 
 		//----------Collision Methods----------
 
-		auto addBoxCollider = [](Entity* entity, float sizeX, float sizeY, int offsetX, int offsetY, float angle, bool isTrigger, sol::optional<uint16> categoryBits, sol::optional<uint16> maskBits) {
-
-			b2Vec2 size;
-			size.x = sizeX;
-			size.y = sizeY;
-
-			b2Vec2 offset;
-			offset.x = offsetX;
-			offset.y = offsetY;
-
-			uint16 category = categoryBits.value_or(0x0001);
-			uint16 mask = maskBits.value_or(0xFFFF);
-
-			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddBox(entity, size, offset, angle, isTrigger, category, mask);
-		};
-
+		auto addBoxCollider = [](Entity* entity, b2Vec2 size, b2Vec2 offset, float angle, bool isTrigger) {
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddBox(entity, size, offset, angle, isTrigger);
+			};
+		auto AddCircle = [](Entity* entity, float radius, b2Vec2 offset, bool isTrigger) {
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddCircle(entity, radius, offset, isTrigger);
+			};
+		auto AddBox = [](Entity* entity, b2Vec2 size, b2Vec2 offset, float angle, bool isTrigger) {
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddBox(entity, size, offset, angle, isTrigger);
+			};
+		auto addPolygon = [](Entity* entity) {
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddPolygon(entity);
+			};
 
 
 		lua["Fysics"] = lua.create_table_with(
+			"add_circle",AddCircle,
+			"add_box",AddBox,
+			"add_polygon",addPolygon,
 			"get_pos", getFysicsPos,
 			"set_pos", setFysicsPos,
 			"get_angle", getFysicsAngle,
@@ -197,8 +205,6 @@ namespace IonixEngine
 			"set_fixed_rotation", setFysicsFixedRotation,
 			"get_is_bullet", getFysicsIsBullet,
 			"set_is_bullet", setFysicsIsBullet,
-			"get_gravity_scale", getFysicsGravityScale,
-			"set_gravity_scale", setFysicsGravityScale,
 			"add_force", addFysicsForce,
 			"add_force_to_center", addFysicsForceToCenter,
 			"add_impulse", addFysicsAddImpulse,
@@ -206,6 +212,14 @@ namespace IonixEngine
 			"add_torque", addFysicsTorque,
 			"add_angular_impulse", addFysicsAngularImpulse,
 			"clear_forces", clearFysicsForces,
+			"get_gravity_scale", GetGravityScale,
+			"set_gravity_scale", SetGravityScale,
+			"add_box_collider", addBoxCollider,
+			"get_prismatic_joint", addPrismaticJoint,
+			"get_weld_joint", addWeldJoint,
+			"get_pulley_joint", addPulleyJoint,
+			"get_revolute_joint", addRevoluteJoint,
+			"get_distance_joint", addDistanceJoint,
 			"add_box_collider", addBoxCollider
 		);
 	}
