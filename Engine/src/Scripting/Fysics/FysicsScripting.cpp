@@ -116,7 +116,6 @@ namespace IonixEngine
 			};
 
 
-
 		//-----------Force Methods----------
 		auto addFysicsForce = [](Entity* entity, b2Vec2 impulseVec2, b2Vec2 originVec2) {
 			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddForce(entity, impulseVec2, originVec2);
@@ -146,12 +145,6 @@ namespace IonixEngine
 			Application::Get().layerFysics->GetFysicsManager()->GetForce()->ClearForces(entity);
 			};
 
-		auto AddCircle = [](Entity* entity, float radius, b2Vec2 offset, bool isTrigger) {
-			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddCircle(entity, radius, offset, isTrigger);
-			};
-		auto AddBox = [](Entity* entity, b2Vec2 size, b2Vec2 offset, float angle, bool isTrigger) {
-			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddBox(entity, size, offset, angle, isTrigger);
-			};
 
 		//----------Joints Methods----------
 		auto addPrismaticJoint = [](Entity* entityA, Entity* entityB) {
@@ -171,30 +164,20 @@ namespace IonixEngine
 			};
 
 
-
-
-
-
-
-
-		auto addPolygon = [](Entity* entity) {
-			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddPolygon(entity);
-			};
-
 		//----------Collision Methods----------
 
 		auto addBoxCollider = [](Entity* entity, b2Vec2 size, b2Vec2 offset, float angle, bool isTrigger) {
 			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddBox(entity, size, offset, angle, isTrigger);
 			};
-
-
-
-
-
-
-
-
-
+		auto AddCircle = [](Entity* entity, float radius, b2Vec2 offset, bool isTrigger) {
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddCircle(entity, radius, offset, isTrigger);
+			};
+		auto AddBox = [](Entity* entity, b2Vec2 size, b2Vec2 offset, float angle, bool isTrigger) {
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddBox(entity, size, offset, angle, isTrigger);
+			};
+		auto addPolygon = [](Entity* entity) {
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddPolygon(entity);
+			};
 
 
 		lua["Fysics"] = lua.create_table_with(
