@@ -53,16 +53,38 @@ namespace IonixEngine {
             entity->GetComponent<FysicsBody>();
             };
 
-        /*auto tryGetSpriteComponent = [](Entity* entity) -> auto {
-            SpriteComponent** comp;
-            struct result {bool isOK; SpriteComponent* comp; };
-            return result{ entity->TryGetComponent<SpriteComponent>(comp), *comp };
+        auto tryGetSpriteComponent = [](Entity* entity) -> auto {
+            SpriteComponent* comp = new SpriteComponent();
+            SpriteComponent** comp2 = &comp;
+            std::pair<bool, SpriteComponent*> result;
+            bool hasComp = entity->TryGetComponent<SpriteComponent>(comp2);
+
+            result = std::make_pair(hasComp, *comp2);
+            
+            return result;
             };
          
-        auto tryGetAudioComponent = [](Entity* entity) -> std::tuple<bool, AudioPlayer*> {
-            AudioPlayer** comp;
-            return std::make_tuple(entity->TryGetComponent<AudioPlayer>(comp), *comp);  
-            };*/
+        auto tryGetAudioComponent = [](Entity* entity) -> auto {
+            AudioPlayer* comp = new AudioPlayer();
+            AudioPlayer** comp2 = &comp;
+            std::pair<bool, AudioPlayer*> result;
+            bool hasComp = entity->TryGetComponent<AudioPlayer>(comp2);
+
+            result = std::make_pair(hasComp, *comp2);
+
+            return result;
+            };
+
+        auto tryGetFysicsBodyComponent = [](Entity* entity) -> auto {
+            FysicsBody* comp = new FysicsBody();
+            FysicsBody** comp2 = &comp;
+            std::pair<bool, FysicsBody*> result;
+            bool hasComp = entity->TryGetComponent<FysicsBody>(comp2);
+
+            result = std::make_pair(hasComp, *comp2);
+
+            return result;
+            };
 
         auto hasSpriteComponent = [](Entity* entity) -> bool {
             return entity->HasComponent<SpriteComponent>();
@@ -88,8 +110,8 @@ namespace IonixEngine {
             "get_sprite_component", getSpriteComponent,
             "get_audio_component", getAudioPlayerComponent,
             "get_fysics_component", getFysicsBodyComponent,
-            /*"try_get_sprite_component", tryGetSpriteComponent,
-            "try_get_audio_component", tryGetAudioComponent,*/
+            "try_get_sprite_component", tryGetSpriteComponent,
+            //"try_get_audio_component", tryGetAudioComponent,
             "has_sprite_component", hasSpriteComponent,
             "has_audio_component", hasAudioComponent,
             "has_fysics_component", hasFysicsBodyComponent

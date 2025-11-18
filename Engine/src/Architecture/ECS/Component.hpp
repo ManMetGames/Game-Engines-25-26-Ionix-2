@@ -24,6 +24,7 @@ namespace IonixEngine {
     public:
         // You should be able to hardcode most of the booleans in your component
         // Ex: A rigidbody would likely be Rigidbody(...) : Component(entity, true, false, false)
+        Component() {}
         Component(Entity* entity, bool hasPhysics, bool canRender, bool tag);
         virtual ~Component() = default;
 

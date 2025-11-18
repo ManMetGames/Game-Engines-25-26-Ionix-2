@@ -19,6 +19,7 @@ namespace IonixEngine
         bool playOnAwake = false;
 
         // Constructor
+        AudioPlayer() {}
         AudioPlayer(Entity* entity, const std::string& audioClip = "", bool playOnAwake = false);
 
         // Component lifecycle overrides
