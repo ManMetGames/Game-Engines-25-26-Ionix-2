@@ -74,7 +74,8 @@ namespace IonixEngine {
         }
         fixture = FysicsManager::GetManager()->GetBodyFromEntity(entity)->CreateFixture(&fixtureDef);
     }
-
+    // to improve create shape variable (that uses b2PolygonShape) in shape then have a add collider function that checks the amount of verticies on the shape if 4 create a box collider using the size
+    // if more than 4 create a polygon uses the verticies on the shape
     void FysicsShapes::AddBoxCollider(Entity* entity, b2Vec2 size) {
         AddBox(entity, size, { 0,1 }, 0, 1.0f, false);
     }
