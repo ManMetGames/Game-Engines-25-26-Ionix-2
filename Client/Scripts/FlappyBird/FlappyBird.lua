@@ -10,6 +10,8 @@ local goalX = 500
 local goalY = 500
 local y = 300
 local t = 10
+local platformTiles = {}  -- Store all platform tiles
+local scrollSpeed = 2.5  -- Speed at which platforms move left
 
 local function CheckGoalProximity(player, goal, threshold, respawnX, respawnY)
     
@@ -52,39 +54,33 @@ function ExampleScript:OnStart()
 
     -- PLAYER 1 PHYSICS (Category: 0x0002, Mask: 0xFFFD - ignores category 0x0002)
     Entity.add_fysics_component(player1, 2, false) -- dynamic body
-    Fysics.add_box_collider(player1, .5, .4, 0, 0, 0, false, 0x0002, 0xFFFD)
+    Fysics.add_box_collider(player1, .25, .25, 0, 0, 0, false, 0x0002, 0xFFFD)
 
     -- PLAYER 2 PHYSICS (Category: 0x0002, Mask: 0xFFFD - ignores category 0x0002)
     Entity.add_fysics_component(player2, 2, false) -- dynamic body
-    Fysics.add_box_collider(player2, .5, .4, 0, 0, 0, false, 0x0002, 0xFFFD)
+    Fysics.add_box_collider(player2, .25, .25, 0, 0, 0, false, 0x0002, 0xFFFD)
 
-    local tileSize = 64
+    ------------------------------------------------------
+    -- Create one large platform covering the screen width
+    ------------------------------------------------------
+    local platformWidth = 500  -- Very large width for extended gameplay
+    local platformHeight = 2  -- Height of the platform
     local floorY = 600
-
-	------------------------------------------------------
-	-- pick texture for left / middle / right
-	------------------------------------------------------
-	local tex = "middle"
-
-	for i = 0, 30 do
-		local tile = Entity.create_entity()
-		local xPos = i * tileSize
-
-		------------------------------------------------------
-		-- place sprite
-		------------------------------------------------------
-		Entity.set_entity_pos(tile, xPos, floorY)
-
-		-- sprite as single frame (4 = manual/no anim)
-		local s = Entity.add_sprite_component(tile, "Sand", tileSize, tileSize, 0)
-		Sprite.set_playback_mode(s, 4)
-
-		------------------------------------------------------
-		-- add physics body + collider
-		------------------------------------------------------
-		Entity.add_fysics_component(tile, 0, false)  -- static
-		Fysics.add_box_collider(tile, 1, 1, 0, 0, 0, false)  -- not a trigger
-	end
+    
+    -- Position platform so players start in the middle of it
+    local platform = Entity.create_entity()
+    Entity.set_entity_pos(platform, 250, floorY)  -- Center at x=250 so it extends from 0 to 500
+    
+    -- Add sprite (you can adjust or remove this if you don't need visual)
+    local platformSprite = Entity.add_sprite_component(platform, "Sand", platformWidth * 100, platformHeight * 100, 0)
+    Sprite.set_playback_mode(platformSprite, 4)
+    
+    -- Add physics: kinematic body (can move but not affected by collisions)
+    Entity.add_fysics_component(platform, 1, false)  -- 1 = kinematic
+    Fysics.add_box_collider(platform, platformWidth, platformHeight, 0, 0, 0, false)
+    
+    -- Store platform reference
+    table.insert(platformTiles, platform)
 end
 
 ----------------------------------------------------------
@@ -95,8 +91,8 @@ function ExampleScript:OnUpdate()
     local vel1 = Fysics.get_linear_velocity(player1)
     local vel2 = Fysics.get_linear_velocity(player2)
     
-    -- Constant rightward movement
-    local vx = 2.5
+    -- Players only move vertically (no horizontal movement)
+    local vx = 0.033
     local vy1 = vel1.y
     local vy2 = vel2.y
 
@@ -112,6 +108,11 @@ function ExampleScript:OnUpdate()
 
     Fysics.set_linear_velocity(player1, vx, vy1)
     Fysics.set_linear_velocity(player2, vx, vy2)
+    
+    -- Move all platforms to the left to simulate forward movement
+    for i, tile in ipairs(platformTiles) do
+        Fysics.set_linear_velocity(tile, -scrollSpeed, 0)
+    end
 	
 	-- To do...
 	CheckGoalProximity(player1, goal, 50, x, y)
