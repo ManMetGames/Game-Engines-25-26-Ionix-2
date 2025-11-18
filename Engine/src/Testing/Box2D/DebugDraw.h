@@ -5,7 +5,7 @@
 class DebugDraw : public b2Draw
 {
 public:
-    DebugDraw(SDL_Renderer* renderer, float scale = 30.0f)
+    DebugDraw(SDL_Renderer* renderer, float scale = 100)
         : m_renderer(renderer), m_scale(scale)
     {}
 
@@ -13,8 +13,8 @@ public:
 
     SDL_Point ToScreen(const b2Vec2& vec) const {
         return {
-            static_cast<int>(vec.x * m_scale),
-            static_cast<int>(vec.y * m_scale)
+            static_cast<int>((vec.x * 100)),
+            static_cast<int>(m_screenHeight - vec.y)
         };
     }
 
@@ -33,4 +33,5 @@ public:
 private:
     SDL_Renderer* m_renderer;
     float m_scale;
+    float m_screenHeight = 640.0f;
 };

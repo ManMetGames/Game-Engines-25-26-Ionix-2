@@ -85,7 +85,7 @@ namespace IonixEngine
         auto& transformMap = fysicsManager->GetTransformMap();
         
         fysicsManager->GetWorld()->Step(timeStep, velocityIterations, positionIterations);
-        //fysicsManager->GetWorld()->DebugDraw();
+        fysicsManager->GetWorld()->DebugDraw();
         
 
         // AFTER physics step, update current visual state

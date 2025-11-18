@@ -66,19 +66,19 @@ function ExampleScript:OnStart()
         ------------------------------------------------------
 		
 		if i == 30 then
-            ground = Entity.create_entity()--[[ 
+            ground = Entity.create_entity()
             Entity.set_entity_pos(ground, tileSize, floorY)
             Entity.add_fysics_component(ground, 0, false)  -- static
-            Fysics.add_box_collider(ground, i, 1, 0, 0, 0, false)  -- not a trigger  ]]
+            Fysics.add_box_collider(ground, 30, 1, 0, 0, 0, false)  -- not a trigger  
             
-            local floorPoints = {
-                {0, floorY},
-                {992, floorY},
-                {992, floorY - 10},
-                {0, floorY - 10}
+           --[[  local floorPoints = {
+                {xPos, floorY},
+                {xPos * 30, floorY},
+                {xPos * 30, floorY - 10},
+                {xPos, floorY - 10}
             }
             
-            Fysics.add_polygon_collider(ground, floorPoints)
+            Fysics.add_polygon_collider(ground, floorPoints) ]]
 
         end
 

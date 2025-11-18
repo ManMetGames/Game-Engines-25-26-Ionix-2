@@ -179,9 +179,13 @@ namespace IonixEngine
 			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddBox(entity, size, offset, angle, isTrigger);
 			};
 
-		auto addPolygonCollider = [](Entity* entity, std::vector<b2Vec2>& vertices) {
-
-			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddPolygon(entity, vertices);
+		auto addPolygonCollider = [](Entity* entity, float x1, float y1, float x2, float y2) {
+			std::vector<b2Vec2> points;
+			points.push_back({x1, y1});
+			points.push_back({x2, y1});
+			points.push_back({x2, y2});
+			points.push_back({x1, y2});
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddPolygon(entity, points);
 		};
 
 
