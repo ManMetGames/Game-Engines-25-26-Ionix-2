@@ -170,7 +170,7 @@ bool JSONDeserialize::BeginArray(const std::string& fieldname) {
     pos = newPos;
 
     newPos = data.find('[', pos);
-    if (newPos == data.npos) { printf("[JSON Deserialize] Could not find start of array after char %zu", pos); return false; }
+    if (newPos == data.npos) { printf("[JSON Deserialize] Could not find start of array after char %zu\n", pos); return false; }
     pos = newPos;
     if (data[pos + 1] == ']') {
         return false;
@@ -187,6 +187,42 @@ bool JSONDeserialize::EndArray() {
 
 bool JSONDeserialize::HasNext() {
     return data[pos + 1] == ',';
+}
+
+bool JSONDeserialize::BeginObject(const std::string& fieldname) {
+    size_t newPos = data.find('}', pos);
+    if (newPos == data.npos) { printf("[JSON Deserialize] Could not find closing bracket of object\n"); return false; }
+    pos = newPos;
+    if (brackets.top() != '{') { printf("[JSON Deserialize] Most recent unresolved bracket was not '{'\n"); return false; }
+    brackets.pop();
+    size_t value = objectContext.top();
+    objectContext.pop();
+    return value = objectContext.size();
+}
+
+bool JSONDeserialize::EndObject() {
+    size_t newPos = data.find('}', pos);
+    if (newPos == data.npos) { printf("[JSON Deserialize] Could not find closing bracket of object\n"); return false; }
+    pos = newPos;
+    if (brackets.top() != '{') { printf("[JSON Deserialize] Most recent unresolved bracket was not '{'\n"); return false; }
+    brackets.pop();
+    size_t value = objectContext.top();
+    objectContext.pop();
+    return value = objectContext.size();
+}
+
+size_t JSONDeserialize::AdvanceToField(const std::string& fieldname) {
+    size_t newPos = pos;
+    if (data[newPos] != '"') {
+        newPos = data.find('"', newPos);
+        if (newPos == data.npos) { printf("[JSON Deserialize] Could not find start of field after char %zu\n", newPos); return data.npos; }
+    }
+    newPos = data.find(std::basic_string_view(fieldname.c_str()).data(), newPos);
+    if (newPos == data.npos) { printf("[JSON Deserialize] Could not find fieldname: %s after char %zu\n", fieldname.c_str(), newPos); return data.npos; }
+    newPos = data.find(':', newPos);
+    if (newPos == data.npos) { printf("[JSON Deserialize] Malformed JSON after char %zu, expected ':'\n", newPos); return data.npos; }
+
+    return newPos;
 }
 
 bool JSONDeserialize::End() {

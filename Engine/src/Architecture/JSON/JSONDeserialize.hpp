@@ -12,6 +12,7 @@ class JSONDeserialize {
     std::stack<size_t> objectContext = std::stack<size_t>();
 
     void Reset();
+    size_t AdvanceToField(const std::string& fieldname);
 
 public:
     JSONDeserialize(const std::string& json);
