@@ -2,6 +2,7 @@
 #include "Architecture/Application.h"
 #include "Fysics/FysicsBody.h"
 #include "Fysics/FysicsManager.h"
+#include "Fysics/joints.h"
 namespace IonixEngine
 {
 	FysicsScripting* FysicsScripting::s_Instance = nullptr;
@@ -107,6 +108,13 @@ namespace IonixEngine
 			entity->GetComponent<FysicsBody>()->SetIsBullet(entity, flag);
 			};
 
+		auto GetGravityScale = [](Entity* entity) -> float {
+			return entity->GetComponent<FysicsBody>()->GetGravityScale(entity);
+			};
+		auto SetGravityScale = [](Entity* entity, float gravityScale) {
+			entity->GetComponent<FysicsBody>()->SetGravityScale(entity, gravityScale);
+			};
+
 
 
 		//-----------Force Methods----------
@@ -137,6 +145,30 @@ namespace IonixEngine
 		auto clearFysicsForces = [](Entity* entity) {
 			Application::Get().layerFysics->GetFysicsManager()->GetForce()->ClearForces(entity);
 			};
+
+
+		//----------Joints Methods----------
+		auto addPrismaticJoint = [](Entity* entityA, Entity* entityB) {
+			return Application::Get().layerFysics->GetFysicsManager()->GetPrismaticJoint();
+			};
+		auto addWeldJoint = [](Entity* entityA, Entity* entityB) {
+			return Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint();
+			};
+		auto addPulleyJoint = [](Entity* entityA, Entity* entityB) {
+			return Application::Get().layerFysics->GetFysicsManager()->GetPulleyJoint();
+			};
+		auto addRevoluteJoint = [](Entity* entityA, Entity* entityB) {
+			return Application::Get().layerFysics->GetFysicsManager()->GetRevoluteJoint();
+			};
+		auto addDistanceJoint = [](Entity* entityA, Entity* entityB) {
+			return Application::Get().layerFysics->GetFysicsManager()->GetDistanceJoint();
+			};
+
+
+
+
+
+
 
 
 
@@ -185,6 +217,14 @@ namespace IonixEngine
 			"add_torque", addFysicsTorque,
 			"add_angular_impulse", addFysicsAngularImpulse,
 			"clear_forces", clearFysicsForces,
+			"get_gravity_scale", GetGravityScale,
+			"set_gravity_scale", SetGravityScale,
+			"add_box_collider", addBoxCollider,
+			"get_prismatic_joint", addPrismaticJoint,
+			"get_weld_joint", addWeldJoint,
+			"get_pulley_joint", addPulleyJoint,
+			"get_revolute_joint", addRevoluteJoint,
+			"get_distance_joint", addDistanceJoint,
 			"add_box_collider", addBoxCollider
 		);
 	}
