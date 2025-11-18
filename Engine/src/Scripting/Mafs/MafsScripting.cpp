@@ -109,13 +109,13 @@ namespace IonixEngine
 			return Maf::mafPI();
 			};
 
-		/*auto rad2deg = [](float radians) -> float {
+		auto rad2deg = [](float radians) -> float {
 			return Maf::Rad2Deg(radians);
 			};
 
 		auto deg2rad = [](float degrees) -> float {
 			return Maf::Deg2Rad(degrees);
-			};*/
+			};
 
 		auto deltatime = []() -> float {
 			return Application::Get().deltaTime;
@@ -152,9 +152,9 @@ namespace IonixEngine
 			"tan", tan,
 			"pi", pi,
 			"delta_time", deltatime,
-			"time", time
-			/*"rad_2_deg", rad2deg,
-			"deg_2_rad", deg2rad*/
+			"time", time,
+			"rad_2_deg", rad2deg,
+			"deg_2_rad", deg2rad
 		);
 	}
 }
