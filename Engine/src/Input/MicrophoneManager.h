@@ -10,8 +10,8 @@ namespace IonixEngine
     public:
         
 
-        bool openDevice(const char* deviceName); 
-        void closeDevice() const;
+        bool openDevice(const char* deviceName);
+        void closeDevice();
 
 
         
@@ -19,8 +19,6 @@ namespace IonixEngine
 
     private:
         SDL_AudioSpec desired{};
-        SDL_AudioSpec obtained{};
-
         SDL_AudioDeviceID deviceID;
 
     };
