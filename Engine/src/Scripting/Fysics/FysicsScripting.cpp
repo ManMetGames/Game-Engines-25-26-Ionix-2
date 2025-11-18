@@ -124,7 +124,7 @@ namespace IonixEngine
 			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddForceToCenter(entity, origin);
 			};
 
-		auto addFysicsAddImpulse = [](Entity* entity, int impulseX, int impulseY, int forcePosX, int forcePosY) {
+		auto addFysicsAddImpulse = [](Entity* entity, float impulseX, float impulseY, float forcePosX, float forcePosY) {
 			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddImpulse(entity, impulseX, impulseY, forcePosX, forcePosY);
 			};
 
@@ -149,7 +149,7 @@ namespace IonixEngine
 
 		//----------Collision Methods----------
 
-		auto addBoxCollider = [](Entity* entity, float sizeX, float sizeY, int offsetX, int offsetY, float angle, bool isTrigger) {
+		auto addBoxCollider = [](Entity* entity, float sizeX, float sizeY, int offsetX, int offsetY, float angle, float density, bool isTrigger) {
 
 			b2Vec2 size;
 			size.x = sizeX;
@@ -159,7 +159,7 @@ namespace IonixEngine
 			offset.x = offsetX;
 			offset.y = offsetY;
 
-			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddBox(entity, size, offset, angle, isTrigger);
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddBox(entity, size, offset, angle, density, isTrigger);
 			};
 
 

@@ -22,7 +22,7 @@ namespace IonixEngine
         }
     }
     // Add impulse
-    void Force::AddImpulse(Entity* entity, int impulseX, int impulseY, int forcePosX, int forcePosY)
+    void Force::AddImpulse(Entity* entity, float impulseX, float impulseY, int forcePosX, int forcePosY)
     {
         b2Vec2 force(impulseX, impulseY);
         b2Vec2 forceOrigin(forcePosX, forcePosY);

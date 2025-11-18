@@ -25,6 +25,7 @@ namespace IonixEngine {
         b2Vec2 size,   
         b2Vec2 offset,
         float angle,
+        float density,
         bool isTrigger)
     {
         body = FysicsManager::GetManager()->GetBodyFromEntity(entity);
@@ -37,7 +38,7 @@ namespace IonixEngine {
         b2FixtureDef fixtureDef;
         fixtureDef.shape = &shape;
         fixtureDef.isSensor = isTrigger;
-        fixtureDef.density = 1.0f;
+        fixtureDef.density = density;
 
         //if (fixture)
         //    body->DestroyFixture(fixture);

@@ -36,7 +36,7 @@ function ExampleScript:OnStart()
 	Sprite.set_playback_mode(playerSprite, 4)
 
     Entity.add_fysics_component(player, 2, false) -- dynamic body
-    Fysics.add_box_collider(player, .5, .5, 0, 0, 0, false)
+    Fysics.add_box_collider(player, .5, .5, 0, 0, 0, 5, false)
 
     local tileSize = 32
     local floorY = 610
@@ -63,7 +63,7 @@ function ExampleScript:OnStart()
 		-- add physics body + collider
 		------------------------------------------------------
 		Entity.add_fysics_component(tile, 0, false)  -- static
-		Fysics.add_box_collider(tile, 1, 1, 0, 0, 0, false)  -- not a trigger
+		Fysics.add_box_collider(tile, 1, 1, 0, 0, 0, 5, false)  -- not a trigger
 	end
 end
 
@@ -79,6 +79,9 @@ function ExampleScript:OnUpdate()
 	if Input.get_key_down(Keys.ionix_space) then
         Fysics.add_force_to_center(player, 0, -45)
 	end
+    if Input.get_key_down(Keys.ionix_q) then
+        Fysics.add_impulse(player, 0,0.1,1,1)
+    end
     ------------------------------------------------------
     -- movement
     ------------------------------------------------------

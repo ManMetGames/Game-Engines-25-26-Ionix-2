@@ -21,6 +21,7 @@ namespace IonixEngine
         float width = 1.0f;
         float height = 1.0f;
         float angle = 0.0f;
+        float density = 1.0f;
         bool isTrigger = false;
         b2Vec2 offset = { 0.0f, 0.0f };
         std::vector<b2Vec2> vertices ;
@@ -34,7 +35,7 @@ namespace IonixEngine
                 AddCircle(entity, radius, offset, isTrigger);
                 break;
             case fysicShapeType::box:
-                AddBox(entity, b2Vec2 { width, height }, offset, angle, isTrigger);
+                AddBox(entity, b2Vec2 { width, height }, offset, angle, density, isTrigger);
                 break;
             case fysicShapeType::polygon:
                 AddPolygon(entity);
@@ -98,7 +99,7 @@ namespace IonixEngine
 
 
         // Box -------------------------------------------------------
-        void AddBox(Entity* entity, b2Vec2 size = { 1, 1 }, b2Vec2 offset = { 0.0f, 0.0f }, float angle = 0.0f, bool isTrigger = false);
+        void AddBox(Entity* entity, b2Vec2 size = { 1, 1 }, b2Vec2 offset = { 0.0f, 0.0f }, float angle = 0.0f, float density = 1.0f, bool isTrigger = false);
         /*void AddBox(Entity* entity, b2Vec2 size = { 1, 1 }, b2Vec2 offset = {0.0f, 0.0f}, float angle = 0.0f, bool isTrigger = false)
         {
             b2PolygonShape shape;
