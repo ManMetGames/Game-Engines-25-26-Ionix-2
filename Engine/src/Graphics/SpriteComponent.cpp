@@ -11,7 +11,7 @@ namespace IonixEngine {
 		width = x;
 		height = y;
 		isReversing = false;
-		playbackMode = playbackOptions::FORWARD;
+		playbackMode = playbackOptions::FORWARDANDBACKWARD;
 
 		//setRowsAndCols(2, 8);
 		cols = 6;
@@ -139,7 +139,6 @@ namespace IonixEngine {
 				currentCol = 0;
 				currentRow = 0;
 			}
-
 		}
 	}
 

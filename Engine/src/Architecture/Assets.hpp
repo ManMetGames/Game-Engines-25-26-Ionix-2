@@ -4,19 +4,19 @@
 
 struct Textures {
     uint64_t Debug = 13718016529779414311u;
-    uint64_t Fat_Mario = 12091809935407899684u;
     uint64_t Test = 6128689281041194533u;
     uint64_t ball = 5225819788789863859u;
     uint64_t ball2 = 8540420223266660866u;
+    uint64_t hermer = 7998313846508644947u;
     uint64_t horse_fat = 1265999279503785142u;
 
     inline std::map<std::string, std::string> GetTextures() {
         std::map<std::string, std::string> map;
         map["Debug"] = "./Assets/Debug.png";
-        map["Fat_Mario"] = "./Assets/Fat Mario.png";
         map["Test"] = "./Assets/Test.png";
         map["ball"] = "./Assets/ball.png";
         map["ball2"] = "./Assets/ball2.png";
+        map["hermer"] = "./Assets/hermer.png";
         map["horse_fat"] = "./Assets/horse-fat.gif";
         return map;
     };
