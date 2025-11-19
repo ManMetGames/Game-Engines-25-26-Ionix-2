@@ -41,7 +41,7 @@ namespace IonixEngine
 		SDL_SetRenderDrawColor(rend, 255, 255, 255, 0);
 
 		SDL_RenderClear(rend);
-		SDL_RenderCopy(rend, img, nullptr, &texr);
+		SDL_RenderCopyEx(rend, img, nullptr, &texr, angle, NULL, SDL_FLIP_NONE);
 
 		//SDL_DestroyTexture
 	}
