@@ -168,15 +168,14 @@ namespace IonixEngine
                 e.AddComponent<FysicsBody>(new FysicsBody(&e, 2, false));
             }
             
-            if (e.TryGetComponent<SpriteComponent>(&spr)) {
-                SDL_Log("Got sprite component");
+            if (e.TryGetComponent<SpriteComponent>(&spr) && e.TryGetComponent<FysicsBody>(&fb)) {
                 spr->setAngle(spr->getAngle() + angleInRads);
+                if (spr->getAngle() >= 360.0f) spr->setAngle(spr->getAngle() - 360); //these 2 lines normalize the rotation
+                if (spr->getAngle() < 0.0f)   spr->setAngle(spr->getAngle() + 360);
+                fb->SetAngle(&e, fb->GetAngle(&e) + angleInRads);
+                if (fb->GetAngle(&e) >= 360.0f) fb->SetAngle(&e, fb->GetAngle(&e) - 360); //these 2 lines normalize the rotation 
+                if (fb->GetAngle(&e) < 0.0f)   fb->SetAngle(&e, fb->GetAngle(&e) + 360);
             }
-            
-            fb->SetAngle(&e, fb->GetAngle(&e) + angleInRads);
-            
-            if (fb->GetAngle(&e) >= 360.0f) fb->SetAngle(&e, fb->GetAngle(&e) - 360); //these 2 lines normalize the rotation 
-            if (fb->GetAngle(&e) < 0.0f)   fb->SetAngle(&e, fb->GetAngle(&e) + 360);
         }
     }
 
