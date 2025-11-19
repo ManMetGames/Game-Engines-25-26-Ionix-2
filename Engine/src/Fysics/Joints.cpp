@@ -283,9 +283,9 @@ void IonixEngine::WeldJoints::setDamping(float damping)
     joint->SetDamping(damping);
 }
 
-float IonixEngine::WeldJoints::getDamping()
+float IonixEngine::WeldJoints::getDamping(b2WeldJoint* _joint)
 {
-    return joint->GetDamping();
+    return _joint->GetDamping();
 }
 
 void IonixEngine::WeldJoints::setStiffness(float stiffness)
@@ -293,9 +293,9 @@ void IonixEngine::WeldJoints::setStiffness(float stiffness)
     joint->SetStiffness(stiffness);
 }
 
-float IonixEngine::WeldJoints::getStiffness()
+float IonixEngine::WeldJoints::getStiffness(b2WeldJoint* _joint)
 {
-    return joint->GetStiffness();
+    return _joint->GetStiffness();
 }
 
 //-----------------Pulley Class-----------------

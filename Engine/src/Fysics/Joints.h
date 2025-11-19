@@ -134,11 +134,11 @@ namespace IonixEngine
 
         void setDamping(float damping);
 
-        float getDamping();
+        float getDamping(b2WeldJoint* _joint);
 
         void setStiffness(float stiffness);
 
-        float getStiffness();
+        float getStiffness(b2WeldJoint* _joint);
     };
 
     class PulleyJoints : public Joints {
