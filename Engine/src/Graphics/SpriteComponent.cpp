@@ -1,6 +1,8 @@
 #include "SpriteComponent.h"
 #include <Graphics/QueueRenderer.h>
 
+#include "Fysics/FysicsBody.h"
+
 namespace IonixEngine {
 
 	//Constructors
@@ -16,6 +18,7 @@ namespace IonixEngine {
 		rows = 1; //default spritesheet size, can be changed in appropriate setters
 		cols = 5;
 
+		renderLayer = entity->renderLayer;
 
 		spriteWidth = 32; //default, can be change in setters
 		spriteHeight = 32;
@@ -38,6 +41,7 @@ namespace IonixEngine {
 		rows = 1; //default spritesheet size, can be changed in appropriate setters
 		cols = 5;
 
+		renderLayer = entity->renderLayer;
 
 		spriteWidth = 32; //default, can be change in setters
 		spriteHeight = 32;
@@ -70,6 +74,7 @@ namespace IonixEngine {
 			SDL_Rect { spriteWidth * currentCol, spriteHeight * currentRow, spriteWidth, spriteHeight },
 			zOrder,
 			spriteAngle,
+			renderLayer,
 		});
 
 

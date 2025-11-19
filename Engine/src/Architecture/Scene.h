@@ -27,7 +27,7 @@ namespace IonixEngine
 
         void Reserve(std::size_t count); // Pre-allocate storage for entities 
 
-        EntityID CreateEntity();  // Create a new entity and return its unique ID
+        EntityID CreateEntity(int renderLayer);  // Create a new entity and return its unique ID
         
         bool DestroyEntity(EntityID entityId);
         

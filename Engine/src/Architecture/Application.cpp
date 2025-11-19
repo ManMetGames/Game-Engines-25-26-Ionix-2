@@ -1,5 +1,4 @@
 #include "Application.h"
-
 #include "Fysics/FysicsBody.h"
 #include "Fysics/FysicsManager.h"
 #include "Fysics/Shapes.h"
@@ -74,18 +73,21 @@ namespace IonixEngine
         }
 
     }
-    Camera* cam = new Camera(0.0f, 0.0f, 1.0f, 800, 600, true, 0, 0, 0, 0);
-    Camera* cam2 = new Camera(100.0f, 100.0f, 1.0f, 800, 600, false, 255, 255, 255, 0);
+    Camera* cam = new Camera(0.0f, 0.0f, 1.0f, 800, 600, true, 0, 0, 0, 0, 0);
+    Camera* cam2 = new Camera(100.0f, 100.0f, 1.0f, 800, 600, false, 255, 255, 255, 0, 1);
+    
 
 
     void Application::Run()
     {
         m_Running = true;
-
+        
 	    cam->Init();
 	    cam2->Init();
         Scripting::Get().CallHook("OnStart");
 
+        currentCam = cam;
+        
         SDL_Renderer* renderer = m_Window->GetSdlRenderer();
 
         // timings initialisation for fixed update
@@ -124,11 +126,6 @@ namespace IonixEngine
             {
                 if(layer)
                     layer->OnUpdate();
-            }
-            
-            if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_Q))
-            {
-                cam->Rotate(100.0f);
             }
 
             cam->handleInput(deltaTime);

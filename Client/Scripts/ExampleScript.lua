@@ -30,7 +30,7 @@ function ExampleScript:OnStart()
     ------------------------------------------------------
     -- Create player
     ------------------------------------------------------
-    player = Entity.create_entity()
+    player = Entity.create_entity(1)
     Entity.set_entity_pos(player, x, y)
     playerSprite = Entity.add_sprite_component(player, "ball", 75, 75, 0)
 	Sprite.set_playback_mode(playerSprite, 4)
@@ -47,7 +47,7 @@ function ExampleScript:OnStart()
 	local tex = "middle"
 
 	for i = 0, 30 do
-		local tile = Entity.create_entity()
+		local tile = Entity.create_entity(0)
 		local xPos = i * tileSize
 
 		------------------------------------------------------

@@ -30,6 +30,7 @@ namespace IonixEngine {
 		int spriteWidth, spriteHeight;
 		int currentRow, currentCol;
 		float spriteAngle;
+		int renderLayer;
 		
 
 		enum playbackOptions playbackMode;

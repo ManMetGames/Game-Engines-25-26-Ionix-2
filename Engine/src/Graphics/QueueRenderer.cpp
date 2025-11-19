@@ -16,9 +16,13 @@ namespace IonixEngine {
 	}   //all of this is TEMPORARY because we're TESTING - it's in the name, that's why it says TEMP everywhere. We'll change this soon, thanks
 
 	void QueueRenderer::RenderFromQueue() {
+		
 		while (!sprites.empty()) {
 			RenderCall call = sprites.front();
-			SDL_RenderCopyEx(Application::Get().GetWindow().GetSdlRenderer(), call.texture, &call.src, &call.dest, call.rotation, NULL, SDL_FLIP_NONE);
+			if (call.renderLayer == Application::Get().currentCam->renderLayer)
+			{
+				SDL_RenderCopyEx(Application::Get().GetWindow().GetSdlRenderer(), call.texture, &call.src, &call.dest, call.rotation, nullptr, SDL_FLIP_NONE);
+			}
 			sprites.pop();
 		}
 	}

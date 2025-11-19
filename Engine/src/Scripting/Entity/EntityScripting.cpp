@@ -14,8 +14,8 @@ namespace IonixEngine {
 
     void EntityScripting::Init(sol::state& lua)
     {
-        auto entity = []() -> Entity* {
-            EntityID entityID = Application::Get().layerScene->GetScene()->CreateEntity();
+        auto entity = [](int renderLayer) -> Entity* {
+            EntityID entityID = Application::Get().layerScene->GetScene()->CreateEntity(renderLayer);
             return Application::Get().layerScene->GetScene()->GetEntityFromID(entityID);
             };
 
@@ -54,7 +54,7 @@ namespace IonixEngine {
             };
 
         auto getFysicsBodyComponent = [](Entity* entity) {
-            entity->GetComponent<FysicsBody>();
+            return entity->GetComponent<FysicsBody>();
             };
 
         /*auto tryGetSpriteComponent = [](Entity* entity) -> auto {
@@ -89,7 +89,7 @@ namespace IonixEngine {
             "add_sprite_component", addSpriteComponent,
             "add_audio_component", addAudioPlayerComponent,
             "add_fysics_component", addFysicsBodyComponent,
-            "add_fysics_component", addFysicsBodyComponentWithType,
+            "add_fysics_component_with_type", addFysicsBodyComponentWithType,
             "get_sprite_component", getSpriteComponent,
             "get_audio_component", getAudioPlayerComponent,
             "get_fysics_component", getFysicsBodyComponent,

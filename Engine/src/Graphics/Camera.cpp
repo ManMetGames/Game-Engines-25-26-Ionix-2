@@ -8,9 +8,9 @@
 namespace IonixEngine
 {
     Camera::Camera(float startX, float startY, float startZoom,
-        int height, int width, bool isFocused, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+        int height, int width, bool isFocused, Uint8 r, Uint8 g, Uint8 b, Uint8 a, int renderLayer)
         : x(startX), y(startY), zoom(startZoom), h(height), w(width),
-        bg_r(r), bg_g(g), bg_b(b), bg_a(a), isFocused(isFocused)
+        bg_r(r), bg_g(g), bg_b(b), bg_a(a), isFocused(isFocused), renderLayer(renderLayer)
     {
     }
 
@@ -99,9 +99,9 @@ namespace IonixEngine
         auto& cameras = Application::Get().layerGraphics->m_Cameras;
         int nextIndex = (camIndex + 1) % cameras.size();
         cameras[nextIndex]->isFocused = true;
-
+        
         MoveCamera(cameras[nextIndex]->camDeltaX - cameras[camIndex]->camDeltaX, cameras[nextIndex]->camDeltaY - cameras[camIndex]->camDeltaY, false);
-
+        Application::Get().currentCam = cameras[nextIndex];
         Application::Get().layerInput->m_Input->SetKeyReleased(SDL_SCANCODE_C); //this just stops the function from triggering on all cameras at the same time, returning the focus to camera 0
     }
 
