@@ -3,6 +3,8 @@
 #include "Architecture/Application.h"
 #include <SDL.h>
 
+#include "Fysics/FysicsBody.h"
+
 namespace IonixEngine
 {
     Camera::Camera(float startX, float startY, float startZoom,
@@ -146,22 +148,28 @@ namespace IonixEngine
         RenderToTexture(renderer);
         SDL_Texture* camTex = GetRenderTexture();
         if (camTex) {
-            SDL_Rect destRect = { posX, posY, sizeX, sizeY }; // position + size on screen
-            SDL_RenderCopy(renderer, camTex, NULL, &destRect);
+            SDL_FRect destRect = { posX, posY, sizeX, sizeY }; // position + size on screen
+            SDL_RenderCopyF(renderer, camTex, NULL, &destRect);
         }
     }
     
     void Camera::Rotate(float angle)
     {
-        std::vector<Entity>& entities = Application::Get().layerScene->GetEntities();
-        
-        for (auto it = entities.begin(); it != entities.end(); ++it) 
+        auto& entities = Application::Get().layerScene->GetEntities();
+
+        for (auto& e : entities)
         {
-            it->rotation += angle;
+            FysicsBody* fb = nullptr;
             
-            if (it->rotation > 360.0f) it->rotation -= 360.0f;
-            if (it->rotation < 0.0f) it->rotation += 360.0f;
-            SDL_Log("Entity Rotation: %f", it->rotation);
+            if (!e.TryGetComponent<FysicsBody>(&fb)) {
+                e.AddComponent<FysicsBody>(new FysicsBody(&e, 2, false));
+            }
+            
+            float angleInRads = angle * (3.14159265f / 180.0f);
+            fb->SetAngle(&e, fb->GetAngle(&e) + angleInRads);
+            
+            if (fb->GetAngle(&e) >= 360.0f) fb->SetAngle(&e, fb->GetAngle(&e) - 360); //these 2 lines normalize the rotation 
+            if (fb->GetAngle(&e) < 0.0f)   fb->SetAngle(&e, fb->GetAngle(&e) + 360);
         }
     }
 

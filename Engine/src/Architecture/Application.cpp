@@ -126,7 +126,7 @@ namespace IonixEngine
                     layer->OnUpdate();
             }
             
-            if (Application::Get().layerInput->m_Input->IsKeyDown(SDL_SCANCODE_Q))
+            if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_Q))
             {
                 cam->Rotate(100.0f);
             }

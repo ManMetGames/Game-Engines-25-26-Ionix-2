@@ -22,7 +22,7 @@ namespace IonixEngine
 		//img = IMG_LoadTexture(renderer, file);
 	}
 
-	void Sprite::draw(const int x, const int y, const int w, const int h) {
+	void Sprite::draw(const int x, const int y, const int w, const int h, float angle) {
 
 		// code for rendering an image
 		// to get working in OnUpdate:
