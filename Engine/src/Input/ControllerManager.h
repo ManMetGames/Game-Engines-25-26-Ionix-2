@@ -8,9 +8,11 @@ namespace IonixEngine
     class ControllerManager
     {
     public:
+        ControllerManager() { }
+        ControllerManager(int id) { instanceId = id; }
 
         //Controller buttons
-        bool IsButtonDown(Uint8 btn) const;
+        bool IsButtonDown(int instanceId, Uint8 btn) const;
         bool IsButtonUp(Uint8 btn) const;
         bool IsButtonHeld(Uint8 btn) const;
         void SetButtonPressed(Uint8 btn);
@@ -26,15 +28,17 @@ namespace IonixEngine
         //Getters
         float GetXStickHor() { return controllerAxis; }
 
-    private:
-
         //Controller buttons
         std::unordered_set<Uint8> currentButton;
         std::unordered_set<Uint8> previousButton;
 
+    private:
+
         //Controller axis
         float controllerAxis = 0.0f;
         float triggerPressure = 0.0f;
+
+        int instanceId = -1;
     };
 }
 

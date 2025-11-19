@@ -1,13 +1,13 @@
 #include "ControllerManager.h"
-#include <cmath> 
+#include <SDL_stdinc.h>
 
 namespace IonixEngine
 {
-
-
     //Controller buttons
-    bool ControllerManager::IsButtonDown(Uint8 btn) const
+    bool ControllerManager::IsButtonDown(int instanceId, Uint8 btn) const
     {
+        if (instanceId != this->instanceId) return false;
+
         return !previousButton.count(btn) && currentButton.count(btn);
     }
 
