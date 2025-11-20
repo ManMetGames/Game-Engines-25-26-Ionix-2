@@ -13,10 +13,13 @@ function player:OnUpdate()
     local leftTrigger = Input.get_left_trigger()
     local rightTrigger = Input.get_right_trigger()
 	
-	if(Input.get_button_down(0, 0)) then
-		print("Test")
+	if(Input.get_button_down(0, 0)) then -- instanceId, button
+		print("Player 1 input")
 	end
-
+	
+	if(Input.get_button_down(1, 0)) then -- instanceId, button
+		print("Player 2 input")
+	end
 end
 
 return player
