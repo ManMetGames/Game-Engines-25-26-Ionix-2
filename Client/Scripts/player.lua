@@ -12,11 +12,11 @@ function player:OnUpdate()
 
     local leftTrigger = Input.get_left_trigger()
     local rightTrigger = Input.get_right_trigger()
+	
+	if(Input.get_button_down(0, 0)) then
+		print("Test")
+	end
 
-    print(string.format(
-        "[Controller] Left Stick (X=%.2f, Y=%.2f) | Right Stick (X=%.2f, Y=%.2f) | Triggers (L=%.2f, R=%.2f)",
-        leftX, leftY, rightX, rightY, leftTrigger, rightTrigger
-    ))
 end
 
 return player

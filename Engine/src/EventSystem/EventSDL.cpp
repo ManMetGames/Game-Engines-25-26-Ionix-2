@@ -157,8 +157,8 @@ namespace IonixEngine
                 {
                     double val = e.caxis.value;
                     float normalised = Application::Get().layerInput->GetControllerManager()[instanceId]->NormaliseStickAxis(val);
-                    std::cout << "Player " << instanceId << " Left Stick Y Moved "
-                        << static_cast<float>(normalised) << "\n";
+                    //std::cout << "Player " << instanceId << " Left Stick Y Moved "
+                        //<< static_cast<float>(normalised) << "\n";
 
                 }
 
@@ -171,8 +171,8 @@ namespace IonixEngine
                 {
                     double val = e.caxis.value;
                     float normalised = Application::Get().layerInput->GetControllerManager()[instanceId]->NormaliseStickAxis(val);
-                    std::cout << "Player " << instanceId << " Left Stick X Moved "
-                        << static_cast<float>(normalised) << "\n";
+                    //std::cout << "Player " << instanceId << " Left Stick X Moved "
+                        //<< static_cast<float>(normalised) << "\n";
 
                 }
 
@@ -186,8 +186,8 @@ namespace IonixEngine
                 {
                     double val = e.caxis.value;
                     float normalised = Application::Get().layerInput->GetControllerManager()[instanceId]->NormaliseStickAxis(val);
-                    std::cout << "Player " << instanceId << " Right Stick X Moved "
-                        << static_cast<float>(normalised) << "\n";
+                    //std::cout << "Player " << instanceId << " Right Stick X Moved "
+                        //<< static_cast<float>(normalised) << "\n";
 
                 }
 
@@ -200,8 +200,8 @@ namespace IonixEngine
                 {
                     double val = e.caxis.value;
                     float normalised = Application::Get().layerInput->GetControllerManager()[instanceId]->NormaliseStickAxis(val);
-                    std::cout << "Player " << instanceId << " Right Stick Y Moved "
-                        << static_cast<float>(normalised) << "\n";
+                    //std::cout << "Player " << instanceId << " Right Stick Y Moved "
+                        //<< static_cast<float>(normalised) << "\n";
 
                 }
                 break;
@@ -213,8 +213,8 @@ namespace IonixEngine
                 {
                     double val = e.caxis.value;
                     float normalised = Application::Get().layerInput->GetControllerManager()[instanceId]->NormaliseTrigger(val);
-                    std::cout << "Player " << instanceId << " Left Trigger pressed "
-                        << static_cast<float>(normalised) << "\n";
+                    //std::cout << "Player " << instanceId << " Left Trigger pressed "
+                        //<< static_cast<float>(normalised) << "\n";
 
                 }
                 break;
@@ -226,8 +226,8 @@ namespace IonixEngine
                 {
                     double val = e.caxis.value;
                     float normalised = Application::Get().layerInput->GetControllerManager()[instanceId]->NormaliseTrigger(val);
-                    std::cout << "Player " << instanceId << " Right Trigger pressed "
-                        << static_cast<float>(normalised) << "\n";
+                    //std::cout << "Player " << instanceId << " Right Trigger pressed "
+                        //<< static_cast<float>(normalised) << "\n";
 
                 }
                 break;

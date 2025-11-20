@@ -12,13 +12,7 @@ namespace IonixEngine
 
     void LayerInput::OnDetach() {}
 
-    void LayerInput::OnUpdate() 
-    {
-        if (IsControllerButtonDown(1, static_cast<Uint8>(1)))
-        {
-            std::cout << " Controller 0 pressed the button\n";
-        }
-    }
+    void LayerInput::OnUpdate() {}
 
     void LayerInput::OnEvent(IonixEvent& e)
     {
@@ -34,12 +28,6 @@ namespace IonixEngine
             }
         }
     }
-
-    std::unordered_map<int, ControllerManager*>& LayerInput::GetControllerManager()
-    {
-        return controllerManagers;
-    }
-
     void LayerInput::OnControllerButtonDown(ControllerButtonDownEvent& e)
     {
         controllerManagers[e.instanceId]->SetButtonPressed(e.button);
@@ -49,11 +37,7 @@ namespace IonixEngine
     {
         ControllerManager* controllerManager = controllerManagers[instanceId];
 
-        if (controllerManager != nullptr) {
-            bool t = !controllerManager->previousButton.count(button) && controllerManager->currentButton.count(button);
-            if(t)
-                return t; // debugging test statement - streamline this block once done with test
-        }
-        return false;
+        if(controllerManager != nullptr)
+            return controllerManager->IsButtonDown(instanceId, button);
     }
 }

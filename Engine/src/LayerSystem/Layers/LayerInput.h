@@ -22,7 +22,7 @@ namespace IonixEngine
 
         Input* m_Input;  
     
-        std::unordered_map<int, ControllerManager*>& GetControllerManager();
+        std::unordered_map<int, ControllerManager*>& GetControllerManager() { return controllerManagers; }
 
     private:
         void OnControllerButtonDown(ControllerButtonDownEvent& e);      
