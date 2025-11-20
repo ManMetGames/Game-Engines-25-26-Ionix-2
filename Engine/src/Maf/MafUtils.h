@@ -188,14 +188,14 @@ namespace Maf
 		value = std::max(value, 1e-37f);
 		return std::log10(value);
 	}
-	/*inline float Deg2Rad(float degrees)
+	inline float Deg2Rad(float degrees)
 	{
-		return degrees * (static_cast<float>(M_PI) / 180.0f);
+		return degrees * (static_cast<float>(mafPI()) / 180.0f);
 	}
 
 	inline float Rad2Deg(float radians)
 	{
-		return radians * (180.0f / static_cast<float>(M_PI));
-	}*/ //WHAT IS M_PI ITS NOT REAL
+		return radians * (180.0f / static_cast<float>(mafPI()));
+	}
 
 }
