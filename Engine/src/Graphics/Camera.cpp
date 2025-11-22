@@ -78,7 +78,7 @@ namespace IonixEngine
         bg_a = a;
   }
 
-	void Camera::MoveCamera(float deltaX, float deltaY, bool moveCamDelta)
+	void Camera::MoveCamera(float deltaX, float deltaY, bool moveCamDelta) //ignore moveCamDelta, it should always be set to true
 	{
         if (moveCamDelta) {
             camDeltaX += deltaX;
@@ -86,8 +86,16 @@ namespace IonixEngine
         }
 
         std::vector<Entity>& entities = Application::Get().layerScene->GetEntities();
-
+        FysicsBody* fb = nullptr;
         for (auto it = entities.begin(); it != entities.end(); ++it) {
+            // Skip entities with static physics bodies
+            if (it->TryGetComponent<FysicsBody>(&fb)) {
+                b2Body* body = fb->GetBody();
+                if (body && body->GetType() == b2_staticBody) {
+                    continue;  // Don't move static objects
+                }
+            }
+            
             it->position.x += deltaX;
             it->position.y += deltaY;
         }

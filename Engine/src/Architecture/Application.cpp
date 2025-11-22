@@ -128,8 +128,7 @@ namespace IonixEngine
                     layer->OnUpdate();
             }
 
-            cam->handleInput(deltaTime);
-            cam2->handleInput(deltaTime);
+            currentCam->handleInput(deltaTime);
             
             Scripting::Get().CallHook("OnUpdate");
 
