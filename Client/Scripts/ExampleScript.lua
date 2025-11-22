@@ -35,7 +35,7 @@ function ExampleScript:OnStart()
     playerSprite = Entity.add_sprite_component(player, "ball", 75, 75, 0)
 	Sprite.set_playback_mode(playerSprite, 0)
 
-    Entity.add_fysics_component(player, 2, false)
+    Entity.add_fysics_component_with_type(player, 2, false)
     Fysics.add_box_collider(player, .5, .5, 0, 0, 0, false)
 
     local tileSize = 32
@@ -62,7 +62,7 @@ function ExampleScript:OnStart()
 		------------------------------------------------------
         -- add physics body + collider
         ------------------------------------------------------
-        Entity.add_fysics_component(tile, 0, false)  -- static
+        Entity.add_fysics_component_with_type(tile, 0, false)  -- static
         Fysics.add_box_collider(tile, 1, 1, 0, 0, 0, false)  -- not a trigger
 	end
 end
