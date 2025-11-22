@@ -102,7 +102,7 @@ std::string get_struct(const std::string& name, std::map<std::string, std::strin
     indent++;
     for (const std::pair<std::string, std::string> pair : map) {
         for (int i = 0; i < indent; i++) { struct_definition << "    "; }
-        struct_definition << "uint64_t " << pair.first.c_str() << " = " << get_64_bit_hash(pair.second) << "u;\n";
+        struct_definition << "uint64_t " << pair.first.c_str() << " = " << get_64_bit_hash(pair.first) << "u;\n";
     }
 
     struct_definition << "\n";
@@ -131,17 +131,17 @@ std::string get_lua_table(std::map<std::string, std::string>& textures, std::map
     table << "return {\n";
         table << "    " << "textures = {\n";
         for (const std::pair<std::string, std::string>& pair : textures) {
-            table << "        " << pair.first.c_str() << " = " << get_64_bit_hash(pair.second) << ",\n";
+            table << "        " << pair.first.c_str() << " = " << get_64_bit_hash(pair.first) << ",\n";
         }
         table << "    " << "},\n";
         table << "    " << "sounds = {\n";
         for (const std::pair<std::string, std::string>& pair : sounds) {
-            table << "        " << pair.first.c_str() << " = " << get_64_bit_hash(pair.second) << ",\n";
+            table << "        " << pair.first.c_str() << " = " << get_64_bit_hash(pair.first) << ",\n";
         }
         table << "    " << "},\n";
         table << "    " << "fonts = {\n";
         for (const std::pair<std::string, std::string>& pair : fonts) {
-            table << "        " << pair.first.c_str() << " = " << get_64_bit_hash(pair.second) << ",\n";
+            table << "        " << pair.first.c_str() << " = " << get_64_bit_hash(pair.first) << ",\n";
         }
         table << "    " << "},\n";
     table << "}\n";
