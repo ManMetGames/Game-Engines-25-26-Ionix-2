@@ -7,10 +7,8 @@
 
 namespace IonixEngine
 {
-    Camera::Camera(float startX, float startY, float startZoom,
-        int height, int width, bool isFocused, Uint8 r, Uint8 g, Uint8 b, Uint8 a, int renderLayer)
-        : x(startX), y(startY), zoom(startZoom), h(height), w(width),
-        bg_r(r), bg_g(g), bg_b(b), bg_a(a), isFocused(isFocused), renderLayer(renderLayer)
+    Camera::Camera(float startX, float startY, int renderLayer)
+        : x(startX), y(startY), renderLayer(renderLayer)
     {
     }
 
@@ -27,6 +25,14 @@ namespace IonixEngine
 
     void Camera::Init() 
     {
+        h = Application::Get().GetWindow().m_Data.Height;
+        w = Application::Get().GetWindow().m_Data.Width;
+        bg_r = 0;
+        bg_g = 0;
+        bg_b = 0;
+        bg_a = 255;
+        zoom = 1.0f;
+        
 		InitRenderTexture(Application::Get().GetWindow().m_Renderer);
         MoveCamera(x, y);
         Application::Get().layerGraphics->m_Cameras.push_back(this);
@@ -36,6 +42,11 @@ namespace IonixEngine
             if(*it == this)
             {
 				camIndex = cams.size() - 1;
+                if (camIndex == 0) 
+                {
+                    isFocused = true;
+                    Application::Get().currentCam = this;
+                }
             }
         }
     }
