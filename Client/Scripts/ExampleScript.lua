@@ -33,7 +33,7 @@ function ExampleScript:OnStart()
     -- Create player
     ------------------------------------------------------
     player = Entity.create_entity()
-    Entity.set_entity_pos(player, x, y)
+    Entity.set_entity_pos(player, 800, y)
     playerSprite = Entity.add_sprite_component(player, "ball", 75, 75, 0)
 	Sprite.set_playback_mode(playerSprite, 4)
 
@@ -41,48 +41,35 @@ function ExampleScript:OnStart()
     Fysics.add_box_collider(player, .5, .5, 0, 0, 0, false)
 
     local tileSize = 32
-    local floorY = 610
+    local floorY = 500
 
 	------------------------------------------------------
 	-- pick texture for left / middle / right
 	------------------------------------------------------
 	local tex = "middle"
+    
 
 	for i = 0, 30 do
-		local tile = Entity.create_entity()
-		local xPos = i * tileSize
+    		local tile = Entity.create_entity()
+    		local xPos = i * tileSize
+    
+    		------------------------------------------------------
+    		-- place sprite
+    		------------------------------------------------------
+    		Entity.set_entity_pos(tile, xPos, floorY)
+    
+    		-- sprite as single frame (4 = manual/no anim)
+    		local s = Entity.add_sprite_component(tile, tex, tileSize, tileSize, 0)
+    		Sprite.set_playback_mode(s, 4)
+    
+    		------------------------------------------------------
+    		-- add physics body + collider
+    		------------------------------------------------------
+    		Entity.add_fysics_component(tile, 0, false)  -- static
+    		Fysics.add_box_collider(tile, 1, 1, 0, 0, 0, false)  -- not a trigger
+    end
 
-		------------------------------------------------------
-		-- place sprite
-		------------------------------------------------------
-		Entity.set_entity_pos(tile, xPos, floorY)
 
-		-- sprite as single frame (4 = manual/no anim)
-		local s = Entity.add_sprite_component(tile, tex, tileSize, tileSize, 0)
-		Sprite.set_playback_mode(s, 4)
-		
-        ------------------------------------------------------
-        -- creates 1 ground collider the size of all of the tiles combined
-        ------------------------------------------------------
-		
-		if i == 30 then
-            ground = Entity.create_entity()
-            Entity.set_entity_pos(ground, tileSize, floorY)
-            Entity.add_fysics_component(ground, 0, false)  -- static
-            Fysics.add_box_collider(ground, 30, 1, 0, 0, 0, false)  -- not a trigger  
-            
-           --[[  local floorPoints = {
-                {xPos, floorY},
-                {xPos * 30, floorY},
-                {xPos * 30, floorY - 10},
-                {xPos, floorY - 10}
-            }
-            
-            Fysics.add_polygon_collider(ground, floorPoints) ]]
-
-        end
-
-	end
 
 
 end
