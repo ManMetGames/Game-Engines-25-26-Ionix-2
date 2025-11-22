@@ -20,7 +20,7 @@ namespace IonixEngine
 		Uint8 bg_r, bg_g, bg_b, bg_a; // background color
 		SDL_Color currentColor;
 		
-		Camera(float startX = 0.0f, float startY = 0.0f, float startZoom = 1.0f, int height = 800, int width = 600, bool isFocused = false, Uint8 bg_r = 0, Uint8 bg_b = 0, Uint8 bg_g = 0, Uint8 bg_a = 0, int renderLayer = 0);
+		Camera(float startX = 0.0f, float startY = 0.0f, int renderLayer = 0);
 
 		void SetColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 		void Init();
