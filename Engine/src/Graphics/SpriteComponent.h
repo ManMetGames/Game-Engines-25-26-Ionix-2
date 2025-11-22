@@ -30,6 +30,8 @@ namespace IonixEngine {
 		int spriteWidth, spriteHeight;
 		int currentRow, currentCol;
 		float spriteAngle;
+		float timer;
+
 		
 
 		enum playbackOptions playbackMode;
@@ -38,6 +40,7 @@ namespace IonixEngine {
 		SpriteComponent(Entity* entity, std::string alias, int width, int height, int zedOrder);
 		SpriteComponent(Entity* entity, uint64_t hash, int width, int height, int zedOrder);
 		virtual void Render(RenderData* data) override;
+		virtual void Update(float deltaTime) override;
 
 		void calculateTotalFrames();
 
@@ -52,6 +55,7 @@ namespace IonixEngine {
 		void setCurrentFrame(int x);
 		void setRows(int x);
 		void setCols(int x);
+		void setRowsAndCols(int Rows, int Cols);
 		void setSpriteWidth(int x);
 		void setSpriteHeight(int x);
 		void setZedOrder(int x);
