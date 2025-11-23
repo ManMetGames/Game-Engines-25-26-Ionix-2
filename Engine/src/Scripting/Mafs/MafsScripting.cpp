@@ -30,7 +30,13 @@ namespace IonixEngine
 			};
 
 		auto lerp = [](float x, float y, float t) -> float {
+			t *= Application::Get().deltaTime;
 			return Maf::mafLerp(x, y, t);
+			};
+
+		auto lerpVec = [](b2Vec2 xv, b2Vec2 yv, float t) -> float {
+			t *= Application::Get().deltaTime;
+			return Maf::mafLerpVector(xv, yv, t);
 			};
 
 		auto vector2 = [](float x, float y) -> b2Vec2* {
@@ -46,12 +52,8 @@ namespace IonixEngine
 			return Maf::mafDiv(x, y);
 			};
 
-		auto SqrMagnitudeVector2 = [](Maf::mafVector2<float> v) -> float {
+		auto SqrMagnitudeVector2 = [](b2Vec2 v) -> float {
 			return Maf::mafSqrMagnitudeVec2(v);
-			};
-
-		auto SqrMagnitudeVector3 = [](Maf::mafVector3<float> v) -> float {
-			return Maf::mafSqrMagnitudeVec3(v);
 			};
 
 		auto abs = [](float x) -> float {
@@ -117,7 +119,6 @@ namespace IonixEngine
 			"mod", mod,
 			"div", div,
 			"sqr_magnitude_vector2", SqrMagnitudeVector2,
-			"sqr_magnitude_vector3", SqrMagnitudeVector3,
 			"sin", sin,
 			"cos", cos,
 			"tan", tan,
