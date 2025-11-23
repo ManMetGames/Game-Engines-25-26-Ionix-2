@@ -34,9 +34,10 @@ namespace IonixEngine
 			return Maf::mafLerp(x, y, t);
 			};
 
-		auto lerpVec = [](b2Vec2 xv, b2Vec2 yv, float t) -> float {
+		auto lerpVec = [](b2Vec2 v1, b2Vec2 v2, float t) -> b2Vec2 {
 			t *= Application::Get().deltaTime;
-			return Maf::mafLerpVector(xv, yv, t);
+			std::pair<float, float> vectorPair = Maf::mafLerpVector(v1.x, v1.y, v2.x, v2.y, t);
+			return b2Vec2(vectorPair.first, vectorPair.second) ;
 			};
 
 		auto vector2 = [](float x, float y) -> b2Vec2* {
@@ -53,7 +54,7 @@ namespace IonixEngine
 			};
 
 		auto SqrMagnitudeVector2 = [](b2Vec2 v) -> float {
-			return Maf::mafSqrMagnitudeVec2(v);
+			return Maf::mafSqrMagnitudeVec2(v.x, v.y);
 			};
 
 		auto abs = [](float x) -> float {
