@@ -63,7 +63,9 @@ public:
 
         // cells
         for (int i = 0; i < fourCount; i++) {
-            m_cells[i].corns = { indices[i * 4], indices[i * 4 + 1], indices[i * 4 + 2], indices[i*4+2]}; // the corner values (index's)
+            //m_cells[i].corns = { indices[i * 4], indices[i * 4 + 1], indices[i * 4 + 2], indices[i*4+2]}; // the corner values (index's)
+            m_cells[i].corns = { indices[i * 4], indices[i * 4 + 1], indices[i * 4 + 2], indices[i * 4 + 3] }; // fixed
+
             //m_cells[i].heuristicValue = CalculateHeuristic(m_cells);
         }
 
@@ -100,15 +102,22 @@ public:
     // A* incoming crazy func gotta get wild
     std::vector<int>FindPath(int startCell, int goalCell) {
         //get values from node calculate g using b2distance, calc h for the each cell using heuristic function, calc f from both;
-        if (startCell < 0 || goalCell < 0 || m_cells.size() >= startCell || m_cells.size() >= goalCell) {
-            return{}; // wrong size check
+        //if (startCell < 0 || goalCell < 0 || m_cells.size() >= startCell || m_cells.size() >= goalCell) {
+        //    return{}; // wrong size check
+        //}
+        if (startCell < 0 || goalCell < 0 ||
+            startCell >= m_cells.size() || goalCell >= m_cells.size())
+        {
+            return {};
         }
+
         const int cellCount = m_cells.size();
         std::vector<Node> nodes(cellCount);
         // initialise nodes 
         for (int i; i < cellCount; i++) {
             nodes[i].cellIndex = i;
-            nodes[i].h = CalculateHeuristic(i, cellCount);
+            nodes[i].h = CalculateHeuristic(i, goalCell);
+
             nodes[i].g = std::numeric_limits<float>::infinity();
             nodes[i].f = std::numeric_limits<float>::infinity();
             nodes[i].previousCell = -1;
@@ -118,7 +127,8 @@ public:
         std::priority_queue<Node, std::vector<Node>, CompareNode> openList;
         openList.push(nodes[startCell]);
         //closed list 
-        std::vector<bool> closeList(startCell, false);
+        std::vector<bool> closeList(cellCount, false);
+
         //while loop to calc distance between nodes
         while (!openList.empty()) {
             Node currentNode = openList.top();
@@ -144,7 +154,8 @@ public:
                 if (checkG < nodes[adjacencyIndex].g) {
                     nodes[adjacencyIndex].previousCell = currentIndex;
                     nodes[adjacencyIndex].g = checkG;
-                    nodes[adjacencyIndex].f = nodes[currentIndex].g + nodes[currentIndex].h;
+                    nodes[adjacencyIndex].f = nodes[adjacencyIndex].g + nodes[adjacencyIndex].h;
+
                     openList.push(nodes[adjacencyIndex]);
                 }
             }
