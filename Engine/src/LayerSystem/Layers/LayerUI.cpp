@@ -72,21 +72,41 @@ namespace IonixEngine
 
     void LayerUI::OnDetach() {}
 
-    void LayerUI::OnUpdate() 
+    void LayerUI::OnUpdate()    
     {
         // Start the Dear ImGui frame. Immediate mode rendering - UI gets rebuilt each frame
          ImGui_ImplSDLRenderer2_NewFrame();
+
          ImGui_ImplSDL2_NewFrame();
          ImGui::NewFrame();
+
         
-         //Shows the big ImGui demo window
-         ImGui::ShowDemoWindow();
-        
+         std::vector<std::string> dropdownOptions = { "Option 1", "Option 2", "Option 3" };
+         int dropdownIndex = 0;
+         bool checkboxValue = true;
+         int radioValue = 0;
+         static float sliderValue = 0.5f;
+         
+         
+         uiManager.BeginPanel("Test Panel");
+
+         /*uiManager.AddLabel(10, 10, 100, 20, "Test Label");
+         uiManager.AddButton(10, 40, 100, 25, "Click Me", []() { printf("Button clicked!\n"); });
+         uiManager.AddCheckbox(10, 70, 120, 25, "Enable", &checkboxValue);
+         uiManager.AddSliderFloat(10, 100, 150, 25, "Slider", &sliderValue, 0.0f, 1.0f);
+         uiManager.AddRadioButton(10, 130, 100, 25, "Option 1", &radioValue, 0,true);
+         uiManager.AddRadioButton(120, 130, 100, 25, "Option 2", &radioValue, 1, true);
+         uiManager.AddDropdown(10, 160, 150, 25, "Dropdown", dropdownOptions, &dropdownIndex);
+         uiManager.AddColorPicker(10, 190, 150, 150, "Pick Color", m_UI->myColor);*/
+         // Render the UI
+         //uiManager.RenderUI();
+         //uiManager.EndPanel();
+         //uiManager.ClearElements();
          // Rendering
-         ImGui::Render();
-         ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), Application::Get().GetWindow().m_Renderer);
+         
 
          // TODO - Will be done by graphics unit eventually. Here for testing for the time being.
+
     }
 
     void LayerUI::OnEvent(IonixEvent& e)

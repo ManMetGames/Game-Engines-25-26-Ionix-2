@@ -1,39 +1,81 @@
-/*#include "Fysics/FysicsManager.h"
-#include "Fysics/Collider.h"
-#include <iostream>
+#include "FysicsManager.h"
+#include "Architecture/Application.h"
+#include <Testing/Box2D/DebugDraw.h>
 
-void IonixEngine::FysicsManager::RegisterCollisionCallback(CollisionCallback callback)
+namespace IonixEngine
 {
-	collisionCallbacks_.push_back(std::move(callback));
-}
-
-void IonixEngine::FysicsManager::EmitCollision(EntityID a, EntityID b)
-{
-	for (auto& callback : collisionCallbacks_)
-	{
-		callback(a, b);
+	FysicsManager* FysicsManager::GetManager() {
+		return Application::Get().layerFysics->GetFysicsManager();
 	}
-}
 
-void IonixEngine::FysicsManager::Update()
-{
-	static bool callbackRegistered = false;
-	if (!callbackRegistered)
+	FysicsManager::FysicsManager()
 	{
-		RegisterCollisionCallback([](EntityID a, EntityID b) 
-		{
-				std::cout << "[Callback Fired] Entity " << a << " collided with Entity " << b << "\n";
+		b2Vec2 gravity(0.0f, 9.8f);
+		world = new b2World(gravity);
+
+		DebugDraw* debugDraw = new DebugDraw(Application::Get().GetWindow().GetSdlRenderer(), 30.0f);
+		debugDraw->SetFlags(
+			b2Draw::e_shapeBit
+			| b2Draw::e_jointBit
+			| b2Draw::e_centerOfMassBit
+		);
+
+		world->SetDebugDraw(debugDraw);
+
+		// create and configure collision listener
+		collisionListener = new CollisionListener(this);
+		collisionListener->SetEventCallback([](IonixEvent& e) {
+			Application::Get().OnEvent(e);
 		});
-		callbackRegistered = true;
+		world->SetContactListener(collisionListener);
+
+		shapes = new FysicsShapes();
+		force = new Force();
+		prismaticJoint = new PrismaticJoints();
+		weldJoint = new WeldJoints();
+		pulleyJoint = new PulleyJoints();
+		revoluteJoint = new RevoluteJoints();
+		distanceJoint = new DistanceJoints();
 	}
 
-	Collider collider(this);
-
-	Collider::Rect rectA{ 0.0f, 0.0f, 2.0f, 2.0f };
-	Collider::Rect rectB{ 1.0f, 1.0f, 2.0f, 2.0f };
-
-	if (collider.isTouching(rectA, rectB))
+	FysicsManager::~FysicsManager()
 	{
-		std::cout << "[FysicsManager::Update] Collision detected!\n";
+		// helpers
+		delete shapes;
+		delete force;
+
+		// cleans up all bodies in the map
+		bodyEntityMap.clear();
+
+		// (this also destroys all bodies/fixtures/joints)
+		delete world;
 	}
-}*/
+
+	b2Body* FysicsManager::GetBodyFromEntity(Entity* entity)
+	{
+		for (auto& pair : bodyEntityMap)
+		{
+			if (pair.second == entity)
+			{
+				return pair.first;
+			}
+		}
+		return nullptr;
+	}
+
+	Entity* FysicsManager::GetEntityFromBody(b2Body* body)
+	{
+		auto it = bodyEntityMap.find(body);
+		if (it != bodyEntityMap.end())
+		{
+			return it->second;
+		}
+		return nullptr;
+	}
+
+	void FysicsManager::AddEntityBodyPair(Entity* entity, b2Body* body)
+	{
+		//entityBodyMap[entity] = body; // Not needed as we have helper methods which get what we need from 1 data structure.
+		bodyEntityMap[body] = entity;
+	}
+}
