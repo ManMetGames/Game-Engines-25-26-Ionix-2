@@ -35,7 +35,7 @@ function ExampleScript:OnStart()
     playerSprite = Entity.add_sprite_component(player, "ball", 75, 75, 0)
 	Sprite.set_playback_mode(playerSprite, 4)
     Entity.add_fysics_component(player, 2, false) -- dynamic body
-    Fysics.add_box_collider(player, Mafs.vec_2(0.5, 0.5), Mafs.vec_2(0, 0), 0, false)
+    Fysics.add_box_collider(player, 0.5, 0.5, 0, 0, 0, false)
 
     local tileSize = 32
     local floorY = 610
@@ -62,7 +62,7 @@ function ExampleScript:OnStart()
 		-- add physics body + collider
 		------------------------------------------------------
 		Entity.add_fysics_component(tile, 0, false)  -- static
-		Fysics.add_box_collider(tile, Mafs.vec_2(1, 1), Mafs.vec_2(0, 0), 0, false)  -- not a trigger
+		Fysics.add_box_collider(tile, 1, 1, 0, 0, 0, false)  -- not a trigger
 	end
 end
 
@@ -76,7 +76,7 @@ function ExampleScript:OnUpdate()
     local vy = vel.y
 
 	if Input.get_key_down(Keys.ionix_space) then
-        Fysics.add_force_to_center(player, Mafs.vec_2(0, -45))
+        Fysics.add_force_to_center(player, 0, -45)
 	end
     ------------------------------------------------------
     -- movement
@@ -89,7 +89,7 @@ function ExampleScript:OnUpdate()
         vx = 0
     end
 
-    Fysics.set_linear_velocity(player, Mafs.vec_2(vx, vy))
+    Fysics.set_linear_velocity(player, vx, vy)
 	
 	-- To do...
 	CheckGoalProximity(player, goal, 50, x, y)

@@ -15,7 +15,9 @@ function EntityPlayer:OnStart()
 	Entity.add_fysics_component(entity1, 2, false)
 	--Entity.add_fysics_component(entity1, 0, false)
 	vec2 = Mafs.vec_2(0,0)
+
 	Entity.set_entity_pos(entity1, x, y)
+
 	local hasComp, sprite1 = Entity.try_get_sprite_component(entity1)
 	if(hasComp) then
 		Sprite.set_playback_mode(sprite1, 4)
@@ -27,7 +29,7 @@ function EntityPlayer:OnUpdate()
 		return
 	end
 	
-	Fysics.set_linear_velocity(entity1, vec2)
+	Fysics.set_linear_velocity_v(entity1, vec2)
 	
 	if Input.get_key_held(Keys.ionix_d) then
 		vec2.x = xSpeed	

@@ -208,7 +208,7 @@ namespace IonixEngine {
             "get_left_trigger", getLeftTrigger,
             "get_right_trigger", getRightTrigger,
 
-			"get_copy_codes_end_frame", copycodesendframe
+			"get_copy_codes_end_frame", copycodesendframe,
             "normalise_stick_axis",NormaliseStickAxis,
             "normalise_trigger", NormaliseTrigger
         );
