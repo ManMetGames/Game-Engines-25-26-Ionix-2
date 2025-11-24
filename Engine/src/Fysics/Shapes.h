@@ -100,53 +100,12 @@ namespace IonixEngine
 
         // Box -------------------------------------------------------
         void AddBox(Entity* entity, b2Vec2 size = { 1, 1 }, b2Vec2 offset = { 0.0f, 0.0f }, float angle = 0.0f, bool isTrigger = false);
-        /*void AddBox(Entity* entity, b2Vec2 size = { 1, 1 }, b2Vec2 offset = {0.0f, 0.0f}, float angle = 0.0f, bool isTrigger = false)
-        {
-            b2PolygonShape shape;
-            shape.SetAsBox(offset.x, offset.y, size, angle);
-
-            b2FixtureDef fixtureDef;
-
-            fixtureDef.shape = &shape;
-            fixtureDef.isSensor = isTrigger;
-            fixtureDef.density = 1.0f;
-
-            if (fixture != nullptr) {
-                body->DestroyFixture(fixture);
-            }
-            fixture = body->CreateFixture(&fixtureDef);
-        }*/
-
-        void AddSpriteCollider(Entity* entity, bool isTrigger);
+        void AddSpriteCollider(Entity* entity, bool isTrigger);//This will add a box collider of the correct size and position as long as the entity also has a sprite component
         void AddPolygon(Entity* entity);
         //Add Polygon ---------------------------------------------------------
         void AddPolygon(Entity* entity, std::vector<b2Vec2>& vertices);
 
-        //void AddPolygon(std::vector<b2Vec2>& vertices) {
-        //    if (vertices.size() < 3 || vertices.size() > b2_maxPolygonVertices)
-        //        return;
-
-        //    b2PolygonShape shape;
-
-        //    //Set the polygon shape with the vertices data and their total count
-        //    shape.Set(vertices.data(), static_cast<int32>(vertices.size()));
-
-        //    b2FixtureDef fixtureDef;
-
-        //    fixtureDef.shape = &shape;
-        //    fixtureDef.isSensor = false;
-
-        //    //Set the body fixture for the created shape with polygons
-        //    if (fixture != nullptr) {
-        //        body->DestroyFixture(fixture);
-        //    }
-        //    fixture = body->CreateFixture(&fixtureDef);
-        //}
-
-        /*b2Fixture* GetFixture()
-        {
-            return fixture;
-        }*/
+       
         void Remove()
         {
             if (body && fixture)
@@ -154,7 +113,6 @@ namespace IonixEngine
                 body->DestroyFixture(fixture);
                 fixture = nullptr;
             }
-
         }
 
 

@@ -48,11 +48,11 @@ namespace IonixEngine {
 
     void FysicsShapes::AddSpriteCollider(Entity* entity, bool isTrigger)
     {
-        if (!entity->GetComponent<SpriteComponent>()){return;}
+        SpriteComponent* sprite_component = nullptr;
+        if (!entity->TryGetComponent<SpriteComponent>(&sprite_component)){return;}
         
         body = FysicsManager::GetManager()->GetBodyFromEntity(entity);
         b2PolygonShape shape;
-        SpriteComponent* sprite_component = entity->GetComponent<SpriteComponent>();
         
         float xScale = sprite_component->getWidth() / 100.0f;
         float yScale = sprite_component->getHeight() / 100.0f;
