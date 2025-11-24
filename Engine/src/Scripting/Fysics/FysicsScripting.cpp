@@ -153,10 +153,28 @@ namespace IonixEngine
 			Application::Get().layerFysics->GetFysicsManager()->GetForce()->ClearForces(entity);
 			};
 
+		//Material Changes
+		auto fysicsSetFriction = [](Entity* entity, float friction) {
+			Application::Get().layerFysics->GetFysicsManager()->GetMaterial()->SetFriction(entity, friction);
+		};
+		
+		auto fysicsSetRestitution = [](Entity* entity, float restitution) {
+			Application::Get().layerFysics->GetFysicsManager()->GetMaterial()->SetRestitution(entity, restitution);
+		};
+
+		auto getFriction = [](Entity* entity)-> float {
+			return Application::Get().layerFysics->GetFysicsManager()->GetMaterial()->GetFriction(entity);
+		};
+
+		auto getRestitution = [](Entity* entity)-> float {
+			return Application::Get().layerFysics->GetFysicsManager()->GetMaterial()->GetRestitution(entity);
+		};
+
 
 
 		//----------Collision Methods----------
 
+		
 		auto addBoxCollider = [](Entity* entity, float sizeX, float sizeY, int offsetX, int offsetY, float angle, bool isTrigger, sol::optional<uint16> categoryBits, sol::optional<uint16> maskBits) {
 
 			b2Vec2 size;
@@ -172,6 +190,27 @@ namespace IonixEngine
 
 			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddBox(entity, size, offset, angle, isTrigger, category, mask);
 		};
+		auto addSpriteCollider = [](Entity* entity, bool isTrigger) {
+
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddSpriteCollider(entity, isTrigger);
+		};
+
+		auto addPolygonCollider = [](Entity* entity, float x1, float y1, float x2, float y2) {
+			std::vector<b2Vec2> points;
+			points.push_back({x1, y1});
+			points.push_back({x2, y1});
+			points.push_back({x2, y2});
+			points.push_back({x1, y2});
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddPolygon(entity, points);
+		};
+
+
+
+
+
+
+
+
 
 
 
@@ -206,7 +245,13 @@ namespace IonixEngine
 			"add_torque", addFysicsTorque,
 			"add_angular_impulse", addFysicsAngularImpulse,
 			"clear_forces", clearFysicsForces,
-			"add_box_collider", addBoxCollider
+			"add_box_collider", addBoxCollider,
+			"set_friction", fysicsSetFriction,
+			"set_restitution", fysicsSetRestitution,
+			"get_friction", getFriction,
+			"get_restitution", getRestitution,
+			"add_polygon_collider", addPolygonCollider,
+			"add_sprite_collider", addSpriteCollider
 		);
 	}
 }
