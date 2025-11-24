@@ -78,4 +78,19 @@ namespace IonixEngine
 		//entityBodyMap[entity] = body; // Not needed as we have helper methods which get what we need from 1 data structure.
 		bodyEntityMap[body] = entity;
 	}
+
+	void FysicsManager::ApplyCollisionFilter(b2Fixture* fixture, Entity* entity)
+	{
+		if (!fixture || !entity) return;
+
+		CollisionLayerComponent* collisionLayer = entity->GetComponent<CollisionLayerComponent>();
+
+		if (!collisionLayer) return;
+
+		b2Filter filter;
+		filter.categoryBits = collisionLayer->Layer;
+		filter.maskBits = collisionLayer->Mask;
+		filter.groupIndex = 0;
+		fixture->SetFilterData(filter);
+	}
 }
