@@ -20,7 +20,7 @@ namespace IonixEngine
 	struct UIElement
 	{
 		UIType type;
-		std::string groupName;
+		//std::string groupName;
 		int xPos;
 		int yPos;
 		float xSize;
@@ -49,9 +49,9 @@ namespace IonixEngine
 	class UIManager
 	{
 	private: 
-		std::string currentGroupName; 
+		//std::string currentGroupName; 
 
-		std::vector<UIElement*> groupStack; 
+		//std::vector<UIElement*> groupStack; 
 
 		void RenderElement(UIElement& element);
 	public:
@@ -64,7 +64,7 @@ namespace IonixEngine
 
 		std::vector<UIElement> elements;
 		
-		void EndGroup();
+		//void EndGroup();
 
 		void BeginPanel(const std::string& panelName);
 
@@ -87,8 +87,9 @@ namespace IonixEngine
 		
 		void AddDropdown(int x, int y, float xSize, float ySize, const char* text, std::vector<std::string> options, int* currentIndex);
 		
-		
 		void AddColorPicker(int x, int y, float xSize, float ySize, const char* label, float* color);
+
+		void ClearElements();
 
 		void RenderUI();
 		

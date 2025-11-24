@@ -34,9 +34,8 @@ function ExampleScript:OnStart()
     Entity.set_entity_pos(player, x, y)
     playerSprite = Entity.add_sprite_component(player, "ball", 75, 75, 0)
 	Sprite.set_playback_mode(playerSprite, 4)
-
     Entity.add_fysics_component(player, 2, false) -- dynamic body
-    Fysics.add_box_collider(player, .5, .5, 0, 0, 0, false)
+    Fysics.add_box_collider(player, 0.5, 0.5, 0, 0, 0, false)
 
     local tileSize = 32
     local floorY = 610
