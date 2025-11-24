@@ -47,11 +47,11 @@ function ExampleScript:OnStart()
 	-- pick texture for left / middle / right
 	------------------------------------------------------
 	local tex = "middle"
-    
+    local colliderScale = tileSize / 100 -- pixels to meters  (defined outside of the loop)
 
-	for i = 0, 30 do
+	for i = 0, 1 do
     		local tile = Entity.create_entity()
-    		local xPos = i * tileSize
+    		local xPos = 300
     
     		------------------------------------------------------
     		-- place sprite
@@ -66,7 +66,7 @@ function ExampleScript:OnStart()
     		-- add physics body + collider
     		------------------------------------------------------
     		Entity.add_fysics_component(tile, 0, false)  -- static
-    		Fysics.add_box_collider(tile, 1, 1, 0, 0, 0, false)  -- not a trigger
+    		Fysics.add_box_collider(tile, colliderScale, colliderScale, colliderScale / 2, colliderScale / 2, 0, false)  -- not a trigger
     end
 
 
