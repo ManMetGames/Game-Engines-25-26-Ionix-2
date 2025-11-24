@@ -117,7 +117,7 @@ namespace IonixEngine
             fixture = body->CreateFixture(&fixtureDef);
         }*/
 
-
+        void AddSpriteCollider(Entity* entity, bool isTrigger);
         void AddPolygon(Entity* entity);
         //Add Polygon ---------------------------------------------------------
         void AddPolygon(Entity* entity, std::vector<b2Vec2>& vertices);

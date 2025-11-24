@@ -26,11 +26,7 @@ namespace IonixEngine {
     }
 
     //add box
-    void FysicsShapes::AddBox(Entity* entity,
-        b2Vec2 size,   
-        b2Vec2 offset,
-        float angle,
-        bool isTrigger)
+    void FysicsShapes::AddBox(Entity* entity, b2Vec2 size, b2Vec2 offset, float angle, bool isTrigger)
     {
         body = FysicsManager::GetManager()->GetBodyFromEntity(entity);
         b2PolygonShape shape;
@@ -46,6 +42,36 @@ namespace IonixEngine {
 
         //if (fixture)
         //    body->DestroyFixture(fixture);
+
+        fixture = body->CreateFixture(&fixtureDef);        
+    }
+
+    void FysicsShapes::AddSpriteCollider(Entity* entity, bool isTrigger)
+    {
+        if (!entity->GetComponent<SpriteComponent>()){return;}
+        
+        body = FysicsManager::GetManager()->GetBodyFromEntity(entity);
+        b2PolygonShape shape;
+        SpriteComponent* sprite_component = entity->GetComponent<SpriteComponent>();
+        
+        float xScale = sprite_component->getWidth() / 100.0f;
+        float yScale = sprite_component->getHeight() / 100.0f;
+        
+        b2Vec2 size;
+        size.x = xScale;
+        size.y = yScale;
+        b2Vec2 halfSize(size.x * 0.5f, size.y * 0.5f);
+
+        b2Vec2 offset;
+        offset.x = xScale / 2;
+        offset.y = yScale / 2;
+
+        shape.SetAsBox(halfSize.x, halfSize.y, offset, angle);
+
+        b2FixtureDef fixtureDef;
+        fixtureDef.shape = &shape;
+        fixtureDef.isSensor = isTrigger;
+        fixtureDef.density = 1.0f;
 
         fixture = body->CreateFixture(&fixtureDef);        
     }

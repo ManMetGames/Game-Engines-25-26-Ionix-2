@@ -177,7 +177,12 @@ namespace IonixEngine
 			offset.y = offsetY;
 
 			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddBox(entity, size, offset, angle, isTrigger);
-			};
+		};
+
+		auto addSpriteCollider = [](Entity* entity, bool isTrigger) {
+
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddSpriteCollider(entity, isTrigger);
+		};
 
 		auto addPolygonCollider = [](Entity* entity, float x1, float y1, float x2, float y2) {
 			std::vector<b2Vec2> points;
@@ -232,7 +237,8 @@ namespace IonixEngine
 			"set_restitution", fysicsSetRestitution,
 			"get_friction", getFriction,
 			"get_restitution", getRestitution,
-			"add_polygon_collider", addPolygonCollider
+			"add_polygon_collider", addPolygonCollider,
+			"add_sprite_collider", addSpriteCollider
 		);
 	}
 }

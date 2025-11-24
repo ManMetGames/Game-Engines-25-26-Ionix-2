@@ -38,7 +38,8 @@ function ExampleScript:OnStart()
 	Sprite.set_playback_mode(playerSprite, 4)
 
     Entity.add_fysics_component(player, 2, true) -- dynamic body
-    Fysics.add_box_collider(player, .5, .5, 0, 0, 0, false)
+    Fysics.add_sprite_collider(player, false)
+    --Fysics.add_box_collider(player, .5, .5, 0, 0, 0, false)
 
     local tileSize = 32
     local floorY = 500
@@ -49,9 +50,9 @@ function ExampleScript:OnStart()
 	local tex = "middle"
     local colliderScale = tileSize / 100 -- pixels to meters  (defined outside of the loop)
 
-	for i = 0, 1 do
+	for i = 0, 30 do
     		local tile = Entity.create_entity()
-    		local xPos = 300
+    		local xPos = i * tileSize
     
     		------------------------------------------------------
     		-- place sprite
@@ -66,7 +67,8 @@ function ExampleScript:OnStart()
     		-- add physics body + collider
     		------------------------------------------------------
     		Entity.add_fysics_component(tile, 0, false)  -- static
-    		Fysics.add_box_collider(tile, colliderScale, colliderScale, colliderScale / 2, colliderScale / 2, 0, false)  -- not a trigger
+    		--Fysics.add_box_collider(tile, colliderScale, colliderScale, colliderScale / 2, colliderScale / 2, 0, false)  -- not a trigger
+            Fysics.add_sprite_collider(tile, false)
     end
 
 
