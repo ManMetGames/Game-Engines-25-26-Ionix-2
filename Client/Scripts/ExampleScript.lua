@@ -9,7 +9,6 @@ local goalX = 500
 local goalY = 500
 local y = 300
 local t = 10
-local ground
 
 local function CheckGoalProximity(player, goal, threshold, respawnX, respawnY)
     
@@ -19,7 +18,6 @@ end
 -- OnStart
 ----------------------------------------------------------
 function ExampleScript:OnStart()
-    
 
     ------------------------------------------------------
     -- Load textures
@@ -33,7 +31,7 @@ function ExampleScript:OnStart()
     -- Create player
     ------------------------------------------------------
     player = Entity.create_entity()
-    Entity.set_entity_pos(player, 800, y)
+    Entity.set_entity_pos(player, x, y)
     playerSprite = Entity.add_sprite_component(player, "ball", 75, 75, 0)
 	Sprite.set_playback_mode(playerSprite, 4)
 
@@ -42,13 +40,12 @@ function ExampleScript:OnStart()
     --Fysics.add_box_collider(player, .5, .5, 0, 0, 0, false)
 
     local tileSize = 32
-    local floorY = 500
+    local floorY = 610
 
 	------------------------------------------------------
 	-- pick texture for left / middle / right
 	------------------------------------------------------
 	local tex = "middle"
-    local colliderScale = tileSize / 100 -- pixels to meters  (defined outside of the loop)
 
 	for i = 0, 30 do
     		local tile = Entity.create_entity()
