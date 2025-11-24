@@ -20,14 +20,14 @@ namespace IonixEngine {
             SDL_Log("[DEBUG TEST] First entity failed, returning...");
             return;
         }
-        firstEntity->transform.SetLocalPosition(Vec2 { 500, 300 });
-        firstEntity->AddComponent(new SpriteComponent(firstEntity, Assets::Get().textures.hermer, 200, 200, 0));
+        //firstEntity->transform.SetLocalPosition(Vec2 { 500, 300 });
+        //firstEntity->AddComponent(new SpriteComponent(firstEntity, Assets::Get().textures, 200, 200, 0));
         //firstEntity->AddComponent(new EntityMover(firstEntity, 60));
-        firstEntity->transform.SetLocalScale(Vec2{ 0.5,1.5 });
-        firstEntity->GetComponent<SpriteComponent>()->setSpriteHeight(64);
-        firstEntity->GetComponent<SpriteComponent>()->setSpriteWidth(64);
-        firstEntity->GetComponent<SpriteComponent>()->setCols(3);
-        firstEntity->GetComponent<SpriteComponent>()->setRows(3);
+        //firstEntity->transform.SetLocalScale(Vec2{ 0.5,1.5 });
+        //firstEntity->GetComponent<SpriteComponent>()->setSpriteHeight(64);
+        //firstEntity->GetComponent<SpriteComponent>()->setSpriteWidth(64);
+        //firstEntity->GetComponent<SpriteComponent>()->setCols(3);
+        //firstEntity->GetComponent<SpriteComponent>()->setRows(3);
 
         //EntityID second = CreateEntity();
         //Entity* secondEntity = GetEntityFromID(second);
