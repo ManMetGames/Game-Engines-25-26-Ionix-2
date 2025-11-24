@@ -229,9 +229,6 @@ namespace IonixEngine
 
 
 		//----------Collision Methods----------
-		auto addBoxCollider = [](Entity* entity, float sizeX, float sizeY, int offsetX, int offsetY, float angle, bool isTrigger) {
-
-
 		auto addBoxCollider = [](Entity* entity, float sizeX, float sizeY, float offsetX, float offsetY, float angle, bool isTrigger) {
 			
 			b2Vec2 size;
