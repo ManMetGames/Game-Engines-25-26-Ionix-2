@@ -52,11 +52,11 @@ function ExampleScript:OnStart()
 
     -- PLAYER 1 PHYSICS
     Entity.add_fysics_component(player1, 2, false) -- dynamic body
-    Fysics.add_box_collider(player1, .5, .4, 0, 0, 0, false)
+    Fysics.add_sprite_collider(player1, false)
 
     -- PLAYER 2 PHYSICS 
     Entity.add_fysics_component(player2, 2, false) -- dynamic body
-    Fysics.add_box_collider(player2, .5, .4, 0, 0, 0, false)
+    Fysics.add_sprite_collider(player2, false)
 
     local tileSize = 64
     local floorY = 600
@@ -83,7 +83,7 @@ function ExampleScript:OnStart()
 		-- add physics body + collider
 		------------------------------------------------------
 		Entity.add_fysics_component(tile, 0, false)  -- static
-		Fysics.add_box_collider(tile, 1, 1, 0, 0, 0, false)  -- not a trigger
+		Fysics.add_sprite_collider(tile, false)
 	end
 end
 

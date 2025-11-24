@@ -26,7 +26,13 @@ namespace IonixEngine {
     }
 
     //add box
-    void FysicsShapes::AddBox(Entity* entity, b2Vec2 size, b2Vec2 offset, float angle, bool isTrigger)
+    void FysicsShapes::AddBox(Entity* entity,
+        b2Vec2 size,   
+        b2Vec2 offset,
+        float angle,
+        bool isTrigger,
+        uint16 categoryBits,
+        uint16 maskBits)
     {
         body = FysicsManager::GetManager()->GetBodyFromEntity(entity);
         b2PolygonShape shape;

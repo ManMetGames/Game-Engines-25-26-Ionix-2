@@ -34,7 +34,7 @@ namespace IonixEngine
                 AddCircle(entity, radius, offset, isTrigger);
                 break;
             case fysicShapeType::box:
-                AddBox(entity, b2Vec2 { width, height }, offset, angle, isTrigger);
+                AddBox(entity, b2Vec2 { width, height }, offset, angle, isTrigger, 0x0001, 0xFFFF);
                 break;
             case fysicShapeType::polygon:
                 AddPolygon(entity);
@@ -99,7 +99,13 @@ namespace IonixEngine
 
 
         // Box -------------------------------------------------------
-        void AddBox(Entity* entity, b2Vec2 size = { 1, 1 }, b2Vec2 offset = { 0.0f, 0.0f }, float angle = 0.0f, bool isTrigger = false);
+        void AddBox(Entity* entity,
+        b2Vec2 size,   
+        b2Vec2 offset,
+        float angle,
+        bool isTrigger,
+        uint16 categoryBits,
+        uint16 maskBits);
         void AddSpriteCollider(Entity* entity, bool isTrigger);//This will add a box collider of the correct size and position as long as the entity also has a sprite component
         void AddPolygon(Entity* entity);
         //Add Polygon ---------------------------------------------------------
