@@ -109,7 +109,7 @@ namespace IonixEngine
         void AddSpriteCollider(Entity* entity, bool isTrigger);//This will add a box collider of the correct size and position as long as the entity also has a sprite component
         void AddPolygon(Entity* entity);
         //Add Polygon ---------------------------------------------------------
-        void AddPolygon(Entity* entity, std::vector<b2Vec2>& vertices);
+        //void AddPolygon(Entity* entity, std::vector<b2Vec2>& vertices);
 
        
         void Remove()

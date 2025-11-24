@@ -46,9 +46,6 @@ namespace IonixEngine {
         fixtureDef.isSensor = isTrigger;
         fixtureDef.density = 1.0f;
 
-        //if (fixture)
-        //    body->DestroyFixture(fixture);
-
         fixture = body->CreateFixture(&fixtureDef);        
     }
 
@@ -83,14 +80,19 @@ namespace IonixEngine {
     }
 
 
-    void FysicsShapes::AddPolygon(Entity* entity)
+    /*void FysicsShapes::AddPolygon(Entity* entity)
     {
-        static std::vector<b2Vec2> defaultVertices = { {0, 1}, { 0.6, 0.6 }, { 0.3, -0.5f }, { -0.3, -0.5f}, {-0.6, 0.6f } };
+        static std::vector<b2Vec2> defaultVertices = {
+            { -1.0f, -0.5f },
+            {  1.0f, -0.5f },
+            {  1.0f,  0.5f },
+            { -1.0f,  0.5f }
+        };
         AddPolygon(entity, defaultVertices);
-    }
+    }*/
 
     //add polygon
-    void FysicsShapes::AddPolygon(Entity* entity, std::vector<b2Vec2>& vertices) {
+    /*void FysicsShapes::AddPolygon(Entity* entity, std::vector<b2Vec2>& vertices) {
         if (vertices.size() < 3 || vertices.size() > b2_maxPolygonVertices)
             return;
 
@@ -108,8 +110,29 @@ namespace IonixEngine {
         if (fixture) {
             body->DestroyFixture(fixture);
         }
-        fixture = FysicsManager::GetManager()->GetBodyFromEntity(entity)->CreateFixture(&fixtureDef);
+        fixture = body->CreateFixture(&fixtureDef);      
+    }*/
 
+    void FysicsShapes::AddPolygon(Entity* entity) {
+        body = FysicsManager::GetManager()->GetBodyFromEntity(entity);
+        b2Vec2 vertices[4];
+        float w = 0.5f, h = 0.5f; // width, height in meters
+        vertices[0].Set(0.0f, 0.0f);
+        vertices[1].Set( 1.0f, 0.0f);
+        vertices[2].Set( 0.0f,  1.0f);
+        vertices[3].Set(1.0f,  1.0f);
+ 
+        int32 count = 4;
+        b2PolygonShape polygon;
+
+
+        b2FixtureDef fixtureDef;
+        fixtureDef.shape = &polygon;
+        fixtureDef.isSensor = false;
+        fixtureDef.density = 1.0f;
+        polygon.Set(vertices, count);
+
+        fixture = body->CreateFixture(&fixtureDef);      
     }
 
 

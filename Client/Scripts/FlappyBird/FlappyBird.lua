@@ -85,6 +85,18 @@ function ExampleScript:OnStart()
 		Entity.add_fysics_component(tile, 0, false)  -- static
 		Fysics.add_sprite_collider(tile, false)
 	end
+    
+    -------------------------------
+    --Polygon Testing
+    --------------------------------
+    local polygon = Entity.create_entity()
+    Entity.set_entity_pos(polygon, 400, 300)
+    local s = Entity.add_sprite_component(polygon, "Sand", tileSize, tileSize, 0)
+    Sprite.set_playback_mode(s, 4)
+    Entity.add_fysics_component(polygon, 0, false)
+    --Fysics.add_sprite_collider(polygon)
+    Fysics.add_polygon_collider(polygon)
+    
 end
 
 ----------------------------------------------------------

@@ -195,22 +195,20 @@ namespace IonixEngine
 			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddSpriteCollider(entity, isTrigger);
 		};
 
-		auto addPolygonCollider = [](Entity* entity, float x1, float y1, float x2, float y2) {
+		/*auto addPolygonCollider = [](Entity* entity) {
 			std::vector<b2Vec2> points;
-			points.push_back({x1, y1});
-			points.push_back({x2, y1});
-			points.push_back({x2, y2});
-			points.push_back({x1, y2});
+			points[0] = b2Vec2(0, 0);
+			points[1] = b2Vec2(200, 0);
+			points[2] = b2Vec2(0, 200);
+			points[2] = b2Vec2(200, 200);
+			
 			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddPolygon(entity, points);
+		};*/
+
+		auto addPolygonCollider = [](Entity* entity) {
+			
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddPolygon(entity);
 		};
-
-
-
-
-
-
-
-
 
 
 
