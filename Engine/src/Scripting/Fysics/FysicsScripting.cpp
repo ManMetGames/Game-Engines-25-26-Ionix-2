@@ -206,8 +206,18 @@ namespace IonixEngine
 		};*/
 
 		auto addPolygonCollider = [](Entity* entity) {
+			std::vector<b2Vec2> localVerts = {
+				{0.0f,   0.0f},
+				{100.0f, 0.0f},
+				{100.0f, 100.0f},
+				{0.0f,   100.0f}
+			};
 			
-			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddPolygon(entity);
+			std::vector<b2Vec2> worldPositions = Application::Get().layerFysics->GetFysicsManager()->ConvertToWorldSpace(entity, localVerts);
+			
+			
+			
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddPolygon(entity, worldPositions);
 		};
 
 

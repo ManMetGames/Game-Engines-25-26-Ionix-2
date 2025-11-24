@@ -92,7 +92,9 @@ namespace IonixEngine {
     }*/
 
     //add polygon
-    /*void FysicsShapes::AddPolygon(Entity* entity, std::vector<b2Vec2>& vertices) {
+    void FysicsShapes::AddPolygon(Entity* entity, std::vector<b2Vec2>& vertices) {
+        body = FysicsManager::GetManager()->GetBodyFromEntity(entity);
+
         if (vertices.size() < 3 || vertices.size() > b2_maxPolygonVertices)
             return;
 
@@ -111,9 +113,9 @@ namespace IonixEngine {
             body->DestroyFixture(fixture);
         }
         fixture = body->CreateFixture(&fixtureDef);      
-    }*/
+    }
 
-    void FysicsShapes::AddPolygon(Entity* entity) {
+    /*void FysicsShapes::AddPolygon(Entity* entity) {
         body = FysicsManager::GetManager()->GetBodyFromEntity(entity);
         b2Vec2 vertices[4];
         float w = 0.5f, h = 0.5f; // width, height in meters
@@ -124,8 +126,6 @@ namespace IonixEngine {
  
         int32 count = 4;
         b2PolygonShape polygon;
-
-
         b2FixtureDef fixtureDef;
         fixtureDef.shape = &polygon;
         fixtureDef.isSensor = false;
@@ -133,7 +133,7 @@ namespace IonixEngine {
         polygon.Set(vertices, count);
 
         fixture = body->CreateFixture(&fixtureDef);      
-    }
+    }*/
 
 
 

@@ -37,7 +37,7 @@ namespace IonixEngine
                 AddBox(entity, b2Vec2 { width, height }, offset, angle, isTrigger, 0x0001, 0xFFFF);
                 break;
             case fysicShapeType::polygon:
-                AddPolygon(entity);
+                AddPolygon(entity, vertices);
                 break;
             default:
                 break;
@@ -107,7 +107,7 @@ namespace IonixEngine
         uint16 categoryBits,
         uint16 maskBits);
         void AddSpriteCollider(Entity* entity, bool isTrigger);//This will add a box collider of the correct size and position as long as the entity also has a sprite component
-        void AddPolygon(Entity* entity);
+        void AddPolygon(Entity* entity, std::vector<b2Vec2>& vertices);
         //Add Polygon ---------------------------------------------------------
         //void AddPolygon(Entity* entity, std::vector<b2Vec2>& vertices);
 
