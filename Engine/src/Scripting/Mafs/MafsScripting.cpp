@@ -30,19 +30,35 @@ namespace IonixEngine
 			};
 
 		auto lerp = [](float x, float y, float t) -> float {
-			t *= Application::Get().deltaTime;
 			return Maf::mafLerp(x, y, t);
 			};
 
-		auto lerpVec = [](b2Vec2 v1, b2Vec2 v2, float t) -> b2Vec2 {
-			t *= Application::Get().deltaTime;
-			std::pair<float, float> vectorPair = Maf::mafLerpVector(v1.x, v1.y, v2.x, v2.y, t);
-			return b2Vec2(vectorPair.first, vectorPair.second) ;
+		auto vector2 = [](float x, float y) -> Maf::mafVector2<float> {
+			return Maf::mafVector2(x, y);
 			};
 
-		auto vector2 = [](float x, float y) -> b2Vec2* {
-			b2Vec2* vector = new b2Vec2(x, y);
-			return vector;
+		auto vector2x = [](Maf::mafVector2<float> vec2) -> float {
+			return vec2.x;
+			};
+
+		auto vector2y = [](Maf::mafVector2<float> vec2) -> float {
+			return vec2.y;
+			};
+
+		auto vector3 = [](float x, float y, float z) -> Maf::mafVector3<float> {
+			return Maf::mafVector3(x, y, z);
+			};
+
+		auto vector3x = [](Maf::mafVector3<float> vec3) -> float {
+			return vec3.x;
+			};
+
+		auto vector3y = [](Maf::mafVector3<float> vec3) -> float {
+			return vec3.y;
+			};
+
+		auto vector3z = [](Maf::mafVector3<float> vec3) -> float {
+			return vec3.z;
 			};
 
 		auto mod = [](float x, float y) -> float {
@@ -53,8 +69,12 @@ namespace IonixEngine
 			return Maf::mafDiv(x, y);
 			};
 
-		auto SqrMagnitudeVector2 = [](b2Vec2 v) -> float {
-			return Maf::mafSqrMagnitudeVec2(v.x, v.y);
+		auto SqrMagnitudeVector2 = [](Maf::mafVector2<float> v) -> float {
+			return Maf::mafSqrMagnitudeVec2(v);
+			};
+
+		auto SqrMagnitudeVector3 = [](Maf::mafVector3<float> v) -> float {
+			return Maf::mafSqrMagnitudeVec3(v);
 			};
 
 		auto abs = [](float x) -> float {
@@ -116,10 +136,17 @@ namespace IonixEngine
 			"log_custom", logCustom,
 			"square_root", sqrt,
 			"lerp", lerp,
-			"vec_2", vector2,
+			"vector2", vector2,
+			"vector2_x", vector2x,
+			"vector2_y", vector2y,
+			"vector3", vector3,
+			"vector3_x", vector3x,
+			"vector3_y", vector3y,
+			"vector3_z", vector3z,
 			"mod", mod,
 			"div", div,
 			"sqr_magnitude_vector2", SqrMagnitudeVector2,
+			"sqr_magnitude_vector3", SqrMagnitudeVector3,
 			"sin", sin,
 			"cos", cos,
 			"tan", tan,

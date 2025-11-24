@@ -32,7 +32,7 @@ void SoundManager::Shutdown() {
 }
 
 bool SoundManager::LoadSound(const std::string &name, const std::string &filePath) {
-    uint32_t hash = Get32BitHash(name);
+    uint64_t hash = Get64BitHash(name);
     m_Sounds[hash] = AudioData();
     AudioData* clip = &m_Sounds[hash];
     Mix_Chunk* audio = Mix_LoadWAV(filePath.c_str());
@@ -47,7 +47,7 @@ bool SoundManager::LoadSound(const std::string &name, const std::string &filePat
 }
 
 Mix_Chunk* SoundManager::GetAudio(const std::string& name) {
-    uint32_t hash = Get32BitHash(name);
+    uint64_t hash = Get64BitHash(name);
     auto it = m_Sounds.find(hash);
     if (it != m_Sounds.end()) {
         return m_Sounds[hash].audio;
@@ -58,7 +58,7 @@ Mix_Chunk* SoundManager::GetAudio(const std::string& name) {
     }
 }
 
-Mix_Chunk* SoundManager::GetAudio(uint32_t hash) {
+Mix_Chunk* SoundManager::GetAudio(uint64_t hash) {
     auto it = m_Sounds.find(hash);
     if (it != m_Sounds.end()) {
         return m_Sounds[hash].audio;
@@ -83,21 +83,21 @@ Mix_Chunk* SoundManager::GetAudio(uint32_t hash) {
 //}
 
 void SoundManager::SetVolume(const std::string &name, float volume) {
-  uint32_t hash = Get32BitHash(name);
+  uint64_t hash = Get64BitHash(name);
   m_Volumes[hash] = SDL_clamp(volume, 0, 1);
   // does not play the sound; volume applies to future 'PlaySound' calls
 }
 
-void SoundManager::SetVolume(uint32_t hash, float volume) {
+void SoundManager::SetVolume(uint64_t hash, float volume) {
   m_Volumes[hash] = SDL_clamp(volume, 0, 1);
   // does not play the sound; volume applies to future 'PlaySound' calls
 }
 
 float SoundManager::GetPlayTime(const std::string& alias) {
-    return GetPlayTime(Get32BitHash(alias));
+    return GetPlayTime(Get64BitHash(alias));
 }
 
-float SoundManager::GetPlayTime(uint32_t hash) {
+float SoundManager::GetPlayTime(uint64_t hash) {
     int freq = 0;
     Uint16 format = 0;
     int channels = 0;

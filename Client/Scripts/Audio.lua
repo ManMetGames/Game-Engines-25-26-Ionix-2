@@ -1,6 +1,8 @@
 local audio = {}
+local bgmEntity
 local soundEntity
 local volume = 64 -- 0–128 range
+local assets
 
 function audio:OnStart()
     print("[Lua] Audio system initializing...")
@@ -51,6 +53,12 @@ function audio:OnShutdown()
         print("[Lua] Sound stopped on shutdown.")
     end
     print("[Lua] Audio system shutting down...")
+end
+
+function audio:play_hit()
+    local hitEntity = Entity.create_entity()
+    Entity.add_audio_component(hitEntity, "hit", false)
+    AudioComponent.play(hitEntity)
 end
 
 return audio
