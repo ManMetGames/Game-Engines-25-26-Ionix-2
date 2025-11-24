@@ -6,6 +6,8 @@ namespace IonixEngine
 {
 	class CollisionLayerComponent : public Component
 	{
+	public:
+
 		uint32_t Layer;
 		uint32_t Mask;
 

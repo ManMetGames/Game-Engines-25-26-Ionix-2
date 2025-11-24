@@ -6,6 +6,7 @@
 #include "Fysics/RigidBodyTransform.h"
 #include "Fysics/CollisionListener.h"
 #include "Architecture/ECS/Entity.hpp"
+#include "Fysics/CollisionLayerComponent.h"
 
 #include <unordered_map>
 #include "box2d.h"
@@ -50,5 +51,7 @@ namespace IonixEngine
         Entity* GetEntityFromBody(b2Body* body);
 
         void AddEntityBodyPair(Entity* entity, b2Body* body);
+
+        void ApplyCollisionFilter(b2Fixture* fixture, Entity* entity);
     };
 }
