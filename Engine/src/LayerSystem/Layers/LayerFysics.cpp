@@ -100,7 +100,8 @@ namespace IonixEngine
         }
 
         // before physics step, save current state as previous
-        /*for (auto& [body, entity] : bodyMap)
+        // BEFORE physics step, save current state as previous
+        for (auto& [body, entity] : bodyMap)
         {
             if (transformMap.find(body) == transformMap.end())
             {
@@ -114,20 +115,29 @@ namespace IonixEngine
                 transform.previousPosition = transform.currentPosition;
                 transform.previousRotation = transform.currentRotation;
             }
-        }*/
+        }
         
         // step physics simulation at fixed timestep
         //world->Step(timeStep, velocityIterations, positionIterations);
         //
         //// AFTER physics step, update current state
-        //for (auto& val : bodyMap)
-        //{
-        //    Vec2 pos;
-        //    pos.x = val.first->GetPosition().x * ppm;
-        //    pos.y = val.first->GetPosition().y * ppm;
+        for (auto& val : bodyMap)
+        {
+           Vec2 pos;
+           pos.x = val.first->GetPosition().x * ppm;
+           pos.y = val.first->GetPosition().y * ppm;
 
-        //    val.second->transform.SetGlobalPosition(pos);
-        //}
+            val.second->position.x = pos.x;
+            val.second->position.y = pos.y;
+            
+            // update current transform state for interpolation
+            if (transformMap.find(val.first) != transformMap.end())
+            {
+                auto& transform = transformMap[val.first];
+                transform.currentPosition = val.first->GetPosition();
+                transform.currentRotation = val.first->GetAngle();
+            }
+        }
     } 
     void LayerFysics::OnEvent(IonixEvent& e)
     {
