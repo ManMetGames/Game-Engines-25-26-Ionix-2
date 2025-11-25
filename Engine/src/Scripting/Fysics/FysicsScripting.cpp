@@ -22,6 +22,15 @@ namespace IonixEngine
 			"y", &b2Vec2::y
 		);
 
+		lua.new_enum<fysicShapeType>("ShapeType",
+			{
+				{"circle", fysicShapeType::circle},
+				{"box", fysicShapeType::box},
+				{"polygon", fysicShapeType::polygon},
+				{"none", fysicShapeType::none}
+			}
+		);
+
 
 		//------------Fysics Body Methods---------------
 		auto getFysicsPos = [](Entity* entity) -> b2Vec2 {
@@ -249,6 +258,14 @@ namespace IonixEngine
 			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddPolygon(entity);
 			};
 
+		auto getColliderWidth = [](Entity* entity) {
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->GetWidth();
+			};
+
+		auto setColliderWidth = [](Entity* entity, float w, fysicShapeType shapeType) {
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->SetWidth(w, shapeType);
+			};
+
 
 		lua["Fysics"] = lua.create_table_with(
 			"add_circle_collider",addCircle,
@@ -297,7 +314,9 @@ namespace IonixEngine
 			"get_pulley_joint", addPulleyJoint,
 			"get_revolute_joint", addRevoluteJoint,
 			"get_distance_joint", addDistanceJoint,
-			"add_box_collider", addBoxCollider
+			"add_box_collider", addBoxCollider,
+			"get_width", getColliderWidth,
+			"set_width", setColliderWidth
 		);
 	}
 }
