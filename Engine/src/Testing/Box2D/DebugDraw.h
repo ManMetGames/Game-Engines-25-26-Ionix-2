@@ -12,9 +12,10 @@ public:
     void SetRenderer(SDL_Renderer* renderer) { m_renderer = renderer; }
 
     SDL_Point ToScreen(const b2Vec2& vec) const {
+        float scale = 100.0f;
         return {
-            static_cast<int>(vec.x * m_scale),
-            static_cast<int>(vec.y * m_scale)
+            static_cast<int>(vec.x * scale),
+            static_cast<int>(vec.y * scale)
         };
     }
 

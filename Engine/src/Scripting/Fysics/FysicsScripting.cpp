@@ -154,12 +154,9 @@ namespace IonixEngine
 			};
 
 		//Material Changes
-		auto fysicsSetFriction = [](Entity* entity, float friction) {
-			Application::Get().layerFysics->GetFysicsManager()->GetMaterial()->SetFriction(entity, friction);
-		};
 		
-		auto fysicsSetRestitution = [](Entity* entity, float restitution) {
-			Application::Get().layerFysics->GetFysicsManager()->GetMaterial()->SetRestitution(entity, restitution);
+		auto fysicsUpdateMaterialProperties = [](Entity* entity, float friction, float restitution) {
+			Application::Get().layerFysics->GetFysicsManager()->GetMaterial()->UpdateMaterial(entity, friction, restitution);
 		};
 
 		auto getFriction = [](Entity* entity)-> float {
@@ -415,8 +412,7 @@ namespace IonixEngine
 			"add_angular_impulse", addFysicsAngularImpulse,
 			"clear_forces", clearFysicsForces,
 			"add_box_collider", addBoxCollider,
-			"set_friction", fysicsSetFriction,
-			"set_restitution", fysicsSetRestitution,
+			"set_material_properties", fysicsUpdateMaterialProperties,
 			"get_friction", getFriction,
 			"get_restitution", getRestitution,
 			"add_polygon_collider", addPolygonCollider,

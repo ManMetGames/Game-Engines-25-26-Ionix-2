@@ -9,6 +9,7 @@
 
 #include <unordered_map>
 #include "box2d.h"
+#include "FysicsMaterials/FysicsMaterialComponent.h"
 
 namespace IonixEngine
 {
@@ -25,6 +26,7 @@ namespace IonixEngine
         PulleyJoints* pulleyJoint;
         RevoluteJoints* revoluteJoint;
         DistanceJoints* distanceJoint;
+        FysicsMaterialComponent* material;
         std::unordered_map<b2Body*, Entity*> bodyEntityMap;
         std::unordered_map<b2Body*, RigidBodyTransform> transformMap; //used for interpolation
 
@@ -41,6 +43,7 @@ namespace IonixEngine
         PulleyJoints* GetPulleyJoint() { return pulleyJoint;}
         RevoluteJoints* GetRevoluteJoint() { return revoluteJoint;}
         DistanceJoints* GetDistanceJoint() { return distanceJoint;}
+        FysicsMaterialComponent* GetMaterial() { return material;}
 
         b2World* GetWorld() { return world; }
         std::unordered_map<b2Body*, Entity*>& GetBodyMap() { return bodyEntityMap; }

@@ -36,16 +36,16 @@ function ExampleScript:OnStart()
     playerSprite = Entity.add_sprite_component(player, "ball", 75, 75, 0)
 	Sprite.set_playback_mode(playerSprite, 4)
 
-    Entity.add_fysics_component(player, 2, false) -- dynamic body
-    Fysics.add_box_collider(player, .5, .5, 0, 0, 0, false)
+    Entity.add_fysics_component(player, 2, true) -- dynamic body
+    Fysics.add_sprite_collider(player, false)
   
     player2 = Entity.create_entity()
     Entity.set_entity_pos(player2, x+100, y+100)
     playerSprite = Entity.add_sprite_component(player2, "player", 75, 75, 0)
 	Sprite.set_playback_mode(playerSprite, 4)
 
-    Entity.add_fysics_component(player2, 2, false) -- dynamic body
-    Fysics.add_box_collider(player2, .5, .5, 0, 0, 0, false)
+    Entity.add_fysics_component(player2, 2, true) -- dynamic body
+    Fysics.add_sprite_collider(player2, false)
 
     local tileSize = 32
     local floorY = 610
@@ -72,7 +72,7 @@ function ExampleScript:OnStart()
 		-- add physics body + collider
 		------------------------------------------------------
 		Entity.add_fysics_component(tile, 0, false)  -- static
-		Fysics.add_box_collider(tile, 1, 1, 0, 0, 0, false)  -- not a trigger
+        Fysics.add_sprite_collider(tile, false)
 	end
    ------------------------------------------------------
 
