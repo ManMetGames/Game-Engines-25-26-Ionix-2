@@ -23,7 +23,7 @@ std::string get_asset_struct(const std::string& textures, const std::string& sou
 
 std::string get_lua_table(std::map<std::string, std::string>& textures, std::map<std::string, std::string>& sounds, std::map<std::string, std::string>& fonts);
 
-uint64_t get_64_bit_hash(const std::string& str);
+uint32_t get_32_bit_hash(const std::string& str);
 
 int main(int argc, char* argv[]) {
     std::map<std::string, std::string> textures;
@@ -102,7 +102,7 @@ std::string get_struct(const std::string& name, std::map<std::string, std::strin
     indent++;
     for (const std::pair<std::string, std::string> pair : map) {
         for (int i = 0; i < indent; i++) { struct_definition << "    "; }
-        struct_definition << "uint64_t " << pair.first.c_str() << " = " << get_64_bit_hash(pair.second) << "u;\n";
+        struct_definition << "uint64_t " << pair.first.c_str() << " = " << get_32_bit_hash(pair.second) << "u;\n";
     }
 
     struct_definition << "\n";
@@ -131,17 +131,17 @@ std::string get_lua_table(std::map<std::string, std::string>& textures, std::map
     table << "return {\n";
         table << "    " << "textures = {\n";
         for (const std::pair<std::string, std::string>& pair : textures) {
-            table << "        " << pair.first.c_str() << " = " << get_64_bit_hash(pair.second) << ",\n";
+            table << "        " << pair.first.c_str() << " = " << get_32_bit_hash(pair.second) << ",\n";
         }
         table << "    " << "},\n";
         table << "    " << "sounds = {\n";
         for (const std::pair<std::string, std::string>& pair : sounds) {
-            table << "        " << pair.first.c_str() << " = " << get_64_bit_hash(pair.second) << ",\n";
+            table << "        " << pair.first.c_str() << " = " << get_32_bit_hash(pair.second) << ",\n";
         }
         table << "    " << "},\n";
         table << "    " << "fonts = {\n";
         for (const std::pair<std::string, std::string>& pair : fonts) {
-            table << "        " << pair.first.c_str() << " = " << get_64_bit_hash(pair.second) << ",\n";
+            table << "        " << pair.first.c_str() << " = " << get_32_bit_hash(pair.second) << ",\n";
         }
         table << "    " << "},\n";
     table << "}\n";
@@ -182,13 +182,13 @@ void replace_all(std::string& str, const std::string& pattern, const std::string
     }
 }
 
-uint64_t get_64_bit_hash(const std::string& str) {
+uint32_t get_32_bit_hash(const std::string& str) {
     std::string hash_str = picosha2::hash256_hex_string(str);
     char* success;
-    uint64_t hash = strtoull(hash_str.substr(hash_str.length() - 16).c_str(), &success, 16);
+    uint32_t hash = strtoull(hash_str.substr(hash_str.length() - 16).c_str(), &success, 16) << 1;
     if (success) {
         return hash;
     } else {
-        return static_cast<uint64_t>(-1);
+        return static_cast<uint32_t>(-1);
     }
 }

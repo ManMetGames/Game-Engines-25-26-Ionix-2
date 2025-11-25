@@ -6,8 +6,7 @@ struct Textures {
     uint64_t Background = 13067482129777558234u;
     uint64_t BottomPipe = 14780389740148038846u;
     uint64_t Debug = 16105671890965812228u;
-    uint64_t FlappyBird = 12156800037729862389u;
-    uint64_t Sand = 4972914212072997432u;
+    uint64_t PimBall = 12405370979216714536u;
     uint64_t Test = 2449874712956322390u;
     uint64_t ToppomPipe = 8935492047639500032u;
     uint64_t ball = 17707837483333796221u;
@@ -19,8 +18,7 @@ struct Textures {
         map["Background"] = "./Assets/Background.png";
         map["BottomPipe"] = "./Assets/BottomPipe.png";
         map["Debug"] = "./Assets/Debug.png";
-        map["FlappyBird"] = "./Assets/FlappyBird.png";
-        map["Sand"] = "./Assets/Sand.png";
+        map["PimBall"] = "./Assets/PimBall.png";
         map["Test"] = "./Assets/Test.png";
         map["ToppomPipe"] = "./Assets/ToppomPipe.png";
         map["ball"] = "./Assets/ball.png";
