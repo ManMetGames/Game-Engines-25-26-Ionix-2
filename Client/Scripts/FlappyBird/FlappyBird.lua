@@ -18,13 +18,22 @@ function ExampleScript:OnStart()
     ------------------------------------------------------
     -- Load textures
     ------------------------------------------------------
+    Texture.add_texture("./Assets/Background.png", "Background")
+    Texture.add_texture("./Assets/FlappyBird.png", "FlappyBird")
     Texture.add_texture("./Assets/left.png", "left")
     Texture.add_texture("./Assets/middle.png", "middle")
 	Texture.add_texture("./Assets/right.png", "right")
 	Texture.add_texture("./Assets/player1.png", "player1")
 	Texture.add_texture("./Assets/key.png", "key")
-    Texture.add_texture("./Assets/FlappyBird.png", "FlappyBird")
-    Texture.add_texture("./Assets/Background.png", "Background")
+
+    ------------------------------------------------------
+	-- Background Texture
+	------------------------------------------------------
+    Background = Entity.create_entity()
+    local BgBackground = Entity.add_sprite_component(Background, "Background", 960,250, 0)
+    Sprite.set_width(BgBackground, 1280)
+    Sprite.set_height(BgBackground, 1280)
+    Sprite.set_playback_mode(BgBackground, 4)
     ------------------------------------------------------
     -- Create player1
     ------------------------------------------------------
@@ -41,14 +50,6 @@ function ExampleScript:OnStart()
 
     local tileSize = 64
     local floorY = 600
-    ------------------------------------------------------
-	-- Background Texture
-	------------------------------------------------------
-    Background = Entity.create_entity()
-    local BgBackground = Entity.add_sprite_component(Background, "Background", 960,250, 0)
-    Sprite.set_width(BgBackground, 1280)
-    Sprite.set_height(BgBackground, 1280)
-    Sprite.set_playback_mode(BgBackground, 4)
 	------------------------------------------------------
 	-- pick texture for left / middle / right
 	------------------------------------------------------
