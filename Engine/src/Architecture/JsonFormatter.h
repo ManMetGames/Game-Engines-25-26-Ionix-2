@@ -1,7 +1,9 @@
+#pragma once
 #include <string>
 #include <vector>
 #include <map>
-#pragma once
+#include <fstream>
+#include <sstream>
 
 namespace IonixEngine
 {
@@ -9,7 +11,8 @@ namespace IonixEngine
 	class JsonFormatter
 	{
 	private:
-		std::vector<char> fileContents;
+		std::vector<char> fileContentsVector;
+		std::stringstream fileContents;
 		std::string filepath;
 		std::map<char, std::string> charOverwrites;
 		bool fileIsValid;

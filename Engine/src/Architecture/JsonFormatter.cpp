@@ -9,10 +9,12 @@ namespace IonixEngine
 		filepath(filepath)
 	{
 		OpenFile();
-		if (fileIsValid)
+		if (!fileIsValid)
 		{
 			std::cout << "[JSON Formatter] Failed to find file!\nRun OpenFile() with a valid filepath." << std::endl;
 		}
+
+		charOverwrites.insert({'o',"a"});
 	}
 
 	bool JsonFormatter::OpenFile()
@@ -21,24 +23,36 @@ namespace IonixEngine
 		jsonFile.open(filepath);
 		if (jsonFile.is_open())
 		{
-			char character;
-			while (jsonFile.get(character))
-			{
-				fileContents.push_back(character);
-			}
+			fileContents << jsonFile.rdbuf();
 			fileIsValid = true;
-			return true;
 		}
 		else
 		{
 			fileIsValid = false;
-			return false; 
 		}
+		return fileIsValid;
 	}
 
 	void JsonFormatter::ProcessFile()
 	{
-
+		if (!fileIsValid)
+		{
+			std::cout << "[JSON Formatter] Given file is invalid, run again with a valid filepath." << std::endl;
+			return;
+		}
+		std::string fileContentsCopy = fileContents.str();
+		for (char character : fileContentsCopy)
+		{
+			//aka if charOverwrites has a key-value pair matching character
+			if (charOverwrites.find(character) != charOverwrites.end())
+			{
+				std::cout << "[JSON Formatter] Char overwrite value found!" << std::endl;
+			}
+			else
+			{
+				continue;
+			}
+		}
 	}
 
 	std::string JsonFormatter::GetFilepath()
@@ -55,7 +69,8 @@ namespace IonixEngine
 	void JsonFormatter::DebugLogFileContents()
 	{
 		std::cout << "[JSON Formatter] Logging file contents:" << std::endl;
-		for (char character : fileContents)
+		std::string fileContentsCopy = fileContents.str();
+		for (char character : fileContentsCopy)
 		{
 			std::cout << character;
 		}
