@@ -34,7 +34,7 @@ function ExampleScript:OnStart()
 
     local background = Entity.create_entity()
     Entity.set_entity_pos(background, 0, 0)
-    local bg = Entity.add_sprite_component(background, "Background", 1920, 1080, 0)
+    local bg = Entity.add_sprite_component(background, "Background")
     
     Sprite.set_width(bg, 1920)
     Sprite.set_height(bg, 1080)
