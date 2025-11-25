@@ -2,7 +2,7 @@
 #include <vector>
 #include "Architecture/Application.h"
 #include "SDL_render.h"
-
+#include "Graphics/Camera.h"
 
 namespace IonixEngine {
 
@@ -16,10 +16,13 @@ namespace IonixEngine {
 	}   //all of this is TEMPORARY because we're TESTING - it's in the name, that's why it says TEMP everywhere. We'll change this soon, thanks
 
 	void QueueRenderer::RenderFromQueue() {
+		
 		while (!sprites.empty()) {
 			RenderCall call = sprites.front();
-			//printf("Call: src: [ %d, %d, %d, %d ] dest: [ %d, %d, %d, %d ]\n", call.src.x, call.src.y, call.src.w, call.src.h, call.dest.x, call.dest.y, call.dest.w, call.dest.h);
-			SDL_RenderCopy(Application::Get().GetWindow().GetSdlRenderer(), call.texture, &call.src, &call.dest);
+			if (call.renderLayer == Application::Get().currentCam->renderLayer)
+			{
+				SDL_RenderCopyEx(Application::Get().GetWindow().GetSdlRenderer(), call.texture, &call.src, &call.dest, call.rotation, nullptr, SDL_FLIP_NONE);
+			}
 			sprites.pop();
 		}
 	}

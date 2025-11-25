@@ -9,17 +9,17 @@ namespace IonixEngine {
     void Scene::OnEnter() {
         SDL_Log("[Scene] Started Scene");
         //m_Entities.reserve(50);
-        Reserve(50);
+        Reserve(1024);
         renderData.renderer = Application::Get().GetWindow().GetSdlRenderer();
         renderData.queue = Application::Get().layerGraphics->GetQueue();
 
-        EntityID first = CreateEntity();
-        Entity* firstEntity = GetEntityFromID(first);
-        if (!firstEntity)
-        {
-            SDL_Log("[DEBUG TEST] First entity failed, returning...");
-            return;
-        }
+        //EntityID first = CreateEntity();
+        //Entity* firstEntity = GetEntityFromID(first);
+        //if (!firstEntity)
+        //{
+        //   SDL_Log("[DEBUG TEST] First entity failed, returning...");
+        //    return;
+        //}
         //firstEntity->transform.SetLocalPosition(Vec2 { 500, 300 });
         //firstEntity->AddComponent(new SpriteComponent(firstEntity, Assets::Get().textures, 200, 200, 0));
         //firstEntity->AddComponent(new EntityMover(firstEntity, 60));
@@ -81,10 +81,10 @@ namespace IonixEngine {
         m_IdToIndex.reserve(count * 2);
     }
 
-    EntityID Scene::CreateEntity() {
+    EntityID Scene::CreateEntity(int renderLayer) {
         const EntityID entityId = m_NextId++;
         const std::size_t index = m_Entities.size();
-        m_Entities.push_back(Entity{ entityId });
+        m_Entities.push_back(Entity{ entityId , renderLayer});
         m_IdToIndex[entityId] = index;
         return entityId;
     }
