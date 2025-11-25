@@ -37,9 +37,7 @@ function ExampleScript:OnStart()
 	-- Background Texture
 	------------------------------------------------------
     Background = Entity.create_entity()
-    local BgBackground = Entity.add_sprite_component(Background, "Background", 960,640, 0)
-    Sprite.set_width(BgBackground, 1280)
-    Sprite.set_height(BgBackground, 1280)
+    local BgBackground = Entity.add_sprite_component(Background, "Background", 0,0, 0)
     Sprite.set_playback_mode(BgBackground, 4)
     ------------------------------------------------------
     -- Create player1
@@ -62,32 +60,7 @@ function ExampleScript:OnStart()
 
     local tileSize = 64
     local floorY = 600
-	------------------------------------------------------
-	-- pick texture for left / middle / right
-	------------------------------------------------------
-	local tex = "middle"
-
-	for i = 0, 30 do
-		local tile = Entity.create_entity()
-		local xPos = i * tileSize
-
-		------------------------------------------------------
-		-- place sprite
-		------------------------------------------------------
-		Entity.set_entity_pos(tile, xPos, floorY)
-
-		-- sprite as single frame (4 = manual/no anim)
-		local s = Entity.add_sprite_component(tile, "Sand", tileSize, tileSize, 0)
-		Sprite.set_playback_mode(s, 4)
-
-		------------------------------------------------------
-		-- add physics body + collider
-		------------------------------------------------------
-		Entity.add_fysics_component(tile, 0, false)  -- static
-		Fysics.add_sprite_collider(tile, false)
-	end
-
-	------------------------------------------------------
+    ------------------------------------------------------
 	-- Create pipe obstacle
 	------------------------------------------------------
 	pipe = Entity.create_entity()
@@ -99,6 +72,26 @@ function ExampleScript:OnStart()
 	-- Kinematic body so it moves but isn't affected by gravity
 	Entity.add_fysics_component(pipe, 1, false)
 	Fysics.add_sprite_collider(pipe, false)
+	------------------------------------------------------
+	-- pick texture for left / middle / right
+	------------------------------------------------------
+	local tex = "middle"
+
+	------------------------------------------------------
+	-- place sprite
+	------------------------------------------------------
+	local floor = Entity.create_entity()
+	Entity.set_entity_pos(floor, 0, floorY)
+
+	-- sprite as single frame (4 = manual/no anim)
+	local s = Entity.add_sprite_component(floor, "Sand", Window.get_width(), tileSize, 0)
+	Sprite.set_playback_mode(s, 4)
+
+	------------------------------------------------------
+	-- add physics body + collider
+	------------------------------------------------------
+	Entity.add_fysics_component(floor, 0, false)  -- static
+	Fysics.add_sprite_collider(floor, false)
 end
 
 ----------------------------------------------------------
