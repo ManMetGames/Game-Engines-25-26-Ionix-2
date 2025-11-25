@@ -2,10 +2,6 @@ local ExampleScript = {}
 
 -- Global variables
 local player1
-local t = 10
-local pipes = {}
-local pipeSpeed = 150
-local spawnDistance = 300
 local minGapY = 200
 local maxGapY = 400
 local gapSize = 150
@@ -145,9 +141,6 @@ function ExampleScript:OnUpdate()
     end
     
     Fysics.set_linear_velocity(player1, vx, vy1)
-    
-    -- Update pipe system
-    UpdatePipes()
 end
 
 return ExampleScript
