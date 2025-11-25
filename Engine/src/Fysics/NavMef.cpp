@@ -123,7 +123,6 @@ namespace IonixEngine
                 }
             }
             //think I need to reconstruct path here not sure
-            // --- Reconstruct the path ---
             std::vector<int> path;
             int current = goalCell;
 
@@ -143,17 +142,4 @@ namespace IonixEngine
 
 
     }
-
-	//FysicsManager::~FysicsManager()
-	//{
-	//	// helpers
-	//	delete shapes;
-	//	delete force;
-
-	//	// cleans up all bodies in the map
-	//	bodyEntityMap.clear();
-
-	//	// (this also destroys all bodies/fixtures/joints)
-	//	delete world;
-	//}
 }

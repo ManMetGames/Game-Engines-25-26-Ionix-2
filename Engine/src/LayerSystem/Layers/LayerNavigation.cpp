@@ -8,7 +8,7 @@ namespace IonixEngine
     {
         instance = this;
 
-        // Example: Load navmesh from a file / generated data
+        // Load navmesh from a file / generated data
         // nav.Load(cornerList, indexList);
     }
 
@@ -19,7 +19,7 @@ namespace IonixEngine
 
     void LayerNavigation::OnUpdate()
     {
-        // Optional: draw navmesh, debug visualisation etc.
+        //draw navmesh, debug visualisation etc.
     }
 
     std::vector<int> LayerNavigation::RequestPath(int startCell, int goalCell)
