@@ -89,7 +89,7 @@ namespace IonixEngine {
             "add_sprite_component", addSpriteComponent,
             "add_audio_component", addAudioPlayerComponent,
             "add_fysics_component", addFysicsBodyComponent,
-            "add_fysics_component_with_type", addFysicsBodyComponentWithType,
+            "add_fysics_component", addFysicsBodyComponentWithType,
             "get_sprite_component", getSpriteComponent,
             "get_audio_component", getAudioPlayerComponent,
             "get_fysics_component", getFysicsBodyComponent,
