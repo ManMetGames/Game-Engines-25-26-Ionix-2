@@ -45,9 +45,12 @@ function ExampleScript:OnStart()
 	Sprite.set_playback_mode(playerSprite1, 4)
 
     -- PLAYER 1 PHYSICS
+
     Entity.add_fysics_component(player1, 2, false) -- dynamic body
     --Fysics.add_sprite_collider(player1, false)
     Fysics.add_box_collider(player1, 1, 1.5, 0, 0, 0, false)
+    -- Freeze bird
+    Fysics.set_gravity_scale(player1, 0)
 
 
     local tileSize = 64
@@ -91,6 +94,8 @@ function ExampleScript:OnUpdate()
     local vy1 = vel1.y
 
 	if Input.get_key_down(Keys.ionix_space) then
+        -- Bird move if space is pressed (allow gravity)
+        Fysics.set_gravity_scale(player1, 1)
         -- Set velocity directly to cancel out falling momentum
         vy1 = -5  -- Jump velocity for player1
 	end
