@@ -140,7 +140,7 @@ function ExampleScript:OnStart()
 	Fysics.add_sprite_collider(pipeT, false)
 
     if Input.get_key_down(Keys.ionix_a) then
-        Entity.set_entity_pos(pipe, xPos, floorY)
+        Entity.set_entity_pos(pipe, 200, floorY) 
 	end
 end
 

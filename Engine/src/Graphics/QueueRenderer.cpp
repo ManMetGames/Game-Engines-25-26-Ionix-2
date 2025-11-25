@@ -86,6 +86,11 @@ namespace IonixEngine {
 
 	void QueueRenderer::MergeCaller(queue<RenderCall>& sprites, std::vector<RenderCall> temp, int left, int right)
 	{
+		
+		if (left >= right) {
+			return;
+		}
+
 		int length = sprites.size(); //Returns queue length
 		/*left = 0;
 		right = sprites.size() - 1;*/
