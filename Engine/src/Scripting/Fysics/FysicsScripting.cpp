@@ -214,10 +214,6 @@ namespace IonixEngine
 				size * b2Vec2 {1.0f, 0.0f}
 			};
 			
-			//std::vector<b2Vec2> worldPositions = Application::Get().layerFysics->GetFysicsManager()->ConvertToWorldSpace(entity, localVerts);
-			
-			
-			
 			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddPolygon(entity, localVerts);
 		};
 

@@ -79,23 +79,5 @@ namespace IonixEngine
 		//entityBodyMap[entity] = body; // Not needed as we have helper methods which get what we need from 1 data structure.
 		bodyEntityMap[body] = entity;
 	}
-
-	std::vector<b2Vec2> FysicsManager::ConvertToWorldSpace(Entity* entity, const std::vector<b2Vec2>& localPositions)
-	{
-		std::vector<b2Vec2> worldPositions;
-		worldPositions.reserve(localPositions.size());
-
-		b2Vec2 transform = GetBodyFromEntity(entity)->GetPosition();
-
-		for (const auto& local : localPositions)
-		{
-			// Apply Box2D’s transform (rotation + position)
-			b2Vec2 worldPoint = transform;
-			worldPoint.x = worldPoint.x / 10.0f;
-			worldPoint.y = worldPoint.y / 10.0f;
-			worldPositions.push_back(worldPoint);
-		}
-
-		return worldPositions;
-	}
+	
 }

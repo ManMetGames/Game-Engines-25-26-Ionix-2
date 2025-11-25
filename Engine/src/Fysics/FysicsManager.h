@@ -53,6 +53,5 @@ namespace IonixEngine
         Entity* GetEntityFromBody(b2Body* body);
 
         void AddEntityBodyPair(Entity* entity, b2Body* body);
-        std::vector<b2Vec2> ConvertToWorldSpace(Entity* entity, const std::vector<b2Vec2>& localPositions);
     };
 }
