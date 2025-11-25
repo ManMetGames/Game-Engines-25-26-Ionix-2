@@ -19,8 +19,10 @@ namespace IonixEngine {
             return Application::Get().layerScene->GetScene()->GetEntityFromID(entityID);
             };
 
-        auto getEntityPos = [](Entity* entity) -> Vec2 {
-            return entity->position;
+        auto getEntityPos = [](Entity* entity) -> b2Vec2 {
+            Vec2 pos = entity->transform.GetLocalPosition();
+            b2Vec2 returnPos = b2Vec2{ pos.x, pos.y };
+            return returnPos;
             };
 
         auto setEntityPos = [](Entity* entity, float x, float y) {
@@ -28,7 +30,7 @@ namespace IonixEngine {
             entity->transform.SetLocalPosition(Vec2{ x, y });
             };
 
-        auto addSpriteComponent = [](Entity* entity, int32_t hash, int width, int height, int zedOrder) -> SpriteComponent* {
+        auto addSpriteComponent = [](Entity* entity, uint32_t hash, int width, int height, int zedOrder) -> SpriteComponent* {
             return entity->AddComponent(new SpriteComponent(entity, hash, width, height, zedOrder));
             };
 
