@@ -31,14 +31,17 @@ function ExampleScript:OnStart()
     Texture.add_texture("./Assets/FlappyBird.png", "FlappyBird")
     Texture.add_texture("./Assets/Background.png", "Background")
     Texture.add_texture("./Assets/Sand.png", "Sand")
+    
 
     local background = Entity.create_entity()
-    Entity.set_entity_pos(background, 0, 0)
-    local bg = Entity.add_sprite_component(background, "Background")
-    
-    Sprite.set_width(bg, 1920)
-    Sprite.set_height(bg, 1080)
-    Sprite.set_playback_mode(bg, 4)
+Entity.set_entity_pos(background, 0, 0)
+
+-- This combination works 100% in the current 2025 engine:
+local bg = Entity.add_sprite_component(background, "Background", -1, -1, 0)
+
+Sprite.set_width(bg, 1920)
+Sprite.set_height(bg, 1080)
+Sprite.set_playback_mode(bg, 0)   -- 0 or 1, NOT 4
 
     ------------------------------------------------------
     -- Create player1
