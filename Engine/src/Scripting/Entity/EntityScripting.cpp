@@ -28,7 +28,7 @@ namespace IonixEngine {
             entity->position = Vec2{ x, y };
             };
 
-        auto addSpriteComponent = [](Entity* entity, std::string alias, int width, int height, int zedOrder) -> const SpriteComponent*{
+        auto addSpriteComponent = [](Entity* entity, uint32_t alias, int width, int height, int zedOrder) -> const SpriteComponent*{
             //entity->AddComponent(new SpriteComponent(entity, alias, width, height, zedOrder));
             return entity->AddComponent(new SpriteComponent(entity, alias, width, height, zedOrder));
             };

@@ -20,13 +20,13 @@ namespace IonixEngine {
     /// <param name="filepath">- string, if accessing Assets directory, prepend texture named with "../Assets/"</param>
     /// <param name="alias">- string, the name a texture will go by when being retrieved</param>
     void TextureManager::AddTexture(std::string filepath,std::string alias) {
-        uint64_t hashName = Get32BitHash(alias);
+        uint32_t hashName = Get32BitHash(alias);
         if (textureDict.find(hashName) != textureDict.end()) { return; }
         SDL_Texture* texture = IMG_LoadTexture(renderer, filepath.c_str());
         if (texture) {
             textureDict[hashName] = TextureData();
             textureDict[hashName].SetData(texture, filepath);
-            SDL_Log("[Texture] Loaded texture at %s with alias: %s, hash: %lu", filepath.c_str(), alias.c_str(), hashName);
+            SDL_Log("[Texture] Loaded texture at %s with alias: %s, hash: %u", filepath.c_str(), alias.c_str(), hashName);
         } else {
             SDL_Log("Failed to load texture: %s", IMG_GetError());
         }
@@ -62,7 +62,7 @@ namespace IonixEngine {
         }
     }
 
-    TextureData& TextureManager::GetTexture(uint64_t hash) {
+    TextureData& TextureManager::GetTexture(uint32_t hash) {
         auto texture = textureDict.find(hash);
         if (texture != textureDict.end())
         {
@@ -75,13 +75,13 @@ namespace IonixEngine {
         };
     }
 
-    SDL_Texture* TextureManager::GetRawTexture(uint64_t hash) {
+    SDL_Texture* TextureManager::GetRawTexture(uint32_t hash) {
         auto texture = textureDict.find(hash);
         if (texture != textureDict.end()) {
             return texture->second.GetTexture();
         } else {
             //return error texture if requested texture not found
-            SDL_Log("Failed to find texture: %lu", hash);
+            SDL_Log("Failed to find texture: %u", hash);
             return errorTexture.GetTexture();
         }
     }
