@@ -197,13 +197,19 @@ namespace IonixEngine
 		
 
 		auto addPolygonCollider = [](Entity* entity, float tileSize, std::vector<b2Vec2>& terrainPositions) {
-
 			for (int i = 0; i < terrainPositions.size(); i++)
 			{
 				terrainPositions[i] = tileSize * b2Vec2 {terrainPositions[i]};
 			}
-			
 			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddPolygon(entity, tileSize, terrainPositions);
+		};
+
+		auto addCircleCollider = [](Entity* entity, float radius, int offsetX, int offsetY, bool isTrigger)
+		{
+			b2Vec2 offset;
+			offset.x = offsetX;
+			offset.y = offsetY;
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddCircle(entity, radius, offset, isTrigger);
 		};
 
 
@@ -245,7 +251,8 @@ namespace IonixEngine
 			"get_friction", getFriction,
 			"get_restitution", getRestitution,
 			"add_polygon_collider", addPolygonCollider,
-			"add_sprite_collider", addSpriteCollider
+			"add_sprite_collider", addSpriteCollider,
+			"add_circle_collider", addCircleCollider
 		);
 	}
 }
