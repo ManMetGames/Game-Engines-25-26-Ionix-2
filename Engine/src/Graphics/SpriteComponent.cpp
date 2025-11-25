@@ -14,7 +14,7 @@ namespace IonixEngine {
 		playbackMode = playbackOptions::FORWARD;
 
 		rows = 1; //default spritesheet size, can be changed in appropriate setters
-		cols = 5;
+		cols = 1;
 
 
 		spriteWidth = 32; //default, can be change in setters
