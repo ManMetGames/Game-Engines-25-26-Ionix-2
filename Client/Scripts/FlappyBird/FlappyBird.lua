@@ -1,5 +1,4 @@
 local ExampleScript = {}
-local assets = require("Scripts.Assets")
 local Background
 local player1
 local goal
@@ -18,6 +17,8 @@ local pipeSpeed = -3
 local pipeStartX = 900
 local pipeOffScreenLeft = -100
 
+local assets = require("Scripts.Assets")
+
 ----------------------------------------------------------
 -- OnStart
 ----------------------------------------------------------
@@ -26,21 +27,21 @@ function ExampleScript:OnStart()
     ------------------------------------------------------
     -- Load textures
     ------------------------------------------------------
-    Texture.add_texture("./Assets/Background.png", "Background")
-    Texture.add_texture("./Assets/FlappyBird.png", "FlappyBird")
-    Texture.add_texture("./Assets/left.png", "left")
-    Texture.add_texture("./Assets/middle.png", "middle")
-	Texture.add_texture("./Assets/right.png", "right")
-	Texture.add_texture("./Assets/player1.png", "player1")
-	Texture.add_texture("./Assets/key.png", "key")
-    Texture.add_texture("./Assets/FlappyPipe.png", "FlappyPipe")
-    Texture.add_texture("./Assets/FlappyPipe2.png", "FlappyPipe2")
+    -- Texture.add_texture("./Assets/Background.png", "Background")
+    -- Texture.add_texture("./Assets/FlappyBird.png", "FlappyBird")
+    -- Texture.add_texture("./Assets/left.png", "left")
+    -- Texture.add_texture("./Assets/middle.png", "middle")
+	-- Texture.add_texture("./Assets/right.png", "right")
+	-- Texture.add_texture("./Assets/player1.png", "player1")
+	-- Texture.add_texture("./Assets/key.png", "key")
+    -- Texture.add_texture("./Assets/FlappyPipe.png", "FlappyPipe")
+    -- Texture.add_texture("./Assets/FlappyPipe2.png", "FlappyPipe2")
 
     ------------------------------------------------------
 	-- Background Texture
 	------------------------------------------------------
     Background = Entity.create_entity()
-    local BgBackground = Entity.add_sprite_component(Background,assets.textures.Background , 960, 640, 0)
+    local BgBackground = Entity.add_sprite_component(Background, assets.textures.Background, 960, 640, 0)
     Sprite.set_width(BgBackground, 1280)
     Sprite.set_height(BgBackground, 1280)
     Sprite.set_playback_mode(BgBackground, 4)

@@ -394,8 +394,7 @@ inline uint32_t Get32BitHash(const std::string& str) {
     uint32_t hash = strtoull(hash_str.substr(hash_str.length() - 16).c_str(), &success, 16) << 1;
     if (success) {
         return hash;
-    }
-    else {
+    } else {
         return static_cast<uint32_t>(-1);
     }
 }
