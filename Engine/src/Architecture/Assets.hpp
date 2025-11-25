@@ -13,7 +13,6 @@ struct Textures {
 
     inline std::map<std::string, std::string> GetTextures() {
         std::map<std::string, std::string> map;
-        map["Background"] = "./Assets/Background.png";
         map["Debug"] = "./Assets/Debug.png";
         map["PimBall"] = "./Assets/PimBall.png";
         map["Test"] = "./Assets/Test.png";
