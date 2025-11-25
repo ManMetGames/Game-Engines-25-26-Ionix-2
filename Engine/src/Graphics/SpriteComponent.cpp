@@ -27,7 +27,7 @@ namespace IonixEngine {
 		initialiseSpritesheet();
 	}
 
-	SpriteComponent::SpriteComponent(Entity* entity, uint64_t hash, int x, int y, int zedOrder) : Component(entity, false, true, false) {
+	SpriteComponent::SpriteComponent(Entity* entity, uint32_t hash, int x, int y, int zedOrder) : Component(entity, false, true, false) {
 		texture = IonixEngine::TextureManager::Get().GetTexture(hash).GetTexture(); //adding sprite image file to the texture manager
 		zOrder = zedOrder;
 		width = x; //size of the sprite
