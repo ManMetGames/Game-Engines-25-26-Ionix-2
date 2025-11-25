@@ -48,7 +48,7 @@ function ExampleScript:OnStart()
     Entity.add_fysics_component(player1, 2, false) -- dynamic body
     -- Fysics.add_sprite_collider(player1, false)
     Fysics.add_box_collider(player1, 1, 1.5, 0 ,0 , false)
-
+    Fysics.set_gravity_scale(player1, 0)
     local tileSize = 64
     local floorY = 600
 	------------------------------------------------------
@@ -90,7 +90,7 @@ function ExampleScript:OnUpdate()
     local vy1 = vel1.y
 
 	if Input.get_key_down(Keys.ionix_space) then
-        -- Set velocity directly to cancel out falling momentum
+        Fysics.set_gravity_scale(player1, 1)
         vy1 = -5  -- Jump velocity for player1
 	end
 	
@@ -99,6 +99,7 @@ function ExampleScript:OnUpdate()
 	end
 
     Fysics.set_linear_velocity(player1, vx, vy1)
+    UI.draw_label("Press any key to start game", 200, 20, 480, 320, "Bold")
 end
 
 return ExampleScript
