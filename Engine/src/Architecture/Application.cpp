@@ -12,6 +12,7 @@
 #include <backends/imgui_impl_sdlrenderer2.h>
 #include <iostream>
 #include <third-party/imgui_impl_sdlrenderer2.h>
+#include "Input/ControllerManager.h"
 
 namespace IonixEngine {
     Application* Application::s_Instance = nullptr;
@@ -177,7 +178,11 @@ namespace IonixEngine
            */
 
             layerInput->m_Input->CopyCodesEndFrame();
-          
+
+            for (int i = 0; layerInput->GetControllerManager().size() - 1; i++)
+            {
+                layerInput->GetControllerManager()[i]->CopyCodesEndFrame();
+            }
             m_Window->OnUpdate();
         }
     

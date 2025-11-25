@@ -14,11 +14,19 @@ function player:OnUpdate()
     local rightTrigger = Input.get_right_trigger()
 	
 	if(Input.get_button_down(0, 0)) then -- instanceId, button
-		print("Player 1 input")
+		print("Player 1 down input")
+	end
+
+    if(Input.get_button_up(0, 0)) then -- instanceId, button
+		print("Player 1 up input")
 	end
 	
 	if(Input.get_button_down(1, 0)) then -- instanceId, button
-		print("Player 2 input")
+		print("Player 2 down input")
+	end
+
+    if(Input.get_button_up(1, 0)) then -- instanceId, button
+		print("Player 2 up input")
 	end
 end
 

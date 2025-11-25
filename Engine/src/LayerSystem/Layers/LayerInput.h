@@ -19,13 +19,15 @@ namespace IonixEngine
         virtual void OnEvent(IonixEvent& e) override;
 
         bool IsControllerButtonDown(int instanceId, Uint8 button);
+        bool IsControllerButtonUp(int instanceId, Uint8 button);
 
         Input* m_Input;  
     
         std::unordered_map<int, ControllerManager*>& GetControllerManager() { return controllerManagers; }
 
     private:
-        void OnControllerButtonDown(ControllerButtonDownEvent& e);      
+        void OnControllerButtonDown(ControllerButtonDownEvent& e);
+        void OnControllerButtonUp(ControllerButtonUpEvent& e);
         std::unordered_map<int, ControllerManager*> controllerManagers;
     };
 }

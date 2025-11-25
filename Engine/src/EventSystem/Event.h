@@ -12,7 +12,8 @@ namespace IonixEngine
         WindowClosed,
         CollisionEnter,
         CollisionExit,
-        ControllerButtonDown
+        ControllerButtonDown,
+        ControllerButtonUp
         // ...
     };
 
@@ -65,6 +66,18 @@ namespace IonixEngine
 
         ControllerButtonDownEvent(ControllerManager* controller, int instanceId, Uint8 button)
             : IonixEvent(IonixEventType::ControllerButtonDown), controller(controller), instanceId(instanceId), button(button){}
+    };
+
+    class ControllerButtonUpEvent : public IonixEvent
+    {
+    public:
+        ControllerManager* controller;
+        int instanceId;
+        Uint8 button;
+
+        ControllerButtonUpEvent(ControllerManager* controller, int instanceId, Uint8 button)
+            : IonixEvent(IonixEventType::ControllerButtonUp), controller(controller), instanceId(instanceId), button(button) {
+        }
     };
 
 

@@ -64,13 +64,11 @@ namespace IonixEngine {
             };
 
         auto getButtonDown = [this](int index, int btn) -> bool {
-            /*if (index < 0 || index >= (int)m_Controllers.size() || !m_Controllers[index])
-                return false;
-            return SDL_GameControllerGetButton(
-                m_Controllers[index], static_cast<SDL_GameControllerButton>(btn)
-            );*/
-
             return Application::Get().layerInput->IsControllerButtonDown(index, static_cast<Uint8>(btn));
+            };
+
+        auto getButtonUp = [this](int index, int btn) -> bool {
+            return Application::Get().layerInput->IsControllerButtonUp(index, static_cast<Uint8>(btn));
             };
 
         auto getStickAxis = [this](int index, SDL_GameControllerAxis axis, float divisor) -> float {
@@ -173,6 +171,7 @@ namespace IonixEngine {
             "get_mouse_button_up", getMouseButtonUp,
 
             "get_button_down", getButtonDown,
+            "get_button_up", getButtonUp,
             "get_left_stick_x", getLeftStickX,
             "get_left_stick_y", getLeftStickY,
             "get_right_stick_x", getRightStickX,

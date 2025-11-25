@@ -13,14 +13,14 @@ namespace IonixEngine
 
         //Controller buttons
         bool IsButtonDown(int instanceId, Uint8 btn) const;
-        bool IsButtonUp(Uint8 btn) const;
-        bool IsButtonHeld(Uint8 btn) const;
+        bool IsButtonUp(int instanceId, Uint8 btn) const;
+        bool IsButtonHeld(int instanceId, Uint8 btn) const;
         void SetButtonPressed(Uint8 btn);
         void SetButtonReleased(Uint8 btn);
 
         //Controller axis and trigger normalization
-        float NormaliseStickAxis(float axis);
-        float NormaliseTrigger(float axis);
+        float NormaliseStickAxis(int instanceId, float axis);
+        float NormaliseTrigger(int instanceId, float axis);
 
         //Update state
         void CopyCodesEndFrame();
