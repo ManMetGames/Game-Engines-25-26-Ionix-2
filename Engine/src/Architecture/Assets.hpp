@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #include <map>
 #include <cstdint>
 #include <string>
@@ -127,3 +128,136 @@ struct Assets {
     };
 };
 
+=======
+#include <map>
+#include <cstdint>
+#include <string>
+
+struct Textures {
+    uint64_t Debug = 3020269576u;
+    uint64_t Debug0 = 664162688u;
+    uint64_t Test = 2482144428u;
+    uint64_t ball = 3974791930u;
+    uint64_t ball2 = 151744776u;
+    uint64_t horse_fat = 1246519896u;
+
+    inline std::map<std::string, std::string> GetTextures() {
+        std::map<std::string, std::string> map;
+        map["Debug"] = "./Assets/Debug.png";
+        map["Debug0"] = "./Assets/Open_Sans/Debug.png";
+        map["Test"] = "./Assets/Test.png";
+        map["ball"] = "./Assets/ball.png";
+        map["ball2"] = "./Assets/ball2.png";
+        map["horse_fat"] = "./Assets/horse-fat.gif";
+        return map;
+    };
+};
+
+struct Sounds {
+    uint64_t test = 1130855558u;
+    uint64_t test0 = 1557646772u;
+
+    inline std::map<std::string, std::string> GetSounds() {
+        std::map<std::string, std::string> map;
+        map["test"] = "./Assets/test.mp3";
+        map["test0"] = "./Assets/test.wav";
+        return map;
+    };
+};
+
+struct Fonts {
+    uint64_t OpenSans_Bold = 3319336854u;
+    uint64_t OpenSans_BoldItalic = 2232166106u;
+    uint64_t OpenSans_Condensed_Bold = 1257733064u;
+    uint64_t OpenSans_Condensed_BoldItalic = 1177092612u;
+    uint64_t OpenSans_Condensed_ExtraBold = 2407710468u;
+    uint64_t OpenSans_Condensed_ExtraBoldItalic = 1293856578u;
+    uint64_t OpenSans_Condensed_Italic = 1997391864u;
+    uint64_t OpenSans_Condensed_Light = 3158828724u;
+    uint64_t OpenSans_Condensed_LightItalic = 3975607614u;
+    uint64_t OpenSans_Condensed_Medium = 4125050526u;
+    uint64_t OpenSans_Condensed_MediumItalic = 741778048u;
+    uint64_t OpenSans_Condensed_Regular = 3085398546u;
+    uint64_t OpenSans_Condensed_SemiBold = 1900525276u;
+    uint64_t OpenSans_Condensed_SemiBoldItalic = 431358288u;
+    uint64_t OpenSans_ExtraBold = 2581510600u;
+    uint64_t OpenSans_ExtraBoldItalic = 849476372u;
+    uint64_t OpenSans_Italic = 1125889058u;
+    uint64_t OpenSans_Italic_VariableFont_wdth_wght = 593026812u;
+    uint64_t OpenSans_Light = 3528140022u;
+    uint64_t OpenSans_LightItalic = 4215051824u;
+    uint64_t OpenSans_Medium = 1636383394u;
+    uint64_t OpenSans_MediumItalic = 179932718u;
+    uint64_t OpenSans_Regular = 67823770u;
+    uint64_t OpenSans_SemiBold = 2174981548u;
+    uint64_t OpenSans_SemiBoldItalic = 2886977826u;
+    uint64_t OpenSans_SemiCondensed_Bold = 1727516064u;
+    uint64_t OpenSans_SemiCondensed_BoldItalic = 795835814u;
+    uint64_t OpenSans_SemiCondensed_ExtraBold = 1908133880u;
+    uint64_t OpenSans_SemiCondensed_ExtraBoldItalic = 593917970u;
+    uint64_t OpenSans_SemiCondensed_Italic = 425666450u;
+    uint64_t OpenSans_SemiCondensed_Light = 1226737432u;
+    uint64_t OpenSans_SemiCondensed_LightItalic = 272128174u;
+    uint64_t OpenSans_SemiCondensed_Medium = 1818680248u;
+    uint64_t OpenSans_SemiCondensed_MediumItalic = 2321830730u;
+    uint64_t OpenSans_SemiCondensed_Regular = 1115496750u;
+    uint64_t OpenSans_SemiCondensed_SemiBold = 1425217572u;
+    uint64_t OpenSans_SemiCondensed_SemiBoldItalic = 1882341330u;
+    uint64_t OpenSans_VariableFont = 3876377408u;
+
+    inline std::map<std::string, std::string> GetFonts() {
+        std::map<std::string, std::string> map;
+        map["OpenSans_Bold"] = "./Assets/Open_Sans/static/OpenSans-Bold.ttf";
+        map["OpenSans_BoldItalic"] = "./Assets/Open_Sans/static/OpenSans-BoldItalic.ttf";
+        map["OpenSans_Condensed_Bold"] = "./Assets/Open_Sans/static/OpenSans_Condensed-Bold.ttf";
+        map["OpenSans_Condensed_BoldItalic"] = "./Assets/Open_Sans/static/OpenSans_Condensed-BoldItalic.ttf";
+        map["OpenSans_Condensed_ExtraBold"] = "./Assets/Open_Sans/static/OpenSans_Condensed-ExtraBold.ttf";
+        map["OpenSans_Condensed_ExtraBoldItalic"] = "./Assets/Open_Sans/static/OpenSans_Condensed-ExtraBoldItalic.ttf";
+        map["OpenSans_Condensed_Italic"] = "./Assets/Open_Sans/static/OpenSans_Condensed-Italic.ttf";
+        map["OpenSans_Condensed_Light"] = "./Assets/Open_Sans/static/OpenSans_Condensed-Light.ttf";
+        map["OpenSans_Condensed_LightItalic"] = "./Assets/Open_Sans/static/OpenSans_Condensed-LightItalic.ttf";
+        map["OpenSans_Condensed_Medium"] = "./Assets/Open_Sans/static/OpenSans_Condensed-Medium.ttf";
+        map["OpenSans_Condensed_MediumItalic"] = "./Assets/Open_Sans/static/OpenSans_Condensed-MediumItalic.ttf";
+        map["OpenSans_Condensed_Regular"] = "./Assets/Open_Sans/static/OpenSans_Condensed-Regular.ttf";
+        map["OpenSans_Condensed_SemiBold"] = "./Assets/Open_Sans/static/OpenSans_Condensed-SemiBold.ttf";
+        map["OpenSans_Condensed_SemiBoldItalic"] = "./Assets/Open_Sans/static/OpenSans_Condensed-SemiBoldItalic.ttf";
+        map["OpenSans_ExtraBold"] = "./Assets/Open_Sans/static/OpenSans-ExtraBold.ttf";
+        map["OpenSans_ExtraBoldItalic"] = "./Assets/Open_Sans/static/OpenSans-ExtraBoldItalic.ttf";
+        map["OpenSans_Italic"] = "./Assets/Open_Sans/static/OpenSans-Italic.ttf";
+        map["OpenSans_Italic_VariableFont_wdth_wght"] = "./Assets/Open_Sans/OpenSans-Italic-VariableFont_wdth,wght.ttf";
+        map["OpenSans_Light"] = "./Assets/Open_Sans/static/OpenSans-Light.ttf";
+        map["OpenSans_LightItalic"] = "./Assets/Open_Sans/static/OpenSans-LightItalic.ttf";
+        map["OpenSans_Medium"] = "./Assets/Open_Sans/static/OpenSans-Medium.ttf";
+        map["OpenSans_MediumItalic"] = "./Assets/Open_Sans/static/OpenSans-MediumItalic.ttf";
+        map["OpenSans_Regular"] = "./Assets/Open_Sans/static/OpenSans-Regular.ttf";
+        map["OpenSans_SemiBold"] = "./Assets/Open_Sans/static/OpenSans-SemiBold.ttf";
+        map["OpenSans_SemiBoldItalic"] = "./Assets/Open_Sans/static/OpenSans-SemiBoldItalic.ttf";
+        map["OpenSans_SemiCondensed_Bold"] = "./Assets/Open_Sans/static/OpenSans_SemiCondensed-Bold.ttf";
+        map["OpenSans_SemiCondensed_BoldItalic"] = "./Assets/Open_Sans/static/OpenSans_SemiCondensed-BoldItalic.ttf";
+        map["OpenSans_SemiCondensed_ExtraBold"] = "./Assets/Open_Sans/static/OpenSans_SemiCondensed-ExtraBold.ttf";
+        map["OpenSans_SemiCondensed_ExtraBoldItalic"] = "./Assets/Open_Sans/static/OpenSans_SemiCondensed-ExtraBoldItalic.ttf";
+        map["OpenSans_SemiCondensed_Italic"] = "./Assets/Open_Sans/static/OpenSans_SemiCondensed-Italic.ttf";
+        map["OpenSans_SemiCondensed_Light"] = "./Assets/Open_Sans/static/OpenSans_SemiCondensed-Light.ttf";
+        map["OpenSans_SemiCondensed_LightItalic"] = "./Assets/Open_Sans/static/OpenSans_SemiCondensed-LightItalic.ttf";
+        map["OpenSans_SemiCondensed_Medium"] = "./Assets/Open_Sans/static/OpenSans_SemiCondensed-Medium.ttf";
+        map["OpenSans_SemiCondensed_MediumItalic"] = "./Assets/Open_Sans/static/OpenSans_SemiCondensed-MediumItalic.ttf";
+        map["OpenSans_SemiCondensed_Regular"] = "./Assets/Open_Sans/static/OpenSans_SemiCondensed-Regular.ttf";
+        map["OpenSans_SemiCondensed_SemiBold"] = "./Assets/Open_Sans/static/OpenSans_SemiCondensed-SemiBold.ttf";
+        map["OpenSans_SemiCondensed_SemiBoldItalic"] = "./Assets/Open_Sans/static/OpenSans_SemiCondensed-SemiBoldItalic.ttf";
+        map["OpenSans_VariableFont"] = "./Assets/Open_Sans/OpenSans-VariableFont.ttf";
+        return map;
+    };
+};
+
+struct Assets {
+    Textures textures;
+    Sounds sounds;
+    Fonts fonts;
+
+    static Assets& Get() {
+        static Assets assets;
+        return assets;         
+    };
+};
+
+>>>>>>> 08c7d4c08ca59ca51ab6bb90bc89b107551d2095

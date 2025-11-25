@@ -1,4 +1,5 @@
 #include <cstdint>
+#include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <ios>
@@ -29,6 +30,13 @@ int main(int argc, char* argv[]) {
     std::map<std::string, std::string> textures;
     std::map<std::string, std::string> sounds;
     std::map<std::string, std::string> fonts;
+
+    std::string hash = picosha2::hash256_hex_string(std::string("Client.png"));
+    char* success;
+    uint64_t big_hash = strtoull(hash.substr(48, 16).c_str(), &success, 16);
+    if (success) {
+        printf("Hash: %s - length: %zu: full_hash: %llu short_hash: %u\n", hash.c_str(), hash.length(), big_hash, (uint32_t) (big_hash << 8));
+    }
 
     for (auto& entry : std::filesystem::recursive_directory_iterator("./Assets")) {
         std::string extension = entry.path().extension().string();
