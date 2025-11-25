@@ -1,12 +1,14 @@
 local coroutines = {}
+local methods = {}
 
 function coroutines:OnStart()
+    --print("Start")
 end
 
 function coroutines:OnUpdate()
-    for i,co in ipairs(coroutines) do
+    for i,co in ipairs(methods) do
         if coroutine.status(co) == "dead" then
-            coroutines[i] = nil
+            methods[i] = nil
         end
 
         if co ~= nil then
@@ -18,18 +20,20 @@ end
 function coroutines:AddCoroutine(co)
     local foundPlace = false
 
-    for i,coroute in ipairs(coroutines) do
+    for i,coroute in ipairs(methods) do
         if coroute == nil then
-            coroutines[i] = co
+            methods[i] = co
             foundPlace = true
             break
         end
+    end
 
-        if foundPlace == false then
-            coroutines[coroutines.length() + 1] = co
-        end
+    if foundPlace == false then
+        methods[# methods + 1] = co
     end
 end
 
 function coroutines:RemoveCoroutine(co)
 end
+
+return coroutines
