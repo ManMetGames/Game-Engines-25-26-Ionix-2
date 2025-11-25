@@ -5,7 +5,6 @@
 #include <array>
 #include <iostream>
 #include <queue>
-
 namespace IonixEngine
 {
     struct Cell {
@@ -38,6 +37,7 @@ namespace IonixEngine
     private:
         std::vector<b2Vec2> m_corners; // corner coords
         std::vector<Cell> m_cells; // cell
+        b2Body* body = nullptr;
 
         bool ShareEdge(const Cell& a, const Cell& b);
 
@@ -54,6 +54,8 @@ namespace IonixEngine
         float CalculateHeuristic(int cellIndex, int goalIndex) const;
         // A* incoming crazy func gotta get wild
         std::vector<int>FindPath(int startCell, int goalCell);
+
+        int GetPositionInMesh(Entity* entity);
 
         //also Olesya gonna make a funnel that is fun *for* all!
 

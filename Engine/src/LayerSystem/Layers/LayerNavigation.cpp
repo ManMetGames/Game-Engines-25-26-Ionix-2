@@ -7,9 +7,6 @@ namespace IonixEngine
     void LayerNavigation::OnAttach()
     {
         instance = this;
-
-        // Load navmesh from a file / generated data
-        // nav.Load(cornerList, indexList);
     }
 
     void LayerNavigation::OnDetach()
