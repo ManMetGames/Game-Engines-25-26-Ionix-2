@@ -93,7 +93,7 @@ function ExampleScript:OnStart()
 	-- Create pipe obstacle
 	------------------------------------------------------
 	pipe = Entity.create_entity()
-	Entity.set_entity_pos(pipe, 600, 400)
+	Entity.set_entity_pos(pipe, 640, 400)
 
 	local pipeSprite = Entity.add_sprite_component(pipe, "FlappyPipe", 80, 185, 0)
     Sprite.set_width(pipeSprite, 480)
@@ -119,6 +119,7 @@ function ExampleScript:OnUpdate()
 	if Input.get_key_down(Keys.ionix_space) then
         -- Bird move if space is pressed (allow gravity)
         Fysics.set_gravity_scale(player1, 1)
+        Fysics.set_linear_velocity(pipe, pipeSpeed, 0)
         -- Set velocity directly to cancel out falling momentum
         vy1 = -5  -- Jump velocity for player1
 	end
@@ -130,7 +131,7 @@ function ExampleScript:OnUpdate()
     Fysics.set_linear_velocity(player1, vx, vy1)
 
     -- Pipe movement disabled for testing
-    Fysics.set_linear_velocity(pipe, pipeSpeed, 0)
+
     local pipePos = Fysics.get_pos(pipe)
     if pipePos.x < pipeOffScreenLeft then
         Fysics.set_pos(pipe, pipeStartX, pipePos.y)
