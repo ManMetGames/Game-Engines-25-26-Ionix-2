@@ -28,7 +28,7 @@ namespace IonixEngine {
             entity->transform.SetLocalPosition(Vec2{ x, y });
             };
 
-        auto addSpriteComponent = [](Entity* entity, std::string hash, int width, int height, int zedOrder) -> SpriteComponent* {
+        auto addSpriteComponent = [](Entity* entity, int32_t hash, int width, int height, int zedOrder) -> SpriteComponent* {
             return entity->AddComponent(new SpriteComponent(entity, hash, width, height, zedOrder));
             };
 
