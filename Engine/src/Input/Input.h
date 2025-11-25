@@ -54,18 +54,11 @@ namespace IonixEngine
         std::unordered_set<Uint8> previousMouse;
 
         //Microphone
-        // hey i don't know if any of this is actually going to be useful
-        // -Clay
 
-        // max number of supported devices
         const int maxRecordingDevices = 10;
-
-        // max recording time
+        const int currentRecDevicesNumber; // <- i don't know if this is needed, but made it encase
         const int maxRecordingSeconds = 30;
-
-        // max recording time (with padding - ensures all audio is captured)
-        const int recordingBufferSeconds = maxRecordingSeconds + 1;
-
+        const int recordingBufferSeconds = maxRecordingSeconds + 1; // <- ensures all audio is captured by going over a second
 
     };
 }

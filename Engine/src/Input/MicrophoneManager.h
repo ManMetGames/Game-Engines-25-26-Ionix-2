@@ -11,8 +11,7 @@ namespace IonixEngine
   
         bool openDevice(const char* deviceName);
         void closeDevice();
-        void MicrophoneRecordingStates();
-
+        
         // various recording states
         enum recordingState
         {
@@ -23,6 +22,8 @@ namespace IonixEngine
             PLAYBACK,
             ERROR
         };
+
+        void MicrophoneRecordingStates(recordingState state); // <- don't move this!!! stuff in .cpp breaks if so (c++ logic moment)
 
     private:
         SDL_AudioSpec desired{};
