@@ -3,6 +3,8 @@ local ExampleScript = {}
 local player1
 local goal
 local playerSprite
+local Background
+local BackgroundSprite
 local goalSprite
 local x = 200
 local goalX = 500
@@ -18,13 +20,7 @@ function ExampleScript:OnStart()
     ------------------------------------------------------
     -- Load textures
     ------------------------------------------------------
-    Texture.add_texture("./Assets/left.png", "left")
-    Texture.add_texture("./Assets/middle.png", "middle")
-	Texture.add_texture("./Assets/right.png", "right")
-	Texture.add_texture("./Assets/player1.png", "player1")
-	Texture.add_texture("./Assets/key.png", "key")
-    Texture.add_texture("./Assets/FlappyBird.png", "FlappyBird")
-    Texture.add_texture("./Assets/Background.png", "Background")
+   
     ------------------------------------------------------
     -- Create player1
     ------------------------------------------------------
@@ -39,11 +35,19 @@ function ExampleScript:OnStart()
 	Sprite.set_playback_mode(playerSprite1, 4)
 
     -- PLAYER 1 PHYSICS
-    Entity.add_fysics_component(player1, 2, false) -- dynamic body
+    Entity.add_fysics_component(player1, 2, true) -- dynamic body
     Fysics.add_sprite_collider(player1, false)
 
     local tileSize = 64
     local floorY = 600
+
+
+	Background = Entity.create_entity()
+	local BackgroundSprite = Entity.add_sprite_component(Background, "Sunset", 960, 800, 0)
+
+	Sprite.set_width(BackgroundSprite, 1000)
+	Sprite.set_height(BackgroundSprite, 1000)
+	Sprite.set_playback_mode(BackgroundSprite, 4)
 
 	------------------------------------------------------
 	-- pick texture for left / middle / right
@@ -88,12 +92,12 @@ function ExampleScript:OnUpdate()
 	end
 	
 	if Input.get_key_held(Keys.ionix_a) then
-		vx = -5
+		vx = -10
         Entity.set_entity_pos(player1, vx, floorY)
 	end
 
 	if Input.get_key_held(Keys.ionix_d) then
-		vx = 5
+		vx = 10
 		Entity.set_entity_pos(player1, vx, floorY)
 	end
 
