@@ -37,6 +37,7 @@ function ExampleScript:OnStart()
     local bg = Entity.add_sprite_component(background, "Background")
     Sprite.set_width(bg, 1920)
     Sprite.set_height(bg, 1080)
+    Sprite.set_playback_mode(bg, 0)
     
     Sprite.set_width(bg, 1920)
     Sprite.set_height(bg, 1080)
