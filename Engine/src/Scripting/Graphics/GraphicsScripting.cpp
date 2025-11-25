@@ -45,7 +45,7 @@ namespace IonixEngine {
             };
 
         auto getZedOrder = [](SpriteComponent* spriteComponent) -> int {
-            return spriteComponent->getZedOrder();
+            return spriteComponent ->getZedOrder();
             };
 
         auto getTotalFrames = [](SpriteComponent* spriteComponent) -> int {
