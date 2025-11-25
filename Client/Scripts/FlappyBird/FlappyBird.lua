@@ -24,6 +24,14 @@ function ExampleScript:OnStart()
     ------------------------------------------------------
     -- Create player1
     ------------------------------------------------------
+	Background = Entity.create_entity()
+	local BackgroundSprite = Entity.add_sprite_component(Background, "Sunset", 960, 800, -1)
+	Entity.set_entity_pos(Background,0,0)
+
+	Sprite.set_width(BackgroundSprite, 1000)
+	Sprite.set_height(BackgroundSprite, 1000)
+	Sprite.set_playback_mode(BackgroundSprite, 4)
+
     player1 = Entity.create_entity()
 
     Entity.set_entity_pos(player1, x, 300)
@@ -42,12 +50,7 @@ function ExampleScript:OnStart()
     local floorY = 600
 
 
-	Background = Entity.create_entity()
-	local BackgroundSprite = Entity.add_sprite_component(Background, "Sunset", 960, 800, 0)
-
-	Sprite.set_width(BackgroundSprite, 1000)
-	Sprite.set_height(BackgroundSprite, 1000)
-	Sprite.set_playback_mode(BackgroundSprite, 4)
+	
 
 	------------------------------------------------------
 	-- pick texture for left / middle / right
