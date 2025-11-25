@@ -32,12 +32,9 @@ function ExampleScript:OnStart()
     Texture.add_texture("./Assets/Background.png", "Background")
     Texture.add_texture("./Assets/Sand.png", "Sand")
 
-    background = Entity.create_entity()
+    local background = Entity.create_entity()
     Entity.set_entity_pos(background, 0, 0)
-    local bgSprite = Entity.add_sprite_component(background, "Background", -1, -1, 0)
-    Sprite.set_width(bgSprite, 1920)
-    Sprite.set_height(bgSprite, 1080)
-    Sprite.set_playback_mode(bgSprite, 0)   -- static image
+    local bg = Entity.add_sprite_component(background, "Background")
     
     Sprite.set_width(bg, 1920)
     Sprite.set_height(bg, 1080)
@@ -129,24 +126,6 @@ function ExampleScript:OnUpdate()
 	-- To do...
 	CheckGoalProximity(player1, goal, 50, x, y)
     CheckGoalProximity(player2, goal, 50, x, y)
-
-
-    ------------------------------------------------------
-    -- CAMERA & SCROLLING
-    ------------------------------------------------------
-    -- Follow the leading player (or average both)
-    local leadX = math.max(Entity.get_entity_pos_x(player1), Entity.get_entity_pos_x(player2))
-    local camX = leadX - 400  -- keep players in view (adjust 400 as needed)
-
-    -- Scroll background with parallax (slower = farther away)
-    Entity.set_entity_pos_x(background, -camX * 0.4)
-
-    -- Scroll floor seamlessly
-    local floorOffset = camX % (31 * tileSize)
-    for i = 0, 30 do
-        local x = i * tileSize - floorOffset
-        Entity.set_entity_pos_x(floorTiles[i], x)
-    end
 end
 
 return ExampleScript
