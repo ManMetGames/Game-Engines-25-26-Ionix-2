@@ -46,7 +46,8 @@ function ExampleScript:OnStart()
 
     -- PLAYER 1 PHYSICS
     Entity.add_fysics_component(player1, 2, false) -- dynamic body
-    Fysics.add_sprite_collider(player1, false)
+    -- Fysics.add_sprite_collider(player1, false)
+    Fysics.add_box_collider(player1, 1, 1.5, 0 ,0 , false)
 
     local tileSize = 64
     local floorY = 600
