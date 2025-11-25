@@ -4,12 +4,12 @@
 
 struct Textures {
     uint64_t Background = 13067482129777558234u;
-    uint64_t BottomPipe = 14780389740148038846u;
+    uint64_t Coins = 18203461043464477796u;
     uint64_t Debug = 16105671890965812228u;
     uint64_t FlappyBird = 12156800037729862389u;
+    uint64_t FlappyPipe = 10012634775035799071u;
     uint64_t Sand = 4972914212072997432u;
     uint64_t Test = 2449874712956322390u;
-    uint64_t ToppomPipe = 8935492047639500032u;
     uint64_t ball = 17707837483333796221u;
     uint64_t ball2 = 14716692011604621444u;
     uint64_t horse_fat = 14957662674859995436u;
@@ -17,12 +17,12 @@ struct Textures {
     inline std::map<std::string, std::string> GetTextures() {
         std::map<std::string, std::string> map;
         map["Background"] = "./Assets/Background.png";
-        map["BottomPipe"] = "./Assets/BottomPipe.png";
+        map["Coins"] = "./Assets/Coins.png";
         map["Debug"] = "./Assets/Debug.png";
         map["FlappyBird"] = "./Assets/FlappyBird.png";
+        map["FlappyPipe"] = "./Assets/FlappyPipe.png";
         map["Sand"] = "./Assets/Sand.png";
         map["Test"] = "./Assets/Test.png";
-        map["ToppomPipe"] = "./Assets/ToppomPipe.png";
         map["ball"] = "./Assets/ball.png";
         map["ball2"] = "./Assets/ball2.png";
         map["horse_fat"] = "./Assets/horse-fat.gif";
@@ -31,13 +31,13 @@ struct Textures {
 };
 
 struct Sounds {
-    uint64_t test = 17827761153089726170u;
-    uint64_t test0 = 7268973944201526851u;
+    uint64_t test = 7268973944201526851u;
+    uint64_t test0 = 17827761153089726170u;
 
     inline std::map<std::string, std::string> GetSounds() {
         std::map<std::string, std::string> map;
-        map["test"] = "./Assets/test.wav";
-        map["test0"] = "./Assets/test.mp3";
+        map["test"] = "./Assets/test.mp3";
+        map["test0"] = "./Assets/test.wav";
         return map;
     };
 };

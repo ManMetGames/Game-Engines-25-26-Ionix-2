@@ -9,6 +9,7 @@ local goalX = 500
 local goalY = 500
 local y = 300
 local t = 10
+local coin
 
 -- Pipe variables
 local pipe
@@ -32,6 +33,7 @@ function ExampleScript:OnStart()
 	Texture.add_texture("./Assets/player1.png", "player1")
 	Texture.add_texture("./Assets/key.png", "key")
     Texture.add_texture("./Assets/FlappyPipe.png", "FlappyPipe")
+    Texture.add-texture("./Assets/Coins.png", "Coins")
 
     ------------------------------------------------------
 	-- Background Texture
@@ -58,10 +60,20 @@ function ExampleScript:OnStart()
     Entity.add_fysics_component(player1, 2, false) -- dynamic body
     --Fysics.add_sprite_collider(player1, false)
     Fysics.add_box_collider(player1, 1, 1.5, 0, 0, 0, false)
+    
+    ------------------------------------------------------
+    -- Create Coin
+    ------------------------------------------------------
+    coin  = Entity.create_entity()
 
+    Entity.set_entity_pos(coin, x, 500)
+	
+    local coin = Entity.add_sprite_component(coin, "Coins", 64, 64, 0)
 
-    local tileSize = 64
-    local floorY = 600
+   --Sprite.set_width(coin, 80)
+    --Sprite.set_height(coin, 16)
+	Sprite.set_playback_mode(coin, 4)
+
 	------------------------------------------------------
 	-- pick texture for left / middle / right
 	------------------------------------------------------
