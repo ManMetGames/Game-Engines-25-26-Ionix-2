@@ -39,7 +39,7 @@ function ExampleScript:OnStart()
 	Sprite.set_playback_mode(playerSprite1, 4)
 
     -- PLAYER 1 PHYSICS
-    Entity.add_fysics_component(player1, 2, false) -- dynamic body
+    Entity.add_fysics_component(player1, 2, true) -- dynamic body
     Fysics.add_sprite_collider(player1, false)
 
     local tileSize = 64
@@ -87,8 +87,14 @@ function ExampleScript:OnUpdate()
         vy1 = -5  -- Jump velocity for player1
 	end
 	
-	if Input.get_key_down(Keys.ionix_a) then
-        Entity.set_entity_pos(player1, xPos, floorY)
+	if Input.get_key_held(Keys.ionix_a) then
+		vx = -5
+        Entity.set_entity_pos(player1, vx, floorX)
+	end
+
+	if Input.get_key_held(Keys.ionix_d) then
+		vx = 5
+        Entity.set_entity_pos(player1, vx, floorX)
 	end
 
     Fysics.set_linear_velocity(player1, vx, vy1)
