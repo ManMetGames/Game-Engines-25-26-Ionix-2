@@ -32,8 +32,23 @@ local function CreatePipe(xPos, gapY, gapSize)
     Sprite.set_width(bottomSprite, pipeWidth)
     Sprite.set_height(bottomSprite, pipeHeight)
     Sprite.set_playback_mode(bottomSprite, 4)
-    
+
+    -- Pair pipes together
     return {top = topPipe, bottom = bottomPipe, x = xPos}
+end
+
+----------------------------------------------------------
+-- Pipe Physics Functions
+----------------------------------------------------------
+local function AddPhysicsToPipe(pipeData)
+    -- Add physics to top pipe
+    Entity.add_fysics_component(pipeData.top, 1, true) -- kinematic body
+    Fysics.add_sprite_collider(pipeData.top, false)
+    Fysics.set_gravity_scale(pipeData.top, 0)
+    -- Add physics to bottom pipe
+    Entity.add_fysics_component(pipeData.bottom, 1, true) -- kinematic body
+    Fysics.add_sprite_collider(pipeData.bottom, false)
+    Fysics.set_gravity_scale(pipeData.bottom, 0)
 end
 ----------------------------------------------------------
 -- OnStart
