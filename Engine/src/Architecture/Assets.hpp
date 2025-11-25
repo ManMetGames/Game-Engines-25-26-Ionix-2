@@ -4,8 +4,10 @@
 
 struct Textures {
     uint64_t Background = 13067482129777558234u;
+    uint64_t Coin = 14133685535227313695u;
     uint64_t Debug = 16105671890965812228u;
     uint64_t FlappyBird = 12156800037729862389u;
+    uint64_t FlappyPipe = 10012634775035799071u;
     uint64_t Sand = 4972914212072997432u;
     uint64_t Test = 2449874712956322390u;
     uint64_t ball = 17707837483333796221u;
@@ -15,8 +17,10 @@ struct Textures {
     inline std::map<std::string, std::string> GetTextures() {
         std::map<std::string, std::string> map;
         map["Background"] = "./Assets/Background.png";
+        map["Coin"] = "./Assets/Coin.png";
         map["Debug"] = "./Assets/Debug.png";
         map["FlappyBird"] = "./Assets/FlappyBird.png";
+        map["FlappyPipe"] = "./Assets/FlappyPipe.png";
         map["Sand"] = "./Assets/Sand.png";
         map["Test"] = "./Assets/Test.png";
         map["ball"] = "./Assets/ball.png";
