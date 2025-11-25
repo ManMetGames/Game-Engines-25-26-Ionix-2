@@ -85,7 +85,7 @@ function ExampleScript:OnStart()
 		------------------------------------------------------
 		-- add physics body + collider
 		------------------------------------------------------
-		Entity.add_fysics_component(tile, 0, false)  -- static
+		Entity.add_fysics_component(tile, 1, false)  -- static
 		Fysics.add_sprite_collider(tile, false)
 	end
 
@@ -93,7 +93,7 @@ function ExampleScript:OnStart()
 	-- Create pipe obstacle
 	------------------------------------------------------
 	pipe = Entity.create_entity()
-	Entity.set_entity_pos(pipe, 400, 400)
+	Entity.set_entity_pos(pipe, 600, 400)
 
 	local pipeSprite = Entity.add_sprite_component(pipe, "FlappyPipe", 80, 185, 0)
     Sprite.set_width(pipeSprite, 480)
@@ -101,8 +101,8 @@ function ExampleScript:OnStart()
 	Sprite.set_playback_mode(pipeSprite, 4)
 
 	-- Kinematic body so it moves but isn't affected by gravity
-	--Entity.add_fysics_component(pipe, 1, false)
-	--Fysics.add_sprite_collider(pipe, false)
+	Entity.add_fysics_component(pipe, 1, false)
+	Fysics.add_sprite_collider(pipe, 1, 1, 0, 0, false)
 end
 
 ----------------------------------------------------------
@@ -111,7 +111,7 @@ end
 function ExampleScript:OnUpdate()
     -- get current velocity
     local vel1 = Fysics.get_linear_velocity(player1)
-    
+    local vy1 = Fysics.get_linear_velocity(pipe)
     -- Constant rightward movement
     local vx = 0
     local vy1 = vel1.y
@@ -130,11 +130,11 @@ function ExampleScript:OnUpdate()
     Fysics.set_linear_velocity(player1, vx, vy1)
 
     -- Pipe movement disabled for testing
-    -- Fysics.set_linear_velocity(pipe, pipeSpeed, 0)
-    -- local pipePos = Fysics.get_pos(pipe)
-    -- if pipePos.x < pipeOffScreenLeft then
-    --     Fysics.set_pos(pipe, pipeStartX, pipePos.y)
-    -- end
+    Fysics.set_linear_velocity(pipe, pipeSpeed, 0)
+    local pipePos = Fysics.get_pos(pipe)
+    if pipePos.x < pipeOffScreenLeft then
+        Fysics.set_pos(pipe, pipeStartX, pipePos.y)
+     end
 end
 
 return ExampleScript
