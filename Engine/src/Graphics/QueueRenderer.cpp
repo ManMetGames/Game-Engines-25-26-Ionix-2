@@ -23,7 +23,7 @@ namespace IonixEngine {
 		}
 	}
 
-	void QueueRenderer::Merger(std::vector<RenderCall> arr, int left, int mid, int right)
+	void QueueRenderer::Merger(std::vector<RenderCall>& arr, int left, int mid, int right)
 	{
 		const int n1 = mid - left + 1;
 		int n2 = right - mid;
@@ -82,9 +82,10 @@ namespace IonixEngine {
 		}
 
 		MergeCaller(sprites, temp, 0, sprites.size() - 1);
+		ArrToQueueConverter(temp, sprites); 
 	}
 
-	void QueueRenderer::MergeCaller(queue<RenderCall>& sprites, std::vector<RenderCall> temp, int left, int right)
+	void QueueRenderer::MergeCaller(queue<RenderCall>& sprites, std::vector<RenderCall>& temp, int left, int right)
 	{
 		
 		if (left >= right) {

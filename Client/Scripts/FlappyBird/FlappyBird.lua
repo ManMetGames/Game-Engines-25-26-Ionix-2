@@ -79,7 +79,7 @@ function ExampleScript:OnStart()
 	-- add physics body + collider
 	------------------------------------------------------
 	Entity.add_fysics_component(coin, 1, false)  -- static
-    Fysics.add_sprite_collider(coin, true)
+            Fysics.add_sprite_collider(coin, true, 1.0)
 
 
     local tileSize = 64
@@ -106,7 +106,7 @@ function ExampleScript:OnStart()
 		-- add physics body + collider
 		------------------------------------------------------
 		Entity.add_fysics_component(tile, 0, false)  -- static
-		Fysics.add_sprite_collider(tile, false)
+        Fysics.add_sprite_collider(tile, false, 1.0)
 	end
 
 	------------------------------------------------------
@@ -123,23 +123,17 @@ function ExampleScript:OnStart()
 
 	-- Kinematic body so it moves but isn't affected by gravity
 	Entity.add_fysics_component(pipe, 1, false)
-	Fysics.add_sprite_collider(pipe, false)
+    Fysics.add_sprite_collider(pipe, false, 1.0)
 
 
     -- TOP PIPE
     pipeT = Entity.create_entity()
-	Entity.set_entity_pos(pipeT, 640, 0)
-
-	local pipeSpriteT = Entity.add_sprite_component(pipeT, assets.textures.FlappyPipe2, 80, 185, 0)
-    Sprite.set_width(pipeSpriteT, 480)
-    Sprite.set_height(pipeSpriteT, 1845)
-	Sprite.set_playback_mode(pipeSpriteT, 4)
-
-	-- Kinematic body so it moves but isn't affected by gravity
-	Entity.add_fysics_component(pipeT, 1, false)
-	Fysics.add_sprite_collider(pipeT, false)
-
-    if Input.get_key_down(Keys.ionix_a) then
+    -- ... existing code ...
+        	-- Kinematic body so it moves but isn't affected by gravity
+        	Entity.add_fysics_component(pipeT, 1, false)
+        	Fysics.add_sprite_collider(pipeT, false, 1.0) -- ADDED 1.0
+    
+            if Input.get_key_down(Keys.ionix_a) then
         Entity.set_entity_pos(pipe, 200, floorY) 
 	end
 end
@@ -148,33 +142,34 @@ end
 -- OnUpdate
 ----------------------------------------------------------
 function ExampleScript:OnUpdate()
-    -- get current velocity
-    local vel1 = Fysics.get_linear_velocity(player1)
-    local vy1 = Fysics.get_linear_velocity(pipe)
-    local vy1 = Fysics.get_linear_velocity(pipeT)
-    -- Constant rightward movement
-    local vx = 0
-    local vy1 = vel1.y
+        -- get current velocity
+        local vel1 = Fysics.get_linear_velocity(player1)
 
-	if Input.get_key_down(Keys.ionix_space) then
-        -- Bird move if space is pressed (allow gravity)
-        Fysics.set_gravity_scale(player1, 1)
-        Fysics.set_linear_velocity(pipe, pipeSpeed, 0)
-        Fysics.set_linear_velocity(pipeT, pipeSpeed, 0)
-        -- Set velocity directly to cancel out falling momentum
-        vy1 = -5  -- Jump velocity for player1
-	end
+        -- Constant rightward movement
+        local vx = 0
+        local playerVy = vel1.y
 
-    Fysics.set_linear_velocity(player1, vx, vy1)
+    	if Input.get_key_down(Keys.ionix_space) then
+            -- Bird move if space is pressed (allow gravity)
+            Fysics.set_gravity_scale(player1, 1)
+            Fysics.set_linear_velocity(pipe, pipeSpeed, 0)
+            Fysics.set_linear_velocity(pipeT, pipeSpeed, 0)
+            
+            -- Set velocity directly to cancel out falling momentum
+            playerVy = -5  -- Jump velocity for player1
+    	end
+        Fysics.set_linear_velocity(player1, vx, playerVy)
 
-    -- Pipe movement
-    local pipePos = Fysics.get_pos(pipe)
-    local pipePos = Fysics.get_pos(pipeT)
-    if pipePos.x < pipeOffScreenLeft then
-        Fysics.set_pos(pipe, pipeStartX, pipePos.y)
-        Fysics.set_pos(pipeT, pipeStartX, pipePos.y)
-     end
+        -- Pipe movement
+        local pipePosBottom = Fysics.get_pos(pipe)
+        local pipePosTop = Fysics.get_pos(pipeT)
+
+        -- Check if pipes are off screen (checking top pipe is enough since they move together)
+        if pipePosTop.x < pipeOffScreenLeft then
+            Fysics.set_pos(pipe, pipeStartX, pipePosBottom.y) -- Reset X, keep original Y
+            Fysics.set_pos(pipeT, pipeStartX, pipePosTop.y)   -- Reset X, keep original Y
+         end
      
-end
+  end
 
 return ExampleScript

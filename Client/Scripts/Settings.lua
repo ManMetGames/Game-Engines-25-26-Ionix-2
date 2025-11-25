@@ -11,8 +11,8 @@ end
 --LoadModule("Enemy", "Scripts/Enemy.lua")
 --LoadModule("Player", "Scripts/Player.lua")
 --LoadModule("ExampleScript", "Scripts/ExampleScript.lua")
---LoadModule("FlappyBird", "Scripts/FlappyBird/FlappyBird.lua")
-LoadModule("Ball", "Scripts/Ball.lua")
+LoadModule("FlappyBird", "Scripts/FlappyBird/FlappyBird.lua")
+--("Ball", "Scripts/Ball.lua")
 
 -- Lifecycle hooks
 function OnStart()
