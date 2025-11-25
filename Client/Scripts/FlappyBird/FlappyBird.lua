@@ -20,19 +20,6 @@ local pipeOffScreenLeft = -100
 -- OnStart
 ----------------------------------------------------------
 function ExampleScript:OnStart()
-
-    ------------------------------------------------------
-    -- Load textures
-    ------------------------------------------------------
-    Texture.add_texture("./Assets/Background.png", "Background")
-    Texture.add_texture("./Assets/FlappyBird.png", "FlappyBird")
-    Texture.add_texture("./Assets/left.png", "left")
-    Texture.add_texture("./Assets/middle.png", "middle")
-	Texture.add_texture("./Assets/right.png", "right")
-	Texture.add_texture("./Assets/player1.png", "player1")
-	Texture.add_texture("./Assets/key.png", "key")
-    Texture.add_texture("./Assets/FlappyPipe.png", "FlappyPipe")
-
     ------------------------------------------------------
 	-- Background Texture
 	------------------------------------------------------
@@ -48,8 +35,8 @@ function ExampleScript:OnStart()
 	
     local playerSprite1 = Entity.add_sprite_component(player1, "FlappyBird", 64, 64, 0)
 
-    Sprite.set_width(playerSprite1, 64)
-    Sprite.set_height(playerSprite1, 64)
+    Sprite.set_sprite_width(playerSprite1, 64)
+    Sprite.set_sprite_height(playerSprite1, 64)
 	Sprite.set_playback_mode(playerSprite1, 4)
 
     -- PLAYER 1 PHYSICS
