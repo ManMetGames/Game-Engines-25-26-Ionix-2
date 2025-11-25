@@ -1,6 +1,7 @@
 #pragma once
 #include <SDL.h>
 #include <SDL_render.h>
+#include "Architecture/Application.h"
 
 namespace IonixEngine
 {
@@ -22,13 +23,13 @@ namespace IonixEngine
 		
 		Camera(float startX = 0.0f, float startY = 0.0f, int renderLayer = 0);
 
+
 		void SetColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 		void Init();
 		SDL_Color GetColor() const { return currentColor; }
-		void handleInput(float deltaTime);
 		void MoveCamera(float deltaX, float deltaY, bool moveCamDelta = true);
 		void SwitchCamera();
-		void SetZoom(SDL_Renderer* renderer);
+		void SetZoom(SDL_Renderer* renderer, int zoom);
 		void ClearBackground(SDL_Renderer* renderer);
 		void SetBackgroundColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 
@@ -38,5 +39,6 @@ namespace IonixEngine
 		SDL_Texture* GetRenderTexture() const;            // retives texture
 		void RenderToScreen(SDL_Renderer* renderer, float posX, float posY, float sizeX, float sizeY);
 		void Rotate(float angle);
+		void RotateEntity(Entity* entity, float angle);
 	};
 }

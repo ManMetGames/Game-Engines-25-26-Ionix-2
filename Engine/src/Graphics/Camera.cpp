@@ -12,8 +12,10 @@ namespace IonixEngine
     {
     }
 
-    void Camera::SetZoom(SDL_Renderer* renderer)
+    void Camera::SetZoom(SDL_Renderer* renderer, int zoom)
     {
+        if (zoom < 0.2f) zoom = 0.2f;
+        if (zoom > 5.0f) zoom = 5.0f;
         SDL_RenderSetScale(renderer, zoom, zoom);
     }
 
@@ -53,31 +55,6 @@ namespace IonixEngine
     {
         SetBackgroundColor(r, g, b, a);
     }
-
-    void Camera::handleInput(float deltaTime)
-    {
-        if (!isFocused) return;
-        const float speed = 3.0f;
-        
-        if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_O)) 
-        {
-            zoom *= 0.9f;
-            SetZoom(Application::Get().GetWindow().m_Renderer);
-        }
-        else if (Application::Get().layerInput->m_Input->IsKeyHeld(SDL_SCANCODE_I)) 
-        {
-            zoom *= 1.1f;
-            SetZoom(Application::Get().GetWindow().m_Renderer);
-        }
-
-        if (Application::Get().layerInput->m_Input->IsKeyDown(SDL_SCANCODE_C)) 
-        {
-            SwitchCamera();
-        }
-
-        if (zoom < 0.2f) zoom = 0.2f;
-        if (zoom > 5.0f) zoom = 5.0f;
-    }
   
   void Camera::SetBackgroundColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a)
     {
@@ -85,7 +62,7 @@ namespace IonixEngine
         bg_g = g;
         bg_b = b;
         bg_a = a;
-  }
+    }
 
 	void Camera::MoveCamera(float deltaX, float deltaY, bool moveCamDelta) //ignore moveCamDelta, it should always be set to true
 	{
@@ -195,5 +172,31 @@ namespace IonixEngine
             }
         }
     }
+
+    /*void Camera::RotateEntity(Entity* entity, float angle) {
+        auto& entities = Application::Get().layerScene->GetEntities();
+
+        for (auto& e : entities)
+        {
+			if (&e != entity) continue;
+            FysicsBody* fb = nullptr;
+            SpriteComponent* spr = nullptr;
+
+            float angleInRads = angle * (3.14159265f / 180.0f);
+
+            if (!e.TryGetComponent<FysicsBody>(&fb)) {
+                e.AddComponent<FysicsBody>(new FysicsBody(&e, 2, false));
+            }
+
+            if (e.TryGetComponent<SpriteComponent>(&spr) && e.TryGetComponent<FysicsBody>(&fb)) {
+                spr->setAngle(spr->getAngle() + angleInRads);
+                if (spr->getAngle() >= 360.0f) spr->setAngle(spr->getAngle() - 360); //these 2 lines normalize the rotation
+                if (spr->getAngle() < 0.0f)   spr->setAngle(spr->getAngle() + 360);
+                fb->SetAngle(&e, fb->GetAngle(&e) + angleInRads);
+                if (fb->GetAngle(&e) >= 360.0f) fb->SetAngle(&e, fb->GetAngle(&e) - 360); //these 2 lines normalize the rotation 
+                if (fb->GetAngle(&e) < 0.0f)   fb->SetAngle(&e, fb->GetAngle(&e) + 360);
+            }
+        }
+    }*/
 
 }
