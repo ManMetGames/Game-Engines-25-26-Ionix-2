@@ -3,8 +3,13 @@
 #include "Fysics/FysicsManager.h"
 
 namespace IonixEngine {
+
+    
+
+
+    
     //add circle
-    void FysicsShapes::AddCircle(Entity* entity, float radius, b2Vec2 offset, bool isTrigger, uint16 categoryBits, uint16 maskBits) {
+    void FysicsShapes::AddCircle(Entity* entity, float radius, b2Vec2 offset, bool isTrigger) {
         b2CircleShape shape;
 
         shape.m_radius = radius;
@@ -13,8 +18,6 @@ namespace IonixEngine {
 
         fixtureDef.shape = &shape;
         fixtureDef.isSensor = isTrigger;
-        fixtureDef.filter.categoryBits = categoryBits;
-        fixtureDef.filter.maskBits = maskBits;
 
         if (fixture) {
             body->DestroyFixture(fixture);
@@ -42,11 +45,39 @@ namespace IonixEngine {
         fixtureDef.shape = &shape;
         fixtureDef.isSensor = isTrigger;
         fixtureDef.density = 1.0f;
-        fixtureDef.filter.categoryBits = categoryBits;
-        fixtureDef.filter.maskBits = maskBits;
 
         //if (fixture)
         //    body->DestroyFixture(fixture);
+
+        fixture = body->CreateFixture(&fixtureDef);        
+    }
+
+    void FysicsShapes::AddSpriteCollider(Entity* entity, bool isTrigger)
+    {
+        SpriteComponent* sprite_component = nullptr;
+        if (!entity->TryGetComponent<SpriteComponent>(&sprite_component)){return;}
+        
+        body = FysicsManager::GetManager()->GetBodyFromEntity(entity);
+        b2PolygonShape shape;
+        
+        float xScale = sprite_component->getWidth() / 100.0f;
+        float yScale = sprite_component->getHeight() / 100.0f;
+        
+        b2Vec2 size;
+        size.x = xScale;
+        size.y = yScale;
+        b2Vec2 halfSize(size.x * 0.5f, size.y * 0.5f);
+
+        b2Vec2 offset;
+        offset.x = xScale / 2;
+        offset.y = yScale / 2;
+
+        shape.SetAsBox(halfSize.x, halfSize.y, offset, angle);
+
+        b2FixtureDef fixtureDef;
+        fixtureDef.shape = &shape;
+        fixtureDef.isSensor = isTrigger;
+        fixtureDef.density = 1.0f;
 
         fixture = body->CreateFixture(&fixtureDef);        
     }
@@ -78,6 +109,7 @@ namespace IonixEngine {
             body->DestroyFixture(fixture);
         }
         fixture = FysicsManager::GetManager()->GetBodyFromEntity(entity)->CreateFixture(&fixtureDef);
+
     }
 
 
