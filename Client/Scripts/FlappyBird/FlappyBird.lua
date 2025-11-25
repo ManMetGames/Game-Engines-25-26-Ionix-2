@@ -59,6 +59,14 @@ local function SpawnPipe()
     local range = maxGapY - minGapY
     local randomOffset = math.random() * range
     local randomY = minGapY + randomOffset
+
+    -- Create pipe
+    local pipeData = CreatePipe(nextSpawnX, randomY, gapSize)
+    AddPhysicsToPipe(pipeData)
+    
+    table.insert(pipes, pipeData)
+    
+    nextSpawnX = nextSpawnX + spawnDistance
 end
 
 ----------------------------------------------------------
@@ -66,13 +74,13 @@ end
 ----------------------------------------------------------
 function ExampleScript:OnStart()
     -- Load textures
-    --Texture.add_texture("./Assets/left.png", "left")
-    --Texture.add_texture("./Assets/middle.png", "middle")
-    --Texture.add_texture("./Assets/right.png", "right")
-    --Texture.add_texture("./Assets/player1.png", "player1")
-    --Texture.add_texture("./Assets/key.png", "key")
-    --Texture.add_texture("./Assets/FlappyBird.png", "FlappyBird")
-    --Texture.add_texture("./Assets/Background.png", "Background")
+    Texture.add_texture("./Assets/left.png", "left")
+    Texture.add_texture("./Assets/middle.png", "middle")
+    Texture.add_texture("./Assets/right.png", "right")
+    Texture.add_texture("./Assets/player1.png", "player1")
+    Texture.add_texture("./Assets/key.png", "key")
+    Texture.add_texture("./Assets/FlappyBird.png", "FlappyBird")
+    Texture.add_texture("./Assets/Background.png", "Background")
     
     -- Create player
     player1 = Entity.create_entity()
@@ -103,6 +111,9 @@ function ExampleScript:OnStart()
         Entity.add_fysics_component(tile, 0, false) -- static
         Fysics.add_sprite_collider(tile, false)
     end
+
+    --Spawn pipe
+    SpawnPipe()
     
 end
 
