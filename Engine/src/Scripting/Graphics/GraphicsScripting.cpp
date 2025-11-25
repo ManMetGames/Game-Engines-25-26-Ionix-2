@@ -117,8 +117,8 @@ namespace IonixEngine {
             "set_end_frame", setEndFrame,
             "set_rows", setRows,
             "set_columns", setColumns,
-            "set_sprite_width", setSpriteWidth,
-            "set_sprite_height", setSpriteHeight,
+            "set_width", setSpriteWidth,
+            "set_height", setSpriteHeight,
             "set_zed_order", setZedOrder,
             "get_playback_mode", getPlaybackMode,
             "set_playback_mode", setPlaybackMode

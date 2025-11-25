@@ -12,7 +12,7 @@ function EntityPlayer:OnStart()
 	print(Entity.has_sprite_component(entity1))
 	print(assets.textures.ball)
 	Entity.add_sprite_component(entity1, "ball", 100, 100, 0)   
-	Entity.add_fysics_component(entity1, 2, false)
+	Entity.add_fysics_component(entity1, 1, false)
 	--Entity.add_fysics_component(entity1, 0, false)
 	vec2 = Mafs.vec_2(0,0)
 
@@ -30,7 +30,8 @@ function EntityPlayer:OnUpdate()
 	end
 	
 	Fysics.set_linear_velocity_v(entity1, vec2)
-	
+	print(Fysics.get_linear_velocity(entity1).x)
+	print(Fysics.get_pos(entity1).x)
 	if Input.get_key_held(Keys.ionix_d) then
 		vec2.x = xSpeed	
 	elseif Input.get_key_held(Keys.ionix_a) then

@@ -195,6 +195,23 @@ namespace IonixEngine
 			Application::Get().layerFysics->GetFysicsManager()->GetForce()->ClearForces(entity);
 			};
 
+		//Material Changes
+		auto fysicsSetFriction = [](Entity* entity, float friction) {
+			Application::Get().layerFysics->GetFysicsManager()->GetMaterial()->SetFriction(entity, friction);
+			};
+
+		auto fysicsSetRestitution = [](Entity* entity, float restitution) {
+			Application::Get().layerFysics->GetFysicsManager()->GetMaterial()->SetRestitution(entity, restitution);
+			};
+
+		auto getFriction = [](Entity* entity)-> float {
+			return Application::Get().layerFysics->GetFysicsManager()->GetMaterial()->GetFriction(entity);
+			};
+
+		auto getRestitution = [](Entity* entity)-> float {
+			return Application::Get().layerFysics->GetFysicsManager()->GetMaterial()->GetRestitution(entity);
+			};
+
 
 		//----------Collision Methods----------
 
@@ -212,14 +229,14 @@ namespace IonixEngine
 			uint16 category = categoryBits.value_or(0x0001);
 			uint16 mask = maskBits.value_or(0xFFFF);
 
-			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddBox(entity, size, offset, angle, isTrigger, category, mask);
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddBox(entity, size, offset, angle, isTrigger);
 		};
 
 		auto addBoxColliderv = [](Entity* entity, b2Vec2 size, b2Vec2 offset, float angle, bool isTrigger, sol::optional<uint16> categoryBits, sol::optional<uint16> maskBits) {
 			uint16 category = categoryBits.value_or(0x0001);
 			uint16 mask = maskBits.value_or(0xFFFF);
 
-			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddBox(entity, size, offset, angle, isTrigger, category, mask);
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddBox(entity, size, offset, angle, isTrigger);
 			};
 
 		auto addSpriteCollider = [](Entity* entity, bool isTrigger) {
@@ -289,7 +306,7 @@ namespace IonixEngine
 			"set_restitution", fysicsSetRestitution,
 			"get_friction", getFriction,
 			"get_restitution", getRestitution,
-			"add_sprite_collider", addSpriteCollider
+			"add_sprite_collider", addSpriteCollider,
 			"get_gravity_scale", getFysicsGravityScale,
 			"set_gravity_scale", setFysicsGravityScale
 		);
