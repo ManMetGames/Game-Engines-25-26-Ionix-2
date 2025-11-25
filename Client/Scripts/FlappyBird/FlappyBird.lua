@@ -9,7 +9,7 @@ local screenWidth = 800
 local nextSpawnX = 800
 
 ----------------------------------------------------------
--- Pipe Creation Functions
+-- Pipe Creation 
 ----------------------------------------------------------
 local function CreatePipe(xPos, gapY, gapSize)
     local pipeWidth = 64
@@ -38,7 +38,7 @@ local function CreatePipe(xPos, gapY, gapSize)
 end
 
 ----------------------------------------------------------
--- Pipe Physics Functions
+-- Pipe Physics 
 ----------------------------------------------------------
 local function AddPhysicsToPipe(pipeData)
     -- Add physics to top pipe
@@ -50,18 +50,29 @@ local function AddPhysicsToPipe(pipeData)
     Fysics.add_sprite_collider(pipeData.bottom, false)
     Fysics.set_gravity_scale(pipeData.bottom, 0)
 end
+
+----------------------------------------------------------
+-- Pipe Manager 
+----------------------------------------------------------
+local function SpawnPipe()
+    -- Generate random gap position
+    local range = maxGapY - minGapY
+    local randomOffset = math.random() * range
+    local randomY = minGapY + randomOffset
+end
+
 ----------------------------------------------------------
 -- OnStart
 ----------------------------------------------------------
 function ExampleScript:OnStart()
     -- Load textures
-    Texture.add_texture("./Assets/left.png", "left")
-    Texture.add_texture("./Assets/middle.png", "middle")
-    Texture.add_texture("./Assets/right.png", "right")
-    Texture.add_texture("./Assets/player1.png", "player1")
-    Texture.add_texture("./Assets/key.png", "key")
-    Texture.add_texture("./Assets/FlappyBird.png", "FlappyBird")
-    Texture.add_texture("./Assets/Background.png", "Background")
+    --Texture.add_texture("./Assets/left.png", "left")
+    --Texture.add_texture("./Assets/middle.png", "middle")
+    --Texture.add_texture("./Assets/right.png", "right")
+    --Texture.add_texture("./Assets/player1.png", "player1")
+    --Texture.add_texture("./Assets/key.png", "key")
+    --Texture.add_texture("./Assets/FlappyBird.png", "FlappyBird")
+    --Texture.add_texture("./Assets/Background.png", "Background")
     
     -- Create player
     player1 = Entity.create_entity()
