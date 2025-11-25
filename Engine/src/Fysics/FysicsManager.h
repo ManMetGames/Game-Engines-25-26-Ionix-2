@@ -6,7 +6,6 @@
 #include "Fysics/RigidBodyTransform.h"
 #include "Fysics/CollisionListener.h"
 #include "Architecture/ECS/Entity.hpp"
-#include "FysicsMaterials/FysicsMaterialComponent.h"
 
 #include <unordered_map>
 #include "box2d.h"
@@ -26,7 +25,6 @@ namespace IonixEngine
         PulleyJoints* pulleyJoint;
         RevoluteJoints* revoluteJoint;
         DistanceJoints* distanceJoint;
-        FysicsMaterialComponent* material;
         std::unordered_map<b2Body*, Entity*> bodyEntityMap;
         std::unordered_map<b2Body*, RigidBodyTransform> transformMap; //used for interpolation
 
@@ -37,7 +35,6 @@ namespace IonixEngine
 
         FysicsShapes* GetShapes() { return shapes; }
         Force* GetForce() { return force; }
-        FysicsMaterialComponent* GetMaterial() { return material; }
 
         PrismaticJoints* GetPrismaticJoint() { return prismaticJoint;}
         WeldJoints* GetWeldJoint() { return weldJoint;}

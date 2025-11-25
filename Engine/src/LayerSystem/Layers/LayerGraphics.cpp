@@ -13,6 +13,10 @@ namespace IonixEngine
 
     void LayerGraphics::OnAttach() {
         TextureManager::Get().Init();
+        TextureManager::Get().AddTexture("./Assets/Test.png", "Test");
+        TextureManager::Get().AddTexture("./Assets/ball.png", "Ball");
+        TextureManager::Get().AddTexture("./Assets/ball2.png", "Ball 2");
+        TextureManager::Get().AddTexture("./Assets/aur naur.jpg", "pim");
         SDL_Log("Added debug texture");
     }
 

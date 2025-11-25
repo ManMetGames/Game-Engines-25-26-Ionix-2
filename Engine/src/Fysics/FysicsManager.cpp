@@ -13,7 +13,7 @@ namespace IonixEngine
 		b2Vec2 gravity(0.0f, 9.8f);
 		world = new b2World(gravity);
 
-		DebugDraw* debugDraw = new DebugDraw(Application::Get().GetWindow().GetSdlRenderer());
+		DebugDraw* debugDraw = new DebugDraw(Application::Get().GetWindow().GetSdlRenderer(), 30.0f);
 		debugDraw->SetFlags(
 			b2Draw::e_shapeBit
 			| b2Draw::e_jointBit
