@@ -30,7 +30,10 @@ namespace IonixEngine {
         b2Vec2 size,   
         b2Vec2 offset,
         float angle,
-        bool isTrigger)
+        bool isTrigger//,
+        //uint16 categoryBits,
+        //uint16 maskBits
+        )
     {
         body = FysicsManager::GetManager()->GetBodyFromEntity(entity);
         b2PolygonShape shape;
@@ -44,10 +47,13 @@ namespace IonixEngine {
         fixtureDef.isSensor = isTrigger;
         fixtureDef.density = 1.0f;
 
+        //if (fixture)
+        //    body->DestroyFixture(fixture);
+
         fixture = body->CreateFixture(&fixtureDef);        
     }
 
-    void FysicsShapes::AddSpriteCollider(Entity* entity, bool isTrigger, float scaleFactor)
+    void FysicsShapes::AddSpriteCollider(Entity* entity, bool isTrigger)
     {
         SpriteComponent* sprite_component = nullptr;
         if (!entity->TryGetComponent<SpriteComponent>(&sprite_component)){return;}
@@ -60,7 +66,7 @@ namespace IonixEngine {
         b2Vec2 size;
         size.x = xScale;
         size.y = yScale;
-        b2Vec2 halfSize((size.x * 0.5f) * scaleFactor, (size.y * 0.5f) * scaleFactor);
+        b2Vec2 halfSize(size.x * 0.5f, size.y * 0.5f);
 
         b2Vec2 offset;
         offset.x = xScale / 2;
