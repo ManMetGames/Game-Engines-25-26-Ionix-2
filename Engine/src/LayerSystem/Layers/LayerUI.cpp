@@ -89,20 +89,14 @@ namespace IonixEngine
          
          
          uiManager.BeginPanel("Test Panel");
-
-         /*uiManager.AddLabel(10, 10, 100, 20, "Test Label");
+         uiManager.AddLabel(10, 10, 100, 20, "Test Label");
          uiManager.AddButton(10, 40, 100, 25, "Click Me", []() { printf("Button clicked!\n"); });
          uiManager.AddCheckbox(10, 70, 120, 25, "Enable", &checkboxValue);
          uiManager.AddSliderFloat(10, 100, 150, 25, "Slider", &sliderValue, 0.0f, 1.0f);
          uiManager.AddRadioButton(10, 130, 100, 25, "Option 1", &radioValue, 0,true);
          uiManager.AddRadioButton(120, 130, 100, 25, "Option 2", &radioValue, 1, true);
          uiManager.AddDropdown(10, 160, 150, 25, "Dropdown", dropdownOptions, &dropdownIndex);
-         uiManager.AddColorPicker(10, 190, 150, 150, "Pick Color", m_UI->myColor);*/
-         // Render the UI
-         //uiManager.RenderUI();
-         //uiManager.EndPanel();
-         //uiManager.ClearElements();
-         // Rendering
+         uiManager.AddColorPicker(10, 190, 150, 150, "Pick Color", m_UI->myColor);
          
 
          // TODO - Will be done by graphics unit eventually. Here for testing for the time being.
