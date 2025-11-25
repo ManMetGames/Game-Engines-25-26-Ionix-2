@@ -33,10 +33,6 @@ function ExampleScript:OnStart()
     player = Entity.create_entity(0)
     Entity.set_entity_pos(player, x, y)
     playerSprite = Entity.add_sprite_component(player, "ball", 75, 75, 0)
-	Sprite.set_playback_mode(playerSprite, 0)
-
-    Entity.add_fysics_component(player, 2, false)
-    Fysics.add_box_collider(player, .5, .5, 0, 0, 0, false)
 
     local tileSize = 32
     local floorY = 610

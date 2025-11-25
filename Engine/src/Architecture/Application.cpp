@@ -2,6 +2,7 @@
 #include "Fysics/FysicsBody.h"
 #include "Fysics/FysicsManager.h"
 #include "Fysics/Shapes.h"
+#include "Fysics/NavMef.h"
 #include "LayerSystem/Layers/LayerTexture.hpp"
 #include "SDL_timer.h"
 #include "imgui.h"
@@ -54,6 +55,9 @@ namespace IonixEngine
         layerScene = new LayerScene();
         AddLayer(layerScene);
 
+        layerNavigation = new LayerNavigation();  
+        AddLayer(layerNavigation);
+
         Scripting::Get().Init();
         Scripting::Get().GetLuaState().script_file("Scripts/Settings.lua");
     }
@@ -79,9 +83,10 @@ namespace IonixEngine
     void Application::Run()
     {
         m_Running = true;
-        
+
 	    cam->Init();
 	    cam2->Init();
+        
         Scripting::Get().CallHook("OnStart");
 
         currentCam = cam;
@@ -92,7 +97,7 @@ namespace IonixEngine
         m_LastFrameTime = SDL_GetTicks64();
         m_FixedTimeAccumulator = 0.0f;
         m_FixedTimeStep = 1.0f / 60.0f; // 60 Hz
-
+        
         while (m_Running)
         {
             
