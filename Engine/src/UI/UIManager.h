@@ -3,7 +3,7 @@
 #include <string>
 #include <functional>
 #include <vector>
-#include "Fontloader.h"
+#include "FontLoader.h"
 
 #include "UI/UI.h"
 namespace IonixEngine
@@ -82,11 +82,11 @@ namespace IonixEngine
 
 		//void UIManager::EndGroup();
 
-		void UIManager::BeginPanel(const std::string& panelName);
+		void BeginPanel(const std::string& panelName);
 
-		void UIManager::EndPanel();
+		void EndPanel();
 
-		void UIManager::AddChildToPanel(UIElement element);
+		void AddChildToPanel(UIElement element);
 
 		// Add for new UITypes below
 

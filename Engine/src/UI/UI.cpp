@@ -3,7 +3,7 @@
 #include "FontLoader.h"
 #include "Architecture/Application.h"
 #include <stdio.h>
-#include <iostream>
+
 #define IM_CLAMP(V, MN, MX)     ((V) < (MN) ? (MN) : (V) > (MX) ? (MX) : (V))
 
 
@@ -13,8 +13,7 @@ namespace IonixEngine
 	{
 
 		ImGui::SetCursorPos(ImVec2(xpos, ypos));
-		std::unordered_map<std::string, ImFont*>& map = Application::Get().layerUI->GetUIManager().fontLoader.fontMap;
-		ImFont* fontToPush = map[font];
+		ImFont* fontToPush = Application::Get().layerUI->GetUIManager().fontLoader.fontMap[font];
 
 		ImGui::PushFont(fontToPush);
 		ImGui::Text(text, ImVec2(xsize, ysize));
@@ -27,9 +26,10 @@ namespace IonixEngine
 		if (ImGui::Button(text, ImVec2(xsize, ysize))) {
 			return true;
 		}
+	return false;
 	}
 
-	float UI::DrawSlider(char* text, static float i, int xsize, int ysize, int xpos, int ypos, int minval, int maxval) {
+	float UI::DrawSlider(char* text, float i, int xsize, int ysize, int xpos, int ypos, int minval, int maxval) {
 		ImGui::SetCursorPos(ImVec2(xpos, ypos));
 		ImGui::SliderFloat(text, &i, minval, maxval);
 		return i;

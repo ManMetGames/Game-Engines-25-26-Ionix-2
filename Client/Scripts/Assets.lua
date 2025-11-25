@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 return {
     textures = {
         Debug = 3020269576,
@@ -8,8 +7,8 @@ return {
         horse_fat = 1246519896,
     },
     sounds = {
-        test = 1130855558,
-        test0 = 1557646772,
+        test = 1557646772,
+        test0 = 1130855558,
     },
     fonts = {
         OpenSans_Bold = 3319336854,
@@ -52,59 +51,3 @@ return {
         OpenSans_VariableFont = 3876377408,
     },
 }
-=======
-return {
-    textures = {
-        Debug = 3020269576,
-        Debug0 = 664162688,
-        Test = 2482144428,
-        ball = 3974791930,
-        ball2 = 151744776,
-        horse_fat = 1246519896,
-    },
-    sounds = {
-        test = 1130855558,
-        test0 = 1557646772,
-    },
-    fonts = {
-        OpenSans_Bold = 3319336854,
-        OpenSans_BoldItalic = 2232166106,
-        OpenSans_Condensed_Bold = 1257733064,
-        OpenSans_Condensed_BoldItalic = 1177092612,
-        OpenSans_Condensed_ExtraBold = 2407710468,
-        OpenSans_Condensed_ExtraBoldItalic = 1293856578,
-        OpenSans_Condensed_Italic = 1997391864,
-        OpenSans_Condensed_Light = 3158828724,
-        OpenSans_Condensed_LightItalic = 3975607614,
-        OpenSans_Condensed_Medium = 4125050526,
-        OpenSans_Condensed_MediumItalic = 741778048,
-        OpenSans_Condensed_Regular = 3085398546,
-        OpenSans_Condensed_SemiBold = 1900525276,
-        OpenSans_Condensed_SemiBoldItalic = 431358288,
-        OpenSans_ExtraBold = 2581510600,
-        OpenSans_ExtraBoldItalic = 849476372,
-        OpenSans_Italic = 1125889058,
-        OpenSans_Italic_VariableFont_wdth_wght = 593026812,
-        OpenSans_Light = 3528140022,
-        OpenSans_LightItalic = 4215051824,
-        OpenSans_Medium = 1636383394,
-        OpenSans_MediumItalic = 179932718,
-        OpenSans_Regular = 67823770,
-        OpenSans_SemiBold = 2174981548,
-        OpenSans_SemiBoldItalic = 2886977826,
-        OpenSans_SemiCondensed_Bold = 1727516064,
-        OpenSans_SemiCondensed_BoldItalic = 795835814,
-        OpenSans_SemiCondensed_ExtraBold = 1908133880,
-        OpenSans_SemiCondensed_ExtraBoldItalic = 593917970,
-        OpenSans_SemiCondensed_Italic = 425666450,
-        OpenSans_SemiCondensed_Light = 1226737432,
-        OpenSans_SemiCondensed_LightItalic = 272128174,
-        OpenSans_SemiCondensed_Medium = 1818680248,
-        OpenSans_SemiCondensed_MediumItalic = 2321830730,
-        OpenSans_SemiCondensed_Regular = 1115496750,
-        OpenSans_SemiCondensed_SemiBold = 1425217572,
-        OpenSans_SemiCondensed_SemiBoldItalic = 1882341330,
-        OpenSans_VariableFont = 3876377408,
-    },
-}
->>>>>>> 08c7d4c08ca59ca51ab6bb90bc89b107551d2095

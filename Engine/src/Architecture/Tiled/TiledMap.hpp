@@ -22,9 +22,10 @@ public:
 
     TiledObjectLayer() = default;
     TiledObjectLayer(JSONDeserialize* json);
+    std::string ToString();
 };
 
-// Functionality will be merged in later, for now just skip to end of object...
+// Functionality will be merged in later, for now just remove tile layers
 class TiledTileLayer {
 public:
     bool isTile;

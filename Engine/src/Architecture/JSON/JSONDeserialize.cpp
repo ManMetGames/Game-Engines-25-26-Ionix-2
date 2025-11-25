@@ -101,20 +101,12 @@ bool JSONDeserialize::GetString(std::string* out) {
     if (startPos == data.npos) { printf("[JSON Deserialize] Malformed JSON after char %zu, expected '\"'\n", pos); return false; }
     size_t endPos = data.find('"', startPos + 1) - 1;
     if (endPos == data.npos) { printf("[JSON Deserialize] Malformed JSON after char %zu, expected ending '\"'\n", startPos); return false; }
-    *out = data.substr(startPos + 1, endPos - startPos);
+    if (out) { *out = data.substr(startPos + 1, endPos - startPos); }
     newPos = data.find('\n', pos);
     if (newPos == data.npos) { printf("[JSON Deserialize] Malformed JSON after char %zu, expected string\n", pos); return false; }
     return true;
 }
 
-<<<<<<< HEAD
-bool JSONDeserialize::BeginArray(const std::string& fieldname) {
-    return false;
-}
-
-bool JSONDeserialize::EndArray() {
-    return false;
-=======
 bool JSONDeserialize::BeginField(const std::string& fieldname) {
     size_t newPos = AdvanceToField(fieldname);
     if (newPos == data.npos) { return false; }
@@ -168,7 +160,6 @@ bool JSONDeserialize::EndElement() {
         return false;
     }
     pos = newPos - 1;
-    printf("[JSON Deserialize] Finishing element - remaining string: %s", data.substr(pos).c_str());
     return true;
 }
 
@@ -195,7 +186,6 @@ bool JSONDeserialize::EndObject() {
     if (brackets.top() != '{') { printf("[JSON Deserialize] Most recent unresolved bracket was not '{'\n"); return false; }
     brackets.pop();
     return ValidEndObject();
->>>>>>> 08c7d4c08ca59ca51ab6bb90bc89b107551d2095
 }
 
 bool JSONDeserialize::End() {

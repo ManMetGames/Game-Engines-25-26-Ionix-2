@@ -1,6 +1,7 @@
 #include "TiledMap.hpp"
-#include "Tiled/TiledObject.hpp"
+#include "TiledObject.hpp"
 #include "JSON/JSONDeserialize.hpp"
+#include <sstream>
 
 namespace IonixEngine {
 
@@ -65,6 +66,28 @@ TiledObjectLayer::TiledObjectLayer(JSONDeserialize* json) {
     ok = json->EndField(); if (!ok) { return; }
     
     ok = json->EndObject(); if (!ok) { return; }
+}
+
+std::string TiledObjectLayer::ToString() {
+    std::stringstream stream;
+    stream << "\tObject layer\n";
+    stream << "\t\tDraw Order: " << drawOrder << "\n";
+    stream << "\t\tID: " << id << "\n";
+    stream << "\t\tName: " << name << "\n";
+    stream << "\t\tObjects: " << "\n";
+    for (TiledObject& object : objects) {
+        stream << object.ToString() << "\n";
+    }
+    stream << "\t\tOpacity: " << opacity << "\n";
+    stream << "\t\tProperties:\n";
+    for (TiledProperty& property : properties) {
+        stream << property.ToString() << "\n";
+    }
+    stream << "\t\tType: " << type << "\n";
+    stream << "\t\tVisible: " << visible << "\n";
+    stream << "\t\tPosition: [" << position.x << ", " << position.y << "]\n";
+
+    return stream.str();
 }
 
 TiledLayer::TiledLayer(JSONDeserialize* json) {

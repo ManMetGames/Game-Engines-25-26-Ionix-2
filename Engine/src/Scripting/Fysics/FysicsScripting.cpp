@@ -2,7 +2,7 @@
 #include "Architecture/Application.h"
 #include "Fysics/FysicsBody.h"
 #include "Fysics/FysicsManager.h"
-#include "Fysics/joints.h"
+#include "Fysics/Joints.h"
 namespace IonixEngine
 {
 	FysicsScripting* FysicsScripting::s_Instance = nullptr;

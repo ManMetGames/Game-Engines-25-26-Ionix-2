@@ -1,6 +1,8 @@
 #include "TiledObject.hpp"
 #include "b2_math.h"
 #include "JSON/JSONDeserialize.hpp"
+#include <sstream>
+#include <string>
 
 namespace IonixEngine {
 
@@ -32,6 +34,16 @@ TiledProperty::TiledProperty(JSONDeserialize* json) {
     ok = json->GetString(&value); if (!ok) { return; }
     ok = json->EndField(); if (!ok) { return; }
     ok = json->EndObject(); if (!ok) { return; }
+}
+
+std::string TiledProperty::ToString() {
+    std::stringstream stream;
+    stream << "\t\t\tProperty:\n";
+    stream << "\t\t\t\tName: " << name << "\n";
+    stream << "\t\t\t\tType: " << type << "\n";
+    stream << "\t\t\t\tValue: " << value;
+
+    return stream.str();
 }
 
 TiledObject::TiledObject(JSONDeserialize* json) {
@@ -102,6 +114,31 @@ TiledObject::TiledObject(JSONDeserialize* json) {
     ok = json->EndField(); if (!ok) { return; }
 
     ok = json->EndObject(); if (!ok) { return; }
+}
+
+std::string TiledObject::ToString() {
+    std::stringstream stream;
+
+    stream << "\t\tTiledObject:\n";
+    stream << "\t\t\tID: " << id << "\n";
+    stream << "\t\t\tPosition: [ " << position.x << ", " << position.y << "]\n";
+    stream << "\t\t\tSize: [ " << size.x << ", " << size.y << "]\n";
+    stream << "\t\t\tRotation:" << rotation << "\n";
+    stream << "\t\t\tVisible:" << visible << "\n";
+    if (polygon.size() > 0) {
+        stream << "\t\t\tProperties:\n";
+        for (TiledProperty& property : properties) {
+            stream << property.ToString() << "\n";
+        }
+    }
+    if (polygon.size() > 0) {
+        stream << "\t\t\tPolygons:\n";
+        for (b2Vec2 vert : polygon) {
+            stream << "\t\t\t\t[ " << vert.x << ", " << vert.y << "]\n";
+        }
+    }
+
+    return stream.str();
 }
 
 }
