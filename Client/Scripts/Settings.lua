@@ -37,6 +37,7 @@ function OnShutdown()
     end
 end
 
+-- Load system modules
 LoadModule("Coroutines", "Scripts/Coroutines.lua")
 
 -- Retrieve module by name (for cross-module communication)
