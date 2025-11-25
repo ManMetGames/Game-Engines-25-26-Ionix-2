@@ -20,7 +20,7 @@ namespace IonixEngine {
     /// <param name="filepath">- string, if accessing Assets directory, prepend texture named with "../Assets/"</param>
     /// <param name="alias">- string, the name a texture will go by when being retrieved</param>
     void TextureManager::AddTexture(std::string filepath,std::string alias) {
-        uint64_t hashName = Get64BitHash(alias);
+        uint64_t hashName = Get32BitHash(alias);
         if (textureDict.find(hashName) != textureDict.end()) { return; }
         SDL_Texture* texture = IMG_LoadTexture(renderer, filepath.c_str());
         if (texture) {
@@ -52,7 +52,7 @@ namespace IonixEngine {
     /// <param name="alias">- string, the name used to store a texture with</param>
     /// <returns></returns>
     TextureData& TextureManager::GetTexture(std::string alias) {
-        auto texture = textureDict.find(Get64BitHash(alias));
+        auto texture = textureDict.find(Get32BitHash(alias));
         if (texture != textureDict.end()) {
             return texture->second;
         } else {
