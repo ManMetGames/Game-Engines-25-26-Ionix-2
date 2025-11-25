@@ -116,12 +116,14 @@ namespace IonixEngine
 			entity->GetComponent<FysicsBody>()->SetIsBullet(entity, flag);
 			};
 
-		auto GetGravityScale = [](Entity* entity) -> float {
+		auto getFysicsGravityScale = [](Entity* entity) -> float {
 			return entity->GetComponent<FysicsBody>()->GetGravityScale(entity);
 			};
-		auto SetGravityScale = [](Entity* entity, float gravityScale) {
+
+		auto setFysicsGravityScale = [](Entity* entity, float gravityScale) {
 			entity->GetComponent<FysicsBody>()->SetGravityScale(entity, gravityScale);
 			};
+
 
 
 		//-----------Force Methods----------
@@ -193,27 +195,28 @@ namespace IonixEngine
 			Application::Get().layerFysics->GetFysicsManager()->GetForce()->ClearForces(entity);
 			};
 
+		//Material Changes
+		auto fysicsSetFriction = [](Entity* entity, float friction) {
+			Application::Get().layerFysics->GetFysicsManager()->GetMaterial()->SetFriction(entity, friction);
+		};
+		
+		auto fysicsSetRestitution = [](Entity* entity, float restitution) {
+			Application::Get().layerFysics->GetFysicsManager()->GetMaterial()->SetRestitution(entity, restitution);
+		};
 
-		//----------Joints Methods----------
-		auto addPrismaticJoint = [](Entity* entityA, Entity* entityB) {
-			return Application::Get().layerFysics->GetFysicsManager()->GetPrismaticJoint();
-			};
-		auto addWeldJoint = [](Entity* entityA, Entity* entityB) {
-			return Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint();
-			};
-		auto addPulleyJoint = [](Entity* entityA, Entity* entityB) {
-			return Application::Get().layerFysics->GetFysicsManager()->GetPulleyJoint();
-			};
-		auto addRevoluteJoint = [](Entity* entityA, Entity* entityB) {
-			return Application::Get().layerFysics->GetFysicsManager()->GetRevoluteJoint();
-			};
-		auto addDistanceJoint = [](Entity* entityA, Entity* entityB) {
-			return Application::Get().layerFysics->GetFysicsManager()->GetDistanceJoint();
-			};
+		auto getFriction = [](Entity* entity)-> float {
+			return Application::Get().layerFysics->GetFysicsManager()->GetMaterial()->GetFriction(entity);
+		};
+
+		auto getRestitution = [](Entity* entity)-> float {
+			return Application::Get().layerFysics->GetFysicsManager()->GetMaterial()->GetRestitution(entity);
+		};
 
 
 		//----------Collision Methods----------
-		auto addBoxCollider = [](Entity* entity, float sizeX, float sizeY, int offsetX, int offsetY, float angle, bool isTrigger) {
+
+		
+		auto addBoxCollider = [](Entity* entity, float sizeX, float sizeY, int offsetX, int offsetY, float angle, bool isTrigger, sol::optional<uint16> categoryBits, sol::optional<uint16> maskBits) {
 
 			b2Vec2 size;
 			size.x = sizeX;
@@ -223,39 +226,48 @@ namespace IonixEngine
 			offset.x = offsetX;
 			offset.y = offsetY;
 
-			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddBox(entity, size, offset, angle, isTrigger);
+			uint16 category = categoryBits.value_or(0x0001);
+			uint16 mask = maskBits.value_or(0xFFFF);
 
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddBox(entity, size, offset, angle, isTrigger, category, mask);
+		};
+
+		auto addBoxColliderv = [](Entity* entity, b2Vec2 size, b2Vec2 offset, float angle, bool isTrigger, sol::optional<uint16> categoryBits, sol::optional<uint16> maskBits) {
+			uint16 category = categoryBits.value_or(0x0001);
+			uint16 mask = maskBits.value_or(0xFFFF);
+
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddBox(entity, size, offset, angle, isTrigger, category, mask);
 			};
 
-		auto addBoxColliderv = [](Entity* entity, b2Vec2 size, b2Vec2 offset, float angle, bool isTrigger) {
-			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddBox(entity, size, offset, angle, isTrigger);
-			};
+		auto addSpriteCollider = [](Entity* entity, bool isTrigger) {
 
-		auto addCircle = [](Entity* entity, float radius, int offsetX, int offsetY, bool isTrigger) {
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddSpriteCollider(entity, isTrigger);
+		};
 
-			b2Vec2 offset;
-			offset.x = offsetX;
-			offset.y = offsetY;
+		auto addPolygonCollider = [](Entity* entity, float x1, float y1, float x2, float y2) {
+			std::vector<b2Vec2> points;
+			points.push_back({x1, y1});
+			points.push_back({x2, y1});
+			points.push_back({x2, y2});
+			points.push_back({x1, y2});
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddPolygon(entity, points);
+		};
 
-			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddCircle(entity, radius, offset, isTrigger);
-
-			};
-
-		auto addCirclev = [](Entity* entity, float radius, b2Vec2 offset, bool isTrigger) {
-			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddCircle(entity, radius, offset, isTrigger);
-			};
-
-		auto addPolygon = [](Entity* entity) {
-			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddPolygon(entity);
-			};
+		auto addPolygonColliderv = [](Entity* entity, b2Vec2 point1, b2Vec2 point2) {
+			std::vector<b2Vec2> points;
+			points.push_back({point1.x, point2.y});
+			points.push_back({point1.y, point2.x});
+			points.push_back({point1.y, point2.y});
+			points.push_back({point1.x, point2.y});
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddPolygon(entity, points);
+		};
 
 
 		lua["Fysics"] = lua.create_table_with(
-			"add_circle_collider",addCircle,
 			"add_box_collider",	addBoxCollider,
-			"add_circle_collider_v", addCirclev,
 			"add_box_collider_v", addBoxColliderv,
-			"add_polygon_collider",addPolygon,
+			"add_polygon_collider",addPolygonCollider,
+			"add_polygon_collider_v",addPolygonColliderv,
 			"get_pos", getFysicsPos,
 			"set_pos", setFysicsPos,
 			"set_pos_v", setFysicsPosv,
@@ -279,6 +291,8 @@ namespace IonixEngine
 			"set_fixed_rotation", setFysicsFixedRotation,
 			"get_is_bullet", getFysicsIsBullet,
 			"set_is_bullet", setFysicsIsBullet,
+			"get_gravity_scale", getFysicsGravityScale,
+			"set_gravity_scale", setFysicsGravityScale,
 			"add_force", addFysicsForce,
 			"add_force_to_center", addFysicsForceToCenter,
 			"add_impulse", addFysicsAddImpulse,
@@ -290,14 +304,11 @@ namespace IonixEngine
 			"add_torque", addFysicsTorque,
 			"add_angular_impulse", addFysicsAngularImpulse,
 			"clear_forces", clearFysicsForces,
-			"get_gravity_scale", GetGravityScale,
-			"set_gravity_scale", SetGravityScale,
-			"get_prismatic_joint", addPrismaticJoint,
-			"get_weld_joint", addWeldJoint,
-			"get_pulley_joint", addPulleyJoint,
-			"get_revolute_joint", addRevoluteJoint,
-			"get_distance_joint", addDistanceJoint,
-			"add_box_collider", addBoxCollider
+			"set_friction", fysicsSetFriction,
+			"set_restitution", fysicsSetRestitution,
+			"get_friction", getFriction,
+			"get_restitution", getRestitution,
+			"add_sprite_collider", addSpriteCollider
 		);
 	}
 }

@@ -110,8 +110,8 @@ namespace IonixEngine
             if (controllerManagers.count(instanceId))
             {
                 controllerManagers[instanceId].SetButtonPressed(e.cbutton.button);
-                std::cout << "Player " << instanceId << " pressed button "
-                    << static_cast<int>(e.cbutton.button) << "\n";
+                /*std::cout << "Player " << instanceId << " pressed button "
+                    << static_cast<int>(e.cbutton.button) << "\n";*/
             }
             break;
         }
@@ -122,8 +122,8 @@ namespace IonixEngine
             if (controllerManagers.count(instanceId))
             {
                 controllerManagers[instanceId].SetButtonReleased(e.cbutton.button);
-                std::cout << "Player " << instanceId << " released button "
-                    << static_cast<int>(e.cbutton.button) << "\n";
+                /*std::cout << "Player " << instanceId << " released button "
+                    << static_cast<int>(e.cbutton.button) << "\n";*/
             }
             break;
         }
@@ -138,8 +138,8 @@ namespace IonixEngine
                 {
                     double val = e.caxis.value;
                     float normalised = controllerManagers[instanceId].NormaliseStickAxis(val);
-                    std::cout << "Player " << instanceId << " Left Stick Y Moved " 
-                        << static_cast<float>(normalised) << "\n";
+                    /*std::cout << "Player " << instanceId << " Left Stick Y Moved " 
+                        << static_cast<float>(normalised) << "\n";*/
                    
                 }
                 
@@ -152,8 +152,8 @@ namespace IonixEngine
                 {
                     double val = e.caxis.value;
                     float normalised = controllerManagers[instanceId].NormaliseStickAxis(val);
-                    std::cout << "Player " << instanceId << " Left Stick X Moved "
-                        << static_cast<float>(normalised) << "\n";
+                    /*std::cout << "Player " << instanceId << " Left Stick X Moved "
+                        << static_cast<float>(normalised) << "\n";*/
                    
                 }
                
@@ -167,8 +167,8 @@ namespace IonixEngine
                 {
                     double val = e.caxis.value;
                     float normalised = controllerManagers[instanceId].NormaliseStickAxis(val);
-                    std::cout << "Player " << instanceId << " Right Stick X Moved "
-                        << static_cast<float>(normalised) << "\n";
+                    /*std::cout << "Player " << instanceId << " Right Stick X Moved "
+                        << static_cast<float>(normalised) << "\n";*/
                     
                 }
                
@@ -181,8 +181,8 @@ namespace IonixEngine
                 {
                     double val = e.caxis.value;
                     float normalised = controllerManagers[instanceId].NormaliseStickAxis(val);
-                    std::cout << "Player " << instanceId << " Right Stick Y Moved "
-                        << static_cast<float>(normalised) << "\n";
+                    /*std::cout << "Player " << instanceId << " Right Stick Y Moved "
+                        << static_cast<float>(normalised) << "\n";*/
                     
                 }
                 break;
@@ -194,8 +194,8 @@ namespace IonixEngine
                 {
                     double val = e.caxis.value;
                     float normalised = controllerManagers[instanceId].NormaliseTrigger(val);
-                    std::cout << "Player " << instanceId << " Left Trigger pressed "
-                        << static_cast<float>(normalised) << "\n";
+                    /*std::cout << "Player " << instanceId << " Left Trigger pressed "
+                        << static_cast<float>(normalised) << "\n";*/
                     
                 }
                 break;
@@ -207,8 +207,8 @@ namespace IonixEngine
                 {
                     double val = e.caxis.value;
                     float normalised = controllerManagers[instanceId].NormaliseTrigger(val);
-                    std::cout << "Player " << instanceId << " Right Trigger pressed "
-                        << static_cast<float>(normalised) << "\n";
+                    /*std::cout << "Player " << instanceId << " Right Trigger pressed "
+                        << static_cast<float>(normalised) << "\n";*/
                    
                 }
                 break;
