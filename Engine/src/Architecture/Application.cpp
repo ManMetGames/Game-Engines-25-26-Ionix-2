@@ -60,7 +60,7 @@ namespace IonixEngine
         AddLayer(layerNavigation);
 
         Scripting::Get().Init();
-        
+        Scripting::Get().GetLuaState().script_file("Scripts/Settings.lua");
     }
         
     Application::~Application() 
@@ -81,8 +81,8 @@ namespace IonixEngine
 
     void Application::Run()
     {
-        Scripting::Get().GetLuaState().script_file("Scripts/Settings.lua");
         m_Running = true;
+        Scripting::Get().CallHook("OnStart");
 
         SDL_Renderer* renderer = m_Window->GetSdlRenderer();
 
@@ -90,11 +90,10 @@ namespace IonixEngine
         m_LastFrameTime = SDL_GetTicks64();
         m_FixedTimeAccumulator = 0.0f;
         m_FixedTimeStep = 1.0f / 60.0f; // 60 Hz
-
-
-        Scripting::Get().CallHook("OnStart");
+        
         while (m_Running)
         {
+            
             uint64_t lastTick = currentTick;
             currentTick = SDL_GetPerformanceCounter();
             
@@ -124,10 +123,9 @@ namespace IonixEngine
             {
                 if(layer)
                     layer->OnUpdate();
-                
             }
-            Scripting::Get().CallHook("OnUpdate");
             
+            Scripting::Get().CallHook("OnUpdate");
             ImGui::Render();
             ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), m_Window->GetSdlRenderer());
             SDL_RenderPresent(m_Window->m_Renderer);

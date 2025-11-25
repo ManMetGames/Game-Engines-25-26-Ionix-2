@@ -30,10 +30,9 @@ namespace IonixEngine {
         b2Vec2 size,   
         b2Vec2 offset,
         float angle,
-        bool isTrigger//,
-        //uint16 categoryBits,
-        //uint16 maskBits
-        )
+        bool isTrigger,
+        uint16 categoryBits,
+        uint16 maskBits)
     {
         body = FysicsManager::GetManager()->GetBodyFromEntity(entity);
         b2PolygonShape shape;
