@@ -10,7 +10,7 @@ namespace IonixEngine {
 		zOrder = zedOrder;
 		isReversing = false;
 		playbackMode = playbackOptions::FORWARD;
-
+		boxColliderSize = b2Vec2{1 + (0.02f * (width - 75)), 1 + (0.02f * (height - 75))};
 		rows = 1; //default spritesheet size, can be changed in appropriate setters
 		cols = 1;
 
@@ -199,6 +199,8 @@ namespace IonixEngine {
 	void SpriteComponent::setWidth(int x) { width = x; }
 	void SpriteComponent::setHeight(int x) { height = x; }
 
+	void SpriteComponent::setBoxColliderSize(b2Vec2 newSize) { boxColliderSize = newSize; }
+
 	//getters
 	IonixEngine::playbackOptions SpriteComponent::getPlaybackMode() /*oh lawd he big*/ { return playbackOptions(); }
 	int SpriteComponent::getCurrentFrame() { return currentFrame; }
@@ -213,4 +215,5 @@ namespace IonixEngine {
 	int SpriteComponent::getCurrentRow() { return currentRow; }
 	int SpriteComponent::getWidth() { return width; }
 	int SpriteComponent::getHeight() { return height; }
+	b2Vec2 SpriteComponent::getBoxColliderSize() { return boxColliderSize; }
 }
