@@ -353,47 +353,6 @@ footer {
         </table>
     </section>
 
-    <!-- ================= FYSICS ================= -->
-    <section>
-        <h2>Fysics (2D Physics)</h2>
-        <p>
-            The <code>Fysics</code> table manipulates the <code>FysicsBody</code> component attached to an entity.
-            These functions assume the entity has a FysicsBody (see <code>Entity.add_fysics_component</code>).
-        </p>
-        <table>
-            <tr><th>Function</th><th>Description</th></tr>
-            <tr><td><code>Fysics.get_pos(entity)</code></td><td>Get the body's world position as a vector.</td></tr>
-            <tr><td><code>Fysics.set_pos(entity, x, y)</code></td><td>Set the body's world position.</td></tr>
-            <tr><td><code>Fysics.get_angle(entity)</code></td><td>Get body rotation in radians.</td></tr>
-            <tr><td><code>Fysics.set_angle(entity, radians)</code></td><td>Set body rotation in radians.</td></tr>
-            <tr><td><code>Fysics.get_linear_velocity(entity)</code></td><td>Get linear velocity vector.</td></tr>
-            <tr><td><code>Fysics.set_linear_velocity(entity, x, y)</code></td><td>Set linear velocity.</td></tr>
-            <tr><td><code>Fysics.get_angular_velocity(entity)</code></td><td>Get angular velocity (radians/sec).</td></tr>
-            <tr><td><code>Fysics.set_angular_velocity(entity, value)</code></td><td>Set angular velocity.</td></tr>
-            <tr><td><code>Fysics.get_awake(entity)</code></td><td>Returns <code>true</code> if the body is awake.</td></tr>
-            <tr><td><code>Fysics.set_awake(entity, flag)</code></td><td>Set whether the body is awake.</td></tr>
-            <tr><td><code>Fysics.rotate_pos(entity, angle)</code></td><td>Rotate the body's position around its origin by <code>angle</code> (radians).</td></tr>
-            <tr><td><code>Fysics.get_linear_damping(entity)</code></td><td>Get linear damping factor.</td></tr>
-            <tr><td><code>Fysics.set_linear_damping(entity, damping)</code></td><td>Set linear damping.</td></tr>
-            <tr><td><code>Fysics.get_angular_damping(entity)</code></td><td>Get angular damping factor.</td></tr>
-            <tr><td><code>Fysics.set_angular_damping(entity, damping)</code></td><td>Set angular damping.</td></tr>
-            <tr><td><code>Fysics.get_allow_sleep(entity)</code></td><td>Returns <code>true</code> if the body is allowed to sleep.</td></tr>
-            <tr><td><code>Fysics.set_allow_sleep(entity, flag)</code></td><td>Enable or disable sleeping.</td></tr>
-            <tr><td><code>Fysics.get_fixed_rotation(entity)</code></td><td>Returns <code>true</code> if rotation is locked.</td></tr>
-            <tr><td><code>Fysics.set_fixed_rotation(entity, flag)</code></td><td>Lock/unlock rotation.</td></tr>
-            <tr><td><code>Fysics.get_is_bullet(entity)</code></td><td>Returns <code>true</code> if the body is treated as a bullet (continuous collision).</td></tr>
-            <tr><td><code>Fysics.set_is_bullet(entity, flag)</code></td><td>Enable/disable bullet mode.</td></tr>
-            <tr><td><code>Fysics.add_force(entity, force, point)</code></td><td>Add a force vector at a specific world point.</td></tr>
-            <tr><td><code>Fysics.add_force_to_center(entity, force)</code></td><td>Add a force vector at the center of mass.</td></tr>
-            <tr><td><code>Fysics.add_impulse(entity, impulse, point)</code></td><td>Apply an impulse at a world point.</td></tr>
-            <tr><td><code>Fysics.add_impulse_to_center(entity, impulse)</code></td><td>Apply an impulse at the center of mass.</td></tr>
-            <tr><td><code>Fysics.add_torque(entity, torque)</code></td><td>Apply torque to the body.</td></tr>
-            <tr><td><code>Fysics.add_angular_impulse(entity, torque)</code></td><td>Apply an angular impulse to the body.</td></tr>
-            <tr><td><code>Fysics.clear_forces(entity)</code></td><td>Clear all forces/torques applied to the body.</td></tr>
-        </table>
-    </section>
-
-<<<<<<< Updated upstream
 <!-- ================= FYSICS ================= -->
 <section>
   <h2>Fysics (2D Physics)</h2>
