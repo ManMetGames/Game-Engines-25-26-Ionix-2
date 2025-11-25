@@ -10,6 +10,10 @@ local goalY = 500
 local y = 300
 local t = 10
 
+local floorY = 600
+local isGrounded = false
+local playerHalfHeight = 32
+
     Texture.add_texture("./Assets/FlappyBird.png", "FlappyBird")
     Texture.add_texture("./Assets/Background.png", "Background")
     ------------------------------------------------------
@@ -49,7 +53,6 @@ function ExampleScript:OnStart()
     Fysics.add_sprite_collider(player1, false)
 
     local tileSize = 64
-    local floorY = 600
 
 	------------------------------------------------------
 	-- pick texture for left / middle / right
@@ -88,21 +91,32 @@ function ExampleScript:OnUpdate()
     
     -- Constant rightward movement
     local vx = 0
-    local vy1 = vel1.y
+    local vy1 = vel1.y or 0
 
-	if Input.get_key_down(Keys.ionix_space) then
+	local px, py = Entity.get_entity_pos(player1)
+	if py == nil then
+		isGrounded = false
+	else
+		isGrounded = (py >= (floorY - playerHalfHeight))
+	end
+
+
+	if Input.get_key_held(Keys.ionix_space) and isGrounded then 
         -- Set velocity directly to cancel out falling momentum
         vy1 = -5  -- Jump velocity for player1
+		isGrounded = false
 	end
 	
 	if Input.get_key_held(Keys.ionix_a) then
 		vx = -5
-        Entity.set_entity_pos(player1, vx, floorX)
+        --Entity.set_entity_pos(player1, vx, floorX)
+		Entity.set_entity_pos(player1, vx, floorX)
 	end
 
 	if Input.get_key_held(Keys.ionix_d) then
 		vx = 5
-        Entity.set_entity_pos(player1, vx, floorX)
+        --Entity.set_entity_pos(player1, vx, floorX)
+		Entity.set_entity_pos(player1, vx, floorX)
 	end
 
     Fysics.set_linear_velocity(player1, vx, vy1)
