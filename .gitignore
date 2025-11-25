@@ -71,4 +71,3 @@ Client/*
 !Client/Scripts/*.lua
 !Client/Assets/
 !Client/Assets/*.png
-
