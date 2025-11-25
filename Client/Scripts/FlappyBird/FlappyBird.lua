@@ -143,9 +143,9 @@ function ExampleScript:OnUpdate()
         vy1 = -5  -- Jump velocity for player1
 	end
 	
-	if Input.get_key_down(Keys.ionix_a) then
-        Entity.set_entity_pos(pipe, xPos, floorY)
-	end
+	--if Input.get_key_down(Keys.ionix_a) then
+    --    Entity.set_entity_pos(pipe, xPos, floorY)
+	--end
 
     Fysics.set_linear_velocity(player1, vx, vy1)
 
@@ -160,7 +160,7 @@ function ExampleScript:OnUpdate()
  	
 	if pipePos.x < 0 then
         Entity.set_entity_pos(pipe, 640, 400)
-        --Entity.set_entity_pos(pipe, xPos, floorY)
+        Entity.set_entity_pos(pipeT, 640, 0)
 	end
 end
 
