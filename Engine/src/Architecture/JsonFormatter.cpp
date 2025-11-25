@@ -5,10 +5,11 @@
 
 namespace IonixEngine
 {
-	JsonFormatter::JsonFormatter(const std::string& filepath)
+	JsonFormatter::JsonFormatter(const std::string& filepath) :
+		filepath(filepath)
 	{
-		this->filepath = filepath;
-		if (!OpenFile())
+		OpenFile();
+		if (fileIsValid)
 		{
 			std::cout << "[JSON Formatter] Failed to find file!\nRun OpenFile() with a valid filepath." << std::endl;
 		}
@@ -25,9 +26,19 @@ namespace IonixEngine
 			{
 				fileContents.push_back(character);
 			}
+			fileIsValid = true;
 			return true;
 		}
-		else { return false; }
+		else
+		{
+			fileIsValid = false;
+			return false; 
+		}
+	}
+
+	void JsonFormatter::ProcessFile()
+	{
+
 	}
 
 	std::string JsonFormatter::GetFilepath()
