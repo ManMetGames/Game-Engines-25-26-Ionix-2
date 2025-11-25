@@ -10,6 +10,12 @@ local goalY = 500
 local y = 300
 local t = 10
 
+-- Pipe variables
+local pipe
+local pipeSpeed = -3
+local pipeStartX = 900
+local pipeOffScreenLeft = -100
+
 ----------------------------------------------------------
 -- OnStart
 ----------------------------------------------------------
@@ -83,6 +89,20 @@ function ExampleScript:OnStart()
 		Fysics.add_sprite_collider(tile, false)
 	end
 
+	------------------------------------------------------
+	-- Create pipe obstacle
+	------------------------------------------------------
+	pipe = Entity.create_entity()
+	Entity.set_entity_pos(pipe, 400, 400)
+
+	local pipeSprite = Entity.add_sprite_component(pipe, "BottomPipe", 0, 0, 0)
+
+    pipeSprite.set_width(480)
+	Sprite.set_playback_mode(pipeSprite, 4)
+
+	-- Kinematic body so it moves but isn't affected by gravity
+	Entity.add_fysics_component(pipe, 1, false)
+	Fysics.add_sprite_collider(pipe, false)
 end
 
 ----------------------------------------------------------
@@ -108,7 +128,13 @@ function ExampleScript:OnUpdate()
 	end
 
     Fysics.set_linear_velocity(player1, vx, vy1)
-    --UI.draw_label("Press any key to play", 20, 20, 300, 300, "Bold")
+
+    -- Pipe movement disabled for testing
+    -- Fysics.set_linear_velocity(pipe, pipeSpeed, 0)
+    -- local pipePos = Fysics.get_pos(pipe)
+    -- if pipePos.x < pipeOffScreenLeft then
+    --     Fysics.set_pos(pipe, pipeStartX, pipePos.y)
+    -- end
 end
 
 return ExampleScript
