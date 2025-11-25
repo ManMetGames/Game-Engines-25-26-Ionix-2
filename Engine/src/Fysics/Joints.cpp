@@ -317,7 +317,7 @@ void IonixEngine::PulleyJoints::setJoint()
 void IonixEngine::PulleyJoints::setJoint(Entity* entityA, Entity* entityB, b2Vec2 p1, b2Vec2 p2, float ratio, float lengthA, float lengthB)
 {
     _bodyA = Application::Get().layerFysics->GetFysicsManager()->GetBodyFromEntity(entityA);
-    _bodyB = Application::Get().layerFysics->GetFysicsManager()->GetBodyFromEntity(entityA);
+    _bodyB = Application::Get().layerFysics->GetFysicsManager()->GetBodyFromEntity(entityB);
     _position1 = p1;
     _position2 = p2;
     _ratio = ratio;

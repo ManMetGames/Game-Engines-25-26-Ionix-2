@@ -1,6 +1,7 @@
 local ExampleScript = {}
 
 local player1
+local player2
 local goal
 local playerSprite
 local goalSprite
@@ -38,9 +39,30 @@ function ExampleScript:OnStart()
     Sprite.set_height(playerSprite1, 64)
 	Sprite.set_playback_mode(playerSprite1, 4)
 
-    -- PLAYER 1 PHYSICS
+    -- PLAYER 1 FYSICS
     Entity.add_fysics_component(player1, 2, false) -- dynamic body
     Fysics.add_sprite_collider(player1, false, 0.5)
+
+    local tileSize = 64
+    local floorY = 600
+
+  ------------------------------------------------------
+    -- Create player2
+    ------------------------------------------------------
+
+    player2 = Entity.create_entity()
+
+   Entity.set_entity_pos(player2, x+200, 300)
+	
+    local playerSprite2 = Entity.add_sprite_component(player2, "Sand", 64, 64, 0)
+
+    Sprite.set_width(playerSprite2, 64)
+    Sprite.set_height(playerSprite2, 64)
+   Sprite.set_playback_mode(playerSprite2, 4)
+
+    -- PLAYER 2 FYSICS
+     Entity.add_fysics_component(player2, 2, false) -- dynamic body
+     Fysics.add_sprite_collider(player2, false, 0.5)
 
     local tileSize = 64
     local floorY = 600
@@ -80,6 +102,20 @@ function ExampleScript:OnStart()
     -- Entity.add_fysics_component(polygon, 0, false)
     -- --Fysics.add_sprite_collider(polygon)
     -- Fysics.add_polygon_collider(polygon, 64)
+
+    -------------------------------
+    --Joints Testing
+    --------------------------------
+
+     --Fysics.create_prismatic_joint(player2, player1, 0, 0, 5, 10, true, 50 , 20, true) --Prismatic Joint
+    
+    --Fysics.create_weld_joint(player2, player1) --Weld Joint
+    
+   Fysics.create_pulley_joint(player2, player1, x, 300, x+300, 300, 4, 1, 2) --Pulley Joint
+    
+    --Fysics.create_revolute_joint(player2,player1, false, 5, 8, true, 20, 60) --Revolute Joint
+
+    --Fysics.create_distance_joint(player2, player1, 10) --Distance Joint
     
 end
 
