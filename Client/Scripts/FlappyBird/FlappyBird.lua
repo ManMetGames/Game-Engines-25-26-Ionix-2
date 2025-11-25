@@ -95,7 +95,7 @@ function ExampleScript:OnStart()
     Sprite.set_playback_mode(s, 4)
     Entity.add_fysics_component(polygon, 0, false)
     --Fysics.add_sprite_collider(polygon)
-    Fysics.add_polygon_collider(polygon)
+    Fysics.add_polygon_collider(polygon, 64)
     
 end
 
