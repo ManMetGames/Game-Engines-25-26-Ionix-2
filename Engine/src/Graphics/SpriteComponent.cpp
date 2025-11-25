@@ -10,8 +10,6 @@ namespace IonixEngine {
 	SpriteComponent::SpriteComponent(Entity* entity, std::string alias, int x, int y, int zedOrder) : Component(entity, false, true, false) {
 		texture = IonixEngine::TextureManager::Get().GetTexture(alias).GetTexture(); //adding sprite image file to the texture manager
 		zOrder = zedOrder;
-		width = x;
-		height = y;
 		isReversing = false;
 		playbackMode = playbackOptions::FORWARDANDBACKWARD;
 
@@ -21,12 +19,17 @@ namespace IonixEngine {
 
 		renderLayer = entity->renderLayer;
 
-		spriteWidth = 32; //default, can be change in setters
-		spriteHeight = 32;
-
 		SDL_QueryTexture(texture, NULL, NULL, &size.x, &size.y);
 
-		calculateTotalFrames(); 
+		// Auto-size width/height from texture if 0 is passed
+		width = (x == 0) ? size.x : x;
+		height = (y == 0) ? size.y : y;
+
+		// Also set sprite frame size to match (for single-image textures)
+		spriteWidth = (x == 0) ? size.x : 32;
+		spriteHeight = (y == 0) ? size.y : 32;
+
+		calculateTotalFrames();
 
 		initialiseSpritesheet();
 	}
@@ -36,8 +39,6 @@ namespace IonixEngine {
 		std::cout << texture << std::endl;
 		IonixEngine::TextureManager::Get().GetTexture(hash);
 		zOrder = zedOrder;
-		width = x;
-		height = y;
 		isReversing = false;
 		playbackMode = playbackOptions::FORWARD;
 
@@ -47,10 +48,15 @@ namespace IonixEngine {
 
 		renderLayer = entity->renderLayer;
 
-		spriteWidth = 32; //default, can be change in setters
-		spriteHeight = 32;
-
 		SDL_QueryTexture(texture, NULL, NULL, &size.x, &size.y);
+
+		// Auto-size width/height from texture if 0 is passed
+		width = (x == 0) ? size.x : x;
+		height = (y == 0) ? size.y : y;
+
+		// Also set sprite frame size to match (for single-image textures)
+		spriteWidth = (x == 0) ? size.x : 32;
+		spriteHeight = (y == 0) ? size.y : 32;
 
 		calculateTotalFrames();
 
