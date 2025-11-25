@@ -188,17 +188,10 @@ namespace IonixEngine
 		auto setRevoluteJoint = [](Entity* entityA, Entity* entityB, bool enableLimit, float lowerAngle, float upperAngle, bool enableMotor, float motorSpeed, float maxMotorTorque) {
 			Application::Get().layerFysics->GetFysicsManager()->GetRevoluteJoint()->setJoint(entityA, entityB, enableLimit, lowerAngle, upperAngle, enableMotor, motorSpeed, maxMotorTorque);
 		};
-		auto setDistanceJoint = [](Entity* entityA, Entity* entityB, float anchorAX, float anchorAY, float anchorBX, float anchorBY, float length) {
-			b2Vec2 anchorA; b2Vec2 anchorB;
-			anchorA.x = anchorAX;
-			anchorA.y = anchorAY;
-
-			anchorB.x = anchorBX;
-			anchorB.y = anchorBY;
-
-			Application::Get().layerFysics->GetFysicsManager()->GetDistanceJoint()->setJoint(entityA, entityB, anchorA, anchorB, length);
+		auto setDistanceJoint = [](Entity* entityA, Entity* entityB, float length) {
+			Application::Get().layerFysics->GetFysicsManager()->GetDistanceJoint()->setJoint(entityA, entityB, length);
 		};
-		auto destroyWeldJoint = [](int jointID) {
+		auto destroyJoint = [](int jointID) {
 			if (Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointCount() <= 0) { return; }
 			b2Joint* jointList = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointList();
 			for (int i = 0; i <jointID; i++) {
@@ -233,6 +226,7 @@ namespace IonixEngine
 			}
 			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->getAnchorA(jointList);
 		};
+
 		auto getAnchorB = [](int jointID) {
 			if (Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointCount() <= 0) { return; }
 			b2Joint* jointList = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointList();
@@ -292,6 +286,8 @@ namespace IonixEngine
 			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->shiftOrigin(jointList, origin);
 		};
 
+		//Weld Joints
+
 		auto getDampingFromWeldJoint = [](int jointID) {
 			if (Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointCount() <= 0) { return; }
 			b2Joint* jointList = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointList();
@@ -302,6 +298,16 @@ namespace IonixEngine
 			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->getDamping((b2WeldJoint*)jointList);
 		};
 
+		auto setDampingFromWeldJoint = [](int jointID, float newDamping) {
+			if (Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointCount() <= 0) { return; }
+			b2Joint* jointList = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointList();
+			for (int i = 0; i < jointID; i++) {
+				jointList->GetNext();
+			}
+
+			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->setDamping((b2WeldJoint*)jointList, newDamping);
+		};
+
 		auto getStiffnessFromWeldJoint = [](int jointID) {
 			if (Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointCount() <= 0) { return; }
 			b2Joint* jointList = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointList();
@@ -310,6 +316,16 @@ namespace IonixEngine
 			}
 
 			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->getStiffness((b2WeldJoint*)jointList);
+		};
+
+		auto setStiffnessFromWeldJoint = [](int jointID, float newStiffness) {
+			if (Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointCount() <= 0) { return; }
+			b2Joint* jointList = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointList();
+			for (int i = 0; i < jointID; i++) {
+				jointList->GetNext();
+			}
+
+			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->setStiffness((b2WeldJoint*)jointList, newStiffness);
 		};
 
 		lua["Fysics"] = lua.create_table_with(
@@ -347,7 +363,7 @@ namespace IonixEngine
 			"create_pulley_joint", setPulleyJoint,
 			"create_revolute_joint", setRevoluteJoint,
 			"create_distance_joint", setDistanceJoint,
-			"destroy_joint", destroyWeldJoint,
+			"destroy_joint", destroyJoint,
 			"get_bodyA", getBodyA,
 			"get_bodyB", getBodyB,
 			"get_anchorA", getAnchorA,
@@ -358,7 +374,9 @@ namespace IonixEngine
 			"is_enabled", isEnabled,
 			"shift_origin", shfitOrigin,
 			"get_damping", getDampingFromWeldJoint,
-			"get_stiffness", getStiffnessFromWeldJoint
+			"set_damping", setDampingFromWeldJoint,
+			"get_stiffness", getStiffnessFromWeldJoint,
+			"set_stiffness", setStiffnessFromWeldJoint
 
 	
 		);

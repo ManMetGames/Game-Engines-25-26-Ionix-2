@@ -40,7 +40,7 @@ function ExampleScript:OnStart()
     Fysics.add_box_collider(player, .5, .5, 0, 0, 0, false)
   
     player2 = Entity.create_entity()
-    Entity.set_entity_pos(player2, x+400, y+40)
+    Entity.set_entity_pos(player2, x+100, y+100)
     playerSprite = Entity.add_sprite_component(player2, "player", 75, 75, 0)
 	Sprite.set_playback_mode(playerSprite, 4)
 
@@ -74,17 +74,18 @@ function ExampleScript:OnStart()
 		Entity.add_fysics_component(tile, 0, false)  -- static
 		Fysics.add_box_collider(tile, 1, 1, 0, 0, 0, false)  -- not a trigger
 	end
+   ------------------------------------------------------
 
     --Fysics.create_prismatic_joint(player2, player, 0, 0, 5, 10, true, 50 , 20, true) --Prismatic Joint
     
     --Fysics.create_weld_joint(player2, player) --Weld Joint
     
-    --Fysics.create_pulley_joint(player2, player, x + 800, y, x, y, 1, 1, 2) --Pulley Joint
+   --Fysics.create_pulley_joint(player2, player, x, y, x+300, y, 4, 1, 2) --Pulley Joint
     
     --Fysics.create_revolute_joint(player2,player, false, 5, 8, true, 20, 60) --Revolute Joint
 
-    --Fysics.create_distance_joint(player2, player, x, y, x+200, y, 1) --Distance Joint
-      ------------------------------------------------------
+    Fysics.create_distance_joint(player2, player, 10) --Distance Joint
+   
 end
 
 ----------------------------------------------------------
@@ -110,12 +111,11 @@ function ExampleScript:OnUpdate()
         vx = 0
     end
     if Input.get_key_down(Keys.ionix_q) then
-
-       Fysics.destroy_joint(0) --Joint ID used to find the correct joint (just the position of the joint in the world joint list)
+      -- Fysics.set_damping(0,0) --Joint ID used to find the correct joint (just the position of the joint in the world joint list)
     end
      if Input.get_key_down(Keys.ionix_e) then
 
-       Fysics.create_weld_joint(player2, player) --Weld Joint
+      -- Fysics.set_damping(0,100)
     end
 
     Fysics.set_linear_velocity(player, vx, vy)
