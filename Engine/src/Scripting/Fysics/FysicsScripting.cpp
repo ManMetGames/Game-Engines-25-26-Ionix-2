@@ -212,6 +212,175 @@ namespace IonixEngine
 			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddCircle(entity, radius, offset, isTrigger);
 		};
 
+//----------Joint Methods----------
+
+		auto setPrismaticJoint = [](Entity* entityA, Entity* entityB, float worldAxisX, float worldAxisY, float lowerTranslation, float upperTranslation, bool enableLimit, float maxMotorForce, float motorSpeed, bool enableMotor) {
+			b2Vec2 worldAxis;
+			worldAxis.x = worldAxisX;
+			worldAxis.y = worldAxisY;
+
+			Application::Get().layerFysics->GetFysicsManager()->GetPrismaticJoint()->setJoint(entityA, entityB, worldAxis, lowerTranslation, upperTranslation, enableLimit, maxMotorForce, motorSpeed, enableMotor);
+	    };
+		auto setWeldJoint = [](Entity* entityA, Entity* entityB) {
+			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->setJoint(entityA, entityB);
+		};
+		auto setPulleyJoint = [](Entity* entityA, Entity* entityB, float position1X, float position1Y, float position2X, float position2Y , float ratio, float lengthA, float lengthB) {
+
+			b2Vec2 p1; b2Vec2 p2;
+			p1.x = position1X;
+			p1.y = position1Y;
+
+			p2.x = position2X;
+			p2.y = position2Y;
+
+			Application::Get().layerFysics->GetFysicsManager()->GetPulleyJoint()->setJoint(entityA, entityB, p1, p2, ratio, lengthA, lengthB);
+	    };
+		auto setRevoluteJoint = [](Entity* entityA, Entity* entityB, bool enableLimit, float lowerAngle, float upperAngle, bool enableMotor, float motorSpeed, float maxMotorTorque) {
+			Application::Get().layerFysics->GetFysicsManager()->GetRevoluteJoint()->setJoint(entityA, entityB, enableLimit, lowerAngle, upperAngle, enableMotor, motorSpeed, maxMotorTorque);
+		};
+		auto setDistanceJoint = [](Entity* entityA, Entity* entityB, float length) {
+			Application::Get().layerFysics->GetFysicsManager()->GetDistanceJoint()->setJoint(entityA, entityB, length);
+		};
+		auto destroyJoint = [](int jointID) {
+			if (Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointCount() <= 0) { return; }
+			b2Joint* jointList = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointList();
+			for (int i = 0; i <jointID; i++) {
+				jointList->GetNext();
+			}
+			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->destroyJoint(jointList);
+		};
+
+		auto getBodyA = [](int jointID) {
+			if (Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointCount() <= 0) { return; }
+			b2Joint* jointList = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointList();
+			for (int i = 0; i < jointID; i++) {
+				jointList->GetNext();
+			}
+			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->getBodyA(jointList);
+		};
+
+		auto getBodyB = [](int jointID) {
+			if (Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointCount() <= 0) { return; }
+			b2Joint* jointList = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointList();
+			for (int i = 0; i < jointID; i++) {
+				jointList->GetNext();
+			}
+			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->getBodyB(jointList);
+		};
+		
+		auto getAnchorA = [](int jointID) {
+			if (Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointCount() <= 0) { return; }
+			b2Joint* jointList = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointList();
+			for (int i = 0; i < jointID; i++) {
+				jointList->GetNext();
+			}
+			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->getAnchorA(jointList);
+		};
+
+		auto getAnchorB = [](int jointID) {
+			if (Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointCount() <= 0) { return; }
+			b2Joint* jointList = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointList();
+			for (int i = 0; i < jointID; i++) {
+				jointList->GetNext();
+			}
+			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->getAnchorB(jointList);
+		};
+
+		auto getUserData = [](int jointID) {
+			if (Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointCount() <= 0) { return; }
+			b2Joint* jointList = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointList();
+			for (int i = 0; i < jointID; i++) {
+				jointList->GetNext();
+			}
+			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->getUserData(jointList);
+		};
+
+		auto getReactionForce = [](int jointID, int inv_dt) {
+			if (Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointCount() <= 0) { return; }
+			b2Joint* jointList = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointList();
+			for (int i = 0; i < jointID; i++) {
+				jointList->GetNext();
+			}
+			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->getReactionForce(jointList, inv_dt);
+		};
+
+		auto getReactionTorque = [](int jointID, int inv_dt) {
+			if (Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointCount() <= 0) { return; }
+			b2Joint* jointList = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointList();
+			for (int i = 0; i < jointID; i++) {
+				jointList->GetNext();
+			}
+			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->getReactionTorque(jointList, inv_dt);
+		};
+
+		auto isEnabled = [](int jointID) {
+			if (Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointCount() <= 0) { return; }
+			b2Joint* jointList = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointList();
+			for (int i = 0; i < jointID; i++) {
+				jointList->GetNext();
+			}
+			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->isEnabled(jointList);
+		};
+
+		auto shfitOrigin = [](int jointID, float originX, float originY) {
+			if (Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointCount() <= 0) { return; }
+			b2Joint* jointList = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointList();
+			for (int i = 0; i < jointID; i++) {
+				jointList->GetNext();
+			}
+
+			b2Vec2 origin;
+			origin.x = originX;
+			origin.y = originY;
+
+			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->shiftOrigin(jointList, origin);
+		};
+
+		//Weld Joints
+
+		auto getDampingFromWeldJoint = [](int jointID) {
+			if (Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointCount() <= 0) { return; }
+			b2Joint* jointList = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointList();
+			for (int i = 0; i < jointID; i++) {
+				jointList->GetNext();
+			}		
+
+			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->getDamping((b2WeldJoint*)jointList);
+		};
+
+		auto setDampingFromWeldJoint = [](int jointID, float newDamping) {
+			if (Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointCount() <= 0) { return; }
+			b2Joint* jointList = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointList();
+			for (int i = 0; i < jointID; i++) {
+				jointList->GetNext();
+			}
+
+			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->setDamping((b2WeldJoint*)jointList, newDamping);
+		};
+
+		auto getStiffnessFromWeldJoint = [](int jointID) {
+			if (Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointCount() <= 0) { return; }
+			b2Joint* jointList = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointList();
+			for (int i = 0; i < jointID; i++) {
+				jointList->GetNext();
+			}
+
+			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->getStiffness((b2WeldJoint*)jointList);
+		};
+
+		auto setStiffnessFromWeldJoint = [](int jointID, float newStiffness) {
+			if (Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointCount() <= 0) { return; }
+			b2Joint* jointList = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointList();
+			for (int i = 0; i < jointID; i++) {
+				jointList->GetNext();
+			}
+
+			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->setStiffness((b2WeldJoint*)jointList, newStiffness);
+		};
+
+
+
+
 
 
 		lua["Fysics"] = lua.create_table_with(
@@ -252,7 +421,25 @@ namespace IonixEngine
 			"get_restitution", getRestitution,
 			"add_polygon_collider", addPolygonCollider,
 			"add_sprite_collider", addSpriteCollider,
-			"add_circle_collider", addCircleCollider
+			"create_prismatic_joint", setPrismaticJoint,
+			"create_weld_joint", setWeldJoint,
+			"create_pulley_joint", setPulleyJoint,
+			"create_revolute_joint", setRevoluteJoint,
+			"create_distance_joint", setDistanceJoint,
+			"destroy_joint", destroyJoint,
+			"get_bodyA", getBodyA,
+			"get_bodyB", getBodyB,
+			"get_anchorA", getAnchorA,
+			"get_anchorB", getAnchorB,
+			"get_userData", getUserData,
+			"get_reaction_force", getReactionForce,
+			"get_reaction_torque", getReactionTorque,
+			"is_enabled", isEnabled,
+			"shift_origin", shfitOrigin,
+			"get_damping", getDampingFromWeldJoint,
+			"set_damping", setDampingFromWeldJoint,
+			"get_stiffness", getStiffnessFromWeldJoint,
+			"set_stiffness", setStiffnessFromWeldJoint
 		);
 	}
 }

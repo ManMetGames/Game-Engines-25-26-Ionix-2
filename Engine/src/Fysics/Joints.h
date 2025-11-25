@@ -132,13 +132,13 @@ namespace IonixEngine
 
         b2Joint* getJoint() override;
 
-        void setDamping(float damping);
+        void setDamping(b2WeldJoint* _joint, float damping);
 
-        float getDamping();
+        float getDamping(b2WeldJoint* _joint);
 
-        void setStiffness(float stiffness);
+        void setStiffness(b2WeldJoint* _joint, float stiffness);
 
-        float getStiffness();
+        float getStiffness(b2WeldJoint* _joint);
     };
 
     class PulleyJoints : public Joints {
@@ -200,7 +200,7 @@ namespace IonixEngine
 
         void setJoint() override;
 
-        void setJoint(Entity* entityA, Entity* entityB, const b2Vec2& anchorA, const b2Vec2& anchorB, float length = -1.0f);
+        void setJoint(Entity* entityA, Entity* entityB, float length = -1.0f);
 
         float getLength();
 

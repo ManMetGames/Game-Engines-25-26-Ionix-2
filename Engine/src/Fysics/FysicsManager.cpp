@@ -20,6 +20,7 @@ namespace IonixEngine
 			| b2Draw::e_jointBit
 			| b2Draw::e_centerOfMassBit
 		);
+
 		world->SetDebugDraw(debugDraw);
 
 		// create and configure collision listener
@@ -78,5 +79,4 @@ namespace IonixEngine
 		//entityBodyMap[entity] = body; // Not needed as we have helper methods which get what we need from 1 data structure.
 		bodyEntityMap[body] = entity;
 	}
-	
 }

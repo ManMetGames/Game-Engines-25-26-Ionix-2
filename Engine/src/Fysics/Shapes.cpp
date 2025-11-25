@@ -104,4 +104,7 @@ namespace IonixEngine {
         }
         fixture = body->CreateFixture(&fixtureDef);      
     }
+
+
+
 }
