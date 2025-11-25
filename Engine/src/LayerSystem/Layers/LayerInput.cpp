@@ -63,4 +63,12 @@ namespace IonixEngine
         if (controllerManager != nullptr)
             return controllerManager->IsButtonUp(instanceId, button);
     }
+
+    bool LayerInput::IsControllerButtonHeld(int instanceId, Uint8 button)
+    {
+        ControllerManager* controllerManager = controllerManagers[instanceId];
+
+        if (controllerManager != nullptr)
+            return controllerManager->IsButtonHeld(instanceId, button);
+    }
 }

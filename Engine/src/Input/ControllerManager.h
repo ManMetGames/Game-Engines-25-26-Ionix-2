@@ -28,11 +28,11 @@ namespace IonixEngine
         //Getters
         float GetXStickHor() { return controllerAxis; }
 
+    private:
+
         //Controller buttons
         std::unordered_set<Uint8> currentButton;
         std::unordered_set<Uint8> previousButton;
-
-    private:
 
         //Controller axis
         float controllerAxis = 0.0f;

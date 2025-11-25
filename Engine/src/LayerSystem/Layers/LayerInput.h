@@ -20,6 +20,7 @@ namespace IonixEngine
 
         bool IsControllerButtonDown(int instanceId, Uint8 button);
         bool IsControllerButtonUp(int instanceId, Uint8 button);
+        bool IsControllerButtonHeld(int instanceId, Uint8 button);
 
         Input* m_Input;  
     

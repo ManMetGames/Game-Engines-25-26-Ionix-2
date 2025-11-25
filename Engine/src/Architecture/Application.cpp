@@ -179,9 +179,30 @@ namespace IonixEngine
 
             layerInput->m_Input->CopyCodesEndFrame();
 
-            for (int i = 0; layerInput->GetControllerManager().size() - 1; i++)
+            //need a way of itterating through unorder map
+            //for (int i = 0; i < 4; i++)
+            //{
+            //    if (layerInput->GetControllerManager()[0])
+            //    {
+            //        layerInput->GetControllerManager()[0]->CopyCodesEndFrame();
+            //    }
+            //}
+
+            if (layerInput->GetControllerManager()[0])
             {
-                layerInput->GetControllerManager()[i]->CopyCodesEndFrame();
+                layerInput->GetControllerManager()[0]->CopyCodesEndFrame();
+            }
+            if (layerInput->GetControllerManager()[1])
+            {
+                layerInput->GetControllerManager()[1]->CopyCodesEndFrame();
+            }
+            if (layerInput->GetControllerManager()[2])
+            {
+                layerInput->GetControllerManager()[2]->CopyCodesEndFrame();
+            }
+            if (layerInput->GetControllerManager()[3])
+            {
+                layerInput->GetControllerManager()[3]->CopyCodesEndFrame();
             }
             m_Window->OnUpdate();
         }

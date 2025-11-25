@@ -17,12 +17,20 @@ function player:OnUpdate()
 		print("Player 1 down input")
 	end
 
+    if(Input.get_button_held(0, 0)) then -- instanceId, button
+		print("Player 1 down input held")
+	end
+
     if(Input.get_button_up(0, 0)) then -- instanceId, button
 		print("Player 1 up input")
 	end
 	
 	if(Input.get_button_down(1, 0)) then -- instanceId, button
 		print("Player 2 down input")
+	end
+
+    if(Input.get_button_held(1, 0)) then -- instanceId, button
+		print("Player 2 down input held")
 	end
 
     if(Input.get_button_up(1, 0)) then -- instanceId, button

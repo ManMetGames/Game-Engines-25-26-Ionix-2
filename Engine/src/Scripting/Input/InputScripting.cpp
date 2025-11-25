@@ -71,6 +71,10 @@ namespace IonixEngine {
             return Application::Get().layerInput->IsControllerButtonUp(index, static_cast<Uint8>(btn));
             };
 
+        auto getButtonHeld = [this](int index, int btn) -> bool {
+            return Application::Get().layerInput->IsControllerButtonHeld(index, static_cast<Uint8>(btn));
+            };
+
         auto getStickAxis = [this](int index, SDL_GameControllerAxis axis, float divisor) -> float {
             if (index < 0 || index >= (int)m_Controllers.size() || !m_Controllers[index])
                 return 0.0f;
@@ -172,6 +176,7 @@ namespace IonixEngine {
 
             "get_button_down", getButtonDown,
             "get_button_up", getButtonUp,
+            "get_button_held", getButtonHeld,
             "get_left_stick_x", getLeftStickX,
             "get_left_stick_y", getLeftStickY,
             "get_right_stick_x", getRightStickX,
