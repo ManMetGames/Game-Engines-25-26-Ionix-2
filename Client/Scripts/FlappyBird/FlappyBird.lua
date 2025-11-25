@@ -38,7 +38,7 @@ function ExampleScript:OnStart()
 
     Entity.set_entity_pos(player1, x, 300)
 	
-    local playerSprite1 = Entity.add_sprite_component(player1, "FlappyBird", 64, 64, -1)
+    local playerSprite1 = Entity.add_sprite_component(player1, "FlappyBird", 64, 64, 0)
 
     Sprite.set_width(playerSprite1, 64)
     Sprite.set_height(playerSprite1, 64)
