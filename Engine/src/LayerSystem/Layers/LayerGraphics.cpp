@@ -26,6 +26,7 @@ namespace IonixEngine
 
     void LayerGraphics::OnUpdate() {
         //ball.drawFrame(0,0,32,32);
+
         queue.RenderFromQueue();
     }
 

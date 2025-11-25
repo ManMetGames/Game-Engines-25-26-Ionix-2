@@ -20,7 +20,6 @@ namespace IonixEngine
 			| b2Draw::e_jointBit
 			| b2Draw::e_centerOfMassBit
 		);
-
 		world->SetDebugDraw(debugDraw);
 
 		// create and configure collision listener

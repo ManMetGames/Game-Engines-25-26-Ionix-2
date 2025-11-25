@@ -30,9 +30,7 @@ namespace IonixEngine {
         b2Vec2 size,   
         b2Vec2 offset,
         float angle,
-        bool isTrigger,
-        uint16 categoryBits,
-        uint16 maskBits)
+        bool isTrigger)
     {
         body = FysicsManager::GetManager()->GetBodyFromEntity(entity);
         b2PolygonShape shape;
@@ -59,12 +57,10 @@ namespace IonixEngine {
         
         float xScale = sprite_component->getWidth() / 100.0f;
         float yScale = sprite_component->getHeight() / 100.0f;
-        xScale *= scaleFactor;
-        yScale *= scaleFactor;
         b2Vec2 size;
         size.x = xScale;
         size.y = yScale;
-        b2Vec2 halfSize(size.x * 0.5f, size.y * 0.5f);
+        b2Vec2 halfSize((size.x * 0.5f) * scaleFactor, (size.y * 0.5f) * scaleFactor);
 
         b2Vec2 offset;
         offset.x = xScale / 2;

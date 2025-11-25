@@ -40,7 +40,7 @@ function ExampleScript:OnStart()
 
     -- PLAYER 1 PHYSICS
     Entity.add_fysics_component(player1, 2, false) -- dynamic body
-    Fysics.add_sprite_collider(player1, false)
+    Fysics.add_sprite_collider(player1, false, 0.5)
 
     local tileSize = 64
     local floorY = 600
@@ -69,6 +69,8 @@ function ExampleScript:OnStart()
 		Entity.add_fysics_component(tile, 0, false)  -- static
 		Fysics.add_sprite_collider(tile, false)
 	end
+
+    
     
     -------------------------------
     --Polygon Testing

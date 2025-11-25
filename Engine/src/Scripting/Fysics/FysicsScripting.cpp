@@ -175,7 +175,7 @@ namespace IonixEngine
 		//----------Collision Methods----------
 
 		
-		auto addBoxCollider = [](Entity* entity, float sizeX, float sizeY, int offsetX, int offsetY, float angle, bool isTrigger, sol::optional<uint16> categoryBits, sol::optional<uint16> maskBits) {
+		auto addBoxCollider = [](Entity* entity, float sizeX, float sizeY, int offsetX, int offsetY, float angle, bool isTrigger) {
 
 			b2Vec2 size;
 			size.x = sizeX;
@@ -185,25 +185,16 @@ namespace IonixEngine
 			offset.x = offsetX;
 			offset.y = offsetY;
 
-			uint16 category = categoryBits.value_or(0x0001);
-			uint16 mask = maskBits.value_or(0xFFFF);
-
-			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddBox(entity, size, offset, angle, isTrigger, category, mask);
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddBox(entity, size, offset, angle, isTrigger);
 		};
-		auto addSpriteCollider = [](Entity* entity, bool isTrigger) {
-
-			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddSpriteCollider(entity, isTrigger);
+		auto addSpriteCollider = [](Entity* entity, bool isTrigger, float scaleFactor) {
+			if (scaleFactor == 0)
+			{
+				scaleFactor = 1.0f;
+			}
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddSpriteCollider(entity, isTrigger, scaleFactor);
 		};
-
-		/*auto addPolygonCollider = [](Entity* entity) {
-			std::vector<b2Vec2> points;
-			points[0] = b2Vec2(0, 0);
-			points[1] = b2Vec2(200, 0);
-			points[2] = b2Vec2(0, 200);
-			points[2] = b2Vec2(200, 200);
-			
-			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddPolygon(entity, points);
-		};*/
+		
 
 		auto addPolygonCollider = [](Entity* entity, float size) {
 			size /= 100.0f;

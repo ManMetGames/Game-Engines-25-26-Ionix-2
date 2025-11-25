@@ -101,9 +101,9 @@ namespace IonixEngine
             time += deltaTime;
 		    
             
-            SDL_RenderClear(renderer);
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);
-            
+            SDL_RenderClear(renderer);
+
             // fixed update time accumulation
             m_FixedTimeAccumulator += deltaTime;
             
@@ -125,9 +125,13 @@ namespace IonixEngine
                     layer->OnUpdate();
             }
             
+            
             Scripting::Get().CallHook("OnUpdate");
             ImGui::Render();
+            
             ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), m_Window->GetSdlRenderer());
+            Get().layerFysics->GetFysicsManager()->GetWorld()->DebugDraw();
+
             SDL_RenderPresent(m_Window->m_Renderer);
 
            /*if (layerInput->m_Input->IsMouseButtonDown(SDL_BUTTON_LEFT))
