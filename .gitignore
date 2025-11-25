@@ -69,3 +69,6 @@ nobuild.old
 Client/*
 !Client/Scripts/
 !Client/Scripts/*.lua
+!Client/Assets/
+!Client/Assets/*.png
+
