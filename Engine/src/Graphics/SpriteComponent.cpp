@@ -40,7 +40,7 @@ namespace IonixEngine {
 		playbackMode = playbackOptions::FORWARD;
 
 		//setRowsAndCols(2, 8);
-		cols = 6;
+		cols = 1;
 		rows = 1;
 
 

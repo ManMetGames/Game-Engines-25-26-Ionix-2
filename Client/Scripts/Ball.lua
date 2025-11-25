@@ -1,4 +1,5 @@
 local ball = {}
+local assets = require("Scripts.Assets")
 
 local ballEntity
 local Background
@@ -11,7 +12,7 @@ local screenH
 function ballInit()
     print(screenH, screenW)
     ballEntity = Entity.create_entity()
-    local sprite = Entity.add_sprite_component(ballEntity, "PimBall", 0, 0, 0)
+    local sprite = Entity.add_sprite_component(ballEntity, assets.textures.PimBall, 0, 0, 0)
     Entity.add_fysics_component(ballEntity, 2, false)
     print(Entity.get_entity_pos(ballEntity))
     Entity.set_entity_pos(ballEntity, screenW / 2, screenH / 2)
@@ -20,7 +21,7 @@ end
 
 function BackgroundInnit()
     Background = Entity.create_entity()
-    Entity.add_sprite_component(Background, "Background", 0, 0, -1)
+    Entity.add_sprite_component(Background, assets.textures.Background, 0, 0, -1)
 end
 
 function ball:OnStart()
