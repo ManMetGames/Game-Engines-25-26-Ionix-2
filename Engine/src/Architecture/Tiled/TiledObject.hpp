@@ -28,6 +28,7 @@ public:
     float rotation;
     bool visible;
     std::vector<b2Vec2> polygon; // Will be present on all polygon colliders ???
+
     TiledObject(JSONDeserialize* json);
     std::string ToString();
 };

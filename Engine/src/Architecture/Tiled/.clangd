@@ -12,3 +12,4 @@ CompileFlags:
    - "-I../../"
    - "-I../"
    - "-DENGINE_EXPORTS"
+   - "-DTILED_TEST"

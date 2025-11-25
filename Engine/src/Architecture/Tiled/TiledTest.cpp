@@ -1,3 +1,4 @@
+#ifdef TILED_TEST
 #include "TiledMap.hpp"
 #include <fstream>
 #include <sstream>
@@ -22,3 +23,6 @@ int main(void) {
         printf("\t\tLayer: %s\n", layer.objectLayer.ToString().c_str());
     }
 }
+#else
+void LoadTileMap() {};
+#endif
