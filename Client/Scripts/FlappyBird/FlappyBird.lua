@@ -62,7 +62,7 @@ function ExampleScript:OnStart()
 
     -- PLAYER 2 FYSICS
      Entity.add_fysics_component(player2, 2, true) -- dynamic body
-     Fysics.add_sprite_collider(player2, false, 0.5)
+     Fysics.add_sprite_collider(player2, false)
 
     local tileSize = 64
     local floorY = 600
@@ -138,6 +138,10 @@ function ExampleScript:OnUpdate()
 	if Input.get_key_down(Keys.ionix_a) then
         Entity.set_entity_pos(player1, xPos, floorY)
 	end
+
+    if Input.get_key_down(Keys.ionix_e) then
+        
+    end
 
     Fysics.set_linear_velocity(player1, vx, vy1)
 end

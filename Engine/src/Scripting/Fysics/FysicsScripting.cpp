@@ -210,7 +210,7 @@ namespace IonixEngine
 		};
 
 //----------Joint Methods----------
-
+	
 		auto setPrismaticJoint = [](Entity* entityA, Entity* entityB, float worldAxisX, float worldAxisY, float lowerTranslation, float upperTranslation, bool enableLimit, float maxMotorForce, float motorSpeed, bool enableMotor) {
 			b2Vec2 worldAxis;
 			worldAxis.x = worldAxisX;
@@ -241,9 +241,10 @@ namespace IonixEngine
 		auto destroyJoint = [](int jointID) {
 			if (Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointCount() <= 0) { return; }
 			b2Joint* jointList = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointList();
-			for (int i = 0; i <jointID; i++) {
+			for (int i = 0; i < jointID; i++) {
 				jointList->GetNext();
 			}
+
 			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->destroyJoint(jointList);
 		};
 
@@ -253,6 +254,7 @@ namespace IonixEngine
 			for (int i = 0; i < jointID; i++) {
 				jointList->GetNext();
 			}
+
 			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->getBodyA(jointList);
 		};
 
@@ -262,6 +264,7 @@ namespace IonixEngine
 			for (int i = 0; i < jointID; i++) {
 				jointList->GetNext();
 			}
+
 			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->getBodyB(jointList);
 		};
 		
@@ -271,6 +274,7 @@ namespace IonixEngine
 			for (int i = 0; i < jointID; i++) {
 				jointList->GetNext();
 			}
+
 			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->getAnchorA(jointList);
 		};
 
@@ -280,6 +284,7 @@ namespace IonixEngine
 			for (int i = 0; i < jointID; i++) {
 				jointList->GetNext();
 			}
+
 			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->getAnchorB(jointList);
 		};
 
@@ -289,6 +294,7 @@ namespace IonixEngine
 			for (int i = 0; i < jointID; i++) {
 				jointList->GetNext();
 			}
+
 			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->getUserData(jointList);
 		};
 
@@ -298,6 +304,7 @@ namespace IonixEngine
 			for (int i = 0; i < jointID; i++) {
 				jointList->GetNext();
 			}
+
 			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->getReactionForce(jointList, inv_dt);
 		};
 
@@ -307,6 +314,7 @@ namespace IonixEngine
 			for (int i = 0; i < jointID; i++) {
 				jointList->GetNext();
 			}
+
 			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->getReactionTorque(jointList, inv_dt);
 		};
 
@@ -316,6 +324,7 @@ namespace IonixEngine
 			for (int i = 0; i < jointID; i++) {
 				jointList->GetNext();
 			}
+
 			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->isEnabled(jointList);
 		};
 
@@ -333,6 +342,58 @@ namespace IonixEngine
 			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->shiftOrigin(jointList, origin);
 		};
 
+		//Prismatic Joints
+		auto getJointTranslationFromPrismaticJoint = [](int jointID) {
+			if (Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointCount() <= 0) { return; }
+			b2Joint* jointList = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointList();
+			for (int i = 0; i < jointID; i++) {
+				jointList->GetNext();
+			}
+
+			Application::Get().layerFysics->GetFysicsManager()->GetPrismaticJoint()->getJointTranslation((b2PrismaticJoint*)jointList);		
+		};
+
+		auto setJointTranslationFromPrismaticJoint = [](int jointID, float lowerTranslation, float upperTranslation) {
+			if (Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointCount() <= 0) { return; }
+			b2Joint* jointList = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointList();
+			for (int i = 0; i < jointID; i++) {
+				jointList->GetNext();
+			}
+
+			Application::Get().layerFysics->GetFysicsManager()->GetPrismaticJoint()->setJointTranslation((b2PrismaticJoint*)jointList, lowerTranslation, upperTranslation);
+		};
+
+		auto getJointSpeedFromPrismaticJoint = [](int jointID) {
+			if (Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointCount() <= 0) { return; }
+			b2Joint* jointList = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointList();
+			for (int i = 0; i < jointID; i++) {
+				jointList->GetNext();
+			}
+
+			Application::Get().layerFysics->GetFysicsManager()->GetPrismaticJoint()->getJointSpeed((b2PrismaticJoint*)jointList);
+		};
+
+		auto getMotorForceFromPrismaticJoint = [](int jointID, float inv_dt) {
+			if (Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointCount() <= 0) { return; }
+			b2Joint* jointList = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointList();
+			for (int i = 0; i < jointID; i++) {
+				jointList->GetNext();
+			}
+
+			Application::Get().layerFysics->GetFysicsManager()->GetPrismaticJoint()->getMotorForce((b2PrismaticJoint*)jointList, inv_dt);
+		};
+
+		auto setMaxMotorForceFromPrismaticJoint = [](int jointID, float force) {
+			if (Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointCount() <= 0) { return; }
+			b2Joint* jointList = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointList();
+			for (int i = 0; i < jointID; i++) {
+				jointList->GetNext();
+			}
+
+			Application::Get().layerFysics->GetFysicsManager()->GetPrismaticJoint()->setMaxMotorForce((b2PrismaticJoint*)jointList, force);
+		};
+
+
 		//Weld Joints
 
 		auto getDampingFromWeldJoint = [](int jointID) {
@@ -340,7 +401,7 @@ namespace IonixEngine
 			b2Joint* jointList = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointList();
 			for (int i = 0; i < jointID; i++) {
 				jointList->GetNext();
-			}		
+			}
 
 			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->getDamping((b2WeldJoint*)jointList);
 		};
@@ -374,6 +435,12 @@ namespace IonixEngine
 
 			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->setStiffness((b2WeldJoint*)jointList, newStiffness);
 		};
+
+		//Pulley Joints
+		
+		//Distance Joints
+
+		//Revolute Joints
 
 
 

@@ -24,6 +24,8 @@ namespace IonixEngine
 
         virtual b2Joint* getJoint();
 
+        b2Joint* getJointFromID(int jointID);
+
         void destroyJoint(b2Joint* joint);
 
         b2Body* getBodyA(b2Joint* joint);
@@ -81,21 +83,21 @@ namespace IonixEngine
 
         b2Joint* getJoint() override;
 
-        float getJointTranslation();
+        float getJointTranslation(b2PrismaticJoint* _joint);
 
-        void setJointTranslation(float lowerTranslation, float upperTranslation);
+        void setJointTranslation(b2PrismaticJoint* _joint,float lowerTranslation, float upperTranslation);
 
-        float getJointSpeed();
+        float getJointSpeed(b2PrismaticJoint* _joint);
 
-        float getMotorForce(float inverseDeltaTime);
+        float getMotorForce(b2PrismaticJoint* _joint, float inverseDeltaTime);
 
         float getMaxMotorForce();
 
-        void setMaxMotorForce(float force);
+        void setMaxMotorForce(b2PrismaticJoint* _joint, float force);
 
         float getMotorSpeed();
 
-        void setMotorSpeed(float speed);
+        void setMotorSpeed(b2PrismaticJoint* _joint, float speed);
 
         b2Vec2 getWorldAxis();
 

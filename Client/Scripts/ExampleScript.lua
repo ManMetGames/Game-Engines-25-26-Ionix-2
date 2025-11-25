@@ -80,11 +80,11 @@ function ExampleScript:OnStart()
     
     --Fysics.create_weld_joint(player2, player) --Weld Joint
     
-   --Fysics.create_pulley_joint(player2, player, x, y, x+300, y, 4, 1, 2) --Pulley Joint
+    --Fysics.create_pulley_joint(player2, player, x, y, x+300, y, 4, 1, 2) --Pulley Joint
     
     --Fysics.create_revolute_joint(player2,player, false, 5, 8, true, 20, 60) --Revolute Joint
 
-    Fysics.create_distance_joint(player2, player, 10) --Distance Joint
+    --Fysics.create_distance_joint(player2, player, 10) --Distance Joint
    
 end
 
