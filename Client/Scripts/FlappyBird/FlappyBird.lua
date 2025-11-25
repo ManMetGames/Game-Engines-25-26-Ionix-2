@@ -40,7 +40,7 @@ function ExampleScript:OnStart()
 	Sprite.set_playback_mode(playerSprite1, 4)
 
     -- PLAYER 1 FYSICS
-    Entity.add_fysics_component(player1, 2, false) -- dynamic body
+    Entity.add_fysics_component(player1, 2, true) -- dynamic body
     Fysics.add_sprite_collider(player1, false, 0.5)
 
     local tileSize = 64
@@ -61,7 +61,7 @@ function ExampleScript:OnStart()
    Sprite.set_playback_mode(playerSprite2, 4)
 
     -- PLAYER 2 FYSICS
-     Entity.add_fysics_component(player2, 2, false) -- dynamic body
+     Entity.add_fysics_component(player2, 2, true) -- dynamic body
      Fysics.add_sprite_collider(player2, false, 0.5)
 
     local tileSize = 64
@@ -111,7 +111,7 @@ function ExampleScript:OnStart()
     
     --Fysics.create_weld_joint(player2, player1) --Weld Joint
     
-   Fysics.create_pulley_joint(player2, player1, x, 300, x+300, 300, 4, 1, 2) --Pulley Joint
+   Fysics.create_pulley_joint(player1, player2, 5, 0, 5, 0, 1, 1, 1) --Pulley Joint
     
     --Fysics.create_revolute_joint(player2,player1, false, 5, 8, true, 20, 60) --Revolute Joint
 
