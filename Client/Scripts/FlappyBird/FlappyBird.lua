@@ -105,7 +105,7 @@ function ExampleScript:OnStart()
 
 	-- Kinematic body so it moves but isn't affected by gravity
 	Entity.add_fysics_component(pipe, 1, false)
-	Fysics.add_sprite_collider(pipe, 1, 1, 0, 0, false)
+	Fysics.add_sprite_collider(pipe, false)
 
 
     -- TOP PIPE
@@ -119,7 +119,11 @@ function ExampleScript:OnStart()
 
 	-- Kinematic body so it moves but isn't affected by gravity
 	Entity.add_fysics_component(pipeT, 1, false)
-	Fysics.add_sprite_collider(pipeT, 1, 1, 0, 0, false)
+	Fysics.add_sprite_collider(pipeT, false)
+
+    if Input.get_key_down(Keys.ionix_a) then
+        Entity.set_entity_pos(pipe, xPos, floorY)
+	end
 end
 
 ----------------------------------------------------------
@@ -141,10 +145,6 @@ function ExampleScript:OnUpdate()
         Fysics.set_linear_velocity(pipeT, pipeSpeed, 0)
         -- Set velocity directly to cancel out falling momentum
         vy1 = -5  -- Jump velocity for player1
-	end
-	
-	if Input.get_key_down(Keys.ionix_a) then
-        Entity.set_entity_pos(player1, xPos, floorY)
 	end
 
     Fysics.set_linear_velocity(player1, vx, vy1)
