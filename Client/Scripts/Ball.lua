@@ -12,15 +12,15 @@ local screenH
 function ballInit()
     ballEntity = Entity.create_entity()
 
-    Entity.add_sprite_component(ballEntity, assets.textures.PimBall, 0, 0, 0)
+    Entity.add_sprite_component(ballEntity, assets.textures.PimBall, 0, 0, 100)
     Entity.set_entity_pos(ballEntity, screenW / 2, screenH / 2)
     Entity.add_fysics_component(ballEntity, 2, false)
-    Fysics.add_circle_collider(ballEntity, ballSize / 2, 0, 0, false)
+    Fysics.add_sprite_collider(ballEntity, true)
 end
 
 function BackgroundInnit()
     Background = Entity.create_entity()
-    Entity.add_sprite_component(Background, assets.textures.Background, 0, 0, -1)
+    Entity.add_sprite_component(Background, assets.textures.Background, 0, 0, 0)
 end
 
 function ball:OnStart()
