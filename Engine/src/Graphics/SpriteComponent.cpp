@@ -11,11 +11,10 @@ namespace IonixEngine {
 		texture = IonixEngine::TextureManager::Get().GetTexture(alias).GetTexture(); //adding sprite image file to the texture manager
 		zOrder = zedOrder;
 		isReversing = false;
-		playbackMode = playbackOptions::FORWARDANDBACKWARD;
+		playbackMode = playbackOptions::FORWARD;
 
-		//setRowsAndCols(2, 8);
-		cols = 6;
-		rows = 1;
+		rows = 1; //default spritesheet size, can be changed in appropriate setters
+		cols = 1;
 
 		renderLayer = entity->renderLayer;
 
