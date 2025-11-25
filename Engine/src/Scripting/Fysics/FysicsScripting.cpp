@@ -258,12 +258,20 @@ namespace IonixEngine
 			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddPolygon(entity);
 			};
 
-		auto getColliderWidth = [](Entity* entity) {
-			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->GetWidth();
+		auto getColliderWidth = [](Entity* entity) -> float {
+			return Application::Get().layerFysics->GetFysicsManager()->GetShapes()->GetWidth();
 			};
 
 		auto setColliderWidth = [](Entity* entity, float w, fysicShapeType shapeType) {
 			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->SetWidth(w, shapeType);
+			};
+
+		auto getColliderHeight = [](Entity* entity) -> float {
+			return Application::Get().layerFysics->GetFysicsManager()->GetShapes()->GetHeight();
+			};
+
+		auto setColliderHeight = [](Entity* entity, float h, fysicShapeType shapeType) {
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->SetHeight(h, shapeType);
 			};
 
 
@@ -316,7 +324,9 @@ namespace IonixEngine
 			"get_distance_joint", addDistanceJoint,
 			"add_box_collider", addBoxCollider,
 			"get_width", getColliderWidth,
-			"set_width", setColliderWidth
+			"set_width", setColliderWidth,
+			"get_height", getColliderHeight,
+			"set_height", setColliderHeight
 		);
 	}
 }
