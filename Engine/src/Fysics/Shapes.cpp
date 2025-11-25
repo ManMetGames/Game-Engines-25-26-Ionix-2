@@ -30,6 +30,7 @@ namespace IonixEngine {
         b2Vec2 size,   
         b2Vec2 offset,
         float angle,
+        bool isTrigger)
         bool isTrigger//,
         //uint16 categoryBits,
         //uint16 maskBits
@@ -47,13 +48,10 @@ namespace IonixEngine {
         fixtureDef.isSensor = isTrigger;
         fixtureDef.density = 1.0f;
 
-        //if (fixture)
-        //    body->DestroyFixture(fixture);
-
         fixture = body->CreateFixture(&fixtureDef);        
     }
 
-    void FysicsShapes::AddSpriteCollider(Entity* entity, bool isTrigger)
+    void FysicsShapes::AddSpriteCollider(Entity* entity, bool isTrigger, float scaleFactor)
     {
         SpriteComponent* sprite_component = nullptr;
         if (!entity->TryGetComponent<SpriteComponent>(&sprite_component)){return;}
@@ -63,11 +61,10 @@ namespace IonixEngine {
         
         float xScale = sprite_component->getWidth() / 100.0f;
         float yScale = sprite_component->getHeight() / 100.0f;
-        
         b2Vec2 size;
         size.x = xScale;
         size.y = yScale;
-        b2Vec2 halfSize(size.x * 0.5f, size.y * 0.5f);
+        b2Vec2 halfSize((size.x * 0.5f) * scaleFactor, (size.y * 0.5f) * scaleFactor);
 
         b2Vec2 offset;
         offset.x = xScale / 2;
@@ -83,21 +80,21 @@ namespace IonixEngine {
         fixture = body->CreateFixture(&fixtureDef);        
     }
 
-
-    void FysicsShapes::AddPolygon(Entity* entity)
-    {
-        static std::vector<b2Vec2> defaultVertices = { {0, 1}, { 0.6, 0.6 }, { 0.3, -0.5f }, { -0.3, -0.5f}, {-0.6, 0.6f } };
-        AddPolygon(entity, defaultVertices);
-    }
-
     //add polygon
-    void FysicsShapes::AddPolygon(Entity* entity, std::vector<b2Vec2>& vertices) {
+    void FysicsShapes::AddPolygon(Entity* entity, float tileSize, std::vector<b2Vec2>& vertices) {
+        body = FysicsManager::GetManager()->GetBodyFromEntity(entity);
+
         if (vertices.size() < 3 || vertices.size() > b2_maxPolygonVertices)
             return;
 
         b2PolygonShape shape;
+        tileSize /= 100.0f;
 
         //Set the polygon shape with the vertices data and their total count
+        for (int i = 0; i < vertices.size(); i++)
+        {
+            vertices[i] = tileSize * vertices[i];
+        }
         shape.Set(vertices.data(), static_cast<int32>(vertices.size()));
 
         b2FixtureDef fixtureDef;
@@ -109,10 +106,6 @@ namespace IonixEngine {
         if (fixture) {
             body->DestroyFixture(fixture);
         }
-        fixture = FysicsManager::GetManager()->GetBodyFromEntity(entity)->CreateFixture(&fixtureDef);
-
+        fixture = body->CreateFixture(&fixtureDef);      
     }
-
-
-
 }
