@@ -59,7 +59,7 @@ function ExampleScript:OnStart()
 
     Entity.add_fysics_component(player1, 2, false) -- dynamic body
     --Fysics.add_sprite_collider(player1, false)
-    Fysics.add_box_collider(player1, 1, 1, 0, 0, 0, false)
+    Fysics.add_sprite_collider(player1, false)
     -- Freeze bird
     Fysics.set_gravity_scale(player1, 0)
 
@@ -120,10 +120,6 @@ function ExampleScript:OnStart()
 	-- Kinematic body so it moves but isn't affected by gravity
 	Entity.add_fysics_component(pipeT, 1, false)
 	Fysics.add_sprite_collider(pipeT, false)
-
-    if Input.get_key_down(Keys.ionix_a) then
-        Entity.set_entity_pos(pipe, xPos, floorY)
-	end
 end
 
 ----------------------------------------------------------
@@ -146,17 +142,26 @@ function ExampleScript:OnUpdate()
         -- Set velocity directly to cancel out falling momentum
         vy1 = -5  -- Jump velocity for player1
 	end
+	
+	if Input.get_key_down(Keys.ionix_a) then
+        Entity.set_entity_pos(pipe, xPos, floorY)
+	end
 
     Fysics.set_linear_velocity(player1, vx, vy1)
 
     -- Pipe movement
     local pipePos = Fysics.get_pos(pipe)
     local pipePos = Fysics.get_pos(pipeT)
-    if pipePos.x < pipeOffScreenLeft then
-        Fysics.set_pos(pipe, pipeStartX, pipePos.y)
-        Fysics.set_pos(pipeT, pipeStartX, pipePos.y)
-     end
-     
+    
+   -- if pipePos.x < pipeOffScreenLeft then
+       -- Fysics.set_pos(pipe, pipeStartX, pipePos.y)
+       -- Fysics.set_pos(pipeT, pipeStartX, pipePos.y)
+    --end
+ 	
+	if pipePos.x < 0 then
+        Entity.set_entity_pos(pipe, 640, 400)
+        --Entity.set_entity_pos(pipe, xPos, floorY)
+	end
 end
 
 return ExampleScript
