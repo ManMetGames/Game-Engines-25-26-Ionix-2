@@ -22,6 +22,14 @@ namespace IonixEngine
 			"y", &b2Vec2::y
 		);
 
+		lua.new_enum<fysicShapeType>("ShapeType",
+			{
+				{"circle", fysicShapeType::circle},
+				{"box", fysicShapeType::box},
+				{"polygon", fysicShapeType::polygon},
+				{"none", fysicShapeType::none}
+			}
+		);
 
 		//------------Fysics Body Methods---------------
 		auto getFysicsPos = [](Entity* entity) -> b2Vec2 {
@@ -262,6 +270,42 @@ namespace IonixEngine
 			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddPolygon(entity, points);
 		};
 
+		auto getColliderWidth = [](Entity* entity) -> float {
+			return Application::Get().layerFysics->GetFysicsManager()->GetShapes()->GetWidth();
+			};
+
+		auto setColliderWidth = [](Entity* entity, float w, fysicShapeType shapeType) {
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->SetWidth(w, shapeType);
+			};
+
+		auto getColliderHeight = [](Entity* entity) -> float {
+			return Application::Get().layerFysics->GetFysicsManager()->GetShapes()->GetHeight();
+			};
+
+		auto setColliderHeight = [](Entity* entity, float h, fysicShapeType shapeType) {
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->SetHeight(h, shapeType);
+			};
+
+		auto isColliderTrigger = [](Entity* entity) -> bool {
+			return Application::Get().layerFysics->GetFysicsManager()->GetShapes()->IsShapeTrigger();
+			};
+
+		auto setColliderTrigger = [](Entity* entity, bool value) {
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->SetShapeTrigger(value);
+			};
+
+		auto getColliderVertices = [](Entity* entity) {
+			return Application::Get().layerFysics->GetFysicsManager()->GetShapes()->GetVertices();
+			};
+
+		auto setColliderVertices = [](Entity* entity, std::vector<b2Vec2> verts, fysicShapeType shapeType) {
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->SetVertices(verts, shapeType);
+			};
+
+		auto getColliderShapeType = [](Entity* entity) {
+			return Application::Get().layerFysics->GetFysicsManager()->GetShapes()->GetShapeType();
+			};
+
 
 		lua["Fysics"] = lua.create_table_with(
 			"add_box_collider",	addBoxCollider,
@@ -308,7 +352,16 @@ namespace IonixEngine
 			"get_restitution", getRestitution,
 			"add_sprite_collider", addSpriteCollider,
 			"get_gravity_scale", getFysicsGravityScale,
-			"set_gravity_scale", setFysicsGravityScale
+			"set_gravity_scale", setFysicsGravityScale,
+			"get_collider_width", getColliderWidth,
+			"set_collider_width", setColliderWidth,
+			"get_collider_height", getColliderHeight,
+			"set_collider_height", setColliderHeight,
+			"is_collider_trigger", isColliderTrigger,
+			"set_collider_trigger", setColliderTrigger,
+			"get_collider_vertices", getColliderVertices,
+			"set_collider_vertices", setColliderVertices,
+			"get_collider_type", getColliderShapeType
 		);
 	}
 }
