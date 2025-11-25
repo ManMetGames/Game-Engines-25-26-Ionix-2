@@ -37,7 +37,7 @@ function ExampleScript:OnStart()
 	-- Background Texture
 	------------------------------------------------------
     Background = Entity.create_entity()
-    local BgBackground = Entity.add_sprite_component(Background, "Background", 960,640, 0)
+    local BgBackground = Entity.add_sprite_component(Background, "Background", 960, 640, 0)
     Sprite.set_width(BgBackground, 1280)
     Sprite.set_height(BgBackground, 1280)
     Sprite.set_playback_mode(BgBackground, 4)
@@ -47,19 +47,17 @@ function ExampleScript:OnStart()
     ------------------------------------------------------
     player1 = Entity.create_entity()
 
-    Entity.set_entity_pos(player1, x, 500)
+    Entity.set_entity_pos(player1, x, 300)
 	
-    local playerSprite1 = Entity.add_sprite_component(player1, "FlappyBird", 64, 64, 0)
+    local playerSprite1 = Entity.add_sprite_component(player1, "FlappyBird", 0, 0, 0)
 
-    Sprite.set_width(playerSprite1, 64)
-    Sprite.set_height(playerSprite1, 64)
 	Sprite.set_playback_mode(playerSprite1, 4)
 
     -- PLAYER 1 PHYSICS
 
     Entity.add_fysics_component(player1, 2, false) -- dynamic body
     --Fysics.add_sprite_collider(player1, false)
-    Fysics.add_box_collider(player1, 1, 1.5, 0, 0, 0, false)
+    Fysics.add_box_collider(player1, 1, 1, 0, 0, 0, false)
     -- Freeze bird
     Fysics.set_gravity_scale(player1, 0)
 
