@@ -3,15 +3,18 @@
 #include <string>
 
 struct Textures {
-    uint64_t Debug = 16105671890965812228u;
-    uint64_t Test = 2449874712956322390u;
-    uint64_t ball = 17707837483333796221u;
-    uint64_t ball2 = 14716692011604621444u;
-    uint64_t horse_fat = 14957662674859995436u;
+    uint32_t Background = 2667361274u;
+    uint32_t Debug = 2430642766u;
+    uint32_t PimBall = 3518613816u;
+    uint32_t Test = 510180426u;
+    uint32_t ball = 369994598u;
+    uint32_t ball2 = 1354646532u;
+    uint32_t horse_fat = 963803500u;
 
     inline std::map<std::string, std::string> GetTextures() {
         std::map<std::string, std::string> map;
         map["Debug"] = "./Assets/Debug.png";
+        map["PimBall"] = "./Assets/PimBall.png";
         map["Test"] = "./Assets/Test.png";
         map["ball"] = "./Assets/ball.png";
         map["ball2"] = "./Assets/ball2.png";
@@ -21,8 +24,8 @@ struct Textures {
 };
 
 struct Sounds {
-    uint64_t test = 7268973944201526851u;
-    uint64_t test0 = 17827761153089726170u;
+    uint32_t test = 1642075152u;
+    uint32_t test0 = 280276284u;
 
     inline std::map<std::string, std::string> GetSounds() {
         std::map<std::string, std::string> map;
@@ -33,44 +36,44 @@ struct Sounds {
 };
 
 struct Fonts {
-    uint64_t OpenSans_Bold = 15907694087263520715u;
-    uint64_t OpenSans_BoldItalic = 8563675908245164909u;
-    uint64_t OpenSans_Condensed_Bold = 359187643146943972u;
-    uint64_t OpenSans_Condensed_BoldItalic = 14849289699928080642u;
-    uint64_t OpenSans_Condensed_ExtraBold = 6947855732792450946u;
-    uint64_t OpenSans_Condensed_ExtraBoldItalic = 3486891722713028513u;
-    uint64_t OpenSans_Condensed_Italic = 4342085688838513660u;
-    uint64_t OpenSans_Condensed_Light = 2217696825746649946u;
-    uint64_t OpenSans_Condensed_LightItalic = 6175883351937481375u;
-    uint64_t OpenSans_Condensed_Medium = 7158168093019054927u;
-    uint64_t OpenSans_Condensed_MediumItalic = 8626495147143287104u;
-    uint64_t OpenSans_Condensed_Regular = 6994305085030512905u;
-    uint64_t OpenSans_Condensed_SemiBold = 8803190280521243502u;
-    uint64_t OpenSans_Condensed_SemiBoldItalic = 14588341052304457896u;
-    uint64_t OpenSans_ExtraBold = 12227810788226587876u;
-    uint64_t OpenSans_ExtraBoldItalic = 8869746834823773578u;
-    uint64_t OpenSans_Italic = 16632617568536746513u;
-    uint64_t OpenSans_Italic_VariableFont_wdth_wght = 6606613461309615998u;
-    uint64_t OpenSans_Light = 168946910481453691u;
-    uint64_t OpenSans_LightItalic = 14816344761813584664u;
-    uint64_t OpenSans_Medium = 3787703417603136849u;
-    uint64_t OpenSans_MediumItalic = 772028055242458903u;
-    uint64_t OpenSans_Regular = 7933080968301474893u;
-    uint64_t OpenSans_SemiBold = 5098837941272300246u;
-    uint64_t OpenSans_SemiBoldItalic = 16659307743882634385u;
-    uint64_t OpenSans_SemiCondensed_Bold = 16787162754279270096u;
-    uint64_t OpenSans_SemiCondensed_BoldItalic = 7342872189256318675u;
-    uint64_t OpenSans_SemiCondensed_ExtraBold = 1439675224711620604u;
-    uint64_t OpenSans_SemiCondensed_ExtraBoldItalic = 7137085836259179529u;
-    uint64_t OpenSans_SemiCondensed_Italic = 8160819281478521801u;
-    uint64_t OpenSans_SemiCondensed_Light = 5791485800500642700u;
-    uint64_t OpenSans_SemiCondensed_LightItalic = 14233983156265692247u;
-    uint64_t OpenSans_SemiCondensed_Medium = 7676232349246516700u;
-    uint64_t OpenSans_SemiCondensed_MediumItalic = 16103702957349022117u;
-    uint64_t OpenSans_SemiCondensed_Regular = 1448807020571299991u;
-    uint64_t OpenSans_SemiCondensed_SemiBold = 6111457202692262930u;
-    uint64_t OpenSans_SemiCondensed_SemiBoldItalic = 126995760760299497u;
-    uint64_t OpenSans_VariableFont = 1462764909749496224u;
+    uint32_t OpenSans_Bold = 3125297026u;
+    uint32_t OpenSans_BoldItalic = 3887720094u;
+    uint32_t OpenSans_Condensed_Bold = 1962755146u;
+    uint32_t OpenSans_Condensed_BoldItalic = 124114000u;
+    uint32_t OpenSans_Condensed_ExtraBold = 236531092u;
+    uint32_t OpenSans_Condensed_ExtraBoldItalic = 2316031258u;
+    uint32_t OpenSans_Condensed_Italic = 1923490440u;
+    uint32_t OpenSans_Condensed_Light = 3002729520u;
+    uint32_t OpenSans_Condensed_LightItalic = 61440594u;
+    uint32_t OpenSans_Condensed_Medium = 1797819644u;
+    uint32_t OpenSans_Condensed_MediumItalic = 3012013420u;
+    uint32_t OpenSans_Condensed_Regular = 790134158u;
+    uint32_t OpenSans_Condensed_SemiBold = 736574964u;
+    uint32_t OpenSans_Condensed_SemiBoldItalic = 3639818310u;
+    uint32_t OpenSans_ExtraBold = 1467255458u;
+    uint32_t OpenSans_ExtraBoldItalic = 2017324020u;
+    uint32_t OpenSans_Italic = 3932750124u;
+    uint32_t OpenSans_Italic_VariableFont_wdth_wght = 2366781264u;
+    uint32_t OpenSans_Light = 2697239780u;
+    uint32_t OpenSans_LightItalic = 1393674390u;
+    uint32_t OpenSans_Medium = 2195151848u;
+    uint32_t OpenSans_MediumItalic = 284701716u;
+    uint32_t OpenSans_Regular = 2328541490u;
+    uint32_t OpenSans_SemiBold = 3725012926u;
+    uint32_t OpenSans_SemiBoldItalic = 712649994u;
+    uint32_t OpenSans_SemiCondensed_Bold = 1327673022u;
+    uint32_t OpenSans_SemiCondensed_BoldItalic = 3604582006u;
+    uint32_t OpenSans_SemiCondensed_ExtraBold = 2981573478u;
+    uint32_t OpenSans_SemiCondensed_ExtraBoldItalic = 175442784u;
+    uint32_t OpenSans_SemiCondensed_Italic = 1498836336u;
+    uint32_t OpenSans_SemiCondensed_Light = 1036914262u;
+    uint32_t OpenSans_SemiCondensed_LightItalic = 864852258u;
+    uint32_t OpenSans_SemiCondensed_Medium = 4178764238u;
+    uint32_t OpenSans_SemiCondensed_MediumItalic = 4263220556u;
+    uint32_t OpenSans_SemiCondensed_Regular = 727786730u;
+    uint32_t OpenSans_SemiCondensed_SemiBold = 2564416698u;
+    uint32_t OpenSans_SemiCondensed_SemiBoldItalic = 3060309024u;
+    uint32_t OpenSans_VariableFont = 136494272u;
 
     inline std::map<std::string, std::string> GetFonts() {
         std::map<std::string, std::string> map;
