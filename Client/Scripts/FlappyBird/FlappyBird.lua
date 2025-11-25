@@ -76,7 +76,7 @@ function ExampleScript:OnStart()
 	------------------------------------------------------
 	-- Create pipe obstacle
 	------------------------------------------------------
-	pipe = Entity.create_entity()
+	pipe = Entity.create_entity(0)
 	Entity.set_entity_pos(pipe, 400, 400)
 
 	local pipeSprite = Entity.add_sprite_component(pipe, "BottomPipe", 0, 0, 0)
