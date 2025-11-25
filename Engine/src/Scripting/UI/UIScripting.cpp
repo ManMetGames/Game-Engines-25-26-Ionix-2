@@ -27,7 +27,7 @@ namespace IonixEngine {
             };
 
         auto AddSlider = [](const char* label, float value, int xsize, int ysize, int xpos, int ypos, float minval, float maxval) -> float {
-            return Application::Get().layerUI->m_UI->DrawSlider((char*)label, value, xsize, ysize, xpos, ypos, minval, maxval);
+            return Application::Get().layerUI->m_UI->AddSlider((char*)label, value, xsize, ysize, xpos, ypos, minval, maxval);
             };
  
         lua["UI"] = lua.create_table_with(

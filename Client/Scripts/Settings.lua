@@ -11,7 +11,8 @@ LoadModule("Audio", "Scripts/Audio.lua")
 --LoadModule("Enemy", "Scripts/Enemy.lua")
 --LoadModule("Player", "Scripts/Player.lua")
 --LoadModule("ExampleScript", "Scripts/ExampleScript.lua")
-LoadModule("FlappyBird", "Scripts/FlappyBird/FlappyBird.lua")
+--LoadModule("FlappyBird", "Scripts/FlappyBird/FlappyBird.lua")
+LoadModule("Ball", "Scripts/Ball.lua")
 
 -- Lifecycle hooks
 function OnStart()
@@ -40,9 +41,6 @@ function OnShutdown()
         end
     end
 end
-
--- Load system modules
-LoadModule("Coroutines", "Scripts/Coroutines.lua")
 
 -- Retrieve module by name (for cross-module communication)
 function GetModule(name)

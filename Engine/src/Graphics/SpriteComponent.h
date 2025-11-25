@@ -29,9 +29,9 @@ namespace IonixEngine {
 		int rows, cols;
 		int spriteWidth, spriteHeight;
 		int currentRow, currentCol;
-		float spriteAngle;
-		int renderLayer;
-		float timer;		
+		float timer;
+
+
 
 		enum playbackOptions playbackMode;
 
@@ -60,7 +60,6 @@ namespace IonixEngine {
 		void setZedOrder(int x);
 		void setWidth(int x);
 		void setHeight(int x);
-		void setAngle(float angle);
 
 		//Getters
 		IonixEngine::playbackOptions getPlaybackMode();
@@ -76,6 +75,5 @@ namespace IonixEngine {
 		int getCurrentRow();
 		int getWidth();
 		int getHeight();
-		float getAngle();
 	};
 }

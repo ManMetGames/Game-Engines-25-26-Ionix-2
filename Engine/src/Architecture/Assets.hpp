@@ -3,7 +3,9 @@
 #include <string>
 
 struct Textures {
+    uint32_t Background = 2667361274u;
     uint32_t Debug = 2430642766u;
+    uint32_t PimBall = 3518613816u;
     uint32_t Test = 510180426u;
     uint32_t ball = 369994598u;
     uint32_t ball2 = 1354646532u;
@@ -11,7 +13,9 @@ struct Textures {
 
     inline std::map<std::string, std::string> GetTextures() {
         std::map<std::string, std::string> map;
+        map["Background"] = "./Assets/Background.png";
         map["Debug"] = "./Assets/Debug.png";
+        map["PimBall"] = "./Assets/PimBall.png";
         map["Test"] = "./Assets/Test.png";
         map["ball"] = "./Assets/ball.png";
         map["ball2"] = "./Assets/ball2.png";

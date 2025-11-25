@@ -6,10 +6,10 @@
 #include "Fysics/RigidBodyTransform.h"
 #include "Fysics/CollisionListener.h"
 #include "Architecture/ECS/Entity.hpp"
-#include "FysicsMaterials/FysicsMaterialComponent.h"
 
 #include <unordered_map>
 #include "box2d.h"
+#include "FysicsMaterials/FysicsMaterialComponent.h"
 
 namespace IonixEngine
 {
@@ -37,13 +37,13 @@ namespace IonixEngine
 
         FysicsShapes* GetShapes() { return shapes; }
         Force* GetForce() { return force; }
-        FysicsMaterialComponent* GetMaterial() { return material; }
 
         PrismaticJoints* GetPrismaticJoint() { return prismaticJoint;}
         WeldJoints* GetWeldJoint() { return weldJoint;}
         PulleyJoints* GetPulleyJoint() { return pulleyJoint;}
         RevoluteJoints* GetRevoluteJoint() { return revoluteJoint;}
         DistanceJoints* GetDistanceJoint() { return distanceJoint;}
+        FysicsMaterialComponent* GetMaterial() { return material;}
 
         b2World* GetWorld() { return world; }
         std::unordered_map<b2Body*, Entity*>& GetBodyMap() { return bodyEntityMap; }
