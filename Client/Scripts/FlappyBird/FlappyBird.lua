@@ -69,10 +69,12 @@ function ExampleScript:OnStart()
     coin = Entity.create_entity()
     Entity.set_entity_pos(coin, x, 300)
 
-    local coinSprite = Entity.add_sprite_component(coin, "Coin", 80, 16, 0)
-    Sprite.set_width(coinSprite, 80)
+    local coinSprite = Entity.add_sprite_component(coin, "Coin", 32, 32, 0)
+    Sprite.set_width(coinSprite, 16)
     Sprite.set_height(coinSprite, 16)
-	Sprite.set_playback_mode(coinSprite, 4)
+
+
+	Sprite.set_playback_mode(coinSprite, 2)
     ------------------------------------------------------
 	-- add physics body + collider
 	------------------------------------------------------
