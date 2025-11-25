@@ -220,7 +220,7 @@ void IonixEngine::UIManager::RenderElement(UIElement& element)
 		//return;
 	//}
 
-	ImGui::Render;
+	//ImGui::Render;
 	ImGui::SetCursorPos(ImVec2((float)element.xPos, (float)element.yPos));
 	// --- FONT PUSH ---
 	ImFont* font = nullptr;

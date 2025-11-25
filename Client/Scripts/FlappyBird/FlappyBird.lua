@@ -119,11 +119,18 @@ function ExampleScript:OnUpdate()
     local vx = vel1.x
     local vy1 = vel1.y
 
+    local pipePos = Fysics.get_pos(pipe)
+    if pipePos.x < pipeOffScreenLeft then
+        Fysics.set_pos(pipe, pipeStartX, pipePos.y)
+    end
+
 	if Input.get_key_down(Keys.ionix_space) then
         -- Bird move if space is pressed (allow gravity)
         Fysics.set_gravity_scale(player1, 1)
         -- Set velocity directly to cancel out falling momentum
         vy1 = -5  -- Jump velocity for player1
+        --Move pipe
+        Fysics.set_linear_velocity(pipe, pipeSpeed, 0)
 	end
 	
 	if Input.get_key_down(Keys.ionix_a) then
@@ -131,15 +138,8 @@ function ExampleScript:OnUpdate()
 	end
 
     Fysics.set_linear_velocity(player1, vx, vy1)
-    --UI.draw_label("Press any button to play", 200, 200, 200 ,200, "Bold")
-    --Pipe movement disabled for testing
-    Fysics.set_linear_velocity(pipe, pipeSpeed, 0)
-    pipeStartX = -2
-    pipePos = -2
-    local pipePos = Fysics.get_pos(pipe)
-    if pipePos.x < pipeOffScreenLeft then
-        Fysics.set_pos(pipe, pipeStartX, pipePos.y)
-    end
+    --Draws button
+    UI.draw_label("Press any button to play", 200, 200, 200 ,200, "Bold")
 end
 
 return ExampleScript

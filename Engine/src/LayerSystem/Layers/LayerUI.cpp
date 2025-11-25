@@ -48,7 +48,7 @@ namespace IonixEngine
         ImGuiIO& io = ImGui::GetIO(); (void)io;
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-
+        io.ConfigFlags |= ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize;
         /*
         for (auto ui : uiDrawData)
         {
@@ -76,11 +76,16 @@ namespace IonixEngine
     {
         // Start the Dear ImGui frame. Immediate mode rendering - UI gets rebuilt each frame
          ImGui_ImplSDLRenderer2_NewFrame();
+         ImGui::CreateContext();
+         ImGuiIO& io = ImGui::GetIO();
+         (void)io;
 
+         ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize;
          ImGui_ImplSDL2_NewFrame();
-         ImGui::NewFrame();
 
-        
+         ImGui::NewFrame();
+         ImGui::Begin("null", nullptr, window_flags);
+
          std::vector<std::string> dropdownOptions = { "Option 1", "Option 2", "Option 3" };
          int dropdownIndex = 0;
          bool checkboxValue = true;
@@ -88,7 +93,7 @@ namespace IonixEngine
          static float sliderValue = 0.5f;
          
          
-         uiManager.BeginPanel("Test Panel");
+         //uiManager.BeginPanel("Test Panel");
 
          /*uiManager.AddLabel(10, 10, 100, 20, "Test Label");
          uiManager.AddButton(10, 40, 100, 25, "Click Me", []() { printf("Button clicked!\n"); });
@@ -99,9 +104,10 @@ namespace IonixEngine
          uiManager.AddDropdown(10, 160, 150, 25, "Dropdown", dropdownOptions, &dropdownIndex);
          uiManager.AddColorPicker(10, 190, 150, 150, "Pick Color", m_UI->myColor);*/
          // Render the UI
-         //uiManager.RenderUI();
+         uiManager.RenderUI();
+         ImGui::End();
          //uiManager.EndPanel();
-         //uiManager.ClearElements();
+         uiManager.ClearElements();
          // Rendering
          
 
