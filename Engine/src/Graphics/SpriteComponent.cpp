@@ -12,7 +12,7 @@ namespace IonixEngine {
 		playbackMode = playbackOptions::FORWARD;
 
 		rows = 1; //default spritesheet size, can be changed in appropriate setters
-		cols = 5;
+		cols = 1;
 
 
 		SDL_QueryTexture(texture, NULL, NULL, &size.x, &size.y);
