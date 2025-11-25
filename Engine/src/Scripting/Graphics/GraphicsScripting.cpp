@@ -44,6 +44,14 @@ namespace IonixEngine {
             return spriteComponent->getSpriteHeight();
             };
 
+        auto getImageWidth = [](SpriteComponent* spriteComponent) -> int {
+            return spriteComponent->getWidth();
+            };
+
+        auto getImageHeight = [](SpriteComponent* spriteComponent) -> int {
+            return spriteComponent->getHeight();
+            };
+
         auto getZedOrder = [](SpriteComponent* spriteComponent) -> int {
             return spriteComponent->getZedOrder();
             };
@@ -83,6 +91,14 @@ namespace IonixEngine {
 
         auto setSpriteHeight = [](SpriteComponent* spriteComponent, int x) {
             spriteComponent->setSpriteHeight(x);
+            };
+
+        auto setImageWidth = [](SpriteComponent* spriteComponent, int x) {
+            spriteComponent->setWidth(x);
+            };
+
+        auto setImageHeight = [](SpriteComponent* spriteComponent, int x) {
+            spriteComponent->setHeight(x);
             };
 
         auto setZedOrder = [](SpriteComponent* spriteComponent, int x) {
