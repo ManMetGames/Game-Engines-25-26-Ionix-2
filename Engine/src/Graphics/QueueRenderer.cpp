@@ -7,8 +7,9 @@
 
 namespace IonixEngine {
 
-	QueueRenderer::QueueRenderer() {
-		sprites = queue<RenderCall>();// queue of render data
+	QueueRenderer::QueueRenderer()
+	{
+		sprites = queue<RenderCall>();
 	}
 
 	void QueueRenderer::AddToQueue(RenderCall sprite)
@@ -29,13 +30,12 @@ namespace IonixEngine {
 		}
 	}
 
-	void QueueRenderer::Merger(std::vector<RenderCall> temp, int left, int mid, int right)
+	void QueueRenderer::Merger(std::vector<RenderCall>& temp, int left, int mid, int right)
 	{
 		int n1 = mid - left + 1;
 		int n2 = right - mid;
 
-		std::vector<RenderCall> leftHand(n1);
-		std::vector<RenderCall> rightHand(n2);
+		vector<RenderCall> leftHand(n1), rightHand(n2);
 
 		for (int i = 0; i < n1; i++)
 		{
@@ -46,14 +46,13 @@ namespace IonixEngine {
 			rightHand[j] = temp[mid + 1 + j];
 		}
 
-		int i = 0, j = 0, k = left;
+		int i = 0, j = 0; int k = left;
 
 		while (i < n1 && j < n2)
 		{
 			if (leftHand[i].z <= rightHand[j].z)
 			{
 				temp[k] = leftHand[i];
-				cout << "ADD" << endl;
 				i++;
 			}
 			else
@@ -77,17 +76,10 @@ namespace IonixEngine {
 			j++;
 			k++;
 		}
-
-		for (int i = 0; i < temp.size(); i++)
-		{
-			cout << temp[i].z << endl;
-		}
 	}
 
-	void QueueRenderer::OrderQueueByZ(queue<RenderCall>& sprites) //Called first
+	void QueueRenderer::OrderQueueByZ(queue<RenderCall> sprites) //Called first
 	{
-		//cout << sprites.front().z << endl;
-
 		queue<RenderCall> tempQueue = sprites; //Creates temporary queue from sprites to avoid conflicts
 		std::vector<RenderCall> tempVector; //Creates temporary vector from queue
 		int originalQueueLength = sprites.size();
@@ -98,13 +90,14 @@ namespace IonixEngine {
 			tempQueue.pop();
 		}
 
-		MergeCaller(tempVector, 0, originalQueueLength - 1); //Perform merge sort
+		MergeCaller(tempVector, 0, tempVector.size() - 1); //Perform merge sort
 		ArrToQueueConverter(tempVector, sprites); //Convert vector to sorted queue again at the end!
+
 	}
 
-	//0, 1
-	void QueueRenderer::MergeCaller(vector<RenderCall> temp, int left, int right) //Takes the vector created from the queue and sorts it, called second
+	void QueueRenderer::MergeCaller(vector<RenderCall>& temp, int left, int right) //Takes the vector created from the queue and sorts it, called second
 	{
+
 		if (left < right)
 		{
 			int mid = left + (right - left) / 2;
@@ -125,7 +118,7 @@ namespace IonixEngine {
 		ClearQueue(sprites);
 		for (int i = 0; i < temp.size(); i++)
 		{
-			sprites.emplace(temp[i]); //3000 (player) first
+			sprites.emplace(temp[i]);
 		}
 	}
 }
