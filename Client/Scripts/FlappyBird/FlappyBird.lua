@@ -1,5 +1,5 @@
 local ExampleScript = {}
-
+local Background
 local player1
 local goal
 local playerSprite
@@ -29,11 +29,8 @@ function ExampleScript:OnStart()
     -- Create player1
     ------------------------------------------------------
     player1 = Entity.create_entity()
-
     Entity.set_entity_pos(player1, x, 300)
-	
-    local playerSprite1 = Entity.add_sprite_component(player1, "FlappyBird", 64, 64, 0)
-
+    local playerSprite1 = Entity.add_sprite_component(player1, "FlappyBird", 100, 100, 0)
     Sprite.set_width(playerSprite1, 64)
     Sprite.set_height(playerSprite1, 64)
 	Sprite.set_playback_mode(playerSprite1, 4)
@@ -44,7 +41,14 @@ function ExampleScript:OnStart()
 
     local tileSize = 64
     local floorY = 600
-
+    ------------------------------------------------------
+	-- Background Texture
+	------------------------------------------------------
+    Background = Entity.create_entity()
+    local BgBackground = Entity.add_sprite_component(Background, "Background", 960,250, 0)
+    Sprite.set_width(BgBackground, 1280)
+    Sprite.set_height(BgBackground, 1280)
+    Sprite.set_playback_mode(BgBackground, 4)
 	------------------------------------------------------
 	-- pick texture for left / middle / right
 	------------------------------------------------------
@@ -69,6 +73,7 @@ function ExampleScript:OnStart()
 		Entity.add_fysics_component(tile, 0, false)  -- static
 		Fysics.add_sprite_collider(tile, false)
 	end
+
 end
 
 ----------------------------------------------------------
