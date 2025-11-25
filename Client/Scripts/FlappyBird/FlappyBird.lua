@@ -95,14 +95,14 @@ function ExampleScript:OnStart()
 	pipe = Entity.create_entity()
 	Entity.set_entity_pos(pipe, 400, 400)
 
-	local pipeSprite = Entity.add_sprite_component(pipe, "BottomPipe", 0, 0, 0)
-
-    pipeSprite.set_width(480)
+	local pipeSprite = Entity.add_sprite_component(pipe, "FlappyPipe", 0, 0, 0)
+    --Sprite.set_width(pipeSprite, 1280)
+    --Sprite.set_height(pipeSprite 1280)
 	Sprite.set_playback_mode(pipeSprite, 4)
 
 	-- Kinematic body so it moves but isn't affected by gravity
-	Entity.add_fysics_component(pipe, 1, false)
-	Fysics.add_sprite_collider(pipe, false)
+	--Entity.add_fysics_component(pipe, 1, false)
+	--Fysics.add_sprite_collider(pipe, false)
 end
 
 ----------------------------------------------------------
