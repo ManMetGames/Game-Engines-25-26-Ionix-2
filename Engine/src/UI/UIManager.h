@@ -3,7 +3,7 @@
 #include <string>
 #include <functional>
 #include <vector>
-#include "Fontloader.h"
+#include "FontLoader.h"
 
 #include "UI/UI.h"
 namespace IonixEngine
@@ -63,30 +63,19 @@ namespace IonixEngine
 
 		//std::vector<UIElement*> groupStack; 
 
-		void RenderElement(UIElement& element);
-
 		UI* m_ui = nullptr;
 	public:
 		Fontloader fontLoader;
-		std::vector<UIElement> GetElements()
-		{
-			return elements;
-		}
-
-		std::vector<UIElement> elements;
-		void setUIRenderer(UI* ui)
-		{
-			m_ui = ui;
-		}
+		
 		//void UIManager::BeginGroup(const std::string& groupName);
 
 		//void UIManager::EndGroup();
 
-		void UIManager::BeginPanel(const std::string& panelName);
+		void BeginPanel(const std::string& panelName);
 
-		void UIManager::EndPanel();
+		void EndPanel();
 
-		void UIManager::AddChildToPanel(UIElement element);
+		// void AddChildToPanel(UIElement element);
 
 		// Add for new UITypes below
 
@@ -106,11 +95,6 @@ namespace IonixEngine
 
 		void AddColorPicker(int x, int y, float xSize, float ySize, const char* label, float* color, const std::string& fontName = "");
 
-		void ClearElements();
-
 		void AddProgressBar(int x, int y, float xSize, float ySize, float maxvalue, float* currentvalue, float incrementamount, const std::string& fontName = "");
-
-		void RenderUI();
-
 	};
 }
