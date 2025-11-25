@@ -29,7 +29,7 @@ function ExampleScript:OnStart()
 	Texture.add_texture("./Assets/player1.png", "player1")
 	Texture.add_texture("./Assets/key.png", "key")
     Texture.add_texture("./Assets/FlappyBird.png", "FlappyBird")
-    Texture.add_texture("./Assets/Background.png", "Background")
+    Texture.add_texture("./Client/Assets/Background.png", "Background")
     Texture.add_texture("./Assets/Sand.png", "Sand")
     
 
