@@ -9,11 +9,13 @@ struct Textures {
     uint32_t FlappyBird = 2136167952u;
     uint32_t FlappyPipe = 1290161702u;
     uint32_t FlappyPipe2 = 2484853856u;
+    uint32_t PimBall = 3518613816u;
     uint32_t Sand = 2995081222u;
     uint32_t Test = 510180426u;
     uint32_t ball = 369994598u;
     uint32_t ball2 = 1354646532u;
     uint32_t horse_fat = 963803500u;
+    uint32_t office = 2084752704u;
 
     inline std::map<std::string, std::string> GetTextures() {
         std::map<std::string, std::string> map;
@@ -23,11 +25,13 @@ struct Textures {
         map["FlappyBird"] = "./Assets/FlappyBird.png";
         map["FlappyPipe"] = "./Assets/FlappyPipe.png";
         map["FlappyPipe2"] = "./Assets/FlappyPipe2.png";
+        map["PimBall"] = "./Assets/PimBall.png";
         map["Sand"] = "./Assets/Sand.png";
         map["Test"] = "./Assets/Test.png";
         map["ball"] = "./Assets/ball.png";
         map["ball2"] = "./Assets/ball2.png";
         map["horse_fat"] = "./Assets/horse-fat.gif";
+        map["office"] = "./Assets/office.png";
         return map;
     };
 };

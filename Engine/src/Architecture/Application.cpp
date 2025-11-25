@@ -82,7 +82,6 @@ namespace IonixEngine
     void Application::Run()
     {
         m_Running = true;
-        Scripting::Get().CallHook("OnStart");
 
         SDL_Renderer* renderer = m_Window->GetSdlRenderer();
 
@@ -91,6 +90,8 @@ namespace IonixEngine
         m_FixedTimeAccumulator = 0.0f;
         m_FixedTimeStep = 1.0f / 60.0f; // 60 Hz
         
+
+        Scripting::Get().CallHook("OnStart");
         while (m_Running)
         {
             uint64_t lastTick = currentTick;
