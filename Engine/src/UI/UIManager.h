@@ -63,19 +63,21 @@ namespace IonixEngine
 
 		//std::vector<UIElement*> groupStack; 
 
-		void RenderElement(UIElement& element);
+		void RenderElement(UIElement* element);
 
 		UI* m_ui = nullptr;
 	public:
 		Fontloader fontLoader;
-		std::vector<UIElement> GetElements()
+		std::vector<UIElement*> GetElements()
 		{
 			return elements;
 		}
 
-		std::vector<UIElement> elements;
+		std::vector<UIElement*> elements;
+
 		void setUIRenderer(UI* ui)
 		{
+
 			m_ui = ui;
 		}
 		//void UIManager::BeginGroup(const std::string& groupName);
@@ -86,7 +88,7 @@ namespace IonixEngine
 
 		void UIManager::EndPanel();
 
-		void UIManager::AddChildToPanel(UIElement element);
+		void UIManager::AddChildToPanel(UIElement* element);
 
 		// Add for new UITypes below
 

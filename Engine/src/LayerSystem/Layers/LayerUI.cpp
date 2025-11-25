@@ -76,9 +76,6 @@ namespace IonixEngine
     {
         // Start the Dear ImGui frame. Immediate mode rendering - UI gets rebuilt each frame
          ImGui_ImplSDLRenderer2_NewFrame();
-         ImGui::CreateContext();
-         ImGuiIO& io = ImGui::GetIO();
-         (void)io;
 
          ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize;
          ImGui_ImplSDL2_NewFrame();
@@ -86,17 +83,17 @@ namespace IonixEngine
          ImGui::NewFrame();
          ImGui::Begin("null", nullptr, window_flags);
 
-         std::vector<std::string> dropdownOptions = { "Option 1", "Option 2", "Option 3" };
-         int dropdownIndex = 0;
-         bool checkboxValue = true;
-         int radioValue = 0;
-         static float sliderValue = 0.5f;
+         //std::vector<std::string> dropdownOptions = { "Option 1", "Option 2", "Option 3" };
+         //int dropdownIndex = 0;
+         //bool checkboxValue = true;
+        // int radioValue = 0;
+         //static float sliderValue = 0.5f;
          
          
          //uiManager.BeginPanel("Test Panel");
 
-         /*uiManager.AddLabel(10, 10, 100, 20, "Test Label");
-         uiManager.AddButton(10, 40, 100, 25, "Click Me", []() { printf("Button clicked!\n"); });
+         //uiManager.AddLabel(10, 10, 100, 20, "Test Label");
+         /*uiManager.AddButton(10, 40, 100, 25, "Click Me", []() { printf("Button clicked!\n"); });
          uiManager.AddCheckbox(10, 70, 120, 25, "Enable", &checkboxValue);
          uiManager.AddSliderFloat(10, 100, 150, 25, "Slider", &sliderValue, 0.0f, 1.0f);
          uiManager.AddRadioButton(10, 130, 100, 25, "Option 1", &radioValue, 0,true);

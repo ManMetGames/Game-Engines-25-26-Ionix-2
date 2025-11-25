@@ -157,8 +157,8 @@ function ExampleScript:OnUpdate()
 
     Fysics.set_linear_velocity(player1, vx, vy1)
     --Draws button
-    UI.draw_label("Press any button to play", 200, 200, 200 ,200, "Bold")
-
+    --UI.Add_label("Press any button to play", 200, 200, 200 ,200, "Bold")
+    --UI.Add_label(50, 50, 100, 50, "Press any button to play")
     -- Pipe movement
     local pipePos = Fysics.get_pos(pipe)
     local pipePos = Fysics.get_pos(pipeT)
