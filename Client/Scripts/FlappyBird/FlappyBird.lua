@@ -87,8 +87,14 @@ function ExampleScript:OnUpdate()
         vy1 = -5  -- Jump velocity for player1
 	end
 	
-	if Input.get_key_down(Keys.ionix_a) then
-        Entity.set_entity_pos(player1, xPos, floorY)
+	if Input.get_key_held(Keys.ionix_a) then
+		vx = -5
+        Entity.set_entity_pos(player1, vx, floorY)
+	end
+
+	if Input.get_key_held(Keys.ionix_d) then
+		vx = 5
+		Entity.set_entity_pos(player1, vx, floorY)
 	end
 
     Fysics.set_linear_velocity(player1, vx, vy1)

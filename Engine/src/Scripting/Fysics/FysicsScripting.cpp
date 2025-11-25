@@ -204,16 +204,6 @@ namespace IonixEngine
 			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddPolygon(entity, points);
 		};
 
-
-
-
-
-
-
-
-
-
-
 		lua["Fysics"] = lua.create_table_with(
 			"get_pos", getFysicsPos,
 			"set_pos", setFysicsPos,
