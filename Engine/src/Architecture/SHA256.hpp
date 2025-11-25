@@ -389,12 +389,13 @@ template<typename OutIter>void hash256(std::ifstream& f, OutIter first, OutIter 
 }// namespace picosha2
 
 inline uint32_t Get32BitHash(const std::string& str) {
-    std::string hashStr = picosha2::hash256_hex_string(str);
+    std::string hash_str = picosha2::hash256_hex_string(str);
     char* success;
-    uint32_t hash = strtoull(hashStr.substr(hashStr.length() - 16).c_str(), &success, 16) << 1;
+    uint32_t hash = strtoull(hash_str.substr(hash_str.length() - 16).c_str(), &success, 16) << 1;
     if (success) {
         return hash;
-    } else {
+    }
+    else {
         return static_cast<uint32_t>(-1);
     }
 }

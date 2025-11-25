@@ -195,23 +195,6 @@ namespace IonixEngine
 			Application::Get().layerFysics->GetFysicsManager()->GetForce()->ClearForces(entity);
 			};
 
-		//Material Changes
-		auto fysicsSetFriction = [](Entity* entity, float friction) {
-			Application::Get().layerFysics->GetFysicsManager()->GetMaterial()->SetFriction(entity, friction);
-		};
-		
-		auto fysicsSetRestitution = [](Entity* entity, float restitution) {
-			Application::Get().layerFysics->GetFysicsManager()->GetMaterial()->SetRestitution(entity, restitution);
-		};
-
-		auto getFriction = [](Entity* entity)-> float {
-			return Application::Get().layerFysics->GetFysicsManager()->GetMaterial()->GetFriction(entity);
-		};
-
-		auto getRestitution = [](Entity* entity)-> float {
-			return Application::Get().layerFysics->GetFysicsManager()->GetMaterial()->GetRestitution(entity);
-		};
-
 
 		//----------Collision Methods----------
 
@@ -291,8 +274,6 @@ namespace IonixEngine
 			"set_fixed_rotation", setFysicsFixedRotation,
 			"get_is_bullet", getFysicsIsBullet,
 			"set_is_bullet", setFysicsIsBullet,
-			"get_gravity_scale", getFysicsGravityScale,
-			"set_gravity_scale", setFysicsGravityScale,
 			"add_force", addFysicsForce,
 			"add_force_to_center", addFysicsForceToCenter,
 			"add_impulse", addFysicsAddImpulse,
@@ -309,6 +290,8 @@ namespace IonixEngine
 			"get_friction", getFriction,
 			"get_restitution", getRestitution,
 			"add_sprite_collider", addSpriteCollider
+			"get_gravity_scale", getFysicsGravityScale,
+			"set_gravity_scale", setFysicsGravityScale
 		);
 	}
 }
