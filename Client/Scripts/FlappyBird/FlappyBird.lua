@@ -29,7 +29,7 @@ function ExampleScript:OnStart()
     ------------------------------------------------------
     -- Create player1
     ------------------------------------------------------
-    player1 = Entity.create_entity()
+    player1 = Entity.create_entity(0)
 
     Entity.set_entity_pos(player1, x, 500)
 	
@@ -47,10 +47,36 @@ function ExampleScript:OnStart()
 
     local tileSize = 64
     local floorY = 600
-    ------------------------------------------------------
+
+	------------------------------------------------------
+	-- pick texture for left / middle / right
+	------------------------------------------------------
+	local tex = "middle"
+
+	for i = 0, 30 do
+		local tile = Entity.create_entity(0)
+		local xPos = i * tileSize
+
+		------------------------------------------------------
+		-- place sprite
+		------------------------------------------------------
+		Entity.set_entity_pos(tile, xPos, floorY)
+
+		-- sprite as single frame (4 = manual/no anim)
+		local s = Entity.add_sprite_component(tile, "Sand", tileSize, tileSize, 0)
+		Sprite.set_playback_mode(s, 4)
+
+		------------------------------------------------------
+		-- add physics body + collider
+		------------------------------------------------------
+		Entity.add_fysics_component(tile, 0, false)  -- static
+		Fysics.add_sprite_collider(tile, false)
+	end
+
+	------------------------------------------------------
 	-- Create pipe obstacle
 	------------------------------------------------------
-	pipe = Entity.create_entity()
+	pipe = Entity.create_entity(0)
 	Entity.set_entity_pos(pipe, 400, 400)
 
 	local pipeSprite = Entity.add_sprite_component(pipe, "BottomPipe", 0, 0, 0)
@@ -102,13 +128,6 @@ function ExampleScript:OnUpdate()
 	end
 
     Fysics.set_linear_velocity(player1, vx, vy1)
-
-    -- Pipe movement disabled for testing
-    -- Fysics.set_linear_velocity(pipe, pipeSpeed, 0)
-    -- local pipePos = Fysics.get_pos(pipe)
-    -- if pipePos.x < pipeOffScreenLeft then
-    --     Fysics.set_pos(pipe, pipeStartX, pipePos.y)
-    -- end
 end
 
 return ExampleScript

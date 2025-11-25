@@ -18,6 +18,7 @@
 // #include "Scripting/Audio/AudioScripting.h"
 #include "LayerSystem/Layers/LayerSound.h"
 #include "Audio/AudioPlayer.h"
+#include "Graphics/Camera.h"
 
 
 namespace IonixEngine {    
@@ -32,6 +33,8 @@ namespace IonixEngine {
         float deltaTime = 0.0f;
         float time = 0.0f;
 
+        Camera* currentCam = nullptr;
+        
         inline Window& GetWindow() { return *m_Window; }
 
         void Run();
