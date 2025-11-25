@@ -118,9 +118,10 @@ namespace IonixEngine
         }
         
         // step physics simulation at fixed timestep
-        //world->Step(timeStep, velocityIterations, positionIterations);
-        //
-        //// AFTER physics step, update current state
+        fysicsManager->GetWorld()->Step(timeStep, velocityIterations, positionIterations);
+        fysicsManager->GetWorld()->DebugDraw();
+        
+        // AFTER physics step, update current state in transformMap and entity positions
         for (auto& val : bodyMap)
         {
            Vec2 pos;

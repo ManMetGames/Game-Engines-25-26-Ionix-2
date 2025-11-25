@@ -9,6 +9,8 @@ local goalX = 500
 local goalY = 500
 local y = 300
 local t = 10
+local platformTiles = {}  -- Store all platform tiles
+local scrollSpeed = 2.5  -- Speed at which platforms move left
 
 ----------------------------------------------------------
 -- OnStart
@@ -18,12 +20,8 @@ function ExampleScript:OnStart()
     ------------------------------------------------------
     -- Load textures
     ------------------------------------------------------
-    Texture.add_texture("./Assets/left.png", "left")
-    Texture.add_texture("./Assets/middle.png", "middle")
-	Texture.add_texture("./Assets/right.png", "right")
-	Texture.add_texture("./Assets/player1.png", "player1")
-	Texture.add_texture("./Assets/key.png", "key")
     Texture.add_texture("./Assets/FlappyBird.png", "FlappyBird")
+    Texture.add_texture("./Assets/FlappyBird2.png", "FlappyBird2")
     Texture.add_texture("./Assets/Background.png", "Background")
     ------------------------------------------------------
     -- Create player1
@@ -42,7 +40,11 @@ function ExampleScript:OnStart()
     Entity.add_fysics_component(player1, 2, false) -- dynamic body
     Fysics.add_sprite_collider(player1, false)
 
-    local tileSize = 64
+    ------------------------------------------------------
+    -- Create one large platform covering the screen width
+    ------------------------------------------------------
+    local platformWidth = 500  -- Very large width for extended gameplay
+    local platformHeight = 2  -- Height of the platform
     local floorY = 600
     ------------------------------------------------------
 	-- Background Texture
