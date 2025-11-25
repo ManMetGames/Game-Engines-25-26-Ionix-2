@@ -24,7 +24,7 @@ namespace IonixEngine
         bool isTrigger = false;
         b2Vec2 offset = { 0.0f, 0.0f };
         std::vector<b2Vec2> vertices ;
-
+        float tileSize = 64.0f;
 
         void SelectCorrectShape(Entity* entity, fysicShapeType shapeType)
         {
@@ -37,7 +37,7 @@ namespace IonixEngine
                 AddBox(entity, b2Vec2 { width, height }, offset, angle, isTrigger);
                 break;
             case fysicShapeType::polygon:
-                AddPolygon(entity, vertices);
+                AddPolygon(entity, tileSize, vertices);
                 break;
             default:
                 break;
@@ -105,7 +105,7 @@ namespace IonixEngine
         float angle,
         bool isTrigger);
         void AddSpriteCollider(Entity* entity, bool isTrigger, float scaleFactor);//This will add a box collider of the correct size and position as long as the entity also has a sprite component
-        void AddPolygon(Entity* entity, std::vector<b2Vec2>& vertices);
+        void AddPolygon(Entity* entity, float tileSize, std::vector<b2Vec2>& vertices);
 
        
         void Remove()
@@ -215,11 +215,6 @@ namespace IonixEngine
             vertices = verts;
             SelectCorrectShape(nullptr, shapeType);
         }
-
-
-
     };
-
-
 }
 

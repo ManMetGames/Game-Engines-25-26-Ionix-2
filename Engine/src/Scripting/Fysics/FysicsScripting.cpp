@@ -196,16 +196,14 @@ namespace IonixEngine
 		};
 		
 
-		auto addPolygonCollider = [](Entity* entity, float size) {
-			size /= 100.0f;
-			std::vector<b2Vec2> localVerts = {
-				size * b2Vec2 {0.0f, 0.0f},
-				size * b2Vec2 {0.0f, 1.0f},
-				size * b2Vec2 {1.0f, 1.0f},
-				size * b2Vec2 {1.0f, 0.0f}
-			};
+		auto addPolygonCollider = [](Entity* entity, float tileSize, std::vector<b2Vec2>& terrainPositions) {
+
+			for (int i = 0; i < terrainPositions.size(); i++)
+			{
+				terrainPositions[i] = tileSize * b2Vec2 {terrainPositions[i]};
+			}
 			
-			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddPolygon(entity, localVerts);
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddPolygon(entity, tileSize, terrainPositions);
 		};
 
 

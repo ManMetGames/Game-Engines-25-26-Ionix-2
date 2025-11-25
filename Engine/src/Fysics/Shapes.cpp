@@ -77,15 +77,20 @@ namespace IonixEngine {
     }
 
     //add polygon
-    void FysicsShapes::AddPolygon(Entity* entity, std::vector<b2Vec2>& vertices) {
+    void FysicsShapes::AddPolygon(Entity* entity, float tileSize, std::vector<b2Vec2>& vertices) {
         body = FysicsManager::GetManager()->GetBodyFromEntity(entity);
 
         if (vertices.size() < 3 || vertices.size() > b2_maxPolygonVertices)
             return;
 
         b2PolygonShape shape;
+        tileSize /= 100.0f;
 
         //Set the polygon shape with the vertices data and their total count
+        for (int i = 0; i < vertices.size(); i++)
+        {
+            vertices[i] = tileSize * vertices[i];
+        }
         shape.Set(vertices.data(), static_cast<int32>(vertices.size()));
 
         b2FixtureDef fixtureDef;
