@@ -95,8 +95,9 @@ namespace IonixEngine
             pos.x = val.first->GetPosition().x * ppm;
             pos.y = val.first->GetPosition().y * ppm;
 
-            val.second->position.x = pos.x;
-            val.second->position.y = pos.y;
+            //Changed to using transform as it wasn't updating position - Lucas
+           //Please let me know if this breaks anything, I hope not
+            val.second->transform.SetGlobalPosition(Vec2{ pos.x, pos.y });
         }
 
         // before physics step, save current state as previous
@@ -127,8 +128,9 @@ namespace IonixEngine
            pos.x = val.first->GetPosition().x * ppm;
            pos.y = val.first->GetPosition().y * ppm;
 
-            val.second->position.x = pos.x;
-            val.second->position.y = pos.y;
+           //Changed to using transform as it wasn't updating position - Lucas
+           //Please let me know if this breaks anything, I hope not
+           val.second->transform.SetGlobalPosition(Vec2{ pos.x, pos.y });
             
             // update current transform state for interpolation
             if (transformMap.find(val.first) != transformMap.end())
