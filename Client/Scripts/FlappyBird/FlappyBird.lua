@@ -30,7 +30,7 @@ function ExampleScript:OnStart()
 	-- Background Texture
 	------------------------------------------------------
     Background = Entity.create_entity()
-    local BgBackground = Entity.add_sprite_component(Background, "Background", 960,250, 0)
+    local BgBackground = Entity.add_sprite_component(Background, "Background", 960,640, 0)
     Sprite.set_width(BgBackground, 1280)
     Sprite.set_height(BgBackground, 1280)
     Sprite.set_playback_mode(BgBackground, 4)
