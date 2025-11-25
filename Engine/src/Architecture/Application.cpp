@@ -3,7 +3,7 @@
 #include "Fysics/FysicsBody.h"
 #include "Fysics/FysicsManager.h"
 #include "Fysics/Shapes.h"
-#include "Fysics/NavMef.h"
+//#include "Fysics/NavMef.h"
 #include "LayerSystem/Layers/LayerTexture.hpp"
 #include "SDL_timer.h"
 #include "imgui.h"
@@ -56,8 +56,8 @@ namespace IonixEngine
         layerScene = new LayerScene();
         AddLayer(layerScene);
 
-        layerNavigation = new LayerNavigation();  
-        AddLayer(layerNavigation);
+        //layerNavigation = new LayerNavigation();  
+        //AddLayer(layerNavigation);
 
         Scripting::Get().Init();
         Scripting::Get().GetLuaState().script_file("Scripts/Settings.lua");
