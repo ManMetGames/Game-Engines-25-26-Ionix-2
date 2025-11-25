@@ -99,7 +99,7 @@ function ExampleScript:OnUpdate()
 	end
 
     Fysics.set_linear_velocity(player1, vx, vy1)
-    UI.draw_label("Press any key to start game", 200, 20, 480, 320, "Bold")
+    --UI.draw_label("Press any key to play", 20, 20, 300, 300, "Bold")
 end
 
 return ExampleScript
