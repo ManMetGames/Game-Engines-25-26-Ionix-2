@@ -213,8 +213,6 @@ namespace IonixEngine
 
 
 		//----------Collision Methods----------
-
-		
 		auto addBoxCollider = [](Entity* entity, float sizeX, float sizeY, int offsetX, int offsetY, float angle, bool isTrigger) {
 
 			b2Vec2 size;
@@ -226,31 +224,6 @@ namespace IonixEngine
 			offset.y = offsetY;
 
 			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddBox(entity, size, offset, angle, isTrigger);
-		};
-		auto addSpriteCollider = [](Entity* entity, bool isTrigger, float scaleFactor) {
-			if (scaleFactor == 0)
-			{
-				scaleFactor = 1.0f;
-			}
-			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddSpriteCollider(entity, isTrigger, scaleFactor);
-		};
-		
-
-		auto addPolygonCollider = [](Entity* entity, float tileSize, std::vector<b2Vec2>& terrainPositions) {
-			for (int i = 0; i < terrainPositions.size(); i++)
-			{
-				terrainPositions[i] = tileSize * b2Vec2 {terrainPositions[i]};
-			}
-			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddPolygon(entity, tileSize, terrainPositions);
-		};
-
-		auto addCircleCollider = [](Entity* entity, float radius, int offsetX, int offsetY, bool isTrigger)
-		{
-			b2Vec2 offset;
-			offset.x = offsetX;
-			offset.y = offsetY;
-			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddCircle(entity, radius, offset, isTrigger);
-		};
 
 			};
 
@@ -317,14 +290,6 @@ namespace IonixEngine
 			"add_torque", addFysicsTorque,
 			"add_angular_impulse", addFysicsAngularImpulse,
 			"clear_forces", clearFysicsForces,
-			"add_box_collider", addBoxCollider,
-			"set_friction", fysicsSetFriction,
-			"set_restitution", fysicsSetRestitution,
-			"get_friction", getFriction,
-			"get_restitution", getRestitution,
-			"add_polygon_collider", addPolygonCollider,
-			"add_sprite_collider", addSpriteCollider,
-			"add_circle_collider", addCircleCollider
 			"get_gravity_scale", GetGravityScale,
 			"set_gravity_scale", SetGravityScale,
 			"get_prismatic_joint", addPrismaticJoint,

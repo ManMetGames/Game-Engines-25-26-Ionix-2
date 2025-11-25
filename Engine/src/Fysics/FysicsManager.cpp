@@ -13,13 +13,13 @@ namespace IonixEngine
 		b2Vec2 gravity(0.0f, 9.8f);
 		world = new b2World(gravity);
 
-
 		DebugDraw* debugDraw = new DebugDraw(Application::Get().GetWindow().GetSdlRenderer());
 		debugDraw->SetFlags(
 			b2Draw::e_shapeBit
 			| b2Draw::e_jointBit
 			| b2Draw::e_centerOfMassBit
 		);
+
 		world->SetDebugDraw(debugDraw);
 
 		// create and configure collision listener
@@ -78,5 +78,4 @@ namespace IonixEngine
 		//entityBodyMap[entity] = body; // Not needed as we have helper methods which get what we need from 1 data structure.
 		bodyEntityMap[body] = entity;
 	}
-	
 }

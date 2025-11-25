@@ -1,5 +1,5 @@
 #pragma once
-#include <box2D.h>
+#include <Box2D.h>
 #include <SDL.h>
 
 class DebugDraw : public b2Draw
