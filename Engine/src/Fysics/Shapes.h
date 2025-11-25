@@ -34,7 +34,7 @@ namespace IonixEngine
                 AddCircle(entity, radius, offset, isTrigger);
                 break;
             case fysicShapeType::box:
-                AddBox(entity, b2Vec2 { width, height }, offset, angle, isTrigger);
+                AddBox(entity, b2Vec2{ width, height }, offset, angle, isTrigger); //, 0x0001, 0xFFFF);
                 break;
             case fysicShapeType::polygon:
                 AddPolygon(entity, tileSize, vertices);

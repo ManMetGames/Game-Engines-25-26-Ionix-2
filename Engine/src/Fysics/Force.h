@@ -20,7 +20,7 @@ namespace IonixEngine
         void AddForce(Entity* entity, b2Vec2 force, b2Vec2 point);
         void AddForceToCenter(Entity* entity, b2Vec2 force);
 
-        void AddImpulse(Entity* entity, int impulseX, int impulseY, int forcePosX, int forcePosY);
+        void AddImpulse(Entity* entity, b2Vec2 impulsePos, b2Vec2 forcePos);
         void AddImpulseToCenter(Entity* entity, b2Vec2 impulse);
         void AddAngularImpulse(Entity* entity, float torque);
 
