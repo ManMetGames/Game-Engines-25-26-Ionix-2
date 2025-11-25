@@ -102,8 +102,8 @@ function ExampleScript:OnStart()
 	Sprite.set_playback_mode(pipeSprite, 4)
 
 	-- Kinematic body so it moves but isn't affected by gravity
-	--Entity.add_fysics_component(pipe, 1, false)
-	--Fysics.add_sprite_collider(pipe, false)
+	Entity.add_fysics_component(pipe, 1, false)
+	Fysics.add_sprite_collider(pipe, 1, 1, 0, 0, false)
 
 end
 
@@ -115,7 +115,8 @@ function ExampleScript:OnUpdate()
     local vel1 = Fysics.get_linear_velocity(player1)
     
     -- Constant rightward movement
-    local vx = 0
+    --local vel = Fysics.get_linear_velocity(pipe)
+    local vx = vel1.x
     local vy1 = vel1.y
 
 	if Input.get_key_down(Keys.ionix_space) then
@@ -131,12 +132,14 @@ function ExampleScript:OnUpdate()
 
     Fysics.set_linear_velocity(player1, vx, vy1)
     --UI.draw_label("Press any button to play", 200, 200, 200 ,200, "Bold")
-    -- Pipe movement disabled for testing
-    -- Fysics.set_linear_velocity(pipe, pipeSpeed, 0)
-    -- local pipePos = Fysics.get_pos(pipe)
-    -- if pipePos.x < pipeOffScreenLeft then
-    --     Fysics.set_pos(pipe, pipeStartX, pipePos.y)
-    -- end
+    --Pipe movement disabled for testing
+    Fysics.set_linear_velocity(pipe, pipeSpeed, 0)
+    pipeStartX = -2
+    pipePos = -2
+    local pipePos = Fysics.get_pos(pipe)
+    if pipePos.x < pipeOffScreenLeft then
+        Fysics.set_pos(pipe, pipeStartX, pipePos.y)
+    end
 end
 
 return ExampleScript
