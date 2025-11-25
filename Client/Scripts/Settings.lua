@@ -7,7 +7,7 @@ function LoadModule(name, path)
 end
 
 -- Load all game modules here
-LoadModule("FlappyBird", "Scripts/FlappyBird/FlappyBird.lua")
+--LoadModule("FlappyBird", "Scripts/FlappyBird/FlappyBird.lua")
 
 -- Lifecycle hooks
 function OnStart()
@@ -36,6 +36,8 @@ function OnShutdown()
         end
     end
 end
+
+LoadModule("Coroutines", "Scripts/Coroutines.lua")
 
 -- Retrieve module by name (for cross-module communication)
 function GetModule(name)
