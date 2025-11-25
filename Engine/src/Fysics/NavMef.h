@@ -37,7 +37,6 @@ namespace IonixEngine
     private:
         std::vector<b2Vec2> m_corners; // corner coords
         std::vector<Cell> m_cells; // cell
-        b2Body* body = nullptr;
 
         bool ShareEdge(const Cell& a, const Cell& b);
 
@@ -55,7 +54,7 @@ namespace IonixEngine
         // A* incoming crazy func gotta get wild
         std::vector<int>FindPath(int startCell, int goalCell);
 
-        int GetPositionInMesh(Entity* entity);
+        int GetPositionInMesh(b2Vec2 position);
 
         //also Olesya gonna make a funnel that is fun *for* all!
 

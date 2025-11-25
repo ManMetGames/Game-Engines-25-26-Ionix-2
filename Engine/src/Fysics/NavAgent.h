@@ -13,12 +13,13 @@ namespace IonixEngine
     private:
 
         //need a size for collisions are we using cicles or tile for agent
-        b2Vec2 size;
-        b2Vec2 offset;
+        NavMef* m_NavMef;
+        //b2Body* m_Body; //maybe needed idk 
+        Entity* entity;
         float speed;
-        float acceleration;
+
     public:
-        NavMef PlaceAgent();
+        void PlaceAgent(b2Vec2 endPosition);
 
     };
 }

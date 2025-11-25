@@ -1,7 +1,5 @@
 #include "NavMef.h"
 #include "Architecture/Application.h"
-#include "Architecture/ECS/Entity.hpp"
-#include "Fysics/FysicsManager.h"
 //#include <Testing/Box2D/DebugDraw.h>
 
 namespace IonixEngine
@@ -144,11 +142,9 @@ namespace IonixEngine
 
 
     }
-    int NavMef::GetPositionInMesh(Entity* entity)
+    int NavMef::GetPositionInMesh(b2Vec2 position)
     {
         int cell = -1;
-        body = FysicsManager::GetManager()->GetBodyFromEntity(entity);
-        b2Vec2 position = body->GetPosition();
         //std::vector<Cell> cells = GetCells();
         for (int i = 0; i < m_cells.size(); i++) {
             //The point is inside if it is always on the same side of all edges.
