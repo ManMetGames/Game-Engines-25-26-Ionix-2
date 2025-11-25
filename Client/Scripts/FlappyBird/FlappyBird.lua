@@ -35,7 +35,6 @@ local function CreatePipe(xPos, gapY, gapSize)
     
     return {top = topPipe, bottom = bottomPipe, x = xPos}
 end
-
 ----------------------------------------------------------
 -- OnStart
 ----------------------------------------------------------
@@ -47,11 +46,6 @@ function ExampleScript:OnStart()
     Texture.add_texture("./Assets/player1.png", "player1")
     Texture.add_texture("./Assets/key.png", "key")
     Texture.add_texture("./Assets/FlappyBird.png", "FlappyBird")
-    Texture.add_texture("./Assets/Background.png", "Background")
-    
-    ------------------------------------------------------
-    -- Create player1
-    ------------------------------------------------------
     Texture.add_texture("./Assets/Background.png", "Background")
     
     -- Create player
@@ -83,48 +77,7 @@ function ExampleScript:OnStart()
         Entity.add_fysics_component(tile, 0, false) -- static
         Fysics.add_sprite_collider(tile, false)
     end
-
-    -- Create floor
-    local tileSize = 64
-    local floorY = 600
-
-	------------------------------------------------------
-	-- pick texture for left / middle / right
-	------------------------------------------------------
-	local tex = "middle"
-
-	for i = 0, 30 do
-		local tile = Entity.create_entity()
-		local xPos = i * tileSize
-
-		------------------------------------------------------
-		-- place sprite
-		------------------------------------------------------
-		Entity.set_entity_pos(tile, xPos, floorY)
-
-		-- sprite as single frame (4 = manual/no anim)
-		local s = Entity.add_sprite_component(tile, "Sand", tileSize, tileSize, 0)
-		Sprite.set_playback_mode(s, 4)
-
-		------------------------------------------------------
-		-- add physics body + collider
-		------------------------------------------------------
-		Entity.add_fysics_component(tile, 0, false)  -- static
-		Fysics.add_sprite_collider(tile, false)
-	end
     
-    for i = 0, 30 do
-        local tile = Entity.create_entity()
-        local xPos = i * tileSize
-        
-        Entity.set_entity_pos(tile, xPos, floorY)
-        
-        local s = Entity.add_sprite_component(tile, "middle", tileSize, tileSize, 0)
-        Sprite.set_playback_mode(s, 4)
-        
-        Entity.add_fysics_component(tile, 0, false) -- static
-        Fysics.add_sprite_collider(tile, false)
-    end
 end
 
 ----------------------------------------------------------
