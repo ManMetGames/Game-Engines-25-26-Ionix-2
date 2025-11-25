@@ -15,7 +15,6 @@ function ballInit()
     Entity.add_sprite_component(ballEntity, assets.textures.PimBall, 0, 0, 100)
     Entity.add_fysics_component(ballEntity, 2, false)
     Fysics.add_sprite_collider(ballEntity, false)
-    print("Ball Initialized at pos" .. Entity.get_entity_pos)
    
 end
 
