@@ -11,32 +11,30 @@ local screenH
 function ballInit()
     print(screenH, screenW)
     ballEntity = Entity.create_entity()
-    local sprite = Entity.add_sprite_component(ballEntity, "PimBall", ballSize, ballSize, 0)
+    local sprite = Entity.add_sprite_component(ballEntity, "PimBall", 0, 0, 0)
     Entity.add_fysics_component(ballEntity, 2, false)
-    Fysics.add_circle_collider(ballEntity, ballSize / 2, 0, 0, false)
-    print (Entity.get_entity_pos(ballEntity))
+    print(Entity.get_entity_pos(ballEntity))
     Entity.set_entity_pos(ballEntity, screenW / 2, screenH / 2)
-    Fysics.set_pos(ballEntity, screenW / 2, screenH / 2)
-    print (Entity.get_entity_pos(ballEntity))
+    print(Entity.get_entity_pos(ballEntity))
 end
 
-function wallInnit()
-end
 function BackgroundInnit()
     Background = Entity.create_entity()
-    local sprite = Entity.add_sprite_component(Background, "Background", screenW, screenH, -1)
+    Entity.add_sprite_component(Background, "Background", 0, 0, -1)
 end
+
 function ball:OnStart()
     screenW = Window.get_width()
     screenH = Window.get_height()
-    
     BackgroundInnit()
     ballInit()
-    wallInnit()
 end
 
 function ball:OnUpdate()
-    Fysics.add_force(ballEntity, speedX, speedY)
+    local pos = Entity.get_entity_pos(ballEntity)
+    pos.x = pos.x + speedX
+    pos.y = pos.y + speedY
+    Entity.set_entity_pos(ballEntity, pos.x, pos.y)
 end
 
 return ball
