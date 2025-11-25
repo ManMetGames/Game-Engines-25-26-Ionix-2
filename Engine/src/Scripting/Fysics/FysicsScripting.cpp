@@ -274,6 +274,14 @@ namespace IonixEngine
 			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->SetHeight(h, shapeType);
 			};
 
+		auto isShapeTrigger = [](Entity* entity) -> bool {
+			return Application::Get().layerFysics->GetFysicsManager()->GetShapes()->IsShapeTrigger();
+			};
+
+		auto setShapeTrigger = [](Entity* entity, bool value) {
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->SetShapeTrigger(value);
+			};
+
 
 		lua["Fysics"] = lua.create_table_with(
 			"add_circle_collider",addCircle,
@@ -326,7 +334,9 @@ namespace IonixEngine
 			"get_width", getColliderWidth,
 			"set_width", setColliderWidth,
 			"get_height", getColliderHeight,
-			"set_height", setColliderHeight
+			"set_height", setColliderHeight,
+			"is_shape_trigger", isShapeTrigger,
+			"set_shape_trigger", setShapeTrigger
 		);
 	}
 }
