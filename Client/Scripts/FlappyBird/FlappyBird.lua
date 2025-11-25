@@ -28,14 +28,14 @@ function ExampleScript:OnStart()
     ------------------------------------------------------
     -- Create player1
     ------------------------------------------------------
-    player1 = Entity.create_entity()
+    player1 = Entity.create_entity(0)
 
     Entity.set_entity_pos(player1, x, 300)
 	
     local playerSprite1 = Entity.add_sprite_component(player1, "FlappyBird", 64, 64, 0)
 
-    Sprite.set_width(playerSprite1, 64)
-    Sprite.set_height(playerSprite1, 64)
+    Sprite.set_sprite_width(playerSprite1, 64)
+    Sprite.set_sprite_height(playerSprite1, 64)
 	Sprite.set_playback_mode(playerSprite1, 4)
 
     -- PLAYER 1 PHYSICS
@@ -51,7 +51,7 @@ function ExampleScript:OnStart()
 	local tex = "middle"
 
 	for i = 0, 30 do
-		local tile = Entity.create_entity()
+		local tile = Entity.create_entity(0)
 		local xPos = i * tileSize
 
 		------------------------------------------------------

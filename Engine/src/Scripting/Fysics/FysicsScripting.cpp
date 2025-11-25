@@ -249,6 +249,11 @@ namespace IonixEngine
 			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddPolygon(entity);
 			};
 
+		auto addSpriteCollider = [](Entity* entity, bool isTrigger) {
+
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddSpriteCollider(entity, isTrigger);
+			};
+
 
 		lua["Fysics"] = lua.create_table_with(
 			"add_circle_collider",addCircle,
@@ -297,7 +302,8 @@ namespace IonixEngine
 			"get_pulley_joint", addPulleyJoint,
 			"get_revolute_joint", addRevoluteJoint,
 			"get_distance_joint", addDistanceJoint,
-			"add_box_collider", addBoxCollider
+			"add_box_collider", addBoxCollider,
+			"add_sprite_collider", addSpriteCollider
 		);
 	}
 }

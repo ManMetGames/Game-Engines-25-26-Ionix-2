@@ -13,13 +13,13 @@ namespace IonixEngine {
         renderData.renderer = Application::Get().GetWindow().GetSdlRenderer();
         renderData.queue = Application::Get().layerGraphics->GetQueue();
 
-        EntityID first = CreateEntity();
-        Entity* firstEntity = GetEntityFromID(first);
-        if (!firstEntity)
-        {
-            SDL_Log("[DEBUG TEST] First entity failed, returning...");
-            return;
-        }
+        //EntityID first = CreateEntity();
+        //Entity* firstEntity = GetEntityFromID(first);
+        //if (!firstEntity)
+        //{
+        //   SDL_Log("[DEBUG TEST] First entity failed, returning...");
+        //    return;
+        //}
         //firstEntity->transform.SetLocalPosition(Vec2 { 500, 300 });
         //firstEntity->AddComponent(new SpriteComponent(firstEntity, Assets::Get().textures, 200, 200, 0));
         //firstEntity->AddComponent(new EntityMover(firstEntity, 60));
