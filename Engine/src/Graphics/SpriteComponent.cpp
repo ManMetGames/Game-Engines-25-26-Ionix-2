@@ -11,9 +11,8 @@ namespace IonixEngine {
 		isReversing = false;
 		playbackMode = playbackOptions::FORWARD;
 
-		//setRowsAndCols(2, 8);
+		rows = 1; //default spritesheet size, can be changed in appropriate setters
 		cols = 1;
-		rows = 1;
 
 
 		SDL_QueryTexture(texture, NULL, NULL, &size.x, &size.y);
