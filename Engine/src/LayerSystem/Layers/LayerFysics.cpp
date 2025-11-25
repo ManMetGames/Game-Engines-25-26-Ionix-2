@@ -2,9 +2,11 @@
 #include "Fysics/FysicsManager.h"
 #include "Architecture/Application.h"
 #include "Maf/MafUtils.h"
-#include "EventSystem/Event.h"
 
 #include <iostream>
+#include <ostream>
+
+#include "EventSystem/Event.h"
 
 namespace IonixEngine
 {
@@ -18,200 +20,148 @@ namespace IonixEngine
         return fysicsManager ? fysicsManager->GetWorld() : nullptr;
     }
 
-    //---------------------------------------------------------
-    // Helper: Check if a body pointer is valid and alive
-    //---------------------------------------------------------
-    static bool IsBodyInvalid(b2Body* body)
-    {
-        if (!body) return true;
-        if (body->GetWorld() == nullptr) return true;                  // detached or destroyed
-        if (body->GetFixtureList() == nullptr) return true;            // Box2D pruned it
-        return false;
-    }
-
-    //---------------------------------------------------------
-    // Attach
-    //---------------------------------------------------------
-    void LayerFysics::OnAttach()
+    void LayerFysics::OnAttach() // call first says archie or brok
     {
         instance = this;
         fysicsManager = new FysicsManager();
-    }
 
-    //---------------------------------------------------------
-    // Detach
-    //---------------------------------------------------------
+        //create default ground box
+        /*b2World* world = fysicsManager->GetWorld();
+        b2BodyDef groundDef; groundDef.position.Set(0.f, -2.f); // roughly 600 pixels down from the top
+        b2Body* ground = world->CreateBody(&groundDef);
+        b2PolygonShape g; g.SetAsBox(50.f, 1.f);
+        ground->CreateFixture(&g, 0.f);*/
+    }
+    
     void LayerFysics::OnDetach() 
     {
         instance = nullptr;
         delete fysicsManager;
         fysicsManager = nullptr;
     }
-
-    //---------------------------------------------------------
-    // Interpolated Render-Update
-    //---------------------------------------------------------
+    
     void LayerFysics::OnUpdate()
     {
         if (!fysicsManager) return;
-
+        
+        // get interpolation alpha (0.0 to 1.0) representing progress between physics frames
         float alpha = Application::Get().GetPhysicsInterpolationAlpha();
-
+        
         auto& bodyMap = fysicsManager->GetBodyMap();
         auto& transformMap = fysicsManager->GetTransformMap();
-
-        for (auto it = bodyMap.begin(); it != bodyMap.end();)
+        
+        // interpolate visual positions for all physics bodies
+        /*for (auto& [body, entity] : bodyMap)
         {
-            b2Body* body = it->first;
-            Entity* entity = it->second;
-
-            // Body is destroyed → remove safely
-            if (IsBodyInvalid(body))
-            {
-                transformMap.erase(body);
-                it = bodyMap.erase(it);
-                continue;
-            }
-
-            // No transform data yet
-            if (transformMap.find(body) == transformMap.end())
-            {
-                ++it;
-                continue;
-            }
-
+            // skip if no transform data exists yet
+            if (transformMap.find(body) == transformMap.end()) continue;
+            
             auto& transform = transformMap[body];
+            
+            // lerp position between previous and current physics states
+            float lerpedX = Maf::mafLerp(transform.previousPosition.x, transform.currentPosition.x, alpha);
+            float lerpedY = Maf::mafLerp(transform.previousPosition.y, transform.currentPosition.y, alpha);
+            
+            // lerp rotation
+            float lerpedRotation = Maf::mafLerp(transform.previousRotation, transform.currentRotation, alpha);
+            
+            // apply interpolated values to entity (convert from meters to pixels)
+            entity->position.x = lerpedX * ppm;
+            entity->position.y = lerpedY * ppm;
+            entity->rotation = lerpedRotation;
+        }*/
 
-            // Interpolate physics position
-            float lx = Maf::mafLerp(transform.previousPosition.x, transform.currentPosition.x, alpha);
-            float ly = Maf::mafLerp(transform.previousPosition.y, transform.currentPosition.y, alpha);
-            float lr = Maf::mafLerp(transform.previousRotation,  transform.currentRotation,  alpha);
 
-            entity->position.x = lx * ppm;
-            entity->position.y = ly * ppm;
-            entity->rotation   = lr;
-
-            ++it;
-        }
     }
-
-    //---------------------------------------------------------
-    // Fixed Physics Update
-    //---------------------------------------------------------
+    
     void LayerFysics::OnFixedUpdate()
     {
         if (!fysicsManager) return;
-
+        
         b2World* world = fysicsManager->GetWorld();
         if (!world) return;
-
+        
         auto& bodyMap = fysicsManager->GetBodyMap();
         auto& transformMap = fysicsManager->GetTransformMap();
+        
+        fysicsManager->GetWorld()->Step(timeStep, velocityIterations, positionIterations);
+        fysicsManager->GetWorld()->DebugDraw();
+        
 
-        //-----------------------------------------------------
-        // 1. Prepare previous transforms
-        //-----------------------------------------------------
-        for (auto it = bodyMap.begin(); it != bodyMap.end();)
+        // AFTER physics step, update current visual state
+        for (auto& val : bodyMap)
         {
-            b2Body* body = it->first;
+            Vec2 pos;
+            pos.x = val.first->GetPosition().x * ppm;
+            pos.y = val.first->GetPosition().y * ppm;
 
-            // Remove invalid bodies
-            if (IsBodyInvalid(body))
-            {
-                transformMap.erase(body);
-                it = bodyMap.erase(it);
-                continue;
-            }
+            val.second->position.x = pos.x;
+            val.second->position.y = pos.y;
+        }
 
+        // before physics step, save current state as previous
+        // BEFORE physics step, save current state as previous
+        for (auto& [body, entity] : bodyMap)
+        {
             if (transformMap.find(body) == transformMap.end())
             {
-                transformMap.emplace(body, 
-                    RigidBodyTransform(body->GetPosition(), body->GetAngle()));
+                // first time seeing this body - initialize with current state
+                transformMap[body] = RigidBodyTransform(body->GetPosition(), body->GetAngle());
             }
             else
             {
-                auto& t = transformMap[body];
-                t.previousPosition = t.currentPosition;
-                t.previousRotation = t.currentRotation;
+                // move current to previous
+                auto& transform = transformMap[body];
+                transform.previousPosition = transform.currentPosition;
+                transform.previousRotation = transform.currentRotation;
             }
-
-            ++it;
         }
-
-        //-----------------------------------------------------
-        // 2. Step the physics world
-        //-----------------------------------------------------
-        world->Step(timeStep, velocityIterations, positionIterations);
-
-        //-----------------------------------------------------
-        // 3. Update current transforms + reposition entities
-        //-----------------------------------------------------
-        for (auto it = bodyMap.begin(); it != bodyMap.end();)
+        
+        // step physics simulation at fixed timestep
+        //world->Step(timeStep, velocityIterations, positionIterations);
+        //
+        //// AFTER physics step, update current state
+        for (auto& val : bodyMap)
         {
-            b2Body* body = it->first;
-            Entity* entity = it->second;
+           Vec2 pos;
+           pos.x = val.first->GetPosition().x * ppm;
+           pos.y = val.first->GetPosition().y * ppm;
 
-            // Remove invalid bodies
-            if (IsBodyInvalid(body))
+            val.second->position.x = pos.x;
+            val.second->position.y = pos.y;
+            
+            // update current transform state for interpolation
+            if (transformMap.find(val.first) != transformMap.end())
             {
-                transformMap.erase(body);
-                it = bodyMap.erase(it);
-                continue;
+                auto& transform = transformMap[val.first];
+                transform.currentPosition = val.first->GetPosition();
+                transform.currentRotation = val.first->GetAngle();
             }
-
-            // Convert meters → pixels
-            float px = body->GetPosition().x * ppm;
-            float py = body->GetPosition().y * ppm;
-
-            entity->position.x = px;
-            entity->position.y = py;
-            entity->rotation   = body->GetAngle();
-
-            // Update interpolation state
-            if (transformMap.find(body) != transformMap.end())
-            {
-                auto& t = transformMap[body];
-                t.currentPosition = body->GetPosition();
-                t.currentRotation = body->GetAngle();
-            }
-
-            ++it;
         }
-    }
-
-    //---------------------------------------------------------
-    // Events (unused here)
-    //---------------------------------------------------------
+    } 
     void LayerFysics::OnEvent(IonixEvent& e)
     {
-        // nothing here yet
+        // Switch statement routes the event and invokes the relevant event handler
+
+        switch (e.Type)
+        {
+            // Add more cases as needed.... (Note: Most engine features don't require events, they
+            //                              can just be callable functions.
+        }
     }
 
-    //---------------------------------------------------------
-    // Create Ground Helper
-    //---------------------------------------------------------
-    b2Body* LayerFysics::CreateGroundBox(float x, float y, float hx, float hy, 
-                                         float angle, float friction, float restitution)
+   
+
+    b2Body* LayerFysics::CreateGroundBox(float x, float y, float hx, float hy, float angle, float friction, float restitution)
     {
         if (!fysicsManager) return nullptr;
-
         b2World* world = fysicsManager->GetWorld();
         if (!world) return nullptr;
-
-        b2BodyDef def; 
-        def.position.Set(x, y);
-
+        
+        b2BodyDef def; def.position.Set(x, y);
         b2Body* body = world->CreateBody(&def);
-
-        b2PolygonShape shape;
-        shape.SetAsBox(hx, hy, b2Vec2(0.f, 0.f), angle);
-
-        b2FixtureDef fix;
-        fix.shape      = &shape;
-        fix.density    = 0.f;
-        fix.friction   = friction;
-        fix.restitution = restitution;
-
+        b2PolygonShape shape; shape.SetAsBox(hx, hy, b2Vec2(0.f, 0.f), angle);
+        b2FixtureDef fix; fix.shape = &shape; fix.density = 0.f; fix.friction = friction; fix.restitution = restitution;
         body->CreateFixture(&fix);
         return body;
     }

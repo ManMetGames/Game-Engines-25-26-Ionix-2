@@ -31,10 +31,10 @@ namespace IonixEngine
             switch (shapeType)
             {
             case fysicShapeType::circle:
-                AddCircle(entity, radius, offset, isTrigger, 0x0001, 0xFFFF);
+                AddCircle(entity, radius, offset, isTrigger);
                 break;
             case fysicShapeType::box:
-                AddBox(entity, b2Vec2 { width, height }, offset, angle, isTrigger, 0x0001, 0xFFFF);
+                AddBox(entity, b2Vec2{ width, height }, offset, angle, isTrigger); //, 0x0001, 0xFFFF);
                 break;
             case fysicShapeType::polygon:
                 AddPolygon(entity);
@@ -58,6 +58,7 @@ namespace IonixEngine
                 fixture = nullptr;
             }
         }
+
 
 
 
@@ -94,58 +95,25 @@ namespace IonixEngine
 
     //DEFAULT CONSTRUCTOR FOR REFERENCE
 
-        void AddCircle(Entity* entity, float radius = 1, b2Vec2 offset = { 0.0f, 0.0f }, bool isTrigger = false, uint16 categoryBits = 0x0001, uint16 maskBits = 0xFFFF);
+        void AddCircle(Entity* entity, float radius = 1, b2Vec2 offset = { 0.0f, 0.0f }, bool isTrigger = false);
 
 
         // Box -------------------------------------------------------
-        void AddBox(Entity* entity, b2Vec2 size = { 1, 1 }, b2Vec2 offset = { 0.0f, 0.0f }, float angle = 0.0f, bool isTrigger = false, uint16 categoryBits = 0x0001, uint16 maskBits = 0xFFFF);
-        /*void AddBox(Entity* entity, b2Vec2 size = { 1, 1 }, b2Vec2 offset = {0.0f, 0.0f}, float angle = 0.0f, bool isTrigger = false)
-        {
-            b2PolygonShape shape;
-            shape.SetAsBox(offset.x, offset.y, size, angle);
+        void AddBox(Entity* entity,
+        b2Vec2 size,   
+        b2Vec2 offset,
+        float angle,
+        bool isTrigger//,
+        //uint16 categoryBits,
+        //uint16 maskBits
+        );
 
-            b2FixtureDef fixtureDef;
-
-            fixtureDef.shape = &shape;
-            fixtureDef.isSensor = isTrigger;
-            fixtureDef.density = 1.0f;
-
-            if (fixture != nullptr) {
-                body->DestroyFixture(fixture);
-            }
-            fixture = body->CreateFixture(&fixtureDef);
-        }*/
-
-
+        void AddSpriteCollider(Entity* entity, bool isTrigger);//This will add a box collider of the correct size and position as long as the entity also has a sprite component
         void AddPolygon(Entity* entity);
         //Add Polygon ---------------------------------------------------------
         void AddPolygon(Entity* entity, std::vector<b2Vec2>& vertices);
 
-        //void AddPolygon(std::vector<b2Vec2>& vertices) {
-        //    if (vertices.size() < 3 || vertices.size() > b2_maxPolygonVertices)
-        //        return;
-
-        //    b2PolygonShape shape;
-
-        //    //Set the polygon shape with the vertices data and their total count
-        //    shape.Set(vertices.data(), static_cast<int32>(vertices.size()));
-
-        //    b2FixtureDef fixtureDef;
-
-        //    fixtureDef.shape = &shape;
-        //    fixtureDef.isSensor = false;
-
-        //    //Set the body fixture for the created shape with polygons
-        //    if (fixture != nullptr) {
-        //        body->DestroyFixture(fixture);
-        //    }
-        //    fixture = body->CreateFixture(&fixtureDef);
-        //}
-
-        /*b2Fixture* GetFixture()
-        {
-            return fixture;
-        }*/
+       
         void Remove()
         {
             if (body && fixture)
@@ -153,7 +121,6 @@ namespace IonixEngine
                 body->DestroyFixture(fixture);
                 fixture = nullptr;
             }
-
         }
 
 
