@@ -2,18 +2,18 @@ local EntityPlayer = {}
 local entity1
 local sprite1
 local x = 500
-local y = 500
+local y = 100
 local xSpeed = 5
 local ySpeed = 5
 local vec2
+local assets = require("Scripts.Assets")
+
 function EntityPlayer:OnStart()
-	local assets = GetModule("Assets")
 	entity1 = Entity.create_entity()
 	print(Entity.has_sprite_component(entity1))
 	print(assets.textures.ball)
 	Entity.add_sprite_component(entity1, assets.textures.ball, 100, 100, 0)   
 	--Entity.add_fysics_component(entity1, 0, false)
-	vec2 = Mafs.vec_2(0,0)
 
 	Entity.set_entity_pos(entity1, x, y)
 	Entity.add_fysics_component(entity1, 2, false)
@@ -31,11 +31,12 @@ function EntityPlayer:OnUpdate()
 		return
 	end
 	
-	Fysics.set_linear_velocity_v(entity1, vec2)
+	vec2 = Fysics.get_linear_velocity(entity1)
+	--Entity.set_entity_pos(entity1, 700, 600)
 	print(Fysics.get_pos(entity1).x)
 	print(Entity.get_entity_pos(entity1).x)
 	if Input.get_key_held(Keys.ionix_d) then
-		vec2.x = xSpeed	
+		vec2.x = xSpeed
 	elseif Input.get_key_held(Keys.ionix_a) then
 		vec2.x = -xSpeed
 	else
@@ -47,7 +48,9 @@ function EntityPlayer:OnUpdate()
 	elseif Input.get_key_held(Keys.ionix_s) then
 		vec2.y = ySpeed
 	else
-	vec2.y = 0
+	vec2.y = 2
 	end
+
+	Fysics.set_linear_velocity_v(entity1, vec2)
 end
 return EntityPlayer

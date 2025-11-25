@@ -22,6 +22,7 @@ namespace IonixEngine
 			"y", &b2Vec2::y
 		);
 
+		//CHANGE TO LUA FILE LIKE ASSETS.LUA
 		lua.new_enum<fysicShapeType>("ShapeType",
 			{
 				{"circle", fysicShapeType::circle},

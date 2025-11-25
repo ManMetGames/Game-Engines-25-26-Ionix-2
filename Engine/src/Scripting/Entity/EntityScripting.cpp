@@ -27,7 +27,8 @@ namespace IonixEngine {
 
         auto setEntityPos = [](Entity* entity, float x, float y) {
             if (entity == nullptr) return;
-            entity->transform.SetLocalPosition(Vec2{ x, y });
+            //entity->position = Vec2{ x, y };
+            entity->transform.SetGlobalPosition(Vec2{ x, y });
             };
 
         auto addSpriteComponent = [](Entity* entity, uint32_t hash, int width, int height, int zedOrder) -> SpriteComponent* {
