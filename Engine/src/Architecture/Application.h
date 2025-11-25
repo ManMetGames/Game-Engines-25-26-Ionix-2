@@ -18,7 +18,10 @@
 // #include "Scripting/Audio/AudioScripting.h"
 #include "LayerSystem/Layers/LayerSound.h"
 #include "Audio/AudioPlayer.h"
-#include "Graphics/Camera.h"
+
+namespace IonixEngine {
+    class Camera;
+}
 
 
 namespace IonixEngine {    

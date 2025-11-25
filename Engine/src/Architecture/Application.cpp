@@ -12,7 +12,7 @@
 #include <backends/imgui_impl_sdlrenderer2.h>
 #include <iostream>
 #include <third-party/imgui_impl_sdlrenderer2.h>
-
+#include "Graphics/Camera.h"
 namespace IonixEngine {
     Application* Application::s_Instance = nullptr;
 }

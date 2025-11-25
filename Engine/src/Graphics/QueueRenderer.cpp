@@ -2,7 +2,7 @@
 #include <vector>
 #include "Architecture/Application.h"
 #include "SDL_render.h"
-
+#include "Graphics/Camera.h"
 
 namespace IonixEngine {
 

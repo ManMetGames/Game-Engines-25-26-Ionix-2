@@ -2,7 +2,6 @@
 #include <iostream>
 #include "Architecture/Application.h"
 #include <SDL.h>
-
 #include "Fysics/FysicsBody.h"
 
 namespace IonixEngine
