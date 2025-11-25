@@ -9,6 +9,7 @@ local goalX = 500
 local goalY = 500
 local y = 300
 local t = 10
+local coin
 
 ----------------------------------------------------------
 -- OnStart
@@ -25,6 +26,7 @@ function ExampleScript:OnStart()
 	Texture.add_texture("./Assets/right.png", "right")
 	Texture.add_texture("./Assets/player1.png", "player1")
 	Texture.add_texture("./Assets/key.png", "key")
+    Texture.add_texture("./Assets/Coin", "Coin")
 
     ------------------------------------------------------
 	-- Background Texture
@@ -46,11 +48,28 @@ function ExampleScript:OnStart()
 
     -- PLAYER 1 PHYSICS
     Entity.add_fysics_component(player1, 2, false) -- dynamic body
-    -- Fysics.add_sprite_collider(player1, false)
-    Fysics.add_box_collider(player1, 1, 1.5, 0 ,0 , false)
+    Fysics.add_sprite_collider(player1, false)
     Fysics.set_gravity_scale(player1, 0)
     local tileSize = 64
     local floorY = 600
+
+    ------------------------------------------------------
+    -- Create Coins 
+    ------------------------------------------------------
+    coin = Entity.create_entity()
+    Entity.set_entity_pos(coin, x, 300)
+
+    local coinSprite = Entity.add_sprite_component(coin, "Coin", 80, 16, 0)
+    Sprite.set_width(coinSprite, 80)
+    Sprite.set_height(coinSprite, 16)
+	Sprite.set_playback_mode(coinSprite, 4)
+    ------------------------------------------------------
+	-- add physics body + collider
+	------------------------------------------------------
+	Entity.add_fysics_component(coin, 1, false)  -- static
+    Fysics.add_sprite_collider(coin, false)
+
+
 	------------------------------------------------------
 	-- pick texture for left / middle / right
 	------------------------------------------------------
