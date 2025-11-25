@@ -258,19 +258,19 @@ namespace IonixEngine
 			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddPolygon(entity);
 			};
 
-		auto getColliderWidth = [](Entity* entity) -> float {
+		auto getWidth = [](Entity* entity) -> float {
 			return Application::Get().layerFysics->GetFysicsManager()->GetShapes()->GetWidth();
 			};
 
-		auto setColliderWidth = [](Entity* entity, float w, fysicShapeType shapeType) {
+		auto setWidth = [](Entity* entity, float w, fysicShapeType shapeType) {
 			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->SetWidth(w, shapeType);
 			};
 
-		auto getColliderHeight = [](Entity* entity) -> float {
+		auto getHeight = [](Entity* entity) -> float {
 			return Application::Get().layerFysics->GetFysicsManager()->GetShapes()->GetHeight();
 			};
 
-		auto setColliderHeight = [](Entity* entity, float h, fysicShapeType shapeType) {
+		auto setHeight = [](Entity* entity, float h, fysicShapeType shapeType) {
 			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->SetHeight(h, shapeType);
 			};
 
@@ -282,6 +282,17 @@ namespace IonixEngine
 			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->SetShapeTrigger(value);
 			};
 
+		auto getVertices = [](Entity* entity) {
+			return Application::Get().layerFysics->GetFysicsManager()->GetShapes()->GetVertices();
+			};
+
+		auto setVertices = [](Entity* entity, std::vector<b2Vec2> verts, fysicShapeType shapeType) {
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->SetVertices(verts, shapeType);
+			};
+
+		auto getShapeType = [](Entity* entity) {
+			return Application::Get().layerFysics->GetFysicsManager()->GetShapes()->GetShapeType();
+			};
 
 		lua["Fysics"] = lua.create_table_with(
 			"add_circle_collider",addCircle,
@@ -331,12 +342,15 @@ namespace IonixEngine
 			"get_revolute_joint", addRevoluteJoint,
 			"get_distance_joint", addDistanceJoint,
 			"add_box_collider", addBoxCollider,
-			"get_width", getColliderWidth,
-			"set_width", setColliderWidth,
-			"get_height", getColliderHeight,
-			"set_height", setColliderHeight,
+			"get_width", getWidth,
+			"set_width", setWidth,
+			"get_height", getHeight,
+			"set_height", setHeight,
 			"is_shape_trigger", isShapeTrigger,
-			"set_shape_trigger", setShapeTrigger
+			"set_shape_trigger", setShapeTrigger,
+			"get_vertices", getVertices,
+			"set_vertices", setVertices,
+			"get_shape_type", getShapeType
 		);
 	}
 }
