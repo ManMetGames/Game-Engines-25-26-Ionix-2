@@ -43,6 +43,7 @@ namespace IonixEngine
     void LayerFysics::OnUpdate()
     {
         if (!fysicsManager) return;
+
         
         // get interpolation alpha (0.0 to 1.0) representing progress between physics frames
         float alpha = Application::Get().GetPhysicsInterpolationAlpha();
@@ -83,9 +84,10 @@ namespace IonixEngine
         
         auto& bodyMap = fysicsManager->GetBodyMap();
         auto& transformMap = fysicsManager->GetTransformMap();
-        
+
         fysicsManager->GetWorld()->Step(timeStep, velocityIterations, positionIterations);
-        fysicsManager->GetWorld()->DebugDraw();
+        //fysicsManager->GetWorld()->DebugDraw();
+
         
 
         // AFTER physics step, update current visual state
@@ -137,7 +139,9 @@ namespace IonixEngine
                 transform.currentPosition = val.first->GetPosition();
                 transform.currentRotation = val.first->GetAngle();
             }
+
         }
+
     } 
     void LayerFysics::OnEvent(IonixEvent& e)
     {

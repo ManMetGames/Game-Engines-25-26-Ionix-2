@@ -49,14 +49,6 @@ namespace IonixEngine {
         auto getKeyHeld = [](int code) -> bool {
             return Application::Get().layerInput->m_Input->IsKeyHeld(static_cast<SDL_Scancode>(code));
             };
-		auto getKeyPressed = [](int code) -> bool {
-            Application::Get().layerInput->m_Input->SetKeyPressed(static_cast<SDL_Scancode>(code));
-            return true;
-			};
-        auto getKeyReleased = [](int code) -> bool {
-            Application::Get().layerInput->m_Input->SetKeyReleased(static_cast<SDL_Scancode>(code));
-            return true;
-            };
 
         auto getMouseX = []() -> int {
             return Application::Get().layerInput->m_Input->GetMousePosition().x;
@@ -70,14 +62,6 @@ namespace IonixEngine {
         auto getMouseButtonUp = [](int mousecode)-> bool {
             return Application::Get().layerInput->m_Input->IsMouseButtonUp(static_cast<uint8>(mousecode));
             };
-		auto getMousePressed = [](int code) -> bool {
-			Application::Get().layerInput->m_Input->SetMousePressed(static_cast<uint8>(code));
-            return true;
-			};
-		auto getMouseReleased = [](int code) -> bool {
-			Application::Get().layerInput->m_Input->SetMouseReleased(static_cast<uint8>(code));
-			return true;
-			};
 
         auto getButtonDown = [this](int index, int btn) -> bool {
             if (index < 0 || index >= (int)m_Controllers.size() || !m_Controllers[index])
@@ -93,12 +77,6 @@ namespace IonixEngine {
             float val = static_cast<float>(SDL_GameControllerGetAxis(m_Controllers[index], axis)) / divisor;
             return std::round(val * 100.0f) / 100.0f;
             };
-        auto NormaliseStickAxis = [](float axis) {
-            return Application::Get().layerInput->m_ControllerManager->NormaliseStickAxis(axis);
-            };
-        auto NormaliseTrigger = [](float axis) {
-            return Application::Get().layerInput->m_ControllerManager->NormaliseTrigger(axis);
-            };
 
         auto getLeftStickX = [=](int index) { return getStickAxis(index, SDL_CONTROLLER_AXIS_LEFTX, 32768.0f); };
         auto getLeftStickY = [=](int index) { return getStickAxis(index, SDL_CONTROLLER_AXIS_LEFTY, 32768.0f); };
@@ -106,10 +84,6 @@ namespace IonixEngine {
         auto getRightStickY = [=](int index) { return getStickAxis(index, SDL_CONTROLLER_AXIS_RIGHTY, 32768.0f); };
         auto getLeftTrigger = [=](int index) { return getStickAxis(index, SDL_CONTROLLER_AXIS_TRIGGERLEFT, 32767.0f); };
         auto getRightTrigger = [=](int index) { return getStickAxis(index, SDL_CONTROLLER_AXIS_TRIGGERRIGHT, 32767.0f); };
-
-		auto copycodesendframe = [](int code) {
-			return code;
-			};
 
         lua["Keys"] = lua.create_table_with(
             "ionix_a", SDL_SCANCODE_A,
@@ -190,15 +164,11 @@ namespace IonixEngine {
             "get_key_up", getKeyUp,
             "get_key_down", getKeyDown,
             "get_key_held", getKeyHeld,
-			"get_key_pressed", getKeyPressed,
-			"get_key_released", getKeyReleased,
 
             "get_mouse_x", getMouseX,
             "get_mouse_y", getMouseY,
             "get_mouse_button_down", getMouseButtonDown,
             "get_mouse_button_up", getMouseButtonUp,
-			"get_mouse_pressed", getMousePressed,
-			"get_mouse_released", getMouseReleased,
 
             "get_button_down", getButtonDown,
             "get_left_stick_x", getLeftStickX,
@@ -206,11 +176,7 @@ namespace IonixEngine {
             "get_right_stick_x", getRightStickX,
             "get_right_stick_y", getRightStickY,
             "get_left_trigger", getLeftTrigger,
-            "get_right_trigger", getRightTrigger,
-
-			"get_copy_codes_end_frame", copycodesendframe,
-            "normalise_stick_axis",NormaliseStickAxis,
-            "normalise_trigger", NormaliseTrigger
+            "get_right_trigger", getRightTrigger
         );
     }
 }
