@@ -4,6 +4,7 @@
 #include "SDL.h"
 #include "Architecture/TextureManager/TextureManager.h"
 #include <iostream>
+#include <box2d.h>
 
 namespace IonixEngine {
 
@@ -30,7 +31,7 @@ namespace IonixEngine {
 		int spriteWidth, spriteHeight;
 		int currentRow, currentCol;
 		float timer;
-
+		b2Vec2 boxColliderSize;
 		
 
 		enum playbackOptions playbackMode;
@@ -60,6 +61,7 @@ namespace IonixEngine {
 		void setZedOrder(int x);
 		void setWidth(int x);
 		void setHeight(int x);
+		void setBoxColliderSize(b2Vec2 newSize);
 
 		//Getters
 		IonixEngine::playbackOptions getPlaybackMode();
@@ -75,5 +77,6 @@ namespace IonixEngine {
 		int getCurrentRow();
 		int getWidth();
 		int getHeight();
+		b2Vec2 getBoxColliderSize();
 	};
 }

@@ -3,7 +3,7 @@
 #include "Fysics/FysicsBody.h"
 #include "Fysics/FysicsManager.h"
 #include "Fysics/Shapes.h"
-#include "Fysics/NavMef.h"
+//#include "Fysics/NavMef.h"
 #include "LayerSystem/Layers/LayerTexture.hpp"
 #include "SDL_timer.h"
 #include "imgui.h"
@@ -56,11 +56,11 @@ namespace IonixEngine
         layerScene = new LayerScene();
         AddLayer(layerScene);
 
-        layerNavigation = new LayerNavigation();  
-        AddLayer(layerNavigation);
+        //layerNavigation = new LayerNavigation();  
+        //AddLayer(layerNavigation);
 
         Scripting::Get().Init();
-        
+        Scripting::Get().GetLuaState().script_file("Scripts/Settings.lua");
     }
         
     Application::~Application() 
@@ -81,8 +81,8 @@ namespace IonixEngine
 
     void Application::Run()
     {
-        Scripting::Get().GetLuaState().script_file("Scripts/Settings.lua");
         m_Running = true;
+        Scripting::Get().CallHook("OnStart");
 
         SDL_Renderer* renderer = m_Window->GetSdlRenderer();
 
@@ -90,9 +90,7 @@ namespace IonixEngine
         m_LastFrameTime = SDL_GetTicks64();
         m_FixedTimeAccumulator = 0.0f;
         m_FixedTimeStep = 1.0f / 60.0f; // 60 Hz
-
-
-        Scripting::Get().CallHook("OnStart");
+        
         while (m_Running)
         {
             uint64_t lastTick = currentTick;
@@ -102,9 +100,9 @@ namespace IonixEngine
             time += deltaTime;
 		    
             
-            SDL_RenderClear(renderer);
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);
-            
+            SDL_RenderClear(renderer);
+
             // fixed update time accumulation
             m_FixedTimeAccumulator += deltaTime;
             
@@ -124,12 +122,14 @@ namespace IonixEngine
             {
                 if(layer)
                     layer->OnUpdate();
-                
             }
-            Scripting::Get().CallHook("OnUpdate");
             
+            Scripting::Get().CallHook("OnUpdate");
             ImGui::Render();
+            
             ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), m_Window->GetSdlRenderer());
+            Get().layerFysics->GetFysicsManager()->GetWorld()->DebugDraw();
+
             SDL_RenderPresent(m_Window->m_Renderer);
 
            /*if (layerInput->m_Input->IsMouseButtonDown(SDL_BUTTON_LEFT))

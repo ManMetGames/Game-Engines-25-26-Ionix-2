@@ -44,6 +44,14 @@ namespace IonixEngine {
             return spriteComponent->getSpriteHeight();
             };
 
+        auto getImageWidth = [](SpriteComponent* spriteComponent) -> int {
+            return spriteComponent->getWidth();
+            };
+
+        auto getImageHeight = [](SpriteComponent* spriteComponent) -> int {
+            return spriteComponent->getHeight();
+            };
+
         auto getZedOrder = [](SpriteComponent* spriteComponent) -> int {
             return spriteComponent->getZedOrder();
             };
@@ -77,12 +85,20 @@ namespace IonixEngine {
             spriteComponent->setCols(x);
             };
 
-        auto setSpriteWidth = [](SpriteComponent* spriteComponent, int x) {
+        auto setWidth = [](SpriteComponent* spriteComponent, int x) {
             spriteComponent->setSpriteWidth(x);
             };
 
-        auto setSpriteHeight = [](SpriteComponent* spriteComponent, int x) {
+        auto setHeight = [](SpriteComponent* spriteComponent, int x) {
             spriteComponent->setSpriteHeight(x);
+            };
+
+        auto setImageWidth = [](SpriteComponent* spriteComponent, int x) {
+            spriteComponent->setWidth(x);
+            };
+
+        auto setImageHeight = [](SpriteComponent* spriteComponent, int x) {
+            spriteComponent->setHeight(x);
             };
 
         auto setZedOrder = [](SpriteComponent* spriteComponent, int x) {
@@ -117,8 +133,8 @@ namespace IonixEngine {
             "set_end_frame", setEndFrame,
             "set_rows", setRows,
             "set_columns", setColumns,
-            "set_sprite_width", setSpriteWidth,
-            "set_sprite_height", setSpriteHeight,
+            "set_width", setWidth,
+            "set_height", setHeight,
             "set_zed_order", setZedOrder,
             "get_playback_mode", getPlaybackMode,
             "set_playback_mode", setPlaybackMode

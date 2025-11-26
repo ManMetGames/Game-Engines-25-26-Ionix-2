@@ -37,7 +37,7 @@ namespace IonixEngine
 		auto lerpVec = [](b2Vec2 v1, b2Vec2 v2, float t) -> b2Vec2 {
 			t *= Application::Get().deltaTime;
 			std::pair<float, float> vectorPair = Maf::mafLerpVector(v1.x, v1.y, v2.x, v2.y, t);
-			return b2Vec2(vectorPair.first, vectorPair.second) ;
+			return b2Vec2(vectorPair.first, vectorPair.second);
 			};
 
 		auto vector2 = [](float x, float y) -> b2Vec2* {
@@ -116,10 +116,11 @@ namespace IonixEngine
 			"log_custom", logCustom,
 			"square_root", sqrt,
 			"lerp", lerp,
+			"lerp_vec", lerpVec,
 			"vec_2", vector2,
 			"mod", mod,
 			"div", div,
-			"sqr_magnitude_vector2", SqrMagnitudeVector2,
+			"sqr_magnitude_vec_2", SqrMagnitudeVector2,
 			"sin", sin,
 			"cos", cos,
 			"tan", tan,

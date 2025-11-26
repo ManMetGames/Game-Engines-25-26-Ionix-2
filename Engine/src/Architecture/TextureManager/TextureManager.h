@@ -23,7 +23,8 @@ namespace IonixEngine
 
 		void Init();
 		void Shutdown();
-		static TextureManager& Get() {
+		static TextureManager& Get()
+		{
 			static TextureManager instance;
 			return instance;
 		};

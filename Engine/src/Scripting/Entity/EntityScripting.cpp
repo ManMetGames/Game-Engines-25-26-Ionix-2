@@ -19,25 +19,32 @@ namespace IonixEngine {
             return Application::Get().layerScene->GetScene()->GetEntityFromID(entityID);
             };
 
-        auto getEntityPos = [](Entity* entity) -> Vec2 {
-            return entity->position;
+        auto getEntityPos = [](Entity* entity) -> b2Vec2 {
+            Vec2 pos = entity->transform.GetLocalPosition();
+            b2Vec2 returnPos = b2Vec2{ pos.x, pos.y };
+            return returnPos;
             };
 
         auto setEntityPos = [](Entity* entity, float x, float y) {
             if (entity == nullptr) return;
-            entity->transform.SetLocalPosition(Vec2{ x, y });
+            entity->transform.SetGlobalPosition(Vec2{ x, y });
             };
 
-        auto addSpriteComponent = [](Entity* entity, std::string hash, int width, int height, int zedOrder) -> SpriteComponent* {
-            return entity->AddComponent(new SpriteComponent(entity, hash, width, height, zedOrder));
+        auto addSpriteComponent = [](Entity* entity, uint32_t alias, int width, int height, int zedOrder) -> const SpriteComponent*{
+            //entity->AddComponent(new SpriteComponent(entity, alias, width, height, zedOrder));
+            return entity->AddComponent(new SpriteComponent(entity, alias, width, height, zedOrder));
             };
 
         auto addAudioPlayerComponent = [](Entity* entity, std::string clip = "", bool playOnAwake = false) {
             entity->AddComponent(new AudioPlayer(entity, clip, playOnAwake));
             };
         
-        auto addFysicsBodyComponent = [](Entity* entity, int bodyType, bool rotationLocked) {
-            entity->AddComponent(new FysicsBody(entity, bodyType, rotationLocked));
+        auto addFysicsBodyComponent = [](Entity* entity) {
+            entity->AddComponent(new FysicsBody(entity, "", Application::Get().layerFysics->GetWorld()));
+            };
+
+        auto addFysicsBodyComponentWithType = [](Entity* entity, int b_type, bool rotationLocked) {
+            entity->AddComponent(new FysicsBody(entity, b_type, rotationLocked));
             };
 
         auto getSpriteComponent = [](Entity* entity) {
@@ -58,10 +65,10 @@ namespace IonixEngine {
             bool hasComp = entity->TryGetComponent<SpriteComponent>(&comp);
 
             result = std::make_pair(hasComp, comp);
-            
+
             return result;
             };
-         
+
         auto tryGetAudioComponent = [](Entity* entity) -> auto {
             AudioPlayer* comp = nullptr;
             std::pair<bool, AudioPlayer*> result;
@@ -103,6 +110,7 @@ namespace IonixEngine {
             "add_sprite_component", addSpriteComponent,
             "add_audio_component", addAudioPlayerComponent,
             "add_fysics_component", addFysicsBodyComponent,
+            "add_fysics_component", addFysicsBodyComponentWithType,
             "get_sprite_component", getSpriteComponent,
             "get_audio_component", getAudioPlayerComponent,
             "get_fysics_component", getFysicsBodyComponent,
