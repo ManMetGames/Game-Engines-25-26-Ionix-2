@@ -26,7 +26,7 @@ namespace IonixEngine {
         if (texture) {
             textureDict[hashName] = TextureData();
             textureDict[hashName].SetData(texture, filepath);
-            SDL_Log("[Texture] Loaded texture at %s with alias: %s", filepath.c_str(), alias.c_str());
+            SDL_Log("[Texture] Loaded texture at %s with alias: %s, hash: %u", filepath.c_str(), alias.c_str(), hashName);
         } else {
             SDL_Log("Failed to load texture: %s", IMG_GetError());
         }
@@ -81,7 +81,7 @@ namespace IonixEngine {
             return texture->second.GetTexture();
         } else {
             //return error texture if requested texture not found
-            SDL_Log("Failed to find texture: %lu", hash);
+            SDL_Log("Failed to find texture: %u", hash);
             return errorTexture.GetTexture();
         }
     }
