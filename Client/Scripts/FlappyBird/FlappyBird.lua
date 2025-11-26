@@ -15,7 +15,6 @@ local pipe
 local pipeT
 local pipeSpeed = -3
 local pipeStartX = 900
-local pipeOffScreenLeft = -100
 
 ----------------------------------------------------------
 -- OnStart
@@ -58,8 +57,8 @@ function ExampleScript:OnStart()
     -- PLAYER 1 PHYSICS
 
     Entity.add_fysics_component(player1, 2, false) -- dynamic body
-    --Fysics.add_sprite_collider(player1, false)
     Fysics.add_sprite_collider(player1, false)
+
     -- Freeze bird
     Fysics.set_gravity_scale(player1, 0)
 
@@ -126,52 +125,42 @@ end
 -- OnUpdate
 ----------------------------------------------------------
 function ExampleScript:OnUpdate()
+
     -- get current velocity
     local vel1 = Fysics.get_linear_velocity(player1)
-    local vy1 = Fysics.get_linear_velocity(pipe)
-    local vy1 = Fysics.get_linear_velocity(pipeT)
+    local v = Fysics.get_linear_velocity(pipe)
+    local vy = Fysics.get_linear_velocity(pipeT)
     -- Constant rightward movement
-    --local vel = Fysics.get_linear_velocity(pipe)
     local vx = vel1.x
     local vy1 = vel1.y
+    local v1 = v.x
 
     local pipePos = Fysics.get_pos(pipe)
-    if pipePos.x < pipeOffScreenLeft then
-        Fysics.set_pos(pipe, pipeStartX, pipePos.y)
-    end
+	if pipePos.x < 0 then
+       Entity.set_entity_pos(pipe, 640, 400)
+       --Fysics.set_linear_velocity(pipe, 640, 0)
+	end
+    
+    --local pipePos = Fysics.get_pos(pipeT)
+    --if pipePos.x < 0 then
+      --Entity.set_entity_pos(pipe, 640, 400)
+    --end
 
 	if Input.get_key_down(Keys.ionix_space) then
-        -- Bird move if space is pressed (allow gravity)
+        -- Bird moves once space key is pressed (allows gravity)
         Fysics.set_gravity_scale(player1, 1)
+        -- Pipe movement
         Fysics.set_linear_velocity(pipe, pipeSpeed, 0)
         Fysics.set_linear_velocity(pipeT, pipeSpeed, 0)
         -- Set velocity directly to cancel out falling momentum
         vy1 = -5  -- Jump velocity for player1
-        --Move pipe
-        Fysics.set_linear_velocity(pipe, pipeSpeed, 0)
 	end
 	
-	if Input.get_key_down(Keys.ionix_a) then
-        Entity.set_entity_pos(pipe, xPos, floorY)
-	end
-
     Fysics.set_linear_velocity(player1, vx, vy1)
+
     --Draws button
     --UI.Add_label("Press any button to play", 200, 200, 200 ,200, "Bold")
     --UI.Add_label(50, 50, 100, 50, "Press any button to play")
-    -- Pipe movement
-    local pipePos = Fysics.get_pos(pipe)
-    local pipePos = Fysics.get_pos(pipeT)
-    
-   -- if pipePos.x < pipeOffScreenLeft then
-       -- Fysics.set_pos(pipe, pipeStartX, pipePos.y)
-       -- Fysics.set_pos(pipeT, pipeStartX, pipePos.y)
-    --end
- 	
-	if pipePos.x < 0 then
-        Entity.set_entity_pos(pipe, 640, 400)
-        --Entity.set_entity_pos(pipe, xPos, floorY)
-	end
 end
 
 return ExampleScript
