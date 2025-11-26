@@ -16,6 +16,8 @@ namespace IonixEngine
 		currentCell = m_NavMef->GetPositionInMesh(position);
 		goalCell = m_NavMef->GetPositionInMesh(endPosition);
 		std::vector<int> path;
-		path = m_NavMef->FindPath(position, endPosition);
+
+		// Incorrect args passed to FindPath - commented out
+		//path = m_NavMef->FindPath(position, endPosition);
 	}
 }
