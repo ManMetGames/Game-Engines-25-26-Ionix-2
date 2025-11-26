@@ -40,7 +40,7 @@ namespace IonixEngine
         bodyDef.fixedRotation = rotationLocked;
         //bodyDef.position.x = entity->position.x / 100;
         //bodyDef.position.y = entity->position.y / 100;
-        bodyDef.position = b2Vec2(entity->transform.GetGlobalPosition().x / 100, entity->transform.GetGlobalPosition().y / 100);
+        bodyDef.position = b2Vec2(entity->transform.GetLocalPosition().x / 100, entity->transform.GetLocalPosition().y / 100);
 
         body = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->CreateBody(&bodyDef);
 

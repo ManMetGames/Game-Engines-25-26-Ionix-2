@@ -41,7 +41,7 @@ function ExampleScript:OnStart()
     Sprite.set_columns(playerSprite1,1)
     -- PLAYER 1 PHYSICS
 
-    Entity.add_fysics_component(player1, 2, false) -- dynamic body
+    Entity.add_fysics_component(player1, 2, true) -- dynamic body
     --Fysics.add_sprite_collider(player1, false)
     Fysics.add_sprite_collider(player1,false,1)
     -- Freeze bird

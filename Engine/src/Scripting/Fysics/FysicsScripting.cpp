@@ -40,6 +40,10 @@ namespace IonixEngine
 			entity->GetComponent<FysicsBody>()->SetPosition(entity, x, y);
 			};
 
+		auto setFysicsPosv = [](Entity* entity, b2Vec2 vec2) {
+			entity->GetComponent<FysicsBody>()->SetPosition(entity, vec2.x, vec2.y);
+			};
+
 		auto getFysicsAngle = [](Entity* entity) -> float{
 			return entity->GetComponent<FysicsBody>()->GetAngle(entity);
 			};
@@ -54,6 +58,10 @@ namespace IonixEngine
 
 		auto setFysicsLinearVelocity = [](Entity* entity, float x, float y) {
 			entity->GetComponent<FysicsBody>()->SetLinearVelocity(entity, x, y);
+			};
+
+		auto setFysicsLinearVelocityv = [](Entity* entity, b2Vec2 vec2) {
+			entity->GetComponent<FysicsBody>()->SetLinearVelocity(entity, vec2.x, vec2.y);
 			};
 
 		auto getFysicsAngularVelocity = [](Entity* entity) -> float {
@@ -135,19 +143,35 @@ namespace IonixEngine
 			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddForce(entity, force, origin);
 			};
 
+		auto addFysicsForcev = [](Entity* entity, b2Vec2 impulseVec2, b2Vec2 originVec2) {
+			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddForce(entity, impulseVec2, originVec2);
+			};
+
 		auto addFysicsForceToCenter = [](Entity* entity, int forceX, int forceY) {
 			b2Vec2 origin; origin.x = forceX; origin.y = forceY;
 
 			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddForceToCenter(entity, origin);
 			};
 
+		auto addFysicsForceToCenterv = [](Entity* entity, b2Vec2 originVec2) {
+			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddForceToCenter(entity, originVec2);
+			};
+
 		auto addFysicsAddImpulse = [](Entity* entity, int impulseX, int impulseY, int forcePosX, int forcePosY) {
 			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddImpulse(entity, impulseX, impulseY, forcePosX, forcePosY);
+			};
+
+		auto addFysicsAddImpulsev = [](Entity* entity, b2Vec2 impulseVec2, b2Vec2 forceVec2) {
+			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddImpulse(entity, impulseVec2.x, impulseVec2.y, forceVec2.x, forceVec2.y);
 			};
 
 		auto addFysicsAddImpulseToCenter = [](Entity* entity, int forceX, int forceY) {
 			b2Vec2 force; force.x = forceX; force.y = forceY;
 			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddImpulseToCenter(entity, force);
+			};
+
+		auto addFysicsAddImpulseToCenterv = [](Entity* entity, b2Vec2 forceVec2) {
+			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddImpulseToCenter(entity, forceVec2);
 			};
 
 		auto addFysicsTorque = [](Entity* entity, float torque) {
@@ -437,14 +461,15 @@ namespace IonixEngine
 			"add_box_collider",	addBoxCollider,
 			"add_box_collider_v", addBoxColliderv,
 			"add_polygon_collider",addPolygonCollider,
-			"add_polygon_collider_v",addPolygonColliderv,
 			"add_circle_collider", addCircleCollider,
 			"get_pos", getFysicsPos,
 			"set_pos", setFysicsPos,
+			"set_pos_v", setFysicsPosv,
 			"get_angle", getFysicsAngle,
 			"set_angle", setFysicsAngle,
 			"get_linear_velocity", getFysicsLinearVelocity,
 			"set_linear_velocity", setFysicsLinearVelocity,
+			"set_linear_velocity_v", setFysicsLinearVelocityv,
 			"get_angular_velocity", getFysicsAngularVelocity,
 			"set_angular_velocity", setFysicsAngularVelocity,
 			"get_awake", getFysicsAwake,
@@ -466,11 +491,13 @@ namespace IonixEngine
 			"add_force_to_center", addFysicsForceToCenter,
 			"add_impulse", addFysicsAddImpulse,
 			"add_impulse_to_center", addFysicsAddImpulseToCenter,
+			"add_force_v", addFysicsForcev,
+			"add_force_to_center_v", addFysicsForceToCenterv,
+			"add_impulse_v", addFysicsAddImpulsev,
+			"add_impulse_to_center_v", addFysicsAddImpulseToCenterv,
 			"add_torque", addFysicsTorque,
 			"add_angular_impulse", addFysicsAngularImpulse,
 			"clear_forces", clearFysicsForces,
-			"get_gravity_scale", getFysicsGravityScale,
-			"set_gravity_scale", setFysicsGravityScale,
 			"get_collider_width", getColliderWidth,
 			"set_collider_width", setColliderWidth,
 			"get_collider_height", getColliderHeight,
@@ -479,7 +506,7 @@ namespace IonixEngine
 			"set_collider_trigger", setColliderTrigger,
 			"get_collider_vertices", getColliderVertices,
 			"set_collider_vertices", setColliderVertices,
-			"get_collider_type", getColliderShapeType
+			"get_collider_type", getColliderShapeType,
 			"set_material_properties", fysicsUpdateMaterialProperties,
 			"get_friction", getFriction,
 			"get_restitution", getRestitution,

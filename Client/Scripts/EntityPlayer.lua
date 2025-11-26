@@ -12,17 +12,17 @@ function EntityPlayer:OnStart()
 	entity1 = Entity.create_entity()
 	print(Entity.has_sprite_component(entity1))
 	print(assets.textures.ball)
-	Entity.add_sprite_component(entity1, assets.textures.ball, 100, 100, 0)   
+	Entity.add_sprite_component(entity1, assets.textures.FlappyBird, 100, 100, 0)   
 	--Entity.add_fysics_component(entity1, 0, false)
 
 	Entity.set_entity_pos(entity1, x, y)
-	Entity.add_fysics_component(entity1, 2, false)
-	Fysics.add_sprite_collider(entity1, false)
+	Entity.add_fysics_component(entity1, 2, true)
+	Fysics.add_sprite_collider(entity1, false, 1)
 
 	local hasComp, sprite1 = Entity.try_get_sprite_component(entity1)
 	if(hasComp) then
 		--Sprite.set_playback_mode(sprite1, 4)
-		Sprite.set_columns(sprite1, 6)
+		Sprite.set_columns(sprite1, 1)
 	end
 end
 
@@ -33,8 +33,6 @@ function EntityPlayer:OnUpdate()
 	
 	vec2 = Fysics.get_linear_velocity(entity1)
 	--Entity.set_entity_pos(entity1, 700, 600)
-	print(Fysics.get_pos(entity1).x)
-	print(Entity.get_entity_pos(entity1).x)
 	if Input.get_key_held(Keys.ionix_d) then
 		vec2.x = xSpeed
 	elseif Input.get_key_held(Keys.ionix_a) then
