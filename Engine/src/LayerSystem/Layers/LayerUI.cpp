@@ -37,11 +37,12 @@ namespace IonixEngine
 
     void LayerUI::OnAttach() 
     {
+        m_UIManager = new UIManager();
         m_UI = new UI();
         //Get window and renderer
         SDL_Window* window = Application::Get().GetWindow().GetSdlWindow();
         SDL_Renderer* renderer = Application::Get().GetWindow().GetSdlRenderer();
-
+        //UI = new m_UiManager;
         // Setup Dear ImGui context
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
@@ -77,21 +78,20 @@ namespace IonixEngine
         // Start the Dear ImGui frame. Immediate mode rendering - UI gets rebuilt each frame
          ImGui_ImplSDLRenderer2_NewFrame();
 
-         ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize;
+         ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
          ImGui_ImplSDL2_NewFrame();
-
          ImGui::NewFrame();
          ImGui::Begin("null", nullptr, window_flags);
+         // Render the UI
+         m_UIManager->RenderUI();
+         ImGui::End();
+         m_UIManager->ClearElements();
 
          //std::vector<std::string> dropdownOptions = { "Option 1", "Option 2", "Option 3" };
          //int dropdownIndex = 0;
          //bool checkboxValue = true;
-        // int radioValue = 0;
+         // int radioValue = 0;
          //static float sliderValue = 0.5f;
-         
-         
-         //uiManager.BeginPanel("Test Panel");
-
          //uiManager.AddLabel(10, 10, 100, 20, "Test Label");
          /*uiManager.AddButton(10, 40, 100, 25, "Click Me", []() { printf("Button clicked!\n"); });
          uiManager.AddCheckbox(10, 70, 120, 25, "Enable", &checkboxValue);
@@ -100,13 +100,6 @@ namespace IonixEngine
          uiManager.AddRadioButton(120, 130, 100, 25, "Option 2", &radioValue, 1, true);
          uiManager.AddDropdown(10, 160, 150, 25, "Dropdown", dropdownOptions, &dropdownIndex);
          uiManager.AddColorPicker(10, 190, 150, 150, "Pick Color", m_UI->myColor);*/
-         // Render the UI
-         uiManager.RenderUI();
-         ImGui::End();
-         //uiManager.EndPanel();
-         uiManager.ClearElements();
-         // Rendering
-         
 
          // TODO - Will be done by graphics unit eventually. Here for testing for the time being.
 
