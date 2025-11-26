@@ -155,13 +155,13 @@ bool JSONDeserialize::GetString(const std::string& fieldname, std::string* out) 
     return true;
 }
 
-bool JSONDeserialize::BeginArray(const std::string& fieldname) {
+//bool JSONDeserialize::BeginArray(const std::string& fieldname) {
 
-}
+//}
 
-bool JSONDeserialize::EndArray() {
+//bool JSONDeserialize::EndArray() {
 
-}
+//}
 
 bool JSONDeserialize::End() {
     bool foundEnd = true;
