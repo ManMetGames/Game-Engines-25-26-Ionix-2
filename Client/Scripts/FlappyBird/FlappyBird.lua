@@ -1,4 +1,5 @@
 local ExampleScript = {}
+local assets = require("Scripts.Assets")
 local Background
 local player1
 local goal
@@ -23,23 +24,10 @@ local pipeOffScreenLeft = -100
 function ExampleScript:OnStart()
 
     ------------------------------------------------------
-    -- Load textures
-    ------------------------------------------------------
-    Texture.add_texture("./Assets/Background.png", "Background")
-    Texture.add_texture("./Assets/FlappyBird.png", "FlappyBird")
-    Texture.add_texture("./Assets/left.png", "left")
-    Texture.add_texture("./Assets/middle.png", "middle")
-	Texture.add_texture("./Assets/right.png", "right")
-	Texture.add_texture("./Assets/player1.png", "player1")
-	Texture.add_texture("./Assets/key.png", "key")
-    Texture.add_texture("./Assets/FlappyPipe.png", "FlappyPipe")
-    Texture.add_texture("./Assets/FlappyPipe2.png", "FlappyPipe2")
-
-    ------------------------------------------------------
 	-- Background Texture
 	------------------------------------------------------
     Background = Entity.create_entity()
-    local BgBackground = Entity.add_sprite_component(Background, "Background", 960, 640, 0)
+    local BgBackground = Entity.add_sprite_component(Background, assets.textures.Background,0 , 0, 0)
     Sprite.set_width(BgBackground, 1280)
     Sprite.set_height(BgBackground, 1280)
     Sprite.set_playback_mode(BgBackground, 4)
@@ -51,7 +39,7 @@ function ExampleScript:OnStart()
 
     Entity.set_entity_pos(player1, x, 300)
 	
-    local playerSprite1 = Entity.add_sprite_component(player1, "FlappyBird", 0, 0, 0)
+    local playerSprite1 = Entity.add_sprite_component(player1, assets.textures.FlappyBird, 0, 0, 10)
 
 	Sprite.set_playback_mode(playerSprite1, 4)
 
@@ -81,7 +69,7 @@ function ExampleScript:OnStart()
 		Entity.set_entity_pos(tile, xPos, floorY)
 
 		-- sprite as single frame (4 = manual/no anim)
-		local s = Entity.add_sprite_component(tile, "Sand", tileSize, tileSize, 0)
+		local s = Entity.add_sprite_component(tile, assets.textures.Sand, 0, 0, 1)
 		Sprite.set_playback_mode(s, 4)
 
 		------------------------------------------------------
@@ -98,7 +86,7 @@ function ExampleScript:OnStart()
 	pipe = Entity.create_entity()
 	Entity.set_entity_pos(pipe, 640, 400)
 
-	local pipeSprite = Entity.add_sprite_component(pipe, "FlappyPipe", 80, 185, 0)
+	local pipeSprite = Entity.add_sprite_component(pipe, assets.textures.FlappyPipe, 0, 0, 2)
     Sprite.set_width(pipeSprite, 480)
     Sprite.set_height(pipeSprite, 1845)
 	Sprite.set_playback_mode(pipeSprite, 4)
@@ -112,7 +100,7 @@ function ExampleScript:OnStart()
     pipeT = Entity.create_entity()
 	Entity.set_entity_pos(pipeT, 640, 0)
 
-	local pipeSpriteT = Entity.add_sprite_component(pipeT, "FlappyPipe2", 80, 185, 0)
+	local pipeSpriteT = Entity.add_sprite_component(pipeT,assets.textures.FlappyPipe , 0, 0, 3)
     Sprite.set_width(pipeSpriteT, 480)
     Sprite.set_height(pipeSpriteT, 1845)
 	Sprite.set_playback_mode(pipeSpriteT, 4)
