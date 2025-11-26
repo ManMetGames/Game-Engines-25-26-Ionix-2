@@ -36,7 +36,7 @@ namespace IonixEngine
 		texr.h = h;
 
 
-
+		
 
 		SDL_SetRenderDrawColor(rend, 255, 255, 255, 0);
 

@@ -66,5 +66,7 @@ namespace IonixEngine
         // Gravity
         float GetGravityScale(Entity* entity);
         void SetGravityScale(Entity* entity, float gravityScale);
+        //update
+        virtual void Update(float deltaTime) override;
     };
 }

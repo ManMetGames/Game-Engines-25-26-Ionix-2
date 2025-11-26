@@ -85,11 +85,11 @@ namespace IonixEngine {
             spriteComponent->setCols(x);
             };
 
-        auto setSpriteWidth = [](SpriteComponent* spriteComponent, int x) {
+        auto setWidth = [](SpriteComponent* spriteComponent, int x) {
             spriteComponent->setSpriteWidth(x);
             };
 
-        auto setSpriteHeight = [](SpriteComponent* spriteComponent, int x) {
+        auto setHeight = [](SpriteComponent* spriteComponent, int x) {
             spriteComponent->setSpriteHeight(x);
             };
 
@@ -133,8 +133,8 @@ namespace IonixEngine {
             "set_end_frame", setEndFrame,
             "set_rows", setRows,
             "set_columns", setColumns,
-            "set_width", setSpriteWidth,
-            "set_height", setSpriteHeight,
+            "set_width", setWidth,
+            "set_height", setHeight,
             "set_zed_order", setZedOrder,
             "get_playback_mode", getPlaybackMode,
             "set_playback_mode", setPlaybackMode

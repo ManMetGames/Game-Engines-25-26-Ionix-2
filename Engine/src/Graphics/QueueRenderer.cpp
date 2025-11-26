@@ -18,13 +18,12 @@ namespace IonixEngine {
 	void QueueRenderer::RenderFromQueue() {
 		while (!sprites.empty()) {
 			RenderCall call = sprites.front();
-			//printf("Call: src: [ %d, %d, %d, %d ] dest: [ %d, %d, %d, %d ]\n", call.src.x, call.src.y, call.src.w, call.src.h, call.dest.x, call.dest.y, call.dest.w, call.dest.h);
 			SDL_RenderCopy(Application::Get().GetWindow().GetSdlRenderer(), call.texture, &call.src, &call.dest);
 			sprites.pop();
 		}
 	}
 
-	void QueueRenderer::Merger(std::vector<RenderCall> arr, int left, int mid, int right)
+	void QueueRenderer::Merger(std::vector<RenderCall>& arr, int left, int mid, int right)
 	{
 		const int n1 = mid - left + 1;
 		int n2 = right - mid;
@@ -83,10 +82,16 @@ namespace IonixEngine {
 		}
 
 		MergeCaller(sprites, temp, 0, sprites.size() - 1);
+		ArrToQueueConverter(temp, sprites); 
 	}
 
-	void QueueRenderer::MergeCaller(queue<RenderCall>& sprites, std::vector<RenderCall> temp, int left, int right)
+	void QueueRenderer::MergeCaller(queue<RenderCall>& sprites, std::vector<RenderCall>& temp, int left, int right)
 	{
+		
+		if (left >= right) {
+			return;
+		}
+
 		int length = sprites.size(); //Returns queue length
 		/*left = 0;
 		right = sprites.size() - 1;*/

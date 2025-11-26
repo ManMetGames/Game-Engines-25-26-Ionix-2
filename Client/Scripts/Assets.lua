@@ -1,10 +1,18 @@
 return {
     textures = {
+        Background = 2667361274,
+        Coin = 2929616156,
         Debug = 2430642766,
+        FlappyBird = 2136167952,
+        FlappyPipe = 1290161702,
+        FlappyPipe2 = 2484853856,
+        PimBall = 3518613816,
+        Sand = 2995081222,
         Test = 510180426,
         ball = 369994598,
         ball2 = 1354646532,
         horse_fat = 963803500,
+        office = 2084752704,
     },
     sounds = {
         test = 1642075152,

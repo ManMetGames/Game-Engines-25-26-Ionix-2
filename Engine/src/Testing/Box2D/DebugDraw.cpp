@@ -2,10 +2,16 @@
 
 static void SetSDLColor(SDL_Renderer* r, const b2Color& c)
 {
-    SDL_SetRenderDrawColor(r,(Uint8)(c.r * 255),(Uint8)(c.g * 255),(Uint8)(c.b * 255),255);
+    SDL_SetRenderDrawColor(r,
+                           (Uint8)(c.r * 255),
+                           (Uint8)(c.g * 255),
+                           (Uint8)(c.b * 255),
+                           255);
 }
 
-void DebugDraw::DrawPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color)
+void DebugDraw::DrawPolygon(const b2Vec2* vertices,
+                            int32 vertexCount,
+                            const b2Color& color)
 {
     SetSDLColor(m_renderer, color);
 
@@ -17,12 +23,16 @@ void DebugDraw::DrawPolygon(const b2Vec2* vertices, int32 vertexCount, const b2C
     }
 }
 
-void DebugDraw::DrawSolidPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color)
+void DebugDraw::DrawSolidPolygon(const b2Vec2* vertices,
+                                 int32 vertexCount,
+                                 const b2Color& color)
 {
     DrawPolygon(vertices, vertexCount, color);
 }
 
-void DebugDraw::DrawCircle(const b2Vec2& center, float radius, const b2Color& color)
+void DebugDraw::DrawCircle(const b2Vec2& center,
+                           float radius,
+                           const b2Color& color)
 {
     SetSDLColor(m_renderer, color);
 
@@ -53,12 +63,17 @@ void DebugDraw::DrawCircle(const b2Vec2& center, float radius, const b2Color& co
     }
 }
 
-void DebugDraw::DrawSolidCircle(const b2Vec2& center, float radius, const b2Vec2&, const b2Color& color)
+void DebugDraw::DrawSolidCircle(const b2Vec2& center,
+                                float radius,
+                                const b2Vec2&,
+                                const b2Color& color)
 {
     DrawCircle(center, radius, color);
 }
 
-void DebugDraw::DrawSegment(const b2Vec2& p1, const b2Vec2& p2, const b2Color& color)
+void DebugDraw::DrawSegment(const b2Vec2& p1,
+                            const b2Vec2& p2,
+                            const b2Color& color)
 {
     SetSDLColor(m_renderer, color);
 
@@ -68,7 +83,9 @@ void DebugDraw::DrawSegment(const b2Vec2& p1, const b2Vec2& p2, const b2Color& c
     SDL_RenderDrawLine(m_renderer, a.x, a.y, b.x, b.y);
 }
 
-void DebugDraw::DrawPoint(const b2Vec2& p, float size, const b2Color& color)
+void DebugDraw::DrawPoint(const b2Vec2& p,
+                          float size,
+                          const b2Color& color)
 {
     SetSDLColor(m_renderer, color);
 

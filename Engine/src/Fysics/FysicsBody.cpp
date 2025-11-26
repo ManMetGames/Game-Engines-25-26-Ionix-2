@@ -16,9 +16,8 @@ namespace IonixEngine
         //Get fysics manager
         FysicsManager& fysics_manager = *Application::Get().layerFysics->GetFysicsManager();
         b2Body* body = fysics_manager.GetWorld()->CreateBody(&bodyDef);
-        body->SetTransform(b2Vec2(entity->position.x / 100, entity->position.y / 100), entity->rotation);
-        //body->SetTransform(b2Vec2(entity->transform.GetLocalPosition().x, entity->transform.GetLocalPosition().y), entity->transform.GetLocalRotation());
-
+        Vec2 pos = entity->transform.GetGlobalPosition();
+        body->SetTransform(b2Vec2(pos.x / 100, pos.y / 100), entity->transform.GetGlobalRotation());
         body->GetUserData().pointer = (uintptr_t)(entity);
         fysics_manager.GetBodyMap()[body] = entity;
 
@@ -41,7 +40,7 @@ namespace IonixEngine
         bodyDef.fixedRotation = rotationLocked;
         //bodyDef.position.x = entity->position.x / 100;
         //bodyDef.position.y = entity->position.y / 100;
-        bodyDef.position = b2Vec2(entity->transform.GetLocalPosition().x / 100, entity->transform.GetLocalPosition().y / 100);
+        bodyDef.position = b2Vec2(entity->transform.GetGlobalPosition().x / 100, entity->transform.GetGlobalPosition().y / 100);
 
         body = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->CreateBody(&bodyDef);
 
@@ -224,5 +223,13 @@ namespace IonixEngine
     {
         b2Body* body = Application::Get().layerFysics->GetFysicsManager()->GetBodyFromEntity(entity);
         body->SetGravityScale(gravityScale);
+    }
+
+    void FysicsBody::Update(float deltaTime)
+    {
+        b2Vec2 pos = body->GetPosition();
+        float rot = body->GetAngle();
+        entity->transform.SetLocalPosition(Vec2{pos.x * 100, pos.y * 100});
+        entity->transform.SetLocalRotation(rot);
     }
 }
