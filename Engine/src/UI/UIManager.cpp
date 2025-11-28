@@ -58,7 +58,7 @@ void IonixEngine::UIManager::AddLabel(int x, int y, float xSize, float ySize, co
 	element->ySize = ySize;
 	element->text = const_cast<char*>(text);
 	element->fontName = fontName;
-	//elements.push_back(element);
+	elements.push_back(element);
 	AddChildToPanel(element);
 }
 
@@ -178,7 +178,6 @@ void IonixEngine::UIManager::AddDropdown(int x, int y, float xSize, float ySize,
 	element->dropdownOptions = options;
 	element->dropdownCurrentIndex = currentIndex;
 	element->fontName = fontName;
-
 	AddChildToPanel(element);
 }
 void IonixEngine::UIManager::AddProgressBar(int x, int y, float xSize, float ySize, float maxvalue, float* currentvalue, float incrementamount, const std::string& fontName)
@@ -298,6 +297,5 @@ void IonixEngine::UIManager::RenderUI()
 	for (auto& element : elements)
 	{
 		RenderElement(element);
-
 	}
 }

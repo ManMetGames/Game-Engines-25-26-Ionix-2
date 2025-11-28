@@ -26,9 +26,8 @@ namespace IonixEngine
         virtual void OnEvent(IonixEvent& e) override;
         UIManager* m_UIManager;
         UI* m_UI;
-        UIManager GetUIManager() const { return* m_UIManager; }
-        UI GetUI() { return*m_UI; }
+        UIManager* GetUIManager() { return m_UIManager; }
+        UI* GetUI() { return m_UI; }
         Fontloader* m_FontLoader;
-
     };
 }

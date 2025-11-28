@@ -13,7 +13,7 @@ namespace IonixEngine
 	{
 
 		ImGui::SetCursorPos(ImVec2(xpos, ypos));
-		std::unordered_map<std::string, ImFont*>& map = Application::Get().layerUI->GetUIManager().fontLoader.fontMap;
+		std::unordered_map<std::string, ImFont*>& map = Application::Get().layerUI->GetUIManager()->fontLoader.fontMap;
 		ImFont* fontToPush = map[font];
 
 		ImGui::PushFont(fontToPush);

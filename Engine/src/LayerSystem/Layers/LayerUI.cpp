@@ -84,9 +84,8 @@ namespace IonixEngine
          ImGui::Begin("null", nullptr, window_flags);
          // Render the UI
          m_UIManager->RenderUI();
-         ImGui::End();
          m_UIManager->ClearElements();
-
+         ImGui::End();
          //std::vector<std::string> dropdownOptions = { "Option 1", "Option 2", "Option 3" };
          //int dropdownIndex = 0;
          //bool checkboxValue = true;
