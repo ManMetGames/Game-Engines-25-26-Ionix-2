@@ -21,6 +21,15 @@ namespace IonixEngine
 			"y", &b2Vec2::y
 		);
 
+		//CHANGE TO LUA FILE LIKE ASSETS.LUA
+		lua.new_enum<fysicShapeType>("ShapeType",
+			{
+				{"circle", fysicShapeType::circle},
+				{"box", fysicShapeType::box},
+				{"polygon", fysicShapeType::polygon},
+				{"none", fysicShapeType::none}
+			}
+		);
 
 		//------------Fysics Body Methods---------------
 		auto getFysicsPos = [](Entity* entity) -> b2Vec2 {
@@ -29,6 +38,10 @@ namespace IonixEngine
 
 		auto setFysicsPos = [](Entity* entity, float x, float y) {
 			entity->GetComponent<FysicsBody>()->SetPosition(entity, x, y);
+			};
+
+		auto setFysicsPosv = [](Entity* entity, b2Vec2 vec2) {
+			entity->GetComponent<FysicsBody>()->SetPosition(entity, vec2.x, vec2.y);
 			};
 
 		auto getFysicsAngle = [](Entity* entity) -> float{
@@ -45,6 +58,10 @@ namespace IonixEngine
 
 		auto setFysicsLinearVelocity = [](Entity* entity, float x, float y) {
 			entity->GetComponent<FysicsBody>()->SetLinearVelocity(entity, x, y);
+			};
+
+		auto setFysicsLinearVelocityv = [](Entity* entity, b2Vec2 vec2) {
+			entity->GetComponent<FysicsBody>()->SetLinearVelocity(entity, vec2.x, vec2.y);
 			};
 
 		auto getFysicsAngularVelocity = [](Entity* entity) -> float {
@@ -126,19 +143,35 @@ namespace IonixEngine
 			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddForce(entity, force, origin);
 			};
 
+		auto addFysicsForcev = [](Entity* entity, b2Vec2 impulseVec2, b2Vec2 originVec2) {
+			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddForce(entity, impulseVec2, originVec2);
+			};
+
 		auto addFysicsForceToCenter = [](Entity* entity, int forceX, int forceY) {
 			b2Vec2 origin; origin.x = forceX; origin.y = forceY;
 
 			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddForceToCenter(entity, origin);
 			};
 
+		auto addFysicsForceToCenterv = [](Entity* entity, b2Vec2 originVec2) {
+			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddForceToCenter(entity, originVec2);
+			};
+
 		auto addFysicsAddImpulse = [](Entity* entity, int impulseX, int impulseY, int forcePosX, int forcePosY) {
 			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddImpulse(entity, impulseX, impulseY, forcePosX, forcePosY);
+			};
+
+		auto addFysicsAddImpulsev = [](Entity* entity, b2Vec2 impulseVec2, b2Vec2 forceVec2) {
+			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddImpulse(entity, impulseVec2.x, impulseVec2.y, forceVec2.x, forceVec2.y);
 			};
 
 		auto addFysicsAddImpulseToCenter = [](Entity* entity, int forceX, int forceY) {
 			b2Vec2 force; force.x = forceX; force.y = forceY;
 			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddImpulseToCenter(entity, force);
+			};
+
+		auto addFysicsAddImpulseToCenterv = [](Entity* entity, b2Vec2 forceVec2) {
+			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddImpulseToCenter(entity, forceVec2);
 			};
 
 		auto addFysicsTorque = [](Entity* entity, float torque) {
@@ -184,14 +217,12 @@ namespace IonixEngine
 
 			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddBox(entity, size, offset, angle, isTrigger);
 		};
-		auto addSpriteCollider = [](Entity* entity, bool isTrigger, float scaleFactor) {
-			if (scaleFactor == 0)
-			{
-				scaleFactor = 1.0f;
-			}
-			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddSpriteCollider(entity, isTrigger, scaleFactor);
-		};
-		
+
+		auto addBoxColliderv = [](Entity* entity, b2Vec2 size, b2Vec2 offset, float angle, bool isTrigger) {
+
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddBox(entity, size, offset, angle, isTrigger);
+			};
+
 
 		auto addPolygonCollider = [](Entity* entity, float tileSize, std::vector<b2Vec2>& terrainPositions) {
 			for (int i = 0; i < terrainPositions.size(); i++)
@@ -200,6 +231,52 @@ namespace IonixEngine
 			}
 			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddPolygon(entity, tileSize, terrainPositions);
 		};
+
+		auto getColliderWidth = [](Entity* entity) -> float {
+			return Application::Get().layerFysics->GetFysicsManager()->GetShapes()->GetWidth();
+			};
+
+		auto setColliderWidth = [](Entity* entity, float w, fysicShapeType shapeType) {
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->SetWidth(w, shapeType);
+			};
+
+		auto getColliderHeight = [](Entity* entity) -> float {
+			return Application::Get().layerFysics->GetFysicsManager()->GetShapes()->GetHeight();
+			};
+
+		auto setColliderHeight = [](Entity* entity, float h, fysicShapeType shapeType) {
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->SetHeight(h, shapeType);
+			};
+
+		auto isColliderTrigger = [](Entity* entity) -> bool {
+			return Application::Get().layerFysics->GetFysicsManager()->GetShapes()->IsShapeTrigger();
+			};
+
+		auto setColliderTrigger = [](Entity* entity, bool value) {
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->SetShapeTrigger(value);
+			};
+
+		auto getColliderVertices = [](Entity* entity) {
+			return Application::Get().layerFysics->GetFysicsManager()->GetShapes()->GetVertices();
+			};
+
+		auto setColliderVertices = [](Entity* entity, std::vector<b2Vec2> verts, fysicShapeType shapeType) {
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->SetVertices(verts, shapeType);
+			};
+
+		auto getColliderShapeType = [](Entity* entity) {
+			return Application::Get().layerFysics->GetFysicsManager()->GetShapes()->GetShapeType();
+			};
+
+			
+		auto addSpriteCollider = [](Entity* entity, bool isTrigger, float scaleFactor) {
+			if (scaleFactor == 0)
+			{
+				scaleFactor = 1.0f;
+			}
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddSpriteCollider(entity, isTrigger, scaleFactor);
+		};
+		
 
 		auto addCircleCollider = [](Entity* entity, float radius, int offsetX, int offsetY, bool isTrigger)
 		{
@@ -381,12 +458,18 @@ namespace IonixEngine
 
 
 		lua["Fysics"] = lua.create_table_with(
+			"add_box_collider",	addBoxCollider,
+			"add_box_collider_v", addBoxColliderv,
+			"add_polygon_collider",addPolygonCollider,
+			"add_circle_collider", addCircleCollider,
 			"get_pos", getFysicsPos,
 			"set_pos", setFysicsPos,
+			"set_pos_v", setFysicsPosv,
 			"get_angle", getFysicsAngle,
 			"set_angle", setFysicsAngle,
 			"get_linear_velocity", getFysicsLinearVelocity,
 			"set_linear_velocity", setFysicsLinearVelocity,
+			"set_linear_velocity_v", setFysicsLinearVelocityv,
 			"get_angular_velocity", getFysicsAngularVelocity,
 			"set_angular_velocity", setFysicsAngularVelocity,
 			"get_awake", getFysicsAwake,
@@ -408,14 +491,25 @@ namespace IonixEngine
 			"add_force_to_center", addFysicsForceToCenter,
 			"add_impulse", addFysicsAddImpulse,
 			"add_impulse_to_center", addFysicsAddImpulseToCenter,
+			"add_force_v", addFysicsForcev,
+			"add_force_to_center_v", addFysicsForceToCenterv,
+			"add_impulse_v", addFysicsAddImpulsev,
+			"add_impulse_to_center_v", addFysicsAddImpulseToCenterv,
 			"add_torque", addFysicsTorque,
 			"add_angular_impulse", addFysicsAngularImpulse,
 			"clear_forces", clearFysicsForces,
-			"add_box_collider", addBoxCollider,
+			"get_collider_width", getColliderWidth,
+			"set_collider_width", setColliderWidth,
+			"get_collider_height", getColliderHeight,
+			"set_collider_height", setColliderHeight,
+			"is_collider_trigger", isColliderTrigger,
+			"set_collider_trigger", setColliderTrigger,
+			"get_collider_vertices", getColliderVertices,
+			"set_collider_vertices", setColliderVertices,
+			"get_collider_type", getColliderShapeType,
 			"set_material_properties", fysicsUpdateMaterialProperties,
 			"get_friction", getFriction,
 			"get_restitution", getRestitution,
-			"add_polygon_collider", addPolygonCollider,
 			"add_sprite_collider", addSpriteCollider,
 			"create_prismatic_joint", setPrismaticJoint,
 			"create_weld_joint", setWeldJoint,
