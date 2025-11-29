@@ -13,7 +13,7 @@ end
 --LoadModule("EntityPlayer", "Scripts/EntityPlayer.lua")
 --LoadModule("Ball", "Scripts/Ball.lua")
 LoadModule("Assets", "Scripts/Assets.lua")
-LoadModule("FlappyBird", "Scripts/FlappyBird/FlappyBird.lua")
+LoadModule("Snake", "Scripts/Snake-Demo/Snake-Demo.lua")
 --LoadModule("ExampleScript", "Scripts/ExampleScript.lua")
 
 -- Lifecycle hooks
