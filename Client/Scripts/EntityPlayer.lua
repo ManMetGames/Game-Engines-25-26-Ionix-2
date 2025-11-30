@@ -16,7 +16,7 @@ function EntityPlayer:OnStart()
 	Entity.add_sprite_component(entity1, assets.textures.FlappyBird, 100, 100, 0)   
 	--Entity.add_fysics_component(entity1, 0, false)
 
-	Entity.set_entity_pos(entity1, x, y)
+	Entity.set_global_pos(entity1, x, y)
 	Entity.add_fysics_component(entity1, enums.bodytype.kinematicBody, true)
 	Fysics.add_sprite_collider(entity1, false, 1)
 
