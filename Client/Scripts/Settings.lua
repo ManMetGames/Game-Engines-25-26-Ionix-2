@@ -7,12 +7,12 @@ function LoadModule(name, path)
 end
 
 -- Load all game modules here
+LoadModule("Assets", "Scripts/Assets.lua")
 --LoadModule("Audio", "Scripts/Audio.lua")
 --LoadModule("Enemy", "Scripts/Enemy.lua")
 --LoadModule("Player", "Scripts/Player.lua")
 --LoadModule("EntityPlayer", "Scripts/EntityPlayer.lua")
 --LoadModule("Ball", "Scripts/Ball.lua")
-LoadModule("Assets", "Scripts/Assets.lua")
 LoadModule("FlappyBird", "Scripts/FlappyBird/FlappyBird.lua")
 --LoadModule("ExampleScript", "Scripts/ExampleScript.lua")
 
@@ -34,7 +34,12 @@ function OnUpdate()
         end
     end
 end
-
+funtion OnFixedUpdate()
+for name,module in pairs(modules) do
+    if modules.OnFixedUpdate then
+        module.OnFixedUpdate()
+    end
+end
 function OnShutdown()
     for name, module in pairs(modules) do
         if module.OnShutdown then

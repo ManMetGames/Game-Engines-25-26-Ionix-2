@@ -114,6 +114,7 @@ namespace IonixEngine
                     if(layer)
                         layer->OnFixedUpdate();
                 }
+                Scripting::Get().CallHook("OnFixedUpdate");
                 m_FixedTimeAccumulator -= m_FixedTimeStep;
             }
             
