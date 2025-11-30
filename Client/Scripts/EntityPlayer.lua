@@ -7,6 +7,7 @@ local xSpeed = 5
 local ySpeed = 5
 local vec2
 local assets = require("Scripts.Assets")
+local enums = require("Scripts.Enums")
 
 function EntityPlayer:OnStart()
 	entity1 = Entity.create_entity()
@@ -16,7 +17,7 @@ function EntityPlayer:OnStart()
 	--Entity.add_fysics_component(entity1, 0, false)
 
 	Entity.set_entity_pos(entity1, x, y)
-	Entity.add_fysics_component(entity1, 2, true)
+	Entity.add_fysics_component(entity1, enums.bodytype.kinematicBody, true)
 	Fysics.add_sprite_collider(entity1, false, 1)
 
 	local hasComp, sprite1 = Entity.try_get_sprite_component(entity1)

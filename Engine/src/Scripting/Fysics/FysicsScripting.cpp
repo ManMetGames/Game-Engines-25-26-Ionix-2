@@ -21,15 +21,6 @@ namespace IonixEngine
 			"y", &b2Vec2::y
 		);
 
-		//CHANGE TO LUA FILE LIKE ASSETS.LUA
-		lua.new_enum<fysicShapeType>("ShapeType",
-			{
-				{"circle", fysicShapeType::circle},
-				{"box", fysicShapeType::box},
-				{"polygon", fysicShapeType::polygon},
-				{"none", fysicShapeType::none}
-			}
-		);
 
 		//------------Fysics Body Methods---------------
 		auto getFysicsPos = [](Entity* entity) -> b2Vec2 {
@@ -236,16 +227,16 @@ namespace IonixEngine
 			return Application::Get().layerFysics->GetFysicsManager()->GetShapes()->GetWidth();
 			};
 
-		auto setColliderWidth = [](Entity* entity, float w, fysicShapeType shapeType) {
-			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->SetWidth(w, shapeType);
+		auto setColliderWidth = [](Entity* entity, float w, int shapeType) {
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->SetWidth(w, static_cast<fysicShapeType>(shapeType));
 			};
 
 		auto getColliderHeight = [](Entity* entity) -> float {
 			return Application::Get().layerFysics->GetFysicsManager()->GetShapes()->GetHeight();
 			};
 
-		auto setColliderHeight = [](Entity* entity, float h, fysicShapeType shapeType) {
-			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->SetHeight(h, shapeType);
+		auto setColliderHeight = [](Entity* entity, float h, int shapeType) {
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->SetHeight(h, static_cast<fysicShapeType>(shapeType));
 			};
 
 		auto isColliderTrigger = [](Entity* entity) -> bool {
@@ -260,8 +251,8 @@ namespace IonixEngine
 			return Application::Get().layerFysics->GetFysicsManager()->GetShapes()->GetVertices();
 			};
 
-		auto setColliderVertices = [](Entity* entity, std::vector<b2Vec2> verts, fysicShapeType shapeType) {
-			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->SetVertices(verts, shapeType);
+		auto setColliderVertices = [](Entity* entity, std::vector<b2Vec2> verts, int shapeType) {
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->SetVertices(verts, static_cast<fysicShapeType>(shapeType));
 			};
 
 		auto getColliderShapeType = [](Entity* entity) {
