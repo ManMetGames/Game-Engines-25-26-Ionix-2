@@ -8,8 +8,8 @@ return {
     },
     bodytype = {
         staticBody = 0, 
-		dynamicBody = 1, 
-		kinematicBody = 2,
+		kinematicBody = 1, 
+		dynamicBody = 2,
     },
 
 	collider = {
