@@ -10,6 +10,11 @@ local goalX = 500
 local goalY = 500
 local y = 300
 local t = 10
+local h = 300
+local w = 300
+
+
+
 
 
 
@@ -18,8 +23,11 @@ local t = 10
 ----------------------------------------------------------
 function ExampleScript:OnStart()
 
+
 Background = Entity.create_entity()
 local BgBackground = Entity.add_sprite_component(Background, assets.textures.Background,960 , 640, 0)
+
+
    ------------------------------------------------------
     -- Create player1
     ------------------------------------------------------
@@ -62,10 +70,19 @@ local BgBackground = Entity.add_sprite_component(Background, assets.textures.Bac
 
 end
 
+pipe = Entity.create_entity()
+	Entity.set_entity_pos(pipe, 440, 550)
+
+	local pipeSprite = Entity.add_sprite_component(pipe, assets.textures.FlappyPipe, 80, 50, 0)
+    Sprite.set_columns(pipeSprite,1)
+	-- Kinematic body so it moves but isn't affected by gravity
+	Entity.add_fysics_component(pipe, 1, false)
+	Fysics.add_sprite_collider(pipe, false,1)
+
+
 end
   
-    
-	
+
 
 
 ----------------------------------------------------------
@@ -73,18 +90,23 @@ end
 ----------------------------------------------------------
 function ExampleScript:OnUpdate()
 
+local score = 42
+  -- text, w, h, x, y, font (font currently unused/placeholder)
+  UI.draw_label(text, w, h, x, y, font)
+
+  
+
  -- get current velocity
     local vel1 = Fysics.get_linear_velocity(player1)
+
+ 
    
     -- Constant rightward movement
     local vx = 0
     local vy1 = vel1.y
 
 	if Input.get_key_down(Keys.ionix_space) then
-        -- Bird move if space is pressed (allow gravity)
-
       
-        -- Set velocity directly to cancel out falling momentum
         vy1 = -5  -- Jump velocity for player1
   end
     if Input.get_key_held(Keys.ionix_a) then
@@ -100,7 +122,7 @@ function ExampleScript:OnUpdate()
 
  Fysics.set_linear_velocity(player1, vx, vy1)
 
-  
+
       
 end
 

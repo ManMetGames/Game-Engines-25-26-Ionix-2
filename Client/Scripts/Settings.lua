@@ -16,6 +16,10 @@ LoadModule("Assets", "Scripts/Assets.lua")
 LoadModule("Snake", "Scripts/Snake-Demo/Snake-Demo.lua")
 --LoadModule("ExampleScript", "Scripts/ExampleScript.lua")
 
+
+
+
+
 -- Lifecycle hooks
 function OnStart()
     for name, module in pairs(modules) do
