@@ -20,7 +20,6 @@ LoadModule("FlappyBird", "Scripts/FlappyBird/FlappyBird.lua")
 function OnStart()
     for name, module in pairs(modules) do
         if module.OnStart then
-            print("[Lua] Starting module:", name)
             module:OnStart()
         end
     end
@@ -34,16 +33,18 @@ function OnUpdate()
         end
     end
 end
-funtion OnFixedUpdate()
-for name,module in pairs(modules) do
-    if modules.OnFixedUpdate then
-        module.OnFixedUpdate()
+
+function OnFixedUpdate()
+    for name, module in pairs(modules) do
+        if module.OnFixedUpdate then
+            module:OnFixedUpdate()
+        end
     end
 end
+
 function OnShutdown()
     for name, module in pairs(modules) do
         if module.OnShutdown then
-            print("[Lua] Shutting down module:", name)
             module:OnShutdown()
         end
     end
@@ -56,6 +57,7 @@ end
 
 return {
     OnStart = OnStart,
+    OnFixedUpdate = OnFixedUpdate,
     OnUpdate = OnUpdate,
     OnShutdown = OnShutdown,
     GetModule = GetModule

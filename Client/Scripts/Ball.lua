@@ -52,7 +52,7 @@ function ball:OnStart()
     Fysics.add_impulse(ballEntity, screenW/2, screenH/2,speedX,speedY)
 end
 
-function ball:OnUpdate()
+function ball:OnFixedUpdate()
     local vel1 = Fysics.get_linear_velocity(ballEntity)
     local vx = vel1.x
     local vy1 = vel1.y
