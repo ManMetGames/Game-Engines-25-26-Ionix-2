@@ -19,6 +19,7 @@ namespace IonixEngine {
             return Application::Get().layerScene->GetScene()->GetEntityFromID(entityID);
             };
 
+        //----------Transforms-----------
         auto getGlobalPos = [](Entity* entity) -> b2Vec2 {
             Vec2 pos = entity->transform.GetGlobalPosition();
             b2Vec2 returnPos = b2Vec2{ pos.x, pos.y };
@@ -80,6 +81,49 @@ namespace IonixEngine {
             if (entity == nullptr) return;
             entity->transform.SetLocalScale(Vec2{ x, y });
             };
+
+        auto setParent = [](Entity* entity, Entity* newParent, sol::optional<bool> maintainLocation) {
+            if (entity == nullptr || newParent == nullptr) return;
+            if (!maintainLocation)
+            {
+                entity->transform.SetParent(&newParent->transform);
+            }
+            else
+            {
+                entity->transform.SetParent(&newParent->transform, *maintainLocation);
+            }
+
+            };
+
+        auto removeParent = [](Entity* entity, sol::optional<bool> maintainLocation) {
+            if (entity == nullptr) return;
+            if (!maintainLocation)
+            {
+                entity->transform.RemoveParent();
+            }
+            else
+            {
+                entity->transform.RemoveParent(*maintainLocation);
+            }
+
+            };
+
+        auto addChild = [](Entity* entity, Entity* newChild) {
+            if (entity == nullptr || newChild == nullptr) return;
+            entity->transform.AddChild(&newChild->transform);
+            };
+
+        auto removeChild = [](Entity* entity, Entity* newChild) {
+            if (entity == nullptr || newChild == nullptr)
+            entity->transform.RemoveChild(&newChild->transform);
+            };
+
+        auto removeChildWithIndex = [](Entity* entity, int index) {
+            if (entity == nullptr)
+                entity->transform.RemoveChild(index);
+            };
+
+        //----------Components--------------
 
         auto addSpriteComponent = [](Entity* entity, uint32_t alias, int width, int height, int zedOrder) -> const SpriteComponent*{
             //entity->AddComponent(new SpriteComponent(entity, alias, width, height, zedOrder));
@@ -168,6 +212,11 @@ namespace IonixEngine {
             "set_local_rot", setLocalRot,
             "get_local_scale", getLocalScale,
             "set_local_scale", setLocalScale,
+            "set_parent", setParent,
+            "remove_parent", removeParent,
+            "add_child", addChild,
+            "remove_child", removeChild,
+            "remove_child_index", removeChildWithIndex,
             "add_sprite_component", addSpriteComponent,
             "add_audio_component", addAudioPlayerComponent,
             "add_fysics_component", addFysicsBodyComponent,
