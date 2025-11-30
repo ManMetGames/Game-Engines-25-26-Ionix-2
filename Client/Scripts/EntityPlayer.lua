@@ -35,19 +35,19 @@ function EntityPlayer:OnUpdate()
 	vec2 = Fysics.get_linear_velocity(entity1)
 	--Entity.set_entity_pos(entity1, 700, 600)
 	if Input.get_key_held(Keys.ionix_d) then
-		vec2.x = xSpeed
+		Mafs.set_vec_x(vec2, xSpeed);
 	elseif Input.get_key_held(Keys.ionix_a) then
-		vec2.x = -xSpeed
+		Mafs.set_vec_x(vec2, -xSpeed);
 	else
-	vec2.x = 0
+	Mafs.set_vec_x(vec2, 0);
 	end
 
 	if Input.get_key_held(Keys.ionix_w) then
-		vec2.y = -ySpeed
+		Mafs.set_vec_y(vec2, -ySpeed);
 	elseif Input.get_key_held(Keys.ionix_s) then
-		vec2.y = ySpeed
+		Mafs.set_vec_y(vec2, ySpeed);
 	else
-	vec2.y = 2
+	Mafs.set_vec_y(vec2, 2);
 	end
 
 	Fysics.set_linear_velocity_v(entity1, vec2)

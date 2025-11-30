@@ -14,13 +14,6 @@ namespace IonixEngine
 
 	void FysicsScripting::Init(sol::state& lua)
 	{
-		//------------Box2D Vec2 Binding--------------- VERY USEFUL! Can use this in many methods below.
-		lua.new_usertype<b2Vec2>("Vec2",
-			sol::constructors<b2Vec2(), b2Vec2(float, float)>(),
-			"x", &b2Vec2::x,
-			"y", &b2Vec2::y
-		);
-
 
 		//------------Fysics Body Methods---------------
 		auto getFysicsPos = [](Entity* entity) -> b2Vec2 {
