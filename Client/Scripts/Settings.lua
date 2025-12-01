@@ -13,6 +13,8 @@ LoadModule("Assets", "Scripts/Assets.lua")
 --LoadModule("Player", "Scripts/Player.lua")
 --LoadModule("EntityPlayer", "Scripts/EntityPlayer.lua")
 --LoadModule("Ball", "Scripts/Ball.lua")
+LoadModule("Assets", "Scripts/Assets.lua")
+LoadModule("Enums", "Scripts/Enums.lua")
 LoadModule("FlappyBird", "Scripts/FlappyBird/FlappyBird.lua")
 --LoadModule("ExampleScript", "Scripts/ExampleScript.lua")
 
