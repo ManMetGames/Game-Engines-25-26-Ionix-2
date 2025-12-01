@@ -35,18 +35,26 @@ function ExampleScript:OnStart()
     ------------------------------------------------------
     player1 = Entity.create_entity()
 
-    Entity.set_entity_pos(player1, x, 300)
+    Entity.set_entity_pos(player1, x, 300)  
 	
     local playerSprite1 = Entity.add_sprite_component(player1, assets.textures.FlappyBird, 32, 32, 10)
     Sprite.set_columns(playerSprite1,1)
     -- PLAYER 1 PHYSICS
-
-    Entity.add_fysics_component(player1, 2, false) -- dynamic body
-    --Fysics.add_sprite_collider(player1, false)
-    Fysics.add_sprite_collider(player1,false,1)
+    Entity.add_fysics_component(player1, 2, true) -- dynamic body
+    Fysics.add_sprite_collider(player1 ,false, 1)
     -- Freeze bird
     Fysics.set_gravity_scale(player1, 0)
 
+
+    -----------------------------
+    ------Coins
+    ------------
+    coin = Entity.create_entity()
+    Entity.set_entity_pos(coin, 200, 200)
+    local coinSprite = Entity.add_sprite_component(coin, assets.textures.Coin, 100, 32, 10)
+    Sprite.set_columns(coinSprite, 1)
+    Entity.add_fysics_component(coin, 1, false)
+    Fysics.add_sprite_collider(coin, true, 1)
 
     local tileSize = 64
     local floorY = 600
@@ -88,7 +96,7 @@ function ExampleScript:OnStart()
 
     -- TOP PIPE
     pipeT = Entity.create_entity()
-	Entity.set_entity_pos(pipeT, 640, 0)
+	Entity.set_entity_pos(pipeT, 900, 0)
 
 	local pipeSpriteT = Entity.add_sprite_component(pipeT,assets.textures.FlappyPipe , 80, 300, 0)
     Sprite.set_columns(pipeSpriteT,1)
@@ -99,6 +107,11 @@ function ExampleScript:OnStart()
     if Input.get_key_down(Keys.ionix_a) then
         Entity.set_entity_pos(pipe, xPos, floorY)
 	end
+
+    Fysics.add_to_collision_map(player1, pipeT)
+    Fysics.add_to_collision_map(player1, pipe)
+
+
 end
 
 ----------------------------------------------------------

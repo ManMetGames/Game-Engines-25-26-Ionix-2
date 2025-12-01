@@ -313,7 +313,7 @@ namespace IonixEngine
 		auto isEnabled = [](int jointID) {
 			if (Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointCount() <= 0) { return; }
 			b2Joint* jointList = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointList();
-			for (int i = 0; i < jointID; i++) {
+			for (int i = 0;	 i < jointID; i++) {
 				jointList->GetNext();
 			}
 			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->isEnabled(jointList);
@@ -375,8 +375,14 @@ namespace IonixEngine
 			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->setStiffness((b2WeldJoint*)jointList, newStiffness);
 		};
 
-
-
+		//----------EntityMap----------
+		auto addToCollisionMap = [](Entity* entityA, Entity* entityB)
+		{
+			if (entityA->GetComponent<FysicsBody>() && entityB->GetComponent<FysicsBody>())
+			{
+				Application::Get().layerFysics->GetFysicsManager()->GetCollisionListener()->AddToCollisionMap(entityA, entityB);
+			}
+		};
 
 
 
@@ -435,7 +441,8 @@ namespace IonixEngine
 			"get_damping", getDampingFromWeldJoint,
 			"set_damping", setDampingFromWeldJoint,
 			"get_stiffness", getStiffnessFromWeldJoint,
-			"set_stiffness", setStiffnessFromWeldJoint
+			"set_stiffness", setStiffnessFromWeldJoint,
+			"add_to_collision_map", addToCollisionMap
 		);
 	}
 }
