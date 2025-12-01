@@ -32,7 +32,7 @@ function ExampleScript:OnStart()
     ------------------------------------------------------
     player = Entity.create_entity()
     Entity.set_entity_pos(player, x, y)
-    playerSprite = Entity.add_sprite_component(player, "ball", 75, 75, 0)
+    playerSprite = Entity.add_sprite_component(player, "ball", 75, 75, 300)
 	Sprite.set_playback_mode(playerSprite, 4)
     Entity.add_fysics_component(player, 2, false) -- dynamic body
     Fysics.add_box_collider(player, 0.5, 0.5, 0, 0, 0, false)
@@ -55,7 +55,7 @@ function ExampleScript:OnStart()
 		Entity.set_entity_pos(tile, xPos, floorY)
 
 		-- sprite as single frame (4 = manual/no anim)
-		local s = Entity.add_sprite_component(tile, tex, tileSize, tileSize, 0)
+		local s = Entity.add_sprite_component(tile, tex, tileSize, tileSize, 40)
 		Sprite.set_playback_mode(s, 4)
 
 		------------------------------------------------------
