@@ -45,6 +45,22 @@ namespace IonixEngine
 			return vector;
 			};
 
+		auto setVector2x = [](b2Vec2* vec2, float x) {
+			vec2->x = x;
+			};
+
+		auto setVector2y = [](b2Vec2* vec2, float y) {
+			vec2->y = y;
+			};
+
+		auto getVector2x = [](b2Vec2* vec2) -> float {
+			return vec2->x;
+			};
+
+		auto getVector2y = [](b2Vec2* vec2) -> float {
+			return vec2->y;
+			};
+
 		auto mod = [](float x, float y) -> float {
 			return Maf::mafMod(x, y);
 			};
@@ -118,6 +134,10 @@ namespace IonixEngine
 			"lerp", lerp,
 			"lerp_vec", lerpVec,
 			"vec_2", vector2,
+			"set_vec_x", setVector2x,
+			"set_vec_y", setVector2y,
+			"get_vec_x", getVector2x,
+			"get_vec_y", getVector2y,
 			"mod", mod,
 			"div", div,
 			"sqr_magnitude_vec_2", SqrMagnitudeVector2,

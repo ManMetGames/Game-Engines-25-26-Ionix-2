@@ -19,16 +19,111 @@ namespace IonixEngine {
             return Application::Get().layerScene->GetScene()->GetEntityFromID(entityID);
             };
 
-        auto getEntityPos = [](Entity* entity) -> b2Vec2 {
+        //----------Transforms-----------
+        auto getGlobalPos = [](Entity* entity) -> b2Vec2 {
+            Vec2 pos = entity->transform.GetGlobalPosition();
+            b2Vec2 returnPos = b2Vec2{ pos.x, pos.y };
+            return returnPos;
+            };
+
+        auto getGlobalRot = [](Entity* entity) -> float {
+            return entity->transform.GetGlobalRotation();
+            };
+
+        auto getGlobalScale = [](Entity* entity) -> b2Vec2 {
+            Vec2 pos = entity->transform.GetGlobalScale();
+            b2Vec2 returnPos = b2Vec2{ pos.x, pos.y };
+            return returnPos;
+            };
+
+        auto setGlobalPos = [](Entity* entity, float x, float y) {
+            if (entity == nullptr) return;
+            entity->transform.SetGlobalPosition(Vec2{ x, y });
+            };
+
+        auto setGlobalRot = [](Entity* entity, float rot) {
+            if (entity == nullptr) return;
+            entity->transform.SetGlobalRotation(rot);
+            };
+
+        auto setGlobalScale = [](Entity* entity, float x, float y) {
+            if (entity == nullptr) return;
+            entity->transform.SetGlobalScale(Vec2{ x, y });
+            };
+
+        auto getLocalPos = [](Entity* entity) -> b2Vec2 {
             Vec2 pos = entity->transform.GetLocalPosition();
             b2Vec2 returnPos = b2Vec2{ pos.x, pos.y };
             return returnPos;
             };
 
-        auto setEntityPos = [](Entity* entity, float x, float y) {
-            if (entity == nullptr) return;
-            entity->transform.SetGlobalPosition(Vec2{ x, y });
+        auto getLocalRot = [](Entity* entity) -> float {
+            return entity->transform.GetLocalRotation();
             };
+
+        auto getLocalScale = [](Entity* entity) -> b2Vec2 {
+            Vec2 pos = entity->transform.GetLocalScale();
+            b2Vec2 returnPos = b2Vec2{ pos.x, pos.y };
+            return returnPos;
+            };
+
+        auto setLocalPos = [](Entity* entity, float x, float y) {
+            if (entity == nullptr) return;
+            entity->transform.SetLocalPosition(Vec2{ x, y });
+            };
+
+        auto setLocalRot = [](Entity* entity, float rot) {
+            if (entity == nullptr) return;
+            entity->transform.SetLocalRotation(rot);
+            };
+
+        auto setLocalScale = [](Entity* entity, float x, float y) {
+            if (entity == nullptr) return;
+            entity->transform.SetLocalScale(Vec2{ x, y });
+            };
+
+        auto setParent = [](Entity* entity, Entity* newParent, sol::optional<bool> maintainLocation) {
+            if (entity == nullptr || newParent == nullptr) return;
+            if (!maintainLocation)
+            {
+                entity->transform.SetParent(&newParent->transform);
+            }
+            else
+            {
+                entity->transform.SetParent(&newParent->transform, *maintainLocation);
+            }
+
+            };
+
+        auto removeParent = [](Entity* entity, sol::optional<bool> maintainLocation) {
+            if (entity == nullptr) return;
+            if (!maintainLocation)
+            {
+                entity->transform.RemoveParent();
+            }
+            else
+            {
+                entity->transform.RemoveParent(*maintainLocation);
+            }
+
+            };
+
+        auto addChild = [](Entity* entity, Entity* newChild) {
+            if (entity == nullptr || newChild == nullptr) return;
+            entity->transform.AddChild(&newChild->transform);
+            };
+
+        auto removeChild = [](Entity* entity, Entity* newChild) {
+            if (entity == nullptr || newChild == nullptr)
+            entity->transform.RemoveChild(&newChild->transform);
+            };
+
+        auto removeChildWithIndex = [](Entity* entity, int index) {
+            if (entity == nullptr)
+                entity->transform.RemoveChild(index);
+            };
+
+        //----------Components--------------
 
         auto addSpriteComponent = [](Entity* entity, uint32_t alias, int width, int height, int zedOrder) -> const SpriteComponent*{
             //entity->AddComponent(new SpriteComponent(entity, alias, width, height, zedOrder));
@@ -105,8 +200,23 @@ namespace IonixEngine {
 
         lua["Entity"] = lua.create_table_with(
             "create_entity", entity,
-            "get_entity_pos", getEntityPos,
-            "set_entity_pos", setEntityPos,
+            "get_global_pos", getGlobalPos,
+            "set_global_pos", setGlobalPos,
+            "get_global_rot", getGlobalRot,
+            "set_global_rot", setGlobalRot,
+            "get_global_scale", getGlobalScale,
+            "set_global_scale", setGlobalScale,
+            "get_local_pos", getLocalPos,
+            "set_local_pos", setLocalPos,
+            "get_local_rot", getLocalRot,
+            "set_local_rot", setLocalRot,
+            "get_local_scale", getLocalScale,
+            "set_local_scale", setLocalScale,
+            "set_parent", setParent,
+            "remove_parent", removeParent,
+            "add_child", addChild,
+            "remove_child", removeChild,
+            "remove_child_index", removeChildWithIndex,
             "add_sprite_component", addSpriteComponent,
             "add_audio_component", addAudioPlayerComponent,
             "add_fysics_component", addFysicsBodyComponent,
