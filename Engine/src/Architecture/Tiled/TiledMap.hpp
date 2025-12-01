@@ -25,6 +25,22 @@ public:
     std::string ToString();
 };
 
+class TiledTileset {
+public:
+    int columns;
+    int tileCount;
+    std::string imagePath;
+    b2Vec2 imageSize;
+    int margin;
+    std::string name;
+    int spacing;
+    b2Vec2 tileSize;
+
+    TiledTileset(JSONDeserialize* json);
+    std::string ToString();
+    int Rows();
+};
+
 // Functionality will be merged in later, for now just remove tile layers
 class TiledTileLayer {
 public:
@@ -57,6 +73,13 @@ public:
     std::vector<TiledLayer> layers;
     b2Vec2 size;
     int32_t compressionLevel;
+    std::string orientation;
+    std::string renderOrder;
+    std::string tiledVersion;
+    b2Vec2 tileSize;
+    std::vector<TiledTileset> tilesets;
+    std::string type;
+    std::string version;
 
     TiledMap(JSONDeserialize* json);
 };

@@ -55,7 +55,9 @@ bool JSONDeserialize::GetFloat(float* out) {
     std::string substr = data.substr(pos + 1, newPos - pos - 1).c_str();
     float value = strtof(substr.c_str(), &valid);
     if (valid) {
-        *out = value;
+        if (out) {
+            *out = value;
+        }
     } else {
         printf("[JSON Deserialize] Could not parse float");
         return false;
@@ -73,7 +75,9 @@ bool JSONDeserialize::GetDouble(double* out) {
     std::string substr = data.substr(pos + 1, newPos - pos - 1).c_str();
     double value = strtod(substr.c_str(), &valid);
     if (valid) {
-        *out = value;
+        if (out) {
+            *out = value;
+        }
     } else {
         printf("[JSON Deserialize] Could not parse double");
         return false;
@@ -88,8 +92,10 @@ bool JSONDeserialize::GetBool(bool* out) {
     newPos = data.find('\n', pos);
     if (newPos == data.npos) { printf("[JSON Deserialize] Malformed JSON after char %zu, expected bool\n", pos); return false; }
     std::string substr = data.substr(pos + 1, newPos - pos - 1).c_str();
-    if (substr.find("true",  substr.length(), 0) != substr.npos) { *out = true; }
-    if (substr.find("false", substr.length(), 0) != substr.npos) { *out = false; } else { printf("[JSON Deserialize] Could not parse bool\n"); return false; }
+    if (out) {
+        if (substr.find("true",  substr.length(), 0) != substr.npos) { *out = true; }
+        if (substr.find("false", substr.length(), 0) != substr.npos) { *out = false; } else { printf("[JSON Deserialize] Could not parse bool\n"); return false; }
+    }
     pos = newPos;
     return true;
 }

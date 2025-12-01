@@ -1,6 +1,7 @@
 #include "TiledMap.hpp"
 #include "TiledObject.hpp"
 #include "JSON/JSONDeserialize.hpp"
+#include <complex>
 #include <sstream>
 
 namespace IonixEngine {
@@ -90,11 +91,87 @@ std::string TiledObjectLayer::ToString() {
     return stream.str();
 }
 
+TiledTileLayer::TiledTileLayer(JSONDeserialize* json) {
+    bool ok = true;
+
+}
+
+TiledTileset::TiledTileset(JSONDeserialize* json) {
+    bool ok = true;
+    ok = json->BeginObject(); if (!ok) { return; };
+
+    ok = json->BeginField("columns"); if (!ok) { return; }
+    ok = json->GetInt(&columns); if (!ok) { return; }
+    ok = json->EndField(); if (!ok) { return; }
+
+    ok = json->BeginField("firstgid"); if (!ok) { return; }
+    ok = json->GetFloat(nullptr); if (!ok) { return; }
+    ok = json->EndField(); if (!ok) { return; }
+
+    ok = json->BeginField("image"); if (!ok) { return; }
+    ok = json->GetString(&imagePath); if (!ok) { return; }
+    ok = json->EndField(); if (!ok) { return; }
+
+    ok = json->BeginField("imageheight"); if (!ok) { return; }
+    ok = json->GetFloat(&imageSize.y); if (!ok) { return; }
+    ok = json->EndField(); if (!ok) { return; }
+
+    ok = json->BeginField("imagewidth"); if (!ok) { return; }
+    ok = json->GetFloat(&imageSize.x); if (!ok) { return; }
+    ok = json->EndField(); if (!ok) { return; }
+
+    ok = json->BeginField("margin"); if (!ok) { return; }
+    ok = json->GetInt(&margin); if (!ok) { return; }
+    ok = json->EndField(); if (!ok) { return; }
+
+    ok = json->BeginField("name"); if (!ok) { return; }
+    ok = json->GetString(&name); if (!ok) { return; }
+    ok = json->EndField(); if (!ok) { return; }
+
+    ok = json->BeginField("spacing"); if (!ok) { return; }
+    ok = json->GetInt(&spacing); if (!ok) { return; }
+    ok = json->EndField(); if (!ok) { return; }
+
+    ok = json->BeginField("tilecount"); if (!ok) { return; }
+    ok = json->GetInt(&tileCount); if (!ok) { return; }
+    ok = json->EndField(); if (!ok) { return; }
+
+    ok = json->BeginField("tileheight"); if (!ok) { return; }
+    ok = json->GetFloat(&tileSize.y); if (!ok) { return; }
+    ok = json->EndField(); if (!ok) { return; }
+
+    ok = json->BeginField("tilewidth"); if (!ok) { return; }
+    ok = json->GetFloat(&tileSize.x); if (!ok) { return; }
+    ok = json->EndField(); if (!ok) { return; }
+
+    ok = json->EndObject(); if (!ok) { return; };
+}
+
+std::string TiledTileset::ToString() {
+    std::stringstream stream;
+
+    stream << "\t\tTileset:\n";
+    stream << "\t\t\tColumns: " << columns << "\n";
+    stream << "\t\t\tImage: " << imagePath << "\n";
+    stream << "\t\t\tImage Size: [ " << imageSize.x << ", " << imageSize.y << " ]\n";
+    stream << "\t\t\tMargin: " << margin << "\n";
+    stream << "\t\t\tName: " << name << "\n";
+    stream << "\t\t\tSpacing: " << spacing << "\n";
+    stream << "\t\t\tTile Count: " << tileCount << "\n";
+    stream << "\t\t\tTile Size: [ " << tileSize.x << ", " << tileSize.y << " ]\n";
+
+    return stream.str();
+}
+
+int TiledTileset::Rows() {
+    return tileCount / columns;
+}
+
 TiledLayer::TiledLayer(JSONDeserialize* json) {
     isTile = json->StringInRange("\"data\"", 10);
     if (isTile) {
         // TODO: This is a tile layer, implementation will be merged later
-        // tileLayer = TiledTileLayer(json);
+        tileLayer = TiledTileLayer(json);
     } else {
         objectLayer = TiledObjectLayer(json);
     }
@@ -126,6 +203,58 @@ TiledMap::TiledMap(JSONDeserialize* json) {
         } while (json->HasNext());
     }
     ok = json->EndArray(); if (!ok) { return; }
+    ok = json->EndField(); if (!ok) { return; }
+
+    ok = json->BeginField("nextlayerid"); if (!ok) { return; }
+    ok = json->GetInt(nullptr); if (!ok) { return; }
+    ok = json->EndField(); if (!ok) { return; }
+
+    ok = json->BeginField("nextobjectid"); if (!ok) { return; }
+    ok = json->GetInt(nullptr); if (!ok) { return; }
+    ok = json->EndField(); if (!ok) { return; }
+
+    ok = json->BeginField("orientation"); if (!ok) { return; }
+    ok = json->GetString(&orientation); if (!ok) { return; }
+    ok = json->EndField(); if (!ok) { return; }
+
+    ok = json->BeginField("renderorder"); if (!ok) { return; }
+    ok = json->GetString(&renderOrder); if (!ok) { return; }
+    ok = json->EndField(); if (!ok) { return; }
+
+    ok = json->BeginField("tiledversion"); if (!ok) { return; }
+    ok = json->GetString(&tiledVersion); if (!ok) { return; }
+    ok = json->EndField(); if (!ok) { return; }
+
+    ok = json->BeginField("tileheight"); if (!ok) { return; }
+    ok = json->GetFloat(&tileSize.y); if (!ok) { return; }
+    ok = json->EndField(); if (!ok) { return; }
+
+    ok = json->BeginField("tilesets"); if (!ok) { return; }
+    ok = json->BeginArray(); if (!ok) { return; }
+    if (ok) {
+        do {
+            json->BeginElement();
+            tilesets.push_back(TiledTileset(json));
+            json->EndElement();
+        } while (json->HasNext());
+    }
+    ok = json->EndArray(); if (!ok) { return; }
+    ok = json->EndField(); if (!ok) { return; }
+
+    ok = json->BeginField("tilewidth"); if (!ok) { return; }
+    ok = json->GetFloat(&tileSize.x); if (!ok) { return; }
+    ok = json->EndField(); if (!ok) { return; }
+
+    ok = json->BeginField("type"); if (!ok) { return; }
+    ok = json->GetString(&type); if (!ok) { return; }
+    ok = json->EndField(); if (!ok) { return; }
+
+    ok = json->BeginField("version"); if (!ok) { return; }
+    ok = json->GetString(&version); if (!ok) { return; }
+    ok = json->EndField(); if (!ok) { return; }
+
+    ok = json->BeginField("width"); if (!ok) { return; }
+    ok = json->GetFloat(&size.x); if (!ok) { return; }
     ok = json->EndField(); if (!ok) { return; }
 
     ok = json->End(); if (!ok) { return; }
