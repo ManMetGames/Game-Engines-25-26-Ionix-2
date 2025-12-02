@@ -52,12 +52,12 @@ float scrollDiff;
     //Mouse
     bool Input::IsMouseButtonDown(Uint8 mousecode) const
     {
-        return currentMouse.count(mousecode);
+        return !previousMouse.count(mousecode) && currentMouse.count(mousecode);
     }
 
     bool Input::IsMouseButtonUp(Uint8 mousecode) const
     {
-        return previousMouse.count(mousecode);
+        return previousMouse.count(mousecode) && !currentMouse.count(mousecode);
     }
 
     void Input::SetMousePressed(Uint8 code)
