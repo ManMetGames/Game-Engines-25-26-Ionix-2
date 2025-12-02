@@ -1,27 +1,25 @@
 #pragma once
-#include <Box2D.h>
+#include <box2D.h>
 #include <SDL.h>
 
 class DebugDraw : public b2Draw
 {
 public:
-    DebugDraw(SDL_Renderer* renderer): m_renderer(renderer)
+    DebugDraw(SDL_Renderer* renderer, float scale = 30.0f)
+        : m_renderer(renderer), m_scale(scale)
     {}
 
     void SetRenderer(SDL_Renderer* renderer) { m_renderer = renderer; }
 
     SDL_Point ToScreen(const b2Vec2& vec) const {
-        const float SCALE = 100.0f; // pixels per meter (adjust to your world scale)
-        const int SCREEN_HEIGHT = 640; // or use your actual window height
-
+        float scale = 100.0f;
         return {
-            static_cast<int>(vec.x * SCALE),
-            static_cast<int>(vec.y * SCALE)
+            static_cast<int>(vec.x * scale),
+            static_cast<int>(vec.y * scale)
         };
     }
 
     float Scale(float meters) const {
-        
         return meters * m_scale;
     }
 

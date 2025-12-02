@@ -7,9 +7,6 @@ namespace IonixEngine
     void LayerNavigation::OnAttach()
     {
         instance = this;
-
-        // Example: Load navmesh from a file / generated data
-        // nav.Load(cornerList, indexList);
     }
 
     void LayerNavigation::OnDetach()
@@ -19,7 +16,7 @@ namespace IonixEngine
 
     void LayerNavigation::OnUpdate()
     {
-        // Optional: draw navmesh, debug visualisation etc.
+        //draw navmesh, debug visualisation etc.
     }
 
     std::vector<int> LayerNavigation::RequestPath(int startCell, int goalCell)

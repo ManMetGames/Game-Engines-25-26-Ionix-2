@@ -123,7 +123,6 @@ namespace IonixEngine
                 }
             }
             //think I need to reconstruct path here not sure
-            // --- Reconstruct the path ---
             std::vector<int> path;
             int current = goalCell;
 
@@ -138,22 +137,33 @@ namespace IonixEngine
 
             std::reverse(path.begin(), path.end());
             return path;
-
+                
         }
 
 
     }
+    int NavMef::GetPositionInMesh(b2Vec2 position)
+    {
+        int cell = -1;
+        //std::vector<Cell> cells = GetCells();
+        for (int i = 0; i < m_cells.size(); i++) {
+            //The point is inside if it is always on the same side of all edges.
+            //m_cells[i].corns;
+            /*if (position.x > m_corners[m_cells[i].corns[0]].x && position.x < m_corners[m_cells[i].corns[1]].x && position.y > m_corners[m_cells[i].corns[2]].y && position.y < m_corners[m_cells[i].corns[4]].y) {
+                cell = i;
+            }*/
+            b2Vec2 c0 = m_corners[m_cells[i].corns[0]];
+            b2Vec2 c1 = m_corners[m_cells[i].corns[1]];
+            b2Vec2 c2 = m_corners[m_cells[i].corns[2]];
+            b2Vec2 c3 = m_corners[m_cells[i].corns[3]];
+            if (position.x > c0.y && position.x < c2.y && position.y > c0.x && position.y < c3.y) {
+                cell = i;
+            }
 
-	//FysicsManager::~FysicsManager()
-	//{
-	//	// helpers
-	//	delete shapes;
-	//	delete force;
+        }
 
-	//	// cleans up all bodies in the map
-	//	bodyEntityMap.clear();
+        return cell;
+    }
+    //get position function get the sprite or entity or agent maybe a shape IDK - then get its position check position in the navmesh using an in point polygon test to check if in rectangle then get the cell to use and place agent.
 
-	//	// (this also destroys all bodies/fixtures/joints)
-	//	delete world;
-	//}
 }

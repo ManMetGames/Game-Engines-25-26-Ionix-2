@@ -33,7 +33,7 @@ namespace IonixEngine {
 		}
 	}
 
-	void QueueRenderer::Merger(std::vector<RenderCall>& temp, int left, int mid, int right)
+	void QueueRenderer::Merger(std::vector<RenderCall>& arr, int left, int mid, int right)
 	{
 		int n1 = mid - left + 1;
 		int n2 = right - mid;
@@ -93,13 +93,21 @@ namespace IonixEngine {
 			tempQueue.pop();
 		}
 
-		MergeCaller(tempVector, 0, tempVector.size() - 1); //Perform merge sort
-		ArrToQueueConverter(tempVector, sprites); //Convert vector to sorted queue again at the end!
-
+		MergeCaller(sprites, temp, 0, sprites.size() - 1);
+		ArrToQueueConverter(temp, sprites); 
 	}
 
-	void QueueRenderer::MergeCaller(vector<RenderCall>& temp, int left, int right) //Takes the vector created from the queue and sorts it, called second
+	void QueueRenderer::MergeCaller(queue<RenderCall>& sprites, std::vector<RenderCall>& temp, int left, int right)
 	{
+		
+		if (left >= right) {
+			return;
+		}
+
+		int length = sprites.size(); //Returns queue length
+		/*left = 0;
+		right = sprites.size() - 1;*/
+		int mid = left + (right - left) / 2;
 
 		if (left < right)
 		{

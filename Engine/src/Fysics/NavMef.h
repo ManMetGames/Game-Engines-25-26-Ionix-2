@@ -5,7 +5,6 @@
 #include <array>
 #include <iostream>
 #include <queue>
-
 namespace IonixEngine
 {
     struct Cell {
@@ -43,7 +42,7 @@ namespace IonixEngine
 
 
     public:
-        static NavMef* GetNavMef();
+        //static NavMef* GetNavMef();
         // load vertices and indices
         void Load(const std::vector<b2Vec2>& corners, const std::vector<int>& indices);
 
@@ -54,6 +53,8 @@ namespace IonixEngine
         float CalculateHeuristic(int cellIndex, int goalIndex) const;
         // A* incoming crazy func gotta get wild
         std::vector<int>FindPath(int startCell, int goalCell);
+
+        int GetPositionInMesh(b2Vec2 position);
 
         //also Olesya gonna make a funnel that is fun *for* all!
 

@@ -278,24 +278,24 @@ b2Joint* IonixEngine::WeldJoints::getJoint()
     return joint;
 }
 
-void IonixEngine::WeldJoints::setDamping(float damping)
+void IonixEngine::WeldJoints::setDamping(b2WeldJoint* _joint, float damping)
 {
     joint->SetDamping(damping);
 }
 
-float IonixEngine::WeldJoints::getDamping()
+float IonixEngine::WeldJoints::getDamping(b2WeldJoint* _joint)
 {
-    return joint->GetDamping();
+    return _joint->GetDamping();
 }
 
-void IonixEngine::WeldJoints::setStiffness(float stiffness)
+void IonixEngine::WeldJoints::setStiffness(b2WeldJoint* _joint, float stiffness)
 {
     joint->SetStiffness(stiffness);
 }
 
-float IonixEngine::WeldJoints::getStiffness()
+float IonixEngine::WeldJoints::getStiffness(b2WeldJoint* _joint)
 {
-    return joint->GetStiffness();
+    return _joint->GetStiffness();
 }
 
 //-----------------Pulley Class-----------------
@@ -432,15 +432,15 @@ void IonixEngine::DistanceJoints::setJoint()
     joint = (b2DistanceJoint*)Application::Get().layerFysics->GetFysicsManager()->GetWorld()->CreateJoint(&jointDef);
 }
 
-void IonixEngine::DistanceJoints::setJoint(Entity* entityA, Entity* entityB, const b2Vec2& anchorA, const b2Vec2& anchorB, float length)
+void IonixEngine::DistanceJoints::setJoint(Entity* entityA, Entity* entityB, float length)
 {
     _bodyA = Application::Get().layerFysics->GetFysicsManager()->GetBodyFromEntity(entityA);
     _bodyB = Application::Get().layerFysics->GetFysicsManager()->GetBodyFromEntity(entityB);
-    _anchorA = anchorA;
-    _anchorB = anchorB;
+    _anchorA = _bodyA->GetWorldCenter();
+    _anchorB = _bodyB->GetWorldCenter();
     _length = length;
     b2DistanceJointDef jointDef;
-    jointDef.Initialize(_bodyA, _bodyB, anchorA, anchorB);
+    jointDef.Initialize(_bodyA, _bodyB, _anchorA, _anchorB);
     if (length > 0.0f) jointDef.length = length;
 
     joint = (b2DistanceJoint*)Application::Get().layerFysics->GetFysicsManager()->GetWorld()->CreateJoint(&jointDef);

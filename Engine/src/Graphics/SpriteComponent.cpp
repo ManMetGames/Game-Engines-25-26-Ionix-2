@@ -12,7 +12,7 @@ namespace IonixEngine {
 		zOrder = zedOrder;
 		isReversing = false;
 		playbackMode = playbackOptions::FORWARD;
-
+		boxColliderSize = b2Vec2{1 + (0.02f * (width - 75)), 1 + (0.02f * (height - 75))};
 		rows = 1; //default spritesheet size, can be changed in appropriate setters
 		cols = 1;
 
@@ -35,27 +35,30 @@ namespace IonixEngine {
 
 	SpriteComponent::SpriteComponent(Entity* entity, uint32_t hash, int x, int y, int zedOrder) : Component(entity, false, true, false) {
 		texture = IonixEngine::TextureManager::Get().GetTexture(hash).GetTexture(); //adding sprite image file to the texture manager
-		std::cout << texture << std::endl;
+		//std::cout << texture << std::endl;
 		IonixEngine::TextureManager::Get().GetTexture(hash);
 		zOrder = zedOrder;
 		isReversing = false;
 		playbackMode = playbackOptions::FORWARD;
 
 		//setRowsAndCols(2, 8);
-		cols = 6;
+		cols = 1;
 		rows = 1;
 
 		renderLayer = entity->renderLayer;
 
 		SDL_QueryTexture(texture, NULL, NULL, &size.x, &size.y);
-
+	/*
 		// Auto-size width/height from texture if 0 is passed
 		width = (x == 0) ? size.x : x;
 		height = (y == 0) ? size.y : y;
-
+	*/
+		width = x;
+		height = y;
 		// Also set sprite frame size to match (for single-image textures)
-		spriteWidth = (x == 0) ? size.x : 32;
-		spriteHeight = (y == 0) ? size.y : 32;
+		spriteWidth = (x == 0) ? 32 : size.x;
+		spriteHeight = (y == 0) ? 32 : size.y;
+		
 
 		calculateTotalFrames();
 
@@ -80,9 +83,9 @@ namespace IonixEngine {
 		//}
 
 		//create and send render data to the render queue
-		data->queue->AddToQueue(RenderCall {
+		data->queue->AddToQueue(RenderCall{
 			texture,
-			SDL_Rect { (int) (position.x), (int) (position.y), (int) width, (int) height },
+			SDL_Rect { (int)(position.x), (int)(position.y), (int)width, (int)height },
 			SDL_Rect { spriteWidth * currentCol, spriteHeight * currentRow, spriteWidth, spriteHeight },
 			zOrder,
 			spriteAngle,
@@ -206,7 +209,8 @@ namespace IonixEngine {
 	void SpriteComponent::setWidth(int x) { width = x; }
 	void SpriteComponent::setHeight(int x) { height = x; }
 	void SpriteComponent::setAngle(float angle){ spriteAngle = angle; }
-	
+	void SpriteComponent::setBoxColliderSize(b2Vec2 newSize) { boxColliderSize = newSize; }
+
 	//getters
 	IonixEngine::playbackOptions SpriteComponent::getPlaybackMode() /*oh lawd he big*/ { return playbackOptions(); }
 	int SpriteComponent::getCurrentFrame() { return currentFrame; }
@@ -222,4 +226,5 @@ namespace IonixEngine {
 	int SpriteComponent::getWidth() { return width; }
 	int SpriteComponent::getHeight() { return height; }
 	float SpriteComponent::getAngle() { return spriteAngle; }
+	b2Vec2 SpriteComponent::getBoxColliderSize() { return boxColliderSize; }
 }
