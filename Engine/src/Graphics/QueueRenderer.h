@@ -5,7 +5,7 @@
 #include <string>
 #include <array>
 #include "Graphics/SpriteComponent.h"
-#include "Graphics/SpriteComponent.h"
+
 //#include <mutex>
 using namespace std;
 
@@ -16,6 +16,8 @@ namespace IonixEngine {
 		SDL_Rect dest;
 		SDL_Rect src;
 		int32_t z;
+		float rotation;
+		int renderLayer;
 	};
 
 	class QueueRenderer //Singleton

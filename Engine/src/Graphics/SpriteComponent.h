@@ -26,13 +26,15 @@ namespace IonixEngine {
 		int totalFrames;
 		int currentFrame;
 		int endFrame;
-		bool isReversing;
+		bool isReversing; // kai is smelly (its true)
 		int rows, cols;
 		int spriteWidth, spriteHeight;
 		int currentRow, currentCol;
+		float spriteAngle;
+		int renderLayer;
 		float timer;
+		float tickRate;
 		b2Vec2 boxColliderSize;
-		
 
 		enum playbackOptions playbackMode;
 
@@ -46,8 +48,9 @@ namespace IonixEngine {
 
 		//utility functions
 
-		void changeTexture(std::string alias);
+		void changeTexture(std::string alias, int rows, int cols, int spriteWidth, int spriteHeight);
 		void initialiseSpritesheet();
+		void setAnimation(int rows, int cols, int spriteWidth, int spriteHeight);
 
 		//Setters
 		void setEndFrame(int x);
@@ -61,6 +64,8 @@ namespace IonixEngine {
 		void setZedOrder(int x);
 		void setWidth(int x);
 		void setHeight(int x);
+		void setAngle(float angle);
+		void setTickRate(float x);
 		void setBoxColliderSize(b2Vec2 newSize);
 
 		//Getters
@@ -77,6 +82,8 @@ namespace IonixEngine {
 		int getCurrentRow();
 		int getWidth();
 		int getHeight();
+		float getAngle();
+		int getTickRate();
 		b2Vec2 getBoxColliderSize();
 	};
 }
