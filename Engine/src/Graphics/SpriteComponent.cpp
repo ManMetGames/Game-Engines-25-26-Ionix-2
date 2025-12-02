@@ -1,5 +1,6 @@
 #include "SpriteComponent.h"
 #include <Graphics/QueueRenderer.h>
+#include "Fysics/FysicsBody.h"
 
 namespace IonixEngine {
 
@@ -78,11 +79,28 @@ namespace IonixEngine {
 		//	currentRow--;
 		//}
 
+		// Get rotation from physics body if it exists, otherwise use transform rotation
+		double angleDegrees = 0.0;
+		FysicsBody* fysicsBody = entity->GetComponent<FysicsBody>();
+		if (fysicsBody) {
+			// Box2D returns radians, SDL expects degrees
+			float angleRadians = fysicsBody->GetAngle(entity);
+			angleDegrees = angleRadians * (180.0 / 3.14159265358979323846);
+		} else {
+			// Transform rotation is in degrees
+			angleDegrees = entity->transform.GetGlobalRotation();
+		}
+
 		//create and send render data to the render queue
 		data->queue->AddToQueue(RenderCall{
 			texture,
 			SDL_Rect { (int)(position.x), (int)(position.y), (int)width, (int)height },
 			SDL_Rect { spriteWidth * currentCol, spriteHeight * currentRow, spriteWidth, spriteHeight },
+			0,  // z-order (not being used in current RenderCall)
+			angleDegrees,
+			colorR,
+			colorG,
+			colorB
 			});
 
 
@@ -211,6 +229,7 @@ namespace IonixEngine {
 	void SpriteComponent::setHeight(int x) { height = x; }
 
 	void SpriteComponent::setBoxColliderSize(b2Vec2 newSize) { boxColliderSize = newSize; }
+	void SpriteComponent::setColor(Uint8 r, Uint8 g, Uint8 b) { colorR = r; colorG = g; colorB = b; }
 
 	//getters
 	IonixEngine::playbackOptions SpriteComponent::getPlaybackMode() /*oh lawd he big*/ { return playbackOptions(); }
