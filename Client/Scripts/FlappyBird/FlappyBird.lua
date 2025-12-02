@@ -26,6 +26,7 @@ local pipeOffScreenLeft = -100
 
 -- Coin variables
 local coin
+local coinSpeed = -3
 ----------------------------------------------------------
 -- OnStart
 ----------------------------------------------------------
@@ -152,7 +153,11 @@ function ExampleScript:OnStart()
 
     -- Add physics body + collider
     Entity.add_fysics_component(coin, enums.bodytype.kinematicBody, false)
-    Fysics.add_sprite_collider(pipeT2, false, 1)
+    Fysics.add_sprite_collider(coin, false, 1)
+
+    if Input.get_key_down(Keys.ionix_a) then
+        Entity.set_global_pos(coin, xPos, floorY)
+	end
 
 end
 
@@ -168,6 +173,7 @@ function ExampleScript:OnUpdate()
     local vel1 = Fysics.get_linear_velocity(player1)
     local vy1 = Fysics.get_linear_velocity(pipe)
     local vy1 = Fysics.get_linear_velocity(pipe2)
+    local vy1 = Fysics.get_linear_velocity(coin)
 
     -- Constant rightward movement
     local vx = 0
@@ -184,6 +190,9 @@ function ExampleScript:OnUpdate()
         Fysics.set_linear_velocity(pipeT, pipeSpeed, 0)
         Fysics.set_linear_velocity(pipe2, pipeSpeed, 0)
         Fysics.set_linear_velocity(pipeT2, pipeSpeed, 0)
+
+        -- Coins move
+        Fysics.set_linear_velocity(coin, coinSpeed, 0)
 	end
 
     Fysics.set_linear_velocity(player1, vx, vy1)
@@ -213,6 +222,11 @@ function ExampleScript:OnUpdate()
         --Entity.set_entity_pos(pipeT, pipeStartX, 0)
 	end
 
+    
+    local coinPos = Fysics.get_pos(coin)
+    if Mafs.get_vec_x(coinPos) < pipeOffScreenLeft then
+        Fysics.set_pos(coin, pipeStartX -235, coinPos.y)
+    end
 end
 
     function ExampleScript:OnCollisionEnter()
