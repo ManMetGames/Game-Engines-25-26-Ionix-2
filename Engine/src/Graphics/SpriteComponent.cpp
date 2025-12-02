@@ -106,6 +106,12 @@ namespace IonixEngine {
 			texture,
 			SDL_Rect { (int)(position.x), (int)(position.y), (int)width, (int)height },
 			SDL_Rect { spriteWidth * currentCol, spriteHeight * currentRow, spriteWidth, spriteHeight },
+			0,  // z-order (not being used in current RenderCall)
+			angleDegrees,
+			colorR,
+			colorG,
+			colorB
+			});
 			zOrder,
 			spriteAngle,
 			renderLayer
@@ -241,6 +247,7 @@ namespace IonixEngine {
 	void SpriteComponent::setTickRate(float x) { tickRate = x; }
 
 	void SpriteComponent::setBoxColliderSize(b2Vec2 newSize) { boxColliderSize = newSize; }
+	void SpriteComponent::setColor(Uint8 r, Uint8 g, Uint8 b) { colorR = r; colorG = g; colorB = b; }
 
 	//getters
 	IonixEngine::playbackOptions SpriteComponent::getPlaybackMode() /*oh lawd he big*/ { return playbackOptions(); }

@@ -2,6 +2,7 @@
 #include "Architecture/TextureManager/TextureManager.h"
 #include "GraphicsScripting.h"
 #include <Graphics/SpriteComponent.h>
+#include <Graphics/Camera.h>
 
 namespace IonixEngine {
 
@@ -113,6 +114,36 @@ namespace IonixEngine {
             spriteComponent->setPlaybackMode(static_cast<IonixEngine::playbackOptions>(playbackMode));
             };
 
+        auto setColor = [](SpriteComponent* spriteComponent, int r, int g, int b) {
+            spriteComponent->setColor(static_cast<Uint8>(r), static_cast<Uint8>(g), static_cast<Uint8>(b));
+        //camera
+		auto Camera = [](float startX, float startY, int renderLayer) {
+			return new IonixEngine::Camera(startX, startY, renderLayer);
+			};
+
+        auto SetZoom = [](SDL_Renderer* renderer, int zoom) {
+            Application::Get().currentCam->SetZoom(renderer, zoom);
+            };
+
+        auto ClearBackground = [](SDL_Renderer* renderer) {
+            Application::Get().currentCam->ClearBackground(renderer);
+            };
+
+        auto SetColor = [](Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
+            Application::Get().currentCam->SetColor(r, g, b, a);
+            };
+        auto MoveCamera = [](float deltaX, float deltaY, bool moveCamDelta) {
+            Application::Get().currentCam->MoveCamera(deltaX, deltaY, moveCamDelta);
+            };
+		auto switchcamera = []() {
+			Application::Get().currentCam->SwitchCamera();
+			};
+		auto rotateCamera = [](float angle) {
+			Application::Get().currentCam->Rotate(angle);
+			};
+
+	
+
         auto setAnimation = [](SpriteComponent* spriteComponent, int rows, int cols, int spriteW, int spriteH) {
             spriteComponent->setAnimation(rows, cols, spriteW, spriteH);
             };
@@ -151,8 +182,19 @@ namespace IonixEngine {
             "set_zed_order", setZedOrder,
             "get_playback_mode", getPlaybackMode,
             "set_playback_mode", setPlaybackMode,
+            "set_color", setColor
             "set_animation", setAnimation,
             "set_tick_rate", setTickRate
+        );
+       
+        lua["Camera"] = lua.create_table_with(
+            "create_camera", Camera,
+            "set_zoom", SetZoom,
+            "clear_background", ClearBackground,
+            "Set_color", SetColor,
+			"move_camera", MoveCamera,
+			"switch_camera", switchcamera,
+			"rotate_camera", rotateCamera
         );
     }
 

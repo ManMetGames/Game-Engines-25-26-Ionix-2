@@ -27,6 +27,7 @@ namespace IonixEngine
         void EndContact(b2Contact* contact) override;
         void SetEventCallback(const EventCallback& callback) { m_EventCallback = callback;}
         void CheckTrigger(Entity* entityA, Entity* entityB);
+        void CheckTriggerExit(Entity* entityA, Entity* entityB);
 
         void AddToCollisionMap(Entity* entityA, Entity* entityB);
         void CheckCollisionEntityMap(Entity* colA, Entity* colB);
