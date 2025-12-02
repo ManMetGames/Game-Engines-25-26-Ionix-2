@@ -12,6 +12,7 @@ local goalY = 500
 local y = 300
 local t = 10
 
+local Dots
 -- Pipe variables
 local pipe
 local pipeT
@@ -71,9 +72,11 @@ function PacMan:OnStart()
 	end
 
 	------------------------------------------------------
-	-- Create pipe obstacle
+	-- Create Dots
 	------------------------------------------------------
-  
+    Dots = Entity.create_entity()
+    local Dots = Entity.add_sprite_component(Dots, assets.textures.Sand,100 , 100 , 0)
+
 end
 
 ----------------------------------------------------------
