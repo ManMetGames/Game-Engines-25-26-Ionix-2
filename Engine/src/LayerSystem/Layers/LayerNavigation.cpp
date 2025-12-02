@@ -21,6 +21,12 @@ namespace IonixEngine
 
     std::vector<int> LayerNavigation::RequestPath(int startCell, int goalCell)
     {
-        return nav.FindPath(startCell, goalCell);
+        return nav->FindPath(startCell, goalCell);
+    }
+    NavAgent* LayerNavigation::CreateAgent(const b2Vec2 endPosition)
+    {
+        NavAgent m_agent(nav, ent);
+        agents.emplace_back(m_agent);
+        return nullptr;
     }
 }

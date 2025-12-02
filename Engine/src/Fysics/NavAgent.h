@@ -23,8 +23,8 @@ namespace IonixEngine
         int m_pathIndex = 0;
 
     public:
-        NavAgent* NavAgent(NavMef nav, Entity ent, float speed);
-        void PlaceAgent(b2Vec2 endPosition);
+        NavAgent(NavMef* nav, Entity* ent);
+        void PlaceAgent(b2Vec2 endPosition);  //kkkkkk
         void Update(float dt); // to move agent
 
     };

@@ -7,13 +7,8 @@
 
 namespace IonixEngine
 {
-	NavAgent* NavAgent::navAgent(NavMef nav, Entity ent, float speed)
-	{
-		/*m_NavMef = nav;
-		m_entity = ent;*/
-		m_speed = speed;
-		return nullptr;
-	}
+	NavAgent::NavAgent(NavMef* nav, Entity* ent) : m_NavMef(nav), m_entity(ent) {}
+
 	void NavAgent::PlaceAgent(b2Vec2 endPosition)
 	{
 		b2Body* body = FysicsManager::GetManager()->GetBodyFromEntity(m_entity);
