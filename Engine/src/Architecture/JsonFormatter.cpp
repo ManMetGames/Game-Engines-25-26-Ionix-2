@@ -41,17 +41,36 @@ namespace IonixEngine
 			return;
 		}
 		std::string fileContentsCopy = fileContents.str();
+		int index = 0;
+		int lastOverwrite = 0;
 		for (char character : fileContentsCopy)
 		{
 			//aka if charOverwrites has a key-value pair matching character
 			if (charOverwrites.find(character) != charOverwrites.end())
 			{
 				std::cout << "[JSON Formatter] Char overwrite value found!" << std::endl;
+				char* charPosition = &fileContentsCopy.at(lastOverwrite);
+				size_t viewSize = index - lastOverwrite;
+				std::string_view unreplacedSection{ charPosition,viewSize - 1 };
+				std::string_view replacement{ charOverwrites[character] };
+
+				reconstructedFile.push_back(unreplacedSection);
+				reconstructedFile.push_back(replacement);
+
+				lastOverwrite = index;
 			}
-			else
-			{
-				continue;
-			}
+			index++;
+			continue;
+		}
+		char* charPosition = &fileContentsCopy.at(lastOverwrite);
+		size_t viewSize = index - lastOverwrite;
+		std::string_view finalSection{ charPosition,viewSize - 1 };
+		reconstructedFile.push_back(finalSection);
+
+		for (auto stringview : reconstructedFile)
+		{
+			//debug purposes
+			std::cout << stringview << std::endl;
 		}
 	}
 

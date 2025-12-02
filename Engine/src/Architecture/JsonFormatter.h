@@ -12,6 +12,7 @@ namespace IonixEngine
 	{
 	private:
 		std::vector<char> fileContentsVector;
+		std::vector<std::string_view> reconstructedFile;
 		std::stringstream fileContents;
 		std::string filepath;
 		std::map<char, std::string> charOverwrites;
