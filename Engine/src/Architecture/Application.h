@@ -19,7 +19,6 @@
 #include "Audio/AudioPlayer.h"
 #include "Graphics/Camera.h"
 
-
 namespace IonixEngine {    
     class ENGINE_API Application {
     public:

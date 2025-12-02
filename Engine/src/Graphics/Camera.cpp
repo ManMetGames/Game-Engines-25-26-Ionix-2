@@ -2,7 +2,6 @@
 #include <iostream>
 #include "Architecture/Application.h"
 #include <SDL.h>
-
 #include "Fysics/FysicsBody.h"
 
 namespace IonixEngine
@@ -173,30 +172,23 @@ namespace IonixEngine
         }
     }
 
-    /*void Camera::RotateEntity(Entity* entity, float angle) {
-        auto& entities = Application::Get().layerScene->GetEntities();
-
-        for (auto& e : entities)
-        {
-			if (&e != entity) continue;
+    void Camera::RotateEntity(Entity* e, float angle) { 
             FysicsBody* fb = nullptr;
             SpriteComponent* spr = nullptr;
 
             float angleInRads = angle * (3.14159265f / 180.0f);
 
-            if (!e.TryGetComponent<FysicsBody>(&fb)) {
-                e.AddComponent<FysicsBody>(new FysicsBody(&e, 2, false));
+            if (!(*e).TryGetComponent<FysicsBody>(&fb)) {
+                (*e).AddComponent<FysicsBody>(new FysicsBody(&(*e), 2, false));
             }
 
-            if (e.TryGetComponent<SpriteComponent>(&spr) && e.TryGetComponent<FysicsBody>(&fb)) {
+            if ((*e).TryGetComponent<SpriteComponent>(&spr) && (*e).TryGetComponent<FysicsBody>(&fb)) {
                 spr->setAngle(spr->getAngle() + angleInRads);
                 if (spr->getAngle() >= 360.0f) spr->setAngle(spr->getAngle() - 360); //these 2 lines normalize the rotation
                 if (spr->getAngle() < 0.0f)   spr->setAngle(spr->getAngle() + 360);
-                fb->SetAngle(&e, fb->GetAngle(&e) + angleInRads);
-                if (fb->GetAngle(&e) >= 360.0f) fb->SetAngle(&e, fb->GetAngle(&e) - 360); //these 2 lines normalize the rotation 
-                if (fb->GetAngle(&e) < 0.0f)   fb->SetAngle(&e, fb->GetAngle(&e) + 360);
+                fb->SetAngle(&(*e), fb->GetAngle(&(*e)) + angleInRads);
+                if (fb->GetAngle(&(*e)) >= 360.0f) fb->SetAngle(&(*e), fb->GetAngle(&(*e)) - 360); //these 2 lines normalize the rotation 
+                if (fb->GetAngle(&(*e)) < 0.0f)   fb->SetAngle(&(*e), fb->GetAngle(&(*e)) + 360);
             }
-        }
-    }*/
-
+    }
 }

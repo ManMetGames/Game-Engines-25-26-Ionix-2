@@ -5,7 +5,7 @@
 #include <string>
 #include <array>
 #include "Graphics/SpriteComponent.h"
-#include "Graphics/SpriteComponent.h"
+
 //#include <mutex>
 using namespace std;
 
@@ -36,7 +36,7 @@ namespace IonixEngine {
 		QueueRenderer(const QueueRenderer& obj) = delete; //prevent copis
 		QueueRenderer();
 		void AddToQueue(RenderCall sprite);
-		void OrderQueueByZ(queue<RenderCall> sprites);
+		void OrderQueueByZ(queue<RenderCall>& sprites);
 		void RenderFromQueue();
 		void ClearQueue(queue<RenderCall>& sprites);
 		static QueueRenderer& Get()

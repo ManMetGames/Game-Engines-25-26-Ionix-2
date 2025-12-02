@@ -436,16 +436,6 @@ namespace IonixEngine
 			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->setStiffness((b2WeldJoint*)jointList, newStiffness);
 		};
 
-
-
-
-
-		auto addSpriteCollider = [](Entity* entity, bool isTrigger) {
-
-			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddSpriteCollider(entity, isTrigger);
-			};
-
-
 		lua["Fysics"] = lua.create_table_with(
 			"add_box_collider",	addBoxCollider,
 			"add_box_collider_v", addBoxColliderv,
