@@ -106,13 +106,11 @@ namespace IonixEngine {
 			texture,
 			SDL_Rect { (int)(position.x), (int)(position.y), (int)width, (int)height },
 			SDL_Rect { spriteWidth * currentCol, spriteHeight * currentRow, spriteWidth, spriteHeight },
-			0,  // z-order (not being used in current RenderCall)
+			zOrder,
 			angleDegrees,
 			colorR,
 			colorG,
-			colorB
-			});
-			zOrder,
+			colorB,
 			spriteAngle,
 			renderLayer
 		});

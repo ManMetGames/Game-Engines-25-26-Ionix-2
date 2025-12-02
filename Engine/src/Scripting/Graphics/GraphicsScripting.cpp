@@ -116,6 +116,8 @@ namespace IonixEngine {
 
         auto setColor = [](SpriteComponent* spriteComponent, int r, int g, int b) {
             spriteComponent->setColor(static_cast<Uint8>(r), static_cast<Uint8>(g), static_cast<Uint8>(b));
+        };
+
         //camera
 		auto Camera = [](float startX, float startY, int renderLayer) {
 			return new IonixEngine::Camera(startX, startY, renderLayer);
@@ -192,7 +194,7 @@ namespace IonixEngine {
             "set_zed_order", setZedOrder,
             "get_playback_mode", getPlaybackMode,
             "set_playback_mode", setPlaybackMode,
-            "set_color", setColor
+            "set_color", setColor,
             "set_animation", setAnimation,
             "set_tick_rate", setTickRate
         );
