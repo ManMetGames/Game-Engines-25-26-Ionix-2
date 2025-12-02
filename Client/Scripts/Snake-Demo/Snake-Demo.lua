@@ -14,6 +14,10 @@ local h = 500
 local w = 400
 local text = "Hello, World!"
 local font = assets.fonts.DefaultFont
+local Apple
+local AppleX = 400
+local AppleY= 500
+local AppleSprite
 
 ----------------------------------------------------------
 -- OnStart
@@ -48,6 +52,22 @@ local BgBackground = Entity.add_sprite_component(Background, assets.textures.Bac
     local floorx = 300
     
   
+    --Create Apple
+
+    Apple = Entity.create_entity()
+
+    Entity.set_local_pos(Apple, AppleX, AppleY)
+
+    local AppleSprite = Entity.add_sprite_component(Apple, assets.textures.Apple, 32, 32, 10)
+    Sprite.set_columns(AppleSprite,1)
+
+    
+    Entity.add_fysics_component(Apple, 2, true) -- dynamic body
+    --Fysics.add_sprite_collider(player1, false)
+    Fysics.add_sprite_collider(Apple,true,1)
+
+    Fysics.set_gravity_scale(Apple, 0) 
+
     -- pick texture for left / middle / right
 	------------------------------------------------------
 	local tex = "middle"

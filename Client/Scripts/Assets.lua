@@ -1,5 +1,6 @@
 return {
     textures = {
+        Apple = 3562895354,
         Background = 2667361274,
         Coin = 2929616156,
         Debug = 2430642766,
