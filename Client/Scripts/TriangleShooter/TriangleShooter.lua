@@ -8,6 +8,9 @@ local playerSprite
 
 -- Player settings
 local playerSize = 48
+local playerX = 400
+local playerY = 300
+local followSpeed = 15  -- Higher = faster catch-up
 
 ----------------------------------------------------------
 -- OnStart
@@ -17,7 +20,7 @@ function TriangleShooter:OnStart()
     player = Entity.create_entity()
     
     -- Start at center of screen
-    Entity.set_global_pos(player, 400, 300)
+    Entity.set_global_pos(player, playerX, playerY)
     
     -- Add sprite component 
     playerSprite = Entity.add_sprite_component(player, assets.textures.Triangle, playerSize, playerSize, 10)
@@ -32,8 +35,18 @@ function TriangleShooter:OnUpdate()
     local mouseX = Input.get_mouse_x()
     local mouseY = Input.get_mouse_y()
     
-    -- Move triangle to cursor position (centered on cursor)
-    Entity.set_global_pos(player, mouseX - playerSize/2, mouseY - playerSize/2)
+    -- Target position (centered on cursor)
+    local targetX = mouseX - playerSize/2
+    local targetY = mouseY - playerSize/2
+    
+    -- Smooth follow using lerp (linear interpolation)
+    -- dt would be ideal here, but we'll use a fixed factor
+    local lerpFactor = followSpeed * 0.016  -- Assuming ~60fps, adjust followSpeed to tune
+    
+    playerX = playerX + (targetX - playerX) * lerpFactor
+    playerY = playerY + (targetY - playerY) * lerpFactor
+    
+    Entity.set_global_pos(player, playerX, playerY)
 end
 
 return TriangleShooter
