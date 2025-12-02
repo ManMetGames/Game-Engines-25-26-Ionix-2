@@ -78,6 +78,11 @@ namespace IonixEngine
         }
     }
 
+    void CollisionListener::DestroyEntities(Entity* entityToDestroy)
+    {
+        destroyEntities.push_back(entityToDestroy->id);
+    }
+
     void CollisionListener::EndContact(b2Contact* contact)
     {
         b2Body* bodyA = contact->GetFixtureA()->GetBody();

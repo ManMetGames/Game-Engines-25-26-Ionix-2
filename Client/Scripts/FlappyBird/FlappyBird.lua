@@ -18,7 +18,7 @@ local pipe
 local pipeT
 local pipeSpeed = -3
 local pipeStartX = 900
-local pipeOffScreenLeft = -100
+local pipeOffScreenLeft = 0
 
 ----------------------------------------------------------
 -- OnStart
@@ -59,7 +59,7 @@ function ExampleScript:OnStart()
     local coinSprite = Entity.add_sprite_component(coin, assets.textures.Coin, 100, 32, 10)
     Sprite.set_columns(coinSprite, 1)
     Entity.add_fysics_component(coin, enums.bodytype.kinematicBody, false)
-    Fysics.add_sprite_collider(coin, true, 1)
+    Fysics.add_sprite_collider(coin, false, 1)
 
     local tileSize = 64
     local floorY = 600
@@ -135,14 +135,19 @@ function ExampleScript:OnUpdate()
         -- Set velocity directly to cancel out falling momentum
         vy1 = -5  -- Jump velocity for player1
 	end
-
+    
+    if Input.get_key_down(Keys.ionix_m) then
+        Entity.destroy_entity(coin)
+    end
     Fysics.set_linear_velocity(player1, vx, vy1)
 
     -- Pipe movement
     local pipePos = Fysics.get_pos(pipe)
-    if Mafs.get_vec_x(pipePos) < pipeOffScreenLeft then
-        Fysics.set_pos(pipe, pipeStartX, pipePos.y)
-        Fysics.set_pos(pipeT, pipeStartX, pipePos.y)
+    if Mafs.get_vec_x(pipePos) <= pipeOffScreenLeft then
+        Entity.set_global_pos(pipe, pipeStartX, Mafs.get_vec_y(pipePos))
+        Fysics.set_pos(pipe, pipeStartX, Mafs.get_vec_y(pipePos))
+         Entity.set_global_pos(pipeT, pipeStartX, Mafs.get_vec_y(pipePos))
+        Fysics.set_pos(pipeT, pipeStartX, Mafs.get_vec_y(pipePos))
      end
      
 end
@@ -151,10 +156,18 @@ end
         if Fysics.col(player1, pipe) then
                 print("CollisionPipe")
             end
+
+        if Fysics.col(player1, coin) then
+             print("CoinCollision")
+                Entity.destroy_entity(coin)
+                coinCount = coinCount + 1
+                print(coinCount)
+        end
     end
 
     function ExampleScript:OnTriggerEnter()
         if Fysics.col(player1, coin) then
+             print("CoinCollision")
                 Entity.destroy_entity(coin)
                 coinCount = coinCount + 1
                 print(coinCount)

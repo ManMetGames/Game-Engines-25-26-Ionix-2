@@ -2,6 +2,7 @@
 #include "Architecture/Application.h"
 #include "Architecture/ECS/Entity.hpp"
 #include "Fysics/FysicsBody.h"
+#include "Fysics/FysicsManager.h"
 namespace IonixEngine {
 
     EntityScripting* EntityScripting::s_Instance = nullptr;
@@ -29,6 +30,13 @@ namespace IonixEngine {
 
         auto destroy = [](Entity* entityToDestroy) -> bool {
             if (entityToDestroy == nullptr) return false;
+            FysicsBody* bodyToDestroy = nullptr;
+            if (entityToDestroy->TryGetComponent<FysicsBody>(&bodyToDestroy))
+            {
+                Application::Get().layerFysics->GetFysicsManager()->GetCollisionListener()->DestroyEntities(entityToDestroy);
+
+            }
+            
             return Application::Get().layerScene->GetScene()->DestroyEntity(entityToDestroy->id);
             };
 
@@ -127,12 +135,10 @@ namespace IonixEngine {
             };
 
         auto removeChild = [](Entity* entity, Entity* newChild) {
-            if (entity == nullptr || newChild == nullptr) return;
             entity->transform.RemoveChild(&newChild->transform);
             };
 
         auto removeChildWithIndex = [](Entity* entity, int index) {
-            if (entity == nullptr) return;
                 entity->transform.RemoveChild(index);
             };
 

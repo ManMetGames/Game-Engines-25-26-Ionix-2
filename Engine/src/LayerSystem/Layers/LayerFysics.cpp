@@ -51,6 +51,18 @@ namespace IonixEngine
         auto& bodyMap = fysicsManager->GetBodyMap();
         auto& transformMap = fysicsManager->GetTransformMap();
         
+        if (!fysicsManager->GetCollisionListener()->destroyEntities.empty())
+        {
+            for (EntityID id : fysicsManager->GetCollisionListener()->destroyEntities)
+            {                                   
+                fysicsManager->GetWorld()->DestroyBody(Application::Get().layerScene->GetScene()->GetEntityFromID(id)->GetComponent<FysicsBody>()->GetBody());
+            }
+
+            fysicsManager->GetCollisionListener()->destroyEntities.clear();
+        }
+        
+
+
         // interpolate visual positions for all physics bodies
         /*for (auto& [body, entity] : bodyMap)
         {
