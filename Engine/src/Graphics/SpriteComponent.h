@@ -31,6 +31,7 @@ namespace IonixEngine {
 		int spriteWidth, spriteHeight;
 		int currentRow, currentCol;
 		float timer;
+		float tickRate;
 		b2Vec2 boxColliderSize;
 		
 
@@ -62,6 +63,7 @@ namespace IonixEngine {
 		void setWidth(int x);
 		void setHeight(int x);
 		void setBoxColliderSize(b2Vec2 newSize);
+		void settickRate(int x);
 
 		//Getters
 		IonixEngine::playbackOptions getPlaybackMode();
@@ -77,6 +79,7 @@ namespace IonixEngine {
 		int getCurrentRow();
 		int getWidth();
 		int getHeight();
+		int gettickRate();
 		b2Vec2 getBoxColliderSize();
 	};
 }
