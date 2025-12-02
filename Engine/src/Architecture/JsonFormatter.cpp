@@ -55,7 +55,7 @@ namespace IonixEngine
 		//}
 
 		//find better way to allow for character overwriting, maybe structs?
-		charOverwrites.insert({'o',"a"});
+		//charOverwrites.insert({'o',"a"});
 	}
 
 	bool JsonFormatter::OpenFile(std::string filepath)
@@ -83,6 +83,32 @@ namespace IonixEngine
 		return true;
 	}
 
+	bool JsonFormatter::AddOverwrite(char input, std::string output)
+	{
+		if (charOverwrites.find(input) == charOverwrites.end())
+		{
+			charOverwrites.insert({ input, output });
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	bool JsonFormatter::RemoveOverwrite(char key)
+	{
+		if (charOverwrites.find(key) != charOverwrites.end())
+		{
+			charOverwrites.erase(key);
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
 	void JsonFormatter::WriteToFile(std::string filepath)
 	{
 		processFile();
@@ -95,7 +121,7 @@ namespace IonixEngine
 
 	std::string JsonFormatter::ExportString()
 	{
-		std::cout << processFile() << std::endl;
+		//std::cout << processFile() << std::endl;
 		return processFile();
 	}
 
@@ -109,7 +135,4 @@ namespace IonixEngine
 		}
 		std::cout << std::endl;
 	}
-
-
-
 }

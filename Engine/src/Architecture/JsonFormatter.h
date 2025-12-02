@@ -22,6 +22,9 @@ namespace IonixEngine
 		bool OpenFile(std::string filepath);
 		bool ImportString(std::string input);
 
+		bool AddOverwrite(char input, std::string output);
+		bool RemoveOverwrite(char key);
+
 		void WriteToFile(std::string filepath);
 		std::string ExportString();
 
