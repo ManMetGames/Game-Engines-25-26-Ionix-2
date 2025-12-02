@@ -123,7 +123,7 @@ namespace IonixEngine
                     openList.push(nodes[adjacencyIndex]);
                 }
             }
-            //think I need to reconstruct path here not sure
+            //think I need to reconstruct path here not sure, edit I didnt I needed to put it out the while loop good job me
                 
         }
         std::vector<int> path;

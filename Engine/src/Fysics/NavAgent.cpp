@@ -7,9 +7,16 @@
 
 namespace IonixEngine
 {
+	NavAgent* NavAgent::navAgent(NavMef nav, Entity ent, float speed)
+	{
+		/*m_NavMef = nav;
+		m_entity = ent;*/
+		m_speed = speed;
+		return nullptr;
+	}
 	void NavAgent::PlaceAgent(b2Vec2 endPosition)
 	{
-		b2Body* body = FysicsManager::GetManager()->GetBodyFromEntity(entity);
+		b2Body* body = FysicsManager::GetManager()->GetBodyFromEntity(m_entity);
 		b2Vec2 position = body->GetPosition();
 		int currentCell;
 		int goalCell;
@@ -19,6 +26,8 @@ namespace IonixEngine
 
 		// Incorrect args passed to FindPath - commented out
 		//path = m_NavMef->FindPath(position, endPosition);
+		path = m_NavMef->FindPath(currentCell, goalCell);
+		m_pathIndex = 0;
 	}
 	void NavAgent::Update(float dt)
 	{

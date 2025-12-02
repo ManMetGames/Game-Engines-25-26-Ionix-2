@@ -16,13 +16,14 @@ namespace IonixEngine
         //need a size for collisions are we using cicles or tile for agent
         NavMef* m_NavMef;
         //b2Body* m_Body; //maybe needed idk 
-        Entity* entity;
-        float speed;
+        Entity* m_entity;
+        float m_speed;
 
         std::vector<int> m_path;
         int m_pathIndex = 0;
 
     public:
+        NavAgent* NavAgent(NavMef nav, Entity ent, float speed);
         void PlaceAgent(b2Vec2 endPosition);
         void Update(float dt); // to move agent
 
