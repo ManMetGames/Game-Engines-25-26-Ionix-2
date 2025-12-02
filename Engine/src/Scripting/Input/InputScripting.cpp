@@ -63,6 +63,10 @@ namespace IonixEngine {
             return Application::Get().layerInput->m_Input->IsMouseButtonUp(static_cast<uint8>(mousecode));
             };
 
+        auto showCursor = [](bool show) {
+            SDL_ShowCursor(show ? SDL_ENABLE : SDL_DISABLE);
+            };
+
         auto getButtonDown = [this](int index, int btn) -> bool {
             if (index < 0 || index >= (int)m_Controllers.size() || !m_Controllers[index])
                 return false;
@@ -169,6 +173,7 @@ namespace IonixEngine {
             "get_mouse_y", getMouseY,
             "get_mouse_button_down", getMouseButtonDown,
             "get_mouse_button_up", getMouseButtonUp,
+            "show_cursor", showCursor,
 
             "get_button_down", getButtonDown,
             "get_left_stick_x", getLeftStickX,
