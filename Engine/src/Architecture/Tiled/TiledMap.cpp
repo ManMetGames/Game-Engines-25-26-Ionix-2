@@ -1,7 +1,6 @@
 #include "TiledMap.hpp"
 #include "TiledObject.hpp"
 #include "JSON/JSONDeserialize.hpp"
-#include <complex>
 #include <sstream>
 
 namespace IonixEngine {
@@ -93,7 +92,55 @@ std::string TiledObjectLayer::ToString() {
 
 TiledTileLayer::TiledTileLayer(JSONDeserialize* json) {
     bool ok = true;
+    ok = json->BeginObject(); if (!ok) { return; }
 
+    ok = json->BeginField("data"); if (ok) { return; }
+    ok = json->BeginArray();
+    if (ok) {
+        do {
+            int value;
+            json->BeginElement();
+            if (json->GetInt(&value)) {
+                data.push_back(value);
+            }
+            json->EndElement();
+        } while (json->HasNext());
+    }
+    ok = json->EndField(); if (!ok) { return; }
+
+    ok = json->BeginField("height"); if (!ok) { return; }
+    ok = json->GetFloat(&size.y); if (!ok) { return; }
+    ok = json->EndField(); if (!ok) { return; }
+
+    ok = json->BeginField("id"); if (!ok) { return; }
+    ok = json->GetInt(&id); if (!ok) { return; }
+    ok = json->EndField(); if (!ok) { return; }
+
+    ok = json->BeginField("opacity"); if (!ok) { return; }
+    ok = json->GetFloat(&opacity); if (!ok) { return; }
+    ok = json->EndField(); if (!ok) { return; }
+
+    ok = json->BeginField("type"); if (!ok) { return; }
+    ok = json->GetString(&type); if (!ok) { return; }
+    ok = json->EndField(); if (!ok) { return; }
+
+    ok = json->BeginField("visible"); if (!ok) { return; }
+    ok = json->GetBool(&visible); if (!ok) { return; }
+    ok = json->EndField(); if (!ok) { return; }
+
+    ok = json->BeginField("width"); if (!ok) { return; }
+    ok = json->GetFloat(&size.x); if (!ok) { return; }
+    ok = json->EndField(); if (!ok) { return; }
+
+    ok = json->BeginField("x"); if (!ok) { return; }
+    ok = json->GetFloat(&position.x); if (!ok) { return; }
+    ok = json->EndField(); if (!ok) { return; }
+
+    ok = json->BeginField("y"); if (!ok) { return; }
+    ok = json->GetFloat(&position.x); if (!ok) { return; }
+    ok = json->EndField(); if (!ok) { return; }
+
+    ok = json->EndObject(); if (!ok) { return; }
 }
 
 TiledTileset::TiledTileset(JSONDeserialize* json) {
@@ -170,7 +217,6 @@ int TiledTileset::Rows() {
 TiledLayer::TiledLayer(JSONDeserialize* json) {
     isTile = json->StringInRange("\"data\"", 10);
     if (isTile) {
-        // TODO: This is a tile layer, implementation will be merged later
         tileLayer = TiledTileLayer(json);
     } else {
         objectLayer = TiledObjectLayer(json);

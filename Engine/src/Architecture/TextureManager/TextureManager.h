@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <string>
 #include <map>
+#include "SHA256.hpp"
 #include "TextureData.h"
 
 //singleton
@@ -27,5 +28,9 @@ namespace IonixEngine
 			static TextureManager instance;
 			return instance;
 		};
+
+		static uint32_t Hash(const std::string& str) {
+			return Get32BitHash(str);
+		}
 	};
 }

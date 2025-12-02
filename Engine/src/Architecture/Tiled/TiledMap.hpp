@@ -46,13 +46,15 @@ class TiledTileLayer {
 public:
     bool isTile;
     std::vector<int> data;
+    std::string base64Data;
     int32_t id;
     std::string name;
     float opacity;
     std::string type;
     bool visible;
-    b2Vec2 postion;
+    b2Vec2 position;
     b2Vec2 size;
+    std::string compression;
 
     TiledTileLayer() = default;
     TiledTileLayer(JSONDeserialize* json);
