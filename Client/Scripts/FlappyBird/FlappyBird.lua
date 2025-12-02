@@ -173,12 +173,12 @@ function ExampleScript:OnUpdate()
     Fysics.set_linear_velocity(player1, vx, vy1)
 
     -- Pipe movement
-    local pipePos = Fysics.get_pos(pipe)
-    local pipePos = Fysics.get_pos(pipeT)
-    if Mafs.get_vec_x(pipePos) < pipeOffScreenLeft then
-        Fysics.set_pos(pipe, pipeStartX, pipePos.y)
-        Fysics.set_pos(pipeT, pipeStartX, pipePos.y)
-    end
+    --local pipePos = Fysics.get_pos(pipe)
+    --local pipePos = Fysics.get_pos(pipeT)
+    --if Mafs.get_vec_x(pipePos) < pipeOffScreenLeft then
+        --Fysics.set_pos(pipe, pipeStartX, pipePos.y)
+        --Fysics.set_pos(pipeT, pipeStartX, pipePos.y)
+    --end
 
     local pipePos2 = Fysics.get_pos(pipe2)
     local pipePos2 = Fysics.get_pos(pipeT2)
@@ -186,6 +186,16 @@ function ExampleScript:OnUpdate()
         Fysics.set_pos(pipe2, pipe2StartX, pipePos2.y)
         Fysics.set_pos(pipeT2, pipe2StartX, pipePos2.y)
     end
+ 	
+    local pipePos = Fysics.get_pos(pipe)
+    local pipePos = Fysics.get_pos(pipeT)
+	if Mafs.get_vec_x(pipePos) < pipeOffScreenLeft then
+        Fysics.set_pos(pipe, pipeStartX, pipePos.y)
+        Fysics.set_pos(pipeT, pipeStartX, pipePos.y)
+
+        --Entity.set_entity_pos(pipe, pipeStartX, 400)
+        --Entity.set_entity_pos(pipeT, pipeStartX, 0)
+	end
 
 end
 
