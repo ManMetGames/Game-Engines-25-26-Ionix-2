@@ -55,6 +55,15 @@ function TriangleShooter:OnUpdate()
     
     Entity.set_global_pos(player, playerX, playerY)
     
+    -- Rotate triangle to face center of screen
+    local centerX = 400  -- Assuming 800 width screen
+    local centerY = 300  -- Assuming 600 height screen
+    local dx = centerX - (playerX + playerSize/2)
+    local dy = centerY - (playerY + playerSize/2)
+    local angleRadians = math.atan(dy, dx)
+    local angleDegrees = math.deg(angleRadians) + 90  -- +90 because triangle points up by default
+    Entity.set_global_rot(player, angleDegrees)
+    
     -- Spawn projectile on LMB click
     if Input.get_mouse_button_down(1) then
         SpawnProjectile()
