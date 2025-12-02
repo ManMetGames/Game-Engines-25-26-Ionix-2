@@ -2,6 +2,7 @@ local ExampleScript = {}
 local assets = require("Scripts.Assets")
 local enums = require("Scripts.Enums")
 local Background
+local Background2
 local player1
 local goal
 local playerSprite
@@ -11,6 +12,11 @@ local goalX = 500
 local goalY = 500
 local y = 300
 local t = 10
+
+-- Scroll 
+local bgX = 0
+local bgScrollSpeed = -1  -- Scrolls to the left
+local bgWidth = 960       -- background width
 
 -- Pipe variables
 local pipe
@@ -29,6 +35,10 @@ function ExampleScript:OnStart()
 	------------------------------------------------------
     Background = Entity.create_entity()
     local BgBackground = Entity.add_sprite_component(Background, assets.textures.Background,960 , 640, 0)
+
+    Background2 = Entity.create_entity()
+    Entity.add_sprite_component(Background2, assets.textures.Background, 960, 640, 0)
+    Entity.set_global_pos(Background2, bgWidth, 0)
     
 
     ------------------------------------------------------
@@ -106,6 +116,19 @@ end
 -- OnUpdate
 ----------------------------------------------------------
 function ExampleScript:OnUpdate()
+
+  -- Scroll the background
+    bgX = bgX + bgScrollSpeed
+
+  -- Loop background when it moves off screen
+    if bgX <= -bgWidth then
+    bgX = 0
+    end
+    Entity.set_global_pos(Background, bgX, 0)
+    Entity.set_global_pos(Background2, bgX + bgWidth, 0)
+
+  -- Set background position
+    Entity.set_global_pos(Background, bgX, 0)
     -- get current velocity
     local vel1 = Fysics.get_linear_velocity(player1)
     local vy1 = Fysics.get_linear_velocity(pipe)
