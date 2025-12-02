@@ -14,8 +14,16 @@ namespace IonixEngine {
 
     void EntityScripting::Init(sol::state& lua)
     {
-        auto entity = [](int renderLayer) -> Entity* {
-            EntityID entityID = Application::Get().layerScene->GetScene()->CreateEntity(renderLayer);
+        auto entity = [](sol::optional<int> renderLayer) -> Entity* {
+            EntityID entityID;
+            if (!renderLayer)
+            {
+                entityID = Application::Get().layerScene->GetScene()->CreateEntity(0);
+            }
+            else
+            {
+                entityID = Application::Get().layerScene->GetScene()->CreateEntity(*renderLayer);
+            }
             return Application::Get().layerScene->GetScene()->GetEntityFromID(entityID);
             };
 

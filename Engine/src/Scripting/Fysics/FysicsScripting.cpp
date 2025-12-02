@@ -453,7 +453,6 @@ namespace IonixEngine
 			}
 
 			return false;
-			
 		};
 
 
