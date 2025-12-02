@@ -17,7 +17,7 @@ namespace IonixEngine
 		SDL_Point size;
 		Sprite(const char *file);
 
-		void draw(const int x, const int y, const int w, const int h);
+		void draw(int x, int y, int w, int h, float angle);
 		void changeSize();
 		void move();
 		void changeTexture(const char* file, SDL_Renderer* renderer);

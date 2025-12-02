@@ -30,10 +30,11 @@ namespace IonixEngine {
 		int rows, cols;
 		int spriteWidth, spriteHeight;
 		int currentRow, currentCol;
+		float spriteAngle;
+		int renderLayer;
 		float timer;
 		float tickRate;
 		b2Vec2 boxColliderSize;
-		
 
 		enum playbackOptions playbackMode;
 
@@ -63,6 +64,7 @@ namespace IonixEngine {
 		void setZedOrder(int x);
 		void setWidth(int x);
 		void setHeight(int x);
+		void setAngle(float angle);
 		void setTickRate(float x);
 		void setBoxColliderSize(b2Vec2 newSize);
 
@@ -80,7 +82,8 @@ namespace IonixEngine {
 		int getCurrentRow();
 		int getWidth();
 		int getHeight();
-		int gettickRate();
+		float getAngle();
+		int getTickRate();
 		b2Vec2 getBoxColliderSize();
 	};
 }

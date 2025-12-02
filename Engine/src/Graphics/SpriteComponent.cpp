@@ -2,6 +2,8 @@
 #include <Graphics/QueueRenderer.h>
 #include "Fysics/FysicsBody.h"
 
+#include "Fysics/FysicsBody.h"
+
 namespace IonixEngine {
 
 	//Constructors
@@ -16,6 +18,9 @@ namespace IonixEngine {
 		cols = 1;
 		tickRate = 0.2f;
 
+		tickRate = 0.2f; //default tick rate
+
+		renderLayer = entity->renderLayer;
 
 		SDL_QueryTexture(texture, NULL, NULL, &size.x, &size.y);
 
@@ -45,6 +50,9 @@ namespace IonixEngine {
 		rows = 1;
 		tickRate = 0.2f;
 
+		tickRate = 0.2f; //default tick rate
+
+		renderLayer = entity->renderLayer;
 
 		SDL_QueryTexture(texture, NULL, NULL, &size.x, &size.y);
 	/*
@@ -98,9 +106,10 @@ namespace IonixEngine {
 			texture,
 			SDL_Rect { (int)(position.x), (int)(position.y), (int)width, (int)height },
 			SDL_Rect { spriteWidth * currentCol, spriteHeight * currentRow, spriteWidth, spriteHeight },
-			0,  // z-order (not being used in current RenderCall)
-			angleDegrees
-			});
+			zOrder,
+			spriteAngle,
+			renderLayer
+		});
 
 
 		//This is just here so we can see the animation play at a normal speed
@@ -228,6 +237,7 @@ namespace IonixEngine {
 	void SpriteComponent::setZedOrder(int x) { zOrder = x; }
 	void SpriteComponent::setWidth(int x) { width = x; }
 	void SpriteComponent::setHeight(int x) { height = x; }
+	void SpriteComponent::setAngle(float angle){ spriteAngle = angle; }
 	void SpriteComponent::setTickRate(float x) { tickRate = x; }
 
 	void SpriteComponent::setBoxColliderSize(b2Vec2 newSize) { boxColliderSize = newSize; }
@@ -246,6 +256,7 @@ namespace IonixEngine {
 	int SpriteComponent::getCurrentRow() { return currentRow; }
 	int SpriteComponent::getWidth() { return width; }
 	int SpriteComponent::getHeight() { return height; }
-	int SpriteComponent::gettickRate() { return tickRate; }
+	float SpriteComponent::getAngle() { return spriteAngle; }
+	int SpriteComponent::getTickRate() { return tickRate; }
 	b2Vec2 SpriteComponent::getBoxColliderSize() { return boxColliderSize; }
 }

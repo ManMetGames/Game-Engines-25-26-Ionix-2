@@ -374,7 +374,7 @@ namespace IonixEngine
 		auto isEnabled = [](int jointID) {
 			if (Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointCount() <= 0) { return; }
 			b2Joint* jointList = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointList();
-			for (int i = 0;	 i < jointID; i++) {
+			for (int i = 0; i < jointID; i++) {
 				jointList->GetNext();
 			}
 			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->isEnabled(jointList);
