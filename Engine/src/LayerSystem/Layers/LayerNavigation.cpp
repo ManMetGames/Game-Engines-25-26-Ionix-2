@@ -16,7 +16,10 @@ namespace IonixEngine
 
     void LayerNavigation::OnUpdate()
     {
-        //draw navmesh, debug visualisation etc.
+        //draw navmesh, debug visualisation etc.        
+        for (NavAgent agent : agents) {
+            //agent.Update(1);
+        }
     }
 
     std::vector<int> LayerNavigation::RequestPath(int startCell, int goalCell)
@@ -27,6 +30,8 @@ namespace IonixEngine
     {
         NavAgent m_agent(nav, ent);
         agents.emplace_back(m_agent);
+        m_agent.PlaceAgent(endPosition);
+
         return nullptr;
     }
 }
