@@ -6,7 +6,7 @@ CompileFlags:
    - "-I../../../dependencies/bin/SDL/SDL2_mixer-2.8.0/include/"
    - "-I../../../dependencies/bin/imgui/"
    - "-I../../../dependencies/bin/sol2/include/"
-   - "-I../../../dependencies/bin/sol2/include/"
+   - "-I../../../dependencies/bin/sol2/include/sol/"
    - "-I../../../dependencies/bin/lua/include/"
    - "-I../../../dependencies/bin/box2d/include/box2d/"
    - "-I../"

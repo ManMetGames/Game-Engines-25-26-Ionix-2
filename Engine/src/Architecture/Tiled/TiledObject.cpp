@@ -1,8 +1,10 @@
 #include "TiledObject.hpp"
 #include "b2_math.h"
 #include "JSON/JSONDeserialize.hpp"
+#include <iostream>
 #include <sstream>
 #include <string>
+#include <unordered_map>
 
 namespace IonixEngine {
 
@@ -31,8 +33,22 @@ TiledProperty::TiledProperty(JSONDeserialize* json) {
     ok = json->EndField(); if (!ok) { return; }
 
     ok = json->BeginField("value"); if (!ok) { return; }
-    ok = json->GetString(&value); if (!ok) { return; }
+    switch (typeLookup[type]) {
+    case Bool:
+        ok = json->GetBool(&boolValue); if (!ok) { return; }
+        break;
+    case Int:
+        ok = json->GetInt(&intValue); if (!ok) { return; }
+        break;
+    case Float:
+        ok = json->GetFloat(&floatValue); if (!ok) { return; }
+        break;
+    case String:
+        ok = json->GetString(&stringValue); if (!ok) { return; }
+        break;
+    }
     ok = json->EndField(); if (!ok) { return; }
+
     ok = json->EndObject(); if (!ok) { return; }
 }
 
@@ -41,7 +57,20 @@ std::string TiledProperty::ToString() {
     stream << "\t\t\tProperty:\n";
     stream << "\t\t\t\tName: " << name << "\n";
     stream << "\t\t\t\tType: " << type << "\n";
-    stream << "\t\t\t\tValue: " << value;
+    switch (typeLookup[type]) {
+    case Bool:
+        stream << "\t\t\t\tValue: " << boolValue;
+        break;
+    case Int:
+        stream << "\t\t\t\tValue: " << intValue;
+        break;
+    case Float:
+        stream << "\t\t\t\tValue: " << floatValue;
+        break;
+    case String:
+        stream << "\t\t\t\tValue: " << stringValue;
+        break;
+    }
 
     return stream.str();
 }
@@ -57,14 +86,13 @@ TiledObject::TiledObject(JSONDeserialize* json) {
     ok = json->GetInt(&id); if (!ok) { return; }
     ok = json->EndField(); if (!ok) { return; }
 
-    bool isPolygon = false;
-    isPolygon = json->BeginField("name");
-    if (!isPolygon) {
-        ok = json->GetString(nullptr); if (!ok) { return; }
-        ok = json->EndField(); if (!ok) { return; }
+    ok = json->BeginField("name"); if (!ok) { return; }
+    ok = json->GetString(&name); if (!ok) { return; }
+    ok = json->EndField(); if (!ok) { return; }
 
+    if (json->StringInRange("properties", 40)) {
         ok = json->BeginField("properties"); if (!ok) { return; }
-        ok = json->BeginArray(); if (!ok) { return; }
+        ok = json->BeginArray(); 
         if (ok) {
             do {
                 json->BeginElement();
@@ -76,16 +104,21 @@ TiledObject::TiledObject(JSONDeserialize* json) {
         ok = json->EndField(); if (!ok) { return; }
     } else {
         ok = json->BeginField("polygon"); if (!ok) { return; }
-
         ok = json->BeginArray();
         if (ok) {
             do {
-                json->BeginElement();
+                if (!json->BeginElement()) {
+                    printf("[Polygon] Could not begin element");
+                }
                 polygon.push_back(FromJson(json));
-                json->EndElement();
+                if (!json->EndElement()) {
+                    printf("[Polygon] Could not end element");
+                }
             } while (json->HasNext());
+        } else {
+            printf("[Tiled Object] Failed to find start of array\n");
         }
-        ok = json->EndArray();
+        ok = json->EndArray(); if (!ok) { printf("[Polygon] Failed to end array\n"); return; }
         ok = json->EndField(); if (!ok) { return; }
     }
 
@@ -114,6 +147,7 @@ TiledObject::TiledObject(JSONDeserialize* json) {
     ok = json->EndField(); if (!ok) { return; }
 
     ok = json->EndObject(); if (!ok) { return; }
+    std::cout << "Successfully parsed object: " << name << "\n";
 }
 
 std::string TiledObject::ToString() {
@@ -121,11 +155,12 @@ std::string TiledObject::ToString() {
 
     stream << "\t\tTiledObject:\n";
     stream << "\t\t\tID: " << id << "\n";
+    stream << "\t\t\tName: " << name << "\n";
     stream << "\t\t\tPosition: [ " << position.x << ", " << position.y << "]\n";
     stream << "\t\t\tSize: [ " << size.x << ", " << size.y << "]\n";
     stream << "\t\t\tRotation:" << rotation << "\n";
     stream << "\t\t\tVisible:" << visible << "\n";
-    if (polygon.size() > 0) {
+    if (properties.size() > 0) {
         stream << "\t\t\tProperties:\n";
         for (TiledProperty& property : properties) {
             stream << property.ToString() << "\n";

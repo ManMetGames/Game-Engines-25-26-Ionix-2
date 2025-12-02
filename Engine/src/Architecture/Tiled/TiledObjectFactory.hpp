@@ -7,11 +7,12 @@
 
 namespace IonixEngine {
 
-typedef void (*AddComponent)(Entity*, TiledProperty&, TiledObject&);
+typedef void (*AddComponent)(Entity* entity, std::unordered_map<std::string, TiledProperty&>& map, TiledObject& object);
 
 class TiledObjectFactory {
     std::unordered_map<std::string, AddComponent> addComponent;
-    static void AddSpriteComponent(Entity* entity, TiledProperty& property, TiledObject& object);
+    static void  AddSpriteComponent(Entity* entity, std::unordered_map<std::string, TiledProperty&>& properties, TiledObject& object);
+    static void AddPolygonComponent(Entity* entity, std::unordered_map<std::string, TiledProperty&>& properties, TiledObject& object);
 public:
     TiledObjectFactory();
     void CreateEntityFromObjectID(Scene* scene, TiledObject& object, TiledObjectLayer& layer);

@@ -4,16 +4,29 @@
 #include "b2_math.h"
 #include <cstdint>
 #include <string>
+#include <unordered_map>
 #include <vector>
 namespace IonixEngine {
 
 b2Vec2 FromJson(JSONDeserialize* json);
 
+enum PropertyType { Bool, Int, Float, String };
+
+static std::unordered_map<std::string, PropertyType> typeLookup = {
+    { "bool", Bool },
+    { "int", Int },
+    { "float", Float },
+    { "string", String }
+};
+
 class TiledProperty {
 public:
     std::string name;
     std::string type;
-    std::string value;
+    bool boolValue;
+    int intValue;
+    float floatValue;
+    std::string stringValue;
 
     TiledProperty(JSONDeserialize* json);
     std::string ToString();
@@ -27,6 +40,7 @@ public:
     int32_t id;
     float rotation;
     bool visible;
+    std::string name;
     std::vector<b2Vec2> polygon; // Will be present on all polygon colliders ???
 
     TiledObject(JSONDeserialize* json);

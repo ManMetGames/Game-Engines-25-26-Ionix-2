@@ -107,7 +107,11 @@ bool JSONDeserialize::GetString(std::string* out) {
     if (startPos == data.npos) { printf("[JSON Deserialize] Malformed JSON after char %zu, expected '\"'\n", pos); return false; }
     size_t endPos = data.find('"', startPos + 1) - 1;
     if (endPos == data.npos) { printf("[JSON Deserialize] Malformed JSON after char %zu, expected ending '\"'\n", startPos); return false; }
+    if (startPos == endPos) {
+        if (out) { *out = std::string(); }
+    } else {
     if (out) { *out = data.substr(startPos + 1, endPos - startPos); }
+    }
     newPos = data.find('\n', pos);
     if (newPos == data.npos) { printf("[JSON Deserialize] Malformed JSON after char %zu, expected string\n", pos); return false; }
     return true;
@@ -170,6 +174,8 @@ bool JSONDeserialize::EndElement() {
 }
 
 bool JSONDeserialize::EndArray() {
+    if (brackets.top() != '[') { printf("[JSON Deserialize] Most recent unresolved bracket was not ']'\n"); return false; }
+    brackets.pop();
     return ValidEndObject();
 }
 
@@ -237,9 +243,13 @@ bool JSONDeserialize::ValidEndObject() {
 }
 
 bool JSONDeserialize::StringInRange(const std::string& str, size_t range) {
-    size_t newPos = data.find_first_of(str, pos);
-    if (newPos == data.npos) { return false; }
-    return newPos - pos <= range;
+    size_t newPos = data.find(str, pos);
+    if (newPos == data.npos) { printf("[JSON Deserialize] Did not find string %s after char: %zu\n", str.c_str(), pos); return false; }
+    if (newPos - pos > range) {
+        printf("[JSON Deserialize] Found string %s but it was %zu so out of range %zu\n", str.c_str(), newPos - pos, range);
+        return false;
+    }
+    return true;
 }
 
 }

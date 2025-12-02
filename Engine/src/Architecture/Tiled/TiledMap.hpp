@@ -29,6 +29,7 @@ class TiledTileset {
 public:
     int columns;
     int tileCount;
+    int firstGID;
     std::string imagePath;
     b2Vec2 imageSize;
     int margin;

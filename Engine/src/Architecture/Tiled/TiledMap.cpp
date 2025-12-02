@@ -152,7 +152,7 @@ TiledTileset::TiledTileset(JSONDeserialize* json) {
     ok = json->EndField(); if (!ok) { return; }
 
     ok = json->BeginField("firstgid"); if (!ok) { return; }
-    ok = json->GetFloat(nullptr); if (!ok) { return; }
+    ok = json->GetInt(&firstGID); if (!ok) { return; }
     ok = json->EndField(); if (!ok) { return; }
 
     ok = json->BeginField("image"); if (!ok) { return; }
@@ -215,7 +215,7 @@ int TiledTileset::Rows() {
 }
 
 TiledLayer::TiledLayer(JSONDeserialize* json) {
-    isTile = json->StringInRange("\"data\"", 10);
+    isTile = json->StringInRange("data", 10);
     if (isTile) {
         tileLayer = TiledTileLayer(json);
     } else {

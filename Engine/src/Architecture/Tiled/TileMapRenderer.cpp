@@ -34,8 +34,9 @@ TileMapRenderer::TileMapRenderer(Entity* entity, const TiledTileLayer& tileLayer
     tileSize = tileSet.tileSize;
 
     for (int tile : tileLayer.data) {
-        b2Vec2 destPos = b2Vec2 { static_cast<float>(tile % tileSet.columns) * tileSet.tileSize.x, tile / static_cast<float>(tileSet.columns) * tileSet.tileSize.y };
-        tiles[b2Vec2 { x, y }] = RectV(destPos, tileSize);
+        tile -= tileSet.firstGID; // For some reason tile ids start at 1
+        b2Vec2 src = b2Vec2 { static_cast<float>(tile % tileSet.columns) * tileSet.tileSize.x, tile / static_cast<float>(tileSet.columns) * tileSet.tileSize.y };
+        tiles.push_back(std::make_pair(RectVCentred(b2Vec2{ x, y }, tileSize), RectV(src, tileSize)));
         x += tileSet.tileSize.x;
         if (x >= tileLayer.size.x * tileSet.tileSize.x) {
             x = tileLayer.position.x;
@@ -45,9 +46,9 @@ TileMapRenderer::TileMapRenderer(Entity* entity, const TiledTileLayer& tileLayer
 }
 
 void TileMapRenderer::Render(RenderData* data) {
-    for (std::pair<b2Vec2, SDL_Rect> tile : tiles) {
+    for (std::pair<SDL_Rect, SDL_Rect> tile : tiles) {
         RenderCall call = RenderCall {
-            image, RectVCentred(tile.first, tileSize), tile.second
+            image, tile.first, tile.second
         };
         data->queue->AddToQueue(call);
     }
