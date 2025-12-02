@@ -142,7 +142,7 @@ function ExampleScript:OnStart()
 	-- Create coins
 	------------------------------------------------------
     coin = Entity.create_entity()
-    Entity.set_global_pos(coin, x, 300)
+    Entity.set_global_pos(coin, pipeStartX - 235, 300)
 
     local coinSprite = Entity.add_sprite_component(coin, assets.textures.Coin, 32, 32, 0)
 
