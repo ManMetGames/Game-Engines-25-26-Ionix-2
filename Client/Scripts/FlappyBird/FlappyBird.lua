@@ -19,10 +19,10 @@ local pipeT
 local pipe2
 local pipeT2
 
-local pipeSpeed = -180
+local pipeSpeed = -3
 local pipeStartX = 900
 local pipe2StartX = 1200
-local pipeOffScreenLeft = -1
+local pipeOffScreenLeft = -100
 
 ----------------------------------------------------------
 -- OnStart
@@ -81,6 +81,10 @@ function ExampleScript:OnStart()
 	------------------------------------------------------
 	-- Create pipe obstacle
 	------------------------------------------------------
+
+	---------------------------
+	-- Pipe Set 1
+	---------------------------
     --BOTTOM PIPE
 	pipe = Entity.create_entity()
 	Entity.set_global_pos(pipe, 640, 400)
@@ -96,7 +100,7 @@ function ExampleScript:OnStart()
     pipeT = Entity.create_entity()
 	Entity.set_global_pos(pipeT, 640, 0)
 
-	local pipeSpriteT = Entity.add_sprite_component(pipeT,assets.textures.FlappyPipe , 80, 300, 0)
+	local pipeSpriteT = Entity.add_sprite_component(pipeT,assets.textures.FlappyPipe2, 80, 300, 0)
     Sprite.set_columns(pipeSpriteT,1)
 	-- Kinematic body so it moves but isn't affected by gravity
 	Entity.add_fysics_component(pipeT, enums.bodytype.kinematicBody, false)
@@ -105,6 +109,34 @@ function ExampleScript:OnStart()
     if Input.get_key_down(Keys.ionix_a) then
         Entity.set_global_pos(pipe, xPos, floorY)
 	end
+    ---------------------------
+	-- Pipe Set 2
+	---------------------------
+        --BOTTOM PIPE
+	pipe2 = Entity.create_entity()
+	Entity.set_global_pos(pipe2, 1200, 400)
+
+	local pipeSprite2 = Entity.add_sprite_component(pipe2, assets.textures.FlappyPipe, 80, 300, 0)
+    Sprite.set_columns(pipeSprite2,1)
+	-- Kinematic body so it moves but isn't affected by gravity
+	Entity.add_fysics_component(pipe2, enums.bodytype.kinematicBody, false)
+	Fysics.add_sprite_collider(pipe2, false,1)
+
+
+    -- TOP PIPE
+    pipeT2 = Entity.create_entity()
+	Entity.set_global_pos(pipeT2, 1200, 0)
+
+	local pipeSpriteT2 = Entity.add_sprite_component(pipeT2,assets.textures.FlappyPipe2, 80, 300, 0)
+    Sprite.set_columns(pipeSpriteT2,1)
+	-- Kinematic body so it moves but isn't affected by gravity
+	Entity.add_fysics_component(pipeT2, enums.bodytype.kinematicBody, false)
+	Fysics.add_sprite_collider(pipeT2, false,1)
+
+    if Input.get_key_down(Keys.ionix_a) then
+        Entity.set_global_pos(pipe2, xPos, floorY)
+	end
+
 end
 
 ----------------------------------------------------------
@@ -119,6 +151,8 @@ function ExampleScript:OnUpdate()
     local vel1 = Fysics.get_linear_velocity(player1)
     local vy1 = Fysics.get_linear_velocity(pipe)
     local vy1 = Fysics.get_linear_velocity(pipeT)
+    local vy1 = Fysics.get_linear_velocity(pipe2)
+    local vy1 = Fysics.get_linear_velocity(pipeT2)
     -- Constant rightward movement
     local vx = 0
     local vy1 = Mafs.get_vec_y(vel1)
@@ -130,10 +164,10 @@ function ExampleScript:OnUpdate()
         vy1 = -5  -- Jump velocity for player1
 
         -- Pipes move left if space if pressed
-        Fysics.set_linear_velocity(pipe, pipeS, 0)
-        Fysics.set_linear_velocity(pipeT, pipeS, 0)
-        Fysics.set_linear_velocity(pipe2, pipeS, 0)
-        Fysics.set_linear_velocity(pipeT2, pipeS, 0)
+        Fysics.set_linear_velocity(pipe, pipeSpeed, 0)
+        Fysics.set_linear_velocity(pipeT, pipeSpeed, 0)
+        Fysics.set_linear_velocity(pipe2, pipeSpeed, 0)
+        Fysics.set_linear_velocity(pipeT2, pipeSpeed, 0)
 	end
 
     Fysics.set_linear_velocity(player1, vx, vy1)
@@ -144,8 +178,15 @@ function ExampleScript:OnUpdate()
     if Mafs.get_vec_x(pipePos) < pipeOffScreenLeft then
         Fysics.set_pos(pipe, pipeStartX, pipePos.y)
         Fysics.set_pos(pipeT, pipeStartX, pipePos.y)
-     end
-     
+    end
+
+    local pipePos2 = Fysics.get_pos(pipe2)
+    local pipePos2 = Fysics.get_pos(pipeT2)
+    if Mafs.get_vec_x(pipePos2) < pipeOffScreenLeft then
+        Fysics.set_pos(pipe2, pipe2StartX, pipePos2.y)
+        Fysics.set_pos(pipeT2, pipe2StartX, pipePos2.y)
+    end
+
 end
 
 return ExampleScript
