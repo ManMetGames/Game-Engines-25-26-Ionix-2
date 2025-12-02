@@ -48,12 +48,11 @@ namespace IonixEngine
         ImGui::CreateContext();
         ImGuiIO& io = ImGui::GetIO(); (void)io;
 
-        
+        /*
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
         io.ConfigFlags |= ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize;
 
-        /*
         for (auto ui : uiDrawData)
         {
             if (ui.type == UIType::Label)
@@ -88,7 +87,6 @@ namespace IonixEngine
          ImGui::Begin("null", nullptr, window_flags);
          // Render the UI
          m_UIManager->RenderUI();
-         //ImGui::Render();
          ImGui::End();
          //m_UIManager->ClearElements();
          //std::vector<std::string> dropdownOptions = { "Option 1", "Option 2", "Option 3" };
