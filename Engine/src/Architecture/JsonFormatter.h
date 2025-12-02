@@ -1,13 +1,11 @@
 #pragma once
 #include <string>
-#include <vector>
 #include <map>
-#include <fstream>
 #include <sstream>
+
 
 namespace IonixEngine
 {
-
 	class JsonFormatter
 	{
 	private:
@@ -28,6 +26,6 @@ namespace IonixEngine
 		void WriteToFile(std::string filepath);
 		std::string ExportString();
 
-		void DebugLogFileContents();
+		//void DebugLogInput();
 	};
 }

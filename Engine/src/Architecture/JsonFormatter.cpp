@@ -9,7 +9,7 @@ namespace IonixEngine
 	{
 		if (!inputValid)
 		{
-			std::cout << "[JSON Formatter] Given file is invalid, run again with a valid filepath." << std::endl;
+			std::cout << "[JSON Formatter] Given input is invalid, run again with a valid input." << std::endl;
 			return "";
 		}
 		std::string fileContentsCopy = inputString.str();
@@ -21,7 +21,7 @@ namespace IonixEngine
 			//aka if charOverwrites has a key-value pair matching character
 			if (charOverwrites.find(character) != charOverwrites.end())
 			{
-				std::cout << "[JSON Formatter] Char overwrite value found!" << std::endl;
+				//std::cout << "[JSON Formatter] Char overwrite value found!" << std::endl;
 				char* charPos = &fileContentsCopy.at(lastOverwrite);
 				size_t viewSize = index - lastOverwrite;
 				std::string_view unreplacedSection{ charPos,viewSize };
@@ -46,16 +46,10 @@ namespace IonixEngine
 		return output.str();
 	}
 
+	//Use alongside either OpenFile() or ImportString() to set an input
 	JsonFormatter::JsonFormatter()
 	{
 		inputValid = false;
-		//if (!inputValid)
-		//{
-		//	std::cout << "[JSON Formatter] Failed to find file!\nRun OpenFile() with a valid filepath." << std::endl;
-		//}
-
-		//find better way to allow for character overwriting, maybe structs?
-		//charOverwrites.insert({'o',"a"});
 	}
 
 	bool JsonFormatter::OpenFile(std::string filepath)
@@ -125,14 +119,14 @@ namespace IonixEngine
 		return processFile();
 	}
 
-	void JsonFormatter::DebugLogFileContents()
-	{
-		std::cout << "[JSON Formatter] Logging file contents:" << std::endl;
-		std::string fileContentsCopy = inputString.str();
-		for (char character : fileContentsCopy)
-		{
-			std::cout << character;
-		}
-		std::cout << std::endl;
-	}
+	//void JsonFormatter::DebugLogInput()
+	//{
+	//	std::cout << "[JSON Formatter] Logging file contents:" << std::endl;
+	//	std::string fileContentsCopy = inputString.str();
+	//	for (char character : fileContentsCopy)
+	//	{
+	//		std::cout << character;
+	//	}
+	//	std::cout << std::endl;
+	//}
 }
