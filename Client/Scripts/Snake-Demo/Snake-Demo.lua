@@ -12,13 +12,6 @@ local y = 300
 local t = 10
 
 
--- Pipe variables
-local pipe
-local pipeT
-local pipeSpeed = -3
-local pipeStartX = 900
-local pipeOffScreenLeft = -100
-
 ----------------------------------------------------------
 -- OnStart
 ----------------------------------------------------------
@@ -31,9 +24,9 @@ local BgBackground = Entity.add_sprite_component(Background, assets.textures.Bac
     ------------------------------------------------------
     player1 = Entity.create_entity()
 
-    Entity.set_entity_pos(player1, x, 300)
+    Entity.set_local_pos(player1, x, y)
 	
-    local playerSprite1 = Entity.add_sprite_component(player1, assets.textures.FlappyBird, 32, 32, 10)
+    local playerSprite1 = Entity.add_sprite_component(player1, assets.textures.Debug, 32, 32, 10)
     Sprite.set_columns(playerSprite1,1)
     -- PLAYER 1 PHYSICS
 
@@ -57,7 +50,7 @@ local BgBackground = Entity.add_sprite_component(Background, assets.textures.Bac
 		------------------------------------------------------
 		-- place sprite
 		------------------------------------------------------
-		Entity.set_entity_pos(tile, xPos, floorY)
+		Entity.set_local_pos(tile, xPos, floorY)
 		local s = Entity.add_sprite_component(tile, assets.textures.Sand, tileSize, tileSize, 1)
         Sprite.set_columns(s,1)
 		------------------------------------------------------
@@ -68,71 +61,38 @@ local BgBackground = Entity.add_sprite_component(Background, assets.textures.Bac
 
 end
 
-------------------------------------------------------
-	-- Create pipe obstacle
-	------------------------------------------------------
-    --BOTTOM PIPE
-	pipe = Entity.create_entity()
-	Entity.set_entity_pos(pipe, 640, 400)
-
-	local pipeSprite = Entity.add_sprite_component(pipe, assets.textures.FlappyPipe, 80, 300, 0)
-    Sprite.set_columns(pipeSprite,1)
-	-- Kinematic body so it moves but isn't affected by gravity
-	Entity.add_fysics_component(pipe, 1, false)
-	Fysics.add_sprite_collider(pipe, false,1)
-
-
-    -- TOP PIPE
-    pipeT = Entity.create_entity()
-	Entity.set_entity_pos(pipeT, 640, 0)
-
-	local pipeSpriteT = Entity.add_sprite_component(pipeT,assets.textures.FlappyPipe , 80, 300, 0)
-    Sprite.set_columns(pipeSpriteT,1)
-	-- Kinematic body so it moves but isn't affected by gravity
-	Entity.add_fysics_component(pipeT, 1, false)
-	Fysics.add_sprite_collider(pipeT, false,1)
-
-    if Input.get_key_down(Keys.ionix_a) then
-        Entity.set_entity_pos(pipe, xPos, floorY)
-	end
-end
 
 ----------------------------------------------------------
 -- OnUpdate
 ----------------------------------------------------------
 function ExampleScript:OnUpdate()
 
- -- get current velocity
-    local vel1 = Fysics.get_linear_velocity(player1)
-    local vy1 = Fysics.get_linear_velocity(pipe)
-    local vy1 = Fysics.get_linear_velocity(pipeT)
-    -- Constant rightward movement
     local vx = 0
-    local vy1 = vel1.y
+    local vy = 0
 
-	if Input.get_key_down(Keys.ionix_space) then
-        -- Bird move if space is pressed (allow gravity)
-        Fysics.set_gravity_scale(player1, 1)
-        Fysics.set_linear_velocity(pipe, pipeSpeed, 0)
-        Fysics.set_linear_velocity(pipeT, pipeSpeed, 0)
-        -- Set velocity directly to cancel out falling momentum
-        vy1 = -5  -- Jump velocity for player1
-  
-    if Input.get_key_held(Keys.ionix_w) then
+  -- basic movment using the WASD keys
+    if Input.get_key_held(Keys.ionix_d) then
        
         vx = 5
+    end     
+
+        if Input.get_key_held(Keys.ionix_a) then
+       
+        vx = -5
+    end  
+
+
+        if Input.get_key_held(Keys.ionix_w) then
+       
+        vy = -5
     end        
 
-end
+        if Input.get_key_held(Keys.ionix_s) then
+       
+        vy = 5
+    end  
 
- Fysics.set_linear_velocity(player1, vx, vy1)
-
-   -- Pipe movement
-    local pipePos = Fysics.get_pos(pipe)
-    local pipePos = Fysics.get_pos(pipeT)
-    if pipePos.x < pipeOffScreenLeft then
-        Fysics.set_pos(pipe, pipeStartX, pipePos.y)
-        Fysics.set_pos(pipeT, pipeStartX, pipePos.y)
+ Fysics.set_linear_velocity(player1, vx, vy)
      end
       
 end
