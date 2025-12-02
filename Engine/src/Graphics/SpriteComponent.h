@@ -4,6 +4,7 @@
 #include "SDL.h"
 #include "Architecture/TextureManager/TextureManager.h"
 #include <iostream>
+#include <box2d.h>
 
 namespace IonixEngine {
 
@@ -29,15 +30,17 @@ namespace IonixEngine {
 		int rows, cols;
 		int spriteWidth, spriteHeight;
 		int currentRow, currentCol;
-
+		float timer;
+		b2Vec2 boxColliderSize;
 		
 
 		enum playbackOptions playbackMode;
 
 	public:
 		SpriteComponent(Entity* entity, std::string alias, int width, int height, int zedOrder);
-		SpriteComponent(Entity* entity, uint64_t hash, int width, int height, int zedOrder);
+		SpriteComponent(Entity* entity, uint32_t hash, int width, int height, int zedOrder);
 		virtual void Render(RenderData* data) override;
+		virtual void Update(float deltaTime) override;
 
 		void calculateTotalFrames();
 
@@ -52,14 +55,16 @@ namespace IonixEngine {
 		void setCurrentFrame(int x);
 		void setRows(int x);
 		void setCols(int x);
+		void setRowsAndCols(int Rows, int Cols);
 		void setSpriteWidth(int x);
 		void setSpriteHeight(int x);
 		void setZedOrder(int x);
 		void setWidth(int x);
 		void setHeight(int x);
+		void setBoxColliderSize(b2Vec2 newSize);
 
 		//Getters
-		playbackOptions getPlaybackMode();
+		IonixEngine::playbackOptions getPlaybackMode();
 		int getCurrentFrame();
 		int getEndFrame();
 		int getRows();
@@ -72,5 +77,6 @@ namespace IonixEngine {
 		int getCurrentRow();
 		int getWidth();
 		int getHeight();
+		b2Vec2 getBoxColliderSize();
 	};
 }

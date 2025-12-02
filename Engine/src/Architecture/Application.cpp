@@ -3,7 +3,7 @@
 #include "Fysics/FysicsBody.h"
 #include "Fysics/FysicsManager.h"
 #include "Fysics/Shapes.h"
-#include "Fysics/NavMef.h"
+//#include "Fysics/NavMef.h"
 #include "LayerSystem/Layers/LayerTexture.hpp"
 #include "SDL_timer.h"
 #include "imgui.h"
@@ -56,11 +56,33 @@ namespace IonixEngine
         layerScene = new LayerScene();
         AddLayer(layerScene);
 
-        layerNavigation = new LayerNavigation();  
-        AddLayer(layerNavigation);
+        //layerNavigation = new LayerNavigation();  
+        //AddLayer(layerNavigation);
 
         Scripting::Get().Init();
-        Scripting::Get().GetLuaState().script_file("Scripts/Settings.lua");
+        // Safely load the Lua settings file
+        auto& lua = Scripting::Get().GetLuaState();
+        try
+        {
+            lua.script_file("Scripts/Settings.lua");
+        }
+        catch (const sol::error& e)
+        {
+            // Prefer your own logging system if you have one
+            std::cerr << "Lua error while loading Scripts/Settings.lua: "
+                      << e.what() << std::endl;
+            // Optionally: set a flag or fall back to default settings here.
+        }
+        catch (const std::exception& e)
+        {
+            std::cerr << "Std exception while loading Scripts/Settings.lua: "
+                      << e.what() << std::endl;
+        }
+        catch (...)
+        {
+            std::cerr << "Unknown exception while loading Scripts/Settings.lua"
+                      << std::endl;
+        }
     }
         
     Application::~Application() 
@@ -93,17 +115,16 @@ namespace IonixEngine
         
         while (m_Running)
         {
-            
             uint64_t lastTick = currentTick;
             currentTick = SDL_GetPerformanceCounter();
             
             deltaTime = static_cast<double>(currentTick - lastTick) / SDL_GetPerformanceFrequency();
             time += deltaTime;
 		    
+            
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);
             SDL_RenderClear(renderer);
-   
-            
+
             // fixed update time accumulation
             m_FixedTimeAccumulator += deltaTime;
             
@@ -115,6 +136,7 @@ namespace IonixEngine
                     if(layer)
                         layer->OnFixedUpdate();
                 }
+                Scripting::Get().CallHook("OnFixedUpdate");
                 m_FixedTimeAccumulator -= m_FixedTimeStep;
             }
             
@@ -127,6 +149,7 @@ namespace IonixEngine
             
             Scripting::Get().CallHook("OnUpdate");
             ImGui::Render();
+            
             ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), m_Window->GetSdlRenderer());
             Get().layerFysics->GetFysicsManager()->GetWorld()->DebugDraw();
             SDL_RenderPresent(m_Window->m_Renderer);
