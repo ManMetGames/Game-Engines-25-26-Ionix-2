@@ -26,6 +26,8 @@ local pipeOffScreenLeft = -100
 local myText = "Press SPACE to begin"
 -- Coin variables
 local coin
+local coin2
+local coinSpeed = -3
 ----------------------------------------------------------
 -- OnStart
 ----------------------------------------------------------
@@ -37,7 +39,6 @@ function ExampleScript:OnStart()
     Background = Entity.create_entity()
     local BgBackground = Entity.add_sprite_component(Background, assets.textures.Background,960 , 640, 0)
     
-
     ------------------------------------------------------
     -- Create player1
     ------------------------------------------------------
@@ -55,12 +56,12 @@ function ExampleScript:OnStart()
     -- Freeze bird
     Fysics.set_gravity_scale(player1, 0)
 
-
-    local tileSize = 64
-    local floorY = 600
 	------------------------------------------------------
 	-- pick texture for left / middle / right
 	------------------------------------------------------
+    local tileSize = 64
+    local floorY = 600
+    
 	local tex = "middle"
 
 	for i = 0, 30 do
@@ -142,7 +143,7 @@ function ExampleScript:OnStart()
 	-- Create coins
 	------------------------------------------------------
     coin = Entity.create_entity()
-    Entity.set_global_pos(coin, x, 300)
+    Entity.set_global_pos(coin, pipeStartX - 235, 300)
 
     local coinSprite = Entity.add_sprite_component(coin, assets.textures.Coin, 32, 32, 0)
 
@@ -153,7 +154,32 @@ function ExampleScript:OnStart()
 
     -- Add physics body + collider
     Entity.add_fysics_component(coin, enums.bodytype.kinematicBody, false)
-    Fysics.add_sprite_collider(pipeT2, false, 1)
+    Fysics.add_sprite_collider(coin, false, 1)
+
+    if Input.get_key_down(Keys.ionix_a) then
+        Entity.set_global_pos(coin, xPos, floorY)
+	end
+
+    ---------------------------
+	-- Coin Set 2
+	---------------------------
+    coin2 = Entity.create_entity()
+    Entity.set_global_pos(coin2, pipe2StartX + 25, 300)
+
+    local coinSprite2 = Entity.add_sprite_component(coin2, assets.textures.Coin, 32, 32, 0)
+
+    Sprite.set_rows(coinSprite2, 1)
+    Sprite.set_columns(coinSprite2, 5)
+    Sprite.set_width(coinSprite2, 16)
+    Sprite.set_height(coinSprite2, 16)
+
+    -- Add physics body + collider
+    Entity.add_fysics_component(coin2, enums.bodytype.kinematicBody, false)
+    Fysics.add_sprite_collider(coin2, false, 1)
+
+    if Input.get_key_down(Keys.ionix_a) then
+        Entity.set_global_pos(coin2, xPos, floorY)
+    end
 
 end
 
@@ -168,9 +194,9 @@ function ExampleScript:OnUpdate()
     -- Get current velocity
     local vel1 = Fysics.get_linear_velocity(player1)
     local vy1 = Fysics.get_linear_velocity(pipe)
-    local vy1 = Fysics.get_linear_velocity(pipeT)
     local vy1 = Fysics.get_linear_velocity(pipe2)
-    local vy1 = Fysics.get_linear_velocity(pipeT2)
+    local vy1 = Fysics.get_linear_velocity(coin)
+
     -- Constant rightward movement
     local vx = 0
     local vy1 = Mafs.get_vec_y(vel1)
@@ -189,18 +215,22 @@ function ExampleScript:OnUpdate()
         Fysics.set_linear_velocity(pipeT, pipeSpeed, 0)
         Fysics.set_linear_velocity(pipe2, pipeSpeed, 0)
         Fysics.set_linear_velocity(pipeT2, pipeSpeed, 0)
+
+        -- Coins move
+        Fysics.set_linear_velocity(coin, coinSpeed, 0)
+        Fysics.set_linear_velocity(coin2, coinSpeed, 0)
         myText = ""
 	end
 
     Fysics.set_linear_velocity(player1, vx, vy1)
 
     -- Pipe movement
-    --local pipePos = Fysics.get_pos(pipe)
-    --local pipePos = Fysics.get_pos(pipeT)
-    --if Mafs.get_vec_x(pipePos) < pipeOffScreenLeft then
-        --Fysics.set_pos(pipe, pipeStartX, pipePos.y)
-        --Fysics.set_pos(pipeT, pipeStartX, pipePos.y)
-    --end
+    local pipePos = Fysics.get_pos(pipe)
+    local pipePos = Fysics.get_pos(pipeT)
+    if Mafs.get_vec_x(pipePos) < pipeOffScreenLeft then
+        Fysics.set_pos(pipe, pipeStartX, pipePos.y)
+        Fysics.set_pos(pipeT, pipeStartX, pipePos.y)
+    end
 
     local pipePos2 = Fysics.get_pos(pipe2)
     local pipePos2 = Fysics.get_pos(pipeT2)
@@ -208,19 +238,30 @@ function ExampleScript:OnUpdate()
         Fysics.set_pos(pipe2, pipe2StartX, pipePos2.y)
         Fysics.set_pos(pipeT2, pipe2StartX, pipePos2.y)
     end
- 	
-    local pipePos = Fysics.get_pos(pipe)
-    local pipePos = Fysics.get_pos(pipeT)
-	if Mafs.get_vec_x(pipePos) < pipeOffScreenLeft then
-        Fysics.set_pos(pipe, pipeStartX, pipePos.y)
-        Fysics.set_pos(pipeT, pipeStartX, pipePos.y)
 
-        --Entity.set_entity_pos(pipe, pipeStartX, 400)
-        --Entity.set_entity_pos(pipeT, pipeStartX, 0)
-	end
+    -- Coins movement
+    local coinPos = Fysics.get_pos(coin)
+    if Mafs.get_vec_x(coinPos) < pipeOffScreenLeft then
+        Fysics.set_pos(coin, pipeStartX -235, coinPos.y)
+    end
 
-
+    local coinPos2 = Fysics.get_pos(coin2)
+    if Mafs.get_vec_x(coinPos2) < pipeOffScreenLeft then
+        Fysics.set_pos(coin2, pipe2StartX + 25, coinPos2.y)
+    end
     
+end
+
+    function ExampleScript:OnCollisionEnter()
+        if Fysics.col(player1, pipe) then
+            print("CollisionPipe")
+            end
+    end
+
+    function ExampleScript:OnTriggerEnter(collision1, collision2)
+        if collision1 == player1 and collision2 == coin then
+            print("TriggerCoin")
+        end
 end
 
 return ExampleScript

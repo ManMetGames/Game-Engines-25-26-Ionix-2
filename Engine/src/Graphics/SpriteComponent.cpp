@@ -1,5 +1,8 @@
 #include "SpriteComponent.h"
 #include <Graphics/QueueRenderer.h>
+#include "Fysics/FysicsBody.h"
+
+#include "Fysics/FysicsBody.h"
 
 namespace IonixEngine {
 
@@ -13,7 +16,11 @@ namespace IonixEngine {
 		boxColliderSize = b2Vec2{1 + (0.02f * (width - 75)), 1 + (0.02f * (height - 75))};
 		rows = 1; //default spritesheet size, can be changed in appropriate setters
 		cols = 1;
+		tickRate = 0.2f;
 
+		tickRate = 0.2f; //default tick rate
+
+		renderLayer = entity->renderLayer;
 
 		SDL_QueryTexture(texture, NULL, NULL, &size.x, &size.y);
 
@@ -41,7 +48,11 @@ namespace IonixEngine {
 		//setRowsAndCols(2, 8);
 		cols = 1;
 		rows = 1;
+		tickRate = 0.2f;
 
+		tickRate = 0.2f; //default tick rate
+
+		renderLayer = entity->renderLayer;
 
 		SDL_QueryTexture(texture, NULL, NULL, &size.x, &size.y);
 	/*
@@ -78,12 +89,27 @@ namespace IonixEngine {
 		//	currentRow--;
 		//}
 
+		// Get rotation from physics body if it exists, otherwise use transform rotation
+		double angleDegrees = 0.0;
+		FysicsBody* fysicsBody = entity->GetComponent<FysicsBody>();
+		if (fysicsBody) {
+			// Box2D returns radians, SDL expects degrees
+			float angleRadians = fysicsBody->GetAngle(entity);
+			angleDegrees = angleRadians * (180.0 / 3.14159265358979323846);
+		} else {
+			// Transform rotation is in degrees
+			angleDegrees = entity->transform.GetGlobalRotation();
+		}
+
 		//create and send render data to the render queue
 		data->queue->AddToQueue(RenderCall{
 			texture,
 			SDL_Rect { (int)(position.x), (int)(position.y), (int)width, (int)height },
 			SDL_Rect { spriteWidth * currentCol, spriteHeight * currentRow, spriteWidth, spriteHeight },
-			});
+			zOrder,
+			spriteAngle,
+			renderLayer
+		});
 
 
 		//This is just here so we can see the animation play at a normal speed
@@ -136,8 +162,8 @@ namespace IonixEngine {
 	{
 		timer += deltaTime;
 
-		while (timer > 0.2f) {
-			timer -= 0.2f;
+		while (timer > tickRate) {
+			timer -= tickRate;
 
 			currentCol++;
 			if (currentCol == cols) {
@@ -158,9 +184,11 @@ namespace IonixEngine {
 		endFrame = totalFrames - 1;
 	}
 
-	void SpriteComponent::changeTexture(std::string alias)
+	void SpriteComponent::changeTexture(std::string alias, int iRows, int iCols, int iSpriteWidth, int iSpriteHeight)
 	{
 		texture = IonixEngine::TextureManager::Get().GetTexture(alias).GetTexture();
+
+		setAnimation(iRows, iCols, iSpriteWidth, iSpriteHeight);
 	}
 
 	void SpriteComponent::initialiseSpritesheet()
@@ -185,6 +213,14 @@ namespace IonixEngine {
 		}
 	}
 
+	void SpriteComponent::setAnimation(int x, int y, int spriteX, int spriteY)
+	{
+		rows = x;
+		cols = y;
+		spriteWidth = spriteX;
+		spriteHeight = spriteY;
+	}
+
 	//setters
 	void SpriteComponent::setEndFrame(int x) { endFrame = x; }
 	void SpriteComponent::setPlaybackMode(enum playbackOptions x) { playbackMode = x; }
@@ -201,6 +237,8 @@ namespace IonixEngine {
 	void SpriteComponent::setZedOrder(int x) { zOrder = x; }
 	void SpriteComponent::setWidth(int x) { width = x; }
 	void SpriteComponent::setHeight(int x) { height = x; }
+	void SpriteComponent::setAngle(float angle){ spriteAngle = angle; }
+	void SpriteComponent::setTickRate(float x) { tickRate = x; }
 
 	void SpriteComponent::setBoxColliderSize(b2Vec2 newSize) { boxColliderSize = newSize; }
 
@@ -218,5 +256,7 @@ namespace IonixEngine {
 	int SpriteComponent::getCurrentRow() { return currentRow; }
 	int SpriteComponent::getWidth() { return width; }
 	int SpriteComponent::getHeight() { return height; }
+	float SpriteComponent::getAngle() { return spriteAngle; }
+	int SpriteComponent::getTickRate() { return tickRate; }
 	b2Vec2 SpriteComponent::getBoxColliderSize() { return boxColliderSize; }
 }

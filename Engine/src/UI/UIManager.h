@@ -4,7 +4,6 @@
 #include <functional>
 #include <vector>
 #include "Fontloader.h"
-
 #include "UI/UI.h"
 namespace IonixEngine
 {
