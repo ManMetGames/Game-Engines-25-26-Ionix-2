@@ -1,22 +1,68 @@
 local player = {}
 
+local playerEntity = nil
+local speed = 400
+local radius = 32
+local screenW, screenH = 0, 0
+
 function player:OnStart()
-    print("[Lua] Controller Debug Initialized.")
+    local assets = GetModule("Assets")
+    screenW = Window.get_width()
+    screenH = Window.get_height()
+
+    playerEntity = Entity.create_entity()
+    local startX = screenW / 2
+    local startY = screenH - 80
+    Entity.set_entity_pos(playerEntity, startX, startY)
+
+    local textureName = "player_ship"
+    if assets and assets.textures.player_ship then
+        textureName = "player_ship"
+    end
+    Entity.add_sprite_component(playerEntity, textureName, radius * 2, radius * 2, 0)
+    print("[Player] Entity created at:", startX, startY)
 end
 
 function player:OnUpdate()
-    local leftX = Input.get_left_stick_x()
-    local leftY = Input.get_left_stick_y()
-    local rightX = Input.get_right_stick_x()
-    local rightY = Input.get_right_stick_y()
+    if not playerEntity then return end
 
-    local leftTrigger = Input.get_left_trigger()
-    local rightTrigger = Input.get_right_trigger()
+    local dt = Mafs.delta_time() or 0.016
 
-    print(string.format(
-        "[Controller] Left Stick (X=%.2f, Y=%.2f) | Right Stick (X=%.2f, Y=%.2f) | Triggers (L=%.2f, R=%.2f)",
-        leftX, leftY, rightX, rightY, leftTrigger, rightTrigger
-    ))
+    local x, y = Entity.get_entity_pos(playerEntity)
+    
+    if Input.get_key_held(Keys.ionix_a) then
+        x = x - speed * dt
+    end
+    if Input.get_key_held(Keys.ionix_d) then
+        x = x + speed * dt
+    end
+    x = Mafs.clamp(x, radius, screenW - radius)
+    Entity.set_entity_pos(playerEntity, x, y)
+end
+
+function player:OnShutdown()
+    if playerEntity then
+        Entity.destroy_entity(playerEntity)
+        playerEntity = nil
+        print("[Player] Entity destroyed on shutdown.")
+    end
+end
+
+function player:reset()
+    if playerEntity then
+        local startX = screenW / 2
+        local startY = screenH - 80
+        Entity.set_entity_pos(playerEntity, startX, startY)
+        print("[Player] Entity reset to starting position.")
+    end
+end
+
+function player:get_entity()
+    return playerEntity
+end
+
+function player:get_radius()
+    return radius
 end
 
 return player

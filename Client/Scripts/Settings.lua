@@ -2,15 +2,21 @@ local modules = {}
 
 -- Loads a Lua script and stores it as a named module
 function LoadModule(name, path)
-    local module = dofile(path)
-    modules[name] = module
+    local ok, result = pcall(dofile, path)
+    if ok then
+        modules[name] = result or {}
+    else
+        print("[Lua] Failed to load module '" .. name .. "' from '" .. path .. "': " .. tostring(result))
+        modules[name] = {}
+    end
 end
 
 -- Load all game modules here
+LoadModule("Assets", "Scripts/Assets.lua")
 LoadModule("Audio", "Scripts/Audio.lua")
-LoadModule("Enemy", "Scripts/Enemy.lua")
+LoadModule("Game", "Scripts/Game.lua")
 LoadModule("Player", "Scripts/Player.lua")
---LoadModule("ExampleScript", "Scripts/ExampleScript.lua")
+LoadModule("MeteorField", "Scripts/MeteorField.lua")
 
 -- Lifecycle hooks
 function OnStart()

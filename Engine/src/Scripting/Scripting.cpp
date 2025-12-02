@@ -41,17 +41,31 @@ namespace IonixEngine {
     }
 
     void Scripting::ExecuteScript(const std::string& scriptName) {
-        m_LuaState.script_file(scriptName);
+        try {
+            m_LuaState.script_file(scriptName);
+        }
+        catch (const sol::error& e) {
+            std::cerr << "Lua script error loading '" << scriptName << "': " << e.what() << std::endl;
+        }
+        catch (const std::exception& e) {
+            std::cerr << "Exception loading script '" << scriptName << "': " << e.what() << std::endl;
+        }
     }
 
     void Scripting::CallHook(const std::string& hookName) {
         sol::function hook = m_LuaState[hookName];
         if (hook.valid()) {
-            try {
-                hook();
-            }
-            catch (const std::exception& e) {
-                std::cerr << "Error calling hook '" << hookName << "': " << e.what() << '\n';
+            // Use protected call to capture Lua errors cleanly
+            sol::protected_function pfunc = hook;
+            sol::protected_function_result result = pfunc();
+            if (!result.valid()) {
+                try {
+                    sol::error err = result;
+                    std::cerr << "Error calling hook '" << hookName << "': " << err.what() << '\n';
+                }
+                catch (const std::exception& e) {
+                    std::cerr << "Error calling hook '" << hookName << "' (failed to retrieve error): " << e.what() << '\n';
+                }
             }
         }
         else {
