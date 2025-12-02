@@ -67,34 +67,34 @@ end
 ----------------------------------------------------------
 function ExampleScript:OnUpdate()
 
+    local Speed = 5
     local vx = 0
     local vy = 0
 
   -- basic movment using the WASD keys
-    if Input.get_key_held(Keys.ionix_d) then
-       
-        vx = 5
-    end     
+    if Input.get_key_down(Keys.ionix_d) then
+        vx = Speed
+        vy = 0
+         Fysics.set_linear_velocity(player1, vx, vy)
+    end    
+    if Input.get_key_down(Keys.ionix_a) then
+        vx = -Speed
+        vy = 0
+         Fysics.set_linear_velocity(player1, vx, vy)
+    end
+    if Input.get_key_down(Keys.ionix_w) then
+        vy = -Speed
+        vx = 0
+         Fysics.set_linear_velocity(player1, vx, vy)
+    end    
+    if Input.get_key_down(Keys.ionix_s) then
+        vy = Speed
+        vx = 0
+         Fysics.set_linear_velocity(player1, vx, vy)
+    end   
 
-        if Input.get_key_held(Keys.ionix_a) then
-       
-        vx = -5
-    end  
-
-
-        if Input.get_key_held(Keys.ionix_w) then
-       
-        vy = -5
-    end        
-
-        if Input.get_key_held(Keys.ionix_s) then
-       
-        vy = 5
-    end  
-
- Fysics.set_linear_velocity(player1, vx, vy)
      end
-      
+
 end
 
 return ExampleScript
