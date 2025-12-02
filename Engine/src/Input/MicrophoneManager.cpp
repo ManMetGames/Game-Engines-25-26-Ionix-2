@@ -1,36 +1,51 @@
 #include "MicrophoneManager.h"
-#include <cmath> 
 #include <iostream>
 
 namespace IonixEngine
 {
 	bool MicrophoneManager::openDevice(const char* deviceName)
 	{
+	    //Initialize SDL audio subsystem
+	    if (SDL_Init(SDL_INIT_AUDIO) < 0) {
+	        std::cerr << "SDL_Init failed: " << SDL_GetError() << std::endl;
+	        return false;
+	    }
+	    
+	    //Clears the struct to start fresh
         SDL_zero(desired);
-        desired.freq = 48000;
-        desired.format = AUDIO_F32;
-        desired.channels = 1;
-        desired.samples = 4096;
-        desired.padding;
-        desired.size;
-        desired.callback = nullptr; 
-
-        //int freq;                   /**< DSP frequency -- samples per second */
-        //SDL_AudioFormat format;     /**< Audio data format */
-        //Uint8 channels;             /**< Number of channels: 1 mono, 2 stereo */
+        desired.freq = 48000;			 /**< DSP frequency -- samples per second */
+        desired.format = AUDIO_F32;		/**< Audio data format */
+        desired.channels = 1;		   /**< Number of channels: 1 mono, 2 stereo */
+        desired.samples = 4096;		  /**< Audio buffer size in sample FRAMES (total samples divided by channel count) */
+        desired.callback = nullptr;  /**< Callback that feeds the audio device (NULL to use SDL_QueueAudio()). */
+		
         //Uint8 silence;              /**< Audio buffer silence value (calculated) */
-        //Uint16 samples;             /**< Audio buffer size in sample FRAMES (total samples divided by channel count) */
         //Uint16 padding;             /**< Necessary for some compile environments */
         //Uint32 size;                /**< Audio buffer size in bytes (calculated) */
-        //SDL_AudioCallback callback; /**< Callback that feeds the audio device (NULL to use SDL_QueueAudio()). */
         //void* userdata;             /**< Userdata passed to callback (ignored for NULL callbacks). */
-        return true;
+		
+	    //Open the actual audio device for recording (capture = 1)
+	    deviceID = SDL_OpenAudioDevice(deviceName, 1, &desired, &obtained, 0);
+	    if (deviceID == 0) {
+	        std::cerr << "Failed to open recording device: " << SDL_GetError() << "\n"; //Error message
+	        
+	    	//failed to open
+	        return false;
+	    }
+		//opened and ready for recording
+	    return true;
 	}
+    
+	//Closes the currently open microphone device if any are alive
     void MicrophoneManager::closeDevice() 
     {
-        if (!deviceID)
+        if (deviceID != 0)
         {
-            SDL_CloseAudio();
+            SDL_CloseAudioDevice(deviceID);			//Only close if a device is actually open
+            deviceID = 0;							//reset device ID
+            SDL_QuitSubSystem(SDL_INIT_AUDIO); //quit SDL audio subsystem
+            
+            std::cout << "Microphone closed." << "\n";
         }
     }
 
