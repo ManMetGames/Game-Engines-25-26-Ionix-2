@@ -7,14 +7,14 @@ namespace IonixEngine
 {
 	std::string JsonFormatter::processFile()
 	{
-		if (!fileIsValid)
+		if (!inputValid)
 		{
 			std::cout << "[JSON Formatter] Given file is invalid, run again with a valid filepath." << std::endl;
 			return "";
 		}
-		std::string fileContentsCopy = fileContents.str();
-		int index = 0;
-		int lastOverwrite = 0;
+		std::string fileContentsCopy = inputString.str();
+		size_t index = 0;
+		size_t lastOverwrite = 0;
 		std::stringstream output;
 		for (char character : fileContentsCopy)
 		{
@@ -27,9 +27,6 @@ namespace IonixEngine
 				std::string_view unreplacedSection{ charPos,viewSize };
 				std::string_view replacement{ charOverwrites[character] };
 
-				reconstructedFile.push_back(unreplacedSection);
-				reconstructedFile.push_back(replacement);
-
 				output << unreplacedSection;
 				output << replacement;
 
@@ -38,46 +35,55 @@ namespace IonixEngine
 			index++;
 			continue;
 		}
-		char* charPosition = &fileContentsCopy.at(lastOverwrite);
-		size_t viewSize = index - lastOverwrite;
-		std::string_view finalSection{ charPosition,viewSize };
-		reconstructedFile.push_back(finalSection);
-		output << finalSection;
+		if (lastOverwrite < index)
+		{
+			char* charPosition = &fileContentsCopy.at(lastOverwrite);
+			size_t viewSize = index - lastOverwrite;
+			std::string_view finalSection{ charPosition,viewSize };
+			output << finalSection;
+		}
 
 		return output.str();
 	}
 
-	JsonFormatter::JsonFormatter(const std::string& filepath) :
-		filepath(filepath)
+	JsonFormatter::JsonFormatter()
 	{
-		OpenFile();
-		if (!fileIsValid)
-		{
-			std::cout << "[JSON Formatter] Failed to find file!\nRun OpenFile() with a valid filepath." << std::endl;
-		}
+		inputValid = false;
+		//if (!inputValid)
+		//{
+		//	std::cout << "[JSON Formatter] Failed to find file!\nRun OpenFile() with a valid filepath." << std::endl;
+		//}
 
 		//find better way to allow for character overwriting, maybe structs?
-		charOverwrites.insert({'a',"o"});
+		charOverwrites.insert({'o',"a"});
 	}
 
-	bool JsonFormatter::OpenFile()
+	bool JsonFormatter::OpenFile(std::string filepath)
 	{
 		std::ifstream jsonFile;
 		jsonFile.open(filepath);
 		if (jsonFile.is_open())
 		{
-			fileContents << jsonFile.rdbuf();
-			fileIsValid = true;
+			inputString << jsonFile.rdbuf();
+			inputValid = true;
 			jsonFile.close();
 		}
 		else
 		{
-			fileIsValid = false;
+			inputValid = false;
 		}
-		return fileIsValid;
+		return inputValid;
 	}
 
-	void JsonFormatter::WriteToFile()
+	bool JsonFormatter::ImportString(std::string input)
+	{
+		//do some foolproofing here
+		inputString << input;
+		inputValid = true;
+		return true;
+	}
+
+	void JsonFormatter::WriteToFile(std::string filepath)
 	{
 		processFile();
 		std::ofstream jsonFile;
@@ -93,21 +99,10 @@ namespace IonixEngine
 		return processFile();
 	}
 
-	std::string JsonFormatter::GetFilepath()
-	{
-		return filepath;
-	}
-
-	void JsonFormatter::SetFilepath(const std::string& newFilepath)
-	{
-		filepath = newFilepath;
-		OpenFile();
-	}
-
 	void JsonFormatter::DebugLogFileContents()
 	{
 		std::cout << "[JSON Formatter] Logging file contents:" << std::endl;
-		std::string fileContentsCopy = fileContents.str();
+		std::string fileContentsCopy = inputString.str();
 		for (char character : fileContentsCopy)
 		{
 			std::cout << character;

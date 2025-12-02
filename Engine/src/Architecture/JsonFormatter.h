@@ -11,24 +11,19 @@ namespace IonixEngine
 	class JsonFormatter
 	{
 	private:
-		std::vector<char> fileContentsVector;
-		std::vector<std::string_view> reconstructedFile;
-		std::stringstream fileContents;
-		std::string filepath;
+		std::stringstream inputString;
 		std::map<char, std::string> charOverwrites;
-		bool fileIsValid;
+		bool inputValid;
 
 		std::string processFile();
 
 	public:
-		JsonFormatter(const std::string& filepath);
-		bool OpenFile();
+		JsonFormatter();
+		bool OpenFile(std::string filepath);
+		bool ImportString(std::string input);
 
-		void WriteToFile();
+		void WriteToFile(std::string filepath);
 		std::string ExportString();
-
-		std::string GetFilepath();
-		void SetFilepath(const std::string& newFilepath);
 
 		void DebugLogFileContents();
 	};
