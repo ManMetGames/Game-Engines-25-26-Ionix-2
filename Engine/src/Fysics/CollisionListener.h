@@ -18,7 +18,7 @@ namespace IonixEngine
         std::unordered_map<EntityID, std::vector<EntityID>> collisionEntityMap;
 
         CollisionListener(FysicsManager* manager);
-
+        
         // Box2D contact callbacks
         void BeginContact(b2Contact* contact) override;
         void EndContact(b2Contact* contact) override;

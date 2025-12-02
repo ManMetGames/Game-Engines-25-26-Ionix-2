@@ -3,15 +3,25 @@
 
 namespace IonixEngine
 {
+    class Entity;
+
     class Raycast
     {
-        b2World* world;
-
-        Raycast()
+    public:
+        struct Hit
         {
-            world = LayerFysics::GetInstance()->GetWorld();
-        }
-    };
-    
-}
+            b2Vec2 point;
+            b2Vec2 normal;
+            float fraction;
+            b2Body* body;
+            Entity* entity;
+        };
 
+        Raycast();
+
+        bool CastFirst(const b2Vec2& p1, const b2Vec2& p2, Hit& outHit);
+
+    private:
+        b2World* world;
+    };
+}
