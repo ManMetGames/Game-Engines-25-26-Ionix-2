@@ -1,5 +1,3 @@
-local ExampleScript = {player}
-
 local player
 local goal
 local playerSprite
