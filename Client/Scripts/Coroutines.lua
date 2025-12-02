@@ -1,29 +1,55 @@
-local ok, test = pcall(require, "Test")
-
-if not ok then
-	print("Could not load Test.lua")
-	return
-end
-
 local coroutines = {}
+local methods = {}
 
-local co2 = function()
-	local y = 10
-	while y > 0 do
-		y = y - 1
-		print("y: " .. y)
-		coroutine.yield()
-	end
+function coroutines:OnStart()
+    --print("Start")
 end
 
-table.insert(coroutines, coroutine.create(test.co1))
-table.insert(coroutines, coroutine.create(co2))
+function coroutines:OnUpdate()
+    for i,co in ipairs(methods) do
+        if coroutine.status(methods[i][1]) == "dead" then
+            methods[i] = {}
+        end
 
-print(#coroutines)
+        if methods[i][1] ~= nil and methods[i][3] - os.time() <= 0 then
+            coroutine.resume(methods[i][1])
+            methods[i][3] = methods[i][2] + methods[i][3]
+        end
 
-for i, coro in ipairs(coroutines) do
-	while coroutine.status(coro) ~= "dead" do
-		coroutine.resume(coro)
-	end
-	table.remove(coroutines, i)
+    end
 end
+
+function coroutines:AddCoroutine(co, time)
+    local foundPlace = false
+    if time == nil then
+        time = 0
+    end
+
+    for i,coroute in ipairs(methods) do
+        if coroute == nil then
+            methods[i] = {}
+            methods[i][1] = co
+            methods[i][2] = time
+            methods[i][3] = os.time()
+            foundPlace = true
+            break
+        end
+    end
+
+    if foundPlace == false then
+        local index = # methods + 1
+        methods[index] = {}
+        methods[index][1] = co
+        methods[index][2] = time
+        methods[index][3] = os.time()
+    end
+end
+
+function coroutines:RemoveCoroutine(co)
+end
+
+function coroutines:Yield(co)
+    coroutine.yield(co)
+end
+
+return coroutines

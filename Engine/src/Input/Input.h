@@ -34,6 +34,10 @@ namespace IonixEngine
         void SetMousePressed(Uint8 code);
         void SetMouseReleased(Uint8 code);
 
+        //ScrollWheel
+        float GetScrollDiff();
+        void SetScrollDiff(float diff);
+
         //Update state
         void CopyCodesEndFrame();
 
