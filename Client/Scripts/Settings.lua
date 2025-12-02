@@ -7,15 +7,17 @@ function LoadModule(name, path)
 end
 
 -- Load all game modules here
-LoadModule("Assets", "Scripts/Assets.lua")
+--LoadModule("Assets", "Scripts/Assets.lua")
 --LoadModule("Audio", "Scripts/Audio.lua")
 --LoadModule("Enemy", "Scripts/Enemy.lua")
 --LoadModule("Player", "Scripts/Player.lua")
 --LoadModule("EntityPlayer", "Scripts/EntityPlayer.lua")
 --LoadModule("Ball", "Scripts/Ball.lua")
-LoadModule("Assets", "Scripts/Assets.lua")
+--LoadModule("Assets", "Scripts/Assets.lua")
+LoadModule("Coroutines", "Scripts/Coroutines.lua")
 LoadModule("Enums", "Scripts/Enums.lua")
-LoadModule("FlappyBird", "Scripts/FlappyBird/FlappyBird.lua")
+LoadModule("TriangleShooter", "Scripts/TriangleShooter/TriangleShooter.lua")
+--LoadModule("FlappyBird", "Scripts/FlappyBird/FlappyBird.lua")
 --LoadModule("ExampleScript", "Scripts/ExampleScript.lua")
 
 -- Lifecycle hooks
