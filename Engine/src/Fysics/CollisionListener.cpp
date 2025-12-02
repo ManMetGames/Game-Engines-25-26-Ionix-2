@@ -59,6 +59,7 @@ namespace IonixEngine
                 if (entA == entityA->id && entB == entityB->id) {
                     return true;
                 }
+                return false;
             }
         }
     }

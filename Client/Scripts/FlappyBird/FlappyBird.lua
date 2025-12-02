@@ -49,6 +49,7 @@ function ExampleScript:OnStart()
     Fysics.set_gravity_scale(player1, 0)
 
 
+
     -----------------------------
     ------Coins
     ------------
@@ -61,6 +62,7 @@ function ExampleScript:OnStart()
 
     local tileSize = 64
     local floorY = 600
+    
 	------------------------------------------------------
 	-- pick texture for left / middle / right
 	------------------------------------------------------
@@ -110,16 +112,18 @@ function ExampleScript:OnStart()
     if Input.get_key_down(Keys.ionix_a) then
         Entity.set_global_pos(pipe, xPos, floorY)
 	end
+        print("workin")
+
 end
 
 ----------------------------------------------------------
 -- OnUpdate
 ----------------------------------------------------------
 function ExampleScript:OnUpdate()
+    
     -- get current velocity
     local vel1 = Fysics.get_linear_velocity(player1)
     local vy1 = Fysics.get_linear_velocity(pipe)
-    local vy1 = Fysics.get_linear_velocity(pipeT)
     -- Constant rightward movement
     local vx = 0
     local vy1 = Mafs.get_vec_y(vel1)
@@ -137,7 +141,6 @@ function ExampleScript:OnUpdate()
 
     -- Pipe movement
     local pipePos = Fysics.get_pos(pipe)
-    local pipePos = Fysics.get_pos(pipeT)
     if Mafs.get_vec_x(pipePos) < pipeOffScreenLeft then
         Fysics.set_pos(pipe, pipeStartX, pipePos.y)
         Fysics.set_pos(pipeT, pipeStartX, pipePos.y)
@@ -145,17 +148,16 @@ function ExampleScript:OnUpdate()
      
 end
 
-function ExampleScript:OnCollisionEnter(collision1, collision2)
-    if Fysics.col(player1, pipe) then
-            print("CollisionPipe")
-            Entity.set_entity_pos(player1, x, 0)
-        end
-end
-
-function ExampleScript:OnTriggerEnter(collision1, collision2)
-    if collision1 == player1 and collision2 == coin then
-            print("TriggerCoin")
+    function ExampleScript:OnCollisionEnter()
+        if Fysics.col(player1, pipe) then
+                print("CollisionPipe")
+            end
     end
-end
+
+    function ExampleScript:OnTriggerEnter(collision1, collision2)
+        if collision1 == player1 and collision2 == coin then
+                print("TriggerCoin")
+        end
+    end
 
 return ExampleScript
