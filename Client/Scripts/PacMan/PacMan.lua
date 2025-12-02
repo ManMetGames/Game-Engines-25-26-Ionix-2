@@ -7,16 +7,24 @@ local playerSprite
 local x = 200
 local y = 300
 -- Dots
-local Dot = {}
+local Dots = {}
 
-	------------------------------------------------------
+------------------------------------------------------
 	-- Create Dots class
-	------------------------------------------------------
---function Dot:new(xPos, yPos)
-    Dot = Entity.create_entity()
-    local Dot = Entity.add_sprite_component(Dot, assets.textures.Sand,100 , 100 , 0)
+------------------------------------------------------
+function Dots:new(xPos, yPos)
+    local dots = {}
+    --create entity
+    dots = Entity.create_entity()
+    --sprite component
+    local dots = Entity.add_sprite_component(dots, assets.textures.Coint,640 , 640 , 1)
+    --fysics for collision
+    Entity.add_fysics_component(dot.entity, enums.bodytype.staticBody, false)
+    Fysics.add_sprite_collider(dot.entity, true, 1)
+    --Dots properties
 
-
+    return Dots
+end
 
 ----------------------------------------------------------
 -- OnStart
@@ -49,6 +57,8 @@ function PacMan:OnStart()
 
     local tileSize = 64
     local floorY = 600
+
+
 	------------------------------------------------------
 	-- pick texture for left / middle / right
 	------------------------------------------------------
@@ -68,9 +78,32 @@ function PacMan:OnStart()
 		Entity.add_fysics_component(tile, enums.bodytype.staticBody, false)  -- static
 		Fysics.add_sprite_collider(tile, false,1)
 	end
-
+------------------------------------------------------
+    -- Create Grid of Dots
+------------------------------------------------------
+    local dotSpacingX = 80
+    local dotSpacingY = 80
+    local startX = 100
+    local startY = 100
+    local rows = 6
+    local cols = 10
+    
+    for row = 0, rows - 1 do
+        for col = 0, cols - 1 do
+            local dotX = startX + (col * dotSpacingX)
+            local dotY = startY + (row * dotSpacingY)
+            
+            local newDot = Dot:new(dotX, dotY)
+            table.insert(allDots, newDot)
+        end
+    end
+    
+    print("Created " .. #allDots .. " dots!")
 
 end
+
+
+
 ----------------------------------------------------------
 -- OnUpdate
 ----------------------------------------------------------
