@@ -62,40 +62,50 @@ namespace Maf
 	}
 
 	template <typename T>
-	struct mafVector2
+	inline  std::pair<T, T> mafLerpVector(T ax, T ay, T bx, T by, T t) //lerp between 2 points
 	{
-		T x, y;
-
-		mafVector2() : x(0), y(0) {}
-		mafVector2(T x_, T y_) : x(x_), y(y_) {}
-
-		//indexing Vector Implementation
-		T& operator[](int i) { return (i == 0) ? x : y; }
-		const T& operator[](int i) const { return (i == 0) ? x : y; }
-
-		static mafVector2 maf2Lerp(const mafVector2& a, const mafVector2& b, T t) //using my lerp function to lerp x & y of vector 2
-		{
-			return { mafLerp(a.x, b.x, t), mafLerp(a.y, b.y, t) };
-		}
-
+		T lerpedVectorx;
+		T lerpedVectory;
+		lerpedVectorx = mafLerp(ax, bx, t);
+		lerpedVectory = mafLerp(ay, by, t);
+		return std::make_pair(lerpedVectorx, lerpedVectory);
 	};
 
-	template <typename T>
-	struct mafVector3
-	{
-		T x, y, z;
+	//template <typename T>
+	//struct mafVector2
+	//{
+	//	T x, y;
 
-		mafVector3() : x(0), y(0), z(0) {}
-		mafVector3(T x_, T y_, T z_) : x(x_), y(y_), z(z_) {}
+	//	mafVector2() : x(0), y(0) {}
+	//	mafVector2(T x_, T y_) : x(x_), y(y_) {}
 
-		T& operator[](int i) { return (i == 0) ? x : (i == 1) ? y : z; }
-		const T& operator[](int i) const { return (i == 0) ? x : (i == 1) ? y : z; }
+	//	//indexing Vector Implementation
+	//	T& operator[](int i) { return (i == 0) ? x : y; }
+	//	const T& operator[](int i) const { return (i == 0) ? x : y; }
 
-		static mafVector3 maf3Lerp(const mafVector3& a, const mafVector3& b, T t) //using my lerp function to lerp x & y of vector 2
-		{
-			return { mafLerp(a.x, b.x, t), mafLerp(a.y, b.y, t), mafLerp(a.z, b.z, t) };
-		}
-	};
+	//	static mafVector2 maf2Lerp(const mafVector2& a, const mafVector2& b, T t) //using my lerp function to lerp x & y of vector 2
+	//	{
+	//		return { mafLerp(a.x, b.x, t), mafLerp(a.y, b.y, t) };
+	//	}
+
+	//};
+
+	//template <typename T>
+	//struct mafVector3
+	//{
+	//	T x, y, z;
+
+	//	mafVector3() : x(0), y(0), z(0) {}
+	//	mafVector3(T x_, T y_, T z_) : x(x_), y(y_), z(z_) {}
+
+	//	T& operator[](int i) { return (i == 0) ? x : (i == 1) ? y : z; }
+	//	const T& operator[](int i) const { return (i == 0) ? x : (i == 1) ? y : z; }
+
+	//	static mafVector3 maf3Lerp(const mafVector3& a, const mafVector3& b, T t) //using my lerp function to lerp x & y of vector 2
+	//	{
+	//		return { mafLerp(a.x, b.x, t), mafLerp(a.y, b.y, t), mafLerp(a.z, b.z, t) };
+	//	}
+	//};
 
 	//Jake - Implementation
 
@@ -123,17 +133,16 @@ namespace Maf
 		else return x;
 	}
 
-	template <typename T>
+	/*template <typename T>
 	inline T mafSqrMagnitudeVec3(const mafVector3<T>& v)
 	{
 		return v.x * v.x + v.y * v.y + v.z * v.z;
-	}
-
+	}*/
 	template <typename T>
-	inline T mafSqrMagnitudeVec2(const mafVector2<T>& v)
+	inline T mafSqrMagnitudeVec2(T vx, T vy)
 	{
-		return v.x * v.x + v.y * v.y;
-	}
+	return vx * vx + vy * vy;
+	};
 
 	// ollie implementation 
 	 /*

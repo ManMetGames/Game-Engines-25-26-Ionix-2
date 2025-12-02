@@ -41,21 +41,44 @@ namespace IonixEngine {
     }
 
     void Scripting::ExecuteScript(const std::string& scriptName) {
-        m_LuaState.script_file(scriptName);
+        try {
+            m_LuaState.script_file(scriptName);
+        }
+        catch (const sol::error& e) {
+            std::cerr << "Lua error while executing script '" << scriptName
+                      << "': " << e.what() << '\n';
+        }
+        catch (const std::exception& e) {
+            std::cerr << "Std exception while executing script '" << scriptName
+                      << "': " << e.what() << '\n';
+        }
+        catch (...) {
+            std::cerr << "Unknown exception while executing script '"
+                      << scriptName << "'\n";
+        }
     }
 
     void Scripting::CallHook(const std::string& hookName) {
         sol::function hook = m_LuaState[hookName];
-        if (hook.valid()) {
-            try {
-                hook();
-            }
-            catch (const std::exception& e) {
-                std::cerr << "Error calling hook '" << hookName << "': " << e.what() << '\n';
-            }
-        }
-        else {
+        if (!hook.valid()) {
             std::cerr << "Hook '" << hookName << "' is invalid\n";
+            return;
+        }
+
+        try {
+            hook();
+        }
+        catch (const sol::error& e) {
+            std::cerr << "Lua error while calling hook '" << hookName
+                      << "': " << e.what() << '\n';
+        }
+        catch (const std::exception& e) {
+            std::cerr << "Std exception while calling hook '" << hookName
+                      << "': " << e.what() << '\n';
+        }
+        catch (...) {
+            std::cerr << "Unknown exception while calling hook '"
+                      << hookName << "'\n";
         }
     }
 

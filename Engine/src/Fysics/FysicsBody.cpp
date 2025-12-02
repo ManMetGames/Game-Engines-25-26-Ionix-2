@@ -9,6 +9,7 @@ namespace IonixEngine
         b2BodyDef bodyDef;
         bodyDef.type = b2_dynamicBody;
         bodyDef.position.Set(0, 10);
+        //bodyDef.position.Set(entity->transform.GetLocalPosition().x, entity->transform.GetLocalPosition().y);
         bodyDef.awake = true;
         bodyDef.fixedRotation = false;
 
@@ -37,8 +38,9 @@ namespace IonixEngine
 
         bodyDef.awake = true;
         bodyDef.fixedRotation = rotationLocked;
-        bodyDef.position.x = entity->position.x / 100;
-        bodyDef.position.y = entity->position.y / 100;
+        //bodyDef.position.x = entity->position.x / 100;
+        //bodyDef.position.y = entity->position.y / 100;
+        bodyDef.position = b2Vec2(entity->transform.GetLocalPosition().x / 100, entity->transform.GetLocalPosition().y / 100);
 
         body = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->CreateBody(&bodyDef);
 
