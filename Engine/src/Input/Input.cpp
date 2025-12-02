@@ -10,7 +10,7 @@ namespace IonixEngine
         return MouseCoords(x, y);
     }
 
-
+float scrollDiff;
 
     //Keyboard
     bool Input::IsKeyDown(SDL_Scancode code) const
@@ -38,15 +38,26 @@ namespace IonixEngine
         currentKeys.erase(code);
     }
 
+    void Input::SetScrollDiff(float diff)
+    {
+        scrollDiff = diff;
+    }
+
+    float Input::GetScrollDiff()
+    {
+        return scrollDiff;
+    }
+    
+
     //Mouse
     bool Input::IsMouseButtonDown(Uint8 mousecode) const
     {
-        return currentMouse.count(mousecode);
+        return !previousMouse.count(mousecode) && currentMouse.count(mousecode);
     }
 
     bool Input::IsMouseButtonUp(Uint8 mousecode) const
     {
-        return previousMouse.count(mousecode);
+        return previousMouse.count(mousecode) && !currentMouse.count(mousecode);
     }
 
     void Input::SetMousePressed(Uint8 code)
