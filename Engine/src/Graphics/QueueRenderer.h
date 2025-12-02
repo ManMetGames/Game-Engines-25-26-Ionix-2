@@ -17,6 +17,9 @@ namespace IonixEngine {
 		SDL_Rect src;
 		int32_t z;
 		double angle;  // Rotation in degrees
+		Uint8 r = 255;  // Color tint (default white = no tint)
+		Uint8 g = 255;
+		Uint8 b = 255;
 	};
 
 	class QueueRenderer //Singleton

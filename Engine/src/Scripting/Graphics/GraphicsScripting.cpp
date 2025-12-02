@@ -113,6 +113,10 @@ namespace IonixEngine {
             spriteComponent->setPlaybackMode(static_cast<IonixEngine::playbackOptions>(playbackMode));
             };
 
+        auto setColor = [](SpriteComponent* spriteComponent, int r, int g, int b) {
+            spriteComponent->setColor(static_cast<Uint8>(r), static_cast<Uint8>(g), static_cast<Uint8>(b));
+            };
+
         
         lua["Texture"] = lua.create_table_with(
             "add_texture", texture
@@ -137,7 +141,8 @@ namespace IonixEngine {
             "set_height", setHeight,
             "set_zed_order", setZedOrder,
             "get_playback_mode", getPlaybackMode,
-            "set_playback_mode", setPlaybackMode
+            "set_playback_mode", setPlaybackMode,
+            "set_color", setColor
         );
     }
 
