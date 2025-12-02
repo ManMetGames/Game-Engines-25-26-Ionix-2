@@ -6,6 +6,9 @@ function LoadModule(name, path)
     modules[name] = module
 end
 
+-- Load System Modules
+LoadModule("Coroutines", "Scripts/Coroutines.lua")
+
 -- Load all game modules here
 --LoadModule("Audio", "Scripts/Audio.lua")
 --LoadModule("Enemy", "Scripts/Enemy.lua")
@@ -92,9 +95,6 @@ end
 function GetModule(name)
     return modules[name]
 end
-
--- Load System Modules
-LoadModule("Coroutines", "Scripts/Coroutines.lua")
 
 return {
     OnStart = OnStart,
