@@ -20,9 +20,7 @@ namespace IonixEngine {
             sol::lib::math,
             sol::lib::table,
             sol::lib::io,
-            sol::lib::package,
-            sol::lib::coroutine,
-            sol::lib::os
+            sol::lib::package
         );
 
 

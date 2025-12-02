@@ -1,7 +1,6 @@
 local TriangleShooter = {}
 local assets = require("Scripts.Assets")
 local enums = require("Scripts.Enums")
-local coroutines = require("Scripts.Coroutines")
 
 -- Player (triangle)
 local player
@@ -28,9 +27,14 @@ local enemySprite
 local enemySize = 48
 local enemyX = 400  -- Center of screen
 local enemyY = 300
+local enemyHealth = 50
 
 -- Collision settings
 local collisionRadius = 24  -- Half of enemy size for circle collision
+
+-- Flash effect
+local flashTimer = 0
+local flashDuration = 10  -- frames
 
 ----------------------------------------------------------
 -- OnStart
@@ -97,6 +101,9 @@ function TriangleShooter:OnUpdate()
     
     -- Update all projectiles
     UpdateProjectiles()
+    
+    -- Update flash effect
+    UpdateFlash()
 end
 
 ----------------------------------------------------------
@@ -149,7 +156,7 @@ function UpdateProjectiles()
         
         Entity.set_global_pos(proj.entity, proj.x, proj.y)
         
-        -- Check collision with enemy cube
+        -- Check collisionRadius with enemy cube
         local projCenterX = proj.x + projectileSize/2
         local projCenterY = proj.y + projectileSize/2
         local enemyCenterX = enemyX + enemySize/2
@@ -162,6 +169,7 @@ function UpdateProjectiles()
         
         if distSq < hitRadius * hitRadius then
             -- Collision! Flash enemy and return projectile to pool
+            enemyHealth = enemyHealth - 1
             FlashEnemy()
             Entity.set_global_pos(proj.entity, -1000, -1000)
             table.insert(projectilePool, table.remove(projectiles, i))
@@ -178,22 +186,23 @@ function UpdateProjectiles()
 end
 
 ----------------------------------------------------------
--- Flash enemy red briefly using coroutine
+-- Flash effect (frame-based, no coroutines)
 ----------------------------------------------------------
 function FlashEnemy()
-    local flashDuration = 30  -- frames to stay red
-    
-    local co = coroutine.create(function()
-        Sprite.set_color(enemySprite, 255, 0, 0)
-        
-        for i = 1, flashDuration do
-            coroutine.yield()
+    Sprite.set_color(enemySprite, 255, 0, 0)
+    flashTimer = flashDuration
+    if enemyHealth <= 0 then
+        Entity.set_global_pos(enemy, -1000, -1000)
+    end
+end
+
+function UpdateFlash()
+    if flashTimer > 0 then
+        flashTimer = flashTimer - 1
+        if flashTimer <= 0 then
+            Sprite.set_color(enemySprite, 255, 255, 255)
         end
-        
-        Sprite.set_color(enemySprite, 255, 255, 255)
-    end)
-    
-    coroutines:AddCoroutine(co)
+    end
 end
 
 return TriangleShooter
