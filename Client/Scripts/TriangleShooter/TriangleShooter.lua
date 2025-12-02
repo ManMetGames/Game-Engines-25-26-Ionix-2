@@ -2,6 +2,10 @@ local TriangleShooter = {}
 local assets = require("Scripts.Assets")
 local enums = require("Scripts.Enums")
 
+-- Screen bounds (updated each frame from window size)
+local screenW = 960
+local screenH = 640
+
 -- Player (triangle)
 local player
 local playerSprite
@@ -42,12 +46,9 @@ local enemyRotation = 0
 -- Enemy dash settings
 local dashCooldown = 0
 local dashCooldownDuration = 240  -- frames
-local dashDuration = 120  -- frames to complete dash (0.5s)
-local dashTimer = 0
-local dashStartX = 0
-local dashStartY = 0
-local dashTargetX = 0
-local dashTargetY = 0
+local dashSpeed = 6  -- pixels per frame while dashing
+local dashDirX = 0
+local dashDirY = 0
 local isDashing = false
 
 -- Spin settings
@@ -86,10 +87,14 @@ end
 -- OnUpdate
 ----------------------------------------------------------
 function TriangleShooter:OnUpdate()
+    -- Update screen bounds from window (dynamic resize support)
+    screenW = Window.get_width()
+    screenH = Window.get_height()
+    
     -- Get mouse position
     local mouseX = Input.get_mouse_x()
     local mouseY = Input.get_mouse_y()
-     Input.show_cursor(false)
+    Input.show_cursor(false)
     
     -- Target position (centered on cursor)
     local targetX = mouseX - playerSize/2
@@ -206,7 +211,7 @@ function UpdateProjectiles()
         else
             -- Increment age and remove if expired or off screen
             proj.age = proj.age + 1
-            if proj.age > projectileLifetime or proj.y < -50 or proj.y > 700 or proj.x < -50 or proj.x > 1000 then
+            if proj.age > projectileLifetime or proj.y < -50 or proj.y > screenH + 50 or proj.x < -50 or proj.x > screenW + 50 then
                 -- Move entity off-screen and return to pool
                 Entity.set_global_pos(proj.entity, -1000, -1000)
                 table.insert(projectilePool, table.remove(projectiles, i))
@@ -291,21 +296,37 @@ function UpdateEnemyDash()
     local prevX = enemyX
     local prevY = enemyY
     
+    -- Wall boundaries (with margin for enemy size)
+    local minX = 0
+    local maxX = screenW - enemySize
+    local minY = 0
+    local maxY = screenH - enemySize
+    
     if isDashing then
-        -- Lerp towards target (t goes from 0 to 1)
-        dashTimer = dashTimer + 1
-        local t = dashTimer / dashDuration
+        -- Move in stored direction
+        enemyX = enemyX + dashDirX * dashSpeed
+        enemyY = enemyY + dashDirY * dashSpeed
         
-        if t >= 1 then
-            -- Dash complete
-            enemyX = dashTargetX
-            enemyY = dashTargetY
+        -- Check wall collision and stop
+        local hitWall = false
+        if enemyX <= minX then
+            enemyX = minX
+            hitWall = true
+        elseif enemyX >= maxX then
+            enemyX = maxX
+            hitWall = true
+        end
+        if enemyY <= minY then
+            enemyY = minY
+            hitWall = true
+        elseif enemyY >= maxY then
+            enemyY = maxY
+            hitWall = true
+        end
+        
+        if hitWall then
             isDashing = false
             dashCooldown = dashCooldownDuration
-        else
-            -- Smooth lerp
-            enemyX = dashStartX + (dashTargetX - dashStartX) * t
-            enemyY = dashStartY + (dashTargetY - dashStartY) * t
         end
         
         Entity.set_global_pos(enemy, enemyX, enemyY)
@@ -329,12 +350,21 @@ end
 
 function StartEnemyDash()
     isDashing = true
-    dashTimer = 0
-    dashStartX = enemyX
-    dashStartY = enemyY
-    -- Target player's current position (centered)
-    dashTargetX = playerX + playerSize/2 - enemySize/2
-    dashTargetY = playerY + playerSize/2 - enemySize/2
+    
+    -- Calculate direction to player (normalized)
+    local targetX = playerX + playerSize/2 - enemySize/2
+    local targetY = playerY + playerSize/2 - enemySize/2
+    local dx = targetX - enemyX
+    local dy = targetY - enemyY
+    local dist = math.sqrt(dx * dx + dy * dy)
+    
+    if dist > 0 then
+        dashDirX = dx / dist
+        dashDirY = dy / dist
+    else
+        dashDirX = 0
+        dashDirY = 0
+    end
 end
 
 return TriangleShooter
