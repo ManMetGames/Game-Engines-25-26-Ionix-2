@@ -78,9 +78,9 @@ namespace IonixEngine
         }
     }
 
-    void CollisionListener::DestroyEntities(Entity* entityToDestroy)
+    void CollisionListener::AddEntityBodiesToDestroy(b2Body* entityToDestroy)
     {
-        destroyEntities.push_back(entityToDestroy->id);
+        entityBodiesToDestroy.push_back(entityToDestroy);
     }
 
     void CollisionListener::EndContact(b2Contact* contact)
@@ -130,3 +130,4 @@ namespace IonixEngine
         
     }
 }
+

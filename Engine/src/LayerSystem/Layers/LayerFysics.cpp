@@ -51,14 +51,15 @@ namespace IonixEngine
         auto& bodyMap = fysicsManager->GetBodyMap();
         auto& transformMap = fysicsManager->GetTransformMap();
         
-        if (!fysicsManager->GetCollisionListener()->destroyEntities.empty())
+        auto& entityBodies = fysicsManager->GetCollisionListener()->entityBodiesToDestroy;
+        if (!entityBodies.empty())
         {
-            for (EntityID id : fysicsManager->GetCollisionListener()->destroyEntities)
+            for (b2Body* body : entityBodies)
             {                                   
-                fysicsManager->GetWorld()->DestroyBody(Application::Get().layerScene->GetScene()->GetEntityFromID(id)->GetComponent<FysicsBody>()->GetBody());
+                fysicsManager->GetWorld()->DestroyBody(body);
             }
 
-            fysicsManager->GetCollisionListener()->destroyEntities.clear();
+            entityBodies.clear();
         }
         
 

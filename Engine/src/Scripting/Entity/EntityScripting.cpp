@@ -33,7 +33,8 @@ namespace IonixEngine {
             FysicsBody* bodyToDestroy = nullptr;
             if (entityToDestroy->TryGetComponent<FysicsBody>(&bodyToDestroy))
             {
-                Application::Get().layerFysics->GetFysicsManager()->GetCollisionListener()->DestroyEntities(entityToDestroy);
+           
+                Application::Get().layerFysics->GetFysicsManager()->GetCollisionListener()->AddEntityBodiesToDestroy(bodyToDestroy->GetBody());
 
             }
             

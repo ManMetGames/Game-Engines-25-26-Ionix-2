@@ -59,7 +59,7 @@ function ExampleScript:OnStart()
     local coinSprite = Entity.add_sprite_component(coin, assets.textures.Coin, 100, 32, 10)
     Sprite.set_columns(coinSprite, 1)
     Entity.add_fysics_component(coin, enums.bodytype.kinematicBody, false)
-    Fysics.add_sprite_collider(coin, false, 1)
+    Fysics.add_sprite_collider(coin, true, 1)
 
     local tileSize = 64
     local floorY = 600
@@ -156,13 +156,6 @@ end
         if Fysics.col(player1, pipe) then
                 print("CollisionPipe")
             end
-
-        if Fysics.col(player1, coin) then
-             print("CoinCollision")
-                Entity.destroy_entity(coin)
-                coinCount = coinCount + 1
-                print(coinCount)
-        end
     end
 
     function ExampleScript:OnTriggerEnter()
