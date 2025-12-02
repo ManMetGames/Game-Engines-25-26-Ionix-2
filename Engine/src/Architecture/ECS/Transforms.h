@@ -9,12 +9,19 @@ namespace IonixEngine
 {
 
 	class Entity;
+	class EntityID;
+
 	class Transform
 	{
 	private:
 		std::vector<Transform*> childTransforms;
+		std::vector<EntityID> childEntityIDs;
+
 		Transform* parentTransform;
+		EntityID parentEntityID;
+
 		Entity* entity;
+		EntityID entityID;
 
 		Vec2 localPosition;
 		Vec2 localScale;
@@ -23,7 +30,7 @@ namespace IonixEngine
 		std::stack<Transform*> getPathToParent();
 
 	public:
-		Transform(Entity* parentEntity);
+		Transform(Entity* localEntity);
 		Vec2 GetGlobalPosition();
 		float GetGlobalRotation();
 		Vec2 GetGlobalScale();
@@ -54,7 +61,9 @@ namespace IonixEngine
 		void RemoveParent(bool maintainLocation = true);
 
 		void AddChild(Transform* child);
-		bool RemoveChild(Transform* child);
+		bool RemoveChild(Transform* removalChild);
 		bool RemoveChild(int index);
+
+		void RecalculatePointers();
 	};
 }

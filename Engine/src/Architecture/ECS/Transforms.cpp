@@ -4,15 +4,19 @@
 #include "SDL.h"
 #include "Transforms.h"
 #include "../ECS/Temp_Vec2.hpp"
+#include "../Scene.h"
+#include "../../LayerSystem/Layers/SceneLayer.h"
 #include "Entity.hpp"
+
 
 namespace IonixEngine
 {
-    Transform::Transform(Entity* parentEntity) :
+    Transform::Transform(Entity* localEntity) :
         //position(Vec2{ 0.0f,0.0f }),
         localRotation(0.0f),
         parentTransform(nullptr),
-        entity(parentEntity)
+        entity(localEntity),
+        entityID(localEntity->id)
     {
         localPosition = Vec2{ 0.0f,0.0f };
         localScale = Vec2{ 1.0f,1.0f };
@@ -324,6 +328,7 @@ namespace IonixEngine
 
         parent->AddChild(this);
         parentTransform = parent;
+        parentEntityID = parent->entityID;
 
         if (maintainLocation)
         {
@@ -338,9 +343,12 @@ namespace IonixEngine
         Vec2 globalPos = GetGlobalPosition();
         float globalRot = GetGlobalRotation();
 
-        parentTransform->RemoveChild(this);
-        parentTransform = nullptr;
-
+        if (parentTransform != nullptr)
+        {
+            parentTransform = nullptr;
+            parentEntityID = 0;
+        }
+        
         if (maintainLocation)
         {
             localPosition = globalPos;
@@ -350,29 +358,72 @@ namespace IonixEngine
 
     void Transform::AddChild(Transform* child)
     {
+        child->parentTransform = this;
+        child->parentEntityID = entityID;
+
+        childEntityIDs.push_back(child->entityID);
         childTransforms.push_back(child);
     }
 
-    bool Transform::RemoveChild(Transform* child)
+    bool Transform::RemoveChild(Transform* removalChild)
     {
-        auto iterator = std::find(childTransforms.begin(), childTransforms.end(), child);
-        if (iterator != childTransforms.end())
+        //auto iterator = std::find(childTransforms.begin(), childTransforms.end(), removalChild);
+        //if (iterator != childTransforms.end())
+        //{
+        //    childTransforms.erase(iterator);
+        //    return true;
+        //}
+
+        removalChild->parentTransform = nullptr;
+        removalChild->parentEntityID = 0;
+
+        std::vector<Transform*> newChildTransforms;
+        std::vector<EntityID> newChildIDs;
+        bool output = false;
+        for (int i = 0; i < childTransforms.size(); i++)
         {
-            childTransforms.erase(iterator);
-            return true;
+            Transform* currentChild = childTransforms[i];
+            if (currentChild != removalChild)
+            {
+                newChildTransforms.push_back(currentChild);
+                newChildIDs.push_back(currentChild->entityID);
+            }
+            else { output = true; }
         }
-        else { return false; }
+        if (output)
+        {
+            childTransforms = newChildTransforms;
+            childEntityIDs = newChildIDs;
+        }
+        return output;
     }
 
     bool Transform::RemoveChild(int index)
     {
         //size should be largest index +1, therfore if index is smaller, it is valid
+        
+
+
         if (index < childTransforms.size())
         {
+            childTransforms[index]->parentTransform = nullptr;
+            childTransforms[index]->parentEntityID = 0;
+
+            childEntityIDs.erase(childEntityIDs.begin() + index);
             childTransforms.erase(childTransforms.begin() + index);
             return true;
         }
         else { return false; }
+    }
+
+    void Transform::RecalculatePointers()
+    {
+        entity = LayerScene::CurrentScene()->GetEntityFromID(entityID);
+        parentTransform = &LayerScene::CurrentScene()->GetEntityFromID(parentEntityID)->transform;
+        for (int i = 0; i < childTransforms.size(); i++)
+        {
+            childTransforms[i] = &LayerScene::CurrentScene()->GetEntityFromID(childEntityIDs[i])->transform;
+        }
     }
 
 }
