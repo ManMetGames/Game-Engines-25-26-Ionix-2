@@ -109,8 +109,6 @@ namespace IonixEngine
 
 	    cam->Init();
 	    cam2->Init();
-        
-        Scripting::Get().CallHook("OnStart");
 
         currentCam = cam;
         
