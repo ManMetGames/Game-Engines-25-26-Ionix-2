@@ -8,13 +8,13 @@ local playerSprite
 local playerSize = 48
 local playerX = 400
 local playerY = 300
-local followSpeed = 18  -- Higher = faster catch-up
+local followSpeed = 10  -- Higher = faster catch-up
 
 -- Projectile settings
 local projectiles = {}      -- Active projectiles
 local projectilePool = {}   -- Inactive projectiles (reusable)
-local projectileSize = 16
-local projectileSpeed = 10
+local projectileSize = 24
+local projectileSpeed = 4
 local projectileLifetime = 300  -- frames (~5 seconds at 60fps)
 
 -- Current aim direction (updated each frame)
@@ -67,7 +67,7 @@ function TriangleShooter:OnUpdate()
     
     -- Smooth follow using lerp 
     -- dt would be ideal here, but i'll use a fixed factor
-    local lerpFactor = followSpeed * 0.016  -- adjust followSpeed to tune
+    local lerpFactor = followSpeed * 0.008  -- adjust followSpeed to tune
     
     playerX = playerX + (targetX - playerX) * lerpFactor
     playerY = playerY + (targetY - playerY) * lerpFactor
