@@ -150,7 +150,7 @@ function ExampleScript:OnStart()
     Sprite.set_columns(coinSprite, 5)
     Sprite.set_width(coinSprite, 16)
     Sprite.set_height(coinSprite, 16)
-    Sprite.set_tick_rate(coinSprite, 0.09)
+    Sprite.set_tick_rate(coinSprite,0.09)
 
     -- Add physics body + collider
     Entity.add_fysics_component(coin, enums.bodytype.kinematicBody, false)
