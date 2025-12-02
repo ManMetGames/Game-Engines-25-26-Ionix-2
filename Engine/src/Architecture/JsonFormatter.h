@@ -18,12 +18,14 @@ namespace IonixEngine
 		std::map<char, std::string> charOverwrites;
 		bool fileIsValid;
 
-		void writeToFile();
+		std::string processFile();
+
 	public:
 		JsonFormatter(const std::string& filepath);
 		bool OpenFile();
 
-		void ProcessFile();
+		void WriteToFile();
+		std::string ExportString();
 
 		std::string GetFilepath();
 		void SetFilepath(const std::string& newFilepath);
