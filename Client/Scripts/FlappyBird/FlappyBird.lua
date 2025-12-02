@@ -10,6 +10,7 @@ local goalX = 500
 local goalY = 500
 local y = 300
 local t = 10
+local length = 20
 
 ----------------------------------------------------------
 -- OnStart
@@ -41,7 +42,7 @@ function ExampleScript:OnStart()
 
     -- PLAYER 1 FYSICS
     Entity.add_fysics_component(player1, 2, true) -- dynamic body
-    Fysics.add_sprite_collider(player1, false, 0.5)
+    Fysics.add_sprite_collider(player1, false)
 
     local tileSize = 64
     local floorY = 600
@@ -111,11 +112,12 @@ function ExampleScript:OnStart()
     
     --Fysics.create_weld_joint(player2, player1) --Weld Joint
     
-   Fysics.create_pulley_joint(player1, player2, 5, 0, 5, 0, 1, 1, 1) --Pulley Joint
+    --Fysics.create_pulley_joint(player1, player2, 3, 0, 5, 0, 1, 1, 1) --Pulley Joint
     
     --Fysics.create_revolute_joint(player2,player1, false, 5, 8, true, 20, 60) --Revolute Joint
 
-    --Fysics.create_distance_joint(player2, player1, 10) --Distance Joint
+    Fysics.create_distance_joint(player1, player2, 10) --Distance Joint
+    Fysics.set_linear_stiffness(0,4.0f, 5.0f)
     
 end
 
@@ -140,7 +142,18 @@ function ExampleScript:OnUpdate()
 	end
 
     if Input.get_key_down(Keys.ionix_e) then
-        
+        Fysics.set_length(0,length)
+        length = Fysics.get_length(0)
+        print(length)
+        length = length + 10
+    end
+
+
+    if Input.get_key_down(Keys.ionix_q) then
+        Fysics.set_length(0,length)
+        length = Fysics.get_length(0)
+        print(length)
+        length = length - 10
     end
 
     Fysics.set_linear_velocity(player1, vx, vy1)

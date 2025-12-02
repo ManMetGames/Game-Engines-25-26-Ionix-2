@@ -12,18 +12,6 @@ b2Joint* IonixEngine::Joints::getJoint()
     return nullptr;
 }
 
-//b2Joint* IonixEngine::Joints::getJointFromID(int jointID)
-//{
-//    if (Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointCount() <= 0) { return; }
-//    b2Joint* jointList = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointList();
-//    for (int i = 0; i < jointID; i++) {
-//        jointList->GetNext();
-//    }
-//
-//    return jointList;
-//   
-//}
-
 void IonixEngine::Joints::destroyJoint(b2Joint* joint)
 {
     Application::Get().layerFysics->GetFysicsManager()->GetWorld()->DestroyJoint(joint);
@@ -353,9 +341,9 @@ b2Joint* IonixEngine::PulleyJoints::getJoint()
     return joint;
 }
 
-float IonixEngine::PulleyJoints::getLengthA()
+float IonixEngine::PulleyJoints::getLengthA(b2PulleyJoint* _joint)
 {
-    return joint->GetLengthA();
+    return _joint->GetLengthA();
 }
 
 void IonixEngine::PulleyJoints::setLengthA(float newLengthA)
@@ -365,9 +353,9 @@ void IonixEngine::PulleyJoints::setLengthA(float newLengthA)
     setJoint();
 }
 
-float IonixEngine::PulleyJoints::getLengthB()
+float IonixEngine::PulleyJoints::getLengthB(b2PulleyJoint* _joint)
 {
-    return joint->GetLengthB();
+    return _joint->GetLengthB();
 }
 
 void IonixEngine::PulleyJoints::setLengthB(float newLengthB)
@@ -377,19 +365,19 @@ void IonixEngine::PulleyJoints::setLengthB(float newLengthB)
     setJoint();
 }
 
-float IonixEngine::PulleyJoints::getCurrentLengthA()
+float IonixEngine::PulleyJoints::getCurrentLengthA(b2PulleyJoint* _joint)
 {
-    return joint->GetCurrentLengthA();
+    return _joint->GetCurrentLengthA();
 }
 
-float IonixEngine::PulleyJoints::getCurrentLengthB()
+float IonixEngine::PulleyJoints::getCurrentLengthB(b2PulleyJoint* _joint)
 {
-    return joint->GetCurrentLengthB();
+    return _joint->GetCurrentLengthB();
 }
 
-float IonixEngine::PulleyJoints::getRatio()
+float IonixEngine::PulleyJoints::getRatio(b2PulleyJoint* _joint)
 {
-    return joint->GetRatio();
+    return _joint->GetRatio();
 }
 
 void IonixEngine::PulleyJoints::setRatio(float newRatio)
@@ -399,14 +387,14 @@ void IonixEngine::PulleyJoints::setRatio(float newRatio)
     setJoint();
 }
 
-b2Vec2 IonixEngine::PulleyJoints::getGroundAnchorA()
+b2Vec2 IonixEngine::PulleyJoints::getGroundAnchorA(b2PulleyJoint* _joint)
 {
-    return joint->GetGroundAnchorA();
+    return _joint->GetGroundAnchorA();
 }
 
-b2Vec2 IonixEngine::PulleyJoints::getGroundAnchorB()
+b2Vec2 IonixEngine::PulleyJoints::getGroundAnchorB(b2PulleyJoint* _joint)
 {
-    return joint->GetGroundAnchorB();
+    return _joint->GetGroundAnchorB();
 }
 
 b2Vec2 IonixEngine::PulleyJoints::getPosition1()
@@ -458,15 +446,22 @@ void IonixEngine::DistanceJoints::setJoint(Entity* entityA, Entity* entityB, flo
     joint = (b2DistanceJoint*)Application::Get().layerFysics->GetFysicsManager()->GetWorld()->CreateJoint(&jointDef);
 }
 
-float IonixEngine::DistanceJoints::getLength()
+float IonixEngine::DistanceJoints::getLength(b2DistanceJoint* _joint)
 {
-    return joint->GetLength();
+    return _joint->GetLength();
 }
 
-void IonixEngine::DistanceJoints::setLength(float l)
+void IonixEngine::DistanceJoints::setLength(b2DistanceJoint* _joint, float l)
 {
-    joint->SetLength(l);
+    _joint->SetLength(l);
     _length = l;
+}
+
+void IonixEngine::DistanceJoints::setLinearStiffness(b2DistanceJoint* _joint, float frequencyHz, float dampingRatio)
+{
+    float stiffness = _joint->GetStiffness();
+    float damping = _joint->GetDamping();
+    b2LinearStiffness(stiffness, damping, frequencyHz, dampingRatio, _joint->GetBodyA(), _joint->GetBodyB());
 }
 
 b2Joint* IonixEngine::DistanceJoints::getJoint()
@@ -513,33 +508,33 @@ void IonixEngine::RevoluteJoints::setJoint(Entity* entityA, Entity* entityB, boo
     joint = (b2RevoluteJoint*)Application::Get().layerFysics->GetFysicsManager()->GetWorld()->CreateJoint(&def);
 }
 
-float IonixEngine::RevoluteJoints::getJointAngle()
+float IonixEngine::RevoluteJoints::getJointAngle(b2RevoluteJoint* _joint)
 {
     return joint->GetJointAngle();
 }
 
-float IonixEngine::RevoluteJoints::getJointSpeed()
+float IonixEngine::RevoluteJoints::getJointSpeed(b2RevoluteJoint* _joint)
 {
     return joint->GetJointSpeed();
 }
 
-float IonixEngine::RevoluteJoints::getMotorSpeed()
+float IonixEngine::RevoluteJoints::getMotorSpeed(b2RevoluteJoint* _joint)
 {
     return _motorSpeed;
 }
 
-void IonixEngine::RevoluteJoints::setMotorSpeed(float speed)
+void IonixEngine::RevoluteJoints::setMotorSpeed(b2RevoluteJoint* _joint, float speed)
 {
     _motorSpeed = speed;
     joint->SetMotorSpeed(speed);
 }
 
-float IonixEngine::RevoluteJoints::getMotorTorque(float inv_dt)
+float IonixEngine::RevoluteJoints::getMotorTorque(b2RevoluteJoint* _joint, float inv_dt)
 {
     return joint->GetMotorTorque(inv_dt);
 }
 
-void IonixEngine::RevoluteJoints::setMaxMotorTorque(float torque)
+void IonixEngine::RevoluteJoints::setMaxMotorTorque(b2RevoluteJoint* _joint, float torque)
 {
     joint->SetMaxMotorTorque(torque);
     _maxMotorTorque = torque;

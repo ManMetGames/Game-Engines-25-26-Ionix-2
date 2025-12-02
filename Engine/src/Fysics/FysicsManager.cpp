@@ -79,4 +79,18 @@ namespace IonixEngine
 		//entityBodyMap[entity] = body; // Not needed as we have helper methods which get what we need from 1 data structure.
 		bodyEntityMap[body] = entity;
 	}
+
+	b2Joint* FysicsManager::GetJointFromID(int jointID)
+	{
+		b2Joint* jointList = nullptr;
+		if (Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointCount() <= 0) { return jointList; }
+
+		jointList = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointList();
+		for (int i = 0; i < jointID; i++) {
+			jointList->GetNext();
+		}
+
+		return jointList;
+
+	}
 }
