@@ -6,13 +6,22 @@ local enums = require("Scripts.Enums")
 local screenW = 960
 local screenH = 640
 
+-- Window ping-pong settings
+local windowPingPongEnabled = true
+local windowBaseWidth = 960
+local windowBaseHeight = 640
+local windowSizeChange = 200      -- How much to shrink/grow
+local windowCycleDuration = 180   -- 3 seconds at 60fps (one direction)
+local windowTimer = 0
+local windowDirection = 1         -- 1 = growing, -1 = shrinking
+
 -- Player (triangle)
 local player
 local playerSprite
 local playerSize = 48
 local playerX = 400
 local playerY = 300
-local followSpeed = 12  -- Higher = faster catch-up
+local playerSpeed = 0.5  -- Mouse sensitivity multiplier
 local playerHealth = 100
 
 -- Player flash effect
@@ -43,16 +52,24 @@ local enemyY = 300
 local enemyHealth = 50
 local enemyRotation = 0
 
--- Enemy dash settings
+-- Enemy state machine: "aiming" (tracks player) -> "dashing" -> "aiming"
+local enemyState = "aiming"
 local dashCooldown = 0
-local dashCooldownDuration = 240  -- frames
-local dashSpeed = 6  -- pixels per frame while dashing
+
+-- Timing (at 60fps)
+local dashCooldownDuration = 180  -- 3 seconds between dashes
+local dashSpeed = 6               -- pixels per frame while dashing
 local dashDirX = 0
 local dashDirY = 0
-local isDashing = false
+-- Continuous bouncing (no max bounces)
 
--- Spin settings
-local spinSpeed = 5  -- degrees per unit of speed
+-- Enemy projectile settings
+local enemyProjectiles = {}
+local enemyProjectilePool = {}
+local enemyProjectileSize = 24
+local enemyProjectileSpeed = 3
+local enemyShootCooldown = 0
+local enemyShootInterval = 75  -- 1.25 seconds at 60fps
 
 -- Collision settings
 local collisionRadius = 24  -- Half of enemy size for circle collision
@@ -65,11 +82,15 @@ local flashDuration = 10  -- frames
 -- OnStart
 ----------------------------------------------------------
 function TriangleShooter:OnStart()
+    -- Enable relative mouse mode (hides cursor, gives delta movement)
+    Input.set_relative_mouse_mode(true)
+    
     -- Create player triangle
     player = Entity.create_entity()
-   
     
     -- Start at center of screen
+    playerX = screenW / 2 - playerSize / 2
+    playerY = screenH / 2 - playerSize / 2
     Entity.set_global_pos(player, playerX, playerY)
     
     -- Add sprite component 
@@ -87,25 +108,25 @@ end
 -- OnUpdate
 ----------------------------------------------------------
 function TriangleShooter:OnUpdate()
-    -- Update screen bounds from window (dynamic resize support)
+    -- Update window ping-pong
+    UpdateWindowPingPong()
+    
+    -- Update screen bounds from window
     screenW = Window.get_width()
     screenH = Window.get_height()
     
-    -- Get mouse position
-    local mouseX = Input.get_mouse_x()
-    local mouseY = Input.get_mouse_y()
-    Input.show_cursor(false)
+    -- Get mouse delta (relative movement)
+    local delta = Input.get_mouse_delta()
+    local deltaX = delta.x
+    local deltaY = delta.y
     
-    -- Target position (centered on cursor)
-    local targetX = mouseX - playerSize/2
-    local targetY = mouseY - playerSize/2
+    -- Move player by delta (allows knockback since not snapping to cursor)
+    playerX = playerX + deltaX * playerSpeed
+    playerY = playerY + deltaY * playerSpeed
     
-    -- Smooth follow using lerp 
-    -- dt would be ideal here, but i'll use a fixed factor
-    local lerpFactor = followSpeed * 0.008  -- adjust followSpeed to tune
-    
-    playerX = playerX + (targetX - playerX) * lerpFactor
-    playerY = playerY + (targetY - playerY) * lerpFactor
+    -- Clamp to screen bounds
+    playerX = math.max(0, math.min(screenW - playerSize, playerX))
+    playerY = math.max(0, math.min(screenH - playerSize, playerY))
     
     Entity.set_global_pos(player, playerX, playerY)
     
@@ -130,6 +151,7 @@ function TriangleShooter:OnUpdate()
     
     -- Update all projectiles
     UpdateProjectiles()
+    UpdateEnemyProjectiles()
     
     -- Update flash effect
     UpdateFlash()
@@ -290,81 +312,206 @@ function FlashPlayer()
 end
 
 ----------------------------------------------------------
--- Enemy dash behavior (every 3 seconds)
+-- Enemy behavior: aiming (tracks player) <-> dashing
 ----------------------------------------------------------
 function UpdateEnemyDash()
-    local prevX = enemyX
-    local prevY = enemyY
-    
-    -- Wall boundaries (with margin for enemy size)
+    -- Wall boundaries
     local minX = 0
     local maxX = screenW - enemySize
     local minY = 0
     local maxY = screenH - enemySize
     
-    if isDashing then
-        -- Move in stored direction
-        enemyX = enemyX + dashDirX * dashSpeed
-        enemyY = enemyY + dashDirY * dashSpeed
+    -- Calculate direction to player (used in aiming state)
+    local enemyCenterX = enemyX + enemySize/2
+    local enemyCenterY = enemyY + enemySize/2
+    local playerCenterX = playerX + playerSize/2
+    local playerCenterY = playerY + playerSize/2
+    local dx = playerCenterX - enemyCenterX
+    local dy = playerCenterY - enemyCenterY
+    
+    if enemyState == "aiming" then
+        -- Always face the player
+        local angle = math.deg(math.atan(dy, dx)) + 90
+        Entity.set_global_rot(enemy, angle)
         
-        -- Check wall collision and stop
-        local hitWall = false
-        if enemyX <= minX then
-            enemyX = minX
-            hitWall = true
-        elseif enemyX >= maxX then
-            enemyX = maxX
-            hitWall = true
-        end
-        if enemyY <= minY then
-            enemyY = minY
-            hitWall = true
-        elseif enemyY >= maxY then
-            enemyY = maxY
-            hitWall = true
-        end
-        
-        if hitWall then
-            isDashing = false
-            dashCooldown = dashCooldownDuration
-        end
-        
-        Entity.set_global_pos(enemy, enemyX, enemyY)
-    else
-        -- Cooldown countdown
+        -- Count down cooldown
         if dashCooldown > 0 then
             dashCooldown = dashCooldown - 1
         else
-            -- Start new dash towards player
-            StartEnemyDash()
+            -- Cooldown done, lock direction and dash
+            local dist = math.sqrt(dx * dx + dy * dy)
+            if dist > 0 then
+                dashDirX = dx / dist
+                dashDirY = dy / dist
+            else
+                dashDirX = 0
+                dashDirY = 0
+            end
+            enemyState = "dashing"
+            enemyShootCooldown = 0
         end
+        
+    elseif enemyState == "dashing" then
+        -- Move in locked direction (no rotation change)
+        enemyX = enemyX + dashDirX * dashSpeed
+        enemyY = enemyY + dashDirY * dashSpeed
+        
+        -- Shoot projectiles while dashing
+        enemyShootCooldown = enemyShootCooldown + 1
+        if enemyShootCooldown >= enemyShootInterval then
+            SpawnEnemyProjectile()
+            enemyShootCooldown = 0
+        end
+        
+        -- Check wall collision and bounce
+        local hitX = false
+        local hitY = false
+        
+        if enemyX <= minX then
+            enemyX = minX
+            hitX = true
+        elseif enemyX >= maxX then
+            enemyX = maxX
+            hitX = true
+        end
+        if enemyY <= minY then
+            enemyY = minY
+            hitY = true
+        elseif enemyY >= maxY then
+            enemyY = maxY
+            hitY = true
+        end
+        
+        -- Bounce off walls (continuous)
+        if hitX or hitY then
+            -- Bounce: reverse appropriate direction
+            if hitX then dashDirX = -dashDirX end
+            if hitY then dashDirY = -dashDirY end
+            
+            -- Update rotation to match new direction
+            local newAngle = math.deg(math.atan(dashDirY, dashDirX)) + 90
+            Entity.set_global_rot(enemy, newAngle)
+        end
+        
+        Entity.set_global_pos(enemy, enemyX, enemyY)
     end
-    
-    -- Spin based on movement speed
-    local dx = enemyX - prevX
-    local dy = enemyY - prevY
-    local speed = math.sqrt(dx * dx + dy * dy)
-    enemyRotation = enemyRotation + speed * spinSpeed
-    Entity.set_global_rot(enemy, enemyRotation)
 end
 
-function StartEnemyDash()
-    isDashing = true
+----------------------------------------------------------
+-- Enemy projectile spawning
+----------------------------------------------------------
+function SpawnEnemyProjectile()
+    local projData
     
-    -- Calculate direction to player (normalized)
-    local targetX = playerX + playerSize/2 - enemySize/2
-    local targetY = playerY + playerSize/2 - enemySize/2
-    local dx = targetX - enemyX
-    local dy = targetY - enemyY
+    -- Try to reuse a pooled projectile
+    if #enemyProjectilePool > 0 then
+        projData = table.remove(enemyProjectilePool)
+        Sprite.set_color(projData.sprite, 128, 0, 255)  -- Purple
+    else
+        -- Create new entity
+        local proj = Entity.create_entity()
+        local sprite = Entity.add_sprite_component(proj, assets.textures.Ghast_Tear, enemyProjectileSize, enemyProjectileSize, 5)
+        Sprite.set_color(sprite, 128, 0, 255)  -- Purple
+        projData = { entity = proj, sprite = sprite }
+    end
+    
+    -- Direction towards player
+    local enemyCenterX = enemyX + enemySize/2
+    local enemyCenterY = enemyY + enemySize/2
+    local playerCenterX = playerX + playerSize/2
+    local playerCenterY = playerY + playerSize/2
+    local dx = playerCenterX - enemyCenterX
+    local dy = playerCenterY - enemyCenterY
     local dist = math.sqrt(dx * dx + dy * dy)
     
+    local dirX, dirY = 0, 0
     if dist > 0 then
-        dashDirX = dx / dist
-        dashDirY = dy / dist
-    else
-        dashDirX = 0
-        dashDirY = 0
+        dirX = dx / dist
+        dirY = dy / dist
     end
+    
+    -- Spawn at enemy center
+    local spawnX = enemyCenterX - enemyProjectileSize/2
+    local spawnY = enemyCenterY - enemyProjectileSize/2
+    
+    Entity.set_global_pos(projData.entity, spawnX, spawnY)
+    local projAngle = math.deg(math.atan(dirY, dirX)) + 90
+    Entity.set_global_rot(projData.entity, projAngle)
+    
+    projData.x = spawnX
+    projData.y = spawnY
+    projData.vx = dirX * enemyProjectileSpeed
+    projData.vy = dirY * enemyProjectileSpeed
+    projData.age = 0
+    
+    table.insert(enemyProjectiles, projData)
+end
+
+----------------------------------------------------------
+-- Update enemy projectiles
+----------------------------------------------------------
+function UpdateEnemyProjectiles()
+    for i = #enemyProjectiles, 1, -1 do
+        local proj = enemyProjectiles[i]
+        
+        -- Move projectile
+        proj.x = proj.x + proj.vx
+        proj.y = proj.y + proj.vy
+        Entity.set_global_pos(proj.entity, proj.x, proj.y)
+        
+        -- Check collision with player
+        local projCenterX = proj.x + enemyProjectileSize/2
+        local projCenterY = proj.y + enemyProjectileSize/2
+        local playerCenterX = playerX + playerSize/2
+        local playerCenterY = playerY + playerSize/2
+        
+        local dx = projCenterX - playerCenterX
+        local dy = projCenterY - playerCenterY
+        local distSq = dx * dx + dy * dy
+        local hitRadius = playerSize/2 + enemyProjectileSize/2
+        
+        if distSq < hitRadius * hitRadius and damageCooldown <= 0 then
+            -- Hit player
+            playerHealth = playerHealth - 5
+            FlashPlayer()
+            damageCooldown = damageCooldownDuration
+            Entity.set_global_pos(proj.entity, -1000, -1000)
+            table.insert(enemyProjectilePool, table.remove(enemyProjectiles, i))
+        else
+            -- Age and remove if expired or off screen
+            proj.age = proj.age + 1
+            if proj.age > projectileLifetime or proj.y < -50 or proj.y > screenH + 50 or proj.x < -50 or proj.x > screenW + 50 then
+                Entity.set_global_pos(proj.entity, -1000, -1000)
+                table.insert(enemyProjectilePool, table.remove(enemyProjectiles, i))
+            end
+        end
+    end
+end
+
+----------------------------------------------------------
+-- Window ping-pong effect
+----------------------------------------------------------
+function UpdateWindowPingPong()
+    if not windowPingPongEnabled then return end
+    
+    -- Increment timer
+    windowTimer = windowTimer + windowDirection
+    
+    -- Reverse direction at bounds
+    if windowTimer >= windowCycleDuration then
+        windowTimer = windowCycleDuration
+        windowDirection = -1
+    elseif windowTimer <= 0 then
+        windowTimer = 0
+        windowDirection = 1
+    end
+    
+    -- Calculate current size (lerp between base and base + change)
+    local t = windowTimer / windowCycleDuration
+    local currentWidth = windowBaseWidth + (windowSizeChange * t)
+    local currentHeight = windowBaseHeight + (windowSizeChange * t)
+    
+    Window.set_size_centered(math.floor(currentWidth), math.floor(currentHeight))
 end
 
 return TriangleShooter

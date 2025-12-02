@@ -66,6 +66,18 @@ namespace IonixEngine {
         auto showCursor = [](bool show) {
             SDL_ShowCursor(show ? SDL_ENABLE : SDL_DISABLE);
             };
+        auto setRelativeMouseMode = [](bool enabled) {
+            SDL_SetRelativeMouseMode(enabled ? SDL_TRUE : SDL_FALSE);
+            };
+        auto getMouseDelta = [](sol::this_state L) -> sol::object {
+            int x, y;
+            SDL_GetRelativeMouseState(&x, &y);
+            sol::state_view lua(L);
+            sol::table result = lua.create_table();
+            result["x"] = x;
+            result["y"] = y;
+            return result;
+            };
 
         auto getButtonDown = [this](int index, int btn) -> bool {
             if (index < 0 || index >= (int)m_Controllers.size() || !m_Controllers[index])
@@ -174,6 +186,8 @@ namespace IonixEngine {
             "get_mouse_button_down", getMouseButtonDown,
             "get_mouse_button_up", getMouseButtonUp,
             "show_cursor", showCursor,
+            "set_relative_mouse_mode", setRelativeMouseMode,
+            "get_mouse_delta", getMouseDelta,
 
             "get_button_down", getButtonDown,
             "get_left_stick_x", getLeftStickX,
