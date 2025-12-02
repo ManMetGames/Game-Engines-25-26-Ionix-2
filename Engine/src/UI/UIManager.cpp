@@ -44,7 +44,7 @@ void IonixEngine::UIManager::BeginPanel(const std::string& panelName)
 
 void IonixEngine::UIManager::AddChildToPanel(UIElement* element)
 {
-	elements.emplace_back(element);
+	elements.push_back(element);
 }
 
 

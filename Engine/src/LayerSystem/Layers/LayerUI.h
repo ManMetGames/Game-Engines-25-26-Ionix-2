@@ -24,10 +24,12 @@ namespace IonixEngine
         virtual void OnDetach() override;
         virtual void OnUpdate() override;
         virtual void OnEvent(IonixEvent& e) override;
-        UIManager* m_UIManager;
+
         UI* m_UI;
         UIManager* GetUIManager() { return m_UIManager; }
         UI* GetUI() { return m_UI; }
+
+        UIManager* m_UIManager;
         Fontloader* m_FontLoader;
     };
 }
