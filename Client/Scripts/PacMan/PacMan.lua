@@ -9,6 +9,14 @@ local y = 300
 -- Dots
 local Dot = {}
 
+	------------------------------------------------------
+	-- Create Dots class
+	------------------------------------------------------
+--function Dot:new(xPos, yPos)
+    Dot = Entity.create_entity()
+    local Dot = Entity.add_sprite_component(Dot, assets.textures.Sand,100 , 100 , 0)
+
+
 
 ----------------------------------------------------------
 -- OnStart
@@ -61,15 +69,8 @@ function PacMan:OnStart()
 		Fysics.add_sprite_collider(tile, false,1)
 	end
 
-	------------------------------------------------------
-	-- Create Dots class
-	------------------------------------------------------
-
-    Dot = Entity.create_entity()
-    local Dot = Entity.add_sprite_component(Dot, assets.textures.Sand,100 , 100 , 0)
 
 end
-
 ----------------------------------------------------------
 -- OnUpdate
 ----------------------------------------------------------
