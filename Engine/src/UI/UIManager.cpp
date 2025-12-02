@@ -1,20 +1,20 @@
 #include "UIManager.h"
 #include <iostream>
 #include <imgui.h>
-#include <string>
 
 
-
+/*
 void IonixEngine::UIManager::BeginGroup(const std::string& groupName)
 {
 	currentGroupName = groupName;
 }
-
+*/
+/*
 void IonixEngine::UIManager::EndGroup()
 {
-	currentGroupName = std::string("");
+	currentGroupName.clear();
 }
-
+*/
 void IonixEngine::UIManager::BeginPanel(const std::string& panelName)
 {
 	UIElement* element;
@@ -23,47 +23,32 @@ void IonixEngine::UIManager::BeginPanel(const std::string& panelName)
 	//panel.groupName = panelName;
 	//panel.isChildGroup = true;
 
-	if (!groupStack.empty())
-	{
-		groupStack.back()->children.push_back(panel);
-	}
-	else
-	{
-		elements.push_back(panel);
-	}
+	//if (!groupStack.empty())
+	//{
+	//	groupStack.back()->children.push_back(panel);
+	//}
+	//else
+	//{
+		//elements.push_back(element);
+	//}
 
-	if (!groupStack.empty())
-	{
-		groupStack.push_back(&groupStack.back()->children.back());
-	}
-	else
-	{
-		groupStack.push_back(&elements.back());
-	}
-}
-
-void IonixEngine::UIManager::EndPanel()
-{
-	if (!groupStack.empty())
-	{
-		groupStack.pop_back();
-	}
+	//if (!groupStack.empty())
+	//{
+	//	groupStack.push_back(&groupStack.back()->children.back());
+	//}
+	//else
+	//{
+	//	groupStack.push_back(&elements.back());
+	//}
 }
 
 void IonixEngine::UIManager::AddChildToPanel(UIElement* element)
 {
-	if (!groupStack.empty())
-	{
-		groupStack.back()->children.push_back(element);
-	}
-	else
-	{
-		elements.push_back(element);
-	}
+	elements.push_back(element);
 }
 
 
-void IonixEngine::UIManager::AddLabel(int x, int y, float xSize, float ySize, const char* text)
+void IonixEngine::UIManager::AddLabel(int x, int y, float xSize, float ySize, const char* text, const std::string& fontName)
 {
 	UIElement* element = new UIElement;
 	element->type = UIType::Label;
@@ -77,7 +62,7 @@ void IonixEngine::UIManager::AddLabel(int x, int y, float xSize, float ySize, co
 	AddChildToPanel(element);
 }
 
-void IonixEngine::UIManager::AddButton(int x, int y, float xSize, float ySize, const char* text, std::function<void()> onClick)
+void IonixEngine::UIManager::AddButton(int x, int y, float xSize, float ySize, const char* text, std::function<void()> onClick, const std::string& fontName)
 {
 	UIElement* element;
 	element->type = UIType::Button;
@@ -92,7 +77,7 @@ void IonixEngine::UIManager::AddButton(int x, int y, float xSize, float ySize, c
 	AddChildToPanel(element);
 }
 
-void IonixEngine::UIManager::AddCheckbox(int x, int y, float xSize, float ySize, const char* text, bool* checked)
+void IonixEngine::UIManager::AddCheckbox(int x, int y, float xSize, float ySize, const char* text, bool* checked, const std::string& fontName)
 {
 
 	UIElement* element;
@@ -108,7 +93,7 @@ void IonixEngine::UIManager::AddCheckbox(int x, int y, float xSize, float ySize,
 	AddChildToPanel(element);
 }
 
-void IonixEngine::UIManager::AddSliderFloat(int x, int y, float xSize, float ySize, const char* text, float* value, float min, float max)
+void IonixEngine::UIManager::AddSliderFloat(int x, int y, float xSize, float ySize, const char* text, float* value, float min, float max, const std::string& fontName)
 {
 	UIElement* element;
 	element->type = UIType::SliderFloat;
@@ -121,10 +106,11 @@ void IonixEngine::UIManager::AddSliderFloat(int x, int y, float xSize, float ySi
 	element->sliderValue = value;
 	element->sliderMin = min;
 	element->slidermax = max;
+	element->fontName = fontName;
 	AddChildToPanel(element);
 }
 
-void IonixEngine::UIManager::AddInputText(int x, int y, float xSize, float ySize, const char* text, char* buffer, size_t bufferSize)
+void IonixEngine::UIManager::AddInputText(int x, int y, float xSize, float ySize, const char* text, char* buffer, size_t bufferSize, const std::string& fontName)
 {
 	UIElement* element;
 	element->type = UIType::InputText;
@@ -140,7 +126,7 @@ void IonixEngine::UIManager::AddInputText(int x, int y, float xSize, float ySize
 	AddChildToPanel(element);
 }
 
-void IonixEngine::UIManager::AddRadioButton(int x, int y, float xSize, float ySize, const char* text, int* radioValuePointer, int value, bool sameline)
+void IonixEngine::UIManager::AddRadioButton(int x, int y, float xSize, float ySize, const char* text, int* radioValuePointer, int value, bool sameline, const std::string& fontName)
 {
 	UIElement* element;
 	element->type = UIType::RadioButton;
@@ -159,7 +145,7 @@ void IonixEngine::UIManager::AddRadioButton(int x, int y, float xSize, float ySi
 
 
 
-void IonixEngine::UIManager::AddColorPicker(int x, int y, float xSize, float ySize, const char* label, float* color)
+void IonixEngine::UIManager::AddColorPicker(int x, int y, float xSize, float ySize, const char* label, float* color, const std::string& fontName)
 {
 	UIElement* element;
 	element->type = UIType::ColorPicker;
@@ -174,7 +160,12 @@ void IonixEngine::UIManager::AddColorPicker(int x, int y, float xSize, float ySi
 	AddChildToPanel(element);
 }
 
-void IonixEngine::UIManager::AddDropdown(int x, int y, float xSize, float ySize, const char* text, std::vector<std::string> options, int* currentIndex)
+void IonixEngine::UIManager::ClearElements()
+{
+	elements.clear();
+}
+
+void IonixEngine::UIManager::AddDropdown(int x, int y, float xSize, float ySize, const char* text, std::vector<std::string> options, int* currentIndex, const std::string& fontName)
 {
 	UIElement* element;
 	element->type = UIType::Dropdown;
@@ -223,9 +214,10 @@ void IonixEngine::UIManager::RenderElement(UIElement* element)
 		{
 			RenderElement(child);
 		}
-		ImGui::EndChild();
-		return;
-	}
+		*/
+		//ImGui::EndChild();
+		//return;
+	//}
 
 	//ImGui::Render;
 	ImGui::SetCursorPos(ImVec2((float)element->xPos, (float)element->yPos));
@@ -288,22 +280,22 @@ void IonixEngine::UIManager::RenderElement(UIElement* element)
 			m_ui->DrawDropdown(element->xPos, element->yPos, element->ySize, element->xSize, element->text, element->dropdownOptions, element->dropdownCurrentIndex);
 		}
 		break;
-	
-	
+		// --- FONT POP ---
+		if (font)
+		{
+			ImGui::PopFont();
+		}
 
 		if (element->sameline)
 			ImGui::SameLine();
 	}
 }
+
 void IonixEngine::UIManager::RenderUI()
 {
 	;
-	for (auto& element : groupStack.front()->children)
+	for (auto& element : elements)
 	{
 		RenderElement(element);
 	}
-
-	
-
 }
-
