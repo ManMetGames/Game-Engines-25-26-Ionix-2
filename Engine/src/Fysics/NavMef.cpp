@@ -26,6 +26,7 @@ namespace IonixEngine
 	void NavMef::Load(const std::vector<b2Vec2>& corners, const std::vector<int>& indices) {
 		m_corners = corners;
 		const int fourCount = indices.size() / 4;
+        m_cells.clear();
 		m_cells.resize(fourCount);
 
 		// cells
@@ -77,7 +78,7 @@ namespace IonixEngine
         const int cellCount = m_cells.size();
         std::vector<Node> nodes(cellCount);
         // initialise nodes 
-        for (int i; i < cellCount; i++) {
+        for (int i = 0; i < cellCount; i++) {
             nodes[i].cellIndex = i;
             nodes[i].h = CalculateHeuristic(i, goalCell);
 
@@ -123,46 +124,49 @@ namespace IonixEngine
                 }
             }
             //think I need to reconstruct path here not sure
-            std::vector<int> path;
-            int current = goalCell;
-
-            if (nodes[current].previousCell == -1) {
-                return {};
-            }
-
-            while (current != -1) {
-                path.push_back(current);
-                current = nodes[current].previousCell;
-            }
-
-            std::reverse(path.begin(), path.end());
-            return path;
                 
         }
+        std::vector<int> path;
+        int current = goalCell;
+
+        if (nodes[current].previousCell == -1) {
+            return {};
+        }
+
+        while (current != -1) {
+            path.push_back(current);
+            current = nodes[current].previousCell;
+        }
+
+        std::reverse(path.begin(), path.end());
+        return path;
 
 
     }
     int NavMef::GetPositionInMesh(b2Vec2 position)
     {
-        int cell = -1;
-        //std::vector<Cell> cells = GetCells();
-        for (int i = 0; i < m_cells.size(); i++) {
-            //The point is inside if it is always on the same side of all edges.
-            //m_cells[i].corns;
-            /*if (position.x > m_corners[m_cells[i].corns[0]].x && position.x < m_corners[m_cells[i].corns[1]].x && position.y > m_corners[m_cells[i].corns[2]].y && position.y < m_corners[m_cells[i].corns[4]].y) {
-                cell = i;
-            }*/
-            b2Vec2 c0 = m_corners[m_cells[i].corns[0]];
-            b2Vec2 c1 = m_corners[m_cells[i].corns[1]];
-            b2Vec2 c2 = m_corners[m_cells[i].corns[2]];
-            b2Vec2 c3 = m_corners[m_cells[i].corns[3]];
-            if (position.x > c0.y && position.x < c2.y && position.y > c0.x && position.y < c3.y) {
-                cell = i;
-            }
+        for (int i = 0; i < m_cells.size(); i++)
+        {
+            const Cell& cell = m_cells[i];
 
+            b2Vec2 c0 = m_corners[cell.corns[0]];
+            b2Vec2 c1 = m_corners[cell.corns[1]];
+            b2Vec2 c2 = m_corners[cell.corns[2]];
+            b2Vec2 c3 = m_corners[cell.corns[3]];
+
+            float minX = std::min({ c0.x, c1.x, c2.x, c3.x });
+            float maxX = std::max({ c0.x, c1.x, c2.x, c3.x });
+            float minY = std::min({ c0.y, c1.y, c2.y, c3.y });
+            float maxY = std::max({ c0.y, c1.y, c2.y, c3.y });
+
+            if (position.x >= minX && position.x <= maxX &&
+                position.y >= minY && position.y <= maxY)
+            {
+                return i;
+            }
         }
 
-        return cell;
+        return -1;
     }
     //get position function get the sprite or entity or agent maybe a shape IDK - then get its position check position in the navmesh using an in point polygon test to check if in rectangle then get the cell to use and place agent.
 

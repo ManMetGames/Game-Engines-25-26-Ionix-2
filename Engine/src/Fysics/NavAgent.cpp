@@ -20,4 +20,7 @@ namespace IonixEngine
 		// Incorrect args passed to FindPath - commented out
 		//path = m_NavMef->FindPath(position, endPosition);
 	}
+	void NavAgent::Update(float dt)
+	{
+	}
 }

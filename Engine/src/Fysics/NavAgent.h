@@ -19,8 +19,12 @@ namespace IonixEngine
         Entity* entity;
         float speed;
 
+        std::vector<int> m_path;
+        int m_pathIndex = 0;
+
     public:
         void PlaceAgent(b2Vec2 endPosition);
+        void Update(float dt); // to move agent
 
     };
 }
