@@ -36,6 +36,8 @@ function ExampleScript:OnStart()
     Background = Entity.create_entity()
     local BgBackground = Entity.add_sprite_component(Background, assets.textures.Background,960 , 640, 0)
 
+
+    -- Background 2 
     Background2 = Entity.create_entity()
     Entity.add_sprite_component(Background2, assets.textures.Background, 960, 640, 0)
     Entity.set_global_pos(Background2, bgWidth, 0)
