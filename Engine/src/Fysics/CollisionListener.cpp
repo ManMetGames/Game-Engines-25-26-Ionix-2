@@ -48,6 +48,20 @@ namespace IonixEngine
         }
     }
 
+    void CollisionListener::CheckTriggerExit(Entity* entityA, Entity* entityB)
+    {
+                
+        if (fysicsManager->GetBodyFromEntity(entityA)->GetFixtureList()->IsSensor() || fysicsManager->GetBodyFromEntity(entityB)->GetFixtureList()->IsSensor())
+        {
+            Scripting::Get().CallHook("OnTriggerExit", entityA, entityB);
+        }
+
+        else
+        {
+            Scripting::Get().CallHook("OnCollisionExit", entityA, entityB);
+        }
+    }
+
     bool CollisionListener::CheckActiveCollisions(Entity* entityA, Entity* entityB)
     {
         for (const auto& pair : Application::Get().layerFysics->GetFysicsManager()->GetCollisionListener()->activeCollisions)
@@ -79,6 +93,8 @@ namespace IonixEngine
             // Create and dispatch collision event through callback
             CollisionExitEvent event(entityA, entityB);
             m_EventCallback(event);
+            CheckTriggerExit(entityA, entityB);
+
             activeCollisions[entityA->id].erase(entityB->id);
             activeCollisions[entityB->id].erase(entityA->id);
         }
