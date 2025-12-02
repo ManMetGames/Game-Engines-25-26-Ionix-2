@@ -279,6 +279,17 @@ namespace IonixEngine
 			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->SetRadius(entity, r, bodyToChange, static_cast<fysicShapeType>(shapeType));
 			};
 
+		auto GetAngle = [](Entity* entity) -> float {
+			return Application::Get().layerFysics->GetFysicsManager()->GetShapes()->GetAngle();
+			};
+
+		auto SetAngle = [](float a, fysicShapeType shapeType) {
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->SetAngle(a, static_cast<fysicShapeType>(shapeType));
+			};
+        auto GetOffset = [](Entity* entity) -> b2Vec2 {
+            return Application::Get().layerFysics->GetFysicsManager()->GetShapes()->GetOffset();
+			};
+
 //----------Joint Methods----------
 
 		auto setPrismaticJoint = [](Entity* entityA, Entity* entityB, float worldAxisX, float worldAxisY, float lowerTranslation, float upperTranslation, bool enableLimit, float maxMotorForce, float motorSpeed, bool enableMotor) {
@@ -502,6 +513,9 @@ namespace IonixEngine
 			"get_collider_type", getColliderShapeType,
 			"get_radius", GetRadius,
 			"set_radius", SetRadius,
+			"get_angle" , GetAngle,
+			"set_angle", SetAngle,
+			"get_offset", GetOffset,
 			"set_material_properties", fysicsUpdateMaterialProperties,
 			"get_friction", getFriction,
 			"get_restitution", getRestitution,
