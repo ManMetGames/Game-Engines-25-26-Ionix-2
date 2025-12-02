@@ -151,7 +151,7 @@ namespace IonixEngine {
             };
 
         auto getFysicsBodyComponent = [](Entity* entity) {
-            entity->GetComponent<FysicsBody>();
+            return entity->GetComponent<FysicsBody>();
             };
 
         auto tryGetSpriteComponent = [](Entity* entity) -> auto {

@@ -1,186 +1,268 @@
-local ball = {}
+local game = {}
+
 local assets = require("Scripts.Assets")
 
-local ballEntity
-local Background
-local mouseEntity
+----------------------------------------------------------------
+-- World / Game Space
+----------------------------------------------------------------
+-- Normalized world size: X and Y in [0, 1]
+local GAME_W  = 16
+local GAME_H  = 9
 
-local speedX = 1
-local speedY = -5
-local ballSize = 32
+-- How far in from the top/bottom the play area is
+local verticalPadding = 0.05   -- 5% of height
+
+----------------------------------------------------------------
+-- Entities
+----------------------------------------------------------------
+local ballEntity
+local backgroundEntity
+local leftPaddle
+local rightPaddle
+local floorEntity
+local ceilingEntity
+
+----------------------------------------------------------------
+-- Game Settings
+----------------------------------------------------------------
 local screenW
 local screenH
+local paddleSpeed  = 0.02  -- movement per fixed update (world units)
+local ballSpeed    = 0.02  -- initial ball speed (world units)
+local paddleOffset = 0.05  -- distance from left/right edges in world units
 
--- Bounciness factor:
--- 1.0  = perfectly elastic (no energy lost)
--- >1.0 = gains a bit of energy on every bounce (very “arcade” / pinball feel)
--- <1.0 = loses energy on every bounce
-local BOUNCINESS = 1.05
+-- Sizes
+local ballSize  = 32       -- sprite size in pixels (visual only)
+local paddleW   = 0.02     -- world units (physics + visual)
+local paddleH   = 0.25     -- world units (physics + visual)
 
 ----------------------------------------------------------------
--- Mouse helper: uses the actual API from InputScripting.cpp
+-- Helpers
 ----------------------------------------------------------------
-local function getMousePosition()
-    -- Uses Input.get_mouse_x() and Input.get_mouse_y() from your engine
-    local x = Input.get_mouse_x()
-    local y = Input.get_mouse_y()
-    -- They should always return numbers, but we guard anyway
-    if x == nil or y == nil then
-        return -1000, -1000
+
+-- Reset ball to center with random direction
+local function ResetBall()
+    if not ballEntity or not screenW or not screenH then
+        return
     end
-    return x, y
+
+    -- Center of normalized world
+    Entity.set_global_pos(ballEntity, screenW * 0.5, screenH * 0.5)
+
+    -- Randomize start direction (Left or Right)
+    local dirX = (math.random() > 0.5) and -1 or 1
+
+    -- Randomize angle slightly so it's not boring
+    local dirY = (math.random() * 2 - 1) * 0.5 -- between -0.5 and 0.5
+
+    -- Apply velocity in world units
+    Fysics.set_linear_velocity(ballEntity, dirX * ballSpeed, dirY * ballSpeed)
 end
 
-function ballInit()
+-- Helper to move paddle and clamp to screen
+local function UpdatePaddle(entity, inputDir)
+    if not entity or not screenH then
+        return
+    end
+
+    local currentPos = Entity.get_global_pos(entity)
+    local px = Mafs.get_vec_x(currentPos)
+    local py = Mafs.get_vec_y(currentPos)
+
+    -- Apply movement
+    py = py + (inputDir * paddleSpeed)
+
+    -- Clamp to screen top/bottom in WORLD units, with padding
+    local halfH   = paddleH * 0.5
+    local topY    = verticalPadding + halfH
+    local bottomY = screenH - verticalPadding - halfH
+
+    if py < topY then
+        py = topY
+    end
+    if py > bottomY then
+        py = bottomY
+    end
+
+    -- Apply new position
+    Entity.set_global_pos(entity, px, py)
+
+    -- Reset velocity to 0 so physics doesn't drift it
+    Fysics.set_linear_velocity(entity, 0, 0)
+end
+
+----------------------------------------------------------------
+-- Initializers
+----------------------------------------------------------------
+
+local function InitBackground()
+    backgroundEntity = Entity.create_entity()
+    if not backgroundEntity then
+        return
+    end
+
+    -- Centered in world space (0.5, 0.5)
+    Entity.set_global_pos(backgroundEntity, screenW * 0.5, screenH * 0.5)
+
+    -- Visual size in pixels
+    Entity.add_sprite_component(backgroundEntity, assets.textures.office, 1920, 1080, 0)
+end
+
+local function InitBall()
     ballEntity = Entity.create_entity()
-    Entity.set_entity_pos(ballEntity, screenW / 2, screenH / 2)
-    Entity.add_sprite_component(ballEntity, assets.textures.PimBall, 64, 64, 100)
-    -- 2 = dynamic body in your setup
-    Entity.add_fysics_component(ballEntity, 2, false)
-    Fysics.add_sprite_collider(ballEntity, false)
-    -- Slight gravity so it moves, but not too strong to kill the bouncy effect
-    Fysics.set_gravity_scale(ballEntity, 0.05)
-end
+    if not ballEntity then
+        return
+    end
 
-function BackgroundInnit()
-    Background = Entity.create_entity()
-    Entity.add_sprite_component(Background, assets.textures.office, 960, 640, 0)
-end
+    -- Add Sprite
+    Entity.add_sprite_component(ballEntity, assets.textures.PimBall, ballSize, ballSize, 100)
 
--- Create a "cursor body" with collider and sprite that we can move to the mouse
-function MouseInit()
-    mouseEntity = Entity.create_entity()
+    -- Physics: Type 2 (Dynamic) so it bounces
+    Entity.add_fysics_component(ballEntity, 2, true) -- true = rotation locked
 
-    -- Visual + collider size for the mouse "paddle"
-    local mouseSize = 32
-
-    -- Start offscreen so it doesn't interfere until we get a real mouse position
-    Entity.set_entity_pos(mouseEntity, -1000, -1000)
-
-    -- Visible sprite so you can see the mouse entity.
-    -- Layer 200 so it renders above background (0) and ball (100).
-    Entity.add_sprite_component(mouseEntity, assets.textures.PimBall, mouseSize, mouseSize, 200)
-
-    -- Static body (0) is fine; we just teleport it each frame
-    Entity.add_fysics_component(mouseEntity, 0, false)
-
-    -- Simple box collider around the mouse
+    -- Box collider in world units
+    local ballHalfSize = 0.02
     Fysics.add_box_collider(
-            mouseEntity,
-            mouseSize / 2,
-            mouseSize / 2,
-            false
-    )
-end
-
-function WallInnit()
-    local floor = Entity.create_entity()
-    local ceiling = Entity.create_entity()
-    local leftWall = Entity.create_entity()
-    local rightWall = Entity.create_entity()
-
-    local wallThickness = 0.1
-
-    -- FLOOR: centered horizontally, just below the bottom edge
-    Entity.set_entity_pos(floor, screenW / 2, screenH + wallThickness / 2)
-    Entity.add_fysics_component(floor, 0, false)
-    Fysics.add_box_collider(
-            floor,
-            screenW / 2,
-            wallThickness / 2,
-            false
+        ballEntity,
+        ballHalfSize,  -- half-width (world units)
+        ballHalfSize,  -- half-height (world units)
+        0,             -- offset X
+        0,             -- offset Y
+        0,             -- rotation
+        false          -- isTrigger
     )
 
-    -- CEILING: centered horizontally, just above the top edge
-    Entity.set_entity_pos(ceiling, screenW / 2, -wallThickness / 2)
-    Entity.add_fysics_component(ceiling, 0, false)
-    Fysics.add_box_collider(
-            ceiling,
-            screenW / 2,
-            wallThickness / 2,
-            false
-    )
+    -- Bouncy material
+    Fysics.set_material_properties(ballEntity, 0.0, 1.0)
 
-    -- LEFT WALL: centered vertically, just left of the screen
-    Entity.set_entity_pos(leftWall, -wallThickness / 2, screenH / 2)
-    Entity.add_fysics_component(leftWall, 0, false)
-    Fysics.add_box_collider(
-            leftWall,
-            wallThickness / 2,
-            screenH / 2,
-            false
-    )
-
-    -- RIGHT WALL: centered vertically, just right of the screen
-    Entity.set_entity_pos(rightWall, screenW + wallThickness / 2, screenH / 2)
-    Entity.add_fysics_component(rightWall, 0, false)
-    Fysics.add_box_collider(
-            rightWall,
-            wallThickness / 2,
-            screenH / 2,
-            false
-    )
+    -- No gravity for Pong
+    Fysics.set_gravity_scale(ballEntity, 0)
 end
 
-function ball:OnStart()
-    screenW = Window.get_width()
-    screenH = Window.get_height()
+local function InitPaddles()
+    -- === Left Paddle (Player 1) ===
+    leftPaddle = Entity.create_entity()
+    if not leftPaddle then
+        return
+    end
 
-    BackgroundInnit()
-    WallInnit()
-    ballInit()
-    MouseInit()
+    Entity.set_global_pos(leftPaddle, paddleOffset, screenH * 0.5)
 
-    -- Give it an initial push so you can see the bouncing
-    Fysics.set_linear_velocity(ballEntity, speedX, speedY)
+    -- Visual sprite scaled to world units (renderer interprets size appropriately)
+    Entity.add_sprite_component(leftPaddle, assets.textures.PimBall, paddleW, paddleH, 100)
+
+    -- Physics: Type 1 (Kinematic)
+    Entity.add_fysics_component(leftPaddle, 1, true)
+    Fysics.add_box_collider(leftPaddle, paddleW * 0.5, paddleH * 0.5, 0, 0, 0, false)
+
+    -- === Right Paddle (Player 2) ===
+    rightPaddle = Entity.create_entity()
+    if not rightPaddle then
+        return
+    end
+
+    Entity.set_global_pos(rightPaddle, screenW - paddleOffset, screenH * 0.5)
+    Entity.add_sprite_component(rightPaddle, assets.textures.PimBall, paddleW, paddleH, 100)
+    Entity.add_fysics_component(rightPaddle, 1, true)
+    Fysics.add_box_collider(rightPaddle, paddleW * 0.5, paddleH * 0.5, 0, 0, 0, false)
 end
 
-function ball:OnFixedUpdate()
-    local pos = Entity.get_entity_pos(ballEntity)
-    local vel = Fysics.get_linear_velocity(ballEntity)
+local function InitWalls()
+    -- Top and Bottom walls in normalized space
+    local wallThickness = 0.01
 
-    local vx = vel.x
-    local vy = vel.y
+    local playTop    = verticalPadding
+    local playBottom = screenH - verticalPadding
 
-    local radius = ballSize / 2
+    -- Floor (bottom wall)
+    floorEntity = Entity.create_entity()
+    if floorEntity then
+        local floorY = playBottom + wallThickness * 0.5
+        Entity.set_global_pos(floorEntity, screenW * 0.5, floorY)
+        Entity.add_fysics_component(floorEntity, 1, false)
+        Fysics.add_box_collider(floorEntity, screenW * 0.5, wallThickness * 0.5, 0, 0, 0, false)
+    end
 
+    -- Ceiling (top wall)
+    ceilingEntity = Entity.create_entity()
+    if ceilingEntity then
+        local ceilY = playTop - wallThickness * 0.5
+        Entity.set_global_pos(ceilingEntity, screenW * 0.5, ceilY)
+        Entity.add_fysics_component(ceilingEntity, 1, false)
+        Fysics.add_box_collider(ceilingEntity, screenW * 0.5, wallThickness * 0.5, 0, 0, 0, false)
+    end
+end
+
+----------------------------------------------------------------
+-- Game Loop
+----------------------------------------------------------------
+
+function game:OnStart()
+    -- Normalized world size
+    screenW = GAME_W
+    screenH = GAME_H
+
+    InitBackground()
+    InitWalls()
+    InitBall()
+    InitPaddles()
+
+    ResetBall()
+end
+
+function game:OnFixedUpdate()
     ------------------------------------------------
-    -- Move mouse collider entity to mouse position
+    -- 1. Handle Player 1 Input (Left Paddle)
     ------------------------------------------------
-    local mx, my = getMousePosition()
+    local p1MoveY = 0
 
-    -- If mouse is inside the window, move mouse entity to that position.
-    -- Otherwise, move it far off-screen so it can't collide with anything.
-    if mx >= 0 and mx <= screenW and my >= 0 and my <= screenH then
-        Entity.set_entity_pos(mouseEntity, mx, my)
-    else
-        Entity.set_entity_pos(mouseEntity, -1000, -1000)
+    if Input.get_key_held(Keys.ionix_w) then
+        p1MoveY = -1
+    elseif Input.get_key_held(Keys.ionix_s) then
+        p1MoveY = 1
+    end
+
+    local c1Stick = Input.get_left_stick_y(0)
+    if Mafs.abs(c1Stick) > 0.1 then
+        p1MoveY = c1Stick
     end
 
     ------------------------------------------------
-    -- Screen-edge bouncing (walls, floor, ceiling)
+    -- 2. Handle Player 2 Input (Right Paddle)
     ------------------------------------------------
-    -- Bounce off left/right edges
-    if pos.x <= radius then
-        pos.x = radius
-        vx = -vx * BOUNCINESS
-    elseif pos.x >= (screenW - radius) then
-        pos.x = screenW - radius
-        vx = -vx * BOUNCINESS
+    local p2MoveY = 0
+
+    local c2Stick = Input.get_left_stick_y(1)
+    if Mafs.abs(c2Stick) > 0.1 then
+        p2MoveY = c2Stick
     end
 
-    -- Bounce off floor/ceiling
-    if pos.y <= radius then
-        pos.y = radius
-        vy = -vy * BOUNCINESS
-    elseif pos.y >= (screenH - radius) then
-        pos.y = screenH - radius
-        vy = -vy * BOUNCINESS
+    ------------------------------------------------
+    -- 3. Move Paddles (Kinematic Movement)
+    ------------------------------------------------
+    UpdatePaddle(leftPaddle,  p1MoveY)
+    UpdatePaddle(rightPaddle, p2MoveY)
+
+    ------------------------------------------------
+    -- 4. Scoring Logic (Reset Ball)
+    ------------------------------------------------
+    if not ballEntity then
+        return
     end
 
-    -- Apply updated position and velocity
-    Entity.set_entity_pos(ballEntity, pos.x, pos.y)
-    Fysics.set_linear_velocity(ballEntity, vx, vy)
+    local ballPos = Entity.get_global_pos(ballEntity)
+    local bx = Mafs.get_vec_x(ballPos)
+
+    -- Left/right off-screen in normalized space
+    if bx < -0.1 then
+        ResetBall()
+    end
+
+    if bx > screenW + 0.1 then
+        ResetBall()
+    end
+
+    local _bVel = Fysics.get_linear_velocity(ballEntity)
 end
 
-return ball
+return game
