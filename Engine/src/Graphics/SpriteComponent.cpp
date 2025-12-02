@@ -173,9 +173,11 @@ namespace IonixEngine {
 		endFrame = totalFrames - 1;
 	}
 
-	void SpriteComponent::changeTexture(std::string alias)
+	void SpriteComponent::changeTexture(std::string alias, int iRows, int iCols, int iSpriteWidth, int iSpriteHeight)
 	{
 		texture = IonixEngine::TextureManager::Get().GetTexture(alias).GetTexture();
+
+		setAnimation(iRows, iCols, iSpriteWidth, iSpriteHeight);
 	}
 
 	void SpriteComponent::initialiseSpritesheet()
