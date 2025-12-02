@@ -113,6 +113,18 @@ namespace IonixEngine {
             spriteComponent->setPlaybackMode(static_cast<IonixEngine::playbackOptions>(playbackMode));
             };
 
+        auto setAnimation = [](SpriteComponent* spriteComponent, int rows, int cols, int spriteW, int spriteH) {
+            spriteComponent->setAnimation(rows, cols, spriteW, spriteH);
+            };
+
+        auto setTickRate = [](SpriteComponent* spriteComponent, float x) {
+            spriteComponent->setTickRate(x);
+            };
+
+        auto getTickRate = [](SpriteComponent* spriteComponent) -> float{
+            return spriteComponent->getTickRate();
+            };
+
         
         lua["Texture"] = lua.create_table_with(
             "add_texture", texture
@@ -129,6 +141,7 @@ namespace IonixEngine {
             "total_frames", getTotalFrames,
             "current_column", getCurrentColumn,
             "current_row", getCurrentRow,
+            "get_tick_rate", getTickRate,
             "set_current_frame", setCurrentFrame,
             "set_end_frame", setEndFrame,
             "set_rows", setRows,
@@ -137,7 +150,9 @@ namespace IonixEngine {
             "set_height", setHeight,
             "set_zed_order", setZedOrder,
             "get_playback_mode", getPlaybackMode,
-            "set_playback_mode", setPlaybackMode
+            "set_playback_mode", setPlaybackMode,
+            "set_animation", setAnimation,
+            "set_tick_rate", setTickRate
         );
     }
 
