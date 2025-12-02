@@ -47,9 +47,12 @@ namespace IonixEngine
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
         ImGuiIO& io = ImGui::GetIO(); (void)io;
+
+        
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
         io.ConfigFlags |= ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize;
+
         /*
         for (auto ui : uiDrawData)
         {
@@ -67,31 +70,33 @@ namespace IonixEngine
         // Setup Platform/Renderer backends
         ImGui_ImplSDL2_InitForSDLRenderer(window, renderer);
         ImGui_ImplSDLRenderer2_Init(renderer);
-
         std::cout << "ImGui Initialised " << std::endl;
     }
 
-    void LayerUI::OnDetach() {}
+    void LayerUI::OnDetach() 
+    {
+    }
 
     void LayerUI::OnUpdate()    
     {
+
         // Start the Dear ImGui frame. Immediate mode rendering - UI gets rebuilt each frame
          ImGui_ImplSDLRenderer2_NewFrame();
-
          ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
          ImGui_ImplSDL2_NewFrame();
          ImGui::NewFrame();
          ImGui::Begin("null", nullptr, window_flags);
          // Render the UI
          m_UIManager->RenderUI();
-         m_UIManager->ClearElements();
+         //ImGui::Render();
          ImGui::End();
+         //m_UIManager->ClearElements();
          //std::vector<std::string> dropdownOptions = { "Option 1", "Option 2", "Option 3" };
          //int dropdownIndex = 0;
          //bool checkboxValue = true;
          // int radioValue = 0;
          //static float sliderValue = 0.5f;
-         //uiManager.AddLabel(10, 10, 100, 20, "Test Label");
+         m_UIManager->AddLabel(10, 10, 100, 20, "Test Label");
          /*uiManager.AddButton(10, 40, 100, 25, "Click Me", []() { printf("Button clicked!\n"); });
          uiManager.AddCheckbox(10, 70, 120, 25, "Enable", &checkboxValue);
          uiManager.AddSliderFloat(10, 100, 150, 25, "Slider", &sliderValue, 0.0f, 1.0f);
