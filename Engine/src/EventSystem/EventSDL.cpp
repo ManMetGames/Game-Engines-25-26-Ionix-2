@@ -212,7 +212,11 @@ namespace IonixEngine
                 int instanceId = e.caxis.which;
                 if (Application::Get().layerInput->GetControllerManager().count(instanceId))
                 {
-
+                    if (m_EventCallback)
+                    {
+                        ControllerTriggerEvent event(Application::Get().layerInput->GetControllerManager()[instanceId], instanceId, e.caxis.value, e.caxis.axis);
+                        m_EventCallback(event);
+                    }
                 }
                 break;
             }
@@ -221,7 +225,11 @@ namespace IonixEngine
                 int instanceId = e.caxis.which;
                 if (Application::Get().layerInput->GetControllerManager().count(instanceId))
                 {
-
+                    if (m_EventCallback)
+                    {
+                        ControllerTriggerEvent event(Application::Get().layerInput->GetControllerManager()[instanceId], instanceId, e.caxis.value, e.caxis.axis);
+                        m_EventCallback(event);
+                    }
                 }
                 break;
             }

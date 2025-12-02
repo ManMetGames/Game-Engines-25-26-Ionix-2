@@ -79,12 +79,16 @@ namespace IonixEngine {
             return Application::Get().layerInput->GetControllerAxis(index, axis);
             };
 
+        auto getTriggerPressure = [this](int index, SDL_GameControllerAxis trigger) -> float {
+            return Application::Get().layerInput->GetControllerPressure(index, trigger);
+            };
+
         auto getLeftStickX = [=](int index) { return getStickAxis(index, SDL_CONTROLLER_AXIS_LEFTX); };
         auto getLeftStickY = [=](int index) { return getStickAxis(index, SDL_CONTROLLER_AXIS_LEFTY); };
         auto getRightStickX = [=](int index) { return getStickAxis(index, SDL_CONTROLLER_AXIS_RIGHTX); };
         auto getRightStickY = [=](int index) { return getStickAxis(index, SDL_CONTROLLER_AXIS_RIGHTY); };
-        auto getLeftTrigger = [=](int index) { return getStickAxis(index, SDL_CONTROLLER_AXIS_TRIGGERLEFT); };
-        auto getRightTrigger = [=](int index) { return getStickAxis(index, SDL_CONTROLLER_AXIS_TRIGGERRIGHT); };
+        auto getLeftTrigger = [=](int index) { return getTriggerPressure(index, SDL_CONTROLLER_AXIS_TRIGGERLEFT); };
+        auto getRightTrigger = [=](int index) { return getTriggerPressure(index, SDL_CONTROLLER_AXIS_TRIGGERRIGHT); };
 
         lua["Keys"] = lua.create_table_with(
             "ionix_a", SDL_SCANCODE_A,
@@ -158,7 +162,9 @@ namespace IonixEngine {
             "ionix_left_shoulder", SDL_CONTROLLER_BUTTON_LEFTSHOULDER,
             "ionix_right_shoulder", SDL_CONTROLLER_BUTTON_RIGHTSHOULDER,
             "ionix_left_stick", SDL_CONTROLLER_BUTTON_LEFTSTICK,
-            "ionix_right_stick", SDL_CONTROLLER_BUTTON_RIGHTSTICK
+            "ionix_right_stick", SDL_CONTROLLER_BUTTON_RIGHTSTICK,
+            "ionix_right_trigger", SDL_CONTROLLER_AXIS_TRIGGERRIGHT,
+            "ionix_left_trigger", SDL_CONTROLLER_AXIS_TRIGGERLEFT
         );
 
         lua["Input"] = lua.create_table_with(

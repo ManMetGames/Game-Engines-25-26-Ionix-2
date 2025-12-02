@@ -41,16 +41,19 @@ namespace IonixEngine
     {
         if (instanceId == this->instanceId)
             controllerAxis = static_cast<float>(axis) / 32768.0f;
-            controllerAxis = std::round(controllerAxis * 100.0f) / 100.0f;
+        if (fabsf(controllerAxis) <= deadZone) {
+            controllerAxis = 0.0f;
+            }
             controllerAxises[direction] = controllerAxis;
         
     }
     
-    void ControllerManager::NormaliseTrigger(int instanceId, float axis)
+    void ControllerManager::NormaliseTrigger(int instanceId, float pressure, Uint8 trigger)
     {
         if (instanceId == this->instanceId)
-            triggerPressure = static_cast<float>(axis) / 32767.0f;
+            triggerPressure = static_cast<float>(pressure) / 32767.0f;
             triggerPressure = std::round(triggerPressure * 100.0f) / 100.0f;
+            controllerTriggers[trigger] = triggerPressure;
         
     }
 

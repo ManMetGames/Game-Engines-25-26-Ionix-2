@@ -22,6 +22,7 @@ namespace IonixEngine
         bool IsControllerButtonUp(int instanceId, Uint8 button);
         bool IsControllerButtonHeld(int instanceId, Uint8 button);
         float GetControllerAxis(int instanceId, SDL_GameControllerAxis axis);
+        float GetControllerPressure(int instanceID, SDL_GameControllerAxis trigger);
 
         Input* m_Input;  
     
@@ -31,6 +32,7 @@ namespace IonixEngine
         void OnControllerButtonDown(ControllerButtonDownEvent& e);
         void OnControllerButtonUp(ControllerButtonUpEvent& e);
         void OnControllerAxis(ControllerAxisEvent& e);
+        void OnControllerTrigger(ControllerTriggerEvent& e);
         std::unordered_map<int, ControllerManager*> controllerManagers;
     };
 }

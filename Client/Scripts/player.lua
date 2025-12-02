@@ -37,10 +37,15 @@ function player:OnUpdate()
 		print("Player 2 up input")
 	end
 
-    print("Left X:", Input.get_left_stick_x(0));
-    print("Left Y:", Input.get_left_stick_y(0));
-    print("Right X:", Input.get_right_stick_x(0));
-    print("Right y:", Input.get_right_stick_y(0));
+    print("Controller 1 Left X ", Input.get_left_stick_x(0));
+    print("Controller 1 Left Y ", Input.get_left_stick_y(0));
+    print("Controller 2 Left X:", Input.get_left_stick_x(1));
+    print("Controller 2 Left Y:", Input.get_left_stick_y(1));
+
+    print("Controller 1 Left Trigger Pressure ", Input.get_left_trigger(0));
+    print("Controller 1 Right Trigger Pressure ", Input.get_right_trigger(0));
+    print("Controller 2 Left Trigger Pressure :", Input.get_left_trigger(1));
+    print("Controller 2 Right Trigger Pressure :", Input.get_right_trigger(1), "\r");
 end
 
 return player

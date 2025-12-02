@@ -35,28 +35,16 @@ namespace IonixEngine
             OnControllerButtonUp(controllerButtonUp);
             break;
         }
-        case IonixEventType::ControllerLAxisX:
+        case IonixEventType::ControllerAxis:
         {
-            auto& controllerLAxisX = static_cast<ControllerAxisEvent&>(e);
-            OnControllerAxis(controllerLAxisX);
+            auto& controllerAxis = static_cast<ControllerAxisEvent&>(e);
+            OnControllerAxis(controllerAxis);
             break;
         }
-        case IonixEventType::ControllerLAxisY:
+        case IonixEventType::ControllerTrigger:
         {
-            auto& controllerLAxisY = static_cast<ControllerAxisEvent&>(e);
-            OnControllerAxis(controllerLAxisY);
-            break;
-        }
-        case IonixEventType::ControllerRAxisX:
-        {
-            auto& controllerRAxisX = static_cast<ControllerAxisEvent&>(e);
-            OnControllerAxis(controllerRAxisX);
-            break;
-        }
-        case IonixEventType::ControllerRAxisY:
-        {
-            auto& controllerRAxisY = static_cast<ControllerAxisEvent&>(e);
-            OnControllerAxis(controllerRAxisY);
+            auto& controllerTrigger = static_cast<ControllerTriggerEvent&>(e);
+            OnControllerTrigger(controllerTrigger);
             break;
         }
         }
@@ -75,6 +63,11 @@ namespace IonixEngine
     void LayerInput::OnControllerAxis(ControllerAxisEvent& e)
     {
         controllerManagers[e.instanceId]->NormaliseStickAxis(e.instanceId, e.axis, e.direction);
+    }
+
+    void LayerInput::OnControllerTrigger(ControllerTriggerEvent& e)
+    {
+        controllerManagers[e.instanceId]->NormaliseTrigger(e.instanceId, e.pressure, e.trigger);
     }
 
 
@@ -109,4 +102,13 @@ namespace IonixEngine
         if (controllerManager != nullptr)
             return controllerManager->GetStickAxis(axis);
     }
+
+    float LayerInput::GetControllerPressure(int instanceId, SDL_GameControllerAxis trigger)
+    {
+        ControllerManager* controllerManager = controllerManagers[instanceId];
+
+        if (controllerManager != nullptr)
+            return controllerManager->GetTriggerPressure(trigger);
+    }
+
 }
