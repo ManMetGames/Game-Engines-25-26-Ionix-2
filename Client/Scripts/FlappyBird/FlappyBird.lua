@@ -204,9 +204,21 @@ end
             end
     end
 
-    function ExampleScript:OnTriggerEnter(collision1, collision2)
-        if collision1 == player1 and collision2 == coin then
+    function ExampleScript:OnTriggerEnter()
+        if Fysics.col(player1, coin) then
                 print("TriggerCoin")
+        end
+    end
+
+    function ExampleScript:OnTriggerExit()
+        if Fysics.col(player1, coin) then
+            print("ExitCoinCollision")
+        end
+    end
+
+    function ExampleScript:OnCollisionExit()
+        if Fysics.col(player1, pipe) then
+            print("ExitCollisionPipe")
         end
     end
 

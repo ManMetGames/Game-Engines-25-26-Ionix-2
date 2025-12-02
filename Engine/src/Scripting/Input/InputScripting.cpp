@@ -49,7 +49,12 @@ namespace IonixEngine {
         auto getKeyHeld = [](int code) -> bool {
             return Application::Get().layerInput->m_Input->IsKeyHeld(static_cast<SDL_Scancode>(code));
             };
-
+        auto getScrollDiff = []() ->float {
+            return Application::Get().layerInput->m_Input->GetScrollDiff();
+            };
+        auto setScrollDiff = [](float diff) {
+            Application::Get().layerInput->m_Input->SetScrollDiff(diff);
+            };
         auto getMouseX = []() -> int {
             return Application::Get().layerInput->m_Input->GetMousePosition().x;
             };
@@ -174,6 +179,9 @@ namespace IonixEngine {
             "get_mouse_button_down", getMouseButtonDown,
             "get_mouse_button_up", getMouseButtonUp,
             "show_cursor", showCursor,
+            "get_scroll_diff",getScrollDiff,
+            "set_scroll_diff", setScrollDiff,
+            
 
             "get_button_down", getButtonDown,
             "get_left_stick_x", getLeftStickX,
