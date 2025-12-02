@@ -17,6 +17,8 @@ namespace IonixEngine {
 		rows = 1; //default spritesheet size, can be changed in appropriate setters
 		cols = 1;
 
+		tickRate = 0.2f; //default tick rate
+
 		renderLayer = entity->renderLayer;
 
 		SDL_QueryTexture(texture, NULL, NULL, &size.x, &size.y);
@@ -45,6 +47,8 @@ namespace IonixEngine {
 		//setRowsAndCols(2, 8);
 		cols = 1;
 		rows = 1;
+
+		tickRate = 0.2f; //default tick rate
 
 		renderLayer = entity->renderLayer;
 
