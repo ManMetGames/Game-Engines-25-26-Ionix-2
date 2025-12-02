@@ -33,6 +33,10 @@ namespace IonixEngine {
 		float timer;
 		b2Vec2 boxColliderSize;
 		
+		// Color tint (default white = no tint)
+		Uint8 colorR = 255;
+		Uint8 colorG = 255;
+		Uint8 colorB = 255;
 
 		enum playbackOptions playbackMode;
 
@@ -62,6 +66,7 @@ namespace IonixEngine {
 		void setWidth(int x);
 		void setHeight(int x);
 		void setBoxColliderSize(b2Vec2 newSize);
+		void setColor(Uint8 r, Uint8 g, Uint8 b);
 
 		//Getters
 		IonixEngine::playbackOptions getPlaybackMode();

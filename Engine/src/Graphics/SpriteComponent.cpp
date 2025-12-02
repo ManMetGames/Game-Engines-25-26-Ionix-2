@@ -97,7 +97,10 @@ namespace IonixEngine {
 			SDL_Rect { (int)(position.x), (int)(position.y), (int)width, (int)height },
 			SDL_Rect { spriteWidth * currentCol, spriteHeight * currentRow, spriteWidth, spriteHeight },
 			0,  // z-order (not being used in current RenderCall)
-			angleDegrees
+			angleDegrees,
+			colorR,
+			colorG,
+			colorB
 			});
 
 
@@ -218,6 +221,7 @@ namespace IonixEngine {
 	void SpriteComponent::setHeight(int x) { height = x; }
 
 	void SpriteComponent::setBoxColliderSize(b2Vec2 newSize) { boxColliderSize = newSize; }
+	void SpriteComponent::setColor(Uint8 r, Uint8 g, Uint8 b) { colorR = r; colorG = g; colorB = b; }
 
 	//getters
 	IonixEngine::playbackOptions SpriteComponent::getPlaybackMode() /*oh lawd he big*/ { return playbackOptions(); }
