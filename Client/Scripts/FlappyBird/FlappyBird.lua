@@ -85,7 +85,7 @@ function ExampleScript:OnStart()
 	------------------------------------------------------
     --BOTTOM PIPE
 	pipe = Entity.create_entity()
-	Entity.set_entity_pos(pipe, 640, 400)
+	Entity.set_entity_pos(pipe, x, 400)
 
 	local pipeSprite = Entity.add_sprite_component(pipe, assets.textures.FlappyPipe, 80, 300, 0)
     Sprite.set_columns(pipeSprite,1)
@@ -104,7 +104,7 @@ function ExampleScript:OnStart()
 	Entity.add_fysics_component(pipeT, 1, false)
 	Fysics.add_sprite_collider(pipeT, false,1)
 
-    if Input.get_key_down(Keys.ionix_a) then
+    if Input.get_key_down(Keys.ionix_a  ) then
         Entity.set_entity_pos(pipe, xPos, floorY)
 	end
 
@@ -129,7 +129,7 @@ function ExampleScript:OnUpdate()
 	if Input.get_key_down(Keys.ionix_space) then
         -- Bird move if space is pressed (allow gravity)
         Fysics.set_gravity_scale(player1, 1)
-        Fysics.set_linear_velocity(pipe, pipeSpeed, 0)
+        --Fysics.set_linear_velocity(pipe, pipeSpeed, 0)
         Fysics.set_linear_velocity(pipeT, pipeSpeed, 0)
         -- Set velocity directly to cancel out falling momentum
         vy1 = -5  -- Jump velocity for player1
@@ -148,8 +148,9 @@ function ExampleScript:OnUpdate()
 end
 
 function ExampleScript:OnCollisionEnter(collision1, collision2)
-    if collision1 == player1 and collision2 == pipe then
+    if Fysics.col(player1, pipe) then
             print("CollisionPipe")
+            Entity.set_entity_pos(player1, x, 0)
         end
 end
 

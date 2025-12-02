@@ -18,15 +18,19 @@ namespace IonixEngine
         Entity* entityA = fysicsManager->GetEntityFromBody(bodyA);
         Entity* entityB = fysicsManager->GetEntityFromBody(bodyB);
 
+ 
+
         if (entityA && entityB && m_EventCallback)
         {
             // Create and dispatch collision event through callback
             CollisionEnterEvent event(entityA, entityB);
             m_EventCallback(event);
+            if (!CheckActiveCollisions(entityA, entityB))
+            {
+                activeCollisions[entityA->id].insert(entityB->id);
+                activeCollisions[entityB->id].insert(entityA->id);
+            }
             CheckTrigger(entityA, entityB);
-            CheckTrigger(entityB, entityA);
-            //CheckCollisionEntityMap(entityA, entityB);
-            //std::cout << "Entity "<< entityA->id << " collided with " << entityB->id << std::endl;
         }
     }
 
@@ -44,6 +48,21 @@ namespace IonixEngine
         }
     }
 
+    bool CollisionListener::CheckActiveCollisions(Entity* entityA, Entity* entityB)
+    {
+        for (const auto& pair : Application::Get().layerFysics->GetFysicsManager()->GetCollisionListener()->activeCollisions)
+        {
+            for (EntityID entB: pair.second )
+            {
+                EntityID entA = pair.first;   // key
+                // Do your check here
+                if (entA == entityA->id && entB == entityB->id) {
+                    return true;
+                }
+            }
+        }
+    }
+
     void CollisionListener::EndContact(b2Contact* contact)
     {
         b2Body* bodyA = contact->GetFixtureA()->GetBody();
@@ -52,11 +71,15 @@ namespace IonixEngine
         Entity* entityA = fysicsManager->GetEntityFromBody(bodyA);
         Entity* entityB = fysicsManager->GetEntityFromBody(bodyB);
 
+
+        
         if (entityA && entityB && m_EventCallback)
         {
             // Create and dispatch collision event through callback
             CollisionExitEvent event(entityA, entityB);
             m_EventCallback(event);
+            activeCollisions[entityA->id].erase(entityB->id);
+            activeCollisions[entityB->id].erase(entityA->id);
         }
     }
 
@@ -82,5 +105,6 @@ namespace IonixEngine
     void CollisionListener::AddToCollisionMap(Entity* entityA, Entity* entityB)
     {
         collisionEntityMap[entityA->id].push_back(entityB->id);
+        
     }
 }

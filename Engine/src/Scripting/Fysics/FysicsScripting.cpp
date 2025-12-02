@@ -384,6 +384,17 @@ namespace IonixEngine
 			}
 		};
 
+		auto checkActiveCollisions = [](Entity* entityA, Entity* entityB)->bool
+		{
+			if (Application::Get().layerFysics->GetFysicsManager()->GetCollisionListener()->CheckActiveCollisions(entityA, entityB))
+			{
+				return true;
+			}
+
+			return false;
+			
+		};
+
 
 
 		lua["Fysics"] = lua.create_table_with(
@@ -442,7 +453,8 @@ namespace IonixEngine
 			"set_damping", setDampingFromWeldJoint,
 			"get_stiffness", getStiffnessFromWeldJoint,
 			"set_stiffness", setStiffnessFromWeldJoint,
-			"add_to_collision_map", addToCollisionMap
+			"add_to_collision_map", addToCollisionMap,
+			"col", checkActiveCollisions
 		);
 	}
 }
