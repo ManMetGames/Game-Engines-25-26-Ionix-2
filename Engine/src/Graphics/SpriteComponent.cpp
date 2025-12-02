@@ -185,6 +185,14 @@ namespace IonixEngine {
 		}
 	}
 
+	void SpriteComponent::setAnimation(int x, int y, int spriteX, int spriteY)
+	{
+		rows = x;
+		cols = y;
+		spriteWidth = spriteX;
+		spriteHeight = spriteY;
+	}
+
 	//setters
 	void SpriteComponent::setEndFrame(int x) { endFrame = x; }
 	void SpriteComponent::setPlaybackMode(enum playbackOptions x) { playbackMode = x; }
