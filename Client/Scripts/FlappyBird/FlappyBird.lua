@@ -150,7 +150,7 @@ end
 function ExampleScript:OnCollisionEnter(collision1, collision2)
     if collision1 == player1 and collision2 == pipe then
             print("CollisionPipe")
-    end
+        end
 end
 
 function ExampleScript:OnTriggerEnter(collision1, collision2)

@@ -24,6 +24,7 @@ namespace IonixEngine
             CollisionEnterEvent event(entityA, entityB);
             m_EventCallback(event);
             CheckTrigger(entityA, entityB);
+            CheckTrigger(entityB, entityA);
             //CheckCollisionEntityMap(entityA, entityB);
             //std::cout << "Entity "<< entityA->id << " collided with " << entityB->id << std::endl;
         }
@@ -34,12 +35,12 @@ namespace IonixEngine
                 
         if (fysicsManager->GetBodyFromEntity(entityA)->GetFixtureList()->IsSensor() || fysicsManager->GetBodyFromEntity(entityB)->GetFixtureList()->IsSensor())
         {
-            Scripting::Get().CallHook("OnCollisionEnter", entityA, entityB);
+            Scripting::Get().CallHook("OnTriggerEnter", entityA, entityB);
         }
 
         else
         {
-            Scripting::Get().CallHook("OnTriggerEnter", entityA, entityB);
+            Scripting::Get().CallHook("OnCollisionEnter", entityA, entityB);
         }
     }
 
