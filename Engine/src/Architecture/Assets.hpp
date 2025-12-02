@@ -9,6 +9,12 @@ struct Textures {
     uint32_t FlappyBird = 2136167952u;
     uint32_t FlappyPipe = 1290161702u;
     uint32_t FlappyPipe2 = 2484853856u;
+    uint32_t PacMan = 2199143984u;
+    uint32_t PacManBackground = 4259806298u;
+    uint32_t PacManGhostBlue = 794302276u;
+    uint32_t PacManGhostGreen = 2247888172u;
+    uint32_t PacManGhostPink = 2168663124u;
+    uint32_t PacManRedGhost = 1052171216u;
     uint32_t PimBall = 3518613816u;
     uint32_t Sand = 2995081222u;
     uint32_t Test = 510180426u;
@@ -25,6 +31,12 @@ struct Textures {
         map["FlappyBird"] = "./Assets/FlappyBird.png";
         map["FlappyPipe"] = "./Assets/FlappyPipe.png";
         map["FlappyPipe2"] = "./Assets/FlappyPipe2.png";
+        map["PacMan"] = "./Assets/PacMan.png";
+        map["PacManBackground"] = "./Assets/PacManBackground.png";
+        map["PacManGhostBlue"] = "./Assets/PacManGhostBlue.png";
+        map["PacManGhostGreen"] = "./Assets/PacManGhostGreen.png";
+        map["PacManGhostPink"] = "./Assets/PacManGhostPink.png";
+        map["PacManRedGhost"] = "./Assets/PacManRedGhost.jpg";
         map["PimBall"] = "./Assets/PimBall.png";
         map["Sand"] = "./Assets/Sand.png";
         map["Test"] = "./Assets/Test.png";
