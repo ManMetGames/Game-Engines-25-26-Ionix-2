@@ -37,7 +37,6 @@ function ExampleScript:OnStart()
     Background = Entity.create_entity()
     local BgBackground = Entity.add_sprite_component(Background, assets.textures.Background,960 , 640, 0)
     
-
     ------------------------------------------------------
     -- Create player1
     ------------------------------------------------------
@@ -55,24 +54,12 @@ function ExampleScript:OnStart()
     -- Freeze bird
     Fysics.set_gravity_scale(player1, 0)
 
-
-
-    -----------------------------
-    ------Coins
-    ------------
-    coin = Entity.create_entity()
-    Entity.set_global_pos(coin, 200, 200)
-    local coinSprite = Entity.add_sprite_component(coin, assets.textures.Coin, 100, 32, 10)
-    Sprite.set_columns(coinSprite, 1)
-    Entity.add_fysics_component(coin, enums.bodytype.kinematicBody, false)
-    Fysics.add_sprite_collider(coin, true, 1)
-
-    local tileSize = 64
-    local floorY = 600
-    
 	------------------------------------------------------
 	-- pick texture for left / middle / right
 	------------------------------------------------------
+    local tileSize = 64
+    local floorY = 600
+    
 	local tex = "middle"
 
 	for i = 0, 30 do
@@ -180,9 +167,8 @@ function ExampleScript:OnUpdate()
     -- Get current velocity
     local vel1 = Fysics.get_linear_velocity(player1)
     local vy1 = Fysics.get_linear_velocity(pipe)
-    local vy1 = Fysics.get_linear_velocity(pipeT)
     local vy1 = Fysics.get_linear_velocity(pipe2)
-    local vy1 = Fysics.get_linear_velocity(pipeT2)
+
     -- Constant rightward movement
     local vx = 0
     local vy1 = Mafs.get_vec_y(vel1)
@@ -231,14 +217,14 @@ end
 
     function ExampleScript:OnCollisionEnter()
         if Fysics.col(player1, pipe) then
-                print("CollisionPipe")
+            print("CollisionPipe")
             end
     end
 
     function ExampleScript:OnTriggerEnter(collision1, collision2)
         if collision1 == player1 and collision2 == coin then
-                print("TriggerCoin")
+            print("TriggerCoin")
         end
-    end
+end
 
 return ExampleScript
