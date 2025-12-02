@@ -55,27 +55,17 @@ namespace IonixEngine
             //Microphone Connected 
         case SDL_AUDIODEVICEADDED:
         {
-            /* const char* deviceName = SDL_GetAudioDeviceName(e.adevice.which, SDL_TRUE);
-                if (deviceName)
-                {
-                    
-                  
-                }
-                break;
-            */
-
-
-
+           // Application::Get().layerInput->m_MicrophoneManager->openDevice(e.adevice.which);
+            break;
         }
 
         //Microphone disconnected
         case SDL_AUDIODEVICEREMOVED:
         {
-
-           
+            Application::Get().layerInput->m_MicrophoneManager->closeDevice();
+            break;
         }
  
-
             // Controller
         case SDL_CONTROLLERDEVICEADDED:
         {
@@ -103,8 +93,6 @@ namespace IonixEngine
             }
             break;
         }
-
-
         case SDL_CONTROLLERBUTTONDOWN:
         {
             int instanceId = e.cbutton.which;
@@ -116,7 +104,6 @@ namespace IonixEngine
             }
             break;
         }
-
         case SDL_CONTROLLERBUTTONUP:
         {
             int instanceId = e.cbutton.which;

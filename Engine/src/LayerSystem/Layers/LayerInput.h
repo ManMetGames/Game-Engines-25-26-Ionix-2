@@ -2,6 +2,7 @@
 #include "LayerSystem/Layer.h"
 #include "Input/Input.h"
 #include "Input/ControllerManager.h"
+#include "Input/MicrophoneManager.h"
 
 
 
@@ -18,6 +19,7 @@ namespace IonixEngine
         virtual void OnEvent(IonixEvent& e) override;
         Input* m_Input;  
         ControllerManager* m_ControllerManager;
+        MicrophoneManager* m_MicrophoneManager;
     
 
     private:
