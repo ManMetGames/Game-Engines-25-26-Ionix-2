@@ -289,7 +289,9 @@ namespace IonixEngine
         auto GetOffset = [](Entity* entity) -> b2Vec2 {
             return Application::Get().layerFysics->GetFysicsManager()->GetShapes()->GetOffset();
 			};
-
+		auto SetOffset = [](b2Vec2& off, fysicShapeType shapeType) {
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->SetOffset(off, static_cast<fysicShapeType>(shapeType));
+			};
 //----------Joint Methods----------
 
 		auto setPrismaticJoint = [](Entity* entityA, Entity* entityB, float worldAxisX, float worldAxisY, float lowerTranslation, float upperTranslation, bool enableLimit, float maxMotorForce, float motorSpeed, bool enableMotor) {
@@ -516,6 +518,7 @@ namespace IonixEngine
 			"get_angle" , GetAngle,
 			"set_angle", SetAngle,
 			"get_offset", GetOffset,
+			"set_offset", SetOffset,
 			"set_material_properties", fysicsUpdateMaterialProperties,
 			"get_friction", getFriction,
 			"get_restitution", getRestitution,
