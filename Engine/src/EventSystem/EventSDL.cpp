@@ -52,6 +52,12 @@ namespace IonixEngine
             break;
 
 
+        case SDL_MOUSEWHEEL:
+            float scrollY = static_cast<float>(e.wheel.y);
+            Application::Get().layerInput->m_Input->SetScrollDiff(scrollY);
+            break;
+
+
             //Microphone Connected 
         case SDL_AUDIODEVICEADDED:
         {
