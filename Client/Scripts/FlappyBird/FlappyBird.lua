@@ -53,7 +53,10 @@ function ExampleScript:OnStart()
     coin = Entity.create_entity()
     Entity.set_entity_pos(coin, x, 300)
 
-    local coinSprite = Entity.add_sprite_component(coin, "Coin", 32, 32, 0)
+    local coinSprite = Entity.add_sprite_component(coin, assets.textures.Coin, 32, 32, 0)
+
+    Sprite.set_rows(coinSprite, 1)
+    Sprite.set_columns(coinSprite, 5)
     Sprite.set_width(coinSprite, 16)
     Sprite.set_height(coinSprite, 16)
 
