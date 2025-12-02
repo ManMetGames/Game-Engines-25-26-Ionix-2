@@ -30,35 +30,25 @@ function PacMan:OnStart()
 	
     -- PLAYER 1 PHYSICs
     Entity.add_fysics_component(player1, enums.bodytype.dynamicBody, true) -- dynamic body
-    --Fysics.add_sprite_collider(player1, false)
     Fysics.add_sprite_collider(player1,false,1)
     -- Freeze bird
     Fysics.set_gravity_scale(player1, 0)
 
-
-    local tileSize = 64
-    local floorY = 600
-	------------------------------------------------------
-	-- pick texture for left / middle / right
-	------------------------------------------------------
-	local tex = "middle"
-
-	for i = 0, 30 do
-		local tile = Entity.create_entity()
-		local xPos = i * tileSize
-		------------------------------------------------------
-		-- add physics body + collider
-		------------------------------------------------------
-		Entity.add_fysics_component(tile, enums.bodytype.staticBody, false)  -- static
-		Fysics.add_sprite_collider(tile, false,1)
-	end
 end
 
 ----------------------------------------------------------
 -- OnUpdate
 ----------------------------------------------------------
 function PacMan:OnUpdate()
+    local speed = 10
 
+    if Input.get_key_down(Keys.ionix_w) then
+        Fysics.set_linear_velocity(player1, 0, -speed)
+    end
+
+    else
+        Fysics.set_linear_velocity(player1, 0, 0)
+    end
 end
 
 return PacMan
