@@ -40,6 +40,11 @@ namespace IonixEngine
                     m_EventCallback(event);
                 }
                 break;
+            case SDL_WINDOWEVENT_RESIZED:
+            case SDL_WINDOWEVENT_SIZE_CHANGED:
+                windowData.Width = e.window.data1;
+                windowData.Height = e.window.data2;
+                break;
             }
             break;
 
