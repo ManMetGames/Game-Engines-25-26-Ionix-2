@@ -6,6 +6,9 @@ function LoadModule(name, path)
     modules[name] = module
 end
 
+-- Load System Modules
+LoadModule("Coroutines", "Scripts/Coroutines.lua")
+
 -- Load all game modules here
 LoadModule("Assets", "Scripts/Assets.lua")
 --LoadModule("Audio", "Scripts/Audio.lua")
@@ -17,6 +20,7 @@ LoadModule("Assets", "Scripts/Assets.lua")
 LoadModule("Enums", "Scripts/Enums.lua")
 LoadModule("FlappyBird", "Scripts/FlappyBird/FlappyBird.lua")
 --LoadModule("ExampleScript", "Scripts/ExampleScript.lua")
+LoadModule("CoroutinesTest", "Scripts/TestingCoroutine/CoroutineTest.lua")
 
 -- Lifecycle hooks
 function OnStart()
@@ -76,9 +80,6 @@ end
 function GetModule(name)
     return modules[name]
 end
-
--- Load System Modules
-LoadModule("Coroutines", "Scripts/Coroutines.lua")
 
 return {
     OnStart = OnStart,
