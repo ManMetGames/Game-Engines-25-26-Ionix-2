@@ -121,6 +121,10 @@ namespace IonixEngine {
 			return new IonixEngine::Camera(startX, startY, renderLayer);
 			};
 
+		auto initializeCamera = [](IonixEngine::Camera* camera) {
+			camera->Init();
+			};
+
         auto SetZoom = [](SDL_Renderer* renderer, int zoom) {
             Application::Get().currentCam->SetZoom(renderer, zoom);
             };
@@ -140,6 +144,12 @@ namespace IonixEngine {
 			};
 		auto rotateCamera = [](float angle) {
 			Application::Get().currentCam->Rotate(angle);
+			};
+        auto rotateEnity = [](Entity* e, float angle) {
+            Application::Get().currentCam->RotateEntity(e, angle);
+            };
+		auto renderToScreen = [](SDL_Renderer* renderer, float posX, float posY, float sizeX, float sizeY) {
+			Application::Get().currentCam->RenderToScreen(renderer, posX, posY, sizeX, sizeY);
 			};
 
 	
@@ -189,12 +199,15 @@ namespace IonixEngine {
        
         lua["Camera"] = lua.create_table_with(
             "create_camera", Camera,
+			"initialize_camera", initializeCamera,
             "set_zoom", SetZoom,
             "clear_background", ClearBackground,
             "Set_color", SetColor,
 			"move_camera", MoveCamera,
 			"switch_camera", switchcamera,
-			"rotate_camera", rotateCamera
+			"rotate_camera", rotateCamera,
+			"rotate_entity", rotateEnity,
+			"render_to_screen", renderToScreen
         );
     }
 
