@@ -30,6 +30,8 @@ namespace IonixEngine
         bg_g = 0;
         bg_b = 0;
         bg_a = 255;
+        w = Application::Get().GetWindow().m_Data.Width;
+        h = Application::Get().GetWindow().m_Data.Height;
         zoom = 1.0f;
                 
 		InitRenderTexture(Application::Get().GetWindow().m_Renderer);
