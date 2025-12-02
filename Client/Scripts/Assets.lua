@@ -2,6 +2,7 @@ return {
     textures = {
         Background = 2667361274,
         Coin = 2929616156,
+        Cube = 2849387920,
         Debug = 2430642766,
         FlappyBird = 2136167952,
         FlappyPipe = 1290161702,
@@ -13,6 +14,7 @@ return {
         Triangle = 801038052,
         ball = 369994598,
         ball2 = 1354646532,
+        hermer = 242799782,
         horse_fat = 963803500,
         office = 2084752704,
     },
