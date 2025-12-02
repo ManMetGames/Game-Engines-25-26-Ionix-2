@@ -23,7 +23,7 @@ local pipeSpeed = -3
 local pipeStartX = 900
 local pipe2StartX = 1200
 local pipeOffScreenLeft = -100
-
+local coin
 ----------------------------------------------------------
 -- OnStart
 ----------------------------------------------------------
@@ -52,6 +52,27 @@ function ExampleScript:OnStart()
     Fysics.add_sprite_collider(player1,false,1)
     -- Freeze bird
     Fysics.set_gravity_scale(player1, 0)
+
+    ------------------------------------------------------
+    -- Create Coins 
+    ------------------------------------------------------
+    coin = Entity.create_entity()
+    Entity.set_entity_pos(coin, x, 300)
+
+    local coinSprite = Entity.add_sprite_component(coin, assets.textures.Coin, 32, 32, 0)
+
+    Sprite.set_rows(coinSprite, 1)
+    Sprite.set_columns(coinSprite, 5)
+    Sprite.set_width(coinSprite, 16)
+    Sprite.set_height(coinSprite, 16)
+
+
+	Sprite.set_playback_mode(coinSprite, 2)
+    ------------------------------------------------------
+	-- add physics body + collider
+	------------------------------------------------------
+	Entity.add_fysics_component(coin, 1, false)  -- static
+    Fysics.add_sprite_collider(coin, true)
 
 
     local tileSize = 64
