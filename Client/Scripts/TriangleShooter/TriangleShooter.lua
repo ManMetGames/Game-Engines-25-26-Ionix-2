@@ -9,6 +9,15 @@ local playerSize = 48
 local playerX = 400
 local playerY = 300
 local followSpeed = 12  -- Higher = faster catch-up
+local playerHealth = 100
+
+-- Player flash effect
+local playerFlashTimer = 0
+local playerFlashDuration = 10  -- frames
+
+-- Damage cooldown (0.5s = 30 frames at 60fps)
+local damageCooldown = 0
+local damageCooldownDuration = 30
 
 -- Projectile settings
 local projectiles = {}      -- Active projectiles
@@ -28,6 +37,21 @@ local enemySize = 48
 local enemyX = 400  -- Center of screen
 local enemyY = 300
 local enemyHealth = 50
+local enemyRotation = 0
+
+-- Enemy dash settings
+local dashCooldown = 0
+local dashCooldownDuration = 240  -- frames
+local dashDuration = 120  -- frames to complete dash (0.5s)
+local dashTimer = 0
+local dashStartX = 0
+local dashStartY = 0
+local dashTargetX = 0
+local dashTargetY = 0
+local isDashing = false
+
+-- Spin settings
+local spinSpeed = 5  -- degrees per unit of speed
 
 -- Collision settings
 local collisionRadius = 24  -- Half of enemy size for circle collision
@@ -104,6 +128,12 @@ function TriangleShooter:OnUpdate()
     
     -- Update flash effect
     UpdateFlash()
+    
+    -- Check enemy-player collision and apply damage
+    UpdateEnemyCollision()
+    
+    -- Update enemy dash behavior
+    UpdateEnemyDash()
 end
 
 ----------------------------------------------------------
@@ -197,12 +227,114 @@ function FlashEnemy()
 end
 
 function UpdateFlash()
+    -- Enemy flash
     if flashTimer > 0 then
         flashTimer = flashTimer - 1
         if flashTimer <= 0 then
             Sprite.set_color(enemySprite, 255, 255, 255)
         end
     end
+    
+    -- Player flash
+    if playerFlashTimer > 0 then
+        playerFlashTimer = playerFlashTimer - 1
+        if playerFlashTimer <= 0 then
+            Sprite.set_color(playerSprite, 255, 255, 255)
+        end
+    end
+    
+    -- Damage cooldown
+    if damageCooldown > 0 then
+        damageCooldown = damageCooldown - 1
+    end
+end
+
+----------------------------------------------------------
+-- Enemy-Player collision with damage cooldown
+----------------------------------------------------------
+function UpdateEnemyCollision()
+    if damageCooldown > 0 then
+        return
+    end
+    
+    -- Check collision between enemy and player
+    local playerCenterX = playerX + playerSize/2
+    local playerCenterY = playerY + playerSize/2
+    local enemyCenterX = enemyX + enemySize/2
+    local enemyCenterY = enemyY + enemySize/2
+    
+    local dx = playerCenterX - enemyCenterX
+    local dy = playerCenterY - enemyCenterY
+    local distSq = dx * dx + dy * dy
+    local hitRadius = collisionRadius + playerSize/2
+    
+    if distSq < hitRadius * hitRadius then
+        -- Collision! Damage player
+        playerHealth = playerHealth - 10
+        FlashPlayer()
+        damageCooldown = damageCooldownDuration
+    end
+end
+
+function FlashPlayer()
+    Sprite.set_color(playerSprite, 255, 0, 0)
+    playerFlashTimer = playerFlashDuration
+    if playerHealth <= 0 then
+        Entity.set_global_pos(player, -1000, -1000)
+    end
+end
+
+----------------------------------------------------------
+-- Enemy dash behavior (every 3 seconds)
+----------------------------------------------------------
+function UpdateEnemyDash()
+    local prevX = enemyX
+    local prevY = enemyY
+    
+    if isDashing then
+        -- Lerp towards target (t goes from 0 to 1)
+        dashTimer = dashTimer + 1
+        local t = dashTimer / dashDuration
+        
+        if t >= 1 then
+            -- Dash complete
+            enemyX = dashTargetX
+            enemyY = dashTargetY
+            isDashing = false
+            dashCooldown = dashCooldownDuration
+        else
+            -- Smooth lerp
+            enemyX = dashStartX + (dashTargetX - dashStartX) * t
+            enemyY = dashStartY + (dashTargetY - dashStartY) * t
+        end
+        
+        Entity.set_global_pos(enemy, enemyX, enemyY)
+    else
+        -- Cooldown countdown
+        if dashCooldown > 0 then
+            dashCooldown = dashCooldown - 1
+        else
+            -- Start new dash towards player
+            StartEnemyDash()
+        end
+    end
+    
+    -- Spin based on movement speed
+    local dx = enemyX - prevX
+    local dy = enemyY - prevY
+    local speed = math.sqrt(dx * dx + dy * dy)
+    enemyRotation = enemyRotation + speed * spinSpeed
+    Entity.set_global_rot(enemy, enemyRotation)
+end
+
+function StartEnemyDash()
+    isDashing = true
+    dashTimer = 0
+    dashStartX = enemyX
+    dashStartY = enemyY
+    -- Target player's current position (centered)
+    dashTargetX = playerX + playerSize/2 - enemySize/2
+    dashTargetY = playerY + playerSize/2 - enemySize/2
 end
 
 return TriangleShooter
