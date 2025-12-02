@@ -218,7 +218,8 @@ function ExampleScript:OnUpdate()
     ------------------------------------------------------
 	-- UI
 	------------------------------------------------------
-    UI.Add_label(0,0, 100, 100, "Some text")
+    UI.Add_label(320, 300, 1000, 1000, "Press SPACE to start")
+    
 end
 
 return ExampleScript
