@@ -59,6 +59,9 @@ function GetModule(name)
     return modules[name]
 end
 
+-- Load System Modules
+LoadModule("Coroutines", "Scripts/Coroutines.lua")
+
 return {
     OnStart = OnStart,
     OnFixedUpdate = OnFixedUpdate,
