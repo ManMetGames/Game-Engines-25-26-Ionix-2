@@ -23,11 +23,15 @@ local pipeOffScreenLeft = -100
 local xDir -- -1 goes left, 1 goes right
 local yDir -- -1 goes up, 1 goes down
 
+local windowSize
+
 ----------------------------------------------------------
 -- OnStart
 ----------------------------------------------------------
 function ExampleScript:OnStart()
 
+    windowSize = Window.get_height()
+    print(windowSize)    
     ------------------------------------------------------
 	-- Background Texture
 	------------------------------------------------------
@@ -131,10 +135,11 @@ function ExampleScript:OnUpdate()
         --Fysics.set_linear_velocity(pipeT, pipeSpeed, 0)
         -- Set velocity directly to cancel out falling momentum
         vy1 = -1  -- Jump velocity for player1
+        vx = 0
 	end
-    if Input.get_key_down(Keys.ionix_s) then vy1 = 1 end
-        if Input.get_key_down(Keys.ionix_a) then vx = -1 end
-            if Input.get_key_down(Keys.ionix_d) then vx = 1 end
+    if Input.get_key_down(Keys.ionix_s) then vy1 = 1 vx = 0 end
+        if Input.get_key_down(Keys.ionix_a) then vx = -1 vy1 = 0 end
+            if Input.get_key_down(Keys.ionix_d) then vx = 1 vy1 = 0 end
 
 
     Fysics.set_linear_velocity(player1, vx, vy1)
