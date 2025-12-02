@@ -151,8 +151,8 @@ namespace IonixEngine {
 	{
 		timer += deltaTime;
 
-		while (timer > 0.2f) {
-			timer -= 0.2f;
+		while (timer > tickRate) {
+			timer -= tickRate;
 
 			currentCol++;
 			if (currentCol == cols) {
@@ -224,6 +224,7 @@ namespace IonixEngine {
 	void SpriteComponent::setZedOrder(int x) { zOrder = x; }
 	void SpriteComponent::setWidth(int x) { width = x; }
 	void SpriteComponent::setHeight(int x) { height = x; }
+	void SpriteComponent::setTickRate(float x) { tickRate = x; }
 
 	void SpriteComponent::setBoxColliderSize(b2Vec2 newSize) { boxColliderSize = newSize; }
 
@@ -241,5 +242,6 @@ namespace IonixEngine {
 	int SpriteComponent::getCurrentRow() { return currentRow; }
 	int SpriteComponent::getWidth() { return width; }
 	int SpriteComponent::getHeight() { return height; }
+	int SpriteComponent::gettickRate() { return tickRate; }
 	b2Vec2 SpriteComponent::getBoxColliderSize() { return boxColliderSize; }
 }
