@@ -139,10 +139,15 @@ function ExampleScript:OnUpdate()
     -- Constant rightward movement
     local vx = 0
     local vy1 = vel1.y
+    local pipeS = pipeSpeed / 100
 
 	if Input.get_key_down(Keys.ionix_space) then
         -- Bird move if space is pressed (allow gravity)
         Fysics.set_gravity_scale(player1, 1)
+
+        -- Pipes move left if space if pressed
+        Fysics.set_linear_velocity(pipe, pipeS, 0)
+        Fysics.set_linear_velocity(pipeT, pipeS, 0)
 
         -- Set velocity directly to cancel out falling momentum
         vy1 = -5  -- Jump velocity for player1
@@ -151,13 +156,8 @@ function ExampleScript:OnUpdate()
     Fysics.set_linear_velocity(player1, vx, vy1)
 
     ------------------------------------------------------
-	-- Pipes move left
+	-- Pipe movement
 	------------------------------------------------------
-    local pipeS = pipeSpeed / 100
-    Fysics.set_linear_velocity(pipe, pipeS, 0)
-    Fysics.set_linear_velocity(pipeT, pipeS, 0)
-
-    -- Pipe movement
     local pipePos = Fysics.get_pos(pipe)
     local pipePos = Fysics.get_pos(pipeT)
  	
