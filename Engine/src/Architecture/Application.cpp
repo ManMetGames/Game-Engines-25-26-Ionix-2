@@ -204,6 +204,13 @@ namespace IonixEngine
            std::cout << "Mouse X Pos: " << mc.x << " Mouse Y Pos: " << mc.y << std::endl;
            */
 
+           // float scroll = layerInput->m_Input->GetScrollDiff();
+
+           // if (scroll > 0)
+         //       std::cout << "ScrollUP " << "\n";
+          //  else if (scroll < 0)
+          //      std::cout << "ScrollDOWN " << "\n";
+
             layerInput->m_Input->CopyCodesEndFrame();
           
             m_Window->OnUpdate();

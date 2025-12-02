@@ -49,6 +49,7 @@ namespace IonixEngine {
 
 		void changeTexture(std::string alias);
 		void initialiseSpritesheet();
+		void setAnimation(int rows, int cols, int spriteWidth, int spriteHeight);
 
 		//Setters
 		void setEndFrame(int x);
