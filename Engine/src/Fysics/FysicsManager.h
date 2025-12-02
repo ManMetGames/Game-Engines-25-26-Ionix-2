@@ -44,6 +44,8 @@ namespace IonixEngine
         RevoluteJoints* GetRevoluteJoint() { return revoluteJoint;}
         DistanceJoints* GetDistanceJoint() { return distanceJoint;}
         FysicsMaterialComponent* GetMaterial() { return material;}
+        CollisionListener* GetCollisionListener() {return collisionListener;}
+
 
         b2World* GetWorld() { return world; }
         std::unordered_map<b2Body*, Entity*>& GetBodyMap() { return bodyEntityMap; }

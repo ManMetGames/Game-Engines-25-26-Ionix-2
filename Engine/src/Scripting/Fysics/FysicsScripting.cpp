@@ -511,12 +511,34 @@ namespace IonixEngine
 
 			return Application::Get().layerFysics->GetFysicsManager()->GetRevoluteJoint()->getMotorTorque((b2RevoluteJoint*)jointList, inv_dt);
 		};
-
 		auto setMaxMotorTorqueFromRevoluteJoint = [](int jointID, float torque) {
 			b2Joint* jointList = Application::Get().layerFysics->GetFysicsManager()->GetJointFromID(jointID);
 
 			Application::Get().layerFysics->GetFysicsManager()->GetRevoluteJoint()->setMaxMotorTorque((b2RevoluteJoint*)jointList, torque);
 		};
+
+		//----------EntityMap----------
+		auto addToCollisionMap = [](Entity* entityA, Entity* entityB)
+		{
+			if (entityA->GetComponent<FysicsBody>() && entityB->GetComponent<FysicsBody>())
+			{
+				Application::Get().layerFysics->GetFysicsManager()->GetCollisionListener()->AddToCollisionMap(entityA, entityB);
+			}
+		};
+
+	
+		auto checkActiveCollisions = [](Entity* entityA, Entity* entityB)->bool
+		{
+			if (Application::Get().layerFysics->GetFysicsManager()->GetCollisionListener()->CheckActiveCollisions(entityA, entityB))
+			{
+				return true;
+			}
+
+			return false;
+			
+		};
+
+		
 
 		lua["Fysics"] = lua.create_table_with(
 			"add_box_collider",	addBoxCollider,
@@ -605,7 +627,9 @@ namespace IonixEngine
 			"get_motor_speed", getMotorSpeedFromRevoluteJoint,
 			"set_motor_speed", setMotorSpeedFromRevoluteJoint,
 			"get_motor_torque", getMotorTorqueFromRevoluteJoint,
-			"set_max_motor_torque", setMaxMotorTorqueFromRevoluteJoint
+			"set_max_motor_torque", setMaxMotorTorqueFromRevoluteJoint,			
+			"add_to_collision_map", addToCollisionMap,
+			"col", checkActiveCollisions
 		);
 	}
 }

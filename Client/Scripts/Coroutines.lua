@@ -7,33 +7,49 @@ end
 
 function coroutines:OnUpdate()
     for i,co in ipairs(methods) do
-        if coroutine.status(co) == "dead" then
-            methods[i] = nil
+        if coroutine.status(methods[i][1]) == "dead" then
+            methods[i] = {}
         end
 
-        if co ~= nil then
-            coroutine.resume(co)
+        if methods[i][1] ~= nil and methods[i][3] - os.time() <= 0 then
+            coroutine.resume(methods[i][1])
+            methods[i][3] = methods[i][2] + methods[i][3]
         end
+
     end
 end
 
-function coroutines:AddCoroutine(co)
+function coroutines:AddCoroutine(co, time)
     local foundPlace = false
+    if time == nil then
+        time = 0
+    end
 
     for i,coroute in ipairs(methods) do
         if coroute == nil then
-            methods[i] = co
+            methods[i] = {}
+            methods[i][1] = co
+            methods[i][2] = time
+            methods[i][3] = os.time()
             foundPlace = true
             break
         end
     end
 
     if foundPlace == false then
-        methods[# methods + 1] = co
+        local index = # methods + 1
+        methods[index] = {}
+        methods[index][1] = co
+        methods[index][2] = time
+        methods[index][3] = os.time()
     end
 end
 
 function coroutines:RemoveCoroutine(co)
+end
+
+function coroutines:Yield(co)
+    coroutine.yield(co)
 end
 
 return coroutines

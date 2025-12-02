@@ -26,6 +26,7 @@ namespace IonixEngine
         void RegisterEngineBindings();
         void ExecuteScript(const std::string& scriptName);
         void CallHook(const std::string& hookName);
+        void CallHook(const std::string& hookName, Entity* entityA, Entity* entityB);
 
         sol::state& GetLuaState() { return m_LuaState; }
 

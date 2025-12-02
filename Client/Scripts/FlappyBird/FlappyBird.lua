@@ -51,6 +51,17 @@ function ExampleScript:OnStart()
     Fysics.set_gravity_scale(player1, 0)
 
 
+
+    -----------------------------
+    ------Coins
+    ------------
+    coin = Entity.create_entity()
+    Entity.set_global_pos(coin, 200, 200)
+    local coinSprite = Entity.add_sprite_component(coin, assets.textures.Coin, 100, 32, 10)
+    Sprite.set_columns(coinSprite, 1)
+    Entity.add_fysics_component(coin, enums.bodytype.kinematicBody, false)
+    Fysics.add_sprite_collider(coin, true, 1)
+
     local tileSize = 64
     local floorY = 600
 
@@ -123,16 +134,31 @@ function ExampleScript:OnStart()
     --Fysics.set_linear_stiffness(0,4.0f, 5.0f)  
 
 
+    -- TOP PIPE
+    pipeT = Entity.create_entity()
+	Entity.set_global_pos(pipeT, 640, 0)
+
+	local pipeSpriteT = Entity.add_sprite_component(pipeT,assets.textures.FlappyPipe , 80, 300, 0)
+    Sprite.set_columns(pipeSpriteT,1)
+	-- Kinematic body so it moves but isn't affected by gravity
+	Entity.add_fysics_component(pipeT, enums.bodytype.kinematicBody, false)
+	Fysics.add_sprite_collider(pipeT, false,1)
+
+    if Input.get_key_down(Keys.ionix_a) then
+        Entity.set_global_pos(pipe, xPos, floorY)
+	end
+        print("workin")
+
 end
 
 ----------------------------------------------------------
 -- OnUpdate
 ----------------------------------------------------------
 function ExampleScript:OnUpdate()
+    
     -- get current velocity
     local vel1 = Fysics.get_linear_velocity(player1)
     local vy1 = Fysics.get_linear_velocity(pipe)
-    local vy1 = Fysics.get_linear_velocity(pipeT)
     -- Constant rightward movement
     local vx = 0
     local vy1 = Mafs.get_vec_y(vel1)
@@ -165,12 +191,23 @@ function ExampleScript:OnUpdate()
 
     -- Pipe movement
     local pipePos = Fysics.get_pos(pipe)
-    local pipePos = Fysics.get_pos(pipeT)
     if Mafs.get_vec_x(pipePos) < pipeOffScreenLeft then
         Fysics.set_pos(pipe, pipeStartX, pipePos.y)
         Fysics.set_pos(pipeT, pipeStartX, pipePos.y)
      end
      
 end
+
+    function ExampleScript:OnCollisionEnter()
+        if Fysics.col(player1, pipe) then
+                print("CollisionPipe")
+            end
+    end
+
+    function ExampleScript:OnTriggerEnter(collision1, collision2)
+        if collision1 == player1 and collision2 == coin then
+                print("TriggerCoin")
+        end
+    end
 
 return ExampleScript
