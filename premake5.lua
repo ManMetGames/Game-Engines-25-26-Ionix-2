@@ -124,12 +124,12 @@ project "Client"
     }
 
     postbuildcommands {
-        '{COPY} "%{cfg.buildtarget.relpath}" "%{wks.location}/bin/' .. outputdir .. '/Client/"',
-        '{COPY} "%{wks.location}/dependencies/bin/SDL/SDL2_Image/lib/SDL2_image.dll" "%{wks.location}/bin/' .. outputdir .. '/Client/"',
-        '{COPY} "%{wks.location}/dependencies/bin/SDL/SDL2_mixer-2.8.0/lib/x64/SDL2_mixer.dll" "%{wks.location}/bin/' .. outputdir .. '/Client/"',
-        '{COPY} "%{wks.location}/dependencies/bin/SDL/SDL2-2.30.6/lib/x64/SDL2.dll" "%{wks.location}/bin/' .. outputdir .. '/Client/"',
-        '{COPY} "%{wks.location}/dependencies/bin/lua/lua54.dll" "%{wks.location}/bin/' .. outputdir .. '/Client/"',
-        '{COPY} "%{wks.location}/dependencies/bin/SDL/SDL_TTF/lib/SDL2_ttf.dll" "%{wks.location}/bin/' .. outputdir .. '/Client/"'
+        '{COPYFILE} "%{cfg.buildtarget.relpath}" "%{wks.location}/bin/' .. outputdir .. '/Client/"',
+        '{COPYFILE} "%{wks.location}/dependencies/bin/SDL/SDL2_Image/lib/SDL2_image.dll" "%{wks.location}/bin/' .. outputdir .. '/Client/"',
+        '{COPYFILE} "%{wks.location}/dependencies/bin/SDL/SDL2_mixer-2.8.0/lib/x64/SDL2_mixer.dll" "%{wks.location}/bin/' .. outputdir .. '/Client/"',
+        '{COPYFILE} "%{wks.location}/dependencies/bin/SDL/SDL2-2.30.6/lib/x64/SDL2.dll" "%{wks.location}/bin/' .. outputdir .. '/Client/"',
+        '{COPYFILE} "%{wks.location}/dependencies/bin/lua/lua54.dll" "%{wks.location}/bin/' .. outputdir .. '/Client/"',
+        '{COPYFILE} "%{wks.location}/dependencies/bin/SDL/SDL_TTF/lib/SDL2_ttf.dll" "%{wks.location}/bin/' .. outputdir .. '/Client/"'
     }
 
 

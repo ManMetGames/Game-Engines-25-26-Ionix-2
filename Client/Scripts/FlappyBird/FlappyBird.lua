@@ -246,6 +246,10 @@ function ExampleScript:OnUpdate()
         Fysics.set_pos(coin2, pipe2StartX + 25, coinPos2.y)
     end
     
+    ------------------------------------------------------
+	-- UI
+	------------------------------------------------------
+    UI.Add_label(0,0, 100, 100, "Some text")
 end
 
     function ExampleScript:OnCollisionEnter()

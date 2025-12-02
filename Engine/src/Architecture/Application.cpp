@@ -122,6 +122,7 @@ namespace IonixEngine
         
         while (m_Running)
         {
+            
             uint64_t lastTick = currentTick;
             currentTick = SDL_GetPerformanceCounter();
             
