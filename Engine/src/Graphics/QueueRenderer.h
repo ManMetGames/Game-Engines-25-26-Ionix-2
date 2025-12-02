@@ -16,6 +16,7 @@ namespace IonixEngine {
 		SDL_Rect dest;
 		SDL_Rect src;
 		int32_t z;
+		double angle;  // Rotation in degrees
 	};
 
 	class QueueRenderer //Singleton
@@ -44,8 +45,8 @@ namespace IonixEngine {
 		}
 
 		//sort algorithm stuff
-		void Merger(vector<RenderCall> arr, int left, int mid, int right);
-		void MergeCaller(queue<RenderCall>& sprites, vector<RenderCall> arr, int left, int right);
+		void Merger(vector<RenderCall>& arr, int left, int mid, int right);
+		void MergeCaller(queue<RenderCall>& sprites, vector<RenderCall>& arr, int left, int right);
 		void ArrToQueueConverter(vector<RenderCall> temp, queue<RenderCall>& sprites);
 
 	};

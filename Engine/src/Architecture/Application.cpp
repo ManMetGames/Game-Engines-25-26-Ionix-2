@@ -3,6 +3,7 @@
 #include "Fysics/FysicsBody.h"
 #include "Fysics/FysicsManager.h"
 #include "Fysics/Shapes.h"
+//#include "Fysics/NavMef.h"
 #include "LayerSystem/Layers/LayerTexture.hpp"
 #include "SDL_timer.h"
 #include "imgui.h"
@@ -55,8 +56,33 @@ namespace IonixEngine
         layerScene = new LayerScene();
         AddLayer(layerScene);
 
+        //layerNavigation = new LayerNavigation();  
+        //AddLayer(layerNavigation);
+
         Scripting::Get().Init();
-        Scripting::Get().GetLuaState().script_file("Scripts/Settings.lua");
+        // Safely load the Lua settings file
+        auto& lua = Scripting::Get().GetLuaState();
+        try
+        {
+            lua.script_file("Scripts/Settings.lua");
+        }
+        catch (const sol::error& e)
+        {
+            // Prefer your own logging system if you have one
+            std::cerr << "Lua error while loading Scripts/Settings.lua: "
+                      << e.what() << std::endl;
+            // Optionally: set a flag or fall back to default settings here.
+        }
+        catch (const std::exception& e)
+        {
+            std::cerr << "Std exception while loading Scripts/Settings.lua: "
+                      << e.what() << std::endl;
+        }
+        catch (...)
+        {
+            std::cerr << "Unknown exception while loading Scripts/Settings.lua"
+                      << std::endl;
+        }
     }
         
     Application::~Application() 
@@ -78,7 +104,6 @@ namespace IonixEngine
     void Application::Run()
     {
         m_Running = true;
-
         Scripting::Get().CallHook("OnStart");
 
         SDL_Renderer* renderer = m_Window->GetSdlRenderer();
@@ -87,10 +112,9 @@ namespace IonixEngine
         m_LastFrameTime = SDL_GetTicks64();
         m_FixedTimeAccumulator = 0.0f;
         m_FixedTimeStep = 1.0f / 60.0f; // 60 Hz
-
+        
         while (m_Running)
         {
-            
             uint64_t lastTick = currentTick;
             currentTick = SDL_GetPerformanceCounter();
             
@@ -112,6 +136,7 @@ namespace IonixEngine
                     if(layer)
                         layer->OnFixedUpdate();
                 }
+                Scripting::Get().CallHook("OnFixedUpdate");
                 m_FixedTimeAccumulator -= m_FixedTimeStep;
             }
             
@@ -121,7 +146,6 @@ namespace IonixEngine
                 if(layer)
                     layer->OnUpdate();
             }
-            
             
             Scripting::Get().CallHook("OnUpdate");
             ImGui::Render();
@@ -179,6 +203,13 @@ namespace IonixEngine
            MouseCoords mc = layerInput->m_Input->GetMousePosition();
            std::cout << "Mouse X Pos: " << mc.x << " Mouse Y Pos: " << mc.y << std::endl;
            */
+
+           // float scroll = layerInput->m_Input->GetScrollDiff();
+
+           // if (scroll > 0)
+         //       std::cout << "ScrollUP " << "\n";
+          //  else if (scroll < 0)
+          //      std::cout << "ScrollDOWN " << "\n";
 
             layerInput->m_Input->CopyCodesEndFrame();
           

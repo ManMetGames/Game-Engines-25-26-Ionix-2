@@ -51,9 +51,22 @@ namespace IonixEngine
             Application::Get().layerInput->m_Input->SetKeyReleased(e.key.keysym.scancode);
             break;
 
+            // Mouse
+        case SDL_MOUSEBUTTONDOWN:
+            Application::Get().layerInput->m_Input->SetMousePressed(e.button.button);
+            break;
+
+        case SDL_MOUSEBUTTONUP:
+            Application::Get().layerInput->m_Input->SetMouseReleased(e.button.button);
+            break;
+
+        case SDL_MOUSEWHEEL:
+            Application::Get().layerInput->m_Input->SetScrollDiff(static_cast<float>(e.wheel.y));
+            break;
+
 
             //Microphone Connected 
-        case SDL_AUDIODEVICEADDED:
+          case SDL_AUDIODEVICEADDED:
         {
             const char* deviceName = SDL_GetAudioDeviceName(e.adevice.which, SDL_TRUE);
                 if (deviceName)
