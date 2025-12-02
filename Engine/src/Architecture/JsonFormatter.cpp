@@ -49,29 +49,30 @@ namespace IonixEngine
 			if (charOverwrites.find(character) != charOverwrites.end())
 			{
 				std::cout << "[JSON Formatter] Char overwrite value found!" << std::endl;
-				char* charPosition = &fileContentsCopy.at(lastOverwrite);
+				char* charPos = &fileContentsCopy.at(lastOverwrite);
 				size_t viewSize = index - lastOverwrite;
-				std::string_view unreplacedSection{ charPosition,viewSize - 1 };
+				std::string_view unreplacedSection{ charPos,viewSize };
 				std::string_view replacement{ charOverwrites[character] };
 
 				reconstructedFile.push_back(unreplacedSection);
 				reconstructedFile.push_back(replacement);
 
-				lastOverwrite = index;
+				lastOverwrite = index + 1;
 			}
 			index++;
 			continue;
 		}
 		char* charPosition = &fileContentsCopy.at(lastOverwrite);
 		size_t viewSize = index - lastOverwrite;
-		std::string_view finalSection{ charPosition,viewSize - 1 };
+		std::string_view finalSection{ charPosition,viewSize };
 		reconstructedFile.push_back(finalSection);
 
 		for (auto stringview : reconstructedFile)
 		{
 			//debug purposes
-			std::cout << stringview << std::endl;
+			std::cout << stringview;
 		}
+		std::cout << std::endl;
 	}
 
 	std::string JsonFormatter::GetFilepath()
