@@ -14,6 +14,7 @@ struct Textures {
     uint32_t Test = 510180426u;
     uint32_t ball = 369994598u;
     uint32_t ball2 = 1354646532u;
+    uint32_t hermer = 242799782u;
     uint32_t horse_fat = 963803500u;
     uint32_t office = 2084752704u;
 
@@ -30,6 +31,7 @@ struct Textures {
         map["Test"] = "./Assets/Test.png";
         map["ball"] = "./Assets/ball.png";
         map["ball2"] = "./Assets/ball2.png";
+        map["hermer"] = "./Assets/hermer.png";
         map["horse_fat"] = "./Assets/horse-fat.gif";
         map["office"] = "./Assets/office.png";
         return map;

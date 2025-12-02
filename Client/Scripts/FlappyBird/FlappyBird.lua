@@ -36,17 +36,19 @@ function ExampleScript:OnStart()
     ------------------------------------------------------
     -- Create player1
     ------------------------------------------------------
-    player1 = Entity.create_entity()
+     player1 = Entity.create_entity()
 
     Entity.set_global_pos(player1, x, 300)
 	
+    local playerSprite1 = Entity.add_sprite_component(player1, assets.textures.FlappyBird, 32, 32, 10)
+    Sprite.set_columns(playerSprite1,1)
+    -- PLAYER 1 PHYSICS
 
-     Entity.add_fysics_component(player1, enums.bodytype.dynamicBody, true) -- dynamic body
+    Entity.add_fysics_component(player1, enums.bodytype.dynamicBody, true) -- dynamic body
     --Fysics.add_sprite_collider(player1, false)
     Fysics.add_sprite_collider(player1,false,1)
     -- Freeze bird
     Fysics.set_gravity_scale(player1, 0)
-
 
 
     local tileSize = 64
@@ -56,23 +58,19 @@ function ExampleScript:OnStart()
     -- Create player2
     ------------------------------------------------------
 
-    player2 = Entity.create_entity()
+     player2 = Entity.create_entity()
 
-   Entity.set_entity_pos(player2, x+200, 300)
+    Entity.set_global_pos(player2, x + 200, 300)
 	
-    local playerSprite2 = Entity.add_sprite_component(player2, "Sand", 64, 64, 0)
-
-    Sprite.set_width(playerSprite2, 64)
-    Sprite.set_height(playerSprite2, 64)
-   Sprite.set_playback_mode(playerSprite2, 4)
-
-    -- PLAYER 2 FYSICS
-     Entity.add_fysics_component(player2, 2, true) -- dynamic body
-     Fysics.add_sprite_collider(player2, false)
-
-    local playerSprite1 = Entity.add_sprite_component(player1, assets.textures.FlappyBird, 32, 32, 10)
-    Sprite.set_columns(playerSprite1,1)
+    local playerSprite2 = Entity.add_sprite_component(player2, assets.textures.Sand, 32, 32, 10)
+    Sprite.set_columns(playerSprite2,1)
     -- PLAYER 1 PHYSICS
+
+    Entity.add_fysics_component(player2, enums.bodytype.dynamicBody, true) -- dynamic body
+    --Fysics.add_sprite_collider(player1, false)
+    Fysics.add_sprite_collider(player2,false,1)
+    -- Freeze bird
+    Fysics.set_gravity_scale(player2, 0)
 
   
 	------------------------------------------------------
@@ -87,9 +85,9 @@ function ExampleScript:OnStart()
 		------------------------------------------------------
 		-- place sprite
 		------------------------------------------------------
-		Entity.set_global_pos(tile, xPos, floorY)
-		local s = Entity.add_sprite_component(tile, assets.textures.Sand, tileSize, tileSize, 1)
-        Sprite.set_columns(s,1)
+	--	Entity.set_global_pos(tile, xPos, floorY)
+	--	local s = Entity.add_sprite_component(tile, assets.textures.Sand, tileSize, tileSize, 1)
+    --    Sprite.set_columns(s,1)
 		------------------------------------------------------
 		-- add physics body + collider
 		------------------------------------------------------
@@ -122,7 +120,7 @@ function ExampleScript:OnStart()
     --Fysics.create_revolute_joint(player2,player1, false, 5, 8, true, 20, 60) --Revolute Joint
 
     Fysics.create_distance_joint(player1, player2, 10) --Distance Joint
-    Fysics.set_linear_stiffness(0,4.0f, 5.0f)
+    --Fysics.set_linear_stiffness(0,4.0f, 5.0f)
     
 		
 	end
