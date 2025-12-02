@@ -14,7 +14,10 @@ namespace IonixEngine
         CollisionExit,
         ControllerButtonDown,
         ControllerButtonUp,
-        ControllerLAxisX
+        ControllerLAxisX,
+        ControllerLAxisY,
+        ControllerRAxisX,
+        ControllerRAxisY,
         // ...
     };
 
@@ -81,20 +84,18 @@ namespace IonixEngine
         }
     };
 
-    class ControllerLAxisXEvent : public IonixEvent
+    class ControllerAxisEvent : public IonixEvent
     {
     public:
         ControllerManager* controller;
         int instanceId;
         float axis;
-        int direction;
+        Uint8 direction;
 
-        ControllerLAxisXEvent(ControllerManager* controller, int instanceId, float axis, SDL_GameControllerAxis direction)
+        ControllerAxisEvent(ControllerManager* controller, int instanceId, float axis, Uint8 direction)
             : IonixEvent(IonixEventType::ControllerLAxisX), controller(controller), instanceId(instanceId), axis(axis), direction(direction) {
         }
     };
-
-
 
     // .. add more as needed...
 }

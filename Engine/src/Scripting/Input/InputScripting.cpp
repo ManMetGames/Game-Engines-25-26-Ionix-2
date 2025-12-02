@@ -76,7 +76,7 @@ namespace IonixEngine {
             };
 
         auto getStickAxis = [this](int index, SDL_GameControllerAxis axis) -> float {
-            return Application::Get().layerInput->
+            return Application::Get().layerInput->GetControllerAxis(index, axis);
             };
 
         auto getLeftStickX = [=](int index) { return getStickAxis(index, SDL_CONTROLLER_AXIS_LEFTX); };

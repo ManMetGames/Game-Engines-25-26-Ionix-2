@@ -5,16 +5,16 @@
 #include "Input/ControllerManager.h"
 namespace IonixEngine
 {
-    void LayerInput::OnAttach() 
+    void LayerInput::OnAttach()
     {
         m_Input = new Input();
     }
 
     void LayerInput::OnDetach() {}
 
-    void LayerInput::OnUpdate() 
+    void LayerInput::OnUpdate()
     {
-        
+
     }
 
     void LayerInput::OnEvent(IonixEvent& e)
@@ -23,26 +23,44 @@ namespace IonixEngine
 
         switch (e.Type)
         {
-            case IonixEventType::ControllerButtonDown:
-            {
-                auto& controllerButtonDown = static_cast<ControllerButtonDownEvent&>(e);
-                OnControllerButtonDown(controllerButtonDown);
-                break;
-            }
-            case IonixEventType::ControllerButtonUp:
-            {
-                auto& controllerButtonUp = static_cast<ControllerButtonUpEvent&>(e);
-                OnControllerButtonUp(controllerButtonUp);
-                break;
-            }
-            case IonixEventType::ControllerLAxisX:
-            {
-                auto& controllerLAxisX = static_cast<ControllerLAxisXEvent&>(e);
-                OnControllerLAxisX(controllerLAxisX);
-                break;
-            }
+        case IonixEventType::ControllerButtonDown:
+        {
+            auto& controllerButtonDown = static_cast<ControllerButtonDownEvent&>(e);
+            OnControllerButtonDown(controllerButtonDown);
+            break;
         }
-        
+        case IonixEventType::ControllerButtonUp:
+        {
+            auto& controllerButtonUp = static_cast<ControllerButtonUpEvent&>(e);
+            OnControllerButtonUp(controllerButtonUp);
+            break;
+        }
+        case IonixEventType::ControllerLAxisX:
+        {
+            auto& controllerLAxisX = static_cast<ControllerAxisEvent&>(e);
+            OnControllerAxis(controllerLAxisX);
+            break;
+        }
+        case IonixEventType::ControllerLAxisY:
+        {
+            auto& controllerLAxisY = static_cast<ControllerAxisEvent&>(e);
+            OnControllerAxis(controllerLAxisY);
+            break;
+        }
+        case IonixEventType::ControllerRAxisX:
+        {
+            auto& controllerRAxisX = static_cast<ControllerAxisEvent&>(e);
+            OnControllerAxis(controllerRAxisX);
+            break;
+        }
+        case IonixEventType::ControllerRAxisY:
+        {
+            auto& controllerRAxisY = static_cast<ControllerAxisEvent&>(e);
+            OnControllerAxis(controllerRAxisY);
+            break;
+        }
+        }
+
     }
     void LayerInput::OnControllerButtonDown(ControllerButtonDownEvent& e)
     {
@@ -54,16 +72,17 @@ namespace IonixEngine
         controllerManagers[e.instanceId]->SetButtonReleased(e.button);
     }
 
-    void LayerInput::OnControllerLAxisX(ControllerLAxisXEvent& e)
+    void LayerInput::OnControllerAxis(ControllerAxisEvent& e)
     {
-        controllerManagers[e.instanceId]->NormaliseStickAxis(e.instanceId, e.axis);
+        controllerManagers[e.instanceId]->NormaliseStickAxis(e.instanceId, e.axis, e.direction);
     }
+
 
     bool LayerInput::IsControllerButtonDown(int instanceId, Uint8 button)
     {
         ControllerManager* controllerManager = controllerManagers[instanceId];
 
-        if(controllerManager != nullptr)
+        if (controllerManager != nullptr)
             return controllerManager->IsButtonDown(instanceId, button);
     }
 
@@ -85,6 +104,9 @@ namespace IonixEngine
 
     float LayerInput::GetControllerAxis(int instanceId, SDL_GameControllerAxis axis)
     {
-
+        ControllerManager* controllerManager = controllerManagers[instanceId];
+        
+        if (controllerManager != nullptr)
+            return controllerManager->GetStickAxis(axis);
     }
 }

@@ -156,11 +156,11 @@ namespace IonixEngine
                 int instanceId = e.caxis.which;
                 if (Application::Get().layerInput->GetControllerManager().count(instanceId))
                 {
-                    double val = e.caxis.value;
-                    float normalised = Application::Get().layerInput->GetControllerManager()[instanceId]->NormaliseStickAxis(instanceId, val);
-                    //std::cout << "Player " << instanceId << " Left Stick Y Moved "
-                        //<< static_cast<float>(normalised) << "\n";
-
+                    if (m_EventCallback)
+                    {
+                        ControllerAxisEvent event(Application::Get().layerInput->GetControllerManager()[instanceId], instanceId, e.caxis.value, e.caxis.axis);
+                        m_EventCallback(event);
+                    }
                 }
 
                 break;
@@ -170,15 +170,9 @@ namespace IonixEngine
                 int instanceId = e.caxis.which;
                 if (Application::Get().layerInput->GetControllerManager().count(instanceId))
                 {
-                    double val = e.caxis.value;
-                    float normalised = Application::Get().layerInput->GetControllerManager()[instanceId]->NormaliseStickAxis(instanceId, val);
-                    //std::cout << "Player " << instanceId << " Left Stick X Moved "
-                        //<< static_cast<float>(normalised) << "\n";
-
-
                     if (m_EventCallback)
                     {
-                        ControllerLAxisXEvent event(Application::Get().layerInput->GetControllerManager()[instanceId], instanceId, e.caxis.value, e.caxis.axis);
+                        ControllerAxisEvent event(Application::Get().layerInput->GetControllerManager()[instanceId], instanceId, e.caxis.value, e.caxis.axis);
                         m_EventCallback(event);
                     }
                 }
@@ -191,11 +185,11 @@ namespace IonixEngine
                 int instanceId = e.caxis.which;
                 if (Application::Get().layerInput->GetControllerManager().count(instanceId))
                 {
-                    double val = e.caxis.value;
-                    float normalised = Application::Get().layerInput->GetControllerManager()[instanceId]->NormaliseStickAxis(instanceId, val);
-                    //std::cout << "Player " << instanceId << " Right Stick X Moved "
-                        //<< static_cast<float>(normalised) << "\n";
-
+                    if (m_EventCallback)
+                    {
+                        ControllerAxisEvent event(Application::Get().layerInput->GetControllerManager()[instanceId], instanceId, e.caxis.value, e.caxis.axis);
+                        m_EventCallback(event);
+                    }
                 }
 
                 break;
@@ -205,11 +199,11 @@ namespace IonixEngine
                 int instanceId = e.caxis.which;
                 if (Application::Get().layerInput->GetControllerManager().count(instanceId))
                 {
-                    double val = e.caxis.value;
-                    float normalised = Application::Get().layerInput->GetControllerManager()[instanceId]->NormaliseStickAxis(instanceId, val);
-                    //std::cout << "Player " << instanceId << " Right Stick Y Moved "
-                        //<< static_cast<float>(normalised) << "\n";
-
+                    if (m_EventCallback)
+                    {
+                        ControllerAxisEvent event(Application::Get().layerInput->GetControllerManager()[instanceId], instanceId, e.caxis.value, e.caxis.axis);
+                        m_EventCallback(event);
+                    }
                 }
                 break;
             }
@@ -218,10 +212,6 @@ namespace IonixEngine
                 int instanceId = e.caxis.which;
                 if (Application::Get().layerInput->GetControllerManager().count(instanceId))
                 {
-                    double val = e.caxis.value;
-                    float normalised = Application::Get().layerInput->GetControllerManager()[instanceId]->NormaliseTrigger(instanceId, val);
-                    //std::cout << "Player " << instanceId << " Left Trigger pressed "
-                        //<< static_cast<float>(normalised) << "\n";
 
                 }
                 break;
@@ -231,10 +221,6 @@ namespace IonixEngine
                 int instanceId = e.caxis.which;
                 if (Application::Get().layerInput->GetControllerManager().count(instanceId))
                 {
-                    double val = e.caxis.value;
-                    float normalised = Application::Get().layerInput->GetControllerManager()[instanceId]->NormaliseTrigger(instanceId, val);
-                    //std::cout << "Player " << instanceId << " Right Trigger pressed "
-                        //<< static_cast<float>(normalised) << "\n";
 
                 }
                 break;

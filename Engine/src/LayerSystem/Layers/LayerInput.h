@@ -30,7 +30,7 @@ namespace IonixEngine
     private:
         void OnControllerButtonDown(ControllerButtonDownEvent& e);
         void OnControllerButtonUp(ControllerButtonUpEvent& e);
-        void OnControllerLAxisX(ControllerLAxisXEvent& e);
+        void OnControllerAxis(ControllerAxisEvent& e);
         std::unordered_map<int, ControllerManager*> controllerManagers;
     };
 }
