@@ -26,11 +26,12 @@ namespace IonixEngine {
 		int totalFrames;
 		int currentFrame;
 		int endFrame;
-		bool isReversing;
+		bool isReversing; // kai is smelly (its true)
 		int rows, cols;
 		int spriteWidth, spriteHeight;
 		int currentRow, currentCol;
 		float timer;
+		float tickRate;
 		b2Vec2 boxColliderSize;
 		
 
@@ -61,6 +62,7 @@ namespace IonixEngine {
 		void setZedOrder(int x);
 		void setWidth(int x);
 		void setHeight(int x);
+		void setTickRate(float x);
 		void setBoxColliderSize(b2Vec2 newSize);
 
 		//Getters
@@ -77,6 +79,7 @@ namespace IonixEngine {
 		int getCurrentRow();
 		int getWidth();
 		int getHeight();
+		int gettickRate();
 		b2Vec2 getBoxColliderSize();
 	};
 }
