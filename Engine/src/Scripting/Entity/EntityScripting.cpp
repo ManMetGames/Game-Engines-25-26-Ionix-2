@@ -27,6 +27,11 @@ namespace IonixEngine {
             return Application::Get().layerScene->GetScene()->GetEntityFromID(entityID);
             };
 
+        auto destroy = [](Entity* entityToDestroy) -> bool {
+            if (entityToDestroy == nullptr) return false;
+            return Application::Get().layerScene->GetScene()->DestroyEntity(entityToDestroy->id);
+            };
+
         //----------Transforms-----------
         auto getGlobalPos = [](Entity* entity) -> b2Vec2 {
             Vec2 pos = entity->transform.GetGlobalPosition();
@@ -122,12 +127,12 @@ namespace IonixEngine {
             };
 
         auto removeChild = [](Entity* entity, Entity* newChild) {
-            if (entity == nullptr || newChild == nullptr)
+            if (entity == nullptr || newChild == nullptr) return;
             entity->transform.RemoveChild(&newChild->transform);
             };
 
         auto removeChildWithIndex = [](Entity* entity, int index) {
-            if (entity == nullptr)
+            if (entity == nullptr) return;
                 entity->transform.RemoveChild(index);
             };
 
@@ -208,6 +213,7 @@ namespace IonixEngine {
 
         lua["Entity"] = lua.create_table_with(
             "create_entity", entity,
+            "destroy_entity", destroy,
             "get_global_pos", getGlobalPos,
             "set_global_pos", setGlobalPos,
             "get_global_rot", getGlobalRot,

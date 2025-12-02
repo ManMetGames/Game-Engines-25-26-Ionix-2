@@ -11,6 +11,7 @@ local goalX = 500
 local goalY = 500
 local y = 300
 local t = 10
+local coinCount = 0
 
 -- Pipe variables
 local pipe
@@ -112,7 +113,6 @@ function ExampleScript:OnStart()
     if Input.get_key_down(Keys.ionix_a) then
         Entity.set_global_pos(pipe, xPos, floorY)
 	end
-        print("workin")
 
 end
 
@@ -120,7 +120,6 @@ end
 -- OnUpdate
 ----------------------------------------------------------
 function ExampleScript:OnUpdate()
-    
     -- get current velocity
     local vel1 = Fysics.get_linear_velocity(player1)
     local vy1 = Fysics.get_linear_velocity(pipe)
@@ -156,7 +155,9 @@ end
 
     function ExampleScript:OnTriggerEnter()
         if Fysics.col(player1, coin) then
-                print("TriggerCoin")
+                Entity.destroy_entity(coin)
+                coinCount = coinCount + 1
+                print(coinCount)
         end
     end
 
