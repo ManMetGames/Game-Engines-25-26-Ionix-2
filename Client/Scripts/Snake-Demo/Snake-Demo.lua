@@ -43,7 +43,8 @@ local BgBackground = Entity.add_sprite_component(Background, assets.textures.Bac
     Fysics.set_gravity_scale(player1, 0) 
 
       local tileSize = 64
-    local floorY = 600
+    local floorY = -75
+    local CeilingY = 600
   
     -- pick texture for left / middle / right
 	------------------------------------------------------
@@ -51,19 +52,34 @@ local BgBackground = Entity.add_sprite_component(Background, assets.textures.Bac
 
 	for i = 0, 30 do
 		local tile = Entity.create_entity()
+        local Bottom = Entity.create_entity()
 		local xPos = i * tileSize
 
+
+        --Top
 		------------------------------------------------------
 		-- place sprite
 		------------------------------------------------------
-		--Entity.set_local_pos(tile, xPos, floorY)
-	--	local s = Entity.add_sprite_component(tile, assets.textures.Sand, tileSize, tileSize, 1)
-      --  Sprite.set_columns(s,1)
+		Entity.set_local_pos(tile, xPos, floorY)
+	    local s = Entity.add_sprite_component(tile, assets.textures.sand, tileSize, tileSize, 1)
+        Sprite.set_columns(s,1)
 		------------------------------------------------------
 		-- add physics body + collider
 		------------------------------------------------------
-		--Entity.add_fysics_component(tile, 0, false)  -- static
-		--Fysics.add_sprite_collider(tile, false,1)
+		Entity.add_fysics_component(tile, 0, false)  -- static
+		Fysics.add_sprite_collider(tile, false,1)
+
+        
+        --bottom
+        
+        Entity.set_local_pos(Bottom, xPos, CeilingY)
+	    local s = Entity.add_sprite_component(Bottom, assets.textures.sand, tileSize, tileSize, 1)
+        Sprite.set_columns(s,1)
+		------------------------------------------------------
+		-- add physics body + collider
+		------------------------------------------------------
+		Entity.add_fysics_component(Bottom, 0, false)  -- static
+		Fysics.add_sprite_collider(Bottom, false,1)
 
 end
 

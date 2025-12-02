@@ -8,7 +8,7 @@ namespace IonixEngine {
     void Scene::OnEnter() {
         SDL_Log("[Scene] Started Scene");
         //m_Entities.reserve(50);
-        Reserve(50);
+        Reserve(1024);
         renderData.renderer = Application::Get().GetWindow().GetSdlRenderer();
         renderData.queue = Application::Get().layerGraphics->GetQueue();
 
