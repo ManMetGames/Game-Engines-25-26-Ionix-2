@@ -5,6 +5,17 @@
 
 namespace IonixEngine
 {
+	void JsonFormatter::writeToFile()
+	{
+		std::ofstream jsonFile;
+		jsonFile.open(filepath);
+		for (auto strView : reconstructedFile)
+		{
+			jsonFile << strView;
+		}
+		jsonFile.close();
+	}
+
 	JsonFormatter::JsonFormatter(const std::string& filepath) :
 		filepath(filepath)
 	{
@@ -14,6 +25,7 @@ namespace IonixEngine
 			std::cout << "[JSON Formatter] Failed to find file!\nRun OpenFile() with a valid filepath." << std::endl;
 		}
 
+		//find better way to allow for character overwriting, maybe structs?
 		charOverwrites.insert({'o',"a"});
 	}
 
@@ -25,6 +37,7 @@ namespace IonixEngine
 		{
 			fileContents << jsonFile.rdbuf();
 			fileIsValid = true;
+			jsonFile.close();
 		}
 		else
 		{
@@ -67,12 +80,14 @@ namespace IonixEngine
 		std::string_view finalSection{ charPosition,viewSize };
 		reconstructedFile.push_back(finalSection);
 
+		//debug purposes
 		for (auto stringview : reconstructedFile)
 		{
-			//debug purposes
 			std::cout << stringview;
 		}
 		std::cout << std::endl;
+
+		writeToFile();
 	}
 
 	std::string JsonFormatter::GetFilepath()
