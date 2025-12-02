@@ -27,15 +27,19 @@ namespace IonixEngine {
             };
 
         auto AddSlider = [](const char* label, float value, int xsize, int ysize, int xpos, int ypos, float minval, float maxval) -> float {
-            return Application::Get().layerUI->m_UI->DrawSlider((char*)label, value, xsize, ysize, xpos, ypos, minval, maxval);
+            return Application::Get().layerUI->m_UI->AddSlider((char*)label, value, xsize, ysize, xpos, ypos, minval, maxval);
             };
+		auto AddColorPicker = [](int x, int y, float xSize, float ySize, const char* label, float* color) {
+			return Application::Get().layerUI->m_UI->DrawColorPicker(x, y, xSize, ySize, label, color);
+			};
  
         lua["UI"] = lua.create_table_with(
           "Add_label", AddLabel,
 			    "draw_label", drawLabel,
           "draw_button", DrawButton,
 			    "add_button", AddButton,
-			    "add_slider", AddSlider
+			    "add_slider", AddSlider,
+			"add_color_picker", AddColorPicker
 			
         );
     }

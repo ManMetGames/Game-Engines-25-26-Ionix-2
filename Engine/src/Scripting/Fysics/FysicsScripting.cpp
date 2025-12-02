@@ -14,13 +14,6 @@ namespace IonixEngine
 
 	void FysicsScripting::Init(sol::state& lua)
 	{
-		//------------Box2D Vec2 Binding--------------- VERY USEFUL! Can use this in many methods below.
-		lua.new_usertype<b2Vec2>("Vec2",
-			sol::constructors<b2Vec2(), b2Vec2(float, float)>(),
-			"x", &b2Vec2::x,
-			"y", &b2Vec2::y
-		);
-
 
 		//------------Fysics Body Methods---------------
 		auto getFysicsPos = [](Entity* entity) -> b2Vec2 {
@@ -29,6 +22,10 @@ namespace IonixEngine
 
 		auto setFysicsPos = [](Entity* entity, float x, float y) {
 			entity->GetComponent<FysicsBody>()->SetPosition(entity, x, y);
+			};
+
+		auto setFysicsPosv = [](Entity* entity, b2Vec2 vec2) {
+			entity->GetComponent<FysicsBody>()->SetPosition(entity, vec2.x, vec2.y);
 			};
 
 		auto getFysicsAngle = [](Entity* entity) -> float{
@@ -45,6 +42,10 @@ namespace IonixEngine
 
 		auto setFysicsLinearVelocity = [](Entity* entity, float x, float y) {
 			entity->GetComponent<FysicsBody>()->SetLinearVelocity(entity, x, y);
+			};
+
+		auto setFysicsLinearVelocityv = [](Entity* entity, b2Vec2 vec2) {
+			entity->GetComponent<FysicsBody>()->SetLinearVelocity(entity, vec2.x, vec2.y);
 			};
 
 		auto getFysicsAngularVelocity = [](Entity* entity) -> float {
@@ -126,19 +127,35 @@ namespace IonixEngine
 			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddForce(entity, force, origin);
 			};
 
+		auto addFysicsForcev = [](Entity* entity, b2Vec2 impulseVec2, b2Vec2 originVec2) {
+			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddForce(entity, impulseVec2, originVec2);
+			};
+
 		auto addFysicsForceToCenter = [](Entity* entity, int forceX, int forceY) {
 			b2Vec2 origin; origin.x = forceX; origin.y = forceY;
 
 			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddForceToCenter(entity, origin);
 			};
 
+		auto addFysicsForceToCenterv = [](Entity* entity, b2Vec2 originVec2) {
+			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddForceToCenter(entity, originVec2);
+			};
+
 		auto addFysicsAddImpulse = [](Entity* entity, int impulseX, int impulseY, int forcePosX, int forcePosY) {
 			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddImpulse(entity, impulseX, impulseY, forcePosX, forcePosY);
+			};
+
+		auto addFysicsAddImpulsev = [](Entity* entity, b2Vec2 impulseVec2, b2Vec2 forceVec2) {
+			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddImpulse(entity, impulseVec2.x, impulseVec2.y, forceVec2.x, forceVec2.y);
 			};
 
 		auto addFysicsAddImpulseToCenter = [](Entity* entity, int forceX, int forceY) {
 			b2Vec2 force; force.x = forceX; force.y = forceY;
 			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddImpulseToCenter(entity, force);
+			};
+
+		auto addFysicsAddImpulseToCenterv = [](Entity* entity, b2Vec2 forceVec2) {
+			Application::Get().layerFysics->GetFysicsManager()->GetForce()->AddImpulseToCenter(entity, forceVec2);
 			};
 
 		auto addFysicsTorque = [](Entity* entity, float torque) {
@@ -154,12 +171,9 @@ namespace IonixEngine
 			};
 
 		//Material Changes
-		auto fysicsSetFriction = [](Entity* entity, float friction) {
-			Application::Get().layerFysics->GetFysicsManager()->GetMaterial()->SetFriction(entity, friction);
-		};
 		
-		auto fysicsSetRestitution = [](Entity* entity, float restitution) {
-			Application::Get().layerFysics->GetFysicsManager()->GetMaterial()->SetRestitution(entity, restitution);
+		auto fysicsUpdateMaterialProperties = [](Entity* entity, float friction, float restitution) {
+			Application::Get().layerFysics->GetFysicsManager()->GetMaterial()->UpdateMaterial(entity, friction, restitution);
 		};
 
 		auto getFriction = [](Entity* entity)-> float {
@@ -175,7 +189,7 @@ namespace IonixEngine
 		//----------Collision Methods----------
 
 		
-		auto addBoxCollider = [](Entity* entity, float sizeX, float sizeY, int offsetX, int offsetY, float angle, bool isTrigger, sol::optional<uint16> categoryBits, sol::optional<uint16> maskBits) {
+		auto addBoxCollider = [](Entity* entity, float sizeX, float sizeY, int offsetX, int offsetY, float angle, bool isTrigger) {
 
 			b2Vec2 size;
 			size.x = sizeX;
@@ -185,29 +199,242 @@ namespace IonixEngine
 			offset.x = offsetX;
 			offset.y = offsetY;
 
-			uint16 category = categoryBits.value_or(0x0001);
-			uint16 mask = maskBits.value_or(0xFFFF);
-
-			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddBox(entity, size, offset, angle, isTrigger, category, mask);
-		};
-		auto addSpriteCollider = [](Entity* entity, bool isTrigger) {
-
-			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddSpriteCollider(entity, isTrigger);
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddBox(entity, size, offset, angle, isTrigger);
 		};
 
-		auto addPolygonCollider = [](Entity* entity, float x1, float y1, float x2, float y2) {
-			std::vector<b2Vec2> points;
-			points.push_back({x1, y1});
-			points.push_back({x2, y1});
-			points.push_back({x2, y2});
-			points.push_back({x1, y2});
-			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddPolygon(entity, points);
+		auto addBoxColliderv = [](Entity* entity, b2Vec2 size, b2Vec2 offset, float angle, bool isTrigger) {
+
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddBox(entity, size, offset, angle, isTrigger);
+			};
+
+
+		auto addPolygonCollider = [](Entity* entity, float tileSize, std::vector<b2Vec2>& terrainPositions) {
+			for (int i = 0; i < terrainPositions.size(); i++)
+			{
+				terrainPositions[i] = tileSize * b2Vec2 {terrainPositions[i]};
+			}
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddPolygon(entity, tileSize, terrainPositions);
 		};
 
+		auto getColliderWidth = [](Entity* entity) -> float {
+			return Application::Get().layerFysics->GetFysicsManager()->GetShapes()->GetWidth();
+			};
 
+		auto setColliderWidth = [](Entity* entity, float w, int shapeType) {
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->SetWidth(w, static_cast<fysicShapeType>(shapeType));
+			};
 
+		auto getColliderHeight = [](Entity* entity) -> float {
+			return Application::Get().layerFysics->GetFysicsManager()->GetShapes()->GetHeight();
+			};
 
+		auto setColliderHeight = [](Entity* entity, float h, int shapeType) {
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->SetHeight(h, static_cast<fysicShapeType>(shapeType));
+			};
 
+		auto isColliderTrigger = [](Entity* entity) -> bool {
+			return Application::Get().layerFysics->GetFysicsManager()->GetShapes()->IsShapeTrigger();
+			};
+
+		auto setColliderTrigger = [](Entity* entity, bool value) {
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->SetShapeTrigger(value);
+			};
+
+		auto getColliderVertices = [](Entity* entity) {
+			return Application::Get().layerFysics->GetFysicsManager()->GetShapes()->GetVertices();
+			};
+
+		auto setColliderVertices = [](Entity* entity, std::vector<b2Vec2> verts, int shapeType) {
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->SetVertices(verts, static_cast<fysicShapeType>(shapeType));
+			};
+
+		auto getColliderShapeType = [](Entity* entity) {
+			return Application::Get().layerFysics->GetFysicsManager()->GetShapes()->GetShapeType();
+			};
+
+			
+		auto addSpriteCollider = [](Entity* entity, bool isTrigger, float scaleFactor) {
+			if (scaleFactor == 0)
+			{
+				scaleFactor = 1.0f;
+			}
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddSpriteCollider(entity, isTrigger, scaleFactor);
+		};
+		
+
+		auto addCircleCollider = [](Entity* entity, float radius, int offsetX, int offsetY, bool isTrigger)
+		{
+			b2Vec2 offset;
+			offset.x = offsetX;
+			offset.y = offsetY;
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddCircle(entity, radius, offset, isTrigger);
+		};
+
+//----------Joint Methods----------
+
+		auto setPrismaticJoint = [](Entity* entityA, Entity* entityB, float worldAxisX, float worldAxisY, float lowerTranslation, float upperTranslation, bool enableLimit, float maxMotorForce, float motorSpeed, bool enableMotor) {
+			b2Vec2 worldAxis;
+			worldAxis.x = worldAxisX;
+			worldAxis.y = worldAxisY;
+
+			Application::Get().layerFysics->GetFysicsManager()->GetPrismaticJoint()->setJoint(entityA, entityB, worldAxis, lowerTranslation, upperTranslation, enableLimit, maxMotorForce, motorSpeed, enableMotor);
+	    };
+		auto setWeldJoint = [](Entity* entityA, Entity* entityB) {
+			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->setJoint(entityA, entityB);
+		};
+		auto setPulleyJoint = [](Entity* entityA, Entity* entityB, float position1X, float position1Y, float position2X, float position2Y , float ratio, float lengthA, float lengthB) {
+
+			b2Vec2 p1; b2Vec2 p2;
+			p1.x = position1X;
+			p1.y = position1Y;
+
+			p2.x = position2X;
+			p2.y = position2Y;
+
+			Application::Get().layerFysics->GetFysicsManager()->GetPulleyJoint()->setJoint(entityA, entityB, p1, p2, ratio, lengthA, lengthB);
+	    };
+		auto setRevoluteJoint = [](Entity* entityA, Entity* entityB, bool enableLimit, float lowerAngle, float upperAngle, bool enableMotor, float motorSpeed, float maxMotorTorque) {
+			Application::Get().layerFysics->GetFysicsManager()->GetRevoluteJoint()->setJoint(entityA, entityB, enableLimit, lowerAngle, upperAngle, enableMotor, motorSpeed, maxMotorTorque);
+		};
+		auto setDistanceJoint = [](Entity* entityA, Entity* entityB, float length) {
+			Application::Get().layerFysics->GetFysicsManager()->GetDistanceJoint()->setJoint(entityA, entityB, length);
+		};
+		auto destroyJoint = [](int jointID) {
+			if (Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointCount() <= 0) { return; }
+			b2Joint* jointList = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointList();
+			for (int i = 0; i <jointID; i++) {
+				jointList->GetNext();
+			}
+			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->destroyJoint(jointList);
+		};
+
+		auto getBodyA = [](int jointID) {
+			if (Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointCount() <= 0) { return; }
+			b2Joint* jointList = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointList();
+			for (int i = 0; i < jointID; i++) {
+				jointList->GetNext();
+			}
+			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->getBodyA(jointList);
+		};
+
+		auto getBodyB = [](int jointID) {
+			if (Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointCount() <= 0) { return; }
+			b2Joint* jointList = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointList();
+			for (int i = 0; i < jointID; i++) {
+				jointList->GetNext();
+			}
+			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->getBodyB(jointList);
+		};
+		
+		auto getAnchorA = [](int jointID) {
+			if (Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointCount() <= 0) { return; }
+			b2Joint* jointList = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointList();
+			for (int i = 0; i < jointID; i++) {
+				jointList->GetNext();
+			}
+			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->getAnchorA(jointList);
+		};
+
+		auto getAnchorB = [](int jointID) {
+			if (Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointCount() <= 0) { return; }
+			b2Joint* jointList = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointList();
+			for (int i = 0; i < jointID; i++) {
+				jointList->GetNext();
+			}
+			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->getAnchorB(jointList);
+		};
+
+		auto getUserData = [](int jointID) {
+			if (Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointCount() <= 0) { return; }
+			b2Joint* jointList = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointList();
+			for (int i = 0; i < jointID; i++) {
+				jointList->GetNext();
+			}
+			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->getUserData(jointList);
+		};
+
+		auto getReactionForce = [](int jointID, int inv_dt) {
+			if (Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointCount() <= 0) { return; }
+			b2Joint* jointList = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointList();
+			for (int i = 0; i < jointID; i++) {
+				jointList->GetNext();
+			}
+			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->getReactionForce(jointList, inv_dt);
+		};
+
+		auto getReactionTorque = [](int jointID, int inv_dt) {
+			if (Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointCount() <= 0) { return; }
+			b2Joint* jointList = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointList();
+			for (int i = 0; i < jointID; i++) {
+				jointList->GetNext();
+			}
+			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->getReactionTorque(jointList, inv_dt);
+		};
+
+		auto isEnabled = [](int jointID) {
+			if (Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointCount() <= 0) { return; }
+			b2Joint* jointList = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointList();
+			for (int i = 0; i < jointID; i++) {
+				jointList->GetNext();
+			}
+			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->isEnabled(jointList);
+		};
+
+		auto shfitOrigin = [](int jointID, float originX, float originY) {
+			if (Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointCount() <= 0) { return; }
+			b2Joint* jointList = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointList();
+			for (int i = 0; i < jointID; i++) {
+				jointList->GetNext();
+			}
+
+			b2Vec2 origin;
+			origin.x = originX;
+			origin.y = originY;
+
+			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->shiftOrigin(jointList, origin);
+		};
+
+		//Weld Joints
+
+		auto getDampingFromWeldJoint = [](int jointID) {
+			if (Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointCount() <= 0) { return; }
+			b2Joint* jointList = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointList();
+			for (int i = 0; i < jointID; i++) {
+				jointList->GetNext();
+			}		
+
+			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->getDamping((b2WeldJoint*)jointList);
+		};
+
+		auto setDampingFromWeldJoint = [](int jointID, float newDamping) {
+			if (Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointCount() <= 0) { return; }
+			b2Joint* jointList = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointList();
+			for (int i = 0; i < jointID; i++) {
+				jointList->GetNext();
+			}
+
+			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->setDamping((b2WeldJoint*)jointList, newDamping);
+		};
+
+		auto getStiffnessFromWeldJoint = [](int jointID) {
+			if (Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointCount() <= 0) { return; }
+			b2Joint* jointList = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointList();
+			for (int i = 0; i < jointID; i++) {
+				jointList->GetNext();
+			}
+
+			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->getStiffness((b2WeldJoint*)jointList);
+		};
+
+		auto setStiffnessFromWeldJoint = [](int jointID, float newStiffness) {
+			if (Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointCount() <= 0) { return; }
+			b2Joint* jointList = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetJointList();
+			for (int i = 0; i < jointID; i++) {
+				jointList->GetNext();
+			}
+
+			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->setStiffness((b2WeldJoint*)jointList, newStiffness);
+		};
 
 
 
@@ -215,12 +442,18 @@ namespace IonixEngine
 
 
 		lua["Fysics"] = lua.create_table_with(
+			"add_box_collider",	addBoxCollider,
+			"add_box_collider_v", addBoxColliderv,
+			"add_polygon_collider",addPolygonCollider,
+			"add_circle_collider", addCircleCollider,
 			"get_pos", getFysicsPos,
 			"set_pos", setFysicsPos,
+			"set_pos_v", setFysicsPosv,
 			"get_angle", getFysicsAngle,
 			"set_angle", setFysicsAngle,
 			"get_linear_velocity", getFysicsLinearVelocity,
 			"set_linear_velocity", setFysicsLinearVelocity,
+			"set_linear_velocity_v", setFysicsLinearVelocityv,
 			"get_angular_velocity", getFysicsAngularVelocity,
 			"set_angular_velocity", setFysicsAngularVelocity,
 			"get_awake", getFysicsAwake,
@@ -242,16 +475,45 @@ namespace IonixEngine
 			"add_force_to_center", addFysicsForceToCenter,
 			"add_impulse", addFysicsAddImpulse,
 			"add_impulse_to_center", addFysicsAddImpulseToCenter,
+			"add_force_v", addFysicsForcev,
+			"add_force_to_center_v", addFysicsForceToCenterv,
+			"add_impulse_v", addFysicsAddImpulsev,
+			"add_impulse_to_center_v", addFysicsAddImpulseToCenterv,
 			"add_torque", addFysicsTorque,
 			"add_angular_impulse", addFysicsAngularImpulse,
 			"clear_forces", clearFysicsForces,
-			"add_box_collider", addBoxCollider,
-			"set_friction", fysicsSetFriction,
-			"set_restitution", fysicsSetRestitution,
+			"get_collider_width", getColliderWidth,
+			"set_collider_width", setColliderWidth,
+			"get_collider_height", getColliderHeight,
+			"set_collider_height", setColliderHeight,
+			"is_collider_trigger", isColliderTrigger,
+			"set_collider_trigger", setColliderTrigger,
+			"get_collider_vertices", getColliderVertices,
+			"set_collider_vertices", setColliderVertices,
+			"get_collider_type", getColliderShapeType,
+			"set_material_properties", fysicsUpdateMaterialProperties,
 			"get_friction", getFriction,
 			"get_restitution", getRestitution,
-			"add_polygon_collider", addPolygonCollider,
-			"add_sprite_collider", addSpriteCollider
+			"add_sprite_collider", addSpriteCollider,
+			"create_prismatic_joint", setPrismaticJoint,
+			"create_weld_joint", setWeldJoint,
+			"create_pulley_joint", setPulleyJoint,
+			"create_revolute_joint", setRevoluteJoint,
+			"create_distance_joint", setDistanceJoint,
+			"destroy_joint", destroyJoint,
+			"get_bodyA", getBodyA,
+			"get_bodyB", getBodyB,
+			"get_anchorA", getAnchorA,
+			"get_anchorB", getAnchorB,
+			"get_userData", getUserData,
+			"get_reaction_force", getReactionForce,
+			"get_reaction_torque", getReactionTorque,
+			"is_enabled", isEnabled,
+			"shift_origin", shfitOrigin,
+			"get_damping", getDampingFromWeldJoint,
+			"set_damping", setDampingFromWeldJoint,
+			"get_stiffness", getStiffnessFromWeldJoint,
+			"set_stiffness", setStiffnessFromWeldJoint
 		);
 	}
 }

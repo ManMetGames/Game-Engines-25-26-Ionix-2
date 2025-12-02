@@ -7,13 +7,21 @@ function LoadModule(name, path)
 end
 
 -- Load all game modules here
+LoadModule("Assets", "Scripts/Assets.lua")
+--LoadModule("Audio", "Scripts/Audio.lua")
+--LoadModule("Enemy", "Scripts/Enemy.lua")
+--LoadModule("Player", "Scripts/Player.lua")
+--LoadModule("EntityPlayer", "Scripts/EntityPlayer.lua")
+--LoadModule("Ball", "Scripts/Ball.lua")
+LoadModule("Assets", "Scripts/Assets.lua")
+LoadModule("Enums", "Scripts/Enums.lua")
 LoadModule("FlappyBird", "Scripts/FlappyBird/FlappyBird.lua")
+--LoadModule("ExampleScript", "Scripts/ExampleScript.lua")
 
 -- Lifecycle hooks
 function OnStart()
     for name, module in pairs(modules) do
         if module.OnStart then
-            print("[Lua] Starting module:", name)
             module:OnStart()
         end
     end
@@ -28,10 +36,17 @@ function OnUpdate()
     end
 end
 
+function OnFixedUpdate()
+    for name, module in pairs(modules) do
+        if module.OnFixedUpdate then
+            module:OnFixedUpdate()
+        end
+    end
+end
+
 function OnShutdown()
     for name, module in pairs(modules) do
         if module.OnShutdown then
-            print("[Lua] Shutting down module:", name)
             module:OnShutdown()
         end
     end
@@ -44,6 +59,7 @@ end
 
 return {
     OnStart = OnStart,
+    OnFixedUpdate = OnFixedUpdate,
     OnUpdate = OnUpdate,
     OnShutdown = OnShutdown,
     GetModule = GetModule

@@ -103,6 +103,14 @@ namespace IonixEngine
          uiManager.AddDropdown(10, 160, 150, 25, "Dropdown", dropdownOptions, &dropdownIndex);
          uiManager.AddColorPicker(10, 190, 150, 150, "Pick Color", m_UI->myColor);*/
 
+         // Render the UI
+         //uiManager.RenderUI();
+         //uiManager.EndPanel();
+        
+		
+         // Rendering
+         
+
          // TODO - Will be done by graphics unit eventually. Here for testing for the time being.
 
     }
