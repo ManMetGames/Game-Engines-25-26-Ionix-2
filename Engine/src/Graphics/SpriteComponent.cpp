@@ -86,7 +86,7 @@ namespace IonixEngine {
 			SDL_Rect { spriteWidth * currentCol, spriteHeight * currentRow, spriteWidth, spriteHeight },
 			zOrder,
 			spriteAngle,
-			renderLayer,
+			renderLayer
 		});
 
 
