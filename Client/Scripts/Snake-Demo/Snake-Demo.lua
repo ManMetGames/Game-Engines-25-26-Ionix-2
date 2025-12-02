@@ -56,6 +56,7 @@ local BgBackground = Entity.add_sprite_component(Background, assets.textures.Bac
 		local Top = Entity.create_entity()
         local Bottom = Entity.create_entity()
         local Left = Entity.create_entity()
+        local Right = Entity.create_entity()
 		local xPos = i * tileSize
         local yPos = i * tileSize
 
@@ -94,6 +95,18 @@ local BgBackground = Entity.add_sprite_component(Background, assets.textures.Bac
 		------------------------------------------------------
 		Entity.add_fysics_component(Left, 0, false)  -- static
 		Fysics.add_sprite_collider(Left, false,1)
+
+
+        --Right
+        Entity.set_local_pos(Right, 967, yPos)
+	    local s = Entity.add_sprite_component(Right, assets.textures.sand, tileSize, tileSize, 1)
+        Sprite.set_columns(s,1)
+		------------------------------------------------------
+		-- add physics body + collider
+		------------------------------------------------------
+		Entity.add_fysics_component(Right, 0, false)  -- static
+		Fysics.add_sprite_collider(Right, false,1)
+
 
 end
 
