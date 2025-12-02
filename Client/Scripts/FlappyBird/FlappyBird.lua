@@ -215,6 +215,10 @@ function ExampleScript:OnUpdate()
         --Entity.set_entity_pos(pipeT, pipeStartX, 0)
 	end
 
+    ------------------------------------------------------
+	-- UI
+	------------------------------------------------------
+    UI.Add_label(0,0, 100, 100, "Some text")
 end
 
 return ExampleScript

@@ -94,7 +94,7 @@ namespace IonixEngine
          //bool checkboxValue = true;
          // int radioValue = 0;
          //static float sliderValue = 0.5f;
-         m_UIManager->AddLabel(10, 10, 100, 20, "Test Label");
+         //m_UIManager->AddLabel(10, 10, 100, 20, "Test Label");
          /*uiManager.AddButton(10, 40, 100, 25, "Click Me", []() { printf("Button clicked!\n"); });
          uiManager.AddCheckbox(10, 70, 120, 25, "Enable", &checkboxValue);
          uiManager.AddSliderFloat(10, 100, 150, 25, "Slider", &sliderValue, 0.0f, 1.0f);
