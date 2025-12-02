@@ -23,7 +23,7 @@ local pipeSpeed = -3
 local pipeStartX = 900
 local pipe2StartX = 1200
 local pipeOffScreenLeft = -100
-
+local myText = "Press SPACE to begin"
 -- Coin variables
 local coin
 ----------------------------------------------------------
@@ -174,7 +174,10 @@ function ExampleScript:OnUpdate()
     -- Constant rightward movement
     local vx = 0
     local vy1 = Mafs.get_vec_y(vel1)
-
+    ------------------------------------------------------
+	-- UI
+	------------------------------------------------------
+    UI.Add_label(320, 300, 1000, 1000, myText)
 	if Input.get_key_down(Keys.ionix_space) then
         -- Bird move if space is pressed (allow gravity)
         Fysics.set_gravity_scale(player1, 1)
@@ -186,6 +189,7 @@ function ExampleScript:OnUpdate()
         Fysics.set_linear_velocity(pipeT, pipeSpeed, 0)
         Fysics.set_linear_velocity(pipe2, pipeSpeed, 0)
         Fysics.set_linear_velocity(pipeT2, pipeSpeed, 0)
+        myText = ""
 	end
 
     Fysics.set_linear_velocity(player1, vx, vy1)
@@ -215,10 +219,7 @@ function ExampleScript:OnUpdate()
         --Entity.set_entity_pos(pipeT, pipeStartX, 0)
 	end
 
-    ------------------------------------------------------
-	-- UI
-	------------------------------------------------------
-    UI.Add_label(320, 300, 1000, 1000, "Press SPACE to start")
+
     
 end
 
