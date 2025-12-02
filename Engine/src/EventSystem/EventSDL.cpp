@@ -175,6 +175,12 @@ namespace IonixEngine
                     //std::cout << "Player " << instanceId << " Left Stick X Moved "
                         //<< static_cast<float>(normalised) << "\n";
 
+
+                    if (m_EventCallback)
+                    {
+                        ControllerLAxisXEvent event(Application::Get().layerInput->GetControllerManager()[instanceId], instanceId, e.caxis.value, e.caxis.axis);
+                        m_EventCallback(event);
+                    }
                 }
 
                 break;

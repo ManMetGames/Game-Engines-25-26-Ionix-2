@@ -35,6 +35,12 @@ namespace IonixEngine
                 OnControllerButtonUp(controllerButtonUp);
                 break;
             }
+            case IonixEventType::ControllerLAxisX:
+            {
+                auto& controllerLAxisX = static_cast<ControllerLAxisXEvent&>(e);
+                OnControllerLAxisX(controllerLAxisX);
+                break;
+            }
         }
         
     }
@@ -46,6 +52,11 @@ namespace IonixEngine
     void LayerInput::OnControllerButtonUp(ControllerButtonUpEvent& e)
     {
         controllerManagers[e.instanceId]->SetButtonReleased(e.button);
+    }
+
+    void LayerInput::OnControllerLAxisX(ControllerLAxisXEvent& e)
+    {
+        controllerManagers[e.instanceId]->NormaliseStickAxis(e.instanceId, e.axis);
     }
 
     bool LayerInput::IsControllerButtonDown(int instanceId, Uint8 button)
@@ -70,5 +81,10 @@ namespace IonixEngine
 
         if (controllerManager != nullptr)
             return controllerManager->IsButtonHeld(instanceId, button);
+    }
+
+    float LayerInput::GetControllerAxis(int instanceId, SDL_GameControllerAxis axis)
+    {
+
     }
 }

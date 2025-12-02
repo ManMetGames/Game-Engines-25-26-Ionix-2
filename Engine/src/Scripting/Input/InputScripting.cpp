@@ -75,19 +75,16 @@ namespace IonixEngine {
             return Application::Get().layerInput->IsControllerButtonHeld(index, static_cast<Uint8>(btn));
             };
 
-        auto getStickAxis = [this](int index, SDL_GameControllerAxis axis, float divisor) -> float {
-            if (index < 0 || index >= (int)m_Controllers.size() || !m_Controllers[index])
-                return 0.0f;
-            float val = static_cast<float>(SDL_GameControllerGetAxis(m_Controllers[index], axis)) / divisor;
-            return std::round(val * 100.0f) / 100.0f;
+        auto getStickAxis = [this](int index, SDL_GameControllerAxis axis) -> float {
+            return Application::Get().layerInput->
             };
 
-        auto getLeftStickX = [=](int index) { return getStickAxis(index, SDL_CONTROLLER_AXIS_LEFTX, 32768.0f); };
-        auto getLeftStickY = [=](int index) { return getStickAxis(index, SDL_CONTROLLER_AXIS_LEFTY, 32768.0f); };
-        auto getRightStickX = [=](int index) { return getStickAxis(index, SDL_CONTROLLER_AXIS_RIGHTX, 32768.0f); };
-        auto getRightStickY = [=](int index) { return getStickAxis(index, SDL_CONTROLLER_AXIS_RIGHTY, 32768.0f); };
-        auto getLeftTrigger = [=](int index) { return getStickAxis(index, SDL_CONTROLLER_AXIS_TRIGGERLEFT, 32767.0f); };
-        auto getRightTrigger = [=](int index) { return getStickAxis(index, SDL_CONTROLLER_AXIS_TRIGGERRIGHT, 32767.0f); };
+        auto getLeftStickX = [=](int index) { return getStickAxis(index, SDL_CONTROLLER_AXIS_LEFTX); };
+        auto getLeftStickY = [=](int index) { return getStickAxis(index, SDL_CONTROLLER_AXIS_LEFTY); };
+        auto getRightStickX = [=](int index) { return getStickAxis(index, SDL_CONTROLLER_AXIS_RIGHTX); };
+        auto getRightStickY = [=](int index) { return getStickAxis(index, SDL_CONTROLLER_AXIS_RIGHTY); };
+        auto getLeftTrigger = [=](int index) { return getStickAxis(index, SDL_CONTROLLER_AXIS_TRIGGERLEFT); };
+        auto getRightTrigger = [=](int index) { return getStickAxis(index, SDL_CONTROLLER_AXIS_TRIGGERRIGHT); };
 
         lua["Keys"] = lua.create_table_with(
             "ionix_a", SDL_SCANCODE_A,
