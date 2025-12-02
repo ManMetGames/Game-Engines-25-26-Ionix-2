@@ -94,7 +94,7 @@ namespace IonixEngine
 
          //uiManager.BeginPanel("Test Panel");
 
-         //uiManager.AddLabel(10, 10, 150, 20, "Test Label");
+         m_UIManager->AddLabel(0, 0, 0, 0, "Test Label");
          /*uiManager.AddButton(10, 40, 100, 25, "Click Me", []() { printf("Button clicked!\n"); });
          uiManager.AddCheckbox(10, 70, 120, 25, "Enable", &checkboxValue);
          uiManager.AddSliderFloat(10, 100, 150, 25, "Slider", &sliderValue, 0.0f, 1.0f);

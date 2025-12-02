@@ -133,7 +133,7 @@ function ExampleScript:OnUpdate()
         Fysics.set_pos(pipeT, pipeStartX, pipePos.y)
     end
 
-    UI.Add_label(0,0,1,1,"Some Text!")
+    --UI.Add_label(0,0,0,0,"QQQQQQQQQQQQQQQQQQ!")
      
 end
 
