@@ -23,6 +23,8 @@ local pipeSpeed = -3
 local pipeStartX = 900
 local pipe2StartX = 1200
 local pipeOffScreenLeft = -100
+
+-- Coin variables
 local coin
 ----------------------------------------------------------
 -- OnStart
@@ -52,27 +54,6 @@ function ExampleScript:OnStart()
     Fysics.add_sprite_collider(player1,false,1)
     -- Freeze bird
     Fysics.set_gravity_scale(player1, 0)
-
-    ------------------------------------------------------
-    -- Create Coins 
-    ------------------------------------------------------
-    coin = Entity.create_entity()
-    Entity.set_entity_pos(coin, x, 300)
-
-    local coinSprite = Entity.add_sprite_component(coin, assets.textures.Coin, 32, 32, 0)
-
-    Sprite.set_rows(coinSprite, 1)
-    Sprite.set_columns(coinSprite, 5)
-    Sprite.set_width(coinSprite, 16)
-    Sprite.set_height(coinSprite, 16)
-
-
-	Sprite.set_playback_mode(coinSprite, 2)
-    ------------------------------------------------------
-	-- add physics body + collider
-	------------------------------------------------------
-	Entity.add_fysics_component(coin, 1, false)  -- static
-    Fysics.add_sprite_collider(coin, true)
 
 
     local tileSize = 64
@@ -119,13 +100,13 @@ function ExampleScript:OnStart()
 
     -- TOP PIPE
     pipeT = Entity.create_entity()
-	Entity.set_global_pos(pipeT, 640, 0)
+	Entity.set_global_pos(pipeT, 640, -40)
 
 	local pipeSpriteT = Entity.add_sprite_component(pipeT,assets.textures.FlappyPipe2, 80, 300, 0)
     Sprite.set_columns(pipeSpriteT,1)
 	-- Kinematic body so it moves but isn't affected by gravity
 	Entity.add_fysics_component(pipeT, enums.bodytype.kinematicBody, false)
-	Fysics.add_sprite_collider(pipeT, false,1)
+	Fysics.add_sprite_collider(pipeT, false, 1)
 
     if Input.get_key_down(Keys.ionix_a) then
         Entity.set_global_pos(pipe, xPos, floorY)
@@ -133,7 +114,7 @@ function ExampleScript:OnStart()
     ---------------------------
 	-- Pipe Set 2
 	---------------------------
-        --BOTTOM PIPE
+    --BOTTOM PIPE
 	pipe2 = Entity.create_entity()
 	Entity.set_global_pos(pipe2, 1200, 400)
 
@@ -143,10 +124,9 @@ function ExampleScript:OnStart()
 	Entity.add_fysics_component(pipe2, enums.bodytype.kinematicBody, false)
 	Fysics.add_sprite_collider(pipe2, false,1)
 
-
     -- TOP PIPE
     pipeT2 = Entity.create_entity()
-	Entity.set_global_pos(pipeT2, 1200, 0)
+	Entity.set_global_pos(pipeT2, 1200, -40)
 
 	local pipeSpriteT2 = Entity.add_sprite_component(pipeT2,assets.textures.FlappyPipe2, 80, 300, 0)
     Sprite.set_columns(pipeSpriteT2,1)
@@ -157,6 +137,23 @@ function ExampleScript:OnStart()
     if Input.get_key_down(Keys.ionix_a) then
         Entity.set_global_pos(pipe2, xPos, floorY)
 	end
+
+	------------------------------------------------------
+	-- Create coins
+	------------------------------------------------------
+    coin = Entity.create_entity()
+    Entity.set_global_pos(coin, pipeStartX - 235, 300)
+
+    local coinSprite = Entity.add_sprite_component(coin, assets.textures.Coin, 32, 32, 0)
+
+    Sprite.set_rows(coinSprite, 1)
+    Sprite.set_columns(coinSprite, 5)
+    Sprite.set_width(coinSprite, 16)
+    Sprite.set_height(coinSprite, 16)
+
+    -- Add physics body + collider
+    Entity.add_fysics_component(coin, enums.bodytype.kinematicBody, false)
+    Fysics.add_sprite_collider(pipeT2, false, 1)
 
 end
 
