@@ -131,7 +131,9 @@ function ExampleScript:OnUpdate()
     if Mafs.get_vec_x(pipePos) < pipeOffScreenLeft then
         Fysics.set_pos(pipe, pipeStartX, pipePos.y)
         Fysics.set_pos(pipeT, pipeStartX, pipePos.y)
-     end
+    end
+
+    UI.Add_label(0,0,1,1,"Some Text!")
      
 end
 

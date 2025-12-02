@@ -51,14 +51,7 @@ void IonixEngine::UIManager::EndPanel()
 
 void IonixEngine::UIManager::AddChildToPanel(UIElement element)
 {
-	if (!groupStack.empty())
-	{
-		groupStack.back()->children.push_back(element);
-	}
-	else
-	{
-		elements.push_back(element);
-	}
+	elements.push_back(element);
 }
 
 
@@ -263,7 +256,7 @@ void IonixEngine::UIManager::RenderElement(UIElement& element)
 void IonixEngine::UIManager::RenderUI()
 {
 	;
-	for (auto& element : groupStack.front()->children)
+	for (auto& element : elements)
 	{
 		RenderElement(element);
 	}
