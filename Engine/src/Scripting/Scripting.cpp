@@ -59,4 +59,21 @@ namespace IonixEngine {
         }
     }
 
+    //-----------Collision Hook----------------
+
+    void Scripting::CallHook(const std::string& hookName, Entity* entityA, Entity* entityB) {
+        sol::function hook = m_LuaState[hookName];
+        if (hook.valid()) {
+            try {
+                hook(entityA, entityB);
+            }
+            catch (const std::exception& e) {
+                std::cerr << "Error calling hook '" << hookName << "': " << e.what() << '\n';
+            }
+        }
+        else {
+            std::cerr << "Hook '" << hookName << "' is invalid\n";
+        }
+    }
+
 }

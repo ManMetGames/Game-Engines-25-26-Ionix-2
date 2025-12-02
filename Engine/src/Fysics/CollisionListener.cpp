@@ -23,8 +23,23 @@ namespace IonixEngine
             // Create and dispatch collision event through callback
             CollisionEnterEvent event(entityA, entityB);
             m_EventCallback(event);
-            CheckCollisionEntityMap(entityA, entityB);
+            CheckTrigger(entityA, entityB);
+            //CheckCollisionEntityMap(entityA, entityB);
             //std::cout << "Entity "<< entityA->id << " collided with " << entityB->id << std::endl;
+        }
+    }
+
+    void CollisionListener::CheckTrigger(Entity* entityA, Entity* entityB)
+    {
+                
+        if (fysicsManager->GetBodyFromEntity(entityA)->GetFixtureList()->IsSensor() || fysicsManager->GetBodyFromEntity(entityB)->GetFixtureList()->IsSensor())
+        {
+            Scripting::Get().CallHook("OnCollisionEnter", entityA, entityB);
+        }
+
+        else
+        {
+            Scripting::Get().CallHook("OnTriggerEnter", entityA, entityB);
         }
     }
 

@@ -42,6 +42,26 @@ function OnShutdown()
     end
 end
 
+
+
+function OnCollisionEnter(collision1, collision2)
+    for name, module in pairs(modules) do
+        if module.OnCollisionEnter then
+            --print("OnCollisionEnter")
+            module:OnCollisionEnter(collision1, collision2)
+        end
+    end
+end
+
+function OnTriggerEnter(collision1, collision2)
+    for name, module in pairs(modules) do
+        if module.OnTriggerEnter then
+            --print("OnCollisionEnter")
+            module:OnTriggerEnter(collision1, collision2)
+        end
+    end
+end
+
 -- Retrieve module by name (for cross-module communication)
 function GetModule(name)
     return modules[name]
@@ -51,5 +71,7 @@ return {
     OnStart = OnStart,
     OnUpdate = OnUpdate,
     OnShutdown = OnShutdown,
-    GetModule = GetModule
+    GetModule = GetModule,
+    OnCollisionEnter = OnCollisionEnter,
+    OnTriggerEnter = OnTriggerEnter
 }
