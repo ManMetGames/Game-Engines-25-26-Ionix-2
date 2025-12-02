@@ -11,13 +11,14 @@ local goalX = 500
 local goalY = 500
 local y = 300
 local t = 10
+local coinCount = 0
 
 -- Pipe variables
 local pipe
 local pipeT
 local pipeSpeed = -3
 local pipeStartX = 900
-local pipeOffScreenLeft = -100
+local pipeOffScreenLeft = 0
 
 ----------------------------------------------------------
 -- OnStart
@@ -112,7 +113,6 @@ function ExampleScript:OnStart()
     if Input.get_key_down(Keys.ionix_a) then
         Entity.set_global_pos(pipe, xPos, floorY)
 	end
-        print("workin")
 
 end
 
@@ -120,7 +120,6 @@ end
 -- OnUpdate
 ----------------------------------------------------------
 function ExampleScript:OnUpdate()
-    
     -- get current velocity
     local vel1 = Fysics.get_linear_velocity(player1)
     local vy1 = Fysics.get_linear_velocity(pipe)
@@ -136,14 +135,19 @@ function ExampleScript:OnUpdate()
         -- Set velocity directly to cancel out falling momentum
         vy1 = -5  -- Jump velocity for player1
 	end
-
+    
+    if Input.get_key_down(Keys.ionix_m) then
+        Entity.destroy_entity(coin)
+    end
     Fysics.set_linear_velocity(player1, vx, vy1)
 
     -- Pipe movement
     local pipePos = Fysics.get_pos(pipe)
-    if Mafs.get_vec_x(pipePos) < pipeOffScreenLeft then
-        Fysics.set_pos(pipe, pipeStartX, pipePos.y)
-        Fysics.set_pos(pipeT, pipeStartX, pipePos.y)
+    if Mafs.get_vec_x(pipePos) <= pipeOffScreenLeft then
+        Entity.set_global_pos(pipe, pipeStartX, Mafs.get_vec_y(pipePos))
+        Fysics.set_pos(pipe, pipeStartX, Mafs.get_vec_y(pipePos))
+         Entity.set_global_pos(pipeT, pipeStartX, Mafs.get_vec_y(pipePos))
+        Fysics.set_pos(pipeT, pipeStartX, Mafs.get_vec_y(pipePos))
      end
      
 end
@@ -156,7 +160,10 @@ end
 
     function ExampleScript:OnTriggerEnter()
         if Fysics.col(player1, coin) then
-                print("TriggerCoin")
+             print("CoinCollision")
+                Entity.destroy_entity(coin)
+                coinCount = coinCount + 1
+                print(coinCount)
         end
     end
 

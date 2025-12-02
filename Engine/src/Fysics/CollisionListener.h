@@ -18,6 +18,7 @@ namespace IonixEngine
         using EventCallback = std::function<void(IonixEvent&)>;
         std::unordered_map<EntityID, std::vector<EntityID>> collisionEntityMap;
         std::unordered_map<EntityID, std::unordered_set<EntityID>> activeCollisions; 
+        std::vector<b2Body*> entityBodiesToDestroy;
 
 
         CollisionListener(FysicsManager* manager);
@@ -32,6 +33,8 @@ namespace IonixEngine
         void AddToCollisionMap(Entity* entityA, Entity* entityB);
         void CheckCollisionEntityMap(Entity* colA, Entity* colB);
         bool CheckActiveCollisions(Entity* entityA, Entity* entityB);
+
+        void AddEntityBodiesToDestroy(b2Body* entityToDestroy);
 
     private:
         FysicsManager* fysicsManager;
