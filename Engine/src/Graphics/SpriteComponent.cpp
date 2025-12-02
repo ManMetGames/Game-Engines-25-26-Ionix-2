@@ -16,6 +16,7 @@ namespace IonixEngine {
 		boxColliderSize = b2Vec2{1 + (0.02f * (width - 75)), 1 + (0.02f * (height - 75))};
 		rows = 1; //default spritesheet size, can be changed in appropriate setters
 		cols = 1;
+		tickRate = 0.2f;
 
 		tickRate = 0.2f; //default tick rate
 
@@ -47,6 +48,7 @@ namespace IonixEngine {
 		//setRowsAndCols(2, 8);
 		cols = 1;
 		rows = 1;
+		tickRate = 0.2f;
 
 		tickRate = 0.2f; //default tick rate
 

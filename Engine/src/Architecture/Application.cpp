@@ -109,8 +109,6 @@ namespace IonixEngine
 
 	    cam->Init();
 	    cam2->Init();
-        
-        Scripting::Get().CallHook("OnStart");
 
         currentCam = cam;
         
@@ -120,6 +118,7 @@ namespace IonixEngine
         m_LastFrameTime = SDL_GetTicks64();
         m_FixedTimeAccumulator = 0.0f;
         m_FixedTimeStep = 1.0f / 60.0f; // 60 Hz
+
         
         while (m_Running)
         {
