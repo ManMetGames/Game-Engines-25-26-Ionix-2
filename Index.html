@@ -398,6 +398,21 @@ footer {
       <tr><td><code>Fysics.clear_forces(entity)</code></td><td>Clear all forces/torques applied to the body.</td></tr>
       <tr><td><code>Fysics.get_gravity_scale(entity)</code></td><td>Get current gravity scale.</td></tr>
       <tr><td><code>Fysics.set_gravity_scale(entity, graityScale)</code></td><td>Sets gravity scale for listed entity.</td></tr>
+      <!-- collider -->
+      <tr><td><code>Fysics.get_collider_width(entity)</code></td><td>Get body's collider witdth.</td></tr>
+      <tr><td><code>Fysics.set_collider_width(entity)</code></td><td>Set body's collider witdth.</td></tr>
+      <tr><td><code>Fysics.get_collider_height(entity)</code></td><td>Get body's collider height.</td></tr>
+      <tr><td><code>Fysics.set_collider_height(entity)</code></td><td>Set body's collider height.</td></tr>
+      <tr><td><code>Fysics.is_collider_trigger(entity)</code></td><td>Get body's collider behave as trigger.</td></tr>
+      <tr><td><code>Fysics.set_collider_trigger(entity)</code></td><td>Set body's collider behave as trigger.</td></tr>
+      <tr><td><code>Fysics.get_collider_vertices(entity)</code></td><td>Retriesves the vertices that define the shape of the body's collider.</td></tr>
+      <tr><td><code>Fysics.set_collider_vertices(entity)</code></td><td>Set the vertices that define the shape of the body's collider.</td></tr>
+      <tr><td><code>Fysics.get_collider_type(entity)</code></td><td>get body's collider's shape type.</td></tr>
+      <tr><td><code>Fysics.add_sprite_colliderEntity(entity,isTrigger,scaleFactor)</code></td><td>Adds a collider component to a sprite for 2dphysics interactions.(scaleFactor can't be 0 or it will be set as 1)</td></tr>
+      <!-- friction -->
+      <tr><td><code>Fysics.set_material_properties(entity,friction,restitution)</code></td><td>Set the friction and restitution(bounciness) properties for and entity's physics materil.</td></tr>
+      <tr><td><code>Fysics.get_friction(entity)</code></td><td>get entity's friction.</td></tr>
+      <tr><td><code>Fysics.get_restitution(entity)</code></td><td>get entity's restitution(bounciness).</td></tr>
 
   </table>
 </section>
