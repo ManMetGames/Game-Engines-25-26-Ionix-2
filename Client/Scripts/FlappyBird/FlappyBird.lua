@@ -56,8 +56,20 @@ function ExampleScript:OnStart()
     Fysics.set_gravity_scale(player1, 0)
 
 
+
+    -----------------------------
+    ------Coins
+    ------------
+    coin = Entity.create_entity()
+    Entity.set_global_pos(coin, 200, 200)
+    local coinSprite = Entity.add_sprite_component(coin, assets.textures.Coin, 100, 32, 10)
+    Sprite.set_columns(coinSprite, 1)
+    Entity.add_fysics_component(coin, enums.bodytype.kinematicBody, false)
+    Fysics.add_sprite_collider(coin, true, 1)
+
     local tileSize = 64
     local floorY = 600
+    
 	------------------------------------------------------
 	-- pick texture for left / middle / right
 	------------------------------------------------------
@@ -216,5 +228,17 @@ function ExampleScript:OnUpdate()
 	end
 
 end
+
+    function ExampleScript:OnCollisionEnter()
+        if Fysics.col(player1, pipe) then
+                print("CollisionPipe")
+            end
+    end
+
+    function ExampleScript:OnTriggerEnter(collision1, collision2)
+        if collision1 == player1 and collision2 == coin then
+                print("TriggerCoin")
+        end
+    end
 
 return ExampleScript
