@@ -379,6 +379,8 @@ footer {
       <tr><td><code>Fysics.set_collider_vertices(entity)</code></td><td>Set the vertices that define the shape of the body's collider.</td></tr>
       <tr><td><code>Fysics.get_collider_type(entity)</code></td><td>get body's collider's shape type.</td></tr>
       <tr><td><code>Fysics.add_sprite_colliderEntity(entity,isTrigger,scaleFactor)</code></td><td>Adds a collider component to a sprite for 2dphysics interactions.(scaleFactor can't be 0 or it will be set as 1)</td></tr>
+      <tr><td><code>Fysics.get_radius(entity)</code></td><td>returns the radius of the entitys collision.</td></tr>
+      <tr><td><code>Fysics.set_radius(entity, radius, bodytochange, shapetype)</code></td><td>sets the radius of the entity while defining the bodytochange and what kind of shape it is used for.</td></tr>
       <!-- friction -->
       <tr><td><code>Fysics.set_material_properties(entity,friction,restitution)</code></td><td>Set the friction and restitution(bounciness) properties for and entity's physics materil.</td></tr>
       <tr><td><code>Fysics.get_friction(entity)</code></td><td>get entity's friction.</td></tr>

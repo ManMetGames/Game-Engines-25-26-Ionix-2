@@ -268,7 +268,16 @@ namespace IonixEngine
 			offset.x = offsetX;
 			offset.y = offsetY;
 			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddCircle(entity, radius, offset, isTrigger);
+
 		};
+
+		auto GetRadius = [](Entity* entity) -> float {
+			return Application::Get().layerFysics->GetFysicsManager()->GetShapes()->GetRadius();
+			};
+
+		auto SetRadius = [](Entity* entity, float r, b2Body* bodyToChange, fysicShapeType shapeType) {
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->SetRadius(entity, r, bodyToChange, static_cast<fysicShapeType>(shapeType));
+			};
 
 //----------Joint Methods----------
 
@@ -491,6 +500,8 @@ namespace IonixEngine
 			"get_collider_vertices", getColliderVertices,
 			"set_collider_vertices", setColliderVertices,
 			"get_collider_type", getColliderShapeType,
+			"get_radius", GetRadius,
+			"set_radius", SetRadius,
 			"set_material_properties", fysicsUpdateMaterialProperties,
 			"get_friction", getFriction,
 			"get_restitution", getRestitution,
