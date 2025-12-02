@@ -29,8 +29,8 @@ function ExampleScript:OnStart()
     ------------------------------------------------------
 	-- Background Texture
 	------------------------------------------------------
-    Background = Entity.create_entity()
-    local BgBackground = Entity.add_sprite_component(Background, assets.textures.Background,960 , 640, 0)
+   Background = Entity.create_entity()
+   local BgBackground = Entity.add_sprite_component(Background, assets.textures.Background,960 , 640, 0)
     
 
     ------------------------------------------------------
@@ -42,9 +42,9 @@ function ExampleScript:OnStart()
 	
     local playerSprite1 = Entity.add_sprite_component(player1, assets.textures.FlappyBird, 32, 32, 10)
     Sprite.set_columns(playerSprite1,1)
-    -- PLAYER 1 PHYSICS
+    -- PLAYER 1 FYSICS
 
-    Entity.add_fysics_component(player1, enums.bodytype.dynamicBody, true) -- dynamic body
+   Entity.add_fysics_component(player1, enums.bodytype.dynamicBody, true) -- dynamic body
     --Fysics.add_sprite_collider(player1, false)
     Fysics.add_sprite_collider(player1,false,1)
     -- Freeze bird
@@ -63,10 +63,10 @@ function ExampleScript:OnStart()
     Entity.set_global_pos(player2, x + 200, 300)
 	
     local playerSprite2 = Entity.add_sprite_component(player2, assets.textures.Sand, 32, 32, 10)
-    Sprite.set_columns(playerSprite2,1)
+   Sprite.set_columns(playerSprite2,1)
     -- PLAYER 1 PHYSICS
 
-    Entity.add_fysics_component(player2, enums.bodytype.dynamicBody, true) -- dynamic body
+   Entity.add_fysics_component(player2, enums.bodytype.dynamicBody, true) -- dynamic body
     --Fysics.add_sprite_collider(player1, false)
     Fysics.add_sprite_collider(player2,false,1)
     -- Freeze bird
@@ -85,9 +85,9 @@ function ExampleScript:OnStart()
 		------------------------------------------------------
 		-- place sprite
 		------------------------------------------------------
-	--	Entity.set_global_pos(tile, xPos, floorY)
-	--	local s = Entity.add_sprite_component(tile, assets.textures.Sand, tileSize, tileSize, 1)
-    --    Sprite.set_columns(s,1)
+		Entity.set_global_pos(tile, xPos, floorY)
+		local s = Entity.add_sprite_component(tile, assets.textures.Sand, tileSize, tileSize, 1)
+        Sprite.set_columns(s,1)
 		------------------------------------------------------
 		-- add physics body + collider
 		------------------------------------------------------
@@ -119,39 +119,9 @@ function ExampleScript:OnStart()
     
     --Fysics.create_revolute_joint(player2,player1, false, 5, 8, true, 20, 60) --Revolute Joint
 
-    Fysics.create_distance_joint(player1, player2, 10) --Distance Joint
-    --Fysics.set_linear_stiffness(0,4.0f, 5.0f)
-    
-		
-	end
+    --Fysics.create_distance_joint(player1, player2, 10) --Distance Joint
+    --Fysics.set_linear_stiffness(0,4.0f, 5.0f)  
 
-	------------------------------------------------------
-	-- Create pipe obstacle
-	------------------------------------------------------
-    --BOTTOM PIPE
-	pipe = Entity.create_entity()
-	Entity.set_global_pos(pipe, 640, 400)
-
-	local pipeSprite = Entity.add_sprite_component(pipe, assets.textures.FlappyPipe, 80, 300, 0)
-    Sprite.set_columns(pipeSprite,1)
-	-- Kinematic body so it moves but isn't affected by gravity
-	Entity.add_fysics_component(pipe, enums.bodytype.kinematicBody, false)
-	Fysics.add_sprite_collider(pipe, false,1)
-
-
-    -- TOP PIPE
-    pipeT = Entity.create_entity()
-	Entity.set_global_pos(pipeT, 640, 0)
-
-	local pipeSpriteT = Entity.add_sprite_component(pipeT,assets.textures.FlappyPipe , 80, 300, 0)
-    Sprite.set_columns(pipeSpriteT,1)
-	-- Kinematic body so it moves but isn't affected by gravity
-	Entity.add_fysics_component(pipeT, enums.bodytype.kinematicBody, false)
-	Fysics.add_sprite_collider(pipeT, false,1)
-
-    if Input.get_key_down(Keys.ionix_a) then
-        Entity.set_global_pos(pipe, xPos, floorY)
-	end
 
 end
 
