@@ -127,6 +127,8 @@ function ExampleScript:OnUpdate()
     local vx = 0
     local vy1 = Mafs.get_vec_y(vel1)
 
+    Fysics.raycast(player1)
+
 	if Input.get_key_down(Keys.ionix_space) then
         -- Bird move if space is pressed (allow gravity)
         Fysics.set_gravity_scale(player1, 1)
@@ -154,13 +156,13 @@ end
 
     function ExampleScript:OnCollisionEnter()
         if Fysics.col(player1, pipe) then
-                print("CollisionPipe")
+                --print("CollisionPipe")
             end
     end
 
     function ExampleScript:OnTriggerEnter()
         if Fysics.col(player1, coin) then
-             print("CoinCollision")
+             --print("CoinCollision")
                 Entity.destroy_entity(coin)
                 coinCount = coinCount + 1
                 print(coinCount)
@@ -169,13 +171,13 @@ end
 
     function ExampleScript:OnTriggerExit()
         if Fysics.col(player1, coin) then
-            print("ExitCoinCollision")
+            --print("ExitCoinCollision")
         end
     end
 
     function ExampleScript:OnCollisionExit()
         if Fysics.col(player1, pipe) then
-            print("ExitCollisionPipe")
+            --print("ExitCollisionPipe")
         end
     end
 

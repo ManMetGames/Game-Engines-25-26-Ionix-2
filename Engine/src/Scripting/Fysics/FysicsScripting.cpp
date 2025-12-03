@@ -2,6 +2,8 @@
 #include "Architecture/Application.h"
 #include "Fysics/FysicsBody.h"
 #include "Fysics/FysicsManager.h"
+#include "Fysics/Raycast.h"
+
 namespace IonixEngine
 {
 	FysicsScripting* FysicsScripting::s_Instance = nullptr;
@@ -455,6 +457,14 @@ namespace IonixEngine
 			return false;
 		};
 
+		auto makeRayCast = [](Entity* entity)
+		{
+			Raycast callback;
+			b2Vec2 point1(-1.0f, 0.0f);
+			b2Vec2 point2(3.0f, 1.0f);
+			Application::Get().layerFysics->GetFysicsManager()->GetRaycast()->MakeRayCast(entity);
+		};
+
 
 
 		lua["Fysics"] = lua.create_table_with(
@@ -531,7 +541,8 @@ namespace IonixEngine
 			"get_stiffness", getStiffnessFromWeldJoint,
 			"set_stiffness", setStiffnessFromWeldJoint,
 			"add_to_collision_map", addToCollisionMap,
-			"col", checkActiveCollisions
+			"col", checkActiveCollisions,
+			"raycast", makeRayCast
 		);
 	}
 }
