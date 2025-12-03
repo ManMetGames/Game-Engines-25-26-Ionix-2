@@ -39,13 +39,44 @@ namespace IonixEngine {
             window.m_Data.Width = width;
             window.m_Data.Height = height;
             };
+        auto setWindowPos = [](std::int32_t x, std::int32_t y) {
+            Window& window = Application::Get().GetWindow();
+            SDL_SetWindowPosition(window.m_Window, x, y);
+            };
+        auto getWindowPos = [&lua]() -> sol::table {
+            Window& window = Application::Get().GetWindow();
+            int x, y;
+            SDL_GetWindowPosition(window.m_Window, &x, &y);
+            sol::table pos = lua.create_table();
+            pos["x"] = x;
+            pos["y"] = y;
+            return pos;
+            };
+        auto getDisplayWidth = []() -> std::int32_t {
+            SDL_DisplayMode mode;
+            if (SDL_GetCurrentDisplayMode(0, &mode) == 0) {
+                return mode.w;
+            }
+            return 1920;
+            };
+        auto getDisplayHeight = []() -> std::int32_t {
+            SDL_DisplayMode mode;
+            if (SDL_GetCurrentDisplayMode(0, &mode) == 0) {
+                return mode.h;
+            }
+            return 1080;
+            };
 
         lua["Window"] = lua.create_table_with(
             "get_title", getWindowTitle,
             "get_width", getWindowWidth,
             "get_height", getWindowHeight,
             "set_size", setWindowSize,
-            "set_size_centered", setWindowSizeCentered
+            "set_size_centered", setWindowSizeCentered,
+            "set_pos", setWindowPos,
+            "get_pos", getWindowPos,
+            "get_display_width", getDisplayWidth,
+            "get_display_height", getDisplayHeight
         );
     }
 }
