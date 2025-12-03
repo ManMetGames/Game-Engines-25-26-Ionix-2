@@ -23,6 +23,13 @@ local playerFlashDuration = 10  -- frames
 local damageCooldown = 0
 local damageCooldownDuration = 30
 
+-- Knockback
+local knockbackTimer = 0
+local knockbackDuration = 30
+local knockbackBaseSpeed = 10
+local knockbackDirX = 0
+local knockbackDirY = 0
+
 -- Projectile settings
 local projectiles = {}      -- Active projectiles
 local projectilePool = {}   -- Inactive projectiles (reusable)
@@ -114,12 +121,31 @@ function TriangleShooter:OnUpdate()
     
     -- Get mouse delta (relative movement)
     local delta = Input.get_mouse_delta()
-    local deltaX = delta.x
-    local deltaY = delta.y
+    local deltaX = 0
+    local deltaY = 0
+    
+    -- Disable player control during knockback
+    if knockbackTimer <= 0 then
+        deltaX = delta.x
+        deltaY = delta.y
+    end
     
     -- Move player by delta (allows knockback since not snapping to cursor)
     playerX = playerX + deltaX * playerSpeed
     playerY = playerY + deltaY * playerSpeed
+    
+    -- Apply knockback movement when active
+    if knockbackTimer > 0 then
+        local tNorm = 1.0 - (knockbackTimer / knockbackDuration)
+        if tNorm < 0 then tNorm = 0 end
+        if tNorm > 1 then tNorm = 1 end
+        local factor = 1.0 - (tNorm * tNorm)
+        local speed = knockbackBaseSpeed * factor
+        playerX = playerX + knockbackDirX * speed
+        playerY = playerY + knockbackDirY * speed
+        
+        knockbackTimer = knockbackTimer - 1
+    end
     
     -- Clamp to screen bounds
     playerX = math.max(0, math.min(screenW - playerSize, playerX))
@@ -293,7 +319,34 @@ function UpdateEnemyCollision()
     local hitRadius = collisionRadius + playerSize/2
     
     if distSq < hitRadius * hitRadius then
-        -- Collision! Damage player
+        -- Collision! Damage player and apply knockback
+        local dist = math.sqrt(distSq)
+        if dist == 0 then
+            -- Avoid division by zero; choose an arbitrary direction
+            dist = 1
+            dx = 0
+            dy = -1
+        end
+        
+        local nx = dx / dist
+        local ny = dy / dist
+        local padding = 2
+        local targetDistance = hitRadius + padding
+        
+        -- Separate player so it sits just outside the cube
+        local enemyCenterX = enemyX + enemySize/2
+        local enemyCenterY = enemyY + enemySize/2
+        local newPlayerCenterX = enemyCenterX + nx * targetDistance
+        local newPlayerCenterY = enemyCenterY + ny * targetDistance
+        playerX = newPlayerCenterX - playerSize/2
+        playerY = newPlayerCenterY - playerSize/2
+        Entity.set_global_pos(player, playerX, playerY)
+        
+        -- Start knockback away from enemy
+        knockbackDirX = nx
+        knockbackDirY = ny
+        knockbackTimer = knockbackDuration
+        
         playerHealth = playerHealth - 10
         FlashPlayer()
         damageCooldown = damageCooldownDuration
