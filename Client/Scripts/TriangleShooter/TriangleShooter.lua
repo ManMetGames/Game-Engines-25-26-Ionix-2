@@ -2,9 +2,15 @@ local TriangleShooter = {}
 local assets = require("Scripts.Assets")
 local enums = require("Scripts.Enums")
 
--- Screen bounds (updated each frame from window size)
-local screenW = 960
-local screenH = 640
+-- World (play area) size
+local WORLD_W = 1920
+local WORLD_H = 1080
+
+-- Visible window / camera (matches window size for now)
+local windowX = 0
+local windowY = 0
+local windowW = 960
+local windowH = 640
 
 -- Player (triangle)
 local player
@@ -45,7 +51,7 @@ local aimDirY = -1  -- Default: pointing up
 local enemy
 local enemySprite
 local enemySize = 48
-local enemyX = 400  -- Center of screen
+local enemyX = 400  -- Center of screen (world space)
 local enemyY = 300
 local enemyHealth = 50
 local enemyRotation = 0
@@ -77,18 +83,24 @@ function TriangleShooter:OnStart()
     -- Create player triangle
     player = Entity.create_entity()
     
-    -- Start at center of screen
-    playerX = screenW / 2 - playerSize / 2
-    playerY = screenH / 2 - playerSize / 2
-    Entity.set_global_pos(player, playerX, playerY)
+    -- Start at center of world
+    playerX = WORLD_W / 2 - playerSize / 2
+    playerY = WORLD_H / 2 - playerSize / 2
+    local screenPlayerX = playerX - windowX
+    local screenPlayerY = playerY - windowY
+    Entity.set_global_pos(player, screenPlayerX, screenPlayerY)
     
     -- Add sprite component 
     playerSprite = Entity.add_sprite_component(player, assets.textures.Triangle, playerSize, playerSize, 10)
     Sprite.set_columns(playerSprite, 1)
     
-    -- Create enemy cube at center of screen
+    -- Create enemy cube at center of world
     enemy = Entity.create_entity()
-    Entity.set_global_pos(enemy, enemyX, enemyY)
+    enemyX = WORLD_W / 2 - enemySize / 2
+    enemyY = WORLD_H / 2 - enemySize / 2
+    local screenEnemyX = enemyX - windowX
+    local screenEnemyY = enemyY - windowY
+    Entity.set_global_pos(enemy, screenEnemyX, screenEnemyY)
     enemySprite = Entity.add_sprite_component(enemy, assets.textures.Cube, enemySize, enemySize, 5)
     Sprite.set_columns(enemySprite, 1)
 
@@ -116,8 +128,8 @@ end
 ----------------------------------------------------------
 function TriangleShooter:OnUpdate()
     -- Update screen bounds from window
-    screenW = Window.get_width()
-    screenH = Window.get_height()
+    windowW = Window.get_width()
+    windowH = Window.get_height()
     
     -- Get mouse delta (relative movement)
     local delta = Input.get_mouse_delta()
@@ -148,10 +160,19 @@ function TriangleShooter:OnUpdate()
     end
     
     -- Clamp to screen bounds
-    playerX = math.max(0, math.min(screenW - playerSize, playerX))
-    playerY = math.max(0, math.min(screenH - playerSize, playerY))
-    
-    Entity.set_global_pos(player, playerX, playerY)
+    playerX = math.max(0, math.min(WORLD_W - playerSize, playerX))
+    playerY = math.max(0, math.min(WORLD_H - playerSize, playerY))
+
+    local visibleMinX = windowX
+    local visibleMaxX = windowX + windowW - playerSize
+    local visibleMinY = windowY
+    local visibleMaxY = windowY + windowH - playerSize
+    playerX = math.max(visibleMinX, math.min(visibleMaxX, playerX))
+    playerY = math.max(visibleMinY, math.min(visibleMaxY, playerY))
+
+    local screenPlayerX = playerX - windowX
+    local screenPlayerY = playerY - windowY
+    Entity.set_global_pos(player, screenPlayerX, screenPlayerY)
     
     -- Rotate triangle to face the enemy cube
     local dx = (enemyX + enemySize/2) - (playerX + playerSize/2)
@@ -209,7 +230,9 @@ function SpawnProjectile()
     local spawnY = centerY + aimDirY * (playerSize/2) - projectileSize/2
     
     -- Set position and rotation
-    Entity.set_global_pos(projData.entity, spawnX, spawnY)
+    local screenSpawnX = spawnX - windowX
+    local screenSpawnY = spawnY - windowY
+    Entity.set_global_pos(projData.entity, screenSpawnX, screenSpawnY)
     local projAngle = math.deg(math.atan(aimDirY, aimDirX)) + 90
     Entity.set_global_rot(projData.entity, projAngle)
     
@@ -234,7 +257,9 @@ function UpdateProjectiles()
         proj.x = proj.x + proj.vx
         proj.y = proj.y + proj.vy
         
-        Entity.set_global_pos(proj.entity, proj.x, proj.y)
+        local screenX = proj.x - windowX
+        local screenY = proj.y - windowY
+        Entity.set_global_pos(proj.entity, screenX, screenY)
         
         -- Check collisionRadius with enemy cube
         local projCenterX = proj.x + projectileSize/2
@@ -256,7 +281,7 @@ function UpdateProjectiles()
         else
             -- Increment age and remove if expired or off screen
             proj.age = proj.age + 1
-            if proj.age > projectileLifetime or proj.y < -50 or proj.y > screenH + 50 or proj.x < -50 or proj.x > screenW + 50 then
+            if proj.age > projectileLifetime or proj.y < -50 or proj.y > WORLD_H + 50 or proj.x < -50 or proj.x > WORLD_W + 50 then
                 -- Move entity off-screen and return to pool
                 Entity.set_global_pos(proj.entity, -1000, -1000)
                 table.insert(projectilePool, table.remove(projectiles, i))
@@ -340,7 +365,9 @@ function UpdateEnemyCollision()
         local newPlayerCenterY = enemyCenterY + ny * targetDistance
         playerX = newPlayerCenterX - playerSize/2
         playerY = newPlayerCenterY - playerSize/2
-        Entity.set_global_pos(player, playerX, playerY)
+        local screenPlayerX = playerX - windowX
+        local screenPlayerY = playerY - windowY
+        Entity.set_global_pos(player, screenPlayerX, screenPlayerY)
         
         -- Start knockback away from enemy
         local pushX = nx
@@ -367,6 +394,7 @@ function UpdateEnemyCollision()
         --(S * (1 - (t/T)^2)), where direction is your chosen unit vector 
         --(e.g. perpendicular to attacker’s velocity), S is initial speed, 
         --T is total knockback duration, and t is elapsed time.
+        -- reusable formula for wall pushing maybe?
         playerHealth = playerHealth - 10
         FlashPlayer()
         damageCooldown = damageCooldownDuration
@@ -386,10 +414,10 @@ end
 ----------------------------------------------------------
 function UpdateEnemyDash()
     -- Wall boundaries
-    local minX = 0
-    local maxX = screenW - enemySize
-    local minY = 0
-    local maxY = screenH - enemySize
+    local minX = windowX
+    local maxX = windowX + windowW - enemySize
+    local minY = windowY
+    local maxY = windowY + windowH - enemySize
 
     -- Ensure we have some direction; if not, aim at player
     if dashDirX == 0 and dashDirY == 0 then
@@ -447,7 +475,9 @@ function UpdateEnemyDash()
         Entity.set_global_rot(enemy, newAngle)
     end
 
-    Entity.set_global_pos(enemy, enemyX, enemyY)
+    local screenEnemyX = enemyX - windowX
+    local screenEnemyY = enemyY - windowY
+    Entity.set_global_pos(enemy, screenEnemyX, screenEnemyY)
 end
 
 ----------------------------------------------------------
@@ -487,7 +517,9 @@ function SpawnEnemyProjectile()
     local spawnX = enemyCenterX - enemyProjectileSize/2
     local spawnY = enemyCenterY - enemyProjectileSize/2
     
-    Entity.set_global_pos(projData.entity, spawnX, spawnY)
+    local screenSpawnX = spawnX - windowX
+    local screenSpawnY = spawnY - windowY
+    Entity.set_global_pos(projData.entity, screenSpawnX, screenSpawnY)
     local projAngle = math.deg(math.atan(dirY, dirX)) + 90
     Entity.set_global_rot(projData.entity, projAngle)
     
@@ -510,7 +542,9 @@ function UpdateEnemyProjectiles()
         -- Move projectile
         proj.x = proj.x + proj.vx
         proj.y = proj.y + proj.vy
-        Entity.set_global_pos(proj.entity, proj.x, proj.y)
+        local screenX = proj.x - windowX
+        local screenY = proj.y - windowY
+        Entity.set_global_pos(proj.entity, screenX, screenY)
         
         -- Check collision with player
         local projCenterX = proj.x + enemyProjectileSize/2
@@ -533,7 +567,7 @@ function UpdateEnemyProjectiles()
         else
             -- Age and remove if expired or off screen
             proj.age = proj.age + 1
-            if proj.age > projectileLifetime or proj.y < -50 or proj.y > screenH + 50 or proj.x < -50 or proj.x > screenW + 50 then
+            if proj.age > projectileLifetime or proj.y < -50 or proj.y > WORLD_H + 50 or proj.x < -50 or proj.x > WORLD_W + 50 then
                 Entity.set_global_pos(proj.entity, -1000, -1000)
                 table.insert(enemyProjectilePool, table.remove(enemyProjectiles, i))
             end
