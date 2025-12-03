@@ -52,13 +52,8 @@ local enemyY = 300
 local enemyHealth = 50
 local enemyRotation = 0
 
--- Enemy state machine: "aiming" (tracks player) -> "dashing" -> "aiming"
-local enemyState = "aiming"
-local dashCooldown = 0
-
--- Timing (at 60fps)
-local dashCooldownDuration = 180  -- 3 seconds between dashes
-local dashSpeed = 6               -- pixels per frame while dashing
+-- Enemy movement (continuous bouncing)
+local dashSpeed = 6               -- pixels per frame while moving
 local dashDirX = 0
 local dashDirY = 0
 -- Continuous bouncing (no max bounces)
@@ -102,6 +97,24 @@ function TriangleShooter:OnStart()
     Entity.set_global_pos(enemy, enemyX, enemyY)
     enemySprite = Entity.add_sprite_component(enemy, assets.textures.Cube, enemySize, enemySize, 5)
     Sprite.set_columns(enemySprite, 1)
+
+    -- Initial enemy direction towards player
+    local enemyCenterX = enemyX + enemySize/2
+    local enemyCenterY = enemyY + enemySize/2
+    local playerCenterX = playerX + playerSize/2
+    local playerCenterY = playerY + playerSize/2
+    local dx = playerCenterX - enemyCenterX
+    local dy = playerCenterY - enemyCenterY
+    local dist = math.sqrt(dx * dx + dy * dy)
+    if dist > 0 then
+        dashDirX = dx / dist
+        dashDirY = dy / dist
+    else
+        dashDirX = 0
+        dashDirY = 0
+    end
+    local angle = math.deg(math.atan(dashDirY, dashDirX)) + 90
+    Entity.set_global_rot(enemy, angle)
 end
 
 ----------------------------------------------------------
@@ -320,81 +333,64 @@ function UpdateEnemyDash()
     local maxX = screenW - enemySize
     local minY = 0
     local maxY = screenH - enemySize
-    
-    -- Calculate direction to player (used in aiming state)
-    local enemyCenterX = enemyX + enemySize/2
-    local enemyCenterY = enemyY + enemySize/2
-    local playerCenterX = playerX + playerSize/2
-    local playerCenterY = playerY + playerSize/2
-    local dx = playerCenterX - enemyCenterX
-    local dy = playerCenterY - enemyCenterY
-    
-    if enemyState == "aiming" then
-        -- Always face the player
-        local angle = math.deg(math.atan(dy, dx)) + 90
-        Entity.set_global_rot(enemy, angle)
-        
-        -- Count down cooldown
-        if dashCooldown > 0 then
-            dashCooldown = dashCooldown - 1
-        else
-            -- Cooldown done, lock direction and dash
-            local dist = math.sqrt(dx * dx + dy * dy)
-            if dist > 0 then
-                dashDirX = dx / dist
-                dashDirY = dy / dist
-            else
-                dashDirX = 0
-                dashDirY = 0
-            end
-            enemyState = "dashing"
-            enemyShootCooldown = 0
+
+    -- Ensure we have some direction; if not, aim at player
+    if dashDirX == 0 and dashDirY == 0 then
+        local enemyCenterX = enemyX + enemySize/2
+        local enemyCenterY = enemyY + enemySize/2
+        local playerCenterX = playerX + playerSize/2
+        local playerCenterY = playerY + playerSize/2
+        local dx = playerCenterX - enemyCenterX
+        local dy = playerCenterY - enemyCenterY
+        local dist = math.sqrt(dx * dx + dy * dy)
+        if dist > 0 then
+            dashDirX = dx / dist
+            dashDirY = dy / dist
         end
-        
-    elseif enemyState == "dashing" then
-        -- Move in locked direction (no rotation change)
-        enemyX = enemyX + dashDirX * dashSpeed
-        enemyY = enemyY + dashDirY * dashSpeed
-        
-        -- Shoot projectiles while dashing
-        enemyShootCooldown = enemyShootCooldown + 1
-        if enemyShootCooldown >= enemyShootInterval then
-            SpawnEnemyProjectile()
-            enemyShootCooldown = 0
-        end
-        
-        -- Check wall collision and bounce
-        local hitX = false
-        local hitY = false
-        
-        if enemyX <= minX then
-            enemyX = minX
-            hitX = true
-        elseif enemyX >= maxX then
-            enemyX = maxX
-            hitX = true
-        end
-        if enemyY <= minY then
-            enemyY = minY
-            hitY = true
-        elseif enemyY >= maxY then
-            enemyY = maxY
-            hitY = true
-        end
-        
-        -- Bounce off walls (continuous)
-        if hitX or hitY then
-            -- Bounce: reverse appropriate direction
-            if hitX then dashDirX = -dashDirX end
-            if hitY then dashDirY = -dashDirY end
-            
-            -- Update rotation to match new direction
-            local newAngle = math.deg(math.atan(dashDirY, dashDirX)) + 90
-            Entity.set_global_rot(enemy, newAngle)
-        end
-        
-        Entity.set_global_pos(enemy, enemyX, enemyY)
     end
+
+    -- Move in current direction
+    enemyX = enemyX + dashDirX * dashSpeed
+    enemyY = enemyY + dashDirY * dashSpeed
+
+    -- Shoot projectiles on a simple timer
+    enemyShootCooldown = enemyShootCooldown + 1
+    if enemyShootCooldown >= enemyShootInterval then
+        SpawnEnemyProjectile()
+        enemyShootCooldown = 0
+    end
+
+    -- Check wall collision and bounce
+    local hitX = false
+    local hitY = false
+
+    if enemyX <= minX then
+        enemyX = minX
+        hitX = true
+    elseif enemyX >= maxX then
+        enemyX = maxX
+        hitX = true
+    end
+    if enemyY <= minY then
+        enemyY = minY
+        hitY = true
+    elseif enemyY >= maxY then
+        enemyY = maxY
+        hitY = true
+    end
+
+    -- Bounce off walls (continuous)
+    if hitX or hitY then
+        -- Bounce: reverse appropriate direction
+        if hitX then dashDirX = -dashDirX end
+        if hitY then dashDirY = -dashDirY end
+
+        -- Update rotation to match new direction
+        local newAngle = math.deg(math.atan(dashDirY, dashDirX)) + 90
+        Entity.set_global_rot(enemy, newAngle)
+    end
+
+    Entity.set_global_pos(enemy, enemyX, enemyY)
 end
 
 ----------------------------------------------------------
