@@ -343,10 +343,30 @@ function UpdateEnemyCollision()
         Entity.set_global_pos(player, playerX, playerY)
         
         -- Start knockback away from enemy
-        knockbackDirX = nx
-        knockbackDirY = ny
+        local pushX = nx
+        local pushY = ny
+        if dashDirX ~= 0 or dashDirY ~= 0 then
+            local sideLX = -dashDirY
+            local sideLY = dashDirX
+            local sideRX = dashDirY
+            local sideRY = -dashDirX
+            local dotL = nx * sideLX + ny * sideLY
+            local dotR = nx * sideRX + ny * sideRY
+            if dotL > dotR then
+                pushX = sideLX
+                pushY = sideLY
+            else
+                pushX = sideRX
+                pushY = sideRY
+            end
+        end
+        knockbackDirX = pushX
+        knockbackDirY = pushY
         knockbackTimer = knockbackDuration
-        
+        -- each frame while 0 ≤ t ≤ T, move by direction * 
+        --(S * (1 - (t/T)^2)), where direction is your chosen unit vector 
+        --(e.g. perpendicular to attacker’s velocity), S is initial speed, 
+        --T is total knockback duration, and t is elapsed time.
         playerHealth = playerHealth - 10
         FlashPlayer()
         damageCooldown = damageCooldownDuration
