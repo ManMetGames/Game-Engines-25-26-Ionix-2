@@ -5,7 +5,7 @@
 #include <string>
 #include <array>
 #include "Graphics/SpriteComponent.h"
-#include "Graphics/SpriteComponent.h"
+
 //#include <mutex>
 using namespace std;
 
@@ -20,6 +20,8 @@ namespace IonixEngine {
 		Uint8 r = 255;  // Color tint (default white = no tint)
 		Uint8 g = 255;
 		Uint8 b = 255;
+		float rotation;
+		int renderLayer;
 	};
 
 	class QueueRenderer //Singleton

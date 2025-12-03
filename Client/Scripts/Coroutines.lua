@@ -52,7 +52,4 @@ function coroutines:Yield(co)
     coroutine.yield(co)
 end
 
-function coroutines:YieldTime(co)
-end
-
 return coroutines

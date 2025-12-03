@@ -3,6 +3,8 @@
 #include <string>
 #include <functional>
 #include <vector>
+#include "FontLoader.h"
+#include "UI/UI.h"
 namespace IonixEngine
 {
 	enum UIType

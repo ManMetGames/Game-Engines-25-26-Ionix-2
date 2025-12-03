@@ -8,22 +8,23 @@
 #include <iomanip>
 #include <unordered_map>
 #include <Input/MicrophoneManager.h>
+#include "Input/ControllerManager.h"
 
 namespace IonixEngine
 {
     void EventSDL::PollEventsSDL(const SDL_Event& e, WindowData& windowData)
     {
         //Let ImGui handle the event first if needed:
-        ImGui_ImplSDL2_ProcessEvent(&e); 
+        ImGui_ImplSDL2_ProcessEvent(&e);
 
         //Store connected controllers 
         //static std::vector<SDL_GameController*> controllers;
 
         static std::unordered_map<int, SDL_GameController*> controllers;
-        static std::unordered_map<int, ControllerManager> controllerManagers;
 
         //microphone
         static std::unordered_map<SDL_AudioDeviceID, SDL_AudioSpec> microphones;
+        
         static std::unordered_map<SDL_AudioDeviceID, MicrophoneManager> microphoneManagers;   
 
         switch (e.type)
@@ -65,30 +66,36 @@ namespace IonixEngine
             Application::Get().layerInput->m_Input->SetMouseReleased(e.button.button);
             break;
 
+        case SDL_MOUSEWHEEL:
+            Application::Get().layerInput->m_Input->SetScrollDiff(static_cast<float>(e.wheel.y));
+            break;
+
+
             //Microphone Connected 
-        case SDL_AUDIODEVICEADDED:
+          case SDL_AUDIODEVICEADDED:
         {
             const char* deviceName = SDL_GetAudioDeviceName(e.adevice.which, SDL_TRUE);
-                if (deviceName)
-                {
-                    
-                  
+            if (deviceName)
+            {
 
-                   
-                }
-                break;
+
+
+
+
+            }
+            break;
         }
 
         //Microphone disconnected
         case SDL_AUDIODEVICEREMOVED:
         {
 
-           
-        }
-        
-        
 
-            // Controller
+        }
+
+
+
+        // Controller
         case SDL_CONTROLLERDEVICEADDED:
         {
             SDL_GameController* controller = SDL_GameControllerOpen(e.cdevice.which);
@@ -96,7 +103,7 @@ namespace IonixEngine
             {
                 int instanceId = SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(controller)); //Stores "Controller just added" in instandID
                 controllers[instanceId] = controller;
-                controllerManagers[instanceId] = ControllerManager();
+                Application::Get().layerInput->GetControllerManager()[instanceId] = new ControllerManager(instanceId);
 
                 std::cout << "Player " << instanceId << " connected! Total: " << controllers.size() << "\n";
             }
@@ -109,7 +116,7 @@ namespace IonixEngine
             {
                 SDL_GameControllerClose(controllers[instanceId]);
                 controllers.erase(instanceId);
-                controllerManagers.erase(instanceId);
+                Application::Get().layerInput->GetControllerManager().erase(instanceId);
 
                 std::cout << "Player " << instanceId << " disconnected! Total: " << controllers.size() << "\n";
             }
@@ -119,12 +126,23 @@ namespace IonixEngine
 
         case SDL_CONTROLLERBUTTONDOWN:
         {
+            // We could raise an event with the controller and the id
+            // Event gets picked up in the input layer and finds the controller with the id
+            // invokes the respective get button down method
+
+            // Probably need to migrate dictionary to the input layer?
             int instanceId = e.cbutton.which;
-            if (controllerManagers.count(instanceId))
+            if (Application::Get().layerInput->GetControllerManager().count(instanceId))
             {
-                controllerManagers[instanceId].SetButtonPressed(e.cbutton.button);
-                std::cout << "Player " << instanceId << " pressed button "
-                    << static_cast<int>(e.cbutton.button) << "\n";
+                Application::Get().layerInput->GetControllerManager()[instanceId]->SetButtonPressed(e.cbutton.button);
+
+                // Raise an event - now we know who pressed the button, and their instanceID
+                // This can be picked up and processed in the Input Layer
+                if (m_EventCallback)
+                {
+                    ControllerButtonDownEvent event(Application::Get().layerInput->GetControllerManager()[instanceId], instanceId, e.button.which);
+                    m_EventCallback(event);
+                }
             }
             break;
         }
@@ -132,11 +150,15 @@ namespace IonixEngine
         case SDL_CONTROLLERBUTTONUP:
         {
             int instanceId = e.cbutton.which;
-            if (controllerManagers.count(instanceId))
+            if (Application::Get().layerInput->GetControllerManager().count(instanceId))
             {
-                controllerManagers[instanceId].SetButtonReleased(e.cbutton.button);
-                std::cout << "Player " << instanceId << " released button "
-                    << static_cast<int>(e.cbutton.button) << "\n";
+                Application::Get().layerInput->GetControllerManager()[instanceId]->SetButtonReleased(e.cbutton.button);
+
+                if (m_EventCallback)
+                {
+                    ControllerButtonUpEvent event(Application::Get().layerInput->GetControllerManager()[instanceId], instanceId, e.button.which);
+                    m_EventCallback(event);
+                }
             }
             break;
         }
@@ -147,82 +169,82 @@ namespace IonixEngine
             case SDL_CONTROLLER_AXIS_LEFTY:
             {
                 int instanceId = e.caxis.which;
-                if (controllerManagers.count(instanceId))
+                if (Application::Get().layerInput->GetControllerManager().count(instanceId))
                 {
-                    double val = e.caxis.value;
-                    float normalised = controllerManagers[instanceId].NormaliseStickAxis(val);
-                    std::cout << "Player " << instanceId << " Left Stick Y Moved " 
-                        << static_cast<float>(normalised) << "\n";
-                   
+                    if (m_EventCallback)
+                    {
+                        ControllerAxisEvent event(Application::Get().layerInput->GetControllerManager()[instanceId], instanceId, e.caxis.value, e.caxis.axis);
+                        m_EventCallback(event);
+                    }
                 }
-                
+
                 break;
             }
             case SDL_CONTROLLER_AXIS_LEFTX:
             {
                 int instanceId = e.caxis.which;
-                if (controllerManagers.count(instanceId))
+                if (Application::Get().layerInput->GetControllerManager().count(instanceId))
                 {
-                    double val = e.caxis.value;
-                    float normalised = controllerManagers[instanceId].NormaliseStickAxis(val);
-                    std::cout << "Player " << instanceId << " Left Stick X Moved "
-                        << static_cast<float>(normalised) << "\n";
-                   
+                    if (m_EventCallback)
+                    {
+                        ControllerAxisEvent event(Application::Get().layerInput->GetControllerManager()[instanceId], instanceId, e.caxis.value, e.caxis.axis);
+                        m_EventCallback(event);
+                    }
                 }
-               
+
                 break;
             }
             case SDL_CONTROLLER_AXIS_RIGHTX:
             {
 
                 int instanceId = e.caxis.which;
-                if (controllerManagers.count(instanceId))
+                if (Application::Get().layerInput->GetControllerManager().count(instanceId))
                 {
-                    double val = e.caxis.value;
-                    float normalised = controllerManagers[instanceId].NormaliseStickAxis(val);
-                    std::cout << "Player " << instanceId << " Right Stick X Moved "
-                        << static_cast<float>(normalised) << "\n";
-                    
+                    if (m_EventCallback)
+                    {
+                        ControllerAxisEvent event(Application::Get().layerInput->GetControllerManager()[instanceId], instanceId, e.caxis.value, e.caxis.axis);
+                        m_EventCallback(event);
+                    }
                 }
-               
+
                 break;
             }
             case SDL_CONTROLLER_AXIS_RIGHTY:
             {
                 int instanceId = e.caxis.which;
-                if (controllerManagers.count(instanceId))
+                if (Application::Get().layerInput->GetControllerManager().count(instanceId))
                 {
-                    double val = e.caxis.value;
-                    float normalised = controllerManagers[instanceId].NormaliseStickAxis(val);
-                    std::cout << "Player " << instanceId << " Right Stick Y Moved "
-                        << static_cast<float>(normalised) << "\n";
-                    
+                    if (m_EventCallback)
+                    {
+                        ControllerAxisEvent event(Application::Get().layerInput->GetControllerManager()[instanceId], instanceId, e.caxis.value, e.caxis.axis);
+                        m_EventCallback(event);
+                    }
                 }
                 break;
             }
             case SDL_CONTROLLER_AXIS_TRIGGERLEFT:
             {
                 int instanceId = e.caxis.which;
-                if (controllerManagers.count(instanceId))
+                if (Application::Get().layerInput->GetControllerManager().count(instanceId))
                 {
-                    double val = e.caxis.value;
-                    float normalised = controllerManagers[instanceId].NormaliseTrigger(val);
-                    std::cout << "Player " << instanceId << " Left Trigger pressed "
-                        << static_cast<float>(normalised) << "\n";
-                    
+                    if (m_EventCallback)
+                    {
+                        ControllerTriggerEvent event(Application::Get().layerInput->GetControllerManager()[instanceId], instanceId, e.caxis.value, e.caxis.axis);
+                        m_EventCallback(event);
+                    }
                 }
                 break;
             }
             case SDL_CONTROLLER_AXIS_TRIGGERRIGHT:
             {
                 int instanceId = e.caxis.which;
-                if (controllerManagers.count(instanceId))
+                if (Application::Get().layerInput->GetControllerManager().count(instanceId))
                 {
-                    double val = e.caxis.value;
-                    float normalised = controllerManagers[instanceId].NormaliseTrigger(val);
-                    std::cout << "Player " << instanceId << " Right Trigger pressed "
-                        << static_cast<float>(normalised) << "\n";
-                   
+                    if (m_EventCallback)
+                    {
+                        ControllerTriggerEvent event(Application::Get().layerInput->GetControllerManager()[instanceId], instanceId, e.caxis.value, e.caxis.axis);
+                        m_EventCallback(event);
+                    }
                 }
                 break;
             }
@@ -230,6 +252,6 @@ namespace IonixEngine
             }
 
         }
-        }
     }
+}
 
