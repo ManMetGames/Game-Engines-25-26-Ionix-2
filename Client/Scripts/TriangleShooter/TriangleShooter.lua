@@ -6,22 +6,13 @@ local enums = require("Scripts.Enums")
 local screenW = 960
 local screenH = 640
 
--- Window ping-pong settings
-local windowPingPongEnabled = true
-local windowBaseWidth = 960
-local windowBaseHeight = 640
-local windowSizeChange = 200      -- How much to shrink/grow
-local windowCycleDuration = 180   -- 3 seconds at 60fps (one direction)
-local windowTimer = 0
-local windowDirection = 1         -- 1 = growing, -1 = shrinking
-
 -- Player (triangle)
 local player
 local playerSprite
 local playerSize = 48
 local playerX = 400
 local playerY = 300
-local playerSpeed = 0.5  -- Mouse sensitivity multiplier
+local playerSpeed = 0.35  -- Mouse sensitivity multiplier
 local playerHealth = 100
 
 -- Player flash effect
@@ -51,23 +42,19 @@ local enemyX = 400  -- Center of screen
 local enemyY = 300
 local enemyHealth = 50
 local enemyRotation = 0
-
--- Enemy movement (continuous bouncing)
-local dashSpeed = 6               -- pixels per frame while moving
+local dashSpeed = 4      -- pixels per frame while moving
 local dashDirX = 0
 local dashDirY = 0
--- Continuous bouncing (no max bounces)
+local collisionRadius = 24  -- Half of enemy size for circle collision
 
 -- Enemy projectile settings
 local enemyProjectiles = {}
 local enemyProjectilePool = {}
 local enemyProjectileSize = 24
-local enemyProjectileSpeed = 3
+local enemyProjectileSpeed = 2.5
 local enemyShootCooldown = 0
-local enemyShootInterval = 75  -- 1.25 seconds at 60fps
+local enemyShootInterval = 125  -- 2 seconds at 60fps
 
--- Collision settings
-local collisionRadius = 24  -- Half of enemy size for circle collision
 
 -- Flash effect
 local flashTimer = 0
@@ -121,9 +108,6 @@ end
 -- OnUpdate
 ----------------------------------------------------------
 function TriangleShooter:OnUpdate()
-    -- Update window ping-pong
-    UpdateWindowPingPong()
-    
     -- Update screen bounds from window
     screenW = Window.get_width()
     screenH = Window.get_height()
@@ -325,7 +309,7 @@ function FlashPlayer()
 end
 
 ----------------------------------------------------------
--- Enemy behavior: aiming (tracks player) <-> dashing
+-- Enemy behavior: continuous dashing with wall bounces and shooting
 ----------------------------------------------------------
 function UpdateEnemyDash()
     -- Wall boundaries
@@ -482,32 +466,6 @@ function UpdateEnemyProjectiles()
             end
         end
     end
-end
-
-----------------------------------------------------------
--- Window ping-pong effect
-----------------------------------------------------------
-function UpdateWindowPingPong()
-    if not windowPingPongEnabled then return end
-    
-    -- Increment timer
-    windowTimer = windowTimer + windowDirection
-    
-    -- Reverse direction at bounds
-    if windowTimer >= windowCycleDuration then
-        windowTimer = windowCycleDuration
-        windowDirection = -1
-    elseif windowTimer <= 0 then
-        windowTimer = 0
-        windowDirection = 1
-    end
-    
-    -- Calculate current size (lerp between base and base + change)
-    local t = windowTimer / windowCycleDuration
-    local currentWidth = windowBaseWidth + (windowSizeChange * t)
-    local currentHeight = windowBaseHeight + (windowSizeChange * t)
-    
-    Window.set_size_centered(math.floor(currentWidth), math.floor(currentHeight))
 end
 
 return TriangleShooter
