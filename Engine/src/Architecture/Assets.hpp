@@ -50,8 +50,8 @@ struct Sounds {
 
     inline std::map<std::string, std::string> GetSounds() {
         std::map<std::string, std::string> map;
-        map["test"] = "./Assets/test.wav";
-        map["test0"] = "./Assets/test.mp3";
+        map["test"] = "./Assets/test.mp3";
+        map["test0"] = "./Assets/test.wav";
         return map;
     };
 };
