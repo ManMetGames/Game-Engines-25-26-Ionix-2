@@ -71,6 +71,18 @@ namespace IonixEngine {
         auto showCursor = [](bool show) {
             SDL_ShowCursor(show ? SDL_ENABLE : SDL_DISABLE);
             };
+        auto setRelativeMouseMode = [](bool enabled) {
+            SDL_SetRelativeMouseMode(enabled ? SDL_TRUE : SDL_FALSE);
+            };
+        auto getMouseDelta = [](sol::this_state L) -> sol::object {
+            int x, y;
+            SDL_GetRelativeMouseState(&x, &y);
+            sol::state_view lua(L);
+            sol::table result = lua.create_table();
+            result["x"] = x;
+            result["y"] = y;
+            return result;
+            };
 
         auto getButtonDown = [this](int index, int btn) -> bool {
             return Application::Get().layerInput->IsControllerButtonDown(index, static_cast<Uint8>(btn));
@@ -188,8 +200,8 @@ namespace IonixEngine {
             "show_cursor", showCursor,
             "get_scroll_diff",getScrollDiff,
             "set_scroll_diff", setScrollDiff,
-            
-
+            "set_relative_mouse_mode", setRelativeMouseMode,
+            "get_mouse_delta", getMouseDelta,
             "get_button_down", getButtonDown,
             "get_button_up", getButtonUp,
             "get_button_held", getButtonHeld,
