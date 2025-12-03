@@ -2,6 +2,7 @@
 #include "Architecture/Application.h"
 #include "Architecture/ECS/Entity.hpp"
 #include "Fysics/FysicsBody.h"
+#include "Fysics/FysicsManager.h"
 namespace IonixEngine {
 
     EntityScripting* EntityScripting::s_Instance = nullptr;
@@ -14,9 +15,30 @@ namespace IonixEngine {
 
     void EntityScripting::Init(sol::state& lua)
     {
-        auto entity = []() -> Entity* {
-            EntityID entityID = Application::Get().layerScene->GetScene()->CreateEntity();
+        auto entity = [](sol::optional<int> renderLayer) -> Entity* {
+            EntityID entityID;
+            if (!renderLayer)
+            {
+                entityID = Application::Get().layerScene->GetScene()->CreateEntity(0);
+            }
+            else
+            {
+                entityID = Application::Get().layerScene->GetScene()->CreateEntity(*renderLayer);
+            }
             return Application::Get().layerScene->GetScene()->GetEntityFromID(entityID);
+            };
+
+        auto destroy = [](Entity* entityToDestroy) -> bool {
+            if (entityToDestroy == nullptr) return false;
+            FysicsBody* bodyToDestroy = nullptr;
+            if (entityToDestroy->TryGetComponent<FysicsBody>(&bodyToDestroy))
+            {
+           
+                Application::Get().layerFysics->GetFysicsManager()->GetCollisionListener()->AddEntityBodiesToDestroy(bodyToDestroy->GetBody());
+
+            }
+            
+            return Application::Get().layerScene->GetScene()->DestroyEntity(entityToDestroy->id);
             };
 
         //----------Transforms-----------
@@ -69,7 +91,7 @@ namespace IonixEngine {
 
         auto setLocalPos = [](Entity* entity, float x, float y) {
             if (entity == nullptr) return;
-            entity->transform.SetLocalPosition(Vec2{ x, y });
+			entity->transform.SetLocalPosition(Vec2{ x, y });
             };
 
         auto setLocalRot = [](Entity* entity, float rot) {
@@ -114,12 +136,10 @@ namespace IonixEngine {
             };
 
         auto removeChild = [](Entity* entity, Entity* newChild) {
-            if (entity == nullptr || newChild == nullptr)
             entity->transform.RemoveChild(&newChild->transform);
             };
 
         auto removeChildWithIndex = [](Entity* entity, int index) {
-            if (entity == nullptr)
                 entity->transform.RemoveChild(index);
             };
 
@@ -151,7 +171,7 @@ namespace IonixEngine {
             };
 
         auto getFysicsBodyComponent = [](Entity* entity) {
-            entity->GetComponent<FysicsBody>();
+            return entity->GetComponent<FysicsBody>();
             };
 
         auto tryGetSpriteComponent = [](Entity* entity) -> auto {
@@ -200,6 +220,7 @@ namespace IonixEngine {
 
         lua["Entity"] = lua.create_table_with(
             "create_entity", entity,
+            "destroy_entity", destroy,
             "get_global_pos", getGlobalPos,
             "set_global_pos", setGlobalPos,
             "get_global_rot", getGlobalRot,

@@ -18,11 +18,15 @@ namespace IonixEngine {
 	void QueueRenderer::RenderFromQueue() {
 		while (!sprites.empty()) {
 			RenderCall call = sprites.front();
-			// Apply color tint
-			SDL_SetTextureColorMod(call.texture, call.r, call.g, call.b);
-			SDL_RenderCopyEx(Application::Get().GetWindow().GetSdlRenderer(), call.texture, &call.src, &call.dest, call.angle, NULL, SDL_FLIP_NONE);
-			// Reset color mod to white for next texture
-			SDL_SetTextureColorMod(call.texture, 255, 255, 255);
+			if (call.renderLayer == Application::Get().currentCam->renderLayer) {
+				// Apply color tint
+				SDL_SetTextureColorMod(call.texture, call.r, call.g, call.b);
+				// Combine base entity rotation and any additional sprite rotation
+				double finalAngle = call.angle + call.rotation;
+				SDL_RenderCopyEx(Application::Get().GetWindow().GetSdlRenderer(), call.texture, &call.src, &call.dest, finalAngle, NULL, SDL_FLIP_NONE);
+				// Reset color mod to white for next texture
+				SDL_SetTextureColorMod(call.texture, 255, 255, 255);
+			}
 			sprites.pop();
 		}
 	}
@@ -86,12 +90,12 @@ namespace IonixEngine {
 		}
 
 		MergeCaller(sprites, temp, 0, sprites.size() - 1);
-		ArrToQueueConverter(temp, sprites); 
+		ArrToQueueConverter(temp, sprites);
 	}
 
 	void QueueRenderer::MergeCaller(queue<RenderCall>& sprites, std::vector<RenderCall>& temp, int left, int right)
 	{
-		
+
 		if (left >= right) {
 			return;
 		}
