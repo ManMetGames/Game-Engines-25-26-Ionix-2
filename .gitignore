@@ -57,10 +57,7 @@ Desktop.ini
 # --- Project ---
 dependencies
 
-# --- Editor ---
-!Ionix 2 - Editor/
-!Ionix 2 - Editor/*
-!Ionix 2 - Editor/**/*
+
 
 # --- Misc ---
 
@@ -78,3 +75,8 @@ Client/*
 !Client/Assets/
 !Client/Assets/*.png
 Client/Scripts/Settings.lua
+
+# --- Editor ---
+!Client/Ionix 2 - Editor/
+!Client/Ionix 2 - Editor/*
+!Client/Ionix 2 - Editor/**/*
