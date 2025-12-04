@@ -146,6 +146,18 @@ shootAbilities.dual = function(tipX, tipY, aimX, aimY)
     }
 end
 
+shootAbilities.triple = function(tipX, tipY, aimX, aimY)
+    local sideX = -aimY
+    local sideY = aimX
+    local offset = projectileSize * 0.6
+
+    return {
+        { offsetX = 0, offsetY = 0, dirX = aimX, dirY = aimY },
+        { offsetX = sideX * offset, offsetY = sideY * offset, dirX = aimX, dirY = aimY },
+        { offsetX = -sideX * offset, offsetY = -sideY * offset, dirX = aimX, dirY = aimY },
+    }
+end
+
 local function GetXpForNextLevel(level)
     local n = level - 1
     return math.floor(100 + 40 * n + 10 * n * math.max(n - 1, 0))
@@ -157,6 +169,8 @@ local function OnLevelUp()
 
     if playerLevel == 2 then
         currentShootAbility = "dual"
+    elseif playerLevel == 3 then
+        currentShootAbility = "triple"
     end
 end
 

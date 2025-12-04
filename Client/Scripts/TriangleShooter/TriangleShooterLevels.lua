@@ -26,15 +26,15 @@ local levels = {
         coinPerHit = 1,
     },
     [4] = {
-        timeLimitFrames = 60 * 25,
+        timeLimitFrames = 60 * 60,
         enemyCount = 1,
-        enemyHealth = 80,
+        enemyHealth = 70,
         enemyProjectiles = true,
         wallPingPong = true,
         coinPerHit = 1,
     },
     [5] = {
-        timeLimitFrames = 60 * 25,
+        timeLimitFrames = 60 * 140,
         enemyCount = 2,
         enemyHealth = 90,
         enemyProjectiles = true,
