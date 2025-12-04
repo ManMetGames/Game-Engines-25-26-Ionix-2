@@ -13,7 +13,7 @@ LoadModule("Coroutines", "Scripts/Coroutines.lua")
 --LoadModule("Audio", "Scripts/Audio.lua")
 --LoadModule("Enemy", "Scripts/Enemy.lua")
 --LoadModule("Player", "Scripts/Player.lua")
-LoadModule("FlappyBird", "Scripts/FlappyBird/FlappyBird.lua")
+LoadModule("TriangleShooter", "Scripts/TriangleShooter/TriangleShooter.lua")
 --LoadModule("ExampleScript", "Scripts/ExampleScript.lua")
 --LoadModule("Ball","Scripts/Ball.lua")
 
