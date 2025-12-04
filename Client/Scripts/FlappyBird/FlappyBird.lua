@@ -15,14 +15,15 @@ local t = 10
 -- Pipe variables
 local pipe
 local pipeT
-
 local pipe2
 local pipeT2
 
+-- Pipe movement and positioning
 local pipeSpeed = -3
 local pipeStartX = 900
 local pipe2StartX = 1200
 local pipeOffScreenLeft = -100
+local xPos = 0  -- Initialize xPos to avoid undefined global warning
 
 -- Coin variables
 local coins = {}
@@ -167,9 +168,11 @@ function ExampleScript:OnStart()
         Sprite.set_height(coinSprite, 16)
 
         Entity.add_fysics_component(c, enums.bodytype.kinematicBody, false)
-        Fysics.add_sprite_collider(c, false, 1)
+        -- Changed to use trigger collider (true parameter)
+        Fysics.add_sprite_collider(c, true, 1)
 
         table.insert(coins, c)
+        coinHidden[c] = false  -- Initialize as not hidden
     end
 
 end
@@ -265,21 +268,46 @@ end
     end
 
     function ExampleScript:OnTriggerEnter(collision1, collision2)
+        -- Initialize coinHidden table if it doesn't exist
+        coinHidden = coinHidden or {}
+        
+        -- Check if either parameter is the player and the other is a coin
+        local player, coin
         if collision1 == player1 then
-            for _, c in ipairs(coins) do
-                if collision2 == c then
-                    print("TriggerCoin")
-                    -- Hide the coin's sprite and mark it hidden; recycler will restore and respawn it later
-                    local s = Entity.get_sprite_component(c)
+            player = collision1
+            coin = collision2
+        elseif collision2 == player1 then
+            player = collision2
+            coin = collision1
+        end
+        
+        -- If we found a player-coin collision
+        if player and coin and coins then
+            -- Verify the coin is in our coins table and not already collected
+            for i, c in ipairs(coins) do
+                if coin == c and (coinHidden[c] == nil or coinHidden[c] == false) then
+                    print("Coin collected!")
+                    
+                    -- Hide the coin's sprite
+                    local s = Entity.get_sprite_component(coin)
                     if s then
                         Sprite.set_width(s, 0)
                         Sprite.set_height(s, 0)
                     end
-                    coinHidden[c] = true
+                    
+                    -- Mark the coin as collected
+                    coinHidden[coin] = true
+                    
+                    -- Optional: Play a sound effect here if you have one
+                    -- AudioCo.PlaySound("coin_collect")
+                    
+                    -- Optional: Increment score here if you have a score system
+                    -- score = (score or 0) + 1
+                    
                     break
                 end
             end
         end
-end
+    end
 
 return ExampleScript
