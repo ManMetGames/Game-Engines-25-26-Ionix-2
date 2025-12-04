@@ -2,7 +2,7 @@ local TriangleShooterLevels = {}
 
 local levels = {
     [1] = {
-        timeLimitFrames = 60 * 90,
+        timeLimitFrames = 60 * 65,
         enemyCount = 1,
         enemyHealth = 75,
         enemyProjectiles = false,
@@ -10,15 +10,15 @@ local levels = {
         coinPerHit = 1,
     },
     [2] = {
-        timeLimitFrames = 60 * 20,
+        timeLimitFrames = 60 * 85,
         enemyCount = 1,
-        enemyHealth = 60,
+        enemyHealth = 125,
         enemyProjectiles = true,
         wallPingPong = false,
         coinPerHit = 1,
     },
     [3] = {
-        timeLimitFrames = 60 * 20,
+        timeLimitFrames = 60 * 120,
         enemyCount = 2,
         enemyHealth = 70,
         enemyProjectiles = true,
