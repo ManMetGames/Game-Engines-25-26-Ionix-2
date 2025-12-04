@@ -57,7 +57,13 @@ Desktop.ini
 # --- Project ---
 dependencies
 
+# --- Editor ---
+!Ionix 2 - Editor/
+!Ionix 2 - Editor/*
+!Ionix 2 - Editor/**/*
+
 # --- Misc ---
+
 .idea/
 imgui.ini
 dependencies/bin/imgui/obj/
