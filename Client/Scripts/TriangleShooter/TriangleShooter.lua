@@ -115,7 +115,27 @@ local knockbackDirY = 0
 local currentLevel = 1
 local levelTimer = 0
 
-local coins = 0
+local playerLevel = 1
+local xp = 0
+local xpToNextLevel = 100
+
+local function GetXpForNextLevel(level)
+    local n = level - 1
+    return math.floor(100 + 40 * n + 10 * n * math.max(n - 1, 0))
+end
+
+local function OnLevelUp()
+    playerLevel = playerLevel + 1
+    xpToNextLevel = GetXpForNextLevel(playerLevel)
+end
+
+local function AddXp(amount)
+    xp = xp + amount
+    while xp >= xpToNextLevel do
+        xp = xp - xpToNextLevel
+        OnLevelUp()
+    end
+end
 
 local function LoadLevel(index)
     local cfg = TriangleShooterLevels.getLevelConfig(index)
@@ -276,8 +296,10 @@ function TriangleShooter:OnUpdate()
         UI.draw_progress_bar(20, 20, 200, 20, enemyHealth, enemyHealth, 1)
     end
 
+    UI.draw_label("Stage: " .. tostring(currentLevel), 140, 140, 400, 20, "")
+
     UI.draw_progress_bar(screenW - 220, 20, 200, 20, 100, playerHealth, 2)
-    UI.draw_label("Coins: " .. tostring(coins), 220, 45, 740, 60, "")
+    UI.draw_label("Player Lv: " .. tostring(playerLevel) .. "  XP: " .. tostring(xp) .. " / " .. tostring(xpToNextLevel), 220, 45, 740, 60, "")
 
     if playerHealth <= 0 then
         LoadLevel(currentLevel)
@@ -352,7 +374,7 @@ function UpdateProjectiles()
         if distSq < hitRadius * hitRadius then
             -- Collision! Flash enemy and return projectile to pool
             enemyHealth = enemyHealth - 1
-            coins = coins + 1
+            AddXp(1)
             FlashEnemy()
             Entity.set_global_pos(proj.entity, -1000, -1000)
             table.insert(projectilePool, table.remove(projectiles, i))
