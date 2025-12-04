@@ -133,6 +133,14 @@ local function LoadLevel(index)
     enemyY = screenH / 2 - enemySize / 2
     Entity.set_global_pos(enemy, enemyX, enemyY)
 
+    playerHealth = 100
+    playerX = screenW / 2 - playerSize / 2
+    playerY = screenH / 2 - playerSize / 2
+    Entity.set_global_pos(player, playerX, playerY)
+    Sprite.set_color(playerSprite, 255, 255, 255)
+    playerFlashTimer = 0
+    damageCooldown = 0
+
     enemyShootCooldown = 0
 end
 
@@ -266,7 +274,11 @@ function TriangleShooter:OnUpdate()
         UI.draw_progress_bar(20, 20, 200, 20, enemyHealth, enemyHealth, 1)
     end
 
-    if enemyHealth <= 0 then
+    UI.draw_progress_bar(screenW - 220, 20, 200, 20, 100, playerHealth, 2)
+
+    if playerHealth <= 0 then
+        LoadLevel(currentLevel)
+    elseif enemyHealth <= 0 then
         OnEnemyKilled()
     elseif levelTimer <= 0 and enemyHealth > 0 then
         OnLevelTimeout()
