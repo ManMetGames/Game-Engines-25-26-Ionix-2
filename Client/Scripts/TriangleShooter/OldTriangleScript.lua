@@ -2,37 +2,15 @@ local TriangleShooter = {}
 local assets = require("Scripts.Assets")
 local enums = require("Scripts.Enums")
 
--- Screen bounds (updated each frame from window size)
-local screenW = 1920
-local screenH = 1080
+-- World (play area) size
+local WORLD_W = 1920
+local WORLD_H = 1080
 
--- Wall settings
-local wallPingPongEnabled = true
-local wallMaxShrinkX = 760        -- Max pixels each horizontal wall can shrink (1920 - 400 = 1520, /2 = 760)
-local wallMaxShrinkY = 340        -- Max pixels each vertical wall can shrink (1080 - 400 = 680, /2 = 340)
-local wallShrinkSpeed = 0.2       -- Pixels per frame each wall shrinks
-local wallExpandDuration = 180    -- 3 seconds at 60fps
-local wallExpandSpeedMultiplier = 4.0
-
--- Each wall has: offset (current shrink amount), expandTimer (>0 means expanding)
-local leftWallOffset = 0
-local leftWallExpandTimer = 0
-local rightWallOffset = 0
-local rightWallExpandTimer = 0
-local topWallOffset = 0
-local topWallExpandTimer = 0
-local bottomWallOffset = 0
-local bottomWallExpandTimer = 0
-
--- Base window size and initial position (captured on first frame)
-local windowBaseWidth = 1920
-local windowBaseHeight = 1080
-local windowInitialX = nil
-local windowInitialY = nil
-
--- Original window size (never changes, used for speed scaling)
-local originalWindowWidth = 1920
-local originalWindowHeight = 1080
+-- Visible window / camera (matches window size for now)
+local windowX = 0
+local windowY = 0
+local windowW = 960
+local windowH = 640
 
 -- Player (triangle)
 local player
@@ -40,7 +18,7 @@ local playerSprite
 local playerSize = 48
 local playerX = 400
 local playerY = 300
-local playerSpeed = 0.5  -- Mouse sensitivity multiplier
+local playerSpeed = 0.35  -- Mouse sensitivity multiplier
 local playerHealth = 100
 
 -- Player flash effect
@@ -50,6 +28,13 @@ local playerFlashDuration = 10  -- frames
 -- Damage cooldown (0.5s = 30 frames at 60fps)
 local damageCooldown = 0
 local damageCooldownDuration = 30
+
+-- Knockback
+local knockbackTimer = 0
+local knockbackDuration = 30
+local knockbackBaseSpeed = 10
+local knockbackDirX = 0
+local knockbackDirY = 0
 
 -- Projectile settings
 local projectiles = {}      -- Active projectiles
@@ -66,49 +51,27 @@ local aimDirY = -1  -- Default: pointing up
 local enemy
 local enemySprite
 local enemySize = 48
-local enemyX = 400  -- Center of screen
+local enemyX = 400  -- Center of screen (world space)
 local enemyY = 300
 local enemyHealth = 50
 local enemyRotation = 0
-local enemySpinVelocity = 0      -- Current spin speed (degrees per frame)
-local enemySpinMaxVelocity = 36  -- Soft cap (~360 RPM at 60fps)
-local enemySpinBoost = 1         -- Spin added on each bounce (much lower)
-local enemySpinDecayBase = 0.0005
-local enemySpinDecayExtra = 0.01
-
--- Enemy state machine: "aiming" (tracks player) -> "dashing" -> "aiming"
-local enemyState = "aiming"
-local dashCooldown = 0
-
--- Timing (at 60fps)
-local dashCooldownDuration = 180  -- 3 seconds between dashes
-local dashSpeed = 5               -- pixels per frame while dashing
+local dashSpeed = 4      -- pixels per frame while moving
 local dashDirX = 0
 local dashDirY = 0
-local enemyBounceSteer = 0.4
-local enemySteerStrength = 0.0
--- Continuous bouncing (no max bounces)
+local collisionRadius = 24  -- Half of enemy size for circle collision
 
 -- Enemy projectile settings
 local enemyProjectiles = {}
 local enemyProjectilePool = {}
 local enemyProjectileSize = 24
-local enemyProjectileSpeed = 3
+local enemyProjectileSpeed = 2.5
 local enemyShootCooldown = 0
-local enemyShootInterval = 75  -- 1.25 seconds at 60fps
+local enemyShootInterval = 125  -- 2 seconds at 60fps
 
--- Collision settings
-local collisionRadius = 24  -- Half of enemy size for circle collision
 
 -- Flash effect
 local flashTimer = 0
 local flashDuration = 10  -- frames
-
-local knockbackTimer = 0
-local knockbackDuration = 45
-local knockbackBaseSpeed = 6
-local knockbackDirX = 0
-local knockbackDirY = 0
 
 ----------------------------------------------------------
 -- OnStart
@@ -120,38 +83,60 @@ function TriangleShooter:OnStart()
     -- Create player triangle
     player = Entity.create_entity()
     
-    -- Start at center of screen
-    playerX = screenW / 2 - playerSize / 2
-    playerY = screenH / 2 - playerSize / 2
-    Entity.set_global_pos(player, playerX, playerY)
+    -- Start at center of world
+    playerX = WORLD_W / 2 - playerSize / 2
+    playerY = WORLD_H / 2 - playerSize / 2
+    local screenPlayerX = playerX - windowX
+    local screenPlayerY = playerY - windowY
+    Entity.set_global_pos(player, screenPlayerX, screenPlayerY)
     
     -- Add sprite component 
     playerSprite = Entity.add_sprite_component(player, assets.textures.Triangle, playerSize, playerSize, 10)
     Sprite.set_columns(playerSprite, 1)
     
-    -- Create enemy cube at center of screen
+    -- Create enemy cube at center of world
     enemy = Entity.create_entity()
-    Entity.set_global_pos(enemy, enemyX, enemyY)
+    enemyX = WORLD_W / 2 - enemySize / 2
+    enemyY = WORLD_H / 2 - enemySize / 2
+    local screenEnemyX = enemyX - windowX
+    local screenEnemyY = enemyY - windowY
+    Entity.set_global_pos(enemy, screenEnemyX, screenEnemyY)
     enemySprite = Entity.add_sprite_component(enemy, assets.textures.Cube, enemySize, enemySize, 5)
     Sprite.set_columns(enemySprite, 1)
+
+    -- Initial enemy direction towards player
+    local enemyCenterX = enemyX + enemySize/2
+    local enemyCenterY = enemyY + enemySize/2
+    local playerCenterX = playerX + playerSize/2
+    local playerCenterY = playerY + playerSize/2
+    local dx = playerCenterX - enemyCenterX
+    local dy = playerCenterY - enemyCenterY
+    local dist = math.sqrt(dx * dx + dy * dy)
+    if dist > 0 then
+        dashDirX = dx / dist
+        dashDirY = dy / dist
+    else
+        dashDirX = 0
+        dashDirY = 0
+    end
+    local angle = math.deg(math.atan(dashDirY, dashDirX)) + 90
+    Entity.set_global_rot(enemy, angle)
 end
 
 ----------------------------------------------------------
 -- OnUpdate
 ----------------------------------------------------------
 function TriangleShooter:OnUpdate()
-    -- Update wall lerps
-    UpdateWallLerps()
-    
     -- Update screen bounds from window
-    screenW = Window.get_width()
-    screenH = Window.get_height()
+    windowW = Window.get_width()
+    windowH = Window.get_height()
     
     -- Get mouse delta (relative movement)
     local delta = Input.get_mouse_delta()
     local deltaX = 0
     local deltaY = 0
     
+    -- Disable player control during knockback
     if knockbackTimer <= 0 then
         deltaX = delta.x
         deltaY = delta.y
@@ -161,6 +146,7 @@ function TriangleShooter:OnUpdate()
     playerX = playerX + deltaX * playerSpeed
     playerY = playerY + deltaY * playerSpeed
     
+    -- Apply knockback movement when active
     if knockbackTimer > 0 then
         local tNorm = 1.0 - (knockbackTimer / knockbackDuration)
         if tNorm < 0 then tNorm = 0 end
@@ -174,10 +160,19 @@ function TriangleShooter:OnUpdate()
     end
     
     -- Clamp to screen bounds
-    playerX = math.max(0, math.min(screenW - playerSize, playerX))
-    playerY = math.max(0, math.min(screenH - playerSize, playerY))
-    
-    Entity.set_global_pos(player, playerX, playerY)
+    playerX = math.max(0, math.min(WORLD_W - playerSize, playerX))
+    playerY = math.max(0, math.min(WORLD_H - playerSize, playerY))
+
+    local visibleMinX = windowX
+    local visibleMaxX = windowX + windowW - playerSize
+    local visibleMinY = windowY
+    local visibleMaxY = windowY + windowH - playerSize
+    playerX = math.max(visibleMinX, math.min(visibleMaxX, playerX))
+    playerY = math.max(visibleMinY, math.min(visibleMaxY, playerY))
+
+    local screenPlayerX = playerX - windowX
+    local screenPlayerY = playerY - windowY
+    Entity.set_global_pos(player, screenPlayerX, screenPlayerY)
     
     -- Rotate triangle to face the enemy cube
     local dx = (enemyX + enemySize/2) - (playerX + playerSize/2)
@@ -235,7 +230,9 @@ function SpawnProjectile()
     local spawnY = centerY + aimDirY * (playerSize/2) - projectileSize/2
     
     -- Set position and rotation
-    Entity.set_global_pos(projData.entity, spawnX, spawnY)
+    local screenSpawnX = spawnX - windowX
+    local screenSpawnY = spawnY - windowY
+    Entity.set_global_pos(projData.entity, screenSpawnX, screenSpawnY)
     local projAngle = math.deg(math.atan(aimDirY, aimDirX)) + 90
     Entity.set_global_rot(projData.entity, projAngle)
     
@@ -260,7 +257,9 @@ function UpdateProjectiles()
         proj.x = proj.x + proj.vx
         proj.y = proj.y + proj.vy
         
-        Entity.set_global_pos(proj.entity, proj.x, proj.y)
+        local screenX = proj.x - windowX
+        local screenY = proj.y - windowY
+        Entity.set_global_pos(proj.entity, screenX, screenY)
         
         -- Check collisionRadius with enemy cube
         local projCenterX = proj.x + projectileSize/2
@@ -282,7 +281,7 @@ function UpdateProjectiles()
         else
             -- Increment age and remove if expired or off screen
             proj.age = proj.age + 1
-            if proj.age > projectileLifetime or proj.y < -50 or proj.y > screenH + 50 or proj.x < -50 or proj.x > screenW + 50 then
+            if proj.age > projectileLifetime or proj.y < -50 or proj.y > WORLD_H + 50 or proj.x < -50 or proj.x > WORLD_W + 50 then
                 -- Move entity off-screen and return to pool
                 Entity.set_global_pos(proj.entity, -1000, -1000)
                 table.insert(projectilePool, table.remove(projectiles, i))
@@ -345,25 +344,32 @@ function UpdateEnemyCollision()
     local hitRadius = collisionRadius + playerSize/2
     
     if distSq < hitRadius * hitRadius then
-         -- Collision! Damage player
+        -- Collision! Damage player and apply knockback
         local dist = math.sqrt(distSq)
         if dist == 0 then
+            -- Avoid division by zero; choose an arbitrary direction
             dist = 1
             dx = 0
             dy = -1
         end
-
+        
         local nx = dx / dist
         local ny = dy / dist
         local padding = 2
         local targetDistance = hitRadius + padding
-
+        
+        -- Separate player so it sits just outside the cube
+        local enemyCenterX = enemyX + enemySize/2
+        local enemyCenterY = enemyY + enemySize/2
         local newPlayerCenterX = enemyCenterX + nx * targetDistance
         local newPlayerCenterY = enemyCenterY + ny * targetDistance
         playerX = newPlayerCenterX - playerSize/2
         playerY = newPlayerCenterY - playerSize/2
-        Entity.set_global_pos(player, playerX, playerY)
-
+        local screenPlayerX = playerX - windowX
+        local screenPlayerY = playerY - windowY
+        Entity.set_global_pos(player, screenPlayerX, screenPlayerY)
+        
+        -- Start knockback away from enemy
         local pushX = nx
         local pushY = ny
         if dashDirX ~= 0 or dashDirY ~= 0 then
@@ -384,7 +390,11 @@ function UpdateEnemyCollision()
         knockbackDirX = pushX
         knockbackDirY = pushY
         knockbackTimer = knockbackDuration
-
+        -- each frame while 0 ≤ t ≤ T, move by direction * 
+        --(S * (1 - (t/T)^2)), where direction is your chosen unit vector 
+        --(e.g. perpendicular to attacker’s velocity), S is initial speed, 
+        --T is total knockback duration, and t is elapsed time.
+        -- reusable formula for wall pushing maybe?
         playerHealth = playerHealth - 10
         FlashPlayer()
         damageCooldown = damageCooldownDuration
@@ -400,157 +410,74 @@ function FlashPlayer()
 end
 
 ----------------------------------------------------------
--- Enemy behavior: aiming (tracks player) <-> dashing
+-- Enemy behavior: continuous dashing with wall bounces and shooting
 ----------------------------------------------------------
 function UpdateEnemyDash()
     -- Wall boundaries
-    local minX = 0
-    local maxX = screenW - enemySize
-    local minY = 0
-    local maxY = screenH - enemySize
-    
-    -- Calculate direction to player (used in aiming state)
-    local enemyCenterX = enemyX + enemySize/2
-    local enemyCenterY = enemyY + enemySize/2
-    local playerCenterX = playerX + playerSize/2
-    local playerCenterY = playerY + playerSize/2
-    local dx = playerCenterX - enemyCenterX
-    local dy = playerCenterY - enemyCenterY
-    
-    if enemyState == "aiming" then
-        -- Always face the player
-        local angle = math.deg(math.atan(dy, dx)) + 90
-        Entity.set_global_rot(enemy, angle)
-        
-        -- Count down cooldown
-        if dashCooldown > 0 then
-            dashCooldown = dashCooldown - 1
-        else
-            -- Cooldown done, lock direction and dash
-            local dist = math.sqrt(dx * dx + dy * dy)
-            if dist > 0 then
-                dashDirX = dx / dist
-                dashDirY = dy / dist
-            else
-                dashDirX = 0
-                dashDirY = 0
-            end
-            enemyState = "dashing"
-            enemyShootCooldown = 0
+    local minX = windowX
+    local maxX = windowX + windowW - enemySize
+    local minY = windowY
+    local maxY = windowY + windowH - enemySize
+
+    -- Ensure we have some direction; if not, aim at player
+    if dashDirX == 0 and dashDirY == 0 then
+        local enemyCenterX = enemyX + enemySize/2
+        local enemyCenterY = enemyY + enemySize/2
+        local playerCenterX = playerX + playerSize/2
+        local playerCenterY = playerY + playerSize/2
+        local dx = playerCenterX - enemyCenterX
+        local dy = playerCenterY - enemyCenterY
+        local dist = math.sqrt(dx * dx + dy * dy)
+        if dist > 0 then
+            dashDirX = dx / dist
+            dashDirY = dy / dist
         end
-        
-    elseif enemyState == "dashing" then
-        if enemySteerStrength > 0 then
-            local distToPlayer = math.sqrt(dx * dx + dy * dy)
-            if distToPlayer > 0 then
-                local toPlayerDirX = dx / distToPlayer
-                local toPlayerDirY = dy / distToPlayer
-                local steer = enemySteerStrength
-                local newDirX = dashDirX * (1 - steer) + toPlayerDirX * steer
-                local newDirY = dashDirY * (1 - steer) + toPlayerDirY * steer
-                local newLen = math.sqrt(newDirX * newDirX + newDirY * newDirY)
-                if newLen > 0 then
-                    dashDirX = newDirX / newLen
-                    dashDirY = newDirY / newLen
-                end
-            end
-        end
-        -- Scale speed based on current arena size vs original
-        local scaleX = screenW / originalWindowWidth
-        local scaleY = screenH / originalWindowHeight
-        local scale = (scaleX + scaleY) / 2
-        local currentSpeed = dashSpeed * scale
-        
-        -- Move in locked direction (no rotation change)
-        enemyX = enemyX + dashDirX * currentSpeed
-        enemyY = enemyY + dashDirY * currentSpeed
-        
-        -- Shoot projectiles while dashing
-        enemyShootCooldown = enemyShootCooldown + 1
-        if enemyShootCooldown >= enemyShootInterval then
-            SpawnEnemyProjectile()
-            enemyShootCooldown = 0
-        end
-        
-        -- Check wall collision and bounce
-        local hitLeft = false
-        local hitRight = false
-        local hitTop = false
-        local hitBottom = false
-        
-        if enemyX <= minX then
-            enemyX = minX
-            hitLeft = true
-        elseif enemyX >= maxX then
-            enemyX = maxX
-            hitRight = true
-        end
-        if enemyY <= minY then
-            enemyY = minY
-            hitTop = true
-        elseif enemyY >= maxY then
-            enemyY = maxY
-            hitBottom = true
-        end
-        
-        -- Bounce off walls toward player and trigger wall lerp
-        if hitLeft or hitRight or hitTop or hitBottom then
-            if hitLeft or hitRight then
-                dashDirX = -dashDirX
-            end
-            if hitTop or hitBottom then
-                dashDirY = -dashDirY
-            end
-            local len = math.sqrt(dashDirX * dashDirX + dashDirY * dashDirY)
-            if len > 0 then
-                dashDirX = dashDirX / len
-                dashDirY = dashDirY / len
-            end
-            local enemyCenterX = enemyX + enemySize/2
-            local enemyCenterY = enemyY + enemySize/2
-            local toPlayerX = playerCenterX - enemyCenterX
-            local toPlayerY = playerCenterY - enemyCenterY
-            local dist = math.sqrt(toPlayerX * toPlayerX + toPlayerY * toPlayerY)
-            if dist > 0 then
-                local toPlayerDirX = toPlayerX / dist
-                local toPlayerDirY = toPlayerY / dist
-                local steer = enemyBounceSteer
-                local newDirX = dashDirX * (1 - steer) + toPlayerDirX * steer
-                local newDirY = dashDirY * (1 - steer) + toPlayerDirY * steer
-                local newLen = math.sqrt(newDirX * newDirX + newDirY * newDirY)
-                if newLen > 0 then
-                    dashDirX = newDirX / newLen
-                    dashDirY = newDirY / newLen
-                end
-            end
-            
-            -- Trigger wall lerps
-            if hitLeft then TriggerWallLerp("left") end
-            if hitRight then TriggerWallLerp("right") end
-            if hitTop then TriggerWallLerp("top") end
-            if hitBottom then TriggerWallLerp("bottom") end
-            
-            -- Add spin on bounce
-            enemySpinVelocity = enemySpinVelocity + enemySpinBoost
-            if enemySpinVelocity > enemySpinMaxVelocity then
-                enemySpinVelocity = enemySpinMaxVelocity
-            end
-        end
-        
-        -- Apply spin rotation
-        local speed = math.abs(enemySpinVelocity)
-        local t = speed / enemySpinMaxVelocity
-        if t > 1 then t = 1 end
-        local decay = enemySpinDecayBase + enemySpinDecayExtra * t
-        enemySpinVelocity = enemySpinVelocity - enemySpinVelocity * decay
-        if math.abs(enemySpinVelocity) < 0.01 then
-            enemySpinVelocity = 0
-        end
-        enemyRotation = enemyRotation + enemySpinVelocity
-        Entity.set_global_rot(enemy, enemyRotation)
-        
-        Entity.set_global_pos(enemy, enemyX, enemyY)
     end
+
+    -- Move in current direction
+    enemyX = enemyX + dashDirX * dashSpeed
+    enemyY = enemyY + dashDirY * dashSpeed
+
+    -- Shoot projectiles on a simple timer
+    enemyShootCooldown = enemyShootCooldown + 1
+    if enemyShootCooldown >= enemyShootInterval then
+        SpawnEnemyProjectile()
+        enemyShootCooldown = 0
+    end
+
+    -- Check wall collision and bounce
+    local hitX = false
+    local hitY = false
+
+    if enemyX <= minX then
+        enemyX = minX
+        hitX = true
+    elseif enemyX >= maxX then
+        enemyX = maxX
+        hitX = true
+    end
+    if enemyY <= minY then
+        enemyY = minY
+        hitY = true
+    elseif enemyY >= maxY then
+        enemyY = maxY
+        hitY = true
+    end
+
+    -- Bounce off walls (continuous)
+    if hitX or hitY then
+        -- Bounce: reverse appropriate direction
+        if hitX then dashDirX = -dashDirX end
+        if hitY then dashDirY = -dashDirY end
+
+        -- Update rotation to match new direction
+        local newAngle = math.deg(math.atan(dashDirY, dashDirX)) + 90
+        Entity.set_global_rot(enemy, newAngle)
+    end
+
+    local screenEnemyX = enemyX - windowX
+    local screenEnemyY = enemyY - windowY
+    Entity.set_global_pos(enemy, screenEnemyX, screenEnemyY)
 end
 
 ----------------------------------------------------------
@@ -590,7 +517,9 @@ function SpawnEnemyProjectile()
     local spawnX = enemyCenterX - enemyProjectileSize/2
     local spawnY = enemyCenterY - enemyProjectileSize/2
     
-    Entity.set_global_pos(projData.entity, spawnX, spawnY)
+    local screenSpawnX = spawnX - windowX
+    local screenSpawnY = spawnY - windowY
+    Entity.set_global_pos(projData.entity, screenSpawnX, screenSpawnY)
     local projAngle = math.deg(math.atan(dirY, dirX)) + 90
     Entity.set_global_rot(projData.entity, projAngle)
     
@@ -613,7 +542,9 @@ function UpdateEnemyProjectiles()
         -- Move projectile
         proj.x = proj.x + proj.vx
         proj.y = proj.y + proj.vy
-        Entity.set_global_pos(proj.entity, proj.x, proj.y)
+        local screenX = proj.x - windowX
+        local screenY = proj.y - windowY
+        Entity.set_global_pos(proj.entity, screenX, screenY)
         
         -- Check collision with player
         local projCenterX = proj.x + enemyProjectileSize/2
@@ -636,107 +567,12 @@ function UpdateEnemyProjectiles()
         else
             -- Age and remove if expired or off screen
             proj.age = proj.age + 1
-            if proj.age > projectileLifetime or proj.y < -50 or proj.y > screenH + 50 or proj.x < -50 or proj.x > screenW + 50 then
+            if proj.age > projectileLifetime or proj.y < -50 or proj.y > WORLD_H + 50 or proj.x < -50 or proj.x > WORLD_W + 50 then
                 Entity.set_global_pos(proj.entity, -1000, -1000)
                 table.insert(enemyProjectilePool, table.remove(enemyProjectiles, i))
             end
         end
     end
-end
-
-----------------------------------------------------------
--- Trigger a wall to start expanding (resets timer to full duration)
-----------------------------------------------------------
-function TriggerWallLerp(wall)
-    if not wallPingPongEnabled then return end
-    
-    if wall == "left" then
-        leftWallExpandTimer = wallExpandDuration
-    elseif wall == "right" then
-        rightWallExpandTimer = wallExpandDuration
-    elseif wall == "top" then
-        topWallExpandTimer = wallExpandDuration
-    elseif wall == "bottom" then
-        bottomWallExpandTimer = wallExpandDuration
-    end
-end
-
-----------------------------------------------------------
--- Update wall offsets: always shrinking unless expand timer is active
-----------------------------------------------------------
-function UpdateWallLerps()
-    if not wallPingPongEnabled then return end
-    
-    -- Update left wall: always shrinking, expand when hit
-    if leftWallExpandTimer > 0 then
-        leftWallExpandTimer = leftWallExpandTimer - 1
-        leftWallOffset = leftWallOffset - wallShrinkSpeed * wallExpandSpeedMultiplier
-        if leftWallOffset < 0 then leftWallOffset = 0 end
-    else
-        leftWallOffset = leftWallOffset + wallShrinkSpeed
-        if leftWallOffset > wallMaxShrinkX then leftWallOffset = wallMaxShrinkX end
-    end
-    
-    -- Update right wall
-    if rightWallExpandTimer > 0 then
-        rightWallExpandTimer = rightWallExpandTimer - 1
-        rightWallOffset = rightWallOffset - wallShrinkSpeed * wallExpandSpeedMultiplier
-        if rightWallOffset < 0 then rightWallOffset = 0 end
-    else
-        rightWallOffset = rightWallOffset + wallShrinkSpeed
-        if rightWallOffset > wallMaxShrinkX then rightWallOffset = wallMaxShrinkX end
-    end
-    
-    -- Update top wall
-    if topWallExpandTimer > 0 then
-        topWallExpandTimer = topWallExpandTimer - 1
-        topWallOffset = topWallOffset - wallShrinkSpeed * wallExpandSpeedMultiplier
-        if topWallOffset < 0 then topWallOffset = 0 end
-    else
-        topWallOffset = topWallOffset + wallShrinkSpeed
-        if topWallOffset > wallMaxShrinkY then topWallOffset = wallMaxShrinkY end
-    end
-    
-    -- Update bottom wall
-    if bottomWallExpandTimer > 0 then
-        bottomWallExpandTimer = bottomWallExpandTimer - 1
-        bottomWallOffset = bottomWallOffset - wallShrinkSpeed * wallExpandSpeedMultiplier
-        if bottomWallOffset < 0 then bottomWallOffset = 0 end
-    else
-        bottomWallOffset = bottomWallOffset + wallShrinkSpeed
-        if bottomWallOffset > wallMaxShrinkY then bottomWallOffset = wallMaxShrinkY end
-    end
-    
-    -- Capture initial position on first frame
-    if windowInitialX == nil then
-        windowInitialX = 0
-        windowInitialY = 0
-        windowBaseWidth = 1920
-        windowBaseHeight = 1080
-        originalWindowWidth = 1920
-        originalWindowHeight = 1080
-        Window.set_pos(windowInitialX, windowInitialY)
-        Window.set_size(windowBaseWidth, windowBaseHeight)
-    end
-    
-    -- Calculate new window bounds
-    local newX = math.floor(windowInitialX + leftWallOffset)
-    local newY = math.floor(windowInitialY + topWallOffset)
-    local newWidth = math.floor(windowBaseWidth - leftWallOffset - rightWallOffset)
-    local newHeight = math.floor(windowBaseHeight - topWallOffset - bottomWallOffset)
-    
-    -- Clamp to real screen bounds (top and bottom edges)
-    local realScreenHeight = Window.get_display_height()
-    if newY < 0 then
-        newY = 0
-    end
-    if newY + newHeight > realScreenHeight then
-        newY = realScreenHeight - newHeight
-    end
-    
-    -- Apply window position and size
-    Window.set_pos(newX, newY)
-    Window.set_size(newWidth, newHeight)
 end
 
 return TriangleShooter
