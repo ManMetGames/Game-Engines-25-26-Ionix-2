@@ -29,6 +29,7 @@ local coins = {}
 local coinCount = 6
 local coinSpacing = 200
 local coinSpeed = -3
+local coinHidden = {}
 local text1 = "Press SPACE to start!"
 ----------------------------------------------------------
 -- OnStart
@@ -239,6 +240,15 @@ function ExampleScript:OnUpdate()
         if Mafs.get_vec_x(p) < pipeOffScreenLeft then
             farthestX = farthestX + coinSpacing
             Fysics.set_pos(c, farthestX, p.y)
+            -- If this coin was hidden (collected), restore its sprite size so it becomes visible again
+            if coinHidden[c] then
+                local s = Entity.get_sprite_component(c)
+                if s then
+                    Sprite.set_width(s, 16)
+                    Sprite.set_height(s, 16)
+                end
+                coinHidden[c] = nil
+            end
         end
     end
     
@@ -259,14 +269,13 @@ end
             for _, c in ipairs(coins) do
                 if collision2 == c then
                     print("TriggerCoin")
-                    local farthestX = -1e9
-                    for _, cc in ipairs(coins) do
-                        local p = Fysics.get_pos(cc)
-                        local px = Mafs.get_vec_x(p)
-                        if px > farthestX then farthestX = px end
+                    -- Hide the coin's sprite and mark it hidden; recycler will restore and respawn it later
+                    local s = Entity.get_sprite_component(c)
+                    if s then
+                        Sprite.set_width(s, 0)
+                        Sprite.set_height(s, 0)
                     end
-                    local pcol = Fysics.get_pos(c)
-                    Fysics.set_pos(c, farthestX + coinSpacing, pcol.y)
+                    coinHidden[c] = true
                     break
                 end
             end
