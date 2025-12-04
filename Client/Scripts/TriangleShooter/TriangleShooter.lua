@@ -82,7 +82,6 @@ local enemyState = "aiming"
 local dashCooldown = 0
 
 -- Timing (at 60fps)
-local dashCooldownDuration = 180  -- 3 seconds between dashes
 local dashSpeed = 5               -- pixels per frame while dashing
 local dashDirX = 0
 local dashDirY = 0
