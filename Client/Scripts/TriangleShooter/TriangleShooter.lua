@@ -64,14 +64,7 @@ local aimDirX = 0
 local aimDirY = -1  -- Default: pointing up
 
 -- Enemy (cube)
-local enemy
-local enemySprite
 local enemySize = 48
-local enemyX = 400  -- Center of screen
-local enemyY = 300
-local enemyHealth = 50
-local enemyRotation = 0
-local enemySpinVelocity = 0      -- Current spin speed (degrees per frame)
 local enemySpinMaxVelocity = 36  -- Soft cap (~360 RPM at 60fps)
 local enemySpinBoost = 1         -- Spin added on each bounce (much lower)
 local enemySpinDecayBase = 0.0005
@@ -79,8 +72,6 @@ local enemySpinDecayExtra = 0.01
 
 -- Timing (at 60fps)
 local dashSpeed = 5               -- pixels per frame while dashing
-local dashDirX = 0
-local dashDirY = 0
 local enemyBounceSteer = 0.4
 local enemySteerStrength = 0.0
 -- Continuous bouncing (no max bounces)
