@@ -127,7 +127,7 @@ local globalFrame = 0
 local currentLevel = 1
 local levelTimer = 0
 
-local function LoadLevel(index)
+local function LoadLevel(index, resetPlayerState)
     local cfg = TriangleShooterLevels.getLevelConfig(index)
     if not cfg then
         return
@@ -164,26 +164,28 @@ local function LoadLevel(index)
         end
     end
 
-    playerHealth = 100
-    playerX = screenW / 2 - playerSize / 2
-    playerY = screenH / 2 - playerSize / 2
-    Entity.set_global_pos(player, playerX, playerY)
-    Sprite.set_color(playerSprite, 255, 255, 255)
-    playerFlashTimer = 0
-    damageCooldown = 0
+    if resetPlayerState then
+        playerHealth = 100
+        playerX = screenW / 2 - playerSize / 2
+        playerY = screenH / 2 - playerSize / 2
+        Entity.set_global_pos(player, playerX, playerY)
+        Sprite.set_color(playerSprite, 255, 255, 255)
+        playerFlashTimer = 0
+        damageCooldown = 0
+    end
 end
 
 local function OnEnemyKilled()
     local nextIndex = currentLevel + 1
     if TriangleShooterLevels.getLevelConfig(nextIndex) then
-        LoadLevel(nextIndex)
+        LoadLevel(nextIndex, false)
     else
-        LoadLevel(currentLevel)
+        LoadLevel(currentLevel, false)
     end
 end
 
 local function OnLevelTimeout()
-    LoadLevel(currentLevel)
+    LoadLevel(currentLevel, false)
 end
 
 ----------------------------------------------------------
@@ -205,7 +207,7 @@ function TriangleShooter:OnStart()
     playerSprite = Entity.add_sprite_component(player, assets.textures.Triangle, playerSize, playerSize, 10)
     Sprite.set_columns(playerSprite, 1)
     
-    LoadLevel(1)
+    LoadLevel(1, true)
 
     musicEntity = Entity.create_entity()
     Entity.add_audio_component(musicEntity, "technoSong", false)
@@ -362,7 +364,7 @@ function TriangleShooter:OnUpdate()
 
     local enemiesAlive = #enemies > 0
     if playerHealth <= 0 then
-        LoadLevel(currentLevel)
+        LoadLevel(currentLevel, true)
     elseif not enemiesAlive then
         OnEnemyKilled()
     elseif levelTimer <= 0 and enemiesAlive then
