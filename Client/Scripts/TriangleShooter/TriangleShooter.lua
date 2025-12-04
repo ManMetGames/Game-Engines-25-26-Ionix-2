@@ -3,12 +3,14 @@ local assets = require("Scripts.Assets")
 local enums = require("Scripts.Enums")
 local TriangleShooterLevels = require("Scripts.TriangleShooter.TriangleShooterLevels")
 local TriangleShooterEnemy = require("Scripts.TriangleShooter.TriangleShooterEnemy")
+local TriangleShooterAbilities = require("Scripts.TriangleShooter.TriangleShooterAbilities")
+local TriangleShooterPlayerProgress = require("Scripts.TriangleShooter.TriangleShooterPlayerProgress")
 
--- Screen bounds (updated each frame from window size)
+-- SCREEN BOUNDS (UPDATED EACH FRAME FROM WINDOW SIZE)
 local screenW = 1920
 local screenH = 1080
 
--- Wall settings
+-- WALL SETTINGS
 local wallPingPongEnabled = true
 local wallMaxShrinkX = 760        -- Max pixels each horizontal wall can shrink (1920 - 400 = 1520, /2 = 760)
 local wallMaxShrinkY = 340        -- Max pixels each vertical wall can shrink (1080 - 400 = 680, /2 = 340)
@@ -36,7 +38,7 @@ local windowInitialY = nil
 local originalWindowWidth = 1920
 local originalWindowHeight = 1080
 
--- Player (triangle)
+-- PLAYER (TRIANGLE)
 local player
 local playerSprite
 local playerSize = 48
@@ -45,15 +47,15 @@ local playerY = 300
 local playerSpeed = 0.5  -- Mouse sensitivity multiplier
 local playerHealth = 100
 
--- Player flash effect
+-- PLAYER FLASH EFFECT
 local playerFlashTimer = 0
 local playerFlashDuration = 10  -- frames
 
--- Damage cooldown (0.5s = 30 frames at 60fps)
+-- DAMAGE COOLDOWN (0.5S = 30 FRAMES AT 60FPS)
 local damageCooldown = 0
 local damageCooldownDuration = 30
 
--- Projectile settings
+-- PROJECTILE SETTINGS
 local projectiles = {}      -- Active projectiles
 local projectilePool = {}   -- Inactive projectiles (reusable)
 local projectileSize = 24
@@ -64,7 +66,7 @@ local projectileLifetime = 300  -- frames (~5 seconds at 60fps)
 local aimDirX = 0
 local aimDirY = -1  -- Default: pointing up
 
--- Enemy (cube)
+-- ENEMY (CUBE)
 local enemySize = 48
 
 local enemies = {}
@@ -79,7 +81,7 @@ local function ClearEnemies()
     enemies = {}
 end
 
--- Enemy projectile settings
+-- ENEMY PROJECTILE SETTINGS
 local enemyProjectiles = {}
 local enemyProjectilePool = {}
 local enemyProjectileSize = 24
@@ -87,10 +89,10 @@ local enemyProjectileSpeed = 3
 local enemyShootInterval = 75  -- 1.25 seconds at 60fps
 local enemyProjectilesEnabled = true
 
--- Collision settings
+-- COLLISION SETTINGS
 local collisionRadius = 24  -- Half of enemy size for circle collision
 
--- Flash effect
+-- FLASH EFFECT
 local flashTimer = 0
 local flashDuration = 10  -- frames
 
@@ -100,6 +102,7 @@ local knockbackBaseSpeed = 6
 local knockbackDirX = 0
 local knockbackDirY = 0
 
+-- music maching control
 local musicEntity
 local musicVolume = 64
 
@@ -118,89 +121,9 @@ local enemyBaseImageSize = enemySize
 
 local globalFrame = 0
 
--- Level settings
+-- LEVEL SETTINGS
 local currentLevel = 1
 local levelTimer = 0
-
-local playerLevel = 1
-local xp = 0
-local xpToNextLevel = 100
-local currentShootAbility = "basic"
-
-local shootAbilities = {}
-
-shootAbilities.basic = function(tipX, tipY, aimX, aimY)
-    return {
-        { offsetX = 0, offsetY = 0, dirX = aimX, dirY = aimY }
-    }
-end
-
-shootAbilities.dual = function(tipX, tipY, aimX, aimY)
-    local sideX = -aimY
-    local sideY = aimX
-    local offset = projectileSize * 0.6
-
-    return {
-        { offsetX = sideX * offset, offsetY = sideY * offset, dirX = aimX, dirY = aimY },
-        { offsetX = -sideX * offset, offsetY = -sideY * offset, dirX = aimX, dirY = aimY },
-    }
-end
-
-shootAbilities.triple = function(tipX, tipY, aimX, aimY)
-    local sideX = -aimY
-    local sideY = aimX
-    local offset = projectileSize * 0.6
-
-    return {
-        { offsetX = 0, offsetY = 0, dirX = aimX, dirY = aimY },
-        { offsetX = sideX * offset, offsetY = sideY * offset, dirX = aimX, dirY = aimY },
-        { offsetX = -sideX * offset, offsetY = -sideY * offset, dirX = aimX, dirY = aimY },
-    }
-end
-
-shootAbilities.wide = function(tipX, tipY, aimX, aimY)
-    local count = 4
-    local totalSpreadDeg = 40
-    local baseAngle = math.atan(aimY, aimX)
-    local halfSpread = math.rad(totalSpreadDeg) / 2
-    local step = (count == 1) and 0 or (2 * halfSpread / (count - 1))
-
-    local shots = {}
-    for i = 0, count - 1 do
-        local angle = baseAngle - halfSpread + step * i
-        local dirX = math.cos(angle)
-        local dirY = math.sin(angle)
-        shots[#shots + 1] = { offsetX = 0, offsetY = 0, dirX = dirX, dirY = dirY }
-    end
-
-    return shots
-end
-
-local function GetXpForNextLevel(level)
-    local n = level - 1
-    return math.floor(100 + 40 * n + 10 * n * math.max(n - 1, 0))
-end
-
-local function OnLevelUp()
-    playerLevel = playerLevel + 1
-    xpToNextLevel = GetXpForNextLevel(playerLevel)
-
-    if playerLevel == 2 then
-        currentShootAbility = "dual"
-    elseif playerLevel == 3 then
-        currentShootAbility = "triple"
-    elseif playerLevel == 4 then
-        currentShootAbility = "wide"
-    end
-end
-
-local function AddXp(amount)
-    xp = xp + amount
-    while xp >= xpToNextLevel do
-        xp = xp - xpToNextLevel
-        OnLevelUp()
-    end
-end
 
 local function LoadLevel(index)
     local cfg = TriangleShooterLevels.getLevelConfig(index)
@@ -283,7 +206,7 @@ function TriangleShooter:OnStart()
     LoadLevel(1)
 
     musicEntity = Entity.create_entity()
-    Entity.add_audio_component(musicEntity, "technoSong", false)
+   -- Entity.add_audio_component(musicEntity, "technoSong", false)
     AudioComponent.play(musicEntity, 0, -1)
     AudioComponent.change_volume(musicEntity, musicVolume)
 end
@@ -424,7 +347,8 @@ function TriangleShooter:OnUpdate()
     UI.draw_label("Stage: " .. tostring(currentLevel), 140, 140, 400, 20, "")
 
     UI.draw_progress_bar(screenW - 220, 20, 200, 20, 100, playerHealth, 2)
-    UI.draw_label("Player Lv: " .. tostring(playerLevel) .. "  XP: " .. tostring(xp) .. " / " .. tostring(xpToNextLevel), 220, 45, 740, 60, "")
+    local level, xp, xpToNextLevel = TriangleShooterPlayerProgress.getProgress()
+    UI.draw_label("Player Lv: " .. tostring(level) .. "  XP: " .. tostring(xp) .. " / " .. tostring(xpToNextLevel), 220, 45, 740, 60, "")
 
     local enemiesAlive = #enemies > 0
     if playerHealth <= 0 then
@@ -473,8 +397,8 @@ function SpawnProjectile()
     local centerY = playerY + playerSize/2
     local tipX = centerX + aimDirX * (playerSize/2)
     local tipY = centerY + aimDirY * (playerSize/2)
-    local abilityFunc = shootAbilities[currentShootAbility] or shootAbilities.basic
-    local shots = abilityFunc(tipX, tipY, aimDirX, aimDirY)
+    local abilityName = TriangleShooterPlayerProgress.getCurrentShootAbility()
+    local shots = TriangleShooterAbilities.getShots(abilityName, tipX, tipY, aimDirX, aimDirY, projectileSize)
     if not shots then
         return
     end
@@ -526,7 +450,7 @@ function UpdateProjectiles()
         if hitEnemyIndex ~= nil then
             local enemy = enemies[hitEnemyIndex]
             enemy.health = (enemy.health or 0) - 1
-            AddXp(1)
+            TriangleShooterPlayerProgress.addXp(1)
             FlashEnemy(enemy)
             if enemy.health <= 0 then
                 Entity.set_global_pos(enemy.entity, -1000, -1000)
