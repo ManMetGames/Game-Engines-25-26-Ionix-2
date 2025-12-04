@@ -100,6 +100,24 @@ local knockbackBaseSpeed = 6
 local knockbackDirX = 0
 local knockbackDirY = 0
 
+local musicEntity
+local musicVolume = 64
+
+local bpm = 34
+local framesPerBeat = 3600 / bpm
+local beatTimer = 0
+local bopDurationFrames = 8
+local bopTimer = 0
+
+local beatStartDelayFrames = 3402
+local beatStartDelayCounter = 0
+
+local playerBaseImageWidth = playerSize
+local playerBaseImageHeight = playerSize
+local enemyBaseImageSize = enemySize
+
+local globalFrame = 0
+
 -- Level settings
 local currentLevel = 1
 local levelTimer = 0
@@ -205,12 +223,19 @@ function TriangleShooter:OnStart()
     Sprite.set_columns(playerSprite, 1)
     
     LoadLevel(1)
+
+    musicEntity = Entity.create_entity()
+    Entity.add_audio_component(musicEntity, "technoSong", false)
+    AudioComponent.play(musicEntity, 0, -1)
+    AudioComponent.change_volume(musicEntity, musicVolume)
 end
 
 ----------------------------------------------------------
 -- OnUpdate
 ----------------------------------------------------------
 function TriangleShooter:OnUpdate()
+    globalFrame = globalFrame + 1
+
     -- Update wall lerps
     UpdateWallLerps()
     
@@ -220,6 +245,10 @@ function TriangleShooter:OnUpdate()
     
     if levelTimer > 0 then
         levelTimer = levelTimer - 1
+    end
+
+    if Input.get_key_down(Keys.ionix_space) then
+        print(string.format("[BeatMarker] globalFrame=%d", globalFrame))
     end
     
     -- Get mouse delta (relative movement)
@@ -305,6 +334,8 @@ function TriangleShooter:OnUpdate()
     
     -- Update enemy dash behavior
     UpdateEnemyDash()
+
+    UpdateBeatBop()
 
     local levelCfg = TriangleShooterLevels.getLevelConfig(currentLevel)
     if levelCfg ~= nil then
@@ -562,6 +593,35 @@ function UpdateEnemyDash()
         SpawnEnemyProjectile,
         TriggerWallLerp
     )
+end
+
+function UpdateBeatBop()
+    if beatStartDelayCounter < beatStartDelayFrames then
+        beatStartDelayCounter = beatStartDelayCounter + 1
+        return
+    end
+
+    beatTimer = beatTimer + 1
+    if beatTimer >= framesPerBeat then
+        beatTimer = beatTimer - framesPerBeat
+        bopTimer = bopDurationFrames
+    end
+
+    if bopTimer > 0 then
+        bopTimer = bopTimer - 1
+        local t = bopTimer / bopDurationFrames
+        local scale = 1.0 + 0.35 * t
+
+        if playerSprite then
+            Sprite.set_image_width(playerSprite, math.floor(playerBaseImageWidth * scale))
+            Sprite.set_image_height(playerSprite, math.floor(playerBaseImageHeight * scale))
+        end
+    else
+        if playerSprite then
+            Sprite.set_image_width(playerSprite, playerBaseImageWidth)
+            Sprite.set_image_height(playerSprite, playerBaseImageHeight)
+        end
+    end
 end
 
 ----------------------------------------------------------

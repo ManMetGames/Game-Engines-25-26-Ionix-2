@@ -52,6 +52,7 @@ struct Sounds {
         std::map<std::string, std::string> map;
         map["test"] = "./Assets/test.mp3";
         map["test0"] = "./Assets/test.wav";
+        map["technoSong"] = "./Assets/technoSong.mp3";
         return map;
     };
 };
