@@ -25,8 +25,9 @@ local pipe2StartX = 1200
 local pipeOffScreenLeft = -100
 
 -- Coin variables
-local coin
-local coin2
+local coins = {}
+local coinCount = 6
+local coinSpacing = 200
 local coinSpeed = -3
 local text1 = "Press SPACE to start!"
 ----------------------------------------------------------
@@ -143,43 +144,21 @@ function ExampleScript:OnStart()
 	------------------------------------------------------
 	-- Create coins
 	------------------------------------------------------
-    coin = Entity.create_entity()
-    Entity.set_global_pos(coin, pipeStartX - 235, 300)
+    for i = 1, coinCount do
+        local c = Entity.create_entity()
+        local startX = pipeStartX + (i - 1) * coinSpacing
+        Entity.set_global_pos(c, startX, 300)
 
-    local coinSprite = Entity.add_sprite_component(coin, assets.textures.Coin, 32, 32, 0)
+        local coinSprite = Entity.add_sprite_component(c, assets.textures.Coin, 32, 32, 0)
+        Sprite.set_rows(coinSprite, 1)
+        Sprite.set_columns(coinSprite, 5)
+        Sprite.set_width(coinSprite, 16)
+        Sprite.set_height(coinSprite, 16)
 
-    Sprite.set_rows(coinSprite, 1)
-    Sprite.set_columns(coinSprite, 5)
-    Sprite.set_width(coinSprite, 16)
-    Sprite.set_height(coinSprite, 16)
+        Entity.add_fysics_component(c, enums.bodytype.kinematicBody, false)
+        Fysics.add_sprite_collider(c, false, 1)
 
-    -- Add physics body + collider
-    Entity.add_fysics_component(coin, enums.bodytype.kinematicBody, false)
-    Fysics.add_sprite_collider(coin, false, 1)
-
-    if Input.get_key_down(Keys.ionix_a) then
-        Entity.set_global_pos(coin, xPos, floorY)
-	end
-
-    ---------------------------
-	-- Coin Set 2
-	---------------------------
-    coin2 = Entity.create_entity()
-    Entity.set_global_pos(coin2, pipe2StartX + 25, 300)
-
-    local coinSprite2 = Entity.add_sprite_component(coin2, assets.textures.Coin, 32, 32, 0)
-
-    Sprite.set_rows(coinSprite2, 1)
-    Sprite.set_columns(coinSprite2, 5)
-    Sprite.set_width(coinSprite2, 16)
-    Sprite.set_height(coinSprite2, 16)
-
-    -- Add physics body + collider
-    Entity.add_fysics_component(coin2, enums.bodytype.kinematicBody, false)
-    Fysics.add_sprite_collider(coin2, false, 1)
-
-    if Input.get_key_down(Keys.ionix_a) then
-        Entity.set_global_pos(coin2, xPos, floorY)
+        table.insert(coins, c)
     end
 
 end
@@ -196,7 +175,6 @@ function ExampleScript:OnUpdate()
     local vel1 = Fysics.get_linear_velocity(player1)
     local vy1 = Fysics.get_linear_velocity(pipe)
     local vy1 = Fysics.get_linear_velocity(pipe2)
-    local vy1 = Fysics.get_linear_velocity(coin)
 
     -- Constant rightward movement
     local vx = 0
@@ -216,9 +194,9 @@ function ExampleScript:OnUpdate()
         Fysics.set_linear_velocity(pipe2, pipeSpeed, 0)
         Fysics.set_linear_velocity(pipeT2, pipeSpeed, 0)
 
-        -- Coins move
-        Fysics.set_linear_velocity(coin, coinSpeed, 0)
-        Fysics.set_linear_velocity(coin2, coinSpeed, 0)
+        for _, c in ipairs(coins) do
+            Fysics.set_linear_velocity(c, coinSpeed, 0)
+        end
 
         text1 = ""
 	end
@@ -240,15 +218,18 @@ function ExampleScript:OnUpdate()
         Fysics.set_pos(pipeT2, pipe2StartX, pipePos2.y)
     end
 
-    -- Coins movement
-    local coinPos = Fysics.get_pos(coin)
-    if Mafs.get_vec_x(coinPos) < pipeOffScreenLeft then
-        Fysics.set_pos(coin, pipeStartX -235, coinPos.y)
+    local farthestX = -1e9
+    for _, c in ipairs(coins) do
+        local p = Fysics.get_pos(c)
+        local px = Mafs.get_vec_x(p)
+        if px > farthestX then farthestX = px end
     end
-
-    local coinPos2 = Fysics.get_pos(coin2)
-    if Mafs.get_vec_x(coinPos2) < pipeOffScreenLeft then
-        Fysics.set_pos(coin2, pipe2StartX + 25, coinPos2.y)
+    for _, c in ipairs(coins) do
+        local p = Fysics.get_pos(c)
+        if Mafs.get_vec_x(p) < pipeOffScreenLeft then
+            farthestX = farthestX + coinSpacing
+            Fysics.set_pos(c, farthestX, p.y)
+        end
     end
     
     ------------------------------------------------------
@@ -264,8 +245,21 @@ end
     end
 
     function ExampleScript:OnTriggerEnter(collision1, collision2)
-        if collision1 == player1 and collision2 == coin then
-            print("TriggerCoin")
+        if collision1 == player1 then
+            for _, c in ipairs(coins) do
+                if collision2 == c then
+                    print("TriggerCoin")
+                    local farthestX = -1e9
+                    for _, cc in ipairs(coins) do
+                        local p = Fysics.get_pos(cc)
+                        local px = Mafs.get_vec_x(p)
+                        if px > farthestX then farthestX = px end
+                    end
+                    local pcol = Fysics.get_pos(c)
+                    Fysics.set_pos(c, farthestX + coinSpacing, pcol.y)
+                    break
+                end
+            end
         end
 end
 
