@@ -73,7 +73,26 @@ namespace IonixEngine
 		return *color;
 	}
 	
-
+	void UI::DrawProgressBar(int xPos, int yPos, float xSize, float ySize, float maxValue, float currentValue)
+	{
+		float clampedMax = maxValue <= 0.0f ? 1.0f : maxValue;
+		float clampedCurrent = currentValue;
+		if (clampedCurrent < 0.0f) clampedCurrent = 0.0f;
+		if (clampedCurrent > clampedMax) clampedCurrent = clampedMax;
+		float progress = clampedCurrent / clampedMax;
+		progress = IM_CLAMP(progress, 0.0f, 1.0f);
+		ImGui::SetNextWindowPos(ImVec2((float)xPos, (float)yPos));
+		ImGui::SetNextWindowSize(ImVec2(xSize, ySize));
+		ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
+			ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar |
+			ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoBackground;
+		if (ImGui::Begin("HPBarWindow", nullptr, flags))
+		{
+			ImGui::ProgressBar(progress, ImVec2(xSize, ySize), "");
+		}
+		ImGui::End();
+	}
+	
 	float UI::ProgressBar(int xPos, int yPos, float xSize, float ySize, float maxValue, float& currentValue, float incrementAmount)
 	{
 		ImGui::SetCursorPos(ImVec2(xPos, yPos));

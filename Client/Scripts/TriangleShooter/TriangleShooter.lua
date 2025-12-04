@@ -256,6 +256,13 @@ function TriangleShooter:OnUpdate()
     -- Update enemy dash behavior
     UpdateEnemyDash()
 
+    local levelCfg = TriangleShooterLevels.getLevelConfig(currentLevel)
+    if levelCfg ~= nil then
+        UI.draw_progress_bar(20, 20, 200, 20, levelCfg.enemyHealth or enemyHealth, enemyHealth)
+    else
+        UI.draw_progress_bar(20, 20, 200, 20, enemyHealth, enemyHealth)
+    end
+
     if enemyHealth <= 0 then
         OnEnemyKilled()
     elseif levelTimer <= 0 and enemyHealth > 0 then

@@ -18,10 +18,9 @@ namespace IonixEngine
         float myColor[4] = {};
         std::unordered_map<int, bool> checkboxMap;
         bool& getCheckboxState(int index) { return checkboxMap[index]; }
+        void DrawProgressBar(int xpos, int ypos, float xsize, float ysize, float maxvalue, float currentvalue);
         float ProgressBar(int xpos, int ypos, float xsize, float ysize, float maxvalue, float& currentvalue, float incrementamount);
 
-        
 
     };
 }
-
