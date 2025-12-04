@@ -57,7 +57,7 @@ namespace IonixEngine {
 		initialiseSpritesheet();
 	}
 
-	// New constructors with animation setup
+	// Animation setup
 
 	SpriteComponent::SpriteComponent(Entity* entity, std::string alias, int x, int y, int zedOrder,
 		int rows_, int cols_, int spriteW, int spriteH)
@@ -104,15 +104,21 @@ namespace IonixEngine {
 
 		// Get rotation from physics body if it exists, otherwise use transform rotation
 		double angleDegrees = 0.0;
-		FysicsBody* fysicsBody = entity->GetComponent<FysicsBody>();
-		if (fysicsBody) {
-			// Box2D returns radians, SDL expects degrees
-			float angleRadians = fysicsBody->GetAngle(entity);
-			angleDegrees = angleRadians * (180.0 / 3.14159265358979323846);
+		if (manualRotation >= 0.0f) {
+			// Use manual override if set
+			angleDegrees = manualRotation;
 		}
 		else {
-			// Transform rotation is in degrees
-			angleDegrees = entity->transform.GetGlobalRotation();
+			FysicsBody* fysicsBody = entity->GetComponent<FysicsBody>();
+			if (fysicsBody) {
+				// Box2D returns radians, SDL expects degrees
+				float angleRadians = fysicsBody->GetAngle(entity);
+				angleDegrees = angleRadians * (180.0 / 3.14159265358979323846);
+			}
+			else {
+				// Transform rotation is in degrees
+				angleDegrees = entity->transform.GetGlobalRotation();
+			}
 		}
 
 		//create and send render data to the render queue
@@ -251,6 +257,9 @@ namespace IonixEngine {
 	void SpriteComponent::setTickRate(float x) { tickRate = x; }
 
 	void SpriteComponent::setBoxColliderSize(b2Vec2 newSize) { boxColliderSize = newSize; }
+	void SpriteComponent::setRotation(float degrees) {
+		manualRotation = degrees;
+	}
 
 	//getters
 	IonixEngine::playbackOptions SpriteComponent::getPlaybackMode() /*oh lawd he big*/ { return playbackOptions(); }
@@ -268,4 +277,7 @@ namespace IonixEngine {
 	int SpriteComponent::getHeight() { return height; }
 	int SpriteComponent::gettickRate() { return tickRate; }
 	b2Vec2 SpriteComponent::getBoxColliderSize() { return boxColliderSize; }
+	float SpriteComponent::getRotation() {
+		// If manual rotation is set, return it; otherwise fall back to transform rotation
+		return (manualRotation >= 0.0f) ? manualRotation : entity->transform.GetGlobalRotation();
 }

@@ -37,12 +37,15 @@ namespace IonixEngine {
 
         enum playbackOptions playbackMode;
 
+        // Manual rotation
+        float manualRotation = -1.0f; // -1 means "not set", use physics/transform
+
     public:
-        // Existing constructors
+        // Constructors
         SpriteComponent(Entity* entity, std::string alias, int width, int height, int zedOrder);
         SpriteComponent(Entity* entity, uint32_t hash, int width, int height, int zedOrder);
 
-        // New constructors with animation setup
+        // Animation setup
         SpriteComponent(Entity* entity, std::string alias, int width, int height, int zedOrder,
             int rows, int cols, int spriteWidth, int spriteHeight);
 
@@ -77,6 +80,7 @@ namespace IonixEngine {
         void setHeight(int x);
         void setTickRate(float x);
         void setBoxColliderSize(b2Vec2 newSize);
+        void setRotation(float degrees);
 
         //Getters
         IonixEngine::playbackOptions getPlaybackMode();
@@ -94,5 +98,6 @@ namespace IonixEngine {
         int getHeight();
         int gettickRate();
         b2Vec2 getBoxColliderSize();
+        float getRotation();
     };
 }
