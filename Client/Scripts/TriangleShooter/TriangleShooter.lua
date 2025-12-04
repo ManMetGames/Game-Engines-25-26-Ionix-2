@@ -102,15 +102,17 @@ local knockbackBaseSpeed = 6
 local knockbackDirX = 0
 local knockbackDirY = 0
 
--- music maching control
+-- MUSIC CONTROL
 local musicEntity
 local musicVolume = 64
+local musicMuted = false
 
 local bpm = 34 -- not real bpm
 local framesPerBeat = 3600 / bpm
 local beatTimer = 0
 local bopDurationFrames = 8
 local bopTimer = 0
+local bopScale = 0.25
 
 local beatStartDelayFrames = 3402
 local beatStartDelayCounter = 0
@@ -206,7 +208,7 @@ function TriangleShooter:OnStart()
     LoadLevel(1)
 
     musicEntity = Entity.create_entity()
-   -- Entity.add_audio_component(musicEntity, "technoSong", false)
+    Entity.add_audio_component(musicEntity, "technoSong", false)
     AudioComponent.play(musicEntity, 0, -1)
     AudioComponent.change_volume(musicEntity, musicVolume)
 end
@@ -230,6 +232,14 @@ function TriangleShooter:OnUpdate()
 
     if Input.get_key_down(Keys.ionix_space) then
         print(string.format("[BeatMarker] globalFrame=%d", globalFrame))
+    end
+
+    if Input.get_key_down(Keys.ionix_m) then
+        musicMuted = not musicMuted
+        if musicEntity then
+            local targetVolume = musicMuted and 0 or musicVolume
+            AudioComponent.change_volume(musicEntity, targetVolume)
+        end
     end
     
     -- Get mouse delta (relative movement)
@@ -611,7 +621,7 @@ function UpdateBeatBop()
     if bopTimer > 0 then
         bopTimer = bopTimer - 1
         local t = bopTimer / bopDurationFrames
-        local scale = 1.0 + 0.45 * t
+        local scale = 1.0 + bopScale * t
 
         if playerSprite then
             Sprite.set_image_width(playerSprite, math.floor(playerBaseImageWidth * scale))
