@@ -115,6 +115,8 @@ local knockbackDirY = 0
 local currentLevel = 1
 local levelTimer = 0
 
+local coins = 0
+
 local function LoadLevel(index)
     local cfg = TriangleShooterLevels.getLevelConfig(index)
     if not cfg then
@@ -275,6 +277,7 @@ function TriangleShooter:OnUpdate()
     end
 
     UI.draw_progress_bar(screenW - 220, 20, 200, 20, 100, playerHealth, 2)
+    UI.draw_label("Coins: " .. tostring(coins), 220, 45, 740, 60, "")
 
     if playerHealth <= 0 then
         LoadLevel(currentLevel)
@@ -349,6 +352,7 @@ function UpdateProjectiles()
         if distSq < hitRadius * hitRadius then
             -- Collision! Flash enemy and return projectile to pool
             enemyHealth = enemyHealth - 1
+            coins = coins + 1
             FlashEnemy()
             Entity.set_global_pos(proj.entity, -1000, -1000)
             table.insert(projectilePool, table.remove(projectiles, i))

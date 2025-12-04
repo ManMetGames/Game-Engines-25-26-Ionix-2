@@ -11,13 +11,32 @@ namespace IonixEngine
 {
 	void UI::DrawLabel(char* text, int xsize, int ysize, int xpos, int ypos ,const char* font)
 	{
-		
-		ImGui::SetCursorPos(ImVec2(xpos, ypos));
-		
-	    ImFont* fontToPush = Application::Get().layerUI->m_FontLoader->GetFont("Font1Bold");
-		ImGui::PushFont(fontToPush);
-		ImGui::Text(text, ImVec2(xsize, ysize));
-		ImGui::PopFont();
+		ImGui::SetNextWindowPos(ImVec2((float)xpos, (float)ypos));
+		ImGui::SetNextWindowSize(ImVec2((float)xsize, (float)ysize));
+		ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
+			ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar |
+			ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoBackground;
+		char windowName[64];
+		std::snprintf(windowName, sizeof(windowName), "Label_%d_%d_%d_%d", xpos, ypos, xsize, ysize);
+		if (ImGui::Begin(windowName, nullptr, flags))
+		{
+			ImFont* fontToPush = nullptr;
+			if (Application::Get().layerUI && Application::Get().layerUI->m_FontLoader)
+			{
+				fontToPush = Application::Get().layerUI->m_FontLoader->GetFont("Font1Bold");
+			}
+			if (fontToPush)
+			{
+				ImGui::PushFont(fontToPush);
+				ImGui::TextUnformatted(text);
+				ImGui::PopFont();
+			}
+			else
+			{
+				ImGui::TextUnformatted(text);
+			}
+		}
+		ImGui::End();
 
 		/*ImFont* BoldFontPush = Application::Get().layerUI->m_FontLoader->GetFont("FontBold");
 		ImGui::PushFont(BoldFontPush);
