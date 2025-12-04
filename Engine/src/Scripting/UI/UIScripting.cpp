@@ -32,8 +32,8 @@ namespace IonixEngine {
 		auto AddColorPicker = [](int x, int y, float xSize, float ySize, const char* label, float* color) {
 			return Application::Get().layerUI->m_UI->DrawColorPicker(x, y, xSize, ySize, label, color);
 			};
-		auto DrawProgressBar = [](int x, int y, float xSize, float ySize, float maxValue, float currentValue) {
-			Application::Get().layerUI->m_UI->DrawProgressBar(x, y, xSize, ySize, maxValue, currentValue);
+		auto DrawProgressBar = [](int x, int y, float xSize, float ySize, float maxValue, float currentValue, int colorId) {
+			Application::Get().layerUI->m_UI->DrawProgressBar(x, y, xSize, ySize, maxValue, currentValue, colorId);
 			};
 
         lua["UI"] = lua.create_table_with(

@@ -73,7 +73,7 @@ namespace IonixEngine
 		return *color;
 	}
 	
-	void UI::DrawProgressBar(int xPos, int yPos, float xSize, float ySize, float maxValue, float currentValue)
+	void UI::DrawProgressBar(int xPos, int yPos, float xSize, float ySize, float maxValue, float currentValue, int colorId)
 	{
 		float clampedMax = maxValue <= 0.0f ? 1.0f : maxValue;
 		float clampedCurrent = currentValue;
@@ -86,9 +86,35 @@ namespace IonixEngine
 		ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
 			ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar |
 			ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoBackground;
-		if (ImGui::Begin("HPBarWindow", nullptr, flags))
+		char windowName[64];
+		std::snprintf(windowName, sizeof(windowName), "Bar_%d_%d_%d_%d", xPos, yPos, (int)xSize, (int)ySize);
+		if (ImGui::Begin(windowName, nullptr, flags))
 		{
+			ImVec4 fgColor;
+			ImVec4 bgColor;
+			switch (colorId)
+			{
+			case 1: // red
+				fgColor = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
+				bgColor = ImVec4(0.2f, 0.0f, 0.0f, 0.6f);
+				break;
+			case 2: // green
+				fgColor = ImVec4(0.0f, 1.0f, 0.0f, 1.0f);
+				bgColor = ImVec4(0.0f, 0.2f, 0.0f, 0.6f);
+				break;
+			case 3: // white
+				fgColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+				bgColor = ImVec4(0.2f, 0.2f, 0.2f, 0.6f);
+				break;
+			default: // 0 = default/orange
+				fgColor = ImVec4(1.0f, 0.6f, 0.0f, 1.0f);
+				bgColor = ImVec4(0.2f, 0.12f, 0.0f, 0.6f);
+				break;
+			}
+			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, fgColor);
+			ImGui::PushStyleColor(ImGuiCol_FrameBg, bgColor);
 			ImGui::ProgressBar(progress, ImVec2(xSize, ySize), "");
+			ImGui::PopStyleColor(2);
 		}
 		ImGui::End();
 	}

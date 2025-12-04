@@ -258,9 +258,12 @@ function TriangleShooter:OnUpdate()
 
     local levelCfg = TriangleShooterLevels.getLevelConfig(currentLevel)
     if levelCfg ~= nil then
-        UI.draw_progress_bar(20, 20, 200, 20, levelCfg.enemyHealth or enemyHealth, enemyHealth)
+        UI.draw_progress_bar(20, 20, 200, 20, levelCfg.enemyHealth or enemyHealth, enemyHealth, 1)
+        if levelCfg.timeLimitFrames ~= nil and levelCfg.timeLimitFrames > 0 then
+            UI.draw_progress_bar(20, 50, 200, 10, levelCfg.timeLimitFrames, levelTimer, 3)
+        end
     else
-        UI.draw_progress_bar(20, 20, 200, 20, enemyHealth, enemyHealth)
+        UI.draw_progress_bar(20, 20, 200, 20, enemyHealth, enemyHealth, 1)
     end
 
     if enemyHealth <= 0 then
