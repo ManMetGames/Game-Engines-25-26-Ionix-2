@@ -103,7 +103,7 @@ local knockbackDirY = 0
 local musicEntity
 local musicVolume = 64
 
-local bpm = 34
+local bpm = 34 -- not real bpm
 local framesPerBeat = 3600 / bpm
 local beatTimer = 0
 local bopDurationFrames = 8
@@ -125,6 +125,26 @@ local levelTimer = 0
 local playerLevel = 1
 local xp = 0
 local xpToNextLevel = 100
+local currentShootAbility = "basic"
+
+local shootAbilities = {}
+
+shootAbilities.basic = function(tipX, tipY, aimX, aimY)
+    return {
+        { offsetX = 0, offsetY = 0, dirX = aimX, dirY = aimY }
+    }
+end
+
+shootAbilities.dual = function(tipX, tipY, aimX, aimY)
+    local sideX = -aimY
+    local sideY = aimX
+    local offset = projectileSize * 0.6
+
+    return {
+        { offsetX = sideX * offset, offsetY = sideY * offset, dirX = aimX, dirY = aimY },
+        { offsetX = -sideX * offset, offsetY = -sideY * offset, dirX = aimX, dirY = aimY },
+    }
+end
 
 local function GetXpForNextLevel(level)
     local n = level - 1
@@ -134,6 +154,10 @@ end
 local function OnLevelUp()
     playerLevel = playerLevel + 1
     xpToNextLevel = GetXpForNextLevel(playerLevel)
+
+    if playerLevel == 2 then
+        currentShootAbility = "dual"
+    end
 end
 
 local function AddXp(amount)
@@ -381,9 +405,9 @@ end
 ----------------------------------------------------------
 -- Spawn a projectile from the tip of the triangle
 ----------------------------------------------------------
-function SpawnProjectile()
+local function SpawnSingleProjectile(spawnX, spawnY, dirX, dirY)
     local projData
-    
+
     -- Try to reuse a pooled projectile
     if #projectilePool > 0 then
         projData = table.remove(projectilePool)
@@ -393,26 +417,45 @@ function SpawnProjectile()
         Entity.add_sprite_component(proj, assets.textures.Ghast_Tear, projectileSize, projectileSize, 5)
         projData = { entity = proj }
     end
-    
-    -- Spawn at tip of triangle (offset in aim direction)
-    local centerX = playerX + playerSize/2
-    local centerY = playerY + playerSize/2
-    local spawnX = centerX + aimDirX * (playerSize/2) - projectileSize/2
-    local spawnY = centerY + aimDirY * (playerSize/2) - projectileSize/2
-    
+
     -- Set position and rotation
     Entity.set_global_pos(projData.entity, spawnX, spawnY)
-    local projAngle = math.deg(math.atan(aimDirY, aimDirX)) + 90
+    local projAngle = math.deg(math.atan(dirY, dirX)) + 90
     Entity.set_global_rot(projData.entity, projAngle)
-    
+
     -- Initialize projectile data
     projData.x = spawnX
     projData.y = spawnY
-    projData.vx = aimDirX * projectileSpeed
-    projData.vy = aimDirY * projectileSpeed
+    projData.vx = dirX * projectileSpeed
+    projData.vy = dirY * projectileSpeed
     projData.age = 0
-    
+
     table.insert(projectiles, projData)
+end
+
+function SpawnProjectile()
+    -- Spawn at tip of triangle (offset in aim direction)
+    local centerX = playerX + playerSize/2
+    local centerY = playerY + playerSize/2
+    local tipX = centerX + aimDirX * (playerSize/2)
+    local tipY = centerY + aimDirY * (playerSize/2)
+    local abilityFunc = shootAbilities[currentShootAbility] or shootAbilities.basic
+    local shots = abilityFunc(tipX, tipY, aimDirX, aimDirY)
+    if not shots then
+        return
+    end
+
+    for i = 1, #shots do
+        local s = shots[i]
+        local offsetX = s.offsetX or 0
+        local offsetY = s.offsetY or 0
+        local dirX = s.dirX or aimDirX
+        local dirY = s.dirY or aimDirY
+
+        local spawnX = tipX + offsetX - projectileSize/2
+        local spawnY = tipY + offsetY - projectileSize/2
+        SpawnSingleProjectile(spawnX, spawnY, dirX, dirY)
+    end
 end
 
 ----------------------------------------------------------
@@ -610,7 +653,7 @@ function UpdateBeatBop()
     if bopTimer > 0 then
         bopTimer = bopTimer - 1
         local t = bopTimer / bopDurationFrames
-        local scale = 1.0 + 0.35 * t
+        local scale = 1.0 + 0.45 * t
 
         if playerSprite then
             Sprite.set_image_width(playerSprite, math.floor(playerBaseImageWidth * scale))
