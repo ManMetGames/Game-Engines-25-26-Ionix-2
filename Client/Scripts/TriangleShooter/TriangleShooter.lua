@@ -158,6 +158,24 @@ shootAbilities.triple = function(tipX, tipY, aimX, aimY)
     }
 end
 
+shootAbilities.wide = function(tipX, tipY, aimX, aimY)
+    local count = 4
+    local totalSpreadDeg = 40
+    local baseAngle = math.atan(aimY, aimX)
+    local halfSpread = math.rad(totalSpreadDeg) / 2
+    local step = (count == 1) and 0 or (2 * halfSpread / (count - 1))
+
+    local shots = {}
+    for i = 0, count - 1 do
+        local angle = baseAngle - halfSpread + step * i
+        local dirX = math.cos(angle)
+        local dirY = math.sin(angle)
+        shots[#shots + 1] = { offsetX = 0, offsetY = 0, dirX = dirX, dirY = dirY }
+    end
+
+    return shots
+end
+
 local function GetXpForNextLevel(level)
     local n = level - 1
     return math.floor(100 + 40 * n + 10 * n * math.max(n - 1, 0))
@@ -171,6 +189,8 @@ local function OnLevelUp()
         currentShootAbility = "dual"
     elseif playerLevel == 3 then
         currentShootAbility = "triple"
+    elseif playerLevel == 4 then
+        currentShootAbility = "wide"
     end
 end
 
