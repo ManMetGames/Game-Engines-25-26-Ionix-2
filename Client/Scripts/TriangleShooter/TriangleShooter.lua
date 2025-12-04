@@ -1,6 +1,7 @@
 local TriangleShooter = {}
 local assets = require("Scripts.Assets")
 local enums = require("Scripts.Enums")
+local TriangleShooterLevels = require("Scripts.TriangleShooter.TriangleShooterLevels")
 
 -- Screen bounds (updated each frame from window size)
 local screenW = 1920
@@ -96,6 +97,7 @@ local enemyProjectileSize = 24
 local enemyProjectileSpeed = 3
 local enemyShootCooldown = 0
 local enemyShootInterval = 75  -- 1.25 seconds at 60fps
+local enemyProjectilesEnabled = true
 
 -- Collision settings
 local collisionRadius = 24  -- Half of enemy size for circle collision
@@ -109,6 +111,44 @@ local knockbackDuration = 45
 local knockbackBaseSpeed = 6
 local knockbackDirX = 0
 local knockbackDirY = 0
+
+-- Level settings
+local currentLevel = 1
+local levelTimer = 0
+
+local function LoadLevel(index)
+    local cfg = TriangleShooterLevels.getLevelConfig(index)
+    if not cfg then
+        return
+    end
+
+    currentLevel = index
+    levelTimer = cfg.timeLimitFrames or 0
+
+    wallPingPongEnabled = cfg.wallPingPong and true or false
+
+    enemyProjectilesEnabled = cfg.enemyProjectiles and true or false
+
+    enemyHealth = cfg.enemyHealth or enemyHealth
+    enemyX = screenW / 2 - enemySize / 2
+    enemyY = screenH / 2 - enemySize / 2
+    Entity.set_global_pos(enemy, enemyX, enemyY)
+
+    enemyShootCooldown = 0
+end
+
+local function OnEnemyKilled()
+    local nextIndex = currentLevel + 1
+    if TriangleShooterLevels.getLevelConfig(nextIndex) then
+        LoadLevel(nextIndex)
+    else
+        LoadLevel(currentLevel)
+    end
+end
+
+local function OnLevelTimeout()
+    LoadLevel(currentLevel)
+end
 
 ----------------------------------------------------------
 -- OnStart
@@ -134,6 +174,8 @@ function TriangleShooter:OnStart()
     Entity.set_global_pos(enemy, enemyX, enemyY)
     enemySprite = Entity.add_sprite_component(enemy, assets.textures.Cube, enemySize, enemySize, 5)
     Sprite.set_columns(enemySprite, 1)
+
+    LoadLevel(1)
 end
 
 ----------------------------------------------------------
@@ -146,6 +188,10 @@ function TriangleShooter:OnUpdate()
     -- Update screen bounds from window
     screenW = Window.get_width()
     screenH = Window.get_height()
+    
+    if levelTimer > 0 then
+        levelTimer = levelTimer - 1
+    end
     
     -- Get mouse delta (relative movement)
     local delta = Input.get_mouse_delta()
@@ -210,6 +256,12 @@ function TriangleShooter:OnUpdate()
     
     -- Update enemy dash behavior
     UpdateEnemyDash()
+
+    if enemyHealth <= 0 then
+        OnEnemyKilled()
+    elseif levelTimer <= 0 and enemyHealth > 0 then
+        OnLevelTimeout()
+    end
 end
 
 ----------------------------------------------------------
@@ -466,10 +518,12 @@ function UpdateEnemyDash()
         enemyY = enemyY + dashDirY * currentSpeed
         
         -- Shoot projectiles while dashing
-        enemyShootCooldown = enemyShootCooldown + 1
-        if enemyShootCooldown >= enemyShootInterval then
-            SpawnEnemyProjectile()
-            enemyShootCooldown = 0
+        if enemyProjectilesEnabled then
+            enemyShootCooldown = enemyShootCooldown + 1
+            if enemyShootCooldown >= enemyShootInterval then
+                SpawnEnemyProjectile()
+                enemyShootCooldown = 0
+            end
         end
         
         -- Check wall collision and bounce
