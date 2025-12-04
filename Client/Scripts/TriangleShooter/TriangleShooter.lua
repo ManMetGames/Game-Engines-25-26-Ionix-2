@@ -89,6 +89,44 @@ local enemyBounceSteer = 0.4
 local enemySteerStrength = 0.0
 -- Continuous bouncing (no max bounces)
 
+local enemies = {}
+local levelEnemyHealth = 50
+
+local function CreateEnemy(x, y, health)
+    local entity = Entity.create_entity()
+    Entity.set_global_pos(entity, x, y)
+    local sprite = Entity.add_sprite_component(entity, assets.textures.Cube, enemySize, enemySize, 5)
+    Sprite.set_columns(sprite, 1)
+
+    local enemy = {
+        entity = entity,
+        sprite = sprite,
+        x = x,
+        y = y,
+        health = health,
+        rotation = 0,
+        spinVelocity = 0,
+        state = "aiming",
+        dashDirX = 0,
+        dashDirY = 0,
+        dashCooldown = 0,
+        shootCooldown = 0,
+        flashTimer = 0,
+    }
+
+    return enemy
+end
+
+local function ClearEnemies()
+    for i = 1, #enemies do
+        local enemy = enemies[i]
+        if enemy.entity then
+            Entity.set_global_pos(enemy.entity, -1000, -1000)
+        end
+    end
+    enemies = {}
+end
+
 -- Enemy projectile settings
 local enemyProjectiles = {}
 local enemyProjectilePool = {}
@@ -150,10 +188,29 @@ local function LoadLevel(index)
 
     enemyProjectilesEnabled = cfg.enemyProjectiles and true or false
 
-    enemyHealth = cfg.enemyHealth or enemyHealth
-    enemyX = screenW / 2 - enemySize / 2
-    enemyY = screenH / 2 - enemySize / 2
-    Entity.set_global_pos(enemy, enemyX, enemyY)
+    ClearEnemies()
+
+    local enemyCount = cfg.enemyCount or 1
+    levelEnemyHealth = cfg.enemyHealth or levelEnemyHealth
+
+    local centerX = screenW / 2 - enemySize / 2
+    local centerY = screenH / 2 - enemySize / 2
+
+    if enemyCount == 1 then
+        local e = CreateEnemy(centerX, centerY, levelEnemyHealth)
+        table.insert(enemies, e)
+    else
+        local radius = 120
+        local playerCenterX = screenW / 2
+        local playerCenterY = screenH / 2
+        for i = 1, enemyCount do
+            local angle = (2 * math.pi * (i - 1)) / enemyCount
+            local ex = playerCenterX + math.cos(angle) * radius - enemySize / 2
+            local ey = playerCenterY + math.sin(angle) * radius - enemySize / 2
+            local e = CreateEnemy(ex, ey, levelEnemyHealth)
+            table.insert(enemies, e)
+        end
+    end
 
     playerHealth = 100
     playerX = screenW / 2 - playerSize / 2
@@ -198,12 +255,6 @@ function TriangleShooter:OnStart()
     playerSprite = Entity.add_sprite_component(player, assets.textures.Triangle, playerSize, playerSize, 10)
     Sprite.set_columns(playerSprite, 1)
     
-    -- Create enemy cube at center of screen
-    enemy = Entity.create_entity()
-    Entity.set_global_pos(enemy, enemyX, enemyY)
-    enemySprite = Entity.add_sprite_component(enemy, assets.textures.Cube, enemySize, enemySize, 5)
-    Sprite.set_columns(enemySprite, 1)
-
     LoadLevel(1)
 end
 
@@ -254,18 +305,38 @@ function TriangleShooter:OnUpdate()
     
     Entity.set_global_pos(player, playerX, playerY)
     
-    -- Rotate triangle to face the enemy cube
-    local dx = (enemyX + enemySize/2) - (playerX + playerSize/2)
-    local dy = (enemyY + enemySize/2) - (playerY + playerSize/2)
-    local angleRadians = math.atan(dy, dx)
-    local angleDegrees = math.deg(angleRadians) + 90  -- +90 because triangle points up by default
-    Entity.set_global_rot(player, angleDegrees)
-    
-    -- Store normalized aim direction for projectiles
-    local dist = math.sqrt(dx * dx + dy * dy)
-    if dist > 0 then
-        aimDirX = dx / dist
-        aimDirY = dy / dist
+    -- Rotate triangle to face the nearest enemy cube (if any)
+    local closestEnemy = nil
+    local closestDistSq = nil
+    local playerCenterX = playerX + playerSize/2
+    local playerCenterY = playerY + playerSize/2
+    for i = 1, #enemies do
+        local e = enemies[i]
+        local enemyCenterX = e.x + enemySize/2
+        local enemyCenterY = e.y + enemySize/2
+        local dx = enemyCenterX - playerCenterX
+        local dy = enemyCenterY - playerCenterY
+        local distSq = dx * dx + dy * dy
+        if closestDistSq == nil or distSq < closestDistSq then
+            closestDistSq = distSq
+            closestEnemy = e
+        end
+    end
+
+    if closestEnemy ~= nil then
+        local enemyCenterX = closestEnemy.x + enemySize/2
+        local enemyCenterY = closestEnemy.y + enemySize/2
+        local dx = enemyCenterX - playerCenterX
+        local dy = enemyCenterY - playerCenterY
+        local angleRadians = math.atan(dy, dx)
+        local angleDegrees = math.deg(angleRadians) + 90  -- +90 because triangle points up by default
+        Entity.set_global_rot(player, angleDegrees)
+
+        local dist = math.sqrt(dx * dx + dy * dy)
+        if dist > 0 then
+            aimDirX = dx / dist
+            aimDirY = dy / dist
+        end
     end
     
     -- Spawn projectile on LMB click
@@ -288,12 +359,28 @@ function TriangleShooter:OnUpdate()
 
     local levelCfg = TriangleShooterLevels.getLevelConfig(currentLevel)
     if levelCfg ~= nil then
-        UI.draw_progress_bar(20, 20, 200, 20, levelCfg.enemyHealth or enemyHealth, enemyHealth, 1)
+        local enemyCount = levelCfg.enemyCount or 1
+        local maxEnemyHealthTotal = (levelCfg.enemyHealth or levelEnemyHealth) * enemyCount
+        local currentEnemyHealthTotal = 0
+        for i = 1, #enemies do
+            currentEnemyHealthTotal = currentEnemyHealthTotal + (enemies[i].health or 0)
+        end
+        if maxEnemyHealthTotal < 1 then
+            maxEnemyHealthTotal = 1
+        end
+        UI.draw_progress_bar(20, 20, 200, 20, maxEnemyHealthTotal, currentEnemyHealthTotal, 1)
         if levelCfg.timeLimitFrames ~= nil and levelCfg.timeLimitFrames > 0 then
             UI.draw_progress_bar(20, 50, 200, 10, levelCfg.timeLimitFrames, levelTimer, 3)
         end
     else
-        UI.draw_progress_bar(20, 20, 200, 20, enemyHealth, enemyHealth, 1)
+        local currentEnemyHealthTotal = 0
+        for i = 1, #enemies do
+            currentEnemyHealthTotal = currentEnemyHealthTotal + (enemies[i].health or 0)
+        end
+        if currentEnemyHealthTotal < 1 then
+            currentEnemyHealthTotal = 1
+        end
+        UI.draw_progress_bar(20, 20, 200, 20, currentEnemyHealthTotal, currentEnemyHealthTotal, 1)
     end
 
     UI.draw_label("Stage: " .. tostring(currentLevel), 140, 140, 400, 20, "")
@@ -301,11 +388,12 @@ function TriangleShooter:OnUpdate()
     UI.draw_progress_bar(screenW - 220, 20, 200, 20, 100, playerHealth, 2)
     UI.draw_label("Player Lv: " .. tostring(playerLevel) .. "  XP: " .. tostring(xp) .. " / " .. tostring(xpToNextLevel), 220, 45, 740, 60, "")
 
+    local enemiesAlive = #enemies > 0
     if playerHealth <= 0 then
         LoadLevel(currentLevel)
-    elseif enemyHealth <= 0 then
+    elseif not enemiesAlive then
         OnEnemyKilled()
-    elseif levelTimer <= 0 and enemyHealth > 0 then
+    elseif levelTimer <= 0 and enemiesAlive then
         OnLevelTimeout()
     end
 end
@@ -360,22 +448,33 @@ function UpdateProjectiles()
         
         Entity.set_global_pos(proj.entity, proj.x, proj.y)
         
-        -- Check collisionRadius with enemy cube
+        -- Check collisionRadius with enemies
         local projCenterX = proj.x + projectileSize/2
         local projCenterY = proj.y + projectileSize/2
-        local enemyCenterX = enemyX + enemySize/2
-        local enemyCenterY = enemyY + enemySize/2
-        
-        local dx = projCenterX - enemyCenterX
-        local dy = projCenterY - enemyCenterY
-        local distSq = dx * dx + dy * dy
         local hitRadius = collisionRadius + projectileSize/2
-        
-        if distSq < hitRadius * hitRadius then
-            -- Collision! Flash enemy and return projectile to pool
-            enemyHealth = enemyHealth - 1
+        local hitEnemyIndex = nil
+        for j = #enemies, 1, -1 do
+            local enemy = enemies[j]
+            local enemyCenterX = enemy.x + enemySize/2
+            local enemyCenterY = enemy.y + enemySize/2
+            local dx = projCenterX - enemyCenterX
+            local dy = projCenterY - enemyCenterY
+            local distSq = dx * dx + dy * dy
+            if distSq < hitRadius * hitRadius then
+                hitEnemyIndex = j
+                break
+            end
+        end
+
+        if hitEnemyIndex ~= nil then
+            local enemy = enemies[hitEnemyIndex]
+            enemy.health = (enemy.health or 0) - 1
             AddXp(1)
-            FlashEnemy()
+            FlashEnemy(enemy)
+            if enemy.health <= 0 then
+                Entity.set_global_pos(enemy.entity, -1000, -1000)
+                table.remove(enemies, hitEnemyIndex)
+            end
             Entity.set_global_pos(proj.entity, -1000, -1000)
             table.insert(projectilePool, table.remove(projectiles, i))
         else
@@ -393,20 +492,21 @@ end
 ----------------------------------------------------------
 -- Flash effect (frame-based, no coroutines)
 ----------------------------------------------------------
-function FlashEnemy()
-    Sprite.set_color(enemySprite, 255, 0, 0)
-    flashTimer = flashDuration
-    if enemyHealth <= 0 then
-        Entity.set_global_pos(enemy, -1000, -1000)
-    end
+function FlashEnemy(enemy)
+    if not enemy or not enemy.sprite then return end
+    Sprite.set_color(enemy.sprite, 255, 0, 0)
+    enemy.flashTimer = flashDuration
 end
 
 function UpdateFlash()
     -- Enemy flash
-    if flashTimer > 0 then
-        flashTimer = flashTimer - 1
-        if flashTimer <= 0 then
-            Sprite.set_color(enemySprite, 255, 255, 255)
+    for i = 1, #enemies do
+        local enemy = enemies[i]
+        if enemy.flashTimer and enemy.flashTimer > 0 then
+            enemy.flashTimer = enemy.flashTimer - 1
+            if enemy.flashTimer <= 0 then
+                Sprite.set_color(enemy.sprite, 255, 255, 255)
+            end
         end
     end
     
@@ -432,61 +532,66 @@ function UpdateEnemyCollision()
         return
     end
     
-    -- Check collision between enemy and player
+    -- Check collision between enemies and player
     local playerCenterX = playerX + playerSize/2
     local playerCenterY = playerY + playerSize/2
-    local enemyCenterX = enemyX + enemySize/2
-    local enemyCenterY = enemyY + enemySize/2
-    
-    local dx = playerCenterX - enemyCenterX
-    local dy = playerCenterY - enemyCenterY
-    local distSq = dx * dx + dy * dy
-    local hitRadius = collisionRadius + playerSize/2
-    
-    if distSq < hitRadius * hitRadius then
-         -- Collision! Damage player
-        local dist = math.sqrt(distSq)
-        if dist == 0 then
-            dist = 1
-            dx = 0
-            dy = -1
-        end
-
-        local nx = dx / dist
-        local ny = dy / dist
-        local padding = 2
-        local targetDistance = hitRadius + padding
-
-        local newPlayerCenterX = enemyCenterX + nx * targetDistance
-        local newPlayerCenterY = enemyCenterY + ny * targetDistance
-        playerX = newPlayerCenterX - playerSize/2
-        playerY = newPlayerCenterY - playerSize/2
-        Entity.set_global_pos(player, playerX, playerY)
-
-        local pushX = nx
-        local pushY = ny
-        if dashDirX ~= 0 or dashDirY ~= 0 then
-            local sideLX = -dashDirY
-            local sideLY = dashDirX
-            local sideRX = dashDirY
-            local sideRY = -dashDirX
-            local dotL = nx * sideLX + ny * sideLY
-            local dotR = nx * sideRX + ny * sideRY
-            if dotL > dotR then
-                pushX = sideLX
-                pushY = sideLY
-            else
-                pushX = sideRX
-                pushY = sideRY
+    for i = 1, #enemies do
+        local enemy = enemies[i]
+        local enemyCenterX = enemy.x + enemySize/2
+        local enemyCenterY = enemy.y + enemySize/2
+        local dx = playerCenterX - enemyCenterX
+        local dy = playerCenterY - enemyCenterY
+        local distSq = dx * dx + dy * dy
+        local hitRadius = collisionRadius + playerSize/2
+        
+        if distSq < hitRadius * hitRadius then
+             -- Collision! Damage player
+            local dist = math.sqrt(distSq)
+            if dist == 0 then
+                dist = 1
+                dx = 0
+                dy = -1
             end
-        end
-        knockbackDirX = pushX
-        knockbackDirY = pushY
-        knockbackTimer = knockbackDuration
 
-        playerHealth = playerHealth - 10
-        FlashPlayer()
-        damageCooldown = damageCooldownDuration
+            local nx = dx / dist
+            local ny = dy / dist
+            local padding = 2
+            local targetDistance = hitRadius + padding
+
+            local newPlayerCenterX = enemyCenterX + nx * targetDistance
+            local newPlayerCenterY = enemyCenterY + ny * targetDistance
+            playerX = newPlayerCenterX - playerSize/2
+            playerY = newPlayerCenterY - playerSize/2
+            Entity.set_global_pos(player, playerX, playerY)
+
+            local pushX = nx
+            local pushY = ny
+            local dirX = enemy.dashDirX or 0
+            local dirY = enemy.dashDirY or 0
+            if dirX ~= 0 or dirY ~= 0 then
+                local sideLX = -dirY
+                local sideLY = dirX
+                local sideRX = dirY
+                local sideRY = -dirX
+                local dotL = nx * sideLX + ny * sideLY
+                local dotR = nx * sideRX + ny * sideRY
+                if dotL > dotR then
+                    pushX = sideLX
+                    pushY = sideLY
+                else
+                    pushX = sideRX
+                    pushY = sideRY
+                end
+            end
+            knockbackDirX = pushX
+            knockbackDirY = pushY
+            knockbackTimer = knockbackDuration
+
+            playerHealth = playerHealth - 10
+            FlashPlayer()
+            damageCooldown = damageCooldownDuration
+            break
+        end
     end
 end
 
@@ -507,157 +612,153 @@ function UpdateEnemyDash()
     local maxX = screenW - enemySize
     local minY = 0
     local maxY = screenH - enemySize
-    
-    -- Calculate direction to player (used in aiming state)
-    local enemyCenterX = enemyX + enemySize/2
-    local enemyCenterY = enemyY + enemySize/2
+
     local playerCenterX = playerX + playerSize/2
     local playerCenterY = playerY + playerSize/2
-    local dx = playerCenterX - enemyCenterX
-    local dy = playerCenterY - enemyCenterY
-    
-    if enemyState == "aiming" then
-        -- Always face the player
-        local angle = math.deg(math.atan(dy, dx)) + 90
-        Entity.set_global_rot(enemy, angle)
-        
-        -- Count down cooldown
-        if dashCooldown > 0 then
-            dashCooldown = dashCooldown - 1
-        else
-            -- Cooldown done, lock direction and dash
-            local dist = math.sqrt(dx * dx + dy * dy)
-            if dist > 0 then
-                dashDirX = dx / dist
-                dashDirY = dy / dist
+
+    for i = 1, #enemies do
+        local enemy = enemies[i]
+        local enemyCenterX = enemy.x + enemySize/2
+        local enemyCenterY = enemy.y + enemySize/2
+        local dx = playerCenterX - enemyCenterX
+        local dy = playerCenterY - enemyCenterY
+
+        if enemy.state == "aiming" then
+            -- Always face the player
+            local angle = math.deg(math.atan(dy, dx)) + 90
+            Entity.set_global_rot(enemy.entity, angle)
+
+            -- Count down cooldown
+            if enemy.dashCooldown > 0 then
+                enemy.dashCooldown = enemy.dashCooldown - 1
             else
-                dashDirX = 0
-                dashDirY = 0
+                -- Cooldown done, lock direction and dash
+                local dist = math.sqrt(dx * dx + dy * dy)
+                if dist > 0 then
+                    enemy.dashDirX = dx / dist
+                    enemy.dashDirY = dy / dist
+                else
+                    enemy.dashDirX = 0
+                    enemy.dashDirY = 0
+                end
+                enemy.state = "dashing"
+                enemy.shootCooldown = 0
             end
-            enemyState = "dashing"
-            enemyShootCooldown = 0
-        end
-        
-    elseif enemyState == "dashing" then
-        if enemySteerStrength > 0 then
-            local distToPlayer = math.sqrt(dx * dx + dy * dy)
-            if distToPlayer > 0 then
-                local toPlayerDirX = dx / distToPlayer
-                local toPlayerDirY = dy / distToPlayer
-                local steer = enemySteerStrength
-                local newDirX = dashDirX * (1 - steer) + toPlayerDirX * steer
-                local newDirY = dashDirY * (1 - steer) + toPlayerDirY * steer
-                local newLen = math.sqrt(newDirX * newDirX + newDirY * newDirY)
-                if newLen > 0 then
-                    dashDirX = newDirX / newLen
-                    dashDirY = newDirY / newLen
+
+        elseif enemy.state == "dashing" then
+            if enemySteerStrength > 0 then
+                local distToPlayer = math.sqrt(dx * dx + dy * dy)
+                if distToPlayer > 0 then
+                    local toPlayerDirX = dx / distToPlayer
+                    local toPlayerDirY = dy / distToPlayer
+                    local steer = enemySteerStrength
+                    local newDirX = enemy.dashDirX * (1 - steer) + toPlayerDirX * steer
+                    local newDirY = enemy.dashDirY * (1 - steer) + toPlayerDirY * steer
+                    local newLen = math.sqrt(newDirX * newDirX + newDirY * newDirY)
+                    if newLen > 0 then
+                        enemy.dashDirX = newDirX / newLen
+                        enemy.dashDirY = newDirY / newLen
+                    end
                 end
             end
-        end
-        -- Scale speed based on current arena size vs original
-        local scaleX = screenW / originalWindowWidth
-        local scaleY = screenH / originalWindowHeight
-        local scale = (scaleX + scaleY) / 2
-        local currentSpeed = dashSpeed * scale
-        
-        -- Move in locked direction (no rotation change)
-        enemyX = enemyX + dashDirX * currentSpeed
-        enemyY = enemyY + dashDirY * currentSpeed
-        
-        -- Shoot projectiles while dashing
-        if enemyProjectilesEnabled then
-            enemyShootCooldown = enemyShootCooldown + 1
-            if enemyShootCooldown >= enemyShootInterval then
-                SpawnEnemyProjectile()
-                enemyShootCooldown = 0
-            end
-        end
-        
-        -- Check wall collision and bounce
-        local hitLeft = false
-        local hitRight = false
-        local hitTop = false
-        local hitBottom = false
-        
-        if enemyX <= minX then
-            enemyX = minX
-            hitLeft = true
-        elseif enemyX >= maxX then
-            enemyX = maxX
-            hitRight = true
-        end
-        if enemyY <= minY then
-            enemyY = minY
-            hitTop = true
-        elseif enemyY >= maxY then
-            enemyY = maxY
-            hitBottom = true
-        end
-        
-        -- Bounce off walls toward player and trigger wall lerp
-        if hitLeft or hitRight or hitTop or hitBottom then
-            if hitLeft or hitRight then
-                dashDirX = -dashDirX
-            end
-            if hitTop or hitBottom then
-                dashDirY = -dashDirY
-            end
-            local len = math.sqrt(dashDirX * dashDirX + dashDirY * dashDirY)
-            if len > 0 then
-                dashDirX = dashDirX / len
-                dashDirY = dashDirY / len
-            end
-            local enemyCenterX = enemyX + enemySize/2
-            local enemyCenterY = enemyY + enemySize/2
-            local toPlayerX = playerCenterX - enemyCenterX
-            local toPlayerY = playerCenterY - enemyCenterY
-            local dist = math.sqrt(toPlayerX * toPlayerX + toPlayerY * toPlayerY)
-            if dist > 0 then
-                local toPlayerDirX = toPlayerX / dist
-                local toPlayerDirY = toPlayerY / dist
-                local steer = enemyBounceSteer
-                local newDirX = dashDirX * (1 - steer) + toPlayerDirX * steer
-                local newDirY = dashDirY * (1 - steer) + toPlayerDirY * steer
-                local newLen = math.sqrt(newDirX * newDirX + newDirY * newDirY)
-                if newLen > 0 then
-                    dashDirX = newDirX / newLen
-                    dashDirY = newDirY / newLen
+
+            local scaleX = screenW / originalWindowWidth
+            local scaleY = screenH / originalWindowHeight
+            local scale = (scaleX + scaleY) / 2
+            local currentSpeed = dashSpeed * scale
+
+            enemy.x = enemy.x + enemy.dashDirX * currentSpeed
+            enemy.y = enemy.y + enemy.dashDirY * currentSpeed
+
+            if enemyProjectilesEnabled then
+                enemy.shootCooldown = enemy.shootCooldown + 1
+                if enemy.shootCooldown >= enemyShootInterval then
+                    SpawnEnemyProjectile(enemy)
+                    enemy.shootCooldown = 0
                 end
             end
-            
-            -- Trigger wall lerps
-            if hitLeft then TriggerWallLerp("left") end
-            if hitRight then TriggerWallLerp("right") end
-            if hitTop then TriggerWallLerp("top") end
-            if hitBottom then TriggerWallLerp("bottom") end
-            
-            -- Add spin on bounce
-            enemySpinVelocity = enemySpinVelocity + enemySpinBoost
-            if enemySpinVelocity > enemySpinMaxVelocity then
-                enemySpinVelocity = enemySpinMaxVelocity
+
+            local hitLeft = false
+            local hitRight = false
+            local hitTop = false
+            local hitBottom = false
+
+            if enemy.x <= minX then
+                enemy.x = minX
+                hitLeft = true
+            elseif enemy.x >= maxX then
+                enemy.x = maxX
+                hitRight = true
             end
+            if enemy.y <= minY then
+                enemy.y = minY
+                hitTop = true
+            elseif enemy.y >= maxY then
+                enemy.y = maxY
+                hitBottom = true
+            end
+
+            if hitLeft or hitRight or hitTop or hitBottom then
+                if hitLeft or hitRight then
+                    enemy.dashDirX = -enemy.dashDirX
+                end
+                if hitTop or hitBottom then
+                    enemy.dashDirY = -enemy.dashDirY
+                end
+                local len = math.sqrt(enemy.dashDirX * enemy.dashDirX + enemy.dashDirY * enemy.dashDirY)
+                if len > 0 then
+                    enemy.dashDirX = enemy.dashDirX / len
+                    enemy.dashDirY = enemy.dashDirY / len
+                end
+                local enemyCenterX2 = enemy.x + enemySize/2
+                local enemyCenterY2 = enemy.y + enemySize/2
+                local toPlayerX = playerCenterX - enemyCenterX2
+                local toPlayerY = playerCenterY - enemyCenterY2
+                local dist = math.sqrt(toPlayerX * toPlayerX + toPlayerY * toPlayerY)
+                if dist > 0 then
+                    local toPlayerDirX = toPlayerX / dist
+                    local toPlayerDirY = toPlayerY / dist
+                    local steer = enemyBounceSteer
+                    local newDirX = enemy.dashDirX * (1 - steer) + toPlayerDirX * steer
+                    local newDirY = enemy.dashDirY * (1 - steer) + toPlayerDirY * steer
+                    local newLen = math.sqrt(newDirX * newDirX + newDirY * newDirY)
+                    if newLen > 0 then
+                        enemy.dashDirX = newDirX / newLen
+                        enemy.dashDirY = newDirY / newLen
+                    end
+                end
+
+                if hitLeft then TriggerWallLerp("left") end
+                if hitRight then TriggerWallLerp("right") end
+                if hitTop then TriggerWallLerp("top") end
+                if hitBottom then TriggerWallLerp("bottom") end
+
+                enemy.spinVelocity = (enemy.spinVelocity or 0) + enemySpinBoost
+                if enemy.spinVelocity > enemySpinMaxVelocity then
+                    enemy.spinVelocity = enemySpinMaxVelocity
+                end
+            end
+
+            local speed = math.abs(enemy.spinVelocity or 0)
+            local t = speed / enemySpinMaxVelocity
+            if t > 1 then t = 1 end
+            local decay = enemySpinDecayBase + enemySpinDecayExtra * t
+            enemy.spinVelocity = (enemy.spinVelocity or 0) - (enemy.spinVelocity or 0) * decay
+            if math.abs(enemy.spinVelocity or 0) < 0.01 then
+                enemy.spinVelocity = 0
+            end
+            enemy.rotation = (enemy.rotation or 0) + enemy.spinVelocity
+            Entity.set_global_rot(enemy.entity, enemy.rotation)
+
+            Entity.set_global_pos(enemy.entity, enemy.x, enemy.y)
         end
-        
-        -- Apply spin rotation
-        local speed = math.abs(enemySpinVelocity)
-        local t = speed / enemySpinMaxVelocity
-        if t > 1 then t = 1 end
-        local decay = enemySpinDecayBase + enemySpinDecayExtra * t
-        enemySpinVelocity = enemySpinVelocity - enemySpinVelocity * decay
-        if math.abs(enemySpinVelocity) < 0.01 then
-            enemySpinVelocity = 0
-        end
-        enemyRotation = enemyRotation + enemySpinVelocity
-        Entity.set_global_rot(enemy, enemyRotation)
-        
-        Entity.set_global_pos(enemy, enemyX, enemyY)
     end
 end
 
 ----------------------------------------------------------
 -- Enemy projectile spawning
 ----------------------------------------------------------
-function SpawnEnemyProjectile()
+function SpawnEnemyProjectile(enemy)
     local projData
     
     -- Try to reuse a pooled projectile
@@ -673,8 +774,8 @@ function SpawnEnemyProjectile()
     end
     
     -- Direction towards player
-    local enemyCenterX = enemyX + enemySize/2
-    local enemyCenterY = enemyY + enemySize/2
+    local enemyCenterX = enemy.x + enemySize/2
+    local enemyCenterY = enemy.y + enemySize/2
     local playerCenterX = playerX + playerSize/2
     local playerCenterY = playerY + playerSize/2
     local dx = playerCenterX - enemyCenterX
