@@ -11,10 +11,9 @@ namespace IonixEngine {
 		zOrder = zedOrder;
 		isReversing = false;
 		playbackMode = playbackOptions::FORWARD;
-		boxColliderSize = b2Vec2{1 + (0.02f * (width - 75)), 1 + (0.02f * (height - 75))};
+		boxColliderSize = b2Vec2{ 1 + (0.02f * (width - 75)), 1 + (0.02f * (height - 75)) };
 		rows = 1; //default spritesheet size, can be changed in appropriate setters
 		cols = 1;
-
 
 		SDL_QueryTexture(texture, NULL, NULL, &size.x, &size.y);
 
@@ -27,7 +26,6 @@ namespace IonixEngine {
 		spriteHeight = (y == 0) ? size.y : 32;
 
 		calculateTotalFrames();
-
 		initialiseSpritesheet();
 	}
 
@@ -43,40 +41,65 @@ namespace IonixEngine {
 		cols = 1;
 		rows = 1;
 
-
 		SDL_QueryTexture(texture, NULL, NULL, &size.x, &size.y);
-	/*
+		/*
 		// Auto-size width/height from texture if 0 is passed
 		width = (x == 0) ? size.x : x;
 		height = (y == 0) ? size.y : y;
-	*/
+		*/
 		width = x;
 		height = y;
 		// Also set sprite frame size to match (for single-image textures)
 		spriteWidth = (x == 0) ? 32 : size.x;
 		spriteHeight = (y == 0) ? 32 : size.y;
-		
 
 		calculateTotalFrames();
+		initialiseSpritesheet();
+	}
 
+	// New constructors with animation setup
+
+	SpriteComponent::SpriteComponent(Entity* entity, std::string alias, int x, int y, int zedOrder,
+		int rows_, int cols_, int spriteW, int spriteH)
+		: SpriteComponent(entity, alias, x, y, zedOrder) {
+		setAnimation(rows_, cols_, spriteW, spriteH);
+		calculateTotalFrames();
+		initialiseSpritesheet();
+	}
+
+	SpriteComponent::SpriteComponent(Entity* entity, uint32_t hash, int x, int y, int zedOrder,
+		int rows_, int cols_, int spriteW, int spriteH)
+		: SpriteComponent(entity, hash, x, y, zedOrder) {
+		setAnimation(rows_, cols_, spriteW, spriteH);
+		calculateTotalFrames();
+		initialiseSpritesheet();
+	}
+
+	SpriteComponent::SpriteComponent(Entity* entity, std::string alias, int x, int y, int zedOrder,
+		int rows_, int cols_, int spriteW, int spriteH,
+		playbackOptions mode, int endFrame_)
+		: SpriteComponent(entity, alias, x, y, zedOrder) {
+		setAnimation(rows_, cols_, spriteW, spriteH);
+		calculateTotalFrames();
+		playbackMode = mode;
+		if (endFrame_ >= 0) endFrame = endFrame_;
 		initialiseSpritesheet();
 	}
 
 	void SpriteComponent::Render(RenderData* data)
 	{
-
 		//if (entity->layer != camera->layer) { return; }
 		// src is the indivudal frame we're rendering
 		src.x = spriteWidth * currentCol;
 		Vec2 position = entity->transform.GetGlobalPosition();
 
 		//if (currentCol == cols) {
-		//	currentRow++;
-		//	currentCol = 0;
+		//    currentRow++;
+		//    currentCol = 0;
 		//}
 		//if (src.x < 0) {
-		//	currentCol = cols;
-		//	currentRow--;
+		//    currentCol = cols;
+		//    currentRow--;
 		//}
 
 		// Get rotation from physics body if it exists, otherwise use transform rotation
@@ -86,7 +109,8 @@ namespace IonixEngine {
 			// Box2D returns radians, SDL expects degrees
 			float angleRadians = fysicsBody->GetAngle(entity);
 			angleDegrees = angleRadians * (180.0 / 3.14159265358979323846);
-		} else {
+		}
+		else {
 			// Transform rotation is in degrees
 			angleDegrees = entity->transform.GetGlobalRotation();
 		}
