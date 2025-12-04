@@ -146,8 +146,18 @@ function ExampleScript:OnStart()
 	------------------------------------------------------
     for i = 1, coinCount do
         local c = Entity.create_entity()
-        local startX = pipeStartX + (i - 1) * coinSpacing
-        Entity.set_global_pos(c, startX, 300)
+        -- base X spaced to the right; add small jitter so coins don't line up exactly
+        local startX = pipeStartX + (i - 1) * coinSpacing + math.random(-20, 20)
+        -- alternate Y positions: some inside the pipe gap, some above, some below
+        local cy
+        if (i % 3) == 1 then
+            cy = 240
+        elseif (i % 3) == 2 then
+            cy = 120
+        else
+            cy = 520
+        end
+        Entity.set_global_pos(c, startX, cy)
 
         local coinSprite = Entity.add_sprite_component(c, assets.textures.Coin, 32, 32, 0)
         Sprite.set_rows(coinSprite, 1)
