@@ -25,12 +25,14 @@ local pipe2StartX = 1200
 local pipeOffScreenLeft = -100
 local xPos = 0  -- Initialize xPos to avoid undefined global warning
 
--- Coin variables
+-- Game variables
 local coins = {}
 local coinCount = 6
 local coinSpacing = 200
 local coinSpeed = -3
 local coinHidden = {}
+local score = 0
+local scoreText = "Score: 0"
 local text1 = "Press SPACE to start!"
 ----------------------------------------------------------
 -- OnStart
@@ -193,8 +195,18 @@ function ExampleScript:OnUpdate()
     -- Constant rightward movement
     local vx = 0
     local vy1 = Mafs.get_vec_y(vel1)
-
-    UI.Add_label(300, 250, 1000, 1000, text1)
+    
+    -- Display instruction text at the start of the game
+    if text1 ~= "" then
+        -- UI - Display score in top-left corner
+        UI.Add_label(20, 20, 200, 50, scoreText)
+        
+        -- Display instruction text (only at start)
+        UI.Add_label(300, 250, 1000, 1000, text1)
+    else
+        -- UI - Display score in top-left corner
+        UI.Add_label(20, 20, 200, 50, scoreText)
+    end
 
 	if Input.get_key_down(Keys.ionix_space) then
         -- Bird move if space is pressed (allow gravity)
@@ -243,14 +255,14 @@ function ExampleScript:OnUpdate()
         if Mafs.get_vec_x(p) < pipeOffScreenLeft then
             farthestX = farthestX + coinSpacing
             Fysics.set_pos(c, farthestX, p.y)
-            -- If this coin was hidden (collected), restore its sprite size so it becomes visible again
-            if coinHidden[c] then
+                    -- If this coin was hidden (collected), restore its sprite size so it becomes visible again
+            if coinHidden[c] ~= nil then  -- More explicit nil check
                 local s = Entity.get_sprite_component(c)
                 if s then
                     Sprite.set_width(s, 16)
                     Sprite.set_height(s, 16)
                 end
-                coinHidden[c] = nil
+                coinHidden[c] = false  -- Reset to false instead of nil to maintain the key
             end
         end
     end
@@ -298,11 +310,10 @@ end
                     -- Mark the coin as collected
                     coinHidden[coin] = true
                     
-                    -- Optional: Play a sound effect here if you have one
-                    -- AudioCo.PlaySound("coin_collect")
-                    
-                    -- Optional: Increment score here if you have a score system
-                    -- score = (score or 0) + 1
+                    -- Update score
+                    score = score + 10  -- 10 points per coin
+                    scoreText = "Score: " .. tostring(score)
+                    print(scoreText)  -- Debug output
                     
                     break
                 end
