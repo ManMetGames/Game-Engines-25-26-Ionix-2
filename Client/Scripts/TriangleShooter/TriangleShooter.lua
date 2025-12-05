@@ -58,7 +58,7 @@ local playerHealth = 100
 
 -- PLAYER FLASH EFFECT
 local playerFlashTimer = 0
-local playerFlashDuration = 0.2  -- seconds
+local playerFlashDuration = 0.005  -- seconds
 
 -- DAMAGE COOLDOWN (0.5S = 30 FRAMES AT 60FPS)
 local damageCooldown = 0
@@ -632,7 +632,6 @@ end
 ----------------------------------------------------------
 function FlashEnemy(enemy)
     if not enemy or not enemy.sprite then return end
-    Sprite.set_color(enemy.sprite, 255, 0, 0)
     enemy.flashTimer = flashDuration
 end
 
@@ -640,22 +639,38 @@ function UpdateFlash()
     local dt = GetDt()
 
     -- Enemy flash
-    for i = 1, #enemies do
-        local enemy = enemies[i]
-        if enemy.flashTimer and enemy.flashTimer > 0 then
-            enemy.flashTimer = enemy.flashTimer - dt
-            if enemy.flashTimer <= 0 then
-                Sprite.set_color(enemy.sprite, 255, 255, 255)
+    if flashDuration > 0 then
+        for i = 1, #enemies do
+            local enemy = enemies[i]
+            if enemy.flashTimer and enemy.flashTimer > 0 then
+                enemy.flashTimer = enemy.flashTimer - dt
+                if enemy.flashTimer < 0 then enemy.flashTimer = 0 end
+
+                local t = enemy.flashTimer / flashDuration
+                if t < 0 then t = 0 end
+                if t > 1 then t = 1 end
+
+                local r = 255
+                local g = math.floor(255 * (1.0 - t) + 0.5)
+                local b = math.floor(255 * (1.0 - t) + 0.5)
+                Sprite.set_color(enemy.sprite, r, g, b)
             end
         end
     end
     
     -- Player flash
-    if playerFlashTimer > 0 then
+    if playerFlashDuration > 0 and playerFlashTimer > 0 then
         playerFlashTimer = playerFlashTimer - dt
-        if playerFlashTimer <= 0 then
-            Sprite.set_color(playerSprite, 255, 255, 255)
-        end
+        if playerFlashTimer < 0 then playerFlashTimer = 0 end
+
+        local t = playerFlashTimer / playerFlashDuration
+        if t < 0 then t = 0 end
+        if t > 1 then t = 1 end
+
+        local r = 255
+        local g = math.floor(255 * (1.0 - t) + 0.5)
+        local b = math.floor(255 * (1.0 - t) + 0.5)
+        Sprite.set_color(playerSprite, r, g, b)
     end
     
     -- Damage cooldown
