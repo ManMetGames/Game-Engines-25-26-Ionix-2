@@ -1,9 +1,9 @@
 #pragma once
 #include <imgui.h>
 #include <string>
-#include <functional>
-#include <vector>
 #include <unordered_map>
+#include <filesystem>
+#include <iostream>
 
 namespace IonixEngine
 {
@@ -12,47 +12,65 @@ namespace IonixEngine
     public:
         std::unordered_map<std::string, ImFont*> fontMap;
 
-        ImFont* GetFont(std::string fontName)
+        ImFont* GetFont(const std::string& name)
         {
-            return fontMap[fontName];
+            auto it = fontMap.find(name);
+            return (it != fontMap.end()) ? it->second : nullptr;
         }
 
-        void AddMap(std::pair<std::string, ImFont*> newFont)
+        void AddMap(const std::string& name, ImFont* font)
         {
-            fontMap.insert(newFont);
+            fontMap[name] = font;
         }
 
         void LoadFonts()
         {
             ImGuiIO& io = ImGui::GetIO();
-            // Load the default font
             io.Fonts->AddFontDefault();
 
+            const std::string rootFolder = "Assets";   
+
+            if (!std::filesystem::exists(rootFolder))
+            {
+                std::cout << "[FontLoader] ERROR: Assets folder does not exist.\n";
+                return;
+            }
 
             
-           
+            for (auto& file : std::filesystem::recursive_directory_iterator(rootFolder))
+            {
+                if (!file.is_regular_file())
+                    continue;
 
-            // Load the font in
-            ImFont* font_title = io.Fonts->AddFontFromFileTTF("TTT-Regular.otf", 23.0f, NULL, io.Fonts->GetGlyphRangesDefault());
-            IM_ASSERT(font_title != NULL);
-            AddMap({"Font1", font_title });
-            ImFont* font_body = io.Fonts->AddFontFromFileTTF("TTT-Bold.otf", 18.0f, NULL, io.Fonts->GetGlyphRangesDefault());
-            IM_ASSERT(font_body != NULL);
-            AddMap({ "Font1Bold",font_body });
+                std::string ext = file.path().extension().string();
+                for (auto& c : ext) c = tolower(c);
 
-            ImFont* font_title2 = io.Fonts->AddFontFromFileTTF("CenturyGothic.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesDefault());
-            IM_ASSERT(font_title2 != NULL);
-            AddMap({ "Font2",font_title2 });
-            ImFont* font_title2bold = io.Fonts->AddFontFromFileTTF("CenturyGothicBold.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesDefault());
-            IM_ASSERT(font_title2bold != NULL);
-            AddMap({ "Font2Bold",font_title2bold });
-            ImFont* font_title2italic = io.Fonts->AddFontFromFileTTF("CenturyGothicItalic.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesDefault());
-            IM_ASSERT(font_title2italic != NULL);
-            AddMap({ "Font2Italic",font_title2italic });
+				// ONLY USE THESE FONT FORMATS!!!!
+                if (ext != ".ttf" && ext != ".otf" && ext != ".woff" && ext != ".woff2")
+                    continue;
 
+                std::string fullpath = file.path().string();
+                std::string cleanName = file.path().stem().string();
 
+                ImFont* f = io.Fonts->AddFontFromFileTTF(
+                    fullpath.c_str(),
+                    20.0f,                   
+                    nullptr,
+                    io.Fonts->GetGlyphRangesDefault()
+                    // all of these are adjustible
+                );
 
-            // Build the font atlas (this can take some time)
+                if (f)
+                {
+                    AddMap(cleanName, f);
+                    std::cout << "[FontLoader] Loaded: " << fullpath << "\n";
+                }
+                else
+                {
+                    std::cout << "[FontLoader] FAILED: " << fullpath << "\n";
+                }
+            }
+
             io.Fonts->Build();
         }
     };
