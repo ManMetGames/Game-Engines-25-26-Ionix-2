@@ -577,6 +577,7 @@ end
 -- Update all active projectiles
 ----------------------------------------------------------
 function UpdateProjectiles()
+    local dt = GetDt()
     for i = #projectiles, 1, -1 do
         local proj = projectiles[i]
         
@@ -617,8 +618,8 @@ function UpdateProjectiles()
             table.insert(projectilePool, table.remove(projectiles, i))
         else
             -- Increment age and remove if expired or off screen
-            proj.age = proj.age + 1
-            if proj.age > projectileLifetime or proj.y < -50 or proj.y > screenH + 50 or proj.x < -50 or proj.x > screenW + 50 then
+            proj.age = proj.age + dt
+            if proj.age > projectileLifetime / 60.0 or proj.y < -50 or proj.y > screenH + 50 or proj.x < -50 or proj.x > screenW + 50 then
                 -- Move entity off-screen and return to pool
                 Entity.set_global_pos(proj.entity, -1000, -1000)
                 table.insert(projectilePool, table.remove(projectiles, i))
@@ -849,10 +850,10 @@ function SpawnEnemyProjectile(enemy)
     table.insert(enemyProjectiles, projData)
 end
 
-----------------------------------------------------------
 -- Update enemy projectiles
 ----------------------------------------------------------
 function UpdateEnemyProjectiles()
+    local dt = GetDt()
     for i = #enemyProjectiles, 1, -1 do
         local proj = enemyProjectiles[i]
         
@@ -881,8 +882,8 @@ function UpdateEnemyProjectiles()
             table.insert(enemyProjectilePool, table.remove(enemyProjectiles, i))
         else
             -- Age and remove if expired or off screen
-            proj.age = proj.age + 1
-            if proj.age > projectileLifetime or proj.y < -50 or proj.y > screenH + 50 or proj.x < -50 or proj.x > screenW + 50 then
+            proj.age = proj.age + dt
+            if proj.age > projectileLifetime / 60.0 or proj.y < -50 or proj.y > screenH + 50 or proj.x < -50 or proj.x > screenW + 50 then
                 Entity.set_global_pos(proj.entity, -1000, -1000)
                 table.insert(enemyProjectilePool, table.remove(enemyProjectiles, i))
             end
