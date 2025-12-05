@@ -163,14 +163,14 @@ local musicEntity
 local musicVolume = 64
 local musicMuted = false
 
-local bpm = 34 -- not real bpm
-local framesPerBeat = 3600 / bpm
+local bpm = 133 -- not real bpm
+local framesPerBeat = 60.0 / bpm
 local beatTimer = 0
-local bopDurationFrames = 8
+local bopDurationFrames = 8 / 60.0
 local bopTimer = 0
 local bopScale = 0.25
 
-local beatStartDelayFrames = 3402
+local beatStartDelayFrames = (8 * 4) * framesPerBeat
 local beatStartDelayCounter = 0
 
 local function GetDt()
@@ -772,19 +772,20 @@ function UpdateEnemyDash()
 end
 
 function UpdateBeatBop()
+    local dt = GetDt()
     if beatStartDelayCounter < beatStartDelayFrames then
-        beatStartDelayCounter = beatStartDelayCounter + 1
+        beatStartDelayCounter = beatStartDelayCounter + dt
         return
     end
 
-    beatTimer = beatTimer + 1
+    beatTimer = beatTimer + dt
     if beatTimer >= framesPerBeat then
         beatTimer = beatTimer - framesPerBeat
         bopTimer = bopDurationFrames
     end
 
     if bopTimer > 0 then
-        bopTimer = bopTimer - 1
+        bopTimer = bopTimer - dt
         local t = bopTimer / bopDurationFrames
         local scale = 1.0 + bopScale * t
 
