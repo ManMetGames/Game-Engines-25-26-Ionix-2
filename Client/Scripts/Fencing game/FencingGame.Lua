@@ -8,12 +8,23 @@ local ai
 
 local ground
 
+local playerIdle
+local playerWalk
+local playerAttack
+
+local playerIdleSprite
+local playerWalkSprite
+local playerAttackSprite
+
+local playerState = "idle"
+local attackTimer = 0
+
 local playerStartX = 200
 local playerStartY = 400
 local aiStartX = 700
 local aiStartY = 400
 
-local playerSpeed = 3.0
+local playerSpeed = 70.0
 
 local currentRound = 1
 local maxRounds = 5
@@ -81,12 +92,39 @@ end
 function FencingGame:OnStart()
     player = Entity.create_entity()
     Entity.set_global_pos(player, playerStartX, playerStartY)
-
-    local playerSprite = Entity.add_sprite_component(player, assets.textures.FlappyBird, 64, 64, 10)
-    Sprite.set_columns(playerSprite, 1)
+    local playerColliderSprite = Entity.add_sprite_component(player, assets.textures.Player, 128, 128, 5)
+    Sprite.set_rows(playerColliderSprite, 1)
+    Sprite.set_columns(playerColliderSprite, 1)
+    Sprite.set_width(playerColliderSprite, 0)
+    Sprite.set_height(playerColliderSprite, 0)
 
     Entity.add_fysics_component(player, enums.bodytype.dynamicBody, true)
     Fysics.add_sprite_collider(player, false, 1)
+
+    playerIdle = Entity.create_entity()
+    Entity.set_global_pos(playerIdle, playerStartX, playerStartY)
+    playerIdleSprite = Entity.add_sprite_component(playerIdle, assets.textures.Idle, 128, 128, 10)
+    Sprite.set_rows(playerIdleSprite, 1)
+    Sprite.set_columns(playerIdleSprite, 4)
+
+    playerWalk = Entity.create_entity()
+    Entity.set_global_pos(playerWalk, playerStartX, playerStartY)
+    playerWalkSprite = Entity.add_sprite_component(playerWalk, assets.textures.Walk, 128, 128, 10)
+    Sprite.set_rows(playerWalkSprite, 1)
+    Sprite.set_columns(playerWalkSprite, 8)
+
+    playerAttack = Entity.create_entity()
+    Entity.set_global_pos(playerAttack, playerStartX, playerStartY)
+    playerAttackSprite = Entity.add_sprite_component(playerAttack, assets.textures.Attack_3, 128, 128, 10)
+    Sprite.set_rows(playerAttackSprite, 1)
+    Sprite.set_columns(playerAttackSprite, 4)
+
+    Sprite.set_width(playerIdleSprite, 128)
+    Sprite.set_height(playerIdleSprite, 128)
+    Sprite.set_width(playerWalkSprite, 0)
+    Sprite.set_height(playerWalkSprite, 0)
+    Sprite.set_width(playerAttackSprite, 0)
+    Sprite.set_height(playerAttackSprite, 0)
 
     ai = Entity.create_entity()
     Entity.set_global_pos(ai, aiStartX, aiStartY)
@@ -110,19 +148,79 @@ function FencingGame:OnUpdate()
         return
     end
 
-    local vel = Fysics.get_linear_velocity(player)
-    local vx = Mafs.get_vec_x(vel)
-    local vy = Mafs.get_vec_y(vel)
+    local vx = 0
+    local vy = 0
 
     if Input.get_key_held(Keys.ionix_d) then
         vx = playerSpeed
     elseif Input.get_key_held(Keys.ionix_a) then
         vx = -playerSpeed
-    else
-        vx = 0
     end
 
     Fysics.set_linear_velocity(player, vx, vy)
+
+    local pos = Fysics.get_pos(player)
+    local px = Mafs.get_vec_x(pos)
+    local py = Mafs.get_vec_y(pos)
+
+    if playerIdle then
+        Entity.set_global_pos(playerIdle, px, py)
+    end
+    if playerWalk then
+        Entity.set_global_pos(playerWalk, px, py)
+    end
+    if playerAttack then
+        Entity.set_global_pos(playerAttack, px, py)
+    end
+
+    local isMoving = vx ~= 0
+
+    if attackTimer > 0 then
+        attackTimer = attackTimer - Mafs.delta_time()
+        if attackTimer <= 0 then
+            if isMoving then
+                playerState = "walk"
+            else
+                playerState = "idle"
+            end
+        end
+    else
+        if Input.get_mouse_button_down(1) then
+            playerState = "attack"
+            attackTimer = 0.4
+        else
+            if isMoving then
+                playerState = "walk"
+            else
+                playerState = "idle"
+            end
+        end
+    end
+
+    if playerIdleSprite and playerWalkSprite and playerAttackSprite then
+        if playerState == "idle" then
+            Sprite.set_width(playerIdleSprite, 128)
+            Sprite.set_height(playerIdleSprite, 128)
+            Sprite.set_width(playerWalkSprite, 0)
+            Sprite.set_height(playerWalkSprite, 0)
+            Sprite.set_width(playerAttackSprite, 0)
+            Sprite.set_height(playerAttackSprite, 0)
+        elseif playerState == "walk" then
+            Sprite.set_width(playerIdleSprite, 0)
+            Sprite.set_height(playerIdleSprite, 0)
+            Sprite.set_width(playerWalkSprite, 128)
+            Sprite.set_height(playerWalkSprite, 128)
+            Sprite.set_width(playerAttackSprite, 0)
+            Sprite.set_height(playerAttackSprite, 0)
+        elseif playerState == "attack" then
+            Sprite.set_width(playerIdleSprite, 0)
+            Sprite.set_height(playerIdleSprite, 0)
+            Sprite.set_width(playerWalkSprite, 0)
+            Sprite.set_height(playerWalkSprite, 0)
+            Sprite.set_width(playerAttackSprite, 128)
+            Sprite.set_height(playerAttackSprite, 128)
+        end
+    end
 
     if roundActive and not matchOver then
     end
