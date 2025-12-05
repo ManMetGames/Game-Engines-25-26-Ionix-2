@@ -14,6 +14,7 @@ namespace IonixEngine
     private:
         UIManager uiManager;
         UI ui;
+        Fontloader fontLoader;
     public:
         LayerUI() {}
 

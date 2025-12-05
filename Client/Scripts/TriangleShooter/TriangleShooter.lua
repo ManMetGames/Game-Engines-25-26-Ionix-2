@@ -58,11 +58,11 @@ local playerHealth = 100
 
 -- PLAYER FLASH EFFECT
 local playerFlashTimer = 0
-local playerFlashDuration = 10  -- frames
+local playerFlashDuration = 0.2  -- seconds
 
 -- DAMAGE COOLDOWN (0.5S = 30 FRAMES AT 60FPS)
 local damageCooldown = 0
-local damageCooldownDuration = 30
+local damageCooldownDuration = 0.5  -- seconds
 
 -- PROJECTILE SETTINGS
 local projectiles = {}      -- Active projectiles
@@ -150,7 +150,7 @@ local collisionRadius = 24  -- Half of enemy size for circle collision
 
 -- FLASH EFFECT
 local flashTimer = 0
-local flashDuration = 10  -- frames
+local flashDuration = 0.2  -- seconds
 
 local knockbackTimer = 0
 local knockbackDuration = 45
@@ -172,6 +172,10 @@ local bopScale = 0.25
 
 local beatStartDelayFrames = 3402
 local beatStartDelayCounter = 0
+
+local function GetDt()
+    return Mafs.delta_time()
+end
 
 local playerBaseImageWidth = playerSize
 local playerBaseImageHeight = playerSize
@@ -633,11 +637,13 @@ function FlashEnemy(enemy)
 end
 
 function UpdateFlash()
+    local dt = GetDt()
+
     -- Enemy flash
     for i = 1, #enemies do
         local enemy = enemies[i]
         if enemy.flashTimer and enemy.flashTimer > 0 then
-            enemy.flashTimer = enemy.flashTimer - 1
+            enemy.flashTimer = enemy.flashTimer - dt
             if enemy.flashTimer <= 0 then
                 Sprite.set_color(enemy.sprite, 255, 255, 255)
             end
@@ -646,7 +652,7 @@ function UpdateFlash()
     
     -- Player flash
     if playerFlashTimer > 0 then
-        playerFlashTimer = playerFlashTimer - 1
+        playerFlashTimer = playerFlashTimer - dt
         if playerFlashTimer <= 0 then
             Sprite.set_color(playerSprite, 255, 255, 255)
         end
@@ -654,7 +660,7 @@ function UpdateFlash()
     
     -- Damage cooldown
     if damageCooldown > 0 then
-        damageCooldown = damageCooldown - 1
+        damageCooldown = damageCooldown - dt
     end
 end
 

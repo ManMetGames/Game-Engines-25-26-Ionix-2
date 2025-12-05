@@ -37,7 +37,10 @@ namespace IonixEngine
 
     void LayerUI::OnAttach() 
     {
-        m_UI = new UI();
+        m_UI = &ui;
+        m_UIManager = &uiManager;
+        m_FontLoader = &fontLoader;
+
         //Get window and renderer
         SDL_Window* window = Application::Get().GetWindow().GetSdlWindow();
         SDL_Renderer* renderer = Application::Get().GetWindow().GetSdlRenderer();
@@ -68,6 +71,11 @@ namespace IonixEngine
         ImGui_ImplSDLRenderer2_Init(renderer);
 
         std::cout << "ImGui Initialised " << std::endl;
+
+        if (m_FontLoader)
+        {
+            m_FontLoader->LoadFonts();
+        }
     }
 
     void LayerUI::OnDetach() {}
