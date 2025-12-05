@@ -1,0 +1,617 @@
+{ "compressionlevel":-1,
+ "height":20,
+ "infinite":false,
+ "layers":[
+        {
+         "data":[553, 0, 0, 0, 553, 0, 0, 0, 553, 0, 0, 0, 553, 0, 0, 0, 553, 0, 0, 0, 553, 0, 0, 0, 553, 0, 0, 0, 553, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            553, 0, 0, 0, 553, 0, 0, 0, 553, 0, 0, 0, 553, 0, 0, 0, 553, 0, 0, 0, 553, 0, 0, 0, 553, 0, 0, 0, 553, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            553, 0, 0, 0, 553, 0, 0, 0, 553, 0, 0, 0, 553, 0, 0, 0, 553, 0, 0, 0, 553, 0, 0, 0, 553, 0, 0, 0, 553, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            553, 0, 0, 0, 553, 0, 0, 0, 553, 0, 0, 0, 553, 0, 0, 0, 553, 0, 0, 0, 553, 0, 0, 0, 553, 0, 0, 0, 553, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            553, 0, 0, 0, 553, 0, 0, 0, 553, 0, 0, 0, 553, 0, 0, 0, 553, 0, 0, 0, 553, 0, 0, 0, 553, 0, 0, 0, 553, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+         "height":20,
+         "id":4,
+         "name":"Tile Layer 2",
+         "opacity":1,
+         "type":"tilelayer",
+         "visible":true,
+         "width":30,
+         "x":0,
+         "y":0
+        }, 
+        {
+         "data":[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 8, 8, 9, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 29, 30, 30, 31, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 8, 9, 0, 0, 0, 51, 52, 52, 53, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 29, 30, 31, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 8, 9, 0, 0,
+            0, 0, 0, 0, 0, 7, 8, 9, 0, 0, 0, 0, 0, 51, 52, 53, 0, 0, 0, 0, 0, 0, 0, 0, 0, 29, 30, 31, 0, 0,
+            0, 0, 0, 0, 0, 29, 30, 31, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 51, 52, 53, 0, 0,
+            0, 0, 0, 0, 0, 51, 52, 53, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 8, 9, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 29, 30, 31, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 51, 52, 53, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 9,
+            30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 31,
+            29, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 31],
+         "height":20,
+         "id":1,
+         "name":"Tile Layer 1",
+         "opacity":1,
+         "type":"tilelayer",
+         "visible":true,
+         "width":30,
+         "x":0,
+         "y":0
+        }, 
+        {
+         "draworder":"topdown",
+         "id":2,
+         "name":"Object Layer 1",
+         "objects":[
+                {
+                 "height":0,
+                 "id":4,
+                 "name":"Player",
+                 "properties":[
+                        {
+                         "name":"BoxCollider.Angle",
+                         "type":"float",
+                         "value":0
+                        }, 
+                        {
+                         "name":"BoxCollider.IsTrigger",
+                         "type":"bool",
+                         "value":false
+                        }, 
+                        {
+                         "name":"BoxCollider.Offset X",
+                         "type":"float",
+                         "value":0
+                        }, 
+                        {
+                         "name":"BoxCollider.Offset Y",
+                         "type":"float",
+                         "value":0
+                        }, 
+                        {
+                         "name":"BoxCollider.Size X",
+                         "type":"float",
+                         "value":64
+                        }, 
+                        {
+                         "name":"BoxCollider.Size Y",
+                         "type":"float",
+                         "value":64
+                        }, 
+                        {
+                         "name":"RigidBody.BodyType",
+                         "type":"int",
+                         "value":2
+                        }, 
+                        {
+                         "name":"Rigidbody.Density",
+                         "type":"float",
+                         "value":1
+                        }, 
+                        {
+                         "name":"Rigidbody.Friction",
+                         "type":"float",
+                         "value":0.5
+                        }, 
+                        {
+                         "name":"Rigidbody.Gravity",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
+                         "name":"Rigidbody.IsTrigger",
+                         "type":"bool",
+                         "value":false
+                        }, 
+                        {
+                         "name":"SpriteComponent.Height",
+                         "type":"int",
+                         "value":64
+                        }, 
+                        {
+                         "name":"SpriteComponent.SpriteFilePath",
+                         "type":"string",
+                         "value":"C:\/Game-Engines-25-26-Ionix-2\/Client\/Ionix 2 - Editor\/Assets\/Jimmy Demo\/Main Characters\/Ninja Frog\/Fall Frog.png"
+                        }, 
+                        {
+                         "name":"SpriteComponent.Width",
+                         "type":"int",
+                         "value":64
+                        }, 
+                        {
+                         "name":"SpriteComponent.ZOrder",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"entityId",
+                         "type":"int",
+                         "value":7
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":25,
+                 "y":250
+                }, 
+                {
+                 "height":48,
+                 "id":6,
+                 "name":"BoxColliderObject",
+                 "properties":[
+                        {
+                         "name":"BoxCollider.Angle",
+                         "type":"float",
+                         "value":0
+                        }, 
+                        {
+                         "name":"BoxCollider.IsTrigger",
+                         "type":"bool",
+                         "value":false
+                        }, 
+                        {
+                         "name":"BoxCollider.Offset X",
+                         "type":"float",
+                         "value":0
+                        }, 
+                        {
+                         "name":"BoxCollider.Offset Y",
+                         "type":"float",
+                         "value":0
+                        }, 
+                        {
+                         "name":"BoxCollider.Size X",
+                         "type":"float",
+                         "value":48
+                        }, 
+                        {
+                         "name":"BoxCollider.Size Y",
+                         "type":"float",
+                         "value":48
+                        }, 
+                        {
+                         "name":"EntityID",
+                         "type":"int",
+                         "value":6
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":48,
+                 "x":80,
+                 "y":175
+                }, 
+                {
+                 "height":48,
+                 "id":7,
+                 "name":"BoxColliderObject",
+                 "properties":[
+                        {
+                         "name":"BoxCollider.Angle",
+                         "type":"float",
+                         "value":0
+                        }, 
+                        {
+                         "name":"BoxCollider.IsTrigger",
+                         "type":"bool",
+                         "value":false
+                        }, 
+                        {
+                         "name":"BoxCollider.Offset X",
+                         "type":"float",
+                         "value":0
+                        }, 
+                        {
+                         "name":"BoxCollider.Offset Y",
+                         "type":"float",
+                         "value":0
+                        }, 
+                        {
+                         "name":"BoxCollider.Size X",
+                         "type":"float",
+                         "value":48
+                        }, 
+                        {
+                         "name":"BoxCollider.Size Y",
+                         "type":"float",
+                         "value":48
+                        }, 
+                        {
+                         "name":"EntityID",
+                         "type":"int",
+                         "value":5
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":48,
+                 "x":208,
+                 "y":144
+                }, 
+                {
+                 "height":48,
+                 "id":8,
+                 "name":"BoxColliderObject",
+                 "properties":[
+                        {
+                         "name":"BoxCollider.Angle",
+                         "type":"float",
+                         "value":0
+                        }, 
+                        {
+                         "name":"BoxCollider.IsTrigger",
+                         "type":"bool",
+                         "value":false
+                        }, 
+                        {
+                         "name":"BoxCollider.Offset X",
+                         "type":"float",
+                         "value":0
+                        }, 
+                        {
+                         "name":"BoxCollider.Offset Y",
+                         "type":"float",
+                         "value":0
+                        }, 
+                        {
+                         "name":"BoxCollider.Size X",
+                         "type":"float",
+                         "value":48
+                        }, 
+                        {
+                         "name":"BoxCollider.Size Y",
+                         "type":"float",
+                         "value":48
+                        }, 
+                        {
+                         "name":"EntityID",
+                         "type":"int",
+                         "value":4
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":48,
+                 "x":399.333333333333,
+                 "y":161.333333333333
+                }, 
+                {
+                 "height":48,
+                 "id":10,
+                 "name":"BoxColliderObject",
+                 "properties":[
+                        {
+                         "name":"BoxCollider.Angle",
+                         "type":"float",
+                         "value":0
+                        }, 
+                        {
+                         "name":"BoxCollider.IsTrigger",
+                         "type":"bool",
+                         "value":false
+                        }, 
+                        {
+                         "name":"BoxCollider.Offset X",
+                         "type":"float",
+                         "value":0
+                        }, 
+                        {
+                         "name":"BoxCollider.Offset Y",
+                         "type":"float",
+                         "value":0
+                        }, 
+                        {
+                         "name":"BoxCollider.Size X",
+                         "type":"float",
+                         "value":48
+                        }, 
+                        {
+                         "name":"BoxCollider.Size Y",
+                         "type":"float",
+                         "value":48
+                        }, 
+                        {
+                         "name":"EntityID",
+                         "type":"int",
+                         "value":3
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":48,
+                 "x":334.666666666667,
+                 "y":209.333333333333
+                }, 
+                {
+                 "height":48,
+                 "id":11,
+                 "name":"BoxColliderObject",
+                 "properties":[
+                        {
+                         "name":"BoxCollider.Angle",
+                         "type":"float",
+                         "value":0
+                        }, 
+                        {
+                         "name":"BoxCollider.IsTrigger",
+                         "type":"bool",
+                         "value":false
+                        }, 
+                        {
+                         "name":"BoxCollider.Offset X",
+                         "type":"float",
+                         "value":0
+                        }, 
+                        {
+                         "name":"BoxCollider.Offset Y",
+                         "type":"float",
+                         "value":0
+                        }, 
+                        {
+                         "name":"BoxCollider.Size X",
+                         "type":"float",
+                         "value":48
+                        }, 
+                        {
+                         "name":"BoxCollider.Size Y",
+                         "type":"float",
+                         "value":48
+                        }, 
+                        {
+                         "name":"EntityID",
+                         "type":"int",
+                         "value":2
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":63.3333333333333,
+                 "x":304,
+                 "y":113.333333333333
+                }, 
+                {
+                 "height":48,
+                 "id":12,
+                 "name":"BoxColliderObject",
+                 "properties":[
+                        {
+                         "name":"BoxCollider.Angle",
+                         "type":"float",
+                         "value":0
+                        }, 
+                        {
+                         "name":"BoxCollider.IsTrigger",
+                         "type":"bool",
+                         "value":false
+                        }, 
+                        {
+                         "name":"BoxCollider.Offset X",
+                         "type":"float",
+                         "value":0
+                        }, 
+                        {
+                         "name":"BoxCollider.Offset Y",
+                         "type":"float",
+                         "value":0
+                        }, 
+                        {
+                         "name":"BoxCollider.Size X",
+                         "type":"float",
+                         "value":477.3333
+                        }, 
+                        {
+                         "name":"BoxCollider.Size Y",
+                         "type":"float",
+                         "value":48
+                        }, 
+                        {
+                         "name":"EntityID",
+                         "type":"int",
+                         "value":1
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":477.3333,
+                 "x":1.00001666666668,
+                 "y":272
+                }, 
+                {
+                 "height":0,
+                 "id":13,
+                 "name":"AudioPlayer",
+                 "properties":[
+                        {
+                         "name":"AudioPlayerComponent.AudioFilePath",
+                         "type":"string",
+                         "value":"C:\/Game-Engines-25-26-Ionix-2\/Client\/Ionix 2 - Editor\/Assets\/test.wav"
+                        }, 
+                        {
+                         "name":"AudioPlayerComponent.PlayOnAwake",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
+                         "name":"EntityID",
+                         "type":"int",
+                         "value":8
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":0,
+                 "y":0
+                }, 
+                {
+                 "height":32,
+                 "id":14,
+                 "name":"StrawberryPickup",
+                 "properties":[
+                        {
+                         "name":"AnimatorComponent.Columns",
+                         "type":"int",
+                         "value":17
+                        }, 
+                        {
+                         "name":"AnimatorComponent.FrameSize",
+                         "type":"int",
+                         "value":32
+                        }, 
+                        {
+                         "name":"AnimatorComponent.Height",
+                         "type":"float",
+                         "value":32
+                        }, 
+                        {
+                         "name":"AnimatorComponent.Rows",
+                         "type":"int",
+                         "value":1
+                        }, 
+                        {
+                         "name":"AnimatorComponent.TextureFilePath",
+                         "type":"string",
+                         "value":"C:\/Game-Engines-25-26-Ionix-2\/Client\/Ionix 2 - Editor\/Assets\/Jimmy Demo\/Items\/Fruits\/Strawberry.png"
+                        }, 
+                        {
+                         "name":"AnimatorComponent.Width",
+                         "type":"float",
+                         "value":32
+                        }, 
+                        {
+                         "name":"BoxCollider.Angle",
+                         "type":"float",
+                         "value":0
+                        }, 
+                        {
+                         "name":"BoxCollider.IsTrigger",
+                         "type":"bool",
+                         "value":true
+                        }, 
+                        {
+                         "name":"BoxCollider.Offset X",
+                         "type":"float",
+                         "value":0
+                        }, 
+                        {
+                         "name":"BoxCollider.Offset Y",
+                         "type":"float",
+                         "value":0
+                        }, 
+                        {
+                         "name":"BoxCollider.Size X",
+                         "type":"float",
+                         "value":32
+                        }, 
+                        {
+                         "name":"BoxCollider.Size Y",
+                         "type":"float",
+                         "value":32
+                        }, 
+                        {
+                         "name":"EntityID",
+                         "type":"int",
+                         "value":9
+                        }, 
+                        {
+                         "name":"RigidBody.BodyType",
+                         "type":"int",
+                         "value":2
+                        }, 
+                        {
+                         "name":"Rigidbody.Density",
+                         "type":"float",
+                         "value":1
+                        }, 
+                        {
+                         "name":"Rigidbody.Friction",
+                         "type":"float",
+                         "value":1
+                        }, 
+                        {
+                         "name":"Rigidbody.Gravity",
+                         "type":"bool",
+                         "value":false
+                        }, 
+                        {
+                         "name":"Rigidbody.IsTrigger",
+                         "type":"bool",
+                         "value":true
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":32,
+                 "x":320,
+                 "y":59.3333333333333
+                }],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
+        }],
+ "nextlayerid":5,
+ "nextobjectid":15,
+ "orientation":"orthogonal",
+ "renderorder":"right-down",
+ "tiledversion":"1.11.2",
+ "tileheight":16,
+ "tilesets":[
+        {
+         "firstgid":1,
+         "source":"Terrain.tsx"
+        }, 
+        {
+         "firstgid":243,
+         "source":"Strawberry.tsx"
+        }, 
+        {
+         "columns":22,
+         "firstgid":311,
+         "image":"Terrain\/Terrain (16x16).png",
+         "imageheight":176,
+         "imagewidth":352,
+         "margin":0,
+         "name":"TesterSet",
+         "spacing":0,
+         "tilecount":242,
+         "tileheight":16,
+         "tilewidth":16
+        }, 
+        {
+         "firstgid":553,
+         "source":"Background.tsx"
+        }],
+ "tilewidth":16,
+ "type":"map",
+ "version":"1.10",
+ "width":30
+}
