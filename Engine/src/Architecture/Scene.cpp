@@ -1,8 +1,12 @@
 #include "Scene.h"
 #include "Architecture/Application.h"
-#include "Architecture/ECS/ECS_Test.hpp"
+#include "Architecture/JSON/JSONDeserialize.hpp"
+#include "Architecture/Tiled/TiledMap.hpp"
+#include "Architecture/Tiled/TiledObject.hpp"
+#include "Architecture/Tiled/TiledObjectFactory.hpp"
 #include "SDL_log.h"
 #include <cstdio>
+#include <fstream>
 
 namespace IonixEngine {
     void Scene::OnEnter() {
@@ -12,42 +16,25 @@ namespace IonixEngine {
         renderData.renderer = Application::Get().GetWindow().GetSdlRenderer();
         renderData.queue = Application::Get().layerGraphics->GetQueue();
 
-        //EntityID first = CreateEntity();
-        //Entity* firstEntity = GetEntityFromID(first);
-        //if (!firstEntity)
-        //{
-        //   SDL_Log("[DEBUG TEST] First entity failed, returning...");
-        //    return;
-        //}
-        //firstEntity->transform.SetLocalPosition(Vec2 { 500, 300 });
-        //firstEntity->AddComponent(new SpriteRenderer(firstEntity));
-        //firstEntity->AddComponent(new EntityMover(firstEntity, 60));
-        //// firstEntity->transform.SetLocalScale(Vec2{ 0.5,1.5 });
+        SDL_Log("[Scene] Beginning Tiled Loading...");
+        std::ifstream jsonFile = std::ifstream("./First.json");
+        std::stringstream jsonData;
+        jsonData << jsonFile.rdbuf();
+        JSONDeserialize json = JSONDeserialize(jsonData.str());
+        TiledMap map = TiledMap(&json);
 
-        //EntityID second = CreateEntity();
-        //Entity* secondEntity = GetEntityFromID(second);
-        //if (!secondEntity)
-        //{
-        //    SDL_Log("[DEBUG TEST] Second entity failed, returning...");
-        //    return;
-        //}
-        //secondEntity->transform.SetLocalPosition(Vec2{ 0, 100 });
-        //secondEntity->transform.SetParent(&firstEntity->transform, false);
-        //secondEntity->transform.SetLocalScale(Vec2{ 1.3,1.25 });
-        //secondEntity->AddComponent(new SpriteRenderer(secondEntity));
-        //secondEntity->AddComponent(new EntityMover(secondEntity, -60));
+        TiledObjectFactory factory;
 
-        //EntityID third = CreateEntity();
-        //Entity* thirdEntity = GetEntityFromID(third);
-        //if (!thirdEntity)
-        //{
-        //    SDL_Log("[DEBUG TEST] Third entity failed, returning...");
-        //    return;
-        //}
-        //thirdEntity->transform.SetLocalPosition(Vec2{ 0, -100 });
-        //thirdEntity->transform.SetParent(&secondEntity->transform, false);
-        //thirdEntity->AddComponent(new SpriteComponent(thirdEntity, "ball",100,100, 0));
-        
+        for (TiledLayer& layer : map.layers) {
+            if (layer.isTile) {
+                size_t tilesetIdx = map.GetTilemapIdx(layer.tileLayer);
+                factory.CreateTilemapFromLayer(this, layer.tileLayer, map.tilesets[tilesetIdx]);
+            } else {
+                for (TiledObject& object : layer.objectLayer.objects) {
+                    factory.CreateEntityFromObjectID(this, object, layer.objectLayer);
+                }
+            }
+        }
     }
 
     void Scene::OnUpdate(float dt) {
@@ -82,6 +69,10 @@ namespace IonixEngine {
         m_Entities.push_back(Entity{ entityId , renderLayer});
         m_IdToIndex[entityId] = index;
         return entityId;
+    }
+
+    Entity* Scene::CreateAndGetEntity(int renderLayer) {
+        return GetEntityFromID(CreateEntity(renderLayer));
     }
 
     bool Scene::DestroyEntity(EntityID entityId) {

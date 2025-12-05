@@ -1,4 +1,7 @@
 #include "AudioPlayer.h"
+#include "Architecture/ECS/Component.hpp"
+#include "Architecture/SHA256.hpp"
+#include <cstdint>
 
 namespace IonixEngine {
 
@@ -7,14 +10,18 @@ AudioPlayer::AudioPlayer(Entity* entity, const std::string& audioClip, bool shou
 {
     if (!audioClip.empty())
     {
-        clip = audioClip;
+        hash = Get32BitHash(audioClip);
     }
+    playOnAwake = shouldPlayOnAwake;
+}
+AudioPlayer::AudioPlayer(Entity* entity, uint32_t hash, bool shouldPlayOnAwake) : Component(entity, false, false, false) {
+    this->hash = hash;
     playOnAwake = shouldPlayOnAwake;
 }
 
 void AudioPlayer::Start()
 {
-    if (playOnAwake && !clip.empty())
+    if (playOnAwake && hash != uint32_t(-1))
     {
         Play();
     }

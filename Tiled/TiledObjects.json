@@ -1,0 +1,180 @@
+{
+    "compressionlevel": -1,
+    "height": 20,
+    "infinite": false,
+    "layers": [
+        {
+            "draworder": "topdown",
+            "id": 5,
+            "name": "Object Layer 1",
+            "objects": [
+                {
+                    "height": 239.5,
+                    "id": 21,
+                    "name": "",
+                    "properties": [
+                        {
+                            "name": "Box Collider",
+                            "type": "int",
+                            "value": 1
+                        }
+                    ],
+                    "rotation": 0,
+                    "type": "",
+                    "visible": true,
+                    "width": 288.5,
+                    "x": 0,
+                    "y": 80.5
+                },
+                {
+                    "gid": 38,
+                    "height": 16,
+                    "id": 37,
+                    "name": "",
+                    "properties": [
+                        {
+                            "name": "Rigidbody",
+                            "type": "string",
+                            "value": ""
+                        }
+                    ],
+                    "rotation": 0,
+                    "type": "",
+                    "visible": true,
+                    "width": 16,
+                    "x": 32.1818181818182,
+                    "y": 18.9090909090909
+                },
+                {
+                    "height": 0,
+                    "id": 42,
+                    "name": "Test",
+                    "polygon": [
+                        {
+                            "x": 0,
+                            "y": 0
+                        },
+                        {
+                            "x": 16,
+                            "y": -37.6666666666667
+                        },
+                        {
+                            "x": 28,
+                            "y": 1
+                        },
+                        {
+                            "x": 58.6666666666667,
+                            "y": 0.666666666666664
+                        },
+                        {
+                            "x": 30.6666666666667,
+                            "y": 22.6666666666667
+                        },
+                        {
+                            "x": 47.3333333333333,
+                            "y": 54.6666666666667
+                        },
+                        {
+                            "x": 14,
+                            "y": 30.3333333333333
+                        },
+                        {
+                            "x": -2.66666666666669,
+                            "y": 50
+                        },
+                        {
+                            "x": -3.66666666666669,
+                            "y": 26.3333333333333
+                        },
+                        {
+                            "x": -31.3333333333333,
+                            "y": 5.66666666666666
+                        }
+                    ],
+                    "rotation": 0,
+                    "type": "",
+                    "visible": true,
+                    "width": 0,
+                    "x": 304.333333333333,
+                    "y": 32
+                }
+            ],
+            "opacity": 1,
+            "properties": [
+                {
+                    "name": "Box Collider",
+                    "type": "int",
+                    "value": 1
+                }
+            ],
+            "type": "objectgroup",
+            "visible": true,
+            "x": 0,
+            "y": 0
+        }
+    ],
+    "nextlayerid": 6,
+    "nextobjectid": 43,
+    "orientation": "orthogonal",
+    "renderorder": "right-down",
+    "tiledversion": "1.11.2",
+    "tileheight": 16,
+    "tilesets": [
+        {
+            "columns": 1,
+            "firstgid": 1,
+            "image": "Cute_Fantasy_Free\/Tiles\/Grass_Middle.png",
+            "imageheight": 16,
+            "imagewidth": 16,
+            "margin": 0,
+            "name": "Grass_Middle",
+            "spacing": 0,
+            "tilecount": 1,
+            "tileheight": 16,
+            "tilewidth": 16
+        },
+        {
+            "columns": 3,
+            "firstgid": 2,
+            "image": "Cute_Fantasy_Free\/Tiles\/Cliff_Tile.png",
+            "imageheight": 96,
+            "imagewidth": 48,
+            "margin": 0,
+            "name": "cliff",
+            "spacing": 0,
+            "tilecount": 18,
+            "tileheight": 16,
+            "tilewidth": 16
+        },
+        {
+            "columns": 3,
+            "firstgid": 20,
+            "image": "Cute_Fantasy_Free\/Tiles\/Path_Tile.png",
+            "imageheight": 96,
+            "imagewidth": 48,
+            "margin": 0,
+            "name": "Path_Tile",
+            "spacing": 0,
+            "tilecount": 18,
+            "tileheight": 16,
+            "tilewidth": 16
+        },
+        {
+            "columns": 1,
+            "firstgid": 38,
+            "image": "Cute_Fantasy_Free\/Outdoor decoration\/Chest.png",
+            "imageheight": 16,
+            "imagewidth": 16,
+            "margin": 0,
+            "name": "Chest",
+            "spacing": 0,
+            "tilecount": 1,
+            "tileheight": 16,
+            "tilewidth": 16
+        }
+    ],
+    "tilewidth": 16,
+    "type": "map",
+    "version": "1.10",
+    "width": 30
+}
