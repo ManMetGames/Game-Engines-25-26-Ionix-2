@@ -33,7 +33,7 @@ local coinSpeed = -3
 local coinHidden = {}
 local score = 0
 local scoreText = "Score: 0"
-local text1 = "Press SPACE to start!"
+local startText = "Press SPACE to start!"
 ----------------------------------------------------------
 -- OnStart
 ----------------------------------------------------------
@@ -271,6 +271,7 @@ function ExampleScript:OnUpdate()
 	-- UI
 	------------------------------------------------------
 
+    UI.Add_label(320, 300,1000, 1000, startText)
 end
 
     function ExampleScript:OnCollisionEnter()
