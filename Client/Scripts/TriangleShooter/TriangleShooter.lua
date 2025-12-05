@@ -122,6 +122,8 @@ local playerBaseImageHeight = playerSize
 local enemyBaseImageSize = enemySize
 
 local globalFrame = 0
+local peaceTimerFrames = 0
+local peaceDurationFrames = 60 * 15
 
 -- LEVEL SETTINGS
 local currentLevel = 1
@@ -228,7 +230,7 @@ function TriangleShooter:OnUpdate()
     screenW = Window.get_width()
     screenH = Window.get_height()
     
-    if levelTimer > 0 then
+    if levelTimer > 0 and #enemies > 0 then
         levelTimer = levelTimer - 1
     end
 
@@ -363,10 +365,21 @@ function TriangleShooter:OnUpdate()
     UI.draw_label("Player Lv: " .. tostring(level) .. "  XP: " .. tostring(xp) .. " / " .. tostring(xpToNextLevel), 220, 45, 740, 60, "")
 
     local enemiesAlive = #enemies > 0
+    if enemiesAlive and peaceTimerFrames > 0 then
+        peaceTimerFrames = 0
+    end
+
     if playerHealth <= 0 then
         LoadLevel(currentLevel, true)
     elseif not enemiesAlive then
-        OnEnemyKilled()
+        if peaceTimerFrames <= 0 then
+            peaceTimerFrames = peaceDurationFrames
+        else
+            peaceTimerFrames = peaceTimerFrames - 1
+            if peaceTimerFrames <= 0 then
+                OnEnemyKilled()
+            end
+        end
     elseif levelTimer <= 0 and enemiesAlive then
         OnLevelTimeout()
     end
