@@ -37,6 +37,15 @@ local windowInitialY = nil
 -- Original window size (never changes, used for speed scaling)
 local originalWindowWidth = 1920
 local originalWindowHeight = 1080
+local windowTransitionActive = false
+local windowTransitionTimer = 0
+local windowTransitionDurationFrames = 60
+local windowTransitionStartW = 0
+local windowTransitionStartH = 0
+local windowTransitionTargetW = 0
+local windowTransitionTargetH = 0
+local pendingLevelIndex = nil
+local pendingResetPlayerState = false
 
 -- PLAYER (TRIANGLE)
 local player
@@ -71,9 +80,56 @@ local enemySize = 48
 
 local enemies = {}
 local levelEnemyHealth = 50
+local StartLevel
+local LoadLevel
 
 local function CreateEnemy(x, y, health)
     return TriangleShooterEnemy.createEnemy(x, y, health, enemySize, playerX, playerY, playerSize)
+end
+
+function UpdateWindowTransition()
+    if not windowTransitionActive then
+        return
+    end
+
+    if windowTransitionTimer <= 0 then
+        windowTransitionActive = false
+        local index = pendingLevelIndex
+        local reset = pendingResetPlayerState
+        pendingLevelIndex = nil
+        pendingResetPlayerState = false
+
+        if index ~= nil then
+            screenW = Window.get_width()
+            screenH = Window.get_height()
+            LoadLevel(index, reset)
+        end
+        return
+    end
+
+    windowTransitionTimer = windowTransitionTimer - 1
+    local t = 1.0 - (windowTransitionTimer / windowTransitionDurationFrames)
+    if t < 0 then t = 0 end
+    if t > 1 then t = 1 end
+
+    local startW = windowTransitionStartW
+    local startH = windowTransitionStartH
+    local targetW = windowTransitionTargetW
+    local targetH = windowTransitionTargetH
+
+    local newW = startW + (targetW - startW) * t
+    local newH = startH + (targetH - startH) * t
+
+    local newWidth = math.floor(newW + 0.5)
+    local newHeight = math.floor(newH + 0.5)
+
+    local displayWidth = Window.get_display_width()
+    local displayHeight = Window.get_display_height()
+    local newX = math.floor((displayWidth - newWidth) * 0.5)
+    local newY = math.floor((displayHeight - newHeight) * 0.5)
+
+    Window.set_pos(newX, newY)
+    Window.set_size(newWidth, newHeight)
 end
 
 local function ClearEnemies()
@@ -129,7 +185,7 @@ local peaceDurationFrames = 60 * 15
 local currentLevel = 1
 local levelTimer = 0
 
-local function LoadLevel(index, resetPlayerState)
+LoadLevel = function(index, resetPlayerState)
     local cfg = TriangleShooterLevels.getLevelConfig(index)
     if not cfg then
         return
@@ -141,6 +197,19 @@ local function LoadLevel(index, resetPlayerState)
     wallPingPongEnabled = cfg.wallPingPong and true or false
 
     enemyProjectilesEnabled = cfg.enemyProjectiles and true or false
+
+    if wallPingPongEnabled then
+        leftWallOffset = 0
+        leftWallExpandTimer = 0
+        rightWallOffset = 0
+        rightWallExpandTimer = 0
+        topWallOffset = 0
+        topWallExpandTimer = 0
+        bottomWallOffset = 0
+        bottomWallExpandTimer = 0
+        windowInitialX = nil
+        windowInitialY = nil
+    end
 
     ClearEnemies()
 
@@ -166,8 +235,8 @@ local function LoadLevel(index, resetPlayerState)
         end
     end
 
+    playerHealth = 100
     if resetPlayerState then
-        playerHealth = 100
         playerX = screenW / 2 - playerSize / 2
         playerY = screenH / 2 - playerSize / 2
         Entity.set_global_pos(player, playerX, playerY)
@@ -177,17 +246,45 @@ local function LoadLevel(index, resetPlayerState)
     end
 end
 
+StartLevel = function(index, resetPlayerState)
+    local cfg = TriangleShooterLevels.getLevelConfig(index)
+    if not cfg then
+        return
+    end
+
+    local currentWidth = Window.get_width()
+    local currentHeight = Window.get_height()
+    local targetWidth = cfg.windowWidth or currentWidth
+    local targetHeight = cfg.windowHeight or currentHeight
+
+    if currentWidth == targetWidth and currentHeight == targetHeight then
+        screenW = currentWidth
+        screenH = currentHeight
+        LoadLevel(index, resetPlayerState)
+        return
+    end
+
+    windowTransitionActive = true
+    windowTransitionTimer = windowTransitionDurationFrames
+    windowTransitionStartW = currentWidth
+    windowTransitionStartH = currentHeight
+    windowTransitionTargetW = targetWidth
+    windowTransitionTargetH = targetHeight
+    pendingLevelIndex = index
+    pendingResetPlayerState = resetPlayerState
+end
+
 local function OnEnemyKilled()
     local nextIndex = currentLevel + 1
     if TriangleShooterLevels.getLevelConfig(nextIndex) then
-        LoadLevel(nextIndex, true)
+        StartLevel(nextIndex, false)
     else
-        LoadLevel(currentLevel, true)
+        StartLevel(currentLevel, false)
     end
 end
 
 local function OnLevelTimeout()
-    LoadLevel(currentLevel, true)
+    StartLevel(currentLevel, true)
 end
 
 ----------------------------------------------------------
@@ -208,7 +305,21 @@ function TriangleShooter:OnStart()
     -- Add sprite component 
     playerSprite = Entity.add_sprite_component(player, assets.textures.Triangle, playerSize, playerSize, 10)
     Sprite.set_columns(playerSprite, 1)
-    
+
+    local cfg = TriangleShooterLevels.getLevelConfig(1)
+    if cfg and cfg.windowWidth and cfg.windowHeight then
+        local targetW = cfg.windowWidth
+        local targetH = cfg.windowHeight
+        local displayWidth = Window.get_display_width()
+        local displayHeight = Window.get_display_height()
+        local newX = math.floor((displayWidth - targetW) * 0.5)
+        local newY = math.floor((displayHeight - targetH) * 0.5)
+        Window.set_pos(newX, newY)
+        Window.set_size(targetW, targetH)
+        screenW = targetW
+        screenH = targetH
+    end
+
     LoadLevel(1, true)
 
     musicEntity = Entity.create_entity()
@@ -222,6 +333,11 @@ end
 ----------------------------------------------------------
 function TriangleShooter:OnUpdate()
     globalFrame = globalFrame + 1
+
+    if windowTransitionActive then
+        UpdateWindowTransition()
+        return
+    end
 
     -- Update wall lerps
     UpdateWallLerps()
@@ -382,7 +498,7 @@ function TriangleShooter:OnUpdate()
     end
 
     if playerHealth <= 0 then
-        LoadLevel(currentLevel, true)
+        StartLevel(currentLevel, true)
     elseif not enemiesAlive then
         if peaceTimerFrames <= 0 then
             peaceTimerFrames = peaceDurationFrames
@@ -775,7 +891,13 @@ end
 ----------------------------------------------------------
 function UpdateWallLerps()
     if not wallPingPongEnabled then return end
+    if peaceTimerFrames > 0 and #enemies == 0 then return end
     
+    local minWindowWidth = 200
+    local minWindowHeight = 200
+    local maxShrinkX = math.min(wallMaxShrinkX, math.max(0, (windowBaseWidth - minWindowWidth) * 0.5))
+    local maxShrinkY = math.min(wallMaxShrinkY, math.max(0, (windowBaseHeight - minWindowHeight) * 0.5))
+
     -- Update left wall: always shrinking, expand when hit
     if leftWallExpandTimer > 0 then
         leftWallExpandTimer = leftWallExpandTimer - 1
@@ -783,7 +905,7 @@ function UpdateWallLerps()
         if leftWallOffset < 0 then leftWallOffset = 0 end
     else
         leftWallOffset = leftWallOffset + wallShrinkSpeed
-        if leftWallOffset > wallMaxShrinkX then leftWallOffset = wallMaxShrinkX end
+        if leftWallOffset > maxShrinkX then leftWallOffset = maxShrinkX end
     end
     
     -- Update right wall
@@ -793,7 +915,7 @@ function UpdateWallLerps()
         if rightWallOffset < 0 then rightWallOffset = 0 end
     else
         rightWallOffset = rightWallOffset + wallShrinkSpeed
-        if rightWallOffset > wallMaxShrinkX then rightWallOffset = wallMaxShrinkX end
+        if rightWallOffset > maxShrinkX then rightWallOffset = maxShrinkX end
     end
     
     -- Update top wall
@@ -803,7 +925,7 @@ function UpdateWallLerps()
         if topWallOffset < 0 then topWallOffset = 0 end
     else
         topWallOffset = topWallOffset + wallShrinkSpeed
-        if topWallOffset > wallMaxShrinkY then topWallOffset = wallMaxShrinkY end
+        if topWallOffset > maxShrinkY then topWallOffset = maxShrinkY end
     end
     
     -- Update bottom wall
@@ -813,17 +935,21 @@ function UpdateWallLerps()
         if bottomWallOffset < 0 then bottomWallOffset = 0 end
     else
         bottomWallOffset = bottomWallOffset + wallShrinkSpeed
-        if bottomWallOffset > wallMaxShrinkY then bottomWallOffset = wallMaxShrinkY end
+        if bottomWallOffset > maxShrinkY then bottomWallOffset = maxShrinkY end
     end
     
     -- Capture initial position on first frame
     if windowInitialX == nil then
-        windowInitialX = 0
-        windowInitialY = 0
-        windowBaseWidth = 1920
-        windowBaseHeight = 1080
-        originalWindowWidth = 1920
-        originalWindowHeight = 1080
+        windowBaseWidth = Window.get_width()
+        windowBaseHeight = Window.get_height()
+        originalWindowWidth = windowBaseWidth
+        originalWindowHeight = windowBaseHeight
+
+        local displayWidth = Window.get_display_width()
+        local displayHeight = Window.get_display_height()
+        windowInitialX = math.floor((displayWidth - windowBaseWidth) * 0.5)
+        windowInitialY = math.floor((displayHeight - windowBaseHeight) * 0.5)
+
         Window.set_pos(windowInitialX, windowInitialY)
         Window.set_size(windowBaseWidth, windowBaseHeight)
     end
@@ -833,6 +959,9 @@ function UpdateWallLerps()
     local newY = math.floor(windowInitialY + topWallOffset)
     local newWidth = math.floor(windowBaseWidth - leftWallOffset - rightWallOffset)
     local newHeight = math.floor(windowBaseHeight - topWallOffset - bottomWallOffset)
+
+    if newWidth < minWindowWidth then newWidth = minWindowWidth end
+    if newHeight < minWindowHeight then newHeight = minWindowHeight end
     
     -- Clamp to real screen bounds (top and bottom edges)
     local realScreenHeight = Window.get_display_height()
