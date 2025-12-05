@@ -3,6 +3,7 @@
 #include <string>
 #include <unordered_map>
 #include <filesystem>
+#include <iostream>
 
 namespace IonixEngine
 {
@@ -11,9 +12,9 @@ namespace IonixEngine
     public:
         std::unordered_map<std::string, ImFont*> fontMap;
 
-        ImFont* GetFont(const std::string& fontName)
+        ImFont* GetFont(const std::string& name)
         {
-            auto it = fontMap.find(fontName);
+            auto it = fontMap.find(name);
             return (it != fontMap.end()) ? it->second : nullptr;
         }
 
@@ -27,40 +28,46 @@ namespace IonixEngine
             ImGuiIO& io = ImGui::GetIO();
             io.Fonts->AddFontDefault();
 
-            const std::string fontPath = "Assets/Fonts/";
+            const std::string rootFolder = "Assets";   
 
-            for (const auto& file : std::filesystem::directory_iterator(fontPath))
+            if (!std::filesystem::exists(rootFolder))
+            {
+                std::cout << "[FontLoader] ERROR: Assets folder does not exist.\n";
+                return;
+            }
+
+            
+            for (auto& file : std::filesystem::recursive_directory_iterator(rootFolder))
             {
                 if (!file.is_regular_file())
                     continue;
 
-                std::string path = file.path().string();
                 std::string ext = file.path().extension().string();
+                for (auto& c : ext) c = tolower(c);
 
-                //THIS WILL ONLY LOAD .TTF OR .OTF
-                if (ext != ".ttf" && ext != ".otf")
+				// ONLY USE THESE FONT FORMATS!!!!
+                if (ext != ".ttf" && ext != ".otf" && ext != ".woff" && ext != ".woff2")
                     continue;
 
-                std::string filename = file.path().filename().string();
+                std::string fullpath = file.path().string();
+                std::string cleanName = file.path().stem().string();
 
-                ImFont* loadedFont = io.Fonts->AddFontFromFileTTF(
-                    path.c_str(),
-                    18.0f,                                
-                    NULL,
+                ImFont* f = io.Fonts->AddFontFromFileTTF(
+                    fullpath.c_str(),
+                    20.0f,                   
+                    nullptr,
                     io.Fonts->GetGlyphRangesDefault()
                     // all of these are adjustible
                 );
 
-                if (loadedFont)
+                if (f)
                 {
-                    //removing them and cleaning the extension
-                    std::string cleanName = file.path().stem().string();
-                    AddMap(cleanName, loadedFont);
-                    printf("[FontLoader] Loaded font: %s\n", cleanName.c_str());
+                    AddMap(cleanName, f);
+                    std::cout << "[FontLoader] Loaded: " << fullpath << "\n";
                 }
                 else
                 {
-                    printf("[FontLoader] Failed to load: %s\n", path.c_str());
+                    std::cout << "[FontLoader] FAILED: " << fullpath << "\n";
                 }
             }
 
@@ -68,4 +75,3 @@ namespace IonixEngine
         }
     };
 }
-
