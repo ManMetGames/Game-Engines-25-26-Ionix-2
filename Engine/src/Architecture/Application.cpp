@@ -2,6 +2,7 @@
 #include "Fysics/FysicsBody.h"
 #include "Fysics/FysicsManager.h"
 #include "Fysics/Shapes.h"
+#include "UI/FontLoader.h"
 //#include "Fysics/NavMef.h"
 #include "LayerSystem/Layers/LayerTexture.hpp"
 #include "SDL_timer.h"
@@ -30,6 +31,9 @@ namespace IonixEngine
         startTick = SDL_GetPerformanceCounter();
         currentTick = SDL_GetPerformanceCounter();
 
+
+        Fontloader fontLoader;
+        fontLoader.LoadFonts();
 
         //Initialise layers...
         layerEditor = new LayerEditor();
