@@ -30,6 +30,10 @@ TiledObjectFactory::TiledObjectFactory() : addComponent() {
 }
 
 void TiledObjectFactory::AddSpriteComponent(Entity* entity, std::unordered_map<std::string, TiledProperty&>& properties, TiledObject& object) {
+    if (properties["ImagePath"].stringValue.empty()) { 
+        SDL_Log("[Object Factory]::AddSpriteComponent(): Tried to add sprite component but was passed empty string as image path..."); 
+        return; 
+    }
     uint32_t hash = TextureManager::HashFromPath(properties["ImagePath"].stringValue);
     entity->AddComponent(new SpriteComponent(entity, hash, properties["Width"].intValue, properties["Height"].intValue, properties["ZOrder"].intValue));
 }
@@ -43,6 +47,10 @@ void TiledObjectFactory::AddBoxCollider(Entity* entity, std::unordered_map<std::
 }
 
 void TiledObjectFactory::AddAudioComponent(Entity* entity, std::unordered_map<std::string, TiledProperty&>& properties, TiledObject& object) {
+    if (properties["AudioFilePath"].stringValue.empty()) { 
+        SDL_Log("[Object Factory]::AddAudioComponent(): Tried to add audio component but was passed empty string as audio path..."); 
+        return; 
+    }
     entity->AddComponent(new AudioPlayer(entity, SoundManager::HashFromPath(properties["AudioFilePath"].stringValue), properties["PlayOnAwake"].boolValue));
 }
 
