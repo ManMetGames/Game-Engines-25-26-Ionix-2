@@ -42,7 +42,7 @@ local levels = {
         windowHeight = 1080,
     },
     [5] = {
-        timeLimitFrames = 60 * 60,
+        timeLimitFrames = 60 * 50,
         enemyCount = 3,
         enemyHealth = 60,
         enemyProjectiles = true,
@@ -52,7 +52,7 @@ local levels = {
         windowHeight = 768,
     },
     [6] = {
-        timeLimitFrames = 60 * 60,
+        timeLimitFrames = 60 * 35,
         enemyCount = 2,
         enemyHealth = 90,
         enemyProjectiles = true,
