@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
     char* success;
     uint64_t big_hash = strtoull(hash.substr(48, 16).c_str(), &success, 16);
     if (success) {
-        printf("Hash: %s - length: %zu: full_hash: %lu short_hash: %u\n", hash.c_str(), hash.length(), big_hash, (uint32_t) (big_hash << 8));
+        printf("Hash: %s - length: %zu: full_hash: %llu short_hash: %u\n", hash.c_str(), hash.length(), big_hash, (uint32_t) (big_hash << 8));
     }
 
     for (auto& entry : std::filesystem::recursive_directory_iterator("./Assets")) {
