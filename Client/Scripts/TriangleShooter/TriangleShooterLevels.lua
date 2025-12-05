@@ -8,8 +8,8 @@ local levels = {
         enemyProjectiles = false,
         wallPingPong = false,
         coinPerHit = 1,
-        windowWidth = 1060,
-        windowHeight = 640,
+        windowWidth = 800,
+        windowHeight = 400,
     },
     [2] = {
         timeLimitFrames = 60 * 60,
@@ -18,8 +18,8 @@ local levels = {
         enemyProjectiles = true,
         wallPingPong = false,
         coinPerHit = 1,
-        windowWidth = 800,
-        windowHeight = 400,  
+        windowWidth = 1026,
+        windowHeight = 640,  
     },
     [3] = {
         timeLimitFrames = 60 * 60,
@@ -28,8 +28,8 @@ local levels = {
         enemyProjectiles = true,
         wallPingPong = false,
         coinPerHit = 1,
-        windowWidth = 1280,
-        windowHeight = 720,
+        windowWidth = 960,
+        windowHeight = 460,
     },
     [4] = {
         timeLimitFrames = 60 * 30,
@@ -38,8 +38,8 @@ local levels = {
         enemyProjectiles = true,
         wallPingPong = true,
         coinPerHit = 1,
-        windowWidth = 1920,
-        windowHeight = 1080,
+        windowWidth = 1280,
+        windowHeight = 670,
     },
     [5] = {
         timeLimitFrames = 60 * 50,
@@ -48,8 +48,8 @@ local levels = {
         enemyProjectiles = true,
         wallPingPong = false,
         coinPerHit = 1,
-        windowWidth = 1024,
-        windowHeight = 768,
+        windowWidth = 1026,
+        windowHeight = 640,
     },
     [6] = {
         timeLimitFrames = 60 * 35,
@@ -58,8 +58,8 @@ local levels = {
         enemyProjectiles = true,
         wallPingPong = true,
         coinPerHit = 1,
-        windowWidth = 1000,
-        windowHeight = 600,
+        windowWidth = 1026,
+        windowHeight = 640,
     },
 }
 
