@@ -364,6 +364,18 @@ function TriangleShooter:OnUpdate()
     local level, xp, xpToNextLevel = TriangleShooterPlayerProgress.getProgress()
     UI.draw_label("Player Lv: " .. tostring(level) .. "  XP: " .. tostring(xp) .. " / " .. tostring(xpToNextLevel), 220, 45, 740, 60, "")
 
+    -- Peace progress bar (only during inter-level peace)
+    if #enemies == 0 and peaceTimerFrames > 0 then
+        local elapsed = peaceDurationFrames - peaceTimerFrames
+        if elapsed < 0 then
+            elapsed = 0
+        end
+        UI.draw_progress_bar(
+            screenW / 2 - 100, 80, 200, 10,
+            peaceDurationFrames, elapsed, 4
+        )
+    end
+
     local enemiesAlive = #enemies > 0
     if enemiesAlive and peaceTimerFrames > 0 then
         peaceTimerFrames = 0
