@@ -7,8 +7,6 @@ local player
 local ai
 
 local ground
-local screenW
-local screenH
 
 local playerStartX = 200
 local playerStartY = 400
@@ -99,13 +97,10 @@ function FencingGame:OnStart()
     Entity.add_fysics_component(ai, enums.bodytype.dynamicBody, true)
     Fysics.add_sprite_collider(ai, false, 1)
 
-    screenW = Window.get_width()
-    screenH = Window.get_height()
-
     ground = Entity.create_entity()
-    Entity.set_global_pos(ground, screenW / 2, screenH - 20)
+    Entity.set_global_pos(ground, 960 / 2, 640 - 5)
     Entity.add_fysics_component(ground, enums.bodytype.staticBody, false)
-    Fysics.add_box_collider(ground, screenW / 2, 10, false)
+    Fysics.add_box_collider(ground, 960 / 2, 10, false)
 
     updateTexts()
 end
@@ -116,8 +111,8 @@ function FencingGame:OnUpdate()
     end
 
     local vel = Fysics.get_linear_velocity(player)
-    local vx = vel.x
-    local vy = vel.y
+    local vx = Mafs.get_vec_x(vel)
+    local vy = Mafs.get_vec_y(vel)
 
     if Input.get_key_held(Keys.ionix_d) then
         vx = playerSpeed
