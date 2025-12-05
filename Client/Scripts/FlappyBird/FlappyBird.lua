@@ -15,19 +15,25 @@ local t = 10
 -- Pipe variables
 local pipe
 local pipeT
-
 local pipe2
 local pipeT2
 
+-- Pipe movement and positioning
 local pipeSpeed = -3
 local pipeStartX = 900
 local pipe2StartX = 1200
 local pipeOffScreenLeft = -100
-local myText = "Press SPACE to begin"
--- Coin variables
-local coin
-local coin2
+local xPos = 0  -- Initialize xPos to avoid undefined global warning
+
+-- Game variables
+local coins = {}
+local coinCount = 6
+local coinSpacing = 200
 local coinSpeed = -3
+local coinHidden = {}
+local score = 0
+local scoreText = "Score: 0"
+local text1 = "Press SPACE to start!"
 ----------------------------------------------------------
 -- OnStart
 ----------------------------------------------------------
@@ -142,43 +148,33 @@ function ExampleScript:OnStart()
 	------------------------------------------------------
 	-- Create coins
 	------------------------------------------------------
-    coin = Entity.create_entity()
-    Entity.set_global_pos(coin, pipeStartX - 235, 300)
+    for i = 1, coinCount do
+        local c = Entity.create_entity()
+        -- base X spaced to the right; add small jitter so coins don't line up exactly
+        local startX = pipeStartX + (i - 1) * coinSpacing + math.random(-20, 20)
+        -- alternate Y positions: some inside the pipe gap, some above, some below
+        local cy
+        if (i % 3) == 1 then
+            cy = 240
+        elseif (i % 3) == 2 then
+            cy = 120
+        else
+            cy = 520
+        end
+        Entity.set_global_pos(c, startX, cy)
 
-    local coinSprite = Entity.add_sprite_component(coin, assets.textures.Coin, 32, 32, 0)
+        local coinSprite = Entity.add_sprite_component(c, assets.textures.Coin, 32, 32, 0)
+        Sprite.set_rows(coinSprite, 1)
+        Sprite.set_columns(coinSprite, 5)
+        Sprite.set_width(coinSprite, 16)
+        Sprite.set_height(coinSprite, 16)
 
-    Sprite.set_rows(coinSprite, 1)
-    Sprite.set_columns(coinSprite, 5)
-    Sprite.set_width(coinSprite, 16)
-    Sprite.set_height(coinSprite, 16)
+        Entity.add_fysics_component(c, enums.bodytype.kinematicBody, false)
+        -- Changed to use trigger collider (true parameter)
+        Fysics.add_sprite_collider(c, true, 1)
 
-    -- Add physics body + collider
-    Entity.add_fysics_component(coin, enums.bodytype.kinematicBody, false)
-    Fysics.add_sprite_collider(coin, false, 1)
-
-    if Input.get_key_down(Keys.ionix_a) then
-        Entity.set_global_pos(coin, xPos, floorY)
-	end
-
-    ---------------------------
-	-- Coin Set 2
-	---------------------------
-    coin2 = Entity.create_entity()
-    Entity.set_global_pos(coin2, pipe2StartX + 25, 300)
-
-    local coinSprite2 = Entity.add_sprite_component(coin2, assets.textures.Coin, 32, 32, 0)
-
-    Sprite.set_rows(coinSprite2, 1)
-    Sprite.set_columns(coinSprite2, 5)
-    Sprite.set_width(coinSprite2, 16)
-    Sprite.set_height(coinSprite2, 16)
-
-    -- Add physics body + collider
-    Entity.add_fysics_component(coin2, enums.bodytype.kinematicBody, false)
-    Fysics.add_sprite_collider(coin2, false, 1)
-
-    if Input.get_key_down(Keys.ionix_a) then
-        Entity.set_global_pos(coin2, xPos, floorY)
+        table.insert(coins, c)
+        coinHidden[c] = false  -- Initialize as not hidden
     end
 
 end
@@ -195,15 +191,23 @@ function ExampleScript:OnUpdate()
     local vel1 = Fysics.get_linear_velocity(player1)
     local vy1 = Fysics.get_linear_velocity(pipe)
     local vy1 = Fysics.get_linear_velocity(pipe2)
-    local vy1 = Fysics.get_linear_velocity(coin)
 
     -- Constant rightward movement
     local vx = 0
     local vy1 = Mafs.get_vec_y(vel1)
-    ------------------------------------------------------
-	-- UI
-	------------------------------------------------------
-    UI.Add_label(320, 300, 1000, 1000, myText)
+    
+    -- Display instruction text at the start of the game
+    if text1 ~= "" then
+        -- UI - Display score in top-left corner
+        UI.Add_label(20, 20, 200, 50, scoreText)
+        
+        -- Display instruction text (only at start)
+        UI.Add_label(300, 250, 1000, 1000, text1)
+    else
+        -- UI - Display score in top-left corner
+        UI.Add_label(20, 20, 200, 50, scoreText)
+    end
+
 	if Input.get_key_down(Keys.ionix_space) then
         -- Bird move if space is pressed (allow gravity)
         Fysics.set_gravity_scale(player1, 1)
@@ -216,10 +220,11 @@ function ExampleScript:OnUpdate()
         Fysics.set_linear_velocity(pipe2, pipeSpeed, 0)
         Fysics.set_linear_velocity(pipeT2, pipeSpeed, 0)
 
-        -- Coins move
-        Fysics.set_linear_velocity(coin, coinSpeed, 0)
-        Fysics.set_linear_velocity(coin2, coinSpeed, 0)
-        myText = ""
+        for _, c in ipairs(coins) do
+            Fysics.set_linear_velocity(c, coinSpeed, 0)
+        end
+
+        text1 = ""
 	end
 
     Fysics.set_linear_velocity(player1, vx, vy1)
@@ -239,17 +244,33 @@ function ExampleScript:OnUpdate()
         Fysics.set_pos(pipeT2, pipe2StartX, pipePos2.y)
     end
 
-    -- Coins movement
-    local coinPos = Fysics.get_pos(coin)
-    if Mafs.get_vec_x(coinPos) < pipeOffScreenLeft then
-        Fysics.set_pos(coin, pipeStartX -235, coinPos.y)
+    local farthestX = -1e9
+    for _, c in ipairs(coins) do
+        local p = Fysics.get_pos(c)
+        local px = Mafs.get_vec_x(p)
+        if px > farthestX then farthestX = px end
     end
-
-    local coinPos2 = Fysics.get_pos(coin2)
-    if Mafs.get_vec_x(coinPos2) < pipeOffScreenLeft then
-        Fysics.set_pos(coin2, pipe2StartX + 25, coinPos2.y)
+    for _, c in ipairs(coins) do
+        local p = Fysics.get_pos(c)
+        if Mafs.get_vec_x(p) < pipeOffScreenLeft then
+            farthestX = farthestX + coinSpacing
+            Fysics.set_pos(c, farthestX, p.y)
+                    -- If this coin was hidden (collected), restore its sprite size so it becomes visible again
+            if coinHidden[c] ~= nil then  -- More explicit nil check
+                local s = Entity.get_sprite_component(c)
+                if s then
+                    Sprite.set_width(s, 16)
+                    Sprite.set_height(s, 16)
+                end
+                coinHidden[c] = false  -- Reset to false instead of nil to maintain the key
+            end
+        end
     end
     
+    ------------------------------------------------------
+	-- UI
+	------------------------------------------------------
+
 end
 
     function ExampleScript:OnCollisionEnter()
@@ -259,9 +280,45 @@ end
     end
 
     function ExampleScript:OnTriggerEnter(collision1, collision2)
-        if collision1 == player1 and collision2 == coin then
-            print("TriggerCoin")
+        -- Initialize coinHidden table if it doesn't exist
+        coinHidden = coinHidden or {}
+        
+        -- Check if either parameter is the player and the other is a coin
+        local player, coin
+        if collision1 == player1 then
+            player = collision1
+            coin = collision2
+        elseif collision2 == player1 then
+            player = collision2
+            coin = collision1
         end
-end
+        
+        -- If we found a player-coin collision
+        if player and coin and coins then
+            -- Verify the coin is in our coins table and not already collected
+            for i, c in ipairs(coins) do
+                if coin == c and (coinHidden[c] == nil or coinHidden[c] == false) then
+                    print("Coin collected!")
+                    
+                    -- Hide the coin's sprite
+                    local s = Entity.get_sprite_component(coin)
+                    if s then
+                        Sprite.set_width(s, 0)
+                        Sprite.set_height(s, 0)
+                    end
+                    
+                    -- Mark the coin as collected
+                    coinHidden[coin] = true
+                    
+                    -- Update score
+                    score = score + 10  -- 10 points per coin
+                    scoreText = "Score: " .. tostring(score)
+                    print(scoreText)  -- Debug output
+                    
+                    break
+                end
+            end
+        end
+    end
 
 return ExampleScript
