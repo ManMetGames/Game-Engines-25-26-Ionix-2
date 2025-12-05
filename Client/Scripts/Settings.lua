@@ -15,8 +15,9 @@ LoadModule("Assets", "Scripts/Assets.lua")
 --LoadModule("Ball", "Scripts/Ball.lua")
 LoadModule("Assets", "Scripts/Assets.lua")
 LoadModule("Enums", "Scripts/Enums.lua")
-LoadModule("FlappyBird", "Scripts/FlappyBird/FlappyBird.lua")
+--LoadModule("FlappyBird", "Scripts/FlappyBird/FlappyBird.lua")
 --LoadModule("ExampleScript", "Scripts/ExampleScript.lua")
+LoadModule("FencingGame", "Scripts/Fencing game/FencingGame.Lua")
 
 -- Lifecycle hooks
 function OnStart()
