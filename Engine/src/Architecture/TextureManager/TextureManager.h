@@ -1,4 +1,5 @@
 #pragma once
+#include <cctype>
 #include <cstdint>
 #include <filesystem>
 #include <string>
@@ -37,9 +38,13 @@ namespace IonixEngine
 		
 			std::string base = std::filesystem::path(str).stem().string();
 
+			if (isdigit(base[0])) { base = "_" + base; }
+
 			ReplaceAll(base, "-", "_");
 			ReplaceAll(base, " ", "_");
 			ReplaceAll(base, ",", "_");
+			ReplaceAll(base, "(", "_");
+			ReplaceAll(base, ")", "_");
 
 			hash = Get32BitHash(base);
 

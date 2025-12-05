@@ -28,20 +28,21 @@ namespace IonixEngine
         float GetPlayTime(const std::string& alias);
         float GetPlayTime(uint32_t hash);
 
+        static uint32_t HashFromPath(const std::string& str) {
+            uint32_t hash = uint32_t(-1);
 
-		static uint32_t HashFromPath(const std::string& str) {
-			uint32_t hash = uint32_t(-1);
-		
-			std::string base = std::filesystem::path(str).stem().string();
+            std::string base = std::filesystem::path(str).stem().string();
 
-			ReplaceAll(base, "-", "_");
-			ReplaceAll(base, " ", "_");
-			ReplaceAll(base, ",", "_");
+            if (isdigit(base[0])) { base = "_" + base; }
 
-			hash = Get32BitHash(base);
+            ReplaceAll(base, "-", "_");
+            ReplaceAll(base, " ", "_");
+            ReplaceAll(base, ",", "_");
 
-			return hash;
-		}
+            hash = Get32BitHash(base);
+
+            return hash;
+        }
 
     private:
         SoundManager() = default;
