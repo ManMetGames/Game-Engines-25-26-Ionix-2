@@ -57,7 +57,10 @@ Desktop.ini
 # --- Project ---
 dependencies
 
+
+
 # --- Misc ---
+
 .idea/
 imgui.ini
 dependencies/bin/imgui/obj/
@@ -72,3 +75,8 @@ Client/*
 !Client/Assets/
 !Client/Assets/*.png
 Client/Scripts/Settings.lua
+
+# --- Editor ---
+!Client/Ionix 2 - Editor/
+!Client/Ionix 2 - Editor/*
+!Client/Ionix 2 - Editor/**/*
