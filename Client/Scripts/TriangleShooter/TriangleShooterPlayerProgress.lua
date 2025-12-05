@@ -7,7 +7,7 @@ local currentShootAbility = "basic"
 
 local function GetXpForNextLevel(level)
     local n = level - 1
-    return math.floor(100 + 80 * n + 10 * n * math.max(n - 1, 0))
+    return math.floor(100 + 80 * n + 12 * n * math.max(n - 1, 0))
 end
 
 local function OnLevelUp()

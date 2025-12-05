@@ -12,10 +12,10 @@ local screenH = 1080
 
 -- WALL SETTINGS
 local wallPingPongEnabled = true
-local wallMaxShrinkX = 760        -- Max pixels each horizontal wall can shrink (1920 - 400 = 1520, /2 = 760)
-local wallMaxShrinkY = 340        -- Max pixels each vertical wall can shrink (1080 - 400 = 680, /2 = 340)
-local wallShrinkSpeed = 0.2       -- Pixels per frame each wall shrinks
-local wallExpandDuration = 180    -- 3 seconds at 60fps
+local wallMaxShrinkX = 600        -- Max pixels each horizontal wall can shrink (1920 - 400 = 1520, /2 = 760)
+local wallMaxShrinkY = 200        -- Max pixels each vertical wall can shrink (1080 - 400 = 680, /2 = 340)
+local wallShrinkSpeed = 0.35       -- Pixels per frame each wall shrinks
+local wallExpandDuration = 120    -- 2 seconds at 60fps
 local wallExpandSpeedMultiplier = 4.0
 
 -- Each wall has: offset (current shrink amount), expandTimer (>0 means expanding)
@@ -180,14 +180,14 @@ end
 local function OnEnemyKilled()
     local nextIndex = currentLevel + 1
     if TriangleShooterLevels.getLevelConfig(nextIndex) then
-        LoadLevel(nextIndex, false)
+        LoadLevel(nextIndex, true)
     else
-        LoadLevel(currentLevel, false)
+        LoadLevel(currentLevel, true)
     end
 end
 
 local function OnLevelTimeout()
-    LoadLevel(currentLevel, false)
+    LoadLevel(currentLevel, true)
 end
 
 ----------------------------------------------------------
