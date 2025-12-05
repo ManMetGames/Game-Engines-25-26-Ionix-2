@@ -31,7 +31,6 @@ namespace IonixEngine
         startTick = SDL_GetPerformanceCounter();
         currentTick = SDL_GetPerformanceCounter();
 
-
         Fontloader fontLoader;
         fontLoader.LoadFonts();
 
