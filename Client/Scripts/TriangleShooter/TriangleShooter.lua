@@ -6,6 +6,10 @@ local TriangleShooterEnemy = require("Scripts.TriangleShooter.TriangleShooterEne
 local TriangleShooterAbilities = require("Scripts.TriangleShooter.TriangleShooterAbilities")
 local TriangleShooterPlayerProgress = require("Scripts.TriangleShooter.TriangleShooterPlayerProgress")
 
+local function GetDt()
+    return Mafs.delta_time()
+end
+
 -- SCREEN BOUNDS (UPDATED EACH FRAME FROM WINDOW SIZE)
 local screenW = 1920
 local screenH = 1080
@@ -43,7 +47,7 @@ local originalWindowWidth = 1920
 local originalWindowHeight = 1080
 local windowTransitionActive = false
 local windowTransitionTimer = 0
-local windowTransitionDurationFrames = 60
+local windowTransitionDurationSeconds = 0.75
 local windowTransitionStartW = 0
 local windowTransitionStartH = 0
 local windowTransitionTargetW = 0
@@ -96,6 +100,8 @@ function UpdateWindowTransition()
         return
     end
 
+    local dt = GetDt()
+
     if windowTransitionTimer <= 0 then
         windowTransitionActive = false
         local index = pendingLevelIndex
@@ -111,8 +117,8 @@ function UpdateWindowTransition()
         return
     end
 
-    windowTransitionTimer = windowTransitionTimer - 1
-    local t = 1.0 - (windowTransitionTimer / windowTransitionDurationFrames)
+    windowTransitionTimer = windowTransitionTimer - dt
+    local t = 1.0 - (windowTransitionTimer / windowTransitionDurationSeconds)
     if t < 0 then t = 0 end
     if t > 1 then t = 1 end
 
@@ -175,21 +181,17 @@ local bopScale = 0.25
 local beatStartDelayFrames = (8 * 4) * framesPerBeat
 local beatStartDelayCounter = 0
 
-local function GetDt()
-    return Mafs.delta_time()
-end
-
 local playerBaseImageWidth = playerSize
 local playerBaseImageHeight = playerSize
 local enemyBaseImageSize = enemySize
 
 local globalFrame = 0
-local peaceTimerFrames = 0
-local peaceDurationFrames = 60 * 15
+local peaceTimerSeconds = 0
+local peaceDurationSeconds = 4
 
 -- LEVEL SETTINGS
 local currentLevel = 1
-local levelTimer = 0
+local levelTimerSeconds = 0
 
 LoadLevel = function(index, resetPlayerState)
     local cfg = TriangleShooterLevels.getLevelConfig(index)
@@ -198,7 +200,7 @@ LoadLevel = function(index, resetPlayerState)
     end
 
     currentLevel = index
-    levelTimer = cfg.timeLimitFrames or 0
+    levelTimerSeconds = cfg.timeLimitSeconds or 0
 
     wallPingPongEnabled = cfg.wallPingPong and true or false
 
@@ -272,7 +274,7 @@ StartLevel = function(index, resetPlayerState)
     end
 
     windowTransitionActive = true
-    windowTransitionTimer = windowTransitionDurationFrames
+    windowTransitionTimer = windowTransitionDurationSeconds
     windowTransitionStartW = currentWidth
     windowTransitionStartH = currentHeight
     windowTransitionTargetW = targetWidth
@@ -354,8 +356,8 @@ function TriangleShooter:OnUpdate()
     screenW = Window.get_width()
     screenH = Window.get_height()
     
-    if levelTimer > 0 and #enemies > 0 then
-        levelTimer = levelTimer - 1
+    if levelTimerSeconds > 0 and #enemies > 0 then
+        levelTimerSeconds = levelTimerSeconds - dt
     end
 
     if Input.get_key_down(Keys.ionix_space) then
@@ -468,8 +470,8 @@ function TriangleShooter:OnUpdate()
             maxEnemyHealthTotal = 1
         end
         UI.draw_progress_bar(20, 20, 200, 20, maxEnemyHealthTotal, currentEnemyHealthTotal, 1)
-        if levelCfg.timeLimitFrames ~= nil and levelCfg.timeLimitFrames > 0 then
-            UI.draw_progress_bar(20, 50, 200, 10, levelCfg.timeLimitFrames, levelTimer, 3)
+        if levelCfg.timeLimitSeconds ~= nil and levelCfg.timeLimitSeconds > 0 then
+            UI.draw_progress_bar(20, 50, 200, 10, levelCfg.timeLimitSeconds, levelTimerSeconds, 3)
         end
     else
         local currentEnemyHealthTotal = 0
@@ -489,34 +491,34 @@ function TriangleShooter:OnUpdate()
     UI.draw_label("Player Lv: " .. tostring(level) .. "  XP: " .. tostring(xp) .. " / " .. tostring(xpToNextLevel), 220, 45, 740, 60, "")
 
     -- Peace progress bar (only during inter-level peace)
-    if #enemies == 0 and peaceTimerFrames > 0 then
-        local elapsed = peaceDurationFrames - peaceTimerFrames
+    if #enemies == 0 and peaceTimerSeconds > 0 then
+        local elapsed = peaceDurationSeconds - peaceTimerSeconds
         if elapsed < 0 then
             elapsed = 0
         end
         UI.draw_progress_bar(
             screenW / 2 - 100, 80, 200, 10,
-            peaceDurationFrames, elapsed, 4
+            peaceDurationSeconds, elapsed, 4
         )
     end
 
     local enemiesAlive = #enemies > 0
-    if enemiesAlive and peaceTimerFrames > 0 then
-        peaceTimerFrames = 0
+    if enemiesAlive and peaceTimerSeconds > 0 then
+        peaceTimerSeconds = 0
     end
 
     if playerHealth <= 0 then
         StartLevel(currentLevel, true)
     elseif not enemiesAlive then
-        if peaceTimerFrames <= 0 then
-            peaceTimerFrames = peaceDurationFrames
+        if peaceTimerSeconds <= 0 then
+            peaceTimerSeconds = peaceDurationSeconds
         else
-            peaceTimerFrames = peaceTimerFrames - 1
-            if peaceTimerFrames <= 0 then
+            peaceTimerSeconds = peaceTimerSeconds - dt
+            if peaceTimerSeconds <= 0 then
                 OnEnemyKilled()
             end
         end
-    elseif levelTimer <= 0 and enemiesAlive then
+    elseif levelTimerSeconds <= 0 and enemiesAlive then
         OnLevelTimeout()
     end
 end
