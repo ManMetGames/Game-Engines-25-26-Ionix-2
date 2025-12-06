@@ -231,17 +231,18 @@ function ExampleScript:OnUpdate()
 
     -- Pipe movement
     local pipePos = Fysics.get_pos(pipe)
-    local pipePos = Fysics.get_pos(pipeT)
-    if Mafs.get_vec_x(pipePos) < pipeOffScreenLeft then
-        Fysics.set_pos(pipe, pipeStartX, pipePos.y)
-        Fysics.set_pos(pipeT, pipeStartX, pipePos.y)
+    local pipePosX = Mafs.get_vec_x(pipePos)
+
+    if pipePosX < 0 then
+    Fysics.set_pos(pipe, 10, 4)
+    Fysics.set_pos(pipeT, 10, 0)
     end
 
     local pipePos2 = Fysics.get_pos(pipe2)
-    local pipePos2 = Fysics.get_pos(pipeT2)
-    if Mafs.get_vec_x(pipePos2) < pipeOffScreenLeft then
-        Fysics.set_pos(pipe2, pipe2StartX, pipePos2.y)
-        Fysics.set_pos(pipeT2, pipe2StartX, pipePos2.y)
+    local pipePos2X = Mafs.get_vec_x(pipePos2)
+    if pipePos2X < 0 then
+        Fysics.set_pos(pipe2, 10, 4)
+        Fysics.set_pos(pipeT2, 10, 0)
     end
 
     local farthestX = -1e9

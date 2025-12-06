@@ -28,7 +28,7 @@ namespace IonixEngine
 	bool UI::DrawButton(char* text, int xsize, int ysize, int xpos, int ypos)
 	{
 		ImGui::SetCursorPos(ImVec2(xpos, ypos));
-
+		ImGui::SetWindowSize(ImVec2(1000, 1000));
 		if (ImGui::Button(text, ImVec2(xsize, ysize))) {
 			return true;
 		}
