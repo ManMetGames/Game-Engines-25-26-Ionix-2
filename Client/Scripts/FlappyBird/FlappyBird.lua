@@ -52,7 +52,7 @@ function ExampleScript:OnStart()
 
     Entity.set_global_pos(player1, x, 300)
 	
-    local playerSprite1 = Entity.add_sprite_component(player1, assets.textures.FlappyBird, 32, 32, 10)
+    local playerSprite1 = Entity.add_sprite_component(player1, assets.textures.FlappyBird, 64, 64, 10)
     Sprite.set_columns(playerSprite1,1)
     -- PLAYER 1 PHYSICS
 
@@ -122,8 +122,8 @@ function ExampleScript:OnStart()
 	-- Pipe Set 2
 	---------------------------
     --BOTTOM PIPE
-	pipe2 = Entity.create_entity()
-	Entity.set_global_pos(pipe2, 1200, 400)
+	pipe2 = Entity.create_entity() 
+	Entity.set_global_pos(pipe2, 940, 400)
 
 	local pipeSprite2 = Entity.add_sprite_component(pipe2, assets.textures.FlappyPipe, 80, 300, 0)
     Sprite.set_columns(pipeSprite2,1)
@@ -133,7 +133,7 @@ function ExampleScript:OnStart()
 
     -- TOP PIPE
     pipeT2 = Entity.create_entity()
-	Entity.set_global_pos(pipeT2, 1200, -40)
+	Entity.set_global_pos(pipeT2, 940, -40)
 
 	local pipeSpriteT2 = Entity.add_sprite_component(pipeT2,assets.textures.FlappyPipe2, 80, 300, 0)
     Sprite.set_columns(pipeSpriteT2,1)
@@ -143,6 +143,33 @@ function ExampleScript:OnStart()
 
     if Input.get_key_down(Keys.ionix_a) then
         Entity.set_global_pos(pipe2, xPos, floorY)
+	end
+
+    ---------------------------
+	-- Pipe Set 3
+	---------------------------
+    --BOTTOM PIPE
+	pipe3 = Entity.create_entity() 
+	Entity.set_global_pos(pipe3, 1240, 400)
+
+	local pipeSprite3 = Entity.add_sprite_component(pipe3, assets.textures.FlappyPipe, 80, 300, 0)
+    Sprite.set_columns(pipeSprite3,1)
+	-- Kinematic body so it moves but isn't affected by gravity
+	Entity.add_fysics_component(pipe3, enums.bodytype.kinematicBody, false)
+	Fysics.add_sprite_collider(pipe3, false,1)
+
+    -- TOP PIPE
+    pipeT3 = Entity.create_entity()
+	Entity.set_global_pos(pipeT3, 1240, -40)
+
+	local pipeSpriteT3 = Entity.add_sprite_component(pipeT3,assets.textures.FlappyPipe2, 80, 300, 0)
+    Sprite.set_columns(pipeSpriteT3,1)
+	-- Kinematic body so it moves but isn't affected by gravity
+	Entity.add_fysics_component(pipeT3, enums.bodytype.kinematicBody, false)
+	Fysics.add_sprite_collider(pipeT3, false,1)
+
+    if Input.get_key_down(Keys.ionix_a) then
+        Entity.set_global_pos(pipe3, xPos, floorY)
 	end
 
 	------------------------------------------------------
@@ -219,7 +246,8 @@ function ExampleScript:OnUpdate()
         Fysics.set_linear_velocity(pipeT, pipeSpeed, 0)
         Fysics.set_linear_velocity(pipe2, pipeSpeed, 0)
         Fysics.set_linear_velocity(pipeT2, pipeSpeed, 0)
-
+        Fysics.set_linear_velocity(pipe3, pipeSpeed, 0)
+        Fysics.set_linear_velocity(pipeT3, pipeSpeed, 0)
         for _, c in ipairs(coins) do
             Fysics.set_linear_velocity(c, coinSpeed, 0)
         end
@@ -229,20 +257,30 @@ function ExampleScript:OnUpdate()
 
     Fysics.set_linear_velocity(player1, vx, vy1)
 
-    -- Pipe movement
+    ------------------------------------------------------
+	-- Resetting pipe back to start logicr
+	------------------------------------------------------
+
+    -- Set 1
     local pipePos = Fysics.get_pos(pipe)
     local pipePosX = Mafs.get_vec_x(pipePos)
-
     if pipePosX < 0 then
-    Fysics.set_pos(pipe, 10, 4)
+    Fysics.set_pos(pipe, 10, 3.85)
     Fysics.set_pos(pipeT, 10, 0)
     end
-
+    -- Set 2
     local pipePos2 = Fysics.get_pos(pipe2)
     local pipePos2X = Mafs.get_vec_x(pipePos2)
     if pipePos2X < 0 then
-        Fysics.set_pos(pipe2, 10, 4)
-        Fysics.set_pos(pipeT2, 10, 0)
+        Fysics.set_pos(pipe2, 10, 4.2)
+        Fysics.set_pos(pipeT2, 10, 0.05)
+    end
+    -- Set 3
+    local pipePos3 = Fysics.get_pos(pipe3)
+    local pipePos3X = Mafs.get_vec_x(pipePos3)
+    if pipePos3X < 0 then
+        Fysics.set_pos(pipe3, 10, 4.2)
+        Fysics.set_pos(pipeT3, 10, 0.05)
     end
 
     local farthestX = -1e9
