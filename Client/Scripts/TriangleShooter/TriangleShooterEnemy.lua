@@ -62,10 +62,11 @@ function TriangleShooterEnemy.updateEnemyDash(
     playerX, playerY, playerSize,
     screenW, screenH,
     originalWindowWidth, originalWindowHeight,
-    enemyProjectilesEnabled, enemyShootInterval,
+    enemyProjectilesEnabled, enemyShootIntervalSeconds,
     SpawnEnemyProjectile,
     TriggerWallLerp
 )
+    local dt = Mafs.delta_time()
     local minX = 0
     local minY = 0
 
@@ -107,11 +108,11 @@ function TriangleShooterEnemy.updateEnemyDash(
         enemy.x = enemy.x + enemy.dashDirX * currentSpeed
         enemy.y = enemy.y + enemy.dashDirY * currentSpeed
 
-        if enemyProjectilesEnabled then
-            enemy.shootCooldown = enemy.shootCooldown + 1
-            if enemy.shootCooldown >= enemyShootInterval then
+        if enemyProjectilesEnabled and enemyShootIntervalSeconds and enemyShootIntervalSeconds > 0 then
+            enemy.shootTimer = (enemy.shootTimer or 0) + dt
+            if enemy.shootTimer >= enemyShootIntervalSeconds then
                 SpawnEnemyProjectile(enemy)
-                enemy.shootCooldown = 0
+                enemy.shootTimer = enemy.shootTimer - enemyShootIntervalSeconds
             end
         end
 

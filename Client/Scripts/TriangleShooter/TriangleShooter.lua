@@ -142,7 +142,7 @@ local enemyProjectiles = {}
 local enemyProjectilePool = {}
 local enemyProjectileSize = 24
 local enemyProjectileSpeed = 3
-local enemyShootInterval = 75  -- 1.25 seconds at 60fps
+local enemyShootIntervalSeconds = 1.25
 local enemyProjectilesEnabled = true
 
 -- COLLISION SETTINGS
@@ -153,7 +153,7 @@ local flashTimer = 0
 local flashDuration = 0.2  -- seconds
 
 local knockbackTimer = 0
-local knockbackDuration = 45 / 60.0
+local knockbackDuration = 0.2
 local knockbackBaseSpeed = 6
 local knockbackDirX = 0
 local knockbackDirY = 0
@@ -162,14 +162,12 @@ local knockbackDirY = 0
 local musicEntity
 local musicVolume = 64
 local musicMuted = false
-
-local bpm = 133 -- not real bpm
+local bpm = 133 
 local framesPerBeat = 60.0 / bpm
 local beatTimer = 0
 local bopDurationFrames = 8 / 60.0
 local bopTimer = 0
 local bopScale = 0.25
-
 local beatStartDelayFrames = (8 * 4) * framesPerBeat
 local beatStartDelayCounter = 0
 
@@ -219,6 +217,7 @@ LoadLevel = function(index, resetPlayerState)
 
     local enemyCount = cfg.enemyCount or 1
     levelEnemyHealth = cfg.enemyHealth or levelEnemyHealth
+    enemyShootIntervalSeconds = cfg.enemyShootIntervalSeconds or enemyShootIntervalSeconds
 
     local centerX = screenW / 2 - enemySize / 2
     local centerY = screenH / 2 - enemySize / 2
@@ -766,7 +765,7 @@ function UpdateEnemyDash()
         playerX, playerY, playerSize,
         screenW, screenH,
         originalWindowWidth, originalWindowHeight,
-        enemyProjectilesEnabled, enemyShootInterval,
+        enemyProjectilesEnabled, enemyShootIntervalSeconds,
         SpawnEnemyProjectile,
         TriggerWallLerp
     )
