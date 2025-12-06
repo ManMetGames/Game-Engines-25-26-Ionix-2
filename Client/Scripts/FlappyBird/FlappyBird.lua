@@ -33,7 +33,7 @@ local coinSpeed = -3
 local coinHidden = {}
 local score = 0
 local scoreText = "Score: 0"
-local startText = "Press SPACE to start!"
+local text1 = "Press SPACE to start!"
 ----------------------------------------------------------
 -- OnStart
 ----------------------------------------------------------
@@ -199,13 +199,13 @@ function ExampleScript:OnUpdate()
     -- Display instruction text at the start of the game
     if text1 ~= "" then
         -- UI - Display score in top-left corner
-        UI.Add_label(20, 20, 200, 50, scoreText)
+        UI.Add_label(5, 5, 200, 50, scoreText)
         
         -- Display instruction text (only at start)
-        UI.Add_label(300, 250, 1000, 1000, text1)
+        UI.Add_label(320, 300, 1000, 1000, text1)
     else
         -- UI - Display score in top-left corner
-        UI.Add_label(20, 20, 200, 50, scoreText)
+        UI.Add_label(5, 5, 1000, 1000, scoreText)
     end
 
 	if Input.get_key_down(Keys.ionix_space) then
@@ -271,7 +271,6 @@ function ExampleScript:OnUpdate()
 	-- UI
 	------------------------------------------------------
 
-    UI.Add_label(320, 300,1000, 1000, startText)
 end
 
     function ExampleScript:OnCollisionEnter()
