@@ -153,7 +153,7 @@ local flashTimer = 0
 local flashDuration = 0.2  -- seconds
 
 local knockbackTimer = 0
-local knockbackDuration = 45
+local knockbackDuration = 45 / 60.0
 local knockbackBaseSpeed = 6
 local knockbackDirX = 0
 local knockbackDirY = 0
@@ -337,6 +337,7 @@ end
 ----------------------------------------------------------
 function TriangleShooter:OnUpdate()
     globalFrame = globalFrame + 1
+    local dt = GetDt()
 
     if windowTransitionActive then
         UpdateWindowTransition()
@@ -389,7 +390,7 @@ function TriangleShooter:OnUpdate()
         playerX = playerX + knockbackDirX * speed
         playerY = playerY + knockbackDirY * speed
         
-        knockbackTimer = knockbackTimer - 1
+        knockbackTimer = knockbackTimer - dt
     end
     
     -- Clamp to screen bounds
