@@ -144,6 +144,12 @@ function ExampleScript:OnUpdate()
         Fysics.set_pos(pipe, pipeStartX, pipePos.y)
         Fysics.set_pos(pipeT, pipeStartX, pipePos.y)
      end
+
+    local hit = Fysics.raycast(player1, 10, 10)
+    if hit then
+        print("Hit entity:", hit.entity)
+        print("Hit point:", hit.point.x, hit.point.y)
+        end
      
 end
 

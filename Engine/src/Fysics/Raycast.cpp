@@ -8,7 +8,7 @@ namespace IonixEngine
         world = LayerFysics::GetInstance()->GetWorld();
     }
 
-    bool Raycast::CastFirst(const b2Vec2& p1, const b2Vec2& p2, Hit& outHit)
+    bool Raycast::CastFirst(const b2Vec2& p1, const b2Vec2& p2, RayHit& outHit)
     {
         if (!world)
         {

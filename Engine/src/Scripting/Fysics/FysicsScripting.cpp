@@ -383,6 +383,22 @@ namespace IonixEngine
 				Application::Get().layerFysics->GetFysicsManager()->GetCollisionListener()->AddToCollisionMap(entityA, entityB);
 			}
 		};
+		//---------------Raycasting--------
+		auto raycast = [](Entity* entityA, float mouseX, float mouseY)->bool
+		{
+			b2Vec2 pos1 = Application::Get().layerFysics->GetFysicsManager()->GetBodyFromEntity(entityA)->GetPosition();
+			b2Vec2 pos2 = b2Vec2(mouseX, mouseY);
+			RayHit hit;
+			bool hitSomething = Application::Get().layerFysics->GetFysicsManager()->GetRaycast()->CastFirst(pos1, pos2, hit);
+
+			if (hitSomething && hit.entity)
+			{
+				std::cout << "Ray hit entity ID: " << hit.entity->id << std::endl;
+			}
+
+			return hitSomething;
+		};
+		
 
 
 
@@ -442,7 +458,8 @@ namespace IonixEngine
 			"set_damping", setDampingFromWeldJoint,
 			"get_stiffness", getStiffnessFromWeldJoint,
 			"set_stiffness", setStiffnessFromWeldJoint,
-			"add_to_collision_map", addToCollisionMap
+			"add_to_collision_map", addToCollisionMap,
+			"raycast", raycast
 		);
 	}
 }
