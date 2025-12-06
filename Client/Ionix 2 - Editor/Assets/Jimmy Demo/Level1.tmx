@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="16" tileheight="16" infinite="0" nextlayerid="5" nextobjectid="15">
+ <editorsettings>
+  <export target="Level1.tmj" format="json"/>
+ </editorsettings>
  <tileset firstgid="1" source="Terrain.tsx"/>
  <tileset firstgid="243" source="Strawberry.tsx"/>
  <tileset firstgid="311" name="TesterSet" tilewidth="16" tileheight="16" tilecount="242" columns="22">
@@ -162,7 +165,7 @@
     <property name="BoxCollider.Offset Y" type="float" value="0"/>
     <property name="BoxCollider.Size X" type="float" value="32"/>
     <property name="BoxCollider.Size Y" type="float" value="32"/>
-    <property name="EntityID" type="int" value="3"/>
+    <property name="EntityID" type="int" value="9"/>
     <property name="RigidBody.BodyType" type="int" value="2"/>
     <property name="Rigidbody.Density" type="float" value="1"/>
     <property name="Rigidbody.Friction" type="float" value="1"/>
