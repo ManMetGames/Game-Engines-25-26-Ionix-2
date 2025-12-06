@@ -2,12 +2,12 @@ local TriangleShooterEnemy = {}
 
 local assets = require("Scripts.Assets")
 
-local enemySpinMaxVelocity = 36
+local enemySpinMaxVelocity = 42
 local enemySpinBoost = 1
 local enemySpinDecayBase = 0.0005
 local enemySpinDecayExtra = 0.01
 
-local dashSpeed = 5
+local dashSpeedPerSecond = 800
 local enemyBounceSteer = 0.4
 local enemySteerStrength = 0.0
 
@@ -61,7 +61,6 @@ function TriangleShooterEnemy.updateEnemyDash(
     enemies,
     playerX, playerY, playerSize,
     screenW, screenH,
-    originalWindowWidth, originalWindowHeight,
     enemyProjectilesEnabled, enemyShootIntervalSeconds,
     SpawnEnemyProjectile,
     TriggerWallLerp
@@ -100,13 +99,10 @@ function TriangleShooterEnemy.updateEnemyDash(
             end
         end
 
-        local scaleX = screenW / originalWindowWidth
-        local scaleY = screenH / originalWindowHeight
-        local scale = (scaleX + scaleY) / 2
-        local currentSpeed = dashSpeed * scale
+        local currentSpeed = dashSpeedPerSecond
 
-        enemy.x = enemy.x + enemy.dashDirX * currentSpeed
-        enemy.y = enemy.y + enemy.dashDirY * currentSpeed
+        enemy.x = enemy.x + enemy.dashDirX * currentSpeed * dt
+        enemy.y = enemy.y + enemy.dashDirY * currentSpeed * dt
 
         if enemyProjectilesEnabled and enemyShootIntervalSeconds and enemyShootIntervalSeconds > 0 then
             enemy.shootTimer = (enemy.shootTimer or 0) + dt
