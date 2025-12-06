@@ -16,13 +16,13 @@ namespace IonixEngine
     class Raycast
     {
     public:
-        
+        b2World* world = nullptr;
+
 
         Raycast();
 
         bool CastFirst(const b2Vec2& p1, const b2Vec2& p2, RayHit& outHit);
 
     private:
-        b2World* world;
     };
 }

@@ -391,11 +391,6 @@ namespace IonixEngine
 			RayHit hit;
 			bool hitSomething = Application::Get().layerFysics->GetFysicsManager()->GetRaycast()->CastFirst(pos1, pos2, hit);
 
-			if (hitSomething && hit.entity)
-			{
-				std::cout << "Ray hit entity ID: " << hit.entity->id << std::endl;
-			}
-
 			return hitSomething;
 		};
 		

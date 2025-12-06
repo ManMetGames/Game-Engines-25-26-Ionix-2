@@ -18,6 +18,9 @@ local pipeSpeed = -3
 local pipeStartX = 900
 local pipeOffScreenLeft = -100
 
+local hitCount = 0
+
+
 ----------------------------------------------------------
 -- OnStart
 ----------------------------------------------------------
@@ -145,11 +148,15 @@ function ExampleScript:OnUpdate()
         Fysics.set_pos(pipeT, pipeStartX, pipePos.y)
      end
 
-    local hit = Fysics.raycast(player1, 10, 10)
+    local mouseX = Input.get_mouse_x()
+    local mouseY = Input.get_mouse_y()
+    local hit = Fysics.raycast(player1, mouseX, mouseY)
     if hit then
-        print("Hit entity:", hit.entity)
-        print("Hit point:", hit.point.x, hit.point.y)
+        print("RaycastHit", hitCount)
+        hitCount =  hitCount + 1
         end
+
+
      
 end
 

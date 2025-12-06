@@ -5,16 +5,11 @@ namespace IonixEngine
 {
     Raycast::Raycast()
     {
-        world = LayerFysics::GetInstance()->GetWorld();
+        world = Application::Get().layerFysics->GetFysicsManager()->GetWorld();
     }
 
     bool Raycast::CastFirst(const b2Vec2& p1, const b2Vec2& p2, RayHit& outHit)
     {
-        if (!world)
-        {
-            return false;
-        }
-
         b2RayCastInput input;
         input.p1 = p1;
         input.p2 = p2;
@@ -24,7 +19,7 @@ namespace IonixEngine
         b2Vec2 intersectionNormal(0.0f, 0.0f);
         b2Body* hitBody = nullptr;
 
-        for (b2Body* b = world->GetBodyList(); b; b = b->GetNext())
+        for (b2Body* b = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetBodyList(); b; b = b->GetNext())
         {
             for (b2Fixture* f = b->GetFixtureList(); f; f = f->GetNext())
             {
