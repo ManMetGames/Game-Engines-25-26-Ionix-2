@@ -14,8 +14,8 @@ local screenH = 1080
 local wallPingPongEnabled = true
 local wallMaxShrinkX = 600        -- Max pixels each horizontal wall can shrink (1920 - 400 = 1520, /2 = 760)
 local wallMaxShrinkY = 200        -- Max pixels each vertical wall can shrink (1080 - 400 = 680, /2 = 340)
-local wallShrinkSpeed = 0.35       -- Pixels per frame each wall shrinks
-local wallExpandDuration = 120    -- 2 seconds at 60fps
+local wallShrinkSpeedPerSecond = 35      -- Pixels per second each wall shrinks (0.35 per frame at 60fps)
+local wallExpandDurationSeconds = 1.5   -- seconds (120 frames at 60fps)
 local wallExpandSpeedMultiplier = 4.0
 
 -- Each wall has: offset (current shrink amount), expandTimer (>0 means expanding)
@@ -142,7 +142,7 @@ local enemyProjectiles = {}
 local enemyProjectilePool = {}
 local enemyProjectileSize = 24
 local enemyProjectileSpeed = 3
-local enemyShootIntervalSeconds = 1.25
+local enemyShootIntervalSeconds = 0.5
 local enemyProjectilesEnabled = true
 
 -- COLLISION SETTINGS
@@ -899,13 +899,13 @@ function TriggerWallLerp(wall)
     if not wallPingPongEnabled then return end
     
     if wall == "left" then
-        leftWallExpandTimer = wallExpandDuration
+        leftWallExpandTimer = wallExpandDurationSeconds
     elseif wall == "right" then
-        rightWallExpandTimer = wallExpandDuration
+        rightWallExpandTimer = wallExpandDurationSeconds
     elseif wall == "top" then
-        topWallExpandTimer = wallExpandDuration
+        topWallExpandTimer = wallExpandDurationSeconds
     elseif wall == "bottom" then
-        bottomWallExpandTimer = wallExpandDuration
+        bottomWallExpandTimer = wallExpandDurationSeconds
     end
 end
 
@@ -916,6 +916,8 @@ function UpdateWallLerps()
     if not wallPingPongEnabled then return end
     if peaceTimerFrames > 0 and #enemies == 0 then return end
     
+    local dt = GetDt()
+
     local minWindowWidth = 200
     local minWindowHeight = 200
     local maxShrinkX = math.min(wallMaxShrinkX, math.max(0, (windowBaseWidth - minWindowWidth) * 0.5))
@@ -923,41 +925,45 @@ function UpdateWallLerps()
 
     -- Update left wall: always shrinking, expand when hit
     if leftWallExpandTimer > 0 then
-        leftWallExpandTimer = leftWallExpandTimer - 1
-        leftWallOffset = leftWallOffset - wallShrinkSpeed * wallExpandSpeedMultiplier
+        leftWallExpandTimer = leftWallExpandTimer - dt
+        if leftWallExpandTimer < 0 then leftWallExpandTimer = 0 end
+        leftWallOffset = leftWallOffset - wallShrinkSpeedPerSecond * wallExpandSpeedMultiplier * dt
         if leftWallOffset < 0 then leftWallOffset = 0 end
     else
-        leftWallOffset = leftWallOffset + wallShrinkSpeed
+        leftWallOffset = leftWallOffset + wallShrinkSpeedPerSecond * dt
         if leftWallOffset > maxShrinkX then leftWallOffset = maxShrinkX end
     end
     
     -- Update right wall
     if rightWallExpandTimer > 0 then
-        rightWallExpandTimer = rightWallExpandTimer - 1
-        rightWallOffset = rightWallOffset - wallShrinkSpeed * wallExpandSpeedMultiplier
+        rightWallExpandTimer = rightWallExpandTimer - dt
+        if rightWallExpandTimer < 0 then rightWallExpandTimer = 0 end
+        rightWallOffset = rightWallOffset - wallShrinkSpeedPerSecond * wallExpandSpeedMultiplier * dt
         if rightWallOffset < 0 then rightWallOffset = 0 end
     else
-        rightWallOffset = rightWallOffset + wallShrinkSpeed
+        rightWallOffset = rightWallOffset + wallShrinkSpeedPerSecond * dt
         if rightWallOffset > maxShrinkX then rightWallOffset = maxShrinkX end
     end
     
     -- Update top wall
     if topWallExpandTimer > 0 then
-        topWallExpandTimer = topWallExpandTimer - 1
-        topWallOffset = topWallOffset - wallShrinkSpeed * wallExpandSpeedMultiplier
+        topWallExpandTimer = topWallExpandTimer - dt
+        if topWallExpandTimer < 0 then topWallExpandTimer = 0 end
+        topWallOffset = topWallOffset - wallShrinkSpeedPerSecond * wallExpandSpeedMultiplier * dt
         if topWallOffset < 0 then topWallOffset = 0 end
     else
-        topWallOffset = topWallOffset + wallShrinkSpeed
+        topWallOffset = topWallOffset + wallShrinkSpeedPerSecond * dt
         if topWallOffset > maxShrinkY then topWallOffset = maxShrinkY end
     end
     
     -- Update bottom wall
     if bottomWallExpandTimer > 0 then
-        bottomWallExpandTimer = bottomWallExpandTimer - 1
-        bottomWallOffset = bottomWallOffset - wallShrinkSpeed * wallExpandSpeedMultiplier
+        bottomWallExpandTimer = bottomWallExpandTimer - dt
+        if bottomWallExpandTimer < 0 then bottomWallExpandTimer = 0 end
+        bottomWallOffset = bottomWallOffset - wallShrinkSpeedPerSecond * wallExpandSpeedMultiplier * dt
         if bottomWallOffset < 0 then bottomWallOffset = 0 end
     else
-        bottomWallOffset = bottomWallOffset + wallShrinkSpeed
+        bottomWallOffset = bottomWallOffset + wallShrinkSpeedPerSecond * dt
         if bottomWallOffset > maxShrinkY then bottomWallOffset = maxShrinkY end
     end
     
