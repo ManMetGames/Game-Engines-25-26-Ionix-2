@@ -107,7 +107,7 @@ function ExampleScript:OnStart()
 
     -- TOP PIPE
     pipeT = Entity.create_entity()
-	Entity.set_global_pos(pipeT, 640, -40)
+	Entity.set_global_pos(pipeT, 640, 0)
 
 	local pipeSpriteT = Entity.add_sprite_component(pipeT,assets.textures.FlappyPipe2, 80, 300, 0)
     Sprite.set_columns(pipeSpriteT,1)
@@ -150,7 +150,7 @@ function ExampleScript:OnStart()
 	---------------------------
     --BOTTOM PIPE
 	pipe3 = Entity.create_entity() 
-	Entity.set_global_pos(pipe3, 1240, 400)
+	Entity.set_global_pos(pipe3, 1240, 360)
 
 	local pipeSprite3 = Entity.add_sprite_component(pipe3, assets.textures.FlappyPipe, 80, 300, 0)
     Sprite.set_columns(pipeSprite3,1)
@@ -254,7 +254,6 @@ function ExampleScript:OnUpdate()
 
         text1 = ""
 	end
-
     Fysics.set_linear_velocity(player1, vx, vy1)
 
     ------------------------------------------------------
@@ -265,22 +264,60 @@ function ExampleScript:OnUpdate()
     local pipePos = Fysics.get_pos(pipe)
     local pipePosX = Mafs.get_vec_x(pipePos)
     if pipePosX < 0 then
-    Fysics.set_pos(pipe, 10, 3.85)
-    Fysics.set_pos(pipeT, 10, 0)
+        local random1 = math.random(1, 5)
+        local offset = random1/10
+        local plusOrMinus = math.random(1, 2)
+        if plusOrMinus < 2 then
+            offset = offset*-1
+        end
+        Fysics.set_pos(pipe, 10, 4+offset)
+        random1 = math.random(1, 5)
+        offset = random1/10
+        plusOrMinus = math.random(1, 2)
+        if plusOrMinus < 2 then
+            offset = offset*-1
+        end
+        Fysics.set_pos(pipeT, 10, -0.5-offset)
     end
+     
     -- Set 2
     local pipePos2 = Fysics.get_pos(pipe2)
     local pipePos2X = Mafs.get_vec_x(pipePos2)
     if pipePos2X < 0 then
-        Fysics.set_pos(pipe2, 10, 4.2)
-        Fysics.set_pos(pipeT2, 10, 0.05)
+        random1 = math.random(1, 5)
+        offset = random1/10
+        plusOrMinus = math.random(1, 2)
+        if plusOrMinus < 2 then
+            offset = offset*-1
+        end
+        Fysics.set_pos(pipe2, 10, 4+offset)
+        random1 = math.random(1, 5)
+        offset = random1/10
+        plusOrMinus = math.random(1, 2)
+        if plusOrMinus < 2 then
+            offset = offset*-1
+        end
+        Fysics.set_pos(pipeT2, 10, -0.5+offset)
     end
+     
     -- Set 3
     local pipePos3 = Fysics.get_pos(pipe3)
     local pipePos3X = Mafs.get_vec_x(pipePos3)
     if pipePos3X < 0 then
-        Fysics.set_pos(pipe3, 10, 4.2)
-        Fysics.set_pos(pipeT3, 10, 0.05)
+        random1 = math.random(1, 5)
+        offset = random1/10
+        plusOrMinus = math.random(1, 2)
+        if plusOrMinus < 2 then
+            offset = offset*-1
+        end
+        Fysics.set_pos(pipe3, 10, 4+offset)
+        random1 = math.random(1, 5)
+        offset = random1/10
+        plusOrMinus = math.random(1, 2)
+        if plusOrMinus < 2 then
+            offset = offset*-1
+        end
+        Fysics.set_pos(pipeT3, 10, -0.5+offset)
     end
 
     local farthestX = -1e9
