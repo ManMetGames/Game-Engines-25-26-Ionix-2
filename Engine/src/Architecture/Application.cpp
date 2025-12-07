@@ -123,6 +123,7 @@ namespace IonixEngine
         
         while (m_Running)
         {
+            
             uint64_t lastTick = currentTick;
             currentTick = SDL_GetPerformanceCounter();
             
@@ -159,7 +160,6 @@ namespace IonixEngine
             
             ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), m_Window->GetSdlRenderer());
             Get().layerFysics->GetFysicsManager()->GetWorld()->DebugDraw();
-
             SDL_RenderPresent(m_Window->m_Renderer);
 
             layerInput->m_Input->CopyCodesEndFrame();

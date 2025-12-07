@@ -11,15 +11,29 @@ local goalX = 500
 local goalY = 500
 local y = 300
 local t = 10
-local coinCount = 0
 
 -- Pipe variables
 local pipe
 local pipeT
+local pipe2
+local pipeT2
+
+-- Pipe movement and positioning
 local pipeSpeed = -3
 local pipeStartX = 900
-local pipeOffScreenLeft = 0
+local pipe2StartX = 1200
+local pipeOffScreenLeft = -100
+local xPos = 0  -- Initialize xPos to avoid undefined global warning
 
+-- Game variables
+local coins = {}
+local coinCount = 6
+local coinSpacing = 200
+local coinSpeed = -3
+local coinHidden = {}
+local score = 0
+local scoreText = "Score: 0"
+local text1 = "Press SPACE to start!"
 ----------------------------------------------------------
 -- OnStart
 ----------------------------------------------------------
@@ -31,7 +45,6 @@ function ExampleScript:OnStart()
     Background = Entity.create_entity()
     local BgBackground = Entity.add_sprite_component(Background, assets.textures.Background,960 , 640, 0)
     
-
     ------------------------------------------------------
     -- Create player1
     ------------------------------------------------------
@@ -39,7 +52,7 @@ function ExampleScript:OnStart()
 
     Entity.set_global_pos(player1, x, 300)
 	
-    local playerSprite1 = Entity.add_sprite_component(player1, assets.textures.FlappyBird, 32, 32, 10)
+    local playerSprite1 = Entity.add_sprite_component(player1, assets.textures.FlappyBird, 64, 64, 10)
     Sprite.set_columns(playerSprite1,1)
     -- PLAYER 1 PHYSICS
 
@@ -49,24 +62,12 @@ function ExampleScript:OnStart()
     -- Freeze bird
     Fysics.set_gravity_scale(player1, 0)
 
-
-
-    -----------------------------
-    ------Coins
-    ------------
-    coin = Entity.create_entity()
-    Entity.set_global_pos(coin, 200, 200)
-    local coinSprite = Entity.add_sprite_component(coin, assets.textures.Coin, 100, 32, 10)
-    Sprite.set_columns(coinSprite, 1)
-    Entity.add_fysics_component(coin, enums.bodytype.kinematicBody, false)
-    Fysics.add_sprite_collider(coin, true, 1)
-
-    local tileSize = 64
-    local floorY = 600
-    
 	------------------------------------------------------
 	-- pick texture for left / middle / right
 	------------------------------------------------------
+    local tileSize = 64
+    local floorY = 600
+    
 	local tex = "middle"
 
 	for i = 0, 30 do
@@ -89,6 +90,10 @@ function ExampleScript:OnStart()
 	------------------------------------------------------
 	-- Create pipe obstacle
 	------------------------------------------------------
+
+	---------------------------
+	-- Pipe Set 1
+	---------------------------
     --BOTTOM PIPE
 	pipe = Entity.create_entity()
 	Entity.set_global_pos(pipe, 640, 400)
@@ -104,15 +109,100 @@ function ExampleScript:OnStart()
     pipeT = Entity.create_entity()
 	Entity.set_global_pos(pipeT, 640, 0)
 
-	local pipeSpriteT = Entity.add_sprite_component(pipeT,assets.textures.FlappyPipe , 80, 300, 0)
+	local pipeSpriteT = Entity.add_sprite_component(pipeT,assets.textures.FlappyPipe2, 80, 300, 0)
     Sprite.set_columns(pipeSpriteT,1)
 	-- Kinematic body so it moves but isn't affected by gravity
 	Entity.add_fysics_component(pipeT, enums.bodytype.kinematicBody, false)
-	Fysics.add_sprite_collider(pipeT, false,1)
+	Fysics.add_sprite_collider(pipeT, false, 1)
 
     if Input.get_key_down(Keys.ionix_a) then
         Entity.set_global_pos(pipe, xPos, floorY)
 	end
+    ---------------------------
+	-- Pipe Set 2
+	---------------------------
+    --BOTTOM PIPE
+	pipe2 = Entity.create_entity() 
+	Entity.set_global_pos(pipe2, 940, 400)
+
+	local pipeSprite2 = Entity.add_sprite_component(pipe2, assets.textures.FlappyPipe, 80, 300, 0)
+    Sprite.set_columns(pipeSprite2,1)
+	-- Kinematic body so it moves but isn't affected by gravity
+	Entity.add_fysics_component(pipe2, enums.bodytype.kinematicBody, false)
+	Fysics.add_sprite_collider(pipe2, false,1)
+
+    -- TOP PIPE
+    pipeT2 = Entity.create_entity()
+	Entity.set_global_pos(pipeT2, 940, -40)
+
+	local pipeSpriteT2 = Entity.add_sprite_component(pipeT2,assets.textures.FlappyPipe2, 80, 300, 0)
+    Sprite.set_columns(pipeSpriteT2,1)
+	-- Kinematic body so it moves but isn't affected by gravity
+	Entity.add_fysics_component(pipeT2, enums.bodytype.kinematicBody, false)
+	Fysics.add_sprite_collider(pipeT2, false,1)
+
+    if Input.get_key_down(Keys.ionix_a) then
+        Entity.set_global_pos(pipe2, xPos, floorY)
+	end
+
+    ---------------------------
+	-- Pipe Set 3
+	---------------------------
+    --BOTTOM PIPE
+	pipe3 = Entity.create_entity() 
+	Entity.set_global_pos(pipe3, 1240, 360)
+
+	local pipeSprite3 = Entity.add_sprite_component(pipe3, assets.textures.FlappyPipe, 80, 300, 0)
+    Sprite.set_columns(pipeSprite3,1)
+	-- Kinematic body so it moves but isn't affected by gravity
+	Entity.add_fysics_component(pipe3, enums.bodytype.kinematicBody, false)
+	Fysics.add_sprite_collider(pipe3, false,1)
+
+    -- TOP PIPE
+    pipeT3 = Entity.create_entity()
+	Entity.set_global_pos(pipeT3, 1240, -40)
+
+	local pipeSpriteT3 = Entity.add_sprite_component(pipeT3,assets.textures.FlappyPipe2, 80, 300, 0)
+    Sprite.set_columns(pipeSpriteT3,1)
+	-- Kinematic body so it moves but isn't affected by gravity
+	Entity.add_fysics_component(pipeT3, enums.bodytype.kinematicBody, false)
+	Fysics.add_sprite_collider(pipeT3, false,1)
+
+    if Input.get_key_down(Keys.ionix_a) then
+        Entity.set_global_pos(pipe3, xPos, floorY)
+	end
+
+	------------------------------------------------------
+	-- Create coins
+	------------------------------------------------------
+    for i = 1, coinCount do
+        local c = Entity.create_entity()
+        -- base X spaced to the right; add small jitter so coins don't line up exactly
+        local startX = pipeStartX + (i - 1) * coinSpacing + math.random(-20, 20)
+        -- alternate Y positions: some inside the pipe gap, some above, some below
+        local cy
+        if (i % 3) == 1 then
+            cy = 240
+        elseif (i % 3) == 2 then
+            cy = 120
+        else
+            cy = 520
+        end
+        Entity.set_global_pos(c, startX, cy)
+
+        local coinSprite = Entity.add_sprite_component(c, assets.textures.Coin, 32, 32, 0)
+        Sprite.set_rows(coinSprite, 1)
+        Sprite.set_columns(coinSprite, 5)
+        Sprite.set_width(coinSprite, 16)
+        Sprite.set_height(coinSprite, 16)
+
+        Entity.add_fysics_component(c, enums.bodytype.kinematicBody, false)
+        -- Changed to use trigger collider (true parameter)
+        Fysics.add_sprite_collider(c, true, 1)
+
+        table.insert(coins, c)
+        coinHidden[c] = false  -- Initialize as not hidden
+    end
 
 end
 
@@ -120,62 +210,190 @@ end
 -- OnUpdate
 ----------------------------------------------------------
 function ExampleScript:OnUpdate()
-    -- get current velocity
+
+    ------------------------------------------------------
+	-- Player
+	------------------------------------------------------
+    -- Get current velocity
     local vel1 = Fysics.get_linear_velocity(player1)
     local vy1 = Fysics.get_linear_velocity(pipe)
+    local vy1 = Fysics.get_linear_velocity(pipe2)
+
     -- Constant rightward movement
     local vx = 0
     local vy1 = Mafs.get_vec_y(vel1)
+    
+    -- Display instruction text at the start of the game
+    if text1 ~= "" then
+        -- UI - Display score in top-left corner
+        UI.Add_label(20, 20, 200, 50, scoreText)
+        
+        -- Display instruction text (only at start)
+        UI.Add_label(300, 250, 1000, 1000, text1)
+    else
+        -- UI - Display score in top-left corner
+        UI.Add_label(20, 20, 200, 50, scoreText)
+    end
 
 	if Input.get_key_down(Keys.ionix_space) then
         -- Bird move if space is pressed (allow gravity)
         Fysics.set_gravity_scale(player1, 1)
-        Fysics.set_linear_velocity(pipe, pipeSpeed, 0)
-        Fysics.set_linear_velocity(pipeT, pipeSpeed, 0)
         -- Set velocity directly to cancel out falling momentum
         vy1 = -5  -- Jump velocity for player1
+
+        -- Pipes move left if space if pressed
+        Fysics.set_linear_velocity(pipe, pipeSpeed, 0)
+        Fysics.set_linear_velocity(pipeT, pipeSpeed, 0)
+        Fysics.set_linear_velocity(pipe2, pipeSpeed, 0)
+        Fysics.set_linear_velocity(pipeT2, pipeSpeed, 0)
+        Fysics.set_linear_velocity(pipe3, pipeSpeed, 0)
+        Fysics.set_linear_velocity(pipeT3, pipeSpeed, 0)
+        for _, c in ipairs(coins) do
+            Fysics.set_linear_velocity(c, coinSpeed, 0)
+        end
+
+        text1 = ""
 	end
-    
-    if Input.get_key_down(Keys.ionix_m) then
-        Entity.destroy_entity(coin)
-    end
     Fysics.set_linear_velocity(player1, vx, vy1)
 
-    -- Pipe movement
+    ------------------------------------------------------
+	-- Resetting pipe back to start logicr
+	------------------------------------------------------
+
+    -- Set 1
     local pipePos = Fysics.get_pos(pipe)
-    if Mafs.get_vec_x(pipePos) <= pipeOffScreenLeft then
-        Entity.set_global_pos(pipe, pipeStartX, Mafs.get_vec_y(pipePos))
-        Fysics.set_pos(pipe, pipeStartX, Mafs.get_vec_y(pipePos))
-         Entity.set_global_pos(pipeT, pipeStartX, Mafs.get_vec_y(pipePos))
-        Fysics.set_pos(pipeT, pipeStartX, Mafs.get_vec_y(pipePos))
-     end
+    local pipePosX = Mafs.get_vec_x(pipePos)
+    if pipePosX < 0 then
+        local random1 = math.random(2, 4)
+        local offset = random1/10
+        local plusOrMinus = math.random(1, 2)
+        if plusOrMinus < 2 then
+            offset = offset*-1
+        end
+        Fysics.set_pos(pipe, 10, 4+offset)
+        random1 = math.random(2, 4)
+        offset = random1/10
+        plusOrMinus = math.random(1, 2)
+        if plusOrMinus < 2 then
+            offset = offset*-1
+        end
+        Fysics.set_pos(pipeT, 10, -0.5-offset)
+    end
      
+    -- Set 2
+    local pipePos2 = Fysics.get_pos(pipe2)
+    local pipePos2X = Mafs.get_vec_x(pipePos2)
+    if pipePos2X < 0 then
+        random1 = math.random(2, 4)
+        offset = random1/10
+        plusOrMinus = math.random(1, 2)
+        if plusOrMinus < 2 then
+            offset = offset*-1
+        end
+        Fysics.set_pos(pipe2, 10, 4+offset)
+        random1 = math.random(2, 4)
+        offset = random1/10
+        plusOrMinus = math.random(1, 2)
+        if plusOrMinus < 2 then
+            offset = offset*-1
+        end
+        Fysics.set_pos(pipeT2, 10, -0.5+offset)
+    end
+     
+    -- Set 3
+    local pipePos3 = Fysics.get_pos(pipe3)
+    local pipePos3X = Mafs.get_vec_x(pipePos3)
+    if pipePos3X < 0 then
+        random1 = math.random(2, 4)
+        offset = random1/10
+        plusOrMinus = math.random(1, 2)
+        if plusOrMinus < 2 then
+            offset = offset*-1
+        end
+        Fysics.set_pos(pipe3, 10, 4+offset)
+        random1 = math.random(2, 4)
+        offset = random1/10
+        plusOrMinus = math.random(1, 2)
+        if plusOrMinus < 2 then
+            offset = offset*-1
+        end
+        Fysics.set_pos(pipeT3, 10, -0.5+offset)
+    end
+
+    local farthestX = -1e9
+    for _, c in ipairs(coins) do
+        local p = Fysics.get_pos(c)
+        local px = Mafs.get_vec_x(p)
+        if px > farthestX then farthestX = px end
+    end
+    for _, c in ipairs(coins) do
+        local p = Fysics.get_pos(c)
+        if Mafs.get_vec_x(p) < pipeOffScreenLeft then
+            farthestX = farthestX + coinSpacing
+            Fysics.set_pos(c, farthestX, p.y)
+                    -- If this coin was hidden (collected), restore its sprite size so it becomes visible again
+            if coinHidden[c] ~= nil then  -- More explicit nil check
+                local s = Entity.get_sprite_component(c)
+                if s then
+                    Sprite.set_width(s, 16)
+                    Sprite.set_height(s, 16)
+                end
+                coinHidden[c] = false  -- Reset to false instead of nil to maintain the key
+            end
+        end
+    end
+    
+    ------------------------------------------------------
+	-- UI
+	------------------------------------------------------
+
 end
 
     function ExampleScript:OnCollisionEnter()
         if Fysics.col(player1, pipe) then
-                print("CollisionPipe")
+            print("CollisionPipe")
             end
     end
 
-    function ExampleScript:OnTriggerEnter()
-        if Fysics.col(player1, coin) then
-             print("CoinCollision")
-                Entity.destroy_entity(coin)
-                coinCount = coinCount + 1
-                print(coinCount)
+    function ExampleScript:OnTriggerEnter(collision1, collision2)
+        -- Initialize coinHidden table if it doesn't exist
+        coinHidden = coinHidden or {}
+        
+        -- Check if either parameter is the player and the other is a coin
+        local player, coin
+        if collision1 == player1 then
+            player = collision1
+            coin = collision2
+        elseif collision2 == player1 then
+            player = collision2
+            coin = collision1
         end
-    end
-
-    function ExampleScript:OnTriggerExit()
-        if Fysics.col(player1, coin) then
-            print("ExitCoinCollision")
-        end
-    end
-
-    function ExampleScript:OnCollisionExit()
-        if Fysics.col(player1, pipe) then
-            print("ExitCollisionPipe")
+        
+        -- If we found a player-coin collision
+        if player and coin and coins then
+            -- Verify the coin is in our coins table and not already collected
+            for i, c in ipairs(coins) do
+                if coin == c and (coinHidden[c] == nil or coinHidden[c] == false) then
+                    print("Coin collected!")
+                    
+                    -- Hide the coin's sprite
+                    local s = Entity.get_sprite_component(coin)
+                    if s then
+                        Sprite.set_width(s, 0)
+                        Sprite.set_height(s, 0)
+                    end
+                    
+                    -- Mark the coin as collected
+                    coinHidden[coin] = true
+                    
+                    -- Update score
+                    score = score + 10  -- 10 points per coin
+                    scoreText = "Score: " .. tostring(score)
+                    print(scoreText)  -- Debug output
+                    
+                    break
+                end
+            end
         end
     end
 
