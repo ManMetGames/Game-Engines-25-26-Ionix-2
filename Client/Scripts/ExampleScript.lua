@@ -11,8 +11,9 @@ local goalY = 500
 local y = 300
 local t = 10
 
+
+-- Goal functionality 
 local function CheckGoalProximity(player, goal, threshold, respawnX, respawnY)
-    
 end
 
 ----------------------------------------------------------
@@ -93,23 +94,18 @@ end
 ----------------------------------------------------------
 function ExampleScript:OnUpdate()
     -- get current velocity
+     ------------------------------------------------------
+        -- movement
+     ------------------------------------------------------
     local vel = Fysics.get_linear_velocity(player)
-    local vx = vel.x
+    local vx = 5 --Constant forward movement
     local vy = vel.y
 
 	if Input.get_key_down(Keys.ionix_space) then
-        Fysics.add_force_to_center(player, 0, -45)
+        Fysics.add_force_to_center(player, 0, -50)
 	end
-    ------------------------------------------------------
-    -- movement
-    ------------------------------------------------------
-    if Input.get_key_held(Keys.ionix_d) then
-        vx = 2.5
-    elseif Input.get_key_held(Keys.ionix_a) then
-        vx = -2.5
-    else
-        vx = 0
-    end
+   
+   
     if Input.get_key_down(Keys.ionix_q) then
       -- Fysics.set_damping(0,0) --Joint ID used to find the correct joint (just the position of the joint in the world joint list)
     end
