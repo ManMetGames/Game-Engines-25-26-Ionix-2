@@ -12,22 +12,24 @@ namespace IonixEngine
     {
         b2RayCastInput input;
         input.p1 = p1;
-        input.p2 = p2;
+        input.p2 = b2Vec2(p2.x / 100, p2.y / 100);
         input.maxFraction = 1.0f;
-
+        std::cout << p2.x << " " << p2.y << std::endl;
         float closestFraction = 1.0f;
         b2Vec2 intersectionNormal(0.0f, 0.0f);
         b2Body* hitBody = nullptr;
+        b2World* world = Application::Get().layerFysics->GetFysicsManager()->GetWorld();
 
-        for (b2Body* b = Application::Get().layerFysics->GetFysicsManager()->GetWorld()->GetBodyList(); b; b = b->GetNext())
+        for (b2Body* b = world->GetBodyList(); b; b = b->GetNext())
         {
             for (b2Fixture* f = b->GetFixtureList(); f; f = f->GetNext())
             {
                 b2RayCastOutput output;
                 if (!f->RayCast(&output, input, 0))
-                {
                     continue;
-                }
+
+                if (output.fraction <= 0.0f || output.fraction > 1.0f)
+                    continue; // invalid or outside segment
 
                 if (output.fraction < closestFraction)
                 {
