@@ -12,13 +12,14 @@ namespace IonixEngine
     void LayerNavigation::OnDetach()
     {
         instance = nullptr;
+        agents.clear();
     }
 
     void LayerNavigation::OnUpdate()
     {
         //draw navmesh, debug visualisation etc.        
-        for (NavAgent agent : agents) {
-            //agent.Update(1);
+        for (auto& agent : agents) {
+            agent->Update(1.0f);
         }
     }
 
@@ -28,10 +29,11 @@ namespace IonixEngine
     }
     NavAgent* LayerNavigation::CreateAgent(const b2Vec2 endPosition)
     {
-        NavAgent m_agent(nav, ent);
-        agents.emplace_back(m_agent);
-        m_agent.PlaceAgent(endPosition);
+        auto agent = std::make_unique<NavAgent>(nav, ent, 3.0f);
+        NavAgent* agentPtr = agent.get();
+        agent->PlaceAgent(endPosition);
+        agents.push_back(std::move(agent));
 
-        return nullptr;
+        return agentPtr;
     }
 }

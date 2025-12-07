@@ -11,7 +11,7 @@ namespace IonixEngine
     private:
         NavMef* nav;
         Entity* ent;
-        std::vector<NavAgent> agents;
+        std::vector<std::unique_ptr<NavAgent>> agents;
         int m_nextId;
 
     public:

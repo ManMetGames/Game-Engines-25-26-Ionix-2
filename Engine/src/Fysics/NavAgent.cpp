@@ -7,9 +7,9 @@
 
 namespace IonixEngine
 {
-	NavAgent::NavAgent(NavMef* nav, Entity* ent) : m_NavMef(nav), m_entity(ent) {}
+	NavAgent::NavAgent(NavMef* nav, Entity* ent, float speed) : m_NavMef(nav), m_entity(ent), m_speed(speed) {}
 
-	void NavAgent::PlaceAgent(b2Vec2 endPosition)
+	void NavAgent::PlaceAgent(b2Vec2 endPosition) // this is currently a bit wrong because dont have a funell yet 
 	{
 		b2Body* body = FysicsManager::GetManager()->GetBodyFromEntity(m_entity);
 		b2Vec2 position = body->GetPosition();
@@ -26,5 +26,26 @@ namespace IonixEngine
 	}
 	void NavAgent::Update(float dt)
 	{
+		if (m_path.empty()) return;
+
+		b2Body* body = FysicsManager::GetManager()->GetBodyFromEntity(m_entity);
+
+		b2Vec2 target = m_path[m_pathIndex];
+
+		b2Vec2 toTarget = target - body->GetPosition();
+		float distance = toTarget.Length();
+
+		if (distance < 0.1f)
+		{
+			m_pathIndex++;
+			if (m_pathIndex >= m_path.size()) {
+				// reached the end
+				return;
+			}
+			return;
+		}
+
+		toTarget.Normalize();
+		body->SetLinearVelocity(m_speed * toTarget);
 	}
 }
