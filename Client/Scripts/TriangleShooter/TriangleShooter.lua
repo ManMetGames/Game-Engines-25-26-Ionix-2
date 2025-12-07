@@ -76,7 +76,7 @@ local damageCooldownDuration = 0.5  -- seconds
 local projectiles = {}      -- Active projectiles
 local projectilePool = {}   -- Inactive projectiles (reusable)
 local projectileSize = 24
-local projectileSpeed = 4
+local projectileSpeed = 960 --PIXELS PER SECOND
 local projectileLifetime = 300  -- frames (~5 seconds at 60fps)
 
 -- Current aim direction (updated each frame)
@@ -88,7 +88,7 @@ local enemySize = 48
 
 local enemies = {}
 local levelEnemyHealth = 50
-local StartLevel
+local StartLevel    
 local LoadLevel
 
 local function CreateEnemy(x, y, health)
@@ -588,8 +588,8 @@ function UpdateProjectiles()
         local proj = projectiles[i]
         
         -- Move projectile
-        proj.x = proj.x + proj.vx
-        proj.y = proj.y + proj.vy
+        proj.x = proj.x + proj.vx * dt
+        proj.y = proj.y + proj.vy * dt
         
         Entity.set_global_pos(proj.entity, proj.x, proj.y)
         
@@ -919,7 +919,7 @@ end
 ----------------------------------------------------------
 function UpdateWallLerps()
     if not wallPingPongEnabled then return end
-    if peaceTimerFrames > 0 and #enemies == 0 then return end
+    if peaceTimerSeconds > 0 and #enemies == 0 then return end
     
     local dt = GetDt()
 
