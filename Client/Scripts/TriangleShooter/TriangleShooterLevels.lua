@@ -12,7 +12,7 @@ local levels = {
         windowHeight = 400,
     },
     [2] = {
-        timeLimitSeconds = 30,
+        timeLimitSeconds = 20,
         enemyCount = 1,
         enemyHealth = 125,
         enemyProjectiles = true,

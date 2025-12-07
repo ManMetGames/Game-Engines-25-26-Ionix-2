@@ -151,7 +151,7 @@ end
 local enemyProjectiles = {}
 local enemyProjectilePool = {}
 local enemyProjectileSize = 24
-local enemyProjectileSpeed = 3
+local enemyProjectileSpeed = 720 -- PIXELS PER SECOND 
 local enemyShootIntervalSeconds = 0.5
 local enemyProjectilesEnabled = true
 
@@ -864,8 +864,8 @@ function UpdateEnemyProjectiles()
         local proj = enemyProjectiles[i]
         
         -- Move projectile
-        proj.x = proj.x + proj.vx
-        proj.y = proj.y + proj.vy
+        proj.x = proj.x + proj.vx * dt
+        proj.y = proj.y + proj.vy * dt
         Entity.set_global_pos(proj.entity, proj.x, proj.y)
         
         -- Check collision with player
