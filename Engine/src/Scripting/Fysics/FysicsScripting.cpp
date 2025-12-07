@@ -187,7 +187,7 @@ namespace IonixEngine
 
 
 		//----------Collision Methods----------
-
+		//Commented out functions don't work due to FysicsShapes not actually be a component on the entity 
 		
 		auto addBoxCollider = [](Entity* entity, float sizeX, float sizeY, int offsetX, int offsetY, float angle, bool isTrigger) {
 
@@ -216,40 +216,50 @@ namespace IonixEngine
 			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddPolygon(entity, tileSize, terrainPositions);
 		};
 
-		auto getColliderWidth = [](Entity* entity) -> float {
+		/*auto getColliderWidth = [](Entity* entity) -> float {
 			return Application::Get().layerFysics->GetFysicsManager()->GetShapes()->GetWidth();
-			};
+			};*/
 
-		auto setColliderWidth = [](Entity* entity, float w, int shapeType) {
+		/*auto setColliderWidth = [](Entity* entity, float w, int shapeType) {
 			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->SetWidth(w, static_cast<fysicShapeType>(shapeType));
-			};
+			};*/
 
-		auto getColliderHeight = [](Entity* entity) -> float {
+		/*auto getColliderHeight = [](Entity* entity) -> float {
 			return Application::Get().layerFysics->GetFysicsManager()->GetShapes()->GetHeight();
 			};
 
 		auto setColliderHeight = [](Entity* entity, float h, int shapeType) {
 			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->SetHeight(h, static_cast<fysicShapeType>(shapeType));
-			};
+			};*/
 
 		auto isColliderTrigger = [](Entity* entity) -> bool {
-			return Application::Get().layerFysics->GetFysicsManager()->GetShapes()->IsShapeTrigger();
+			return Application::Get().layerFysics->GetFysicsManager()->GetFixtureFromEntity(entity)->IsSensor();
 			};
 
 		auto setColliderTrigger = [](Entity* entity, bool value) {
-			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->SetShapeTrigger(value);
+			Application::Get().layerFysics->GetFysicsManager()->GetFixtureFromEntity(entity)->SetSensor(value);
 			};
 
-		auto getColliderVertices = [](Entity* entity) {
+		/*auto getColliderVertices = [](Entity* entity) {
 			return Application::Get().layerFysics->GetFysicsManager()->GetShapes()->GetVertices();
 			};
 
 		auto setColliderVertices = [](Entity* entity, std::vector<b2Vec2> verts, int shapeType) {
 			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->SetVertices(verts, static_cast<fysicShapeType>(shapeType));
-			};
+			};*/
 
-		auto getColliderShapeType = [](Entity* entity) {
-			return Application::Get().layerFysics->GetFysicsManager()->GetShapes()->GetShapeType();
+		auto getColliderShapeType = [](Entity* entity) -> fysicShapeType {
+			b2Shape::Type type = Application::Get().layerFysics->GetFysicsManager()->GetFixtureFromEntity(entity)->GetShape()->m_type;
+				switch (type)
+				{
+				case b2Shape::e_circle:
+					return fysicShapeType::circle;
+					break;
+				case b2Shape::e_polygon:
+					return fysicShapeType::polygon;
+					break;
+				}
+				return fysicShapeType::none;
 			};
 
 			
@@ -271,15 +281,15 @@ namespace IonixEngine
 
 		};
 
-		auto GetRadius = [](Entity* entity) -> float {
+		/*auto GetRadius = [](Entity* entity) -> float {
 			return Application::Get().layerFysics->GetFysicsManager()->GetShapes()->GetRadius();
-			};
+			};*/
 
-		auto SetRadius = [](Entity* entity, float r, b2Body* bodyToChange, fysicShapeType shapeType) {
+		/*auto SetRadius = [](Entity* entity, float r, b2Body* bodyToChange, fysicShapeType shapeType) {
 			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->SetRadius(entity, r, bodyToChange, static_cast<fysicShapeType>(shapeType));
-			};
+			};*/
 
-		auto GetAngle = [](Entity* entity) -> float {
+		/*auto GetAngle = [](Entity* entity) -> float {
 			return Application::Get().layerFysics->GetFysicsManager()->GetShapes()->GetAngle();
 			};
 
@@ -291,7 +301,9 @@ namespace IonixEngine
 			};
 		auto SetOffset = [](b2Vec2& off, fysicShapeType shapeType) {
 			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->SetOffset(off, static_cast<fysicShapeType>(shapeType));
-			};
+			};*/
+
+
 //----------Joint Methods----------
 
 		auto setPrismaticJoint = [](Entity* entityA, Entity* entityB, float worldAxisX, float worldAxisY, float lowerTranslation, float upperTranslation, bool enableLimit, float maxMotorForce, float motorSpeed, bool enableMotor) {
@@ -520,21 +532,21 @@ namespace IonixEngine
 			"add_torque", addFysicsTorque,
 			"add_angular_impulse", addFysicsAngularImpulse,
 			"clear_forces", clearFysicsForces,
-			"get_collider_width", getColliderWidth,
+			/*"get_collider_width", getColliderWidth,
 			"set_collider_width", setColliderWidth,
 			"get_collider_height", getColliderHeight,
-			"set_collider_height", setColliderHeight,
+			"set_collider_height", setColliderHeight,*/
 			"is_collider_trigger", isColliderTrigger,
 			"set_collider_trigger", setColliderTrigger,
-			"get_collider_vertices", getColliderVertices,
-			"set_collider_vertices", setColliderVertices,
+			/*"get_collider_vertices", getColliderVertices,
+			"set_collider_vertices", setColliderVertices,*/
 			"get_collider_type", getColliderShapeType,
-			"get_radius", GetRadius,
+			/*"get_radius", GetRadius,
 			"set_radius", SetRadius,
 			"get_angle" , GetAngle,
 			"set_angle", SetAngle,
 			"get_offset", GetOffset,
-			"set_offset", SetOffset,
+			"set_offset", SetOffset,*/
 			"set_material_properties", fysicsUpdateMaterialProperties,
 			"get_friction", getFriction,
 			"get_restitution", getRestitution,
