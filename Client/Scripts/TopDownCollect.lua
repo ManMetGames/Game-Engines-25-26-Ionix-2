@@ -35,14 +35,14 @@ function TopDownCollect:OnStart()
     -- Background
     background = Entity.create_entity()
     if assets.textures.Background then
-        local bg = Entity.add_sprite_component(background, assets.textures.Background, 960, 640, 0)
+        local bg = Entity.add_sprite_component(background, assets.textures.Background, 960, 640, -20)
         Sprite.set_columns(bg, 1)
     end
 
     -- Player
     player = Entity.create_entity()
     Entity.set_global_pos(player, arenaW * 0.5, arenaH * 0.6)
-    local pSprite = Entity.add_sprite_component(player, assets.textures.Player or assets.textures.FlappyBird, 48, 48, 10)
+    local pSprite = Entity.add_sprite_component(player,assets.textures.FlappyBird, 48, 48, -5)
     Sprite.set_columns(pSprite, 1)
 
     Entity.add_fysics_component(player, enums.bodytype.dynamicBody, true)
@@ -55,7 +55,7 @@ function TopDownCollect:OnStart()
     -- Enemy
     enemy = Entity.create_entity()
     Entity.set_global_pos(enemy, enemyLeftX, arenaH * 0.35)
-    local eSprite = Entity.add_sprite_component(enemy, assets.textures.Enemy or assets.textures.FlappyPipe, 56, 56, 5)
+    local eSprite = Entity.add_sprite_component(enemy,assets.textures.FlappyPipe, 56, 56, -10)
     Sprite.set_columns(eSprite, 1)
     Entity.add_fysics_component(enemy, enums.bodytype.kinematicBody, false)
     Fysics.add_sprite_collider(enemy, false, 1)
@@ -82,6 +82,8 @@ function TopDownCollect:OnStart()
         coinHidden[c] = false
     end
 
+  
+
     
 end
 
@@ -105,6 +107,9 @@ function TopDownCollect:OnUpdate()
     if Input.get_key_held(Keys.ionix_down) or Input.get_key_held(Keys.ionix_s) then
         vy = vy + 1
     end
+    
+    local pPos = Fysics.get_pos(player)
+    print("Player X:", Mafs.get_vec_x(pPos))
 
     -- normalize to avoid faster diagonal speed
     local mag = math.sqrt(vx * vx + vy * vy)
