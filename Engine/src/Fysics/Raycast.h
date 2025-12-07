@@ -5,9 +5,10 @@ namespace IonixEngine
 {
     struct RayHit
     {
+        
         b2Vec2 point;
         b2Vec2 normal;
-        float fraction;
+        float fraction = 0.0f;
         b2Body* body;
         Entity* entity;
     };

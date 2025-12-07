@@ -150,14 +150,14 @@ function ExampleScript:OnUpdate()
 
     local mouseX = Input.get_mouse_x()
     local mouseY = Input.get_mouse_y()
-    local hit = Fysics.raycast(player1, mouseX, mouseY)
+    local posX = Fysics.get_pos(player1)
+    local hit = Fysics.raycast(posX.x, posX.y, mouseX, mouseY)
     if hit then
-        print("RaycastHit", hitCount)
-        hitCount =  hitCount + 1
-        end
-
-
-     
+        --print("Yes", hitCount)
+        --hitCount = hitCount + 1
+    elseif hit == false then
+        --print("No") 
+    end
 end
 
 return ExampleScript
