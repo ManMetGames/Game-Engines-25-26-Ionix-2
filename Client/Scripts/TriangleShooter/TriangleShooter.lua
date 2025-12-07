@@ -18,8 +18,8 @@ local screenH = 1080
 local wallPingPongEnabled = true
 local wallMaxShrinkX = 600        -- Max pixels each horizontal wall can shrink (1920 - 400 = 1520, /2 = 760)
 local wallMaxShrinkY = 200        -- Max pixels each vertical wall can shrink (1080 - 400 = 680, /2 = 340)
-local wallShrinkSpeedPerSecond = 70      -- Pixels per second each wall shrinks (0.35 per frame at 60fps)
-local wallExpandDurationSeconds = 0.75   -- seconds (120 frames at 60fps)
+local wallShrinkSpeedPerSecond = 70      -- Pixels per second each wall shrinks
+local wallExpandDurationSeconds = 0.75   -- how long walls spend expanding after a trigger
 local wallMinWindowWidth = 600
 local wallMinWindowHeight = 600
 local wallMaxWindowWidth = 1920
@@ -68,7 +68,7 @@ local playerHealth = 100
 local playerFlashTimer = 0
 local playerFlashDuration = 0.005  -- seconds
 
--- DAMAGE COOLDOWN (0.5S = 30 FRAMES AT 60FPS)
+-- DAMAGE COOLDOWN
 local damageCooldown = 0
 local damageCooldownDuration = 0.5  -- seconds
 
@@ -173,12 +173,12 @@ local musicEntity
 local musicVolume = 64
 local musicMuted = false
 local bpm = 133 
-local framesPerBeat = 60.0 / bpm
+local secondsPerBeat = 60.0 / bpm
 local beatTimer = 0
-local bopDurationFrames = 8 / 60.0
+local bopDurationSeconds = 8 / 60.0
 local bopTimer = 0
 local bopScale = 0.25
-local beatStartDelayFrames = (8 * 4) * framesPerBeat
+local beatStartDelaySeconds = (8 * 4) * secondsPerBeat
 local beatStartDelayCounter = 0
 
 local playerBaseImageWidth = playerSize
@@ -778,20 +778,20 @@ end
 
 function UpdateBeatBop()
     local dt = GetDt()
-    if beatStartDelayCounter < beatStartDelayFrames then
+    if beatStartDelayCounter < beatStartDelaySeconds then
         beatStartDelayCounter = beatStartDelayCounter + dt
         return
     end
 
     beatTimer = beatTimer + dt
-    if beatTimer >= framesPerBeat then
-        beatTimer = beatTimer - framesPerBeat
-        bopTimer = bopDurationFrames
+    if beatTimer >= secondsPerBeat then
+        beatTimer = beatTimer - secondsPerBeat
+        bopTimer = bopDurationSeconds
     end
 
     if bopTimer > 0 then
         bopTimer = bopTimer - dt
-        local t = bopTimer / bopDurationFrames
+        local t = bopTimer / bopDurationSeconds
         local scale = 1.0 + bopScale * t
 
         if playerSprite then
