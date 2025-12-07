@@ -2,12 +2,12 @@ local TriangleShooterPlayerProgress = {}
 
 local playerLevel = 1
 local xp = 0
-local xpToNextLevel = 100
+local xpToNextLevel = 120
 local currentShootAbility = "basic"
 
 local function GetXpForNextLevel(level)
     local n = level - 1
-    return math.floor(100 + 160 * n + 23 * n * math.max(n - 1, 0))
+    return math.floor(120 + 160 * n + 25 * n * math.max(n - 1, 0))
 end
 
 local function OnLevelUp()

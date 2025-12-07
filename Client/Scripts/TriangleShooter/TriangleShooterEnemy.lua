@@ -4,10 +4,10 @@ local assets = require("Scripts.Assets")
 
 local enemySpinMaxVelocity = 42
 local enemySpinBoost = 1
-local enemySpinDecayBase = 0.0005
+local enemySpinDecayBase = 0.0004
 local enemySpinDecayExtra = 0.01
 
-local dashSpeedPerSecond = 800
+local dashSpeedPerSecond = 550
 local enemyBounceSteer = 0.4
 local enemySteerStrength = 0.0
 
@@ -39,6 +39,7 @@ function TriangleShooterEnemy.createEnemy(x, y, health, enemySize, playerX, play
         health = health,
         rotation = 0,
         spinVelocity = 0,
+        speedMultiplier = 1,
         dashDirX = dashX,
         dashDirY = dashY,
         shootCooldown = 0,
@@ -99,7 +100,8 @@ function TriangleShooterEnemy.updateEnemyDash(
             end
         end
 
-        local currentSpeed = dashSpeedPerSecond
+        local speedMultiplier = enemy.speedMultiplier or 1
+        local currentSpeed = dashSpeedPerSecond * speedMultiplier
 
         enemy.x = enemy.x + enemy.dashDirX * currentSpeed * dt
         enemy.y = enemy.y + enemy.dashDirY * currentSpeed * dt
@@ -171,6 +173,8 @@ function TriangleShooterEnemy.updateEnemyDash(
             if enemy.spinVelocity > enemySpinMaxVelocity then
                 enemy.spinVelocity = enemySpinMaxVelocity
             end
+
+            enemy.speedMultiplier = (enemy.speedMultiplier or 1) * 1.002
         end
 
         local speed = math.abs(enemy.spinVelocity or 0)

@@ -8,8 +8,8 @@ local levels = {
         enemyProjectiles = false,
         wallPingPong = false,
         coinPerHit = 1,
-        windowWidth = 800,
-        windowHeight = 400,
+        windowWidth = 1000,
+        windowHeight = 600,
     },
     [2] = {
         timeLimitSeconds = 20,
@@ -36,13 +36,13 @@ local levels = {
     [4] = {
         timeLimitSeconds = 15,
         enemyCount = 1,
-        enemyHealth = 130,
+        enemyHealth = 175,
         enemyProjectiles = true,
         wallPingPong = true,
         enemyShootIntervalSeconds = 0.25,
         coinPerHit = 1,
-        windowWidth = 1280,
-        windowHeight = 670,
+        windowWidth = 600,
+        windowHeight = 400,
     },
     [5] = {
         timeLimitSeconds = 25,
