@@ -58,7 +58,10 @@ function ExampleScript:OnStart()
 
     Entity.add_fysics_component(player1, enums.bodytype.dynamicBody, true) -- dynamic body
     --Fysics.add_sprite_collider(player1, false)
-    Fysics.add_sprite_collider(player1,false,1)
+    Fysics.add_sprite_collider(player1,false, 0.5)
+
+    --Fysics.set_collider_width(player1, 10, 1)
+    --Fysics.set_collider_height(player1, 10, 1)
     -- Freeze bird
     Fysics.set_gravity_scale(player1, 0)
 
