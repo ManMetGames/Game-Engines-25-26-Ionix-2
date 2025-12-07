@@ -77,7 +77,7 @@ local projectiles = {}      -- Active projectiles
 local projectilePool = {}   -- Inactive projectiles (reusable)
 local projectileSize = 24
 local projectileSpeed = 960 --PIXELS PER SECOND
-local projectileLifetime = 300  -- frames (~5 seconds at 60fps)
+local projectileLifetimeSeconds = 2  -- seconds projectile can live before auto-despawn
 
 -- Current aim direction (updated each frame)
 local aimDirX = 0
@@ -164,7 +164,7 @@ local flashDuration = 0.2  -- seconds
 
 local knockbackTimer = 0
 local knockbackDuration = 0.2
-local knockbackBaseSpeed = 6
+local knockbackBaseSpeed = 1200
 local knockbackDirX = 0
 local knockbackDirY = 0
 
@@ -391,7 +391,7 @@ function TriangleShooter:OnUpdate()
         if tNorm < 0 then tNorm = 0 end
         if tNorm > 1 then tNorm = 1 end
         local factor = 1.0 - (tNorm * tNorm)
-        local speed = knockbackBaseSpeed * factor
+        local speed = knockbackBaseSpeed * factor * dt
         playerX = playerX + knockbackDirX * speed
         playerY = playerY + knockbackDirY * speed
         
@@ -625,7 +625,7 @@ function UpdateProjectiles()
         else
             -- Increment age and remove if expired or off screen
             proj.age = proj.age + dt
-            if proj.age > projectileLifetime / 60.0 or proj.y < -50 or proj.y > screenH + 50 or proj.x < -50 or proj.x > screenW + 50 then
+            if proj.age > projectileLifetimeSeconds or proj.y < -50 or proj.y > screenH + 50 or proj.x < -50 or proj.x > screenW + 50 then
                 -- Move entity off-screen and return to pool
                 Entity.set_global_pos(proj.entity, -1000, -1000)
                 table.insert(projectilePool, table.remove(projectiles, i))
@@ -889,7 +889,7 @@ function UpdateEnemyProjectiles()
         else
             -- Age and remove if expired or off screen
             proj.age = proj.age + dt
-            if proj.age > projectileLifetime / 60.0 or proj.y < -50 or proj.y > screenH + 50 or proj.x < -50 or proj.x > screenW + 50 then
+            if proj.age > projectileLifetimeSeconds or proj.y < -50 or proj.y > screenH + 50 or proj.x < -50 or proj.x > screenW + 50 then
                 Entity.set_global_pos(proj.entity, -1000, -1000)
                 table.insert(enemyProjectilePool, table.remove(enemyProjectiles, i))
             end
