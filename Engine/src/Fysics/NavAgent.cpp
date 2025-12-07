@@ -17,11 +17,16 @@ namespace IonixEngine
 		int goalCell;
 		currentCell = m_NavMef->GetPositionInMesh(position);
 		goalCell = m_NavMef->GetPositionInMesh(endPosition);
-		std::vector<int> path;
+		if (currentCell == -1 || goalCell == -1) {
+			m_path.clear();
+			return;
+		}
+		std::vector<int> path = m_NavMef->FindPath(currentCell, goalCell);
+		m_path = m_NavMef->Funnel(path);
 
 		// Incorrect args passed to FindPath - commented out
 		//path = m_NavMef->FindPath(position, endPosition);
-		path = m_NavMef->FindPath(currentCell, goalCell);
+		m_path.push_back(endPosition);
 		m_pathIndex = 0;
 	}
 	void NavAgent::Update(float dt)
@@ -47,5 +52,9 @@ namespace IonixEngine
 
 		toTarget.Normalize();
 		body->SetLinearVelocity(m_speed * toTarget);
+		if (m_pathIndex >= m_path.size()) {
+			body->SetLinearVelocity(b2Vec2_zero);
+			return;
+		}
 	}
 }
