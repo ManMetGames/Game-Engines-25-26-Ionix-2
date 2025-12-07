@@ -117,10 +117,12 @@ function TopDownCollect:OnUpdate()
 
     -- clamp player position to arena
     local pPos = Fysics.get_pos(player)
-    local px = pPos.x or (pPos[1] or 0)
-    local py = pPos.y or (pPos[2] or 0)
-    px = clamp(px, 24, arenaW - 24)
-    py = clamp(py, 48, arenaH - 24)
+    local px = Mafs.get_vec_x(pPos)
+    local py = Mafs.get_vec_y(pPos)
+
+    px = math.max(24, math.min(arenaW - 24, px))
+    py = math.max(48, math.min(arenaH - 24, py))
+
     Fysics.set_pos(player, px, py)
 
     -- Enemy patrol logic (move horizontally; if reached bounds, reverse)
@@ -128,7 +130,7 @@ function TopDownCollect:OnUpdate()
     Fysics.set_linear_velocity(enemy, eVelX, 0)
 
     local ePos = Fysics.get_pos(enemy)
-    local ex = ePos.x or (ePos[1] or 0)
+    local ex = Mafs.get_vec_x(ePos)
     if ex >= enemyRightX then
         enemyDir = -1
     elseif ex <= enemyLeftX then
