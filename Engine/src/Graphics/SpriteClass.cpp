@@ -22,7 +22,7 @@ namespace IonixEngine
 		//img = IMG_LoadTexture(renderer, file);
 	}
 
-	void Sprite::draw(const int x, const int y, const int w, const int h) {
+	void Sprite::draw(const int x, const int y, const int w, const int h, float angle) {
 
 		// code for rendering an image
 		// to get working in OnUpdate:
@@ -36,12 +36,12 @@ namespace IonixEngine
 		texr.h = h;
 
 
-
+		
 
 		SDL_SetRenderDrawColor(rend, 255, 255, 255, 0);
 
 		SDL_RenderClear(rend);
-		SDL_RenderCopy(rend, img, nullptr, &texr);
+		SDL_RenderCopyEx(rend, img, nullptr, &texr, angle, NULL, SDL_FLIP_NONE);
 
 		//SDL_DestroyTexture
 	}

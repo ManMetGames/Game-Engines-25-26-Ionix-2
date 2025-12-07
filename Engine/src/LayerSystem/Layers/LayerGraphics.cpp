@@ -13,7 +13,6 @@ namespace IonixEngine
 
     void LayerGraphics::OnAttach() {
         TextureManager::Get().Init();
-        SDL_Log("Added debug texture");
     }
 
     void LayerGraphics::OnDetach() {
@@ -22,6 +21,7 @@ namespace IonixEngine
 
     void LayerGraphics::OnUpdate() {
         //ball.drawFrame(0,0,32,32);
+
         queue.RenderFromQueue();
     }
 

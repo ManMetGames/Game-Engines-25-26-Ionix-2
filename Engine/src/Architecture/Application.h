@@ -13,12 +13,11 @@
 #include "LayerSystem/Layers/SceneLayer.h"
 #include "LayerSystem/Layers/LayerFysics.h"
 #include "LayerSystem/Layers/LayerInput.h"
-#include "LayerSystem/Layers/LayerNavigation.h"
 #include"Scripting/Scripting.h"
 // #include "Scripting/Audio/AudioScripting.h"
 #include "LayerSystem/Layers/LayerSound.h"
 #include "Audio/AudioPlayer.h"
-
+#include "Graphics/Camera.h"
 
 namespace IonixEngine {    
     class ENGINE_API Application {
@@ -32,6 +31,8 @@ namespace IonixEngine {
         float deltaTime = 0.0f;
         float time = 0.0f;
 
+        Camera* currentCam = nullptr;
+        
         inline Window& GetWindow() { return *m_Window; }
 
         void Run();
@@ -57,7 +58,6 @@ namespace IonixEngine {
         LayerFysics* layerFysics;
         LayerInput* layerInput;
         LayerSound* layerSound;
-        LayerNavigation* layerNavigation;
 
 
     private:

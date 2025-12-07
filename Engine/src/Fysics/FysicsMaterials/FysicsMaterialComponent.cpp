@@ -4,14 +4,11 @@
 
 namespace IonixEngine
 {
-    void FysicsMaterialComponent::SetFriction(Entity* entity, float friction)
+    void FysicsMaterialComponent::UpdateMaterial(Entity* entity, float friction, float restitution)
     {
-        GetFixture(entity)->SetFriction(friction);
-    }
-
-    void FysicsMaterialComponent::SetRestitution(Entity* entity, float restitution)
-    {
-        GetFixture(entity)->SetRestitution(restitution);
+        b2Fixture* fixture = GetFixture(entity);
+        fixture->SetFriction(friction);
+        fixture->SetRestitution(restitution);
     }
 
     float FysicsMaterialComponent::GetFriction(Entity* entity)
@@ -29,8 +26,7 @@ namespace IonixEngine
     b2Fixture* FysicsMaterialComponent::GetFixture(Entity* entity)
     {
         FysicsManager& fysics_manager = *Application::Get().layerFysics->GetFysicsManager();
-        b2Body* body = fysics_manager.GetBodyFromEntity(entity);
-       // fixture = fysics_manager.GetBodyFromEntity(entity)->GetFixtureList();
+        body = fysics_manager.GetBodyFromEntity(entity);
         return body->GetFixtureList();
     }
 }

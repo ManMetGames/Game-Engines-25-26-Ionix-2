@@ -13,6 +13,7 @@ namespace IonixEngine
 		b2Vec2 gravity(0.0f, 9.8f);
 		world = new b2World(gravity);
 
+
 		DebugDraw* debugDraw = new DebugDraw(Application::Get().GetWindow().GetSdlRenderer());
 		debugDraw->SetFlags(
 			b2Draw::e_shapeBit
@@ -71,6 +72,11 @@ namespace IonixEngine
 			return it->second;
 		}
 		return nullptr;
+	}
+
+	b2Fixture* FysicsManager::GetFixtureFromEntity(Entity* entity)
+	{
+		return GetBodyFromEntity(entity)->GetFixtureList();
 	}
 
 	void FysicsManager::AddEntityBodyPair(Entity* entity, b2Body* body)

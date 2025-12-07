@@ -43,6 +43,7 @@ namespace IonixEngine
     void LayerFysics::OnUpdate()
     {
         if (!fysicsManager) return;
+
         
         // get interpolation alpha (0.0 to 1.0) representing progress between physics frames
         float alpha = Application::Get().GetPhysicsInterpolationAlpha();
@@ -50,6 +51,19 @@ namespace IonixEngine
         auto& bodyMap = fysicsManager->GetBodyMap();
         auto& transformMap = fysicsManager->GetTransformMap();
         
+        auto& entityBodies = fysicsManager->GetCollisionListener()->entityBodiesToDestroy;
+        if (!entityBodies.empty())
+        {
+            for (b2Body* body : entityBodies)
+            {                                   
+                fysicsManager->GetWorld()->DestroyBody(body);
+            }
+
+            entityBodies.clear();
+        }
+        
+
+
         // interpolate visual positions for all physics bodies
         /*for (auto& [body, entity] : bodyMap)
         {
@@ -83,9 +97,10 @@ namespace IonixEngine
         
         auto& bodyMap = fysicsManager->GetBodyMap();
         auto& transformMap = fysicsManager->GetTransformMap();
-        
+
         fysicsManager->GetWorld()->Step(timeStep, velocityIterations, positionIterations);
-        fysicsManager->GetWorld()->DebugDraw();
+        //fysicsManager->GetWorld()->DebugDraw();
+
         
 
         // AFTER physics step, update current visual state
@@ -95,8 +110,9 @@ namespace IonixEngine
             pos.x = val.first->GetPosition().x * ppm;
             pos.y = val.first->GetPosition().y * ppm;
 
-            val.second->position.x = pos.x;
-            val.second->position.y = pos.y;
+            val.second->transform.SetLocalPosition(pos);
+            //val.second->position.x = pos.x;
+            //val.second->position.y = pos.y;
         }
 
         // before physics step, save current state as previous
@@ -127,8 +143,9 @@ namespace IonixEngine
            pos.x = val.first->GetPosition().x * ppm;
            pos.y = val.first->GetPosition().y * ppm;
 
-            val.second->position.x = pos.x;
-            val.second->position.y = pos.y;
+           val.second->transform.SetLocalPosition(pos);
+            //val.second->position.x = pos.x;
+            //val.second->position.y = pos.y;
             
             // update current transform state for interpolation
             if (transformMap.find(val.first) != transformMap.end())
@@ -137,7 +154,9 @@ namespace IonixEngine
                 transform.currentPosition = val.first->GetPosition();
                 transform.currentRotation = val.first->GetAngle();
             }
+
         }
+
     } 
     void LayerFysics::OnEvent(IonixEvent& e)
     {

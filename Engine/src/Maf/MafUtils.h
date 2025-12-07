@@ -9,60 +9,60 @@ namespace Maf
 	inline T mafAbs(T x)
 	{
 		return (x < 0) ? -x : x;
-	};
+	}
 
 	template <typename T>
 	inline T mafMin(T x, T y)
 	{
 		return (x < y) ? x : y;
-	};
+	}
 
 	template <typename T>
 	inline T mafMax(T x, T y)
 	{
 		return (x > y) ? x : y;
-	};
+	}
 
 	template <typename T>
 	inline T mafRound(T x)
 	{
 		return round(x);
-	};
+	}
 
 	template <typename T>
 	inline T mafSqrt(T x)
 	{
 		return sqrt(x);
-	};
+	}
 
 	//ben mexican implementation
 
 	template <typename T>
 	inline T mafSin(T x) {
 		return sin(x);
-	};
+	}
 	template <typename T>
 	inline T mafCos(T x) {
 		return cos(x);
-	};
+	}
 	template <typename T>
 	inline T mafTan(T x) {
 		return tan(x);
-	};
+	}
 	inline double mafPI() {
 		return 3.14159265358979323846264338327950288;
-	};
+	}
 
 	//Joe - Implementation
-	template <typename T>
+	template<typename T>
 	inline T mafLerp(T a, T b, T t)
 	{
 		if (t < 0) t = 0; else if (t > 1) t = 1;
 		return a + (b - a) * t;
-	};
+	}
 
-	 template <typename T>
-	 inline  std::pair<T, T> mafLerpVector(T ax, T ay, T bx, T by, T t) //lerp between 2 points
+	template <typename T>
+	inline  std::pair<T, T> mafLerpVector(T ax, T ay, T bx, T by, T t) //lerp between 2 points
 	{
 		T lerpedVectorx;
 		T lerpedVectory;
@@ -70,7 +70,6 @@ namespace Maf
 		lerpedVectory = mafLerp(ay, by, t);
 		return std::make_pair(lerpedVectorx, lerpedVectory);
 	};
-
 
 	//template <typename T>
 	//struct mafVector2
@@ -115,14 +114,14 @@ namespace Maf
 		int a = x;
 		int b = y;
 		return a % b;
-	};
+	}
 
 	template <typename T>
 	inline T mafDiv(T x, T y) {
 		int a = x;
 		int b = y;
 		return a / b;
-	};
+	}
 
 	//Josh - Implementation
 
@@ -132,12 +131,17 @@ namespace Maf
 		if (x < min) return min;
 		if (x > max) return max;
 		else return x;
-	};
+	}
 
+	/*template <typename T>
+	inline T mafSqrMagnitudeVec3(const mafVector3<T>& v)
+	{
+		return v.x * v.x + v.y * v.y + v.z * v.z;
+	}*/
 	template <typename T>
 	inline T mafSqrMagnitudeVec2(T vx, T vy)
 	{
-		return vx * vx + vy * vy;
+	return vx * vx + vy * vy;
 	};
 
 	// ollie implementation 
@@ -177,7 +181,7 @@ namespace Maf
 		// avoid log(0) or negative
 		value = std::max(value, 1e-37f);
 		return std::log(value);
-	};
+	}
 
 	// logarithm with custom base
 	static inline float Log(float value, float base)
@@ -185,22 +189,22 @@ namespace Maf
 		value = std::max(value, 1e-37f);
 		base = std::max(base, 1e-37f);
 		return std::log(value) / std::log(base);
-	};
+	}
 
 	// Base-10 logarithm
 	static inline float Log10(float value)
 	{
 		value = std::max(value, 1e-37f);
 		return std::log10(value);
-	};
+	}
 	inline float Deg2Rad(float degrees)
 	{
 		return degrees * (static_cast<float>(mafPI()) / 180.0f);
-	};
+	}
 
 	inline float Rad2Deg(float radians)
 	{
 		return radians * (180.0f / static_cast<float>(mafPI()));
-	};
+	}
 
 }
