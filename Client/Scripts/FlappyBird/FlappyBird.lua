@@ -143,9 +143,7 @@ function ExampleScript:OnUpdate()
     end
     Entity.set_global_pos(Background, bgX, 0)
     Entity.set_global_pos(Background2, bgX + bgWidth, 0)
-
-  -- Set background position
-    Entity.set_global_pos(Background, bgX, 0)
+    
 
   -- BACKGROUND SCROLLING -- END
 
@@ -172,12 +170,12 @@ function ExampleScript:OnUpdate()
     Fysics.set_linear_velocity(player1, vx, vy1)
      -- Pipe movement
         local pipePos = Fysics.get_pos(pipe)
-        local pipePos = Fysics.get_pos(pipeT)
+        local pipeTPos = Fysics.get_pos(pipeT)
         
-        if Mafs.get_vec_x(pipePos) < pipeOffScreenLeft then
-            Fysics.set_pos(pipe, pipeStartX, pipePos.y)
-            Fysics.set_pos(pipeT, pipeStartX, pipePos.y)
-        end
+       if Mafs.get_vec_x(pipePos) < pipeOffScreenLeft then
+           Fysics.set_pos(pipe, pipeStartX, pipePos.y)
+           Fysics.set_pos(pipeT, pipeStartX, pipeTPos.y)
+       end
    
      
 end
