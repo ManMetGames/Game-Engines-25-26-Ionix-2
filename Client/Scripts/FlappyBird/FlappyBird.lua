@@ -148,10 +148,9 @@ function ExampleScript:OnUpdate()
         Fysics.set_pos(pipeT, pipeStartX, pipePos.y)
      end
 
-    local mouseX = Input.get_mouse_x()
-    local mouseY = Input.get_mouse_y()
-    local posX = Fysics.get_pos(player1)
-    local hit = Fysics.raycast(player1, mouseX, mouseY)
+    local mousePos = Input.get_mouse_pos()
+    local playerPos = Entity.get_entity_pos(player1)
+    local hit = Fysics.raycast(playerPos, mousePos)
     if hit then
         --print("Yes", hitCount)
         --hitCount = hitCount + 1

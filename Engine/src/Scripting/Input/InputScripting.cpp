@@ -56,6 +56,10 @@ namespace IonixEngine {
         auto getMouseY = []() -> int {
             return Application::Get().layerInput->m_Input->GetMousePosition().y;
             };
+        auto getMousePos = []() -> b2Vec2 {
+            auto mouse = Application::Get().layerInput->m_Input->GetMousePosition();
+            return b2Vec2(mouse.x, mouse.y);    
+        };
         auto getMouseButtonDown = [](int mousecode)-> bool {
             return Application::Get().layerInput->m_Input->IsMouseButtonDown(static_cast<uint8>(mousecode));
             };
@@ -167,6 +171,7 @@ namespace IonixEngine {
 
             "get_mouse_x", getMouseX,
             "get_mouse_y", getMouseY,
+            "get_mouse_pos", getMousePos,
             "get_mouse_button_down", getMouseButtonDown,
             "get_mouse_button_up", getMouseButtonUp,
 
