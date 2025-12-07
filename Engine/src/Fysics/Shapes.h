@@ -84,6 +84,11 @@ namespace IonixEngine
             return fixture;
         }
 
+        bool GetIsTrigger()
+        {
+            return isTrigger;
+        }
+
         void SetFixture(b2Fixture* newFixture)
         {
             fixture = newFixture;
