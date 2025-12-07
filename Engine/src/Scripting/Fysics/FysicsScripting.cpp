@@ -387,11 +387,10 @@ namespace IonixEngine
 		auto raycast = [](Entity* entityA, float mouseX, float mouseY)->bool
 		{
 
-			b2Vec2 pos1 = b2Vec2(0, 0);
-			//b2Vec2 pos1 = b2Vec2(entityA->position.x, entityA->position.y);
+			b2Vec2 pos1 = b2Vec2(500, 500);
 			b2Vec2 pos2 = b2Vec2(mouseX, mouseY);
 			RayHit hit;
-			bool hitSomething = Application::Get().layerFysics->GetFysicsManager()->GetRaycast()->CastFirst(pos1, pos2, hit);
+			bool hitSomething = Application::Get().layerFysics->GetFysicsManager()->GetRaycast()->CastFirst(b2Vec2(pos1.x / 100, pos1.y / 100), pos2, hit);
 			if (!hitSomething)
 			{
 				Application::Get().layerGraphics->GetQueue()->DrawLine(pos1.x, pos1.y, mouseX, mouseY, false);
