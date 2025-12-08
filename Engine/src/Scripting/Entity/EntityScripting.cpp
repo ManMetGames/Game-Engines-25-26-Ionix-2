@@ -20,7 +20,7 @@ namespace IonixEngine {
             };
 
         auto getEntityPos = [](Entity* entity) -> Vec2 {
-            return entity->position;
+            return entity->transform.GetGlobalPosition();
             };
 
         auto setEntityPos = [](Entity* entity, float x, float y) {

@@ -21,14 +21,10 @@ namespace IonixEngine
 			"y", &b2Vec2::y
 		);
 
-		lua.new_usertype<RayHit>("RayHit",
-			sol::constructors<RayHit()>(),
-			"entity", &RayHit::entity,
-			"point", &RayHit::point,
-			"fraction", &RayHit::fraction
-			
-		);
-
+		auto getRaycastEntity = [](RayHit hit)->Entity*
+		{
+			return hit.entity;
+		};
 
 		//------------Fysics Body Methods---------------
 		auto getFysicsPos = [](Entity* entity) -> b2Vec2 {
@@ -36,7 +32,7 @@ namespace IonixEngine
 			};
 
 		auto setFysicsPos = [](Entity* entity, float x, float y) {
-			entity->GetComponent<FysicsBody>()->SetPosition(entity, x, y);
+			entity->GetComponent<FysicsBody>()->SetPosition(entity, x / 100, y / 100);
 			};
 
 		auto getFysicsAngle = [](Entity* entity) -> float{
@@ -394,11 +390,9 @@ namespace IonixEngine
 		//---------------Raycasting--------
 		auto raycast = [](Vec2 startPos, Vec2 endPos)->std::tuple<bool, RayHit>
 		{
-
-			b2Vec2 pos1 = b2Vec2(startPos.x, startPos.y);
-			b2Vec2 pos2 = b2Vec2(endPos.x, endPos.y);
 			RayHit hit;
-			bool hitSomething = Application::Get().layerFysics->GetFysicsManager()->GetRaycast()->CastFirst(b2Vec2(pos1.x / 100, pos1.y / 100), pos2, hit);
+			std::cout << endPos.x << ", " << endPos.y << std::endl;
+			bool hitSomething = Application::Get().layerFysics->GetFysicsManager()->GetRaycast()->CastFirst(b2Vec2(startPos.x / 100, startPos.y / 100), b2Vec2(endPos.x / 100, endPos.y / 100), hit);
 			if (!hitSomething)
 			{
 				return std::make_tuple(false, RayHit());
@@ -411,7 +405,11 @@ namespace IonixEngine
 		{
 			Application::Get().layerGraphics->GetQueue()->DrawLine(startPos.x, startPos.y, endPos.x, endPos.y, hitColor);
 		};
-		
+
+		lua["Raycast"] = lua.create_table_with(
+			"entity", getRaycastEntity
+
+			);
 
 
 

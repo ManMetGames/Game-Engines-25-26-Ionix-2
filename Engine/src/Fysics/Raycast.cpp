@@ -12,7 +12,7 @@ namespace IonixEngine
     {
         b2RayCastInput input;
         input.p1 = p1;
-        input.p2 = b2Vec2(p2.x / 100, p2.y / 100);
+        input.p2 = p2;
         input.maxFraction = 1.0f;
         //std::cout << p2.x << " " << p2.y << std::endl;
         float closestFraction = 1.0f;
