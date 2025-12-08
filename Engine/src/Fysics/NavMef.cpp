@@ -26,6 +26,7 @@ namespace IonixEngine
 	void NavMef::Load(const std::vector<b2Vec2>& corners, const std::vector<int>& indices) {
 		m_corners = corners;
 		const int fourCount = indices.size() / 4;
+        m_cells.clear();
 		m_cells.resize(fourCount);
 
 		// cells
@@ -77,7 +78,7 @@ namespace IonixEngine
         const int cellCount = m_cells.size();
         std::vector<Node> nodes(cellCount);
         // initialise nodes 
-        for (int i; i < cellCount; i++) {
+        for (int i = 0; i < cellCount; i++) {
             nodes[i].cellIndex = i;
             nodes[i].h = CalculateHeuristic(i, goalCell);
 
@@ -122,48 +123,166 @@ namespace IonixEngine
                     openList.push(nodes[adjacencyIndex]);
                 }
             }
-            //think I need to reconstruct path here not sure
-            std::vector<int> path;
-            int current = goalCell;
-
-            if (nodes[current].previousCell == -1) {
-                return {};
-            }
-
-            while (current != -1) {
-                path.push_back(current);
-                current = nodes[current].previousCell;
-            }
-
-            std::reverse(path.begin(), path.end());
-            return path;
+            //think I need to reconstruct path here not sure, edit I didnt I needed to put it out the while loop good job me
                 
         }
+        std::vector<int> path;
+        int current = goalCell;
+
+        if (nodes[current].previousCell == -1) {
+            return {};
+        }
+
+        while (current != -1) {
+            path.push_back(current);
+            current = nodes[current].previousCell;
+        }
+
+        std::reverse(path.begin(), path.end());
+        return path;
 
 
     }
     int NavMef::GetPositionInMesh(b2Vec2 position)
     {
-        int cell = -1;
-        //std::vector<Cell> cells = GetCells();
-        for (int i = 0; i < m_cells.size(); i++) {
-            //The point is inside if it is always on the same side of all edges.
-            //m_cells[i].corns;
-            /*if (position.x > m_corners[m_cells[i].corns[0]].x && position.x < m_corners[m_cells[i].corns[1]].x && position.y > m_corners[m_cells[i].corns[2]].y && position.y < m_corners[m_cells[i].corns[4]].y) {
-                cell = i;
-            }*/
-            b2Vec2 c0 = m_corners[m_cells[i].corns[0]];
-            b2Vec2 c1 = m_corners[m_cells[i].corns[1]];
-            b2Vec2 c2 = m_corners[m_cells[i].corns[2]];
-            b2Vec2 c3 = m_corners[m_cells[i].corns[3]];
-            if (position.x > c0.y && position.x < c2.y && position.y > c0.x && position.y < c3.y) {
-                cell = i;
-            }
+        for (int i = 0; i < m_cells.size(); i++)
+        {
+            const Cell& cell = m_cells[i];
 
+            b2Vec2 c0 = m_corners[cell.corns[0]];
+            b2Vec2 c1 = m_corners[cell.corns[1]];
+            b2Vec2 c2 = m_corners[cell.corns[2]];
+            b2Vec2 c3 = m_corners[cell.corns[3]];
+
+            float minX = std::min({ c0.x, c1.x, c2.x, c3.x });
+            float maxX = std::max({ c0.x, c1.x, c2.x, c3.x });
+            float minY = std::min({ c0.y, c1.y, c2.y, c3.y });
+            float maxY = std::max({ c0.y, c1.y, c2.y, c3.y });
+
+            if (position.x >= minX && position.x <= maxX &&
+                position.y >= minY && position.y <= maxY)
+            {
+                return i;
+            }
         }
 
-        return cell;
+        return -1;
     }
     //get position function get the sprite or entity or agent maybe a shape IDK - then get its position check position in the navmesh using an in point polygon test to check if in rectangle then get the cell to use and place agent.
+
+
+    std::vector<b2Vec2> NavMef::Funnel(const std::vector<int>& cellPath)
+    {
+        // get waypoints through shared edges
+        std::vector<b2Vec2> result;
+        if (cellPath.size() < 2) 
+        { 
+            return result; 
+        }
+
+        //collect corridor edges
+        std::vector<b2Vec2> left;
+        std::vector<b2Vec2> right;
+
+        
+        for (int i = 0; i < cellPath.size() - 1; i++) {
+            int a = cellPath[i];
+            int b = cellPath[i + 1];
+
+            const Cell& ca = m_cells[a];
+            const Cell& cb = m_cells[b];
+
+            int sharedCount = 0;
+
+            b2Vec2 p0;
+            b2Vec2 p1;
+
+            // find two shared corners between different cells
+            for (int ia = 0; ia < 4; ia++) {
+                for (int ib = 0; ib < 4; ib++) {
+                    if (ca.corns[ia] == cb.corns[ib]) {
+                        if (sharedCount == 0) { p0 = m_corners[ca.corns[ia]]; }
+                        if (sharedCount == 1) { p1 = m_corners[ca.corns[ia]]; }
+                        sharedCount++;
+                    }
+                }
+            }
+
+            // push the edge to either left or right to sort the order
+            if (sharedCount == 2) {
+                if (p0.x < p1.x) {
+                    left.push_back(p0);
+                    right.push_back(p1);
+                }
+                else {
+
+                    left.push_back(p1);
+                    right.push_back(p0);
+                }
+            }
+        }
+
+        b2Vec2 apex = GetCellCentre(m_cells[cellPath[0]]);
+
+        // set up  funnel apex
+        int leftIndex = 0;
+        int rightIndex = 0;
+
+        b2Vec2 leftLeg = left[0] - apex;
+        b2Vec2 rightLeg = right[0] - apex;
+
+        result.push_back(apex);
+
+        int i = 1;
+        while (i < left.size()) {
+
+            b2Vec2 newLeft = left[i] - apex;
+
+
+            if (b2Cross(rightLeg, newLeft) <= 0) {
+                if (b2Cross(leftLeg, newLeft) >= 0) {
+                    leftLeg = newLeft;
+                    leftIndex = i;
+                }
+                else {
+                    apex = apex + leftLeg;
+                    result.push_back(apex);
+                    rightIndex = i;
+                    rightLeg = right[rightIndex] - apex;
+                    leftLeg = left[leftIndex] - apex;
+                }
+            }
+
+            b2Vec2 newRight = right[i] - apex;
+
+            if (b2Cross(newRight, leftLeg) <= 0) {
+
+                if (b2Cross(newRight, rightLeg) >= 0) {
+                    rightLeg = newRight;
+                    rightIndex = i;
+                }
+                else {
+                    apex = apex + rightLeg;
+                    result.push_back(apex);
+
+                    leftIndex = i;
+
+                    leftLeg = left[leftIndex] - apex;
+                    rightLeg = right[rightIndex] - apex;
+                }
+            }
+
+            i++;
+        }
+
+        result.push_back(GetCellCentre(m_cells[cellPath.back()]));
+        return result;
+    }
+
+
+
+
+
+
 
 }
