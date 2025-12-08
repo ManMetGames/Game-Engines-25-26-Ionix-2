@@ -81,6 +81,10 @@ local projectileLifetimeSeconds = 2  -- seconds projectile can live before auto-
 local fireCooldownTimer = 0
 local isFiring = false
 
+local recoilOffset = 0
+local recoilMaxOffset = 24
+local recoilLerpSpeed = 12
+
 -- Current aim direction (updated each frame)
 local aimDirX = 0
 local aimDirY = -1  -- Default: pointing up
@@ -411,8 +415,6 @@ function TriangleShooter:OnUpdate()
     playerX = math.max(0, math.min(screenW - playerSize, playerX))
     playerY = math.max(0, math.min(screenH - playerSize, playerY))
     
-    Entity.set_global_pos(player, playerX, playerY)
-    
     -- Rotate triangle to face the nearest enemy cube (if any)
     local closestEnemy = nil
     local closestDistSq = nil
@@ -446,6 +448,9 @@ function TriangleShooter:OnUpdate()
             aimDirY = dy / dist
         end
     end
+
+    -- Apply visual recoil offset to player sprite based on aim direction
+    UpdatePlayerRecoil()
     
     -- Spawn projectile on LMB click
     if Input.get_mouse_button_down(1) then
@@ -806,6 +811,35 @@ function UpdateEnemyDash()
     )
 end
 
+function UpdatePlayerRecoil()
+    local dt = GetDt()
+
+    local target = 0
+    if isFiring then
+        target = recoilMaxOffset
+    end
+
+    local diff = target - recoilOffset
+    if math.abs(diff) > 0.01 then
+        local step = recoilLerpSpeed * dt
+        if step > 1 then
+            step = 1
+        end
+        recoilOffset = recoilOffset + diff * step
+    else
+        recoilOffset = target
+    end
+
+    local rx = 0
+    local ry = 0
+    if recoilOffset > 0 then
+        rx = -aimDirX * recoilOffset
+        ry = -aimDirY * recoilOffset
+    end
+
+    Entity.set_global_pos(player, playerX + rx, playerY + ry)
+end
+
 function UpdateBeatBop()
     local dt = GetDt()
     if beatStartDelayCounter < beatStartDelaySeconds then
@@ -824,14 +858,20 @@ function UpdateBeatBop()
         local t = bopTimer / bopDurationSeconds
         local scale = 1.0 + bopScale * t
 
-        if playerSprite then
-            Sprite.set_image_width(playerSprite, math.floor(playerBaseImageWidth * scale))
-            Sprite.set_image_height(playerSprite, math.floor(playerBaseImageHeight * scale))
+        for i = 1, #enemies do
+            local enemy = enemies[i]
+            if enemy and enemy.sprite then
+                Sprite.set_image_width(enemy.sprite, math.floor(enemyBaseImageSize * scale))
+                Sprite.set_image_height(enemy.sprite, math.floor(enemyBaseImageSize * scale))
+            end
         end
     else
-        if playerSprite then
-            Sprite.set_image_width(playerSprite, playerBaseImageWidth)
-            Sprite.set_image_height(playerSprite, playerBaseImageHeight)
+        for i = 1, #enemies do
+            local enemy = enemies[i]
+            if enemy and enemy.sprite then
+                Sprite.set_image_width(enemy.sprite, enemyBaseImageSize)
+                Sprite.set_image_height(enemy.sprite, enemyBaseImageSize)
+            end
         end
     end
 end
