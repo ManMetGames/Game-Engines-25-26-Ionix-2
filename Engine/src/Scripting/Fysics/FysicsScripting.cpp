@@ -23,7 +23,10 @@ namespace IonixEngine
 
 		lua.new_usertype<RayHit>("RayHit",
 			sol::constructors<RayHit()>(),
-			"entity", &RayHit::entity
+			"entity", &RayHit::entity,
+			"point", &RayHit::point,
+			"fraction", &RayHit::fraction
+			
 		);
 
 
