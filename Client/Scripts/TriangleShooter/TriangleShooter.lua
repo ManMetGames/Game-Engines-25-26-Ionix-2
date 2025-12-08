@@ -78,6 +78,8 @@ local projectilePool = {}   -- Inactive projectiles (reusable)
 local projectileSize = 24
 local projectileSpeed = 960 --PIXELS PER SECOND
 local projectileLifetimeSeconds = 2  -- seconds projectile can live before auto-despawn
+local fireCooldownTimer = 0
+local isFiring = false
 
 -- Current aim direction (updated each frame)
 local aimDirX = 0
@@ -344,6 +346,13 @@ function TriangleShooter:OnUpdate()
     globalFrame = globalFrame + 1
     local dt = GetDt()
 
+    if fireCooldownTimer > 0 then
+        fireCooldownTimer = fireCooldownTimer - dt
+        if fireCooldownTimer < 0 then
+            fireCooldownTimer = 0
+        end
+    end
+
     if windowTransitionActive then
         UpdateWindowTransition()
         return
@@ -440,7 +449,28 @@ function TriangleShooter:OnUpdate()
     
     -- Spawn projectile on LMB click
     if Input.get_mouse_button_down(1) then
+        isFiring = true
+        if fireCooldownTimer <= 0 then
+            SpawnProjectile()
+            local interval = TriangleShooterPlayerProgress.getCurrentFireInterval()
+            if not interval or interval <= 0 then
+                interval = 0.5
+            end
+            fireCooldownTimer = interval
+        end
+    end
+
+    if Input.get_mouse_button_up(1) then
+        isFiring = false
+    end
+
+    if isFiring and fireCooldownTimer <= 0 then
         SpawnProjectile()
+        local interval = TriangleShooterPlayerProgress.getCurrentFireInterval()
+        if not interval or interval <= 0 then
+            interval = 0.5
+        end
+        fireCooldownTimer = interval
     end
     
     -- Update all projectiles
