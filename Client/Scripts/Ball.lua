@@ -6,11 +6,11 @@ local assets = require("Scripts.Assets")
 -- World / Game Space
 ----------------------------------------------------------------
 -- Normalized world size: X and Y in [0, 1]
-local GAME_W  = 16
-local GAME_H  = 9
+local GAME_W  = 96
+local GAME_H  = 54
 
 -- How far in from the top/bottom the play area is
-local verticalPadding = 0.05   -- 5% of height
+local verticalPadding = 0.01
 
 ----------------------------------------------------------------
 -- Entities
@@ -27,14 +27,14 @@ local ceilingEntity
 ----------------------------------------------------------------
 local screenW
 local screenH
-local paddleSpeed  = 0.02  -- movement per fixed update (world units)
-local ballSpeed    = 0.02  -- initial ball speed (world units)
-local paddleOffset = 0.05  -- distance from left/right edges in world units
+local paddleSpeed  = 2  -- movement per fixed update (world units)
+local ballSpeed    = 2  -- initial ball speed (world units)
+local paddleOffset = 0.5  -- distance from left/right edges in world units
 
 -- Sizes
-local ballSize  = 32       -- sprite size in pixels (visual only)
-local paddleW   = 0.02     -- world units (physics + visual)
-local paddleH   = 0.25     -- world units (physics + visual)
+local ballSize  = 128       -- sprite size in pixels (visual only)
+local paddleW   = 0.5     -- world units (physics + visual)
+local paddleH   = 4     -- world units (physics + visual)
 
 ----------------------------------------------------------------
 -- Helpers
@@ -102,7 +102,7 @@ local function InitBackground()
     end
 
     -- Centered in world space (0.5, 0.5)
-    Entity.set_global_pos(backgroundEntity, screenW * 0.5, screenH * 0.5)
+    Entity.set_global_pos(backgroundEntity, 0, 0)
 
     -- Visual size in pixels
     Entity.add_sprite_component(backgroundEntity, assets.textures.office, 1920, 1080, 0)
@@ -113,7 +113,7 @@ local function InitBall()
     if not ballEntity then
         return
     end
-
+    Entity.set_global_pos(ballEntity, screenW/2, screenH/2)
     -- Add Sprite
     Entity.add_sprite_component(ballEntity, assets.textures.PimBall, ballSize, ballSize, 100)
 
@@ -121,13 +121,13 @@ local function InitBall()
     Entity.add_fysics_component(ballEntity, 2, true) -- true = rotation locked
 
     -- Box collider in world units
-    local ballHalfSize = 0.02
+    local ballHalfSize = 0.9
     Fysics.add_box_collider(
         ballEntity,
         ballHalfSize,  -- half-width (world units)
         ballHalfSize,  -- half-height (world units)
-        0,             -- offset X
-        0,             -- offset Y
+        0.5,             -- offset X
+        0.5,             -- offset Y
         0,             -- rotation
         false          -- isTrigger
     )
@@ -198,9 +198,8 @@ end
 ----------------------------------------------------------------
 
 function game:OnStart()
-    -- Normalized world size
-    screenW = GAME_W
-    screenH = GAME_H
+    screenW = Window.get_width()
+    screenH = Window.get_height()
 
     InitBackground()
     InitWalls()
