@@ -1,291 +1,225 @@
-local CoinCollectorGame = {}
+local EngineShowcase = {}
 local assets = require("Scripts.Assets")
 local enums = require("Scripts.Enums")
 
--- Game entities
 local player
-local coins = {}
-local obstacles = {}
-local Background
+local rotatingBox
+local bouncingBall
+local staticPlatform
 
--- Game state
-local score = 0
-local gameStarted = false
-local gameOver = false
-local playerSpeed = 300
-local obstacleSpeed = 150
-
--- Spawn timers
-local coinSpawnTimer = 0
-local coinSpawnInterval = 1.5
-local obstacleSpawnTimer = 0
-local obstacleSpawnInterval = 3.0
+local rotationSpeed = 2
+local time = 0
+local particleTimer = 0
+local particles = {}
 
 ----------------------------------------------------------
 -- OnStart
 ----------------------------------------------------------
-function CoinCollectorGame:OnStart()
+function EngineShowcase:OnStart()
     
     ------------------------------------------------------
     -- Background
     ------------------------------------------------------
-    Background = Entity.create_entity()
-    Entity.set_global_pos(Background, 480, 320)
-    local bgSprite = Entity.add_sprite_component(Background, assets.textures.Background, 960, 640, 0)
+    local bg = Entity.create_entity()
+    Entity.set_global_pos(bg, 480, 320)
+    local bgSprite = Entity.add_sprite_component(bg, assets.textures.Background, 960, 640, 0)
     Sprite.set_columns(bgSprite, 1)
     
     ------------------------------------------------------
-    -- Create Player
+    -- Player 
     ------------------------------------------------------
     player = Entity.create_entity()
-    Entity.set_global_pos(player, 480, 500)
+    Entity.set_global_pos(player, 200, 300)
     
     local playerSprite = Entity.add_sprite_component(player, assets.textures.FlappyBird, 48, 48, 10)
     Sprite.set_columns(playerSprite, 1)
     
-    -- Add physics to player
     Entity.add_fysics_component(player, enums.bodytype.dynamicBody, true)
     Fysics.add_sprite_collider(player, false, 1)
-    Fysics.set_gravity_scale(player, 0) -- No gravity for top-down movement
-    Fysics.set_fixed_rotation(player, true) -- Don't rotate
+    Fysics.set_gravity_scale(player, 0)
+    Fysics.set_fixed_rotation(player, true)
     
     ------------------------------------------------------
-    -- Create Floor (boundaries)
+    -- Rotating Box 
     ------------------------------------------------------
-    local tileSize = 64
-    local floorY = 600
+    rotatingBox = Entity.create_entity()
+    Entity.set_global_pos(rotatingBox, 480, 200)
     
-    for i = 0, 15 do
-        local tile = Entity.create_entity()
-        local xPos = i * tileSize
-        Entity.set_global_pos(tile, xPos, floorY)
-        local s = Entity.add_sprite_component(tile, assets.textures.Sand, tileSize, tileSize, 1)
-        Sprite.set_columns(s, 1)
-        Entity.add_fysics_component(tile, enums.bodytype.staticBody, false)
-        Fysics.add_sprite_collider(tile, false, 1)
+    local boxSprite = Entity.add_sprite_component(rotatingBox, assets.textures.Sand, 80, 80, 5)
+    Sprite.set_columns(boxSprite, 1)
+    
+    Entity.add_fysics_component(rotatingBox, enums.bodytype.kinematicBody, false)
+    Fysics.add_sprite_collider(rotatingBox, false, 1)
+    Fysics.set_gravity_scale(rotatingBox, 0)
+    
+    ------------------------------------------------------
+    -- Bouncing Ball 
+    ------------------------------------------------------
+    bouncingBall = Entity.create_entity()
+    Entity.set_global_pos(bouncingBall, 700, 100)
+    
+    local ballSprite = Entity.add_sprite_component(bouncingBall, assets.textures.Coin, 40, 40, 8)
+    Sprite.set_rows(ballSprite, 1)
+    Sprite.set_columns(ballSprite, 5)
+    Sprite.set_width(ballSprite, 40)
+    Sprite.set_height(ballSprite, 40)
+    
+    Entity.add_fysics_component(bouncingBall, enums.bodytype.dynamicBody, true)
+    Fysics.add_sprite_collider(bouncingBall, false, 1)
+    Fysics.set_gravity_scale(bouncingBall, 1)
+    
+    ------------------------------------------------------
+    -- Static Platform 
+    ------------------------------------------------------
+    staticPlatform = Entity.create_entity()
+    Entity.set_global_pos(staticPlatform, 700, 500)
+    
+    local platformSprite = Entity.add_sprite_component(staticPlatform, assets.textures.Sand, 200, 40, 3)
+    Sprite.set_columns(platformSprite, 1)
+    
+    Entity.add_fysics_component(staticPlatform, enums.bodytype.staticBody, false)
+    Fysics.add_sprite_collider(platformSprite, false, 1)
+    
+    ------------------------------------------------------
+    -- Spawn Some Particles
+    ------------------------------------------------------
+    for i = 1, 5 do
+        local particle = Entity.create_entity()
+        local x = math.random(100, 400)
+        local y = math.random(400, 550)
+        Entity.set_global_pos(particle, x, y)
+        
+        local pSprite = Entity.add_sprite_component(particle, assets.textures.Coin, 20, 20, 2)
+        Sprite.set_rows(pSprite, 1)
+        Sprite.set_columns(pSprite, 5)
+        Sprite.set_width(pSprite, 20)
+        Sprite.set_height(pSprite, 20)
+        
+        Entity.add_fysics_component(particle, enums.bodytype.kinematicBody, false)
+        Fysics.set_gravity_scale(particle, 0)
+        
+        table.insert(particles, {
+            entity = particle,
+            baseY = y,
+            offset = math.random(0, 100) / 100
+        })
     end
-    
-    -- Top boundary
-    for i = 0, 15 do
-        local tile = Entity.create_entity()
-        local xPos = i * tileSize
-        Entity.set_global_pos(tile, xPos, 0)
-        local s = Entity.add_sprite_component(tile, assets.textures.Sand, tileSize, tileSize, 1)
-        Sprite.set_columns(s, 1)
-        Entity.add_fysics_component(tile, enums.bodytype.staticBody, false)
-        Fysics.add_sprite_collider(tile, false, 1)
-    end
-    
-    ------------------------------------------------------
-    -- Spawn initial coins
-    ------------------------------------------------------
-    for i = 1, 3 do
-        spawnCoin()
-    end
-end
-
-----------------------------------------------------------
--- Spawn Coin Function
-----------------------------------------------------------
-function spawnCoin()
-    local coin = Entity.create_entity()
-    
-    -- Random position within play area
-    local x = math.random(100, 860)
-    local y = math.random(100, 500)
-    Entity.set_global_pos(coin, x, y)
-    
-    local coinSprite = Entity.add_sprite_component(coin, assets.textures.Coin, 32, 32, 5)
-    Sprite.set_rows(coinSprite, 1)
-    Sprite.set_columns(coinSprite, 5)
-    Sprite.set_width(coinSprite, 32)
-    Sprite.set_height(coinSprite, 32)
-    
-    -- Add physics with trigger collider
-    Entity.add_fysics_component(coin, enums.bodytype.kinematicBody, false)
-    Fysics.add_sprite_collider(coin, true, 1)
-    Fysics.set_gravity_scale(coin, 0)
-    
-    table.insert(coins, {entity = coin, collected = false})
-end
-
-----------------------------------------------------------
--- Spawn Obstacle Function
-----------------------------------------------------------
-function spawnObstacle()
-    local obstacle = Entity.create_entity()
-    
-    -- Spawn on right side, move left
-    local x = 1000
-    local y = math.random(100, 500)
-    Entity.set_global_pos(obstacle, x, y)
-    
-    local obstacleSprite = Entity.add_sprite_component(obstacle, assets.textures.FlappyPipe, 60, 100, 3)
-    Sprite.set_columns(obstacleSprite, 1)
-    
-    -- Add physics
-    Entity.add_fysics_component(obstacle, enums.bodytype.kinematicBody, false)
-    Fysics.add_sprite_collider(obstacle, false, 1)
-    Fysics.set_gravity_scale(obstacle, 0)
-    Fysics.set_linear_velocity(obstacle, -obstacleSpeed, 0)
-    
-    table.insert(obstacles, {entity = obstacle, active = true})
 end
 
 ----------------------------------------------------------
 -- OnUpdate
 ----------------------------------------------------------
-function CoinCollectorGame:OnUpdate()
+function EngineShowcase:OnUpdate()
     
-    local dt = Mafs.delta_time()
+    time = time + Mafs.delta_time()
     
     ------------------------------------------------------
-    -- UI Display
+    -- UI 
     ------------------------------------------------------
-    if not gameStarted then
-        UI.Add_label(300, 250, 400, 100, "Press SPACE to Start!")
-        UI.Add_label(250, 300, 500, 100, "Arrow Keys to Move")
-        UI.Add_label(250, 350, 500, 100, "Collect Coins, Avoid Pipes!")
+    UI.Add_label(10, 10, 500, 50, "IONIX ENGINE FEATURE SHOWCASE")
+    UI.Add_label(10, 40, 400, 50, "Mouse: Player Follows Cursor")
+    UI.Add_label(10, 70, 400, 50, "Space: Jump Ball")
+    UI.Add_label(10, 100, 400, 50, "Click: Spawn object")
+    
+    -- Feature indicators
+    UI.Add_label(10, 150, 300, 50, "Physics: Gravity & Collision")
+    UI.Add_label(10, 180, 300, 50, "Input: Keyboard & Mouse")
+    UI.Add_label(10, 210, 300, 50, "Math: Sin/Cos Animation")
+    UI.Add_label(10, 240, 300, 50, "Entities: Dynamic Creation")
+    
+    -- Show time
+    UI.Add_label(10, 280, 300, 50, "Time: " .. math.floor(time) .. "s")
+    
+    ------------------------------------------------------
+    -- Player Follows Mouse 
+    ------------------------------------------------------
+    local mouseX = Input.get_mouse_x()
+    local mouseY = Input.get_mouse_y()
+    
+    -- Get current player position
+    local playerPos = Fysics.get_pos(player)
+    local playerX = Mafs.get_vec_x(playerPos) * 64 
+    local playerY = Mafs.get_vec_y(playerPos) * 64
+    
+   
+    local dirX = mouseX - playerX
+    local dirY = mouseY - playerY
+    
+    
+    local distance = Mafs.square_root(dirX * dirX + dirY * dirY)
+    
+    -- Only move if not too close to mouse
+    if distance > 5 then
+        -- Normalize and apply speed
+        local speed = 5
+        local vx = (dirX / distance) * speed
+        local vy = (dirY / distance) * speed
+        Fysics.set_linear_velocity(player, vx, vy)
+    else
+        Fysics.set_linear_velocity(player, 0, 0)
+    end
+    
+    ------------------------------------------------------
+    -- Rotating Box 
+    ------------------------------------------------------
+    local currentAngle = Fysics.get_angle(rotatingBox)
+    local newAngle = currentAngle + (rotationSpeed * Mafs.delta_time())
+    Fysics.set_angle(rotatingBox, newAngle)
+    
+    ------------------------------------------------------
+    -- Make ball jump on spacebar 
+    ------------------------------------------------------
+    if Input.get_key_down(Keys.ionix_space) then
+        Fysics.set_linear_velocity(bouncingBall, 0, -8)
+        print("Ball jump!")
+    end
+    
+    -- Reset ball if it falls too far
+    local ballPos = Fysics.get_pos(bouncingBall)
+    if Mafs.get_vec_y(ballPos) > 10 then
+        Fysics.set_pos(bouncingBall, 11, 2)
+        Fysics.set_linear_velocity(bouncingBall, 0, 0)
+    end
+    
+    ------------------------------------------------------
+    -- Animate Particles 
+    ------------------------------------------------------
+    for i, p in ipairs(particles) do
+        local floatY = p.baseY + Mafs.sin(time * 2 + p.offset) * 20
+        Fysics.set_pos(p.entity, Mafs.get_vec_x(Fysics.get_pos(p.entity)), floatY / 64)
+    end
+    
+    ------------------------------------------------------
+    -- Mouse Click to Spawn 
+    ------------------------------------------------------
+    if Input.get_mouse_button_down(1) then
+        local mx = Input.get_mouse_x()
+        local my = Input.get_mouse_y()
         
-        if Input.get_key_down(Keys.ionix_space) then
-            gameStarted = true
-        end
-        return
-    end
-    
-    if gameOver then
-        UI.Add_label(350, 250, 300, 100, "GAME OVER!")
-        UI.Add_label(300, 300, 400, 100, "Final Score: " .. score)
-        UI.Add_label(300, 350, 400, 100, "Press R to Restart")
+        local newObj = Entity.create_entity()
+        Entity.set_global_pos(newObj, mx, my)
         
-        if Input.get_key_down(Keys.ionix_r) then
-            -- Simple restart by resetting score
-            score = 0
-            gameOver = false
-            gameStarted = false
-        end
-        return
-    end
-    
-    -- Display score
-    UI.Add_label(20, 20, 200, 50, "Score: " .. score)
-    
-    ------------------------------------------------------
-    -- Player Movement
-    ------------------------------------------------------
-    local vel = Mafs.vector2(0, 0)
-    
-    if Input.get_key_held(Keys.ionix_left) or Input.get_key_held(Keys.ionix_a) then
-        vel = Mafs.vector2(-playerSpeed, Mafs.get_vec_y(vel))
-    end
-    if Input.get_key_held(Keys.ionix_right) or Input.get_key_held(Keys.ionix_d) then
-        vel = Mafs.vector2(playerSpeed, Mafs.get_vec_y(vel))
-    end
-    if Input.get_key_held(Keys.ionix_up) or Input.get_key_held(Keys.ionix_w) then
-        vel = Mafs.vector2(Mafs.get_vec_x(vel), -playerSpeed)
-    end
-    if Input.get_key_held(Keys.ionix_down) or Input.get_key_held(Keys.ionix_s) then
-        vel = Mafs.vector2(Mafs.get_vec_x(vel), playerSpeed)
-    end
-    
-    Fysics.set_linear_velocity(player, Mafs.get_vec_x(vel), Mafs.get_vec_y(vel))
-    
-    ------------------------------------------------------
-    -- Spawn Coins
-    ------------------------------------------------------
-    coinSpawnTimer = coinSpawnTimer + dt
-    if coinSpawnTimer >= coinSpawnInterval then
-        coinSpawnTimer = 0
-        spawnCoin()
-    end
-    
-    ------------------------------------------------------
-    -- Spawn Obstacles
-    ------------------------------------------------------
-    obstacleSpawnTimer = obstacleSpawnTimer + dt
-    if obstacleSpawnTimer >= obstacleSpawnInterval then
-        obstacleSpawnTimer = 0
-        spawnObstacle()
-    end
-    
-    ------------------------------------------------------
-    -- Clean up off-screen obstacles
-    ------------------------------------------------------
-    for i = #obstacles, 1, -1 do
-        local obs = obstacles[i]
-        if obs.active then
-            local pos = Fysics.get_pos(obs.entity)
-            if Mafs.get_vec_x(pos) < -100 then
-                obs.active = false
-                table.remove(obstacles, i)
-            end
-        end
-    end
-    
-    ------------------------------------------------------
-    -- Remove collected coins
-    ------------------------------------------------------
-    for i = #coins, 1, -1 do
-        if coins[i].collected then
-            table.remove(coins, i)
-        end
-    end
-end
-----------------------------------------------------------
--- OnTriggerEnter - Coin Collection
-----------------------------------------------------------
-function CoinCollectorGame:OnTriggerEnter(entity1, entity2)
-    if gameOver then return end
-    
-    -- Check if player collided with a coin
-    local player_entity, other_entity
-    
-    if entity1 == player then
-        player_entity = entity1
-        other_entity = entity2
-    elseif entity2 == player then
-        player_entity = entity2
-        other_entity = entity1
-    end
-    
-    if player_entity then
-        -- Check if it's a coin
-        for i, coinData in ipairs(coins) do
-            if coinData.entity == other_entity and not coinData.collected then
-                -- Collect coin
-                coinData.collected = true
-                score = score + 10
-                
-                -- Hide coin sprite
-                local sprite = Entity.get_sprite_component(other_entity)
-                if sprite then
-                    Sprite.set_width(sprite, 0)
-                    Sprite.set_height(sprite, 0)
-                end
-                
-                print("Coin collected! Score: " .. score)
-                break
-            end
-        end
+        local sprite = Entity.add_sprite_component(newObj, assets.textures.FlappyPipe, 60, 60, 7)
+        Sprite.set_columns(sprite, 1)
+        
+        Entity.add_fysics_component(newObj, enums.bodytype.dynamicBody, true)
+        Fysics.add_sprite_collider(newObj, false, 1)
+        Fysics.set_gravity_scale(newObj, 0.5)
     end
 end
 
 ----------------------------------------------------------
--- OnCollisionEnter - Obstacle Hit
+-- OnCollisionEnter 
 ----------------------------------------------------------
-function CoinCollectorGame:OnCollisionEnter(entity1, entity2)
-    if gameOver then return end
+function EngineShowcase:OnCollisionEnter(entity1, entity2)
+    print("Collision detected!")
     
-    -- Check if player hit an obstacle
-    if entity1 == player or entity2 == player then
-        for _, obsData in ipairs(obstacles) do
-            if entity1 == obsData.entity or entity2 == obsData.entity then
-                gameOver = true
-                print("Game Over! Hit obstacle!")
-                break
-            end
+    -- Make ball bounce higher when it hits platform
+    if (entity1 == bouncingBall or entity2 == bouncingBall) then
+        if entity1 == staticPlatform or entity2 == staticPlatform then
+            Fysics.set_linear_velocity(bouncingBall, 0, -250)
         end
     end
 end
 
-return CoinCollectorGame
+return EngineShowcase
