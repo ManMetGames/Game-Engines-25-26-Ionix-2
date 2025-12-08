@@ -116,7 +116,7 @@ function EngineShowcase:OnUpdate()
     ------------------------------------------------------
     -- UI 
     ------------------------------------------------------
-    UI.Add_label(10, 10, 500, 50, "IONIX ENGINE FEATURE SHOWCASE")
+    
     UI.Add_label(10, 40, 400, 50, "Mouse: Player Follows Cursor")
     UI.Add_label(10, 70, 400, 50, "Space: Jump Ball")
     UI.Add_label(10, 100, 400, 50, "Click: Spawn object")
