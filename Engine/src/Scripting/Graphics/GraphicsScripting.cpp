@@ -3,6 +3,8 @@
 #include "GraphicsScripting.h"
 #include <Graphics/SpriteComponent.h>
 
+#include "Architecture/Application.h"
+
 namespace IonixEngine {
 
     GraphicsScripting* GraphicsScripting::s_Instance = nullptr;
@@ -96,6 +98,8 @@ namespace IonixEngine {
         auto setPlaybackMode = [](SpriteComponent* spriteComponent, int playbackMode) {
             spriteComponent->setPlaybackMode(static_cast<IonixEngine::playbackOptions>(playbackMode));
             };
+
+
 
         
         lua["Texture"] = lua.create_table_with(

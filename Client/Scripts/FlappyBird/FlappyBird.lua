@@ -148,11 +148,9 @@ function ExampleScript:OnUpdate()
     local mousePos = Input.get_mouse_pos()
     local playerPos = Entity.get_entity_pos(player1)
     local hit, info = Fysics.raycast(playerPos, mousePos)
+    Fysics.draw_raycast(playerPos, mousePos, false)
     if hit and info.entity then
-        print("Yes", info.entity)
-        Entity.set_entity_pos(info.entity, x, y)
-    elseif hit == false then
-        --print("No") 
+        Fysics.draw_raycast(playerPos, mousePos, true)
     end
 end
 

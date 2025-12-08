@@ -401,13 +401,15 @@ namespace IonixEngine
 			bool hitSomething = Application::Get().layerFysics->GetFysicsManager()->GetRaycast()->CastFirst(b2Vec2(pos1.x / 100, pos1.y / 100), pos2, hit);
 			if (!hitSomething)
 			{
-				Application::Get().layerGraphics->GetQueue()->DrawLine(pos1.x, pos1.y, endPos.x, endPos.y, false);
-
 				return std::make_tuple(false, RayHit());
 			}
-			Application::Get().layerGraphics->GetQueue()->DrawLine(pos1.x, pos1.y, endPos.x, endPos.y, true);
 
 			return std::make_tuple(true, hit);
+		};
+
+		auto drawRaycast = [](Vec2 startPos, Vec2 endPos, bool hitColor)
+		{
+			Application::Get().layerGraphics->GetQueue()->DrawLine(startPos.x, startPos.y, endPos.x, endPos.y, hitColor);
 		};
 		
 
@@ -470,7 +472,8 @@ namespace IonixEngine
 			"get_stiffness", getStiffnessFromWeldJoint,
 			"set_stiffness", setStiffnessFromWeldJoint,
 			"add_to_collision_map", addToCollisionMap,
-			"raycast", raycast
+			"raycast", raycast,
+			"draw_raycast", drawRaycast
 		);
 	}
 }
