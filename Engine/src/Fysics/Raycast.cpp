@@ -14,7 +14,7 @@ namespace IonixEngine
         input.p1 = p1;
         input.p2 = b2Vec2(p2.x / 100, p2.y / 100);
         input.maxFraction = 1.0f;
-        std::cout << p2.x << " " << p2.y << std::endl;
+        //std::cout << p2.x << " " << p2.y << std::endl;
         float closestFraction = 1.0f;
         b2Vec2 intersectionNormal(0.0f, 0.0f);
         b2Body* hitBody = nullptr;

@@ -21,6 +21,11 @@ namespace IonixEngine
 			"y", &b2Vec2::y
 		);
 
+		lua.new_usertype<RayHit>("RayHit",
+			sol::constructors<RayHit()>(),
+			"entity", &RayHit::entity
+		);
+
 
 		//------------Fysics Body Methods---------------
 		auto getFysicsPos = [](Entity* entity) -> b2Vec2 {
@@ -384,7 +389,7 @@ namespace IonixEngine
 			}
 		};
 		//---------------Raycasting--------
-		auto raycast = [](Vec2 startPos, Vec2 endPos)->bool
+		auto raycast = [](Vec2 startPos, Vec2 endPos)->std::tuple<bool, RayHit>
 		{
 
 			b2Vec2 pos1 = b2Vec2(startPos.x, startPos.y);
@@ -395,11 +400,11 @@ namespace IonixEngine
 			{
 				Application::Get().layerGraphics->GetQueue()->DrawLine(pos1.x, pos1.y, endPos.x, endPos.y, false);
 
-				return false;
+				return std::make_tuple(false, RayHit());
 			}
 			Application::Get().layerGraphics->GetQueue()->DrawLine(pos1.x, pos1.y, endPos.x, endPos.y, true);
 
-			return true;
+			return std::make_tuple(true, hit);
 		};
 		
 

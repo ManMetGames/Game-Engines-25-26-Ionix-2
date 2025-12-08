@@ -111,9 +111,6 @@ function ExampleScript:OnStart()
         Entity.set_entity_pos(pipe, xPos, floorY)
 	end
 
-    Fysics.add_to_collision_map(player1, pipeT)
-    Fysics.add_to_collision_map(player1, pipe)
-
 
 end
 
@@ -150,10 +147,10 @@ function ExampleScript:OnUpdate()
 
     local mousePos = Input.get_mouse_pos()
     local playerPos = Entity.get_entity_pos(player1)
-    local hit = Fysics.raycast(playerPos, mousePos)
-    if hit then
-        --print("Yes", hitCount)
-        --hitCount = hitCount + 1
+    local hit, info = Fysics.raycast(playerPos, mousePos)
+    if hit and info.entity then
+        print("Yes", info.entity)
+        Entity.set_entity_pos(info.entity, x, y)
     elseif hit == false then
         --print("No") 
     end
