@@ -138,9 +138,7 @@ function ExampleScript:OnUpdate()
     bgX = bgX + bgScrollSpeed
 
   -- Loop background when it moves off screen
-    if bgX <= -bgWidth then
-    bgX = 0
-    end
+    if bgX <= -bgWidth then bgX = 0 end
     Entity.set_global_pos(Background, bgX, 0)
     Entity.set_global_pos(Background2, bgX + bgWidth, 0)
     
@@ -155,7 +153,8 @@ function ExampleScript:OnUpdate()
     -- Constant rightward movement
     local vx = 0
     local vy1 = Mafs.get_vec_y(vel1)
-
+    
+    -- Player Jump
 	if Input.get_key_held(Keys.ionix_space) then   
 
         -- Bird move if space is pressed (allow gravity)
