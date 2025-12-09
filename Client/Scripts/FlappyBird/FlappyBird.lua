@@ -11,6 +11,7 @@ local goalX = 500
 local goalY = 500
 local y = 300
 local t = 10
+local coinCount = 0
 
 -- Pipe variables
 local pipe

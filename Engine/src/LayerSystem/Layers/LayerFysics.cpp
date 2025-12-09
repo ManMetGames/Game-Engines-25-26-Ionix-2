@@ -24,7 +24,6 @@ namespace IonixEngine
     {
         instance = this;
         fysicsManager = new FysicsManager();
-
         //create default ground box
         /*b2World* world = fysicsManager->GetWorld();
         b2BodyDef groundDef; groundDef.position.Set(0.f, -2.f); // roughly 600 pixels down from the top
@@ -51,6 +50,19 @@ namespace IonixEngine
         auto& bodyMap = fysicsManager->GetBodyMap();
         auto& transformMap = fysicsManager->GetTransformMap();
         
+        auto& entityBodies = fysicsManager->GetCollisionListener()->entityBodiesToDestroy;
+        if (!entityBodies.empty())
+        {
+            for (b2Body* body : entityBodies)
+            {                                   
+                fysicsManager->GetWorld()->DestroyBody(body);
+            }
+
+            entityBodies.clear();
+        }
+        
+
+
         // interpolate visual positions for all physics bodies
         /*for (auto& [body, entity] : bodyMap)
         {
@@ -143,6 +155,7 @@ namespace IonixEngine
             }
 
         }
+
 
     } 
     void LayerFysics::OnEvent(IonixEvent& e)

@@ -35,12 +35,19 @@ namespace IonixEngine {
 		float timer;
 		float tickRate;
 		b2Vec2 boxColliderSize;
+		
+		// Color tint (default white = no tint)
+		Uint8 colorR = 255;
+		Uint8 colorG = 255;
+		Uint8 colorB = 255;
 
 		enum playbackOptions playbackMode;
 
 	public:
 		SpriteComponent(Entity* entity, std::string alias, int width, int height, int zedOrder);
 		SpriteComponent(Entity* entity, uint32_t hash, int width, int height, int zedOrder);
+		SpriteComponent(Entity* entity, std::string alias, int x, int y, int zedOrder, int rows_, int cols_, int spriteW, int spriteH, int end_Frame = 0);
+		SpriteComponent(Entity* entity, uint32_t hash, int x, int y, int zedOrder, int rows_, int cols_, int spriteW, int spriteH, int end_Frame = 0);
 		virtual void Render(RenderData* data) override;
 		virtual void Update(float deltaTime) override;
 
@@ -67,6 +74,7 @@ namespace IonixEngine {
 		void setAngle(float angle);
 		void setTickRate(float x);
 		void setBoxColliderSize(b2Vec2 newSize);
+		void setColor(Uint8 r, Uint8 g, Uint8 b);
 
 		//Getters
 		IonixEngine::playbackOptions getPlaybackMode();

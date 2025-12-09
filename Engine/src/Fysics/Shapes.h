@@ -6,7 +6,7 @@
 namespace IonixEngine
 {
     class Entity;
-    enum class fysicShapeType { circle, box, polygon, none };
+    enum class fysicShapeType { circle, box, polygon, none, sprite };
 
     class FysicsShapes
     {

@@ -37,7 +37,7 @@ namespace IonixEngine
     void CollisionListener::CheckTrigger(Entity* entityA, Entity* entityB)
     {
                 
-        if (fysicsManager->GetBodyFromEntity(entityA)->GetFixtureList()->IsSensor() || fysicsManager->GetBodyFromEntity(entityB)->GetFixtureList()->IsSensor())
+        if (fysicsManager->GetFixtureFromEntity(entityA)->IsSensor() || fysicsManager->GetFixtureFromEntity(entityB)->IsSensor())
         {
             Scripting::Get().CallHook("OnTriggerEnter", entityA, entityB);
         }
@@ -45,6 +45,20 @@ namespace IonixEngine
         else
         {
             Scripting::Get().CallHook("OnCollisionEnter", entityA, entityB);
+        }
+    }
+
+    void CollisionListener::CheckTriggerExit(Entity* entityA, Entity* entityB)
+    {
+                
+        if (fysicsManager->GetFixtureFromEntity(entityA)->IsSensor() || fysicsManager->GetFixtureFromEntity(entityB)->IsSensor())
+        {
+            Scripting::Get().CallHook("OnTriggerExit", entityA, entityB);
+        }
+
+        else
+        {
+            Scripting::Get().CallHook("OnCollisionExit", entityA, entityB);
         }
     }
 
@@ -64,6 +78,11 @@ namespace IonixEngine
         }
     }
 
+    void CollisionListener::AddEntityBodiesToDestroy(b2Body* entityToDestroy)
+    {
+        entityBodiesToDestroy.push_back(entityToDestroy);
+    }
+
     void CollisionListener::EndContact(b2Contact* contact)
     {
         b2Body* bodyA = contact->GetFixtureA()->GetBody();
@@ -79,6 +98,8 @@ namespace IonixEngine
             // Create and dispatch collision event through callback
             CollisionExitEvent event(entityA, entityB);
             m_EventCallback(event);
+            CheckTriggerExit(entityA, entityB);
+
             activeCollisions[entityA->id].erase(entityB->id);
             activeCollisions[entityB->id].erase(entityA->id);
         }
@@ -109,3 +130,4 @@ namespace IonixEngine
         
     }
 }
+

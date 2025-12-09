@@ -12,6 +12,7 @@
 #include <backends/imgui_impl_sdlrenderer2.h>
 #include <iostream>
 #include <third-party/imgui_impl_sdlrenderer2.h>
+#include "Input/ControllerManager.h"
 
 namespace IonixEngine {
     Application* Application::s_Instance = nullptr;
@@ -162,7 +163,32 @@ namespace IonixEngine
             SDL_RenderPresent(m_Window->m_Renderer);
 
             layerInput->m_Input->CopyCodesEndFrame();
-          
+
+            //need a way of itterating through unorder map
+            //for (int i = 0; i < 4; i++)
+            //{
+            //    if (layerInput->GetControllerManager()[0])
+            //    {
+            //        layerInput->GetControllerManager()[0]->CopyCodesEndFrame();
+            //    }
+            //}
+
+            if (layerInput->GetControllerManager()[0])
+            {
+                layerInput->GetControllerManager()[0]->CopyCodesEndFrame();
+            }
+            if (layerInput->GetControllerManager()[1])
+            {
+                layerInput->GetControllerManager()[1]->CopyCodesEndFrame();
+            }
+            if (layerInput->GetControllerManager()[2])
+            {
+                layerInput->GetControllerManager()[2]->CopyCodesEndFrame();
+            }
+            if (layerInput->GetControllerManager()[3])
+            {
+                layerInput->GetControllerManager()[3]->CopyCodesEndFrame();
+            }
             m_Window->OnUpdate();
         }
     
