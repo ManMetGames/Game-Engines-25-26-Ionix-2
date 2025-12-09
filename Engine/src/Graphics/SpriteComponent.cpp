@@ -163,7 +163,7 @@ namespace IonixEngine {
 	{
 		switch (playbackMode) {
 			//only forward and oneframe work for now, im sorry :(
-		case playbackOptions::FORWARD: case playbackOptions::FORWARDANDBACKWARD: case playbackOptions::PLAYONCE:case playbackOptions::BACKWARD:
+		case playbackOptions::FORWARD: case playbackOptions::FORWARDANDBACKWARD: case playbackOptions::PLAYONCE: case playbackOptions::BACKWARD:
 			endFrame = totalFrames;
 			currentFrame = 0;
 			currentRow = 0; //0 indexed
