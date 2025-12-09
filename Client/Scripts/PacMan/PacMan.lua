@@ -138,22 +138,26 @@ function ExampleScript:OnUpdate()
 	if Input.get_key_down(Keys.ionix_w) then -- move up
         vy1 = -1  
         vx = 0
-        Fysics.set_angle(player1, 270 * (Mafs.pi() / 180))
+        --Fysics.set_angle(player1, 270 * (Mafs.pi() / 180))
+        Entity.set_global_rot(player1, 270)
+        Entity.set_global_pos(player1, 500, 200)
 	end
     if Input.get_key_down(Keys.ionix_s) then -- move down
          vy1 = 1
           vx = 0
-        Fysics.set_angle(player1, 90 * (Mafs.pi() / 180))
+        --Fysics.set_angle(player1, 90 * (Mafs.pi() / 180))
+        Entity.set_global_rot(player1, 180)
     end
     if Input.get_key_down(Keys.ionix_a) then -- move left
         vx = -1
         vy1 = 0
-        Fysics.set_angle(player1, Mafs.pi())
+        --Fysics.set_angle(player1, Mafs.pi())
+        Entity.set_global_rot(player1, 90)
     end
     if Input.get_key_down(Keys.ionix_d) then -- move right
         vx = 1
         vy1 = 0
-        Fysics.set_angle(player1, 0)
+        Entity.set_global_rot(player1, 0)
     end
 
 

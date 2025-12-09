@@ -38,11 +38,22 @@ namespace IonixEngine {
 
         auto setGlobalPos = [](Entity* entity, float x, float y) {
             if (entity == nullptr) return;
+            FysicsBody* body = nullptr;
+            if (entity->TryGetComponent(&body))
+            {
+                body->SetPosition(entity, x / 100, y / 100);
+            }
+            
             entity->transform.SetGlobalPosition(Vec2{ x, y });
             };
 
         auto setGlobalRot = [](Entity* entity, float rot) {
             if (entity == nullptr) return;
+            FysicsBody* body = nullptr;
+            if (entity->TryGetComponent(&body))
+            {
+                body->SetAngle(entity, rot);
+            }
             entity->transform.SetGlobalRotation(rot);
             };
 

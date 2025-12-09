@@ -90,7 +90,7 @@ namespace IonixEngine
 
         
 
-        // AFTER physics step, update current visual state
+        /*// AFTER physics step, update current visual state
         for (auto& val : bodyMap)
         {
             Vec2 pos;
@@ -141,9 +141,7 @@ namespace IonixEngine
                 transform.currentPosition = val.first->GetPosition();
                 transform.currentRotation = val.first->GetAngle();
             }
-
-        }
-
+        }*/
     } 
     void LayerFysics::OnEvent(IonixEvent& e)
     {
