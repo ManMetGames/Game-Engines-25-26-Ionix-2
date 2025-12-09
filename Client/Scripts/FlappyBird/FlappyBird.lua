@@ -39,7 +39,8 @@ local scoreText = "Coins: 0"
 local text1 = "Press SPACE to start!"
 local text2 = "Press SPACE to restart"
 local finalScoreText = "Final Score: 0"
-local coinsText = "Coins Collected: 0"
+local coinsText = "Coins Collected: "
+local topScore = "Highscore: "
 
 local gameOver = false
 
@@ -51,10 +52,10 @@ local function resetGame()
     pipeScoreText = "Score: 0"
     scoreText = "Coins: 0"
     text1 = "Press SPACE to start!"
-    text2 = "Press SPACE to restart"
     finalScoreText = "Final Score: 0"
-    coinsText = "Coins Collected: 0"
-
+    coinsText = "Coins Collected: "
+    topScore = "Highscore: "
+    highscore = Json.load_high_score()
     --Reset player
     Fysics.set_pos(player1, 2, 3)
     Fysics.set_gravity_scale(player1, 0)
@@ -282,16 +283,20 @@ function ExampleScript:OnUpdate()
 
     if gameOver then
         --Score and Game Over text
-        UI.Add_label(300, 225, 1000, 1000, text1)
+        UI.Add_label(320, 235, 1000, 1000, text1)
 
         --Display final score
-        UI.Add_label(345, 250, 1000, 1000, finalScoreText)
+        UI.Add_label(355, 260, 1000, 1000, finalScoreText)
 
-        --Display coin score
-        UI.Add_label(325, 275, 1000, 1000, coinsText)
+        --Display coins collected
+        UI.Add_label(330, 285, 1000, 1000, coinsText)
+
+        --Display Highscore
+        UI.Add_label(100, 260, 1000, 1000, topScore)
 
         --Display retry text
-        UI.Add_label(300, 300, 1000, 1000, text2)
+        UI.Add_label(320, 305, 1000, 1000, text2)
+
 
         if gameOver and Input.get_key_down(Keys.ionix_space) then
         resetGame()
@@ -554,18 +559,22 @@ end
         local s = Entity.get_sprite_component(c)
         if s then Sprite.set_width(s, 0); Sprite.set_height(s, 0) end
     end
+    
+    if Pscore > highscore then 
+        highscore = Pscore 
+        Json.save_high_score(highscore)
+    end
 
     text1 = "GAME OVER!! TRY AGAIN"
     finalScoreText = "Final Score: " .. tostring(Pscore)
+    topScore = "Highscore: " .. tostring(highscore)
     coinsText = "Coins Collected: " .. tostring(score)
     local finalScoreText = "Final Score: 0"
     local coinsText = ""
     local text2 = ""
-    if Pscore > highscore then 
-        highscore = Pscore 
-        Json.save_high_score(highscore)
-        print (highscore)
-    end
+    local topScore = "Highscore: "
+
+
     
     
 end

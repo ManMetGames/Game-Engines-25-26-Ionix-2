@@ -17,6 +17,7 @@ return {
         hermer = 242799782,
         horse_fat = 963803500,
         office = 2084752704,
+        point = 1459186848,
     },
     sounds = {
         test = 1642075152,

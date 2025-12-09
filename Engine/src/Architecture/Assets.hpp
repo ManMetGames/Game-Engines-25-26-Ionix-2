@@ -20,6 +20,7 @@ struct Textures {
     uint32_t hermer = 242799782u;
     uint32_t horse_fat = 963803500u;
     uint32_t office = 2084752704u;
+    uint32_t point = 1459186848u;
 
     inline std::map<std::string, std::string> GetTextures() {
         std::map<std::string, std::string> map;
@@ -40,6 +41,7 @@ struct Textures {
         map["hermer"] = "./Assets/hermer.png";
         map["horse_fat"] = "./Assets/horse-fat.gif";
         map["office"] = "./Assets/office.png";
+        map["point"] = "./Assets/point.png";
         return map;
     };
 };
