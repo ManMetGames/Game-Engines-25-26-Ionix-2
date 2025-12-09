@@ -14,7 +14,7 @@
 #include "Scripting/Graphics/GraphicsScripting.h"
 #include "Scripting/Entity/EntityScripting.h"
 #include "Scripting/UI/UIScripting.h"
-#include "Scripting/JSON/JSONScripting.h"
+#include "Scripting/JSON/JsonScripting.h"
 
 namespace IonixEngine
 {

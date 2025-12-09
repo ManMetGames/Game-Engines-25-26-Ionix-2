@@ -1,15 +1,15 @@
 #pragma once
 #include "sol/sol.hpp"
-#include "saveToJson.h"
+#include "json.hpp"
 
 namespace IonixEngine {
-    class JSONScripting {
+    class JsonScripting {
     public:
-        static JSONScripting& Get();
+        static JsonScripting& Get();
 
         void Init(sol::state& lua);
 
     private:
-        static JSONScripting* s_Instance;
+        static JsonScripting* s_Instance;
     };
 }

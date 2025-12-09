@@ -1,33 +1,38 @@
-#include "Scripting/UI/UIScripting.h"
-#include "UI/UIManager.h"
+#include "JsonScripting.h"
 #include "Architecture/Application.h"
-#include "Scripting/JSON/JSONScripting.h"
+#include <fstream>
 
-namespace IonixEngine {
-    JSONScripting* JSONScripting::s_Instance = nullptr;
+namespace IonixEngine
+{
+	JsonScripting* JsonScripting::s_Instance = nullptr;
+	JsonScripting& JsonScripting::Get() {
+		if (!s_Instance)
+			s_Instance = new JsonScripting();
+		return *s_Instance;
+	}
+	void JsonScripting::Init(sol::state& lua)
+	{
+		using json = nlohmann::json;
 
-    JSONScripting& JSONScripting::Get() {
-        if (!s_Instance)
-            s_Instance = new JSONScripting();
-        return *s_Instance;
-    }
+		auto saveHighScore = [](int score) {
+			json data;
+			data["highscore"] = score;
+			std::ofstream file("flappyBirdHighScore.json");
+			file << data.dump(4); // pretty print with indent 4
 
-    void JSONScripting::Init(sol::state& lua)
-    {
-        auto saveHighScore = []() {};
-        auto loadHighScore = []() {};
-        /*
-        auto AddLabel = [](const int x, int y, float xSize, float ySize, const char* text) {
-            Application::Get().layerUI->m_UIManager->AddLabel(x, y, xSize, ySize, text);
-            };
-        auto drawLabel = [](const char* text, int xsize, int ysize, int xpos, int ypos, const char* font) {
-            Application::Get().layerUI->m_UI->DrawLabel((char*)text, xsize, ysize, xpos, ypos, "");
-            };
-        */
-        lua["JSON"] = lua.create_table_with(
-            //"Add_label", AddLabel
+			};
+		auto loadHighScore = []() -> int {
+			std::ifstream file("flappyBirdHighScore.json");
+			if (!file.is_open())
+				return 0; // default if no file exists
+			json data;
+			file >> data;
+			return data.value("highscore", 0);
 
-        );
-    }
-
+			};
+		lua["Json"] = lua.create_table_with(
+			"save_high_score", saveHighScore,
+			"load_high_score", loadHighScore
+		);
+	}
 }
