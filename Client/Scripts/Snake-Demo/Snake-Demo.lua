@@ -1,4 +1,4 @@
-local ExampleScript = {}
+    local ExampleScript = {}
 local assets = require("Scripts.Assets")
 local Background
 local player1
@@ -14,12 +14,13 @@ local h = 500
 local w = 400
 local text = "Hello"
 local Apple
+local Apple2
 local AppleX = 400
 local AppleY= 500
 local AppleSprite
 local xSize = 32
 local ySize = 32
-
+  local Score = 0
 
 ----------------------------------------------------------
 -- OnStart
@@ -28,7 +29,7 @@ function ExampleScript:OnStart()
 
     Background = Entity.create_entity()
     local BgBackground = Entity.add_sprite_component(Background, assets.textures.Background,960 , 640, 0)   
-    UI.Add_label( 350, 350, xSize, ySize, text)
+    -- UI.Add_label( 350, 350, xSize, ySize, text)
  
    ------------------------------------------------------
     -- Create player1
@@ -69,6 +70,23 @@ function ExampleScript:OnStart()
     Fysics.add_sprite_collider(Apple,true,1)
 
     Fysics.set_gravity_scale(Apple, 0) 
+
+
+     --Second Create Apple
+
+    Apple2 = Entity.create_entity()
+
+    Entity.set_local_pos(Apple2, 300, 300)
+
+    local Apple2Sprite = Entity.add_sprite_component(Apple2, assets.textures.Apple, 32, 32, 10)
+    Sprite.set_columns(Apple2Sprite,1)
+
+    
+    Entity.add_fysics_component(Apple2, 2, true) -- dynamic body
+    --Fysics.add_sprite_collider(player1, false)
+    Fysics.add_sprite_collider(Apple2,true,1)
+
+    Fysics.set_gravity_scale(Apple2, 0) 
 
     -- pick texture for left / middle / right
 	------------------------------------------------------
@@ -143,7 +161,7 @@ function ExampleScript:OnUpdate()
     local Speed = 5
     local vx = 0
     local vy = 0
-   
+  
 
 
   -- basic movment using the WASD keys
@@ -175,6 +193,15 @@ end
 function ExampleScript:OnTriggerEnter(collision1, collision2)
     if(collision2 == Apple) then
         Entity.destroy_entity(collision2)
+        Score = Score + 1
+        print (Score)
+        
+    end
+
+      if(collision2 == Apple2) then
+        Entity.destroy_entity(collision2)
+        Score = Score + 1
+        print (Score)
         
     end
 end
