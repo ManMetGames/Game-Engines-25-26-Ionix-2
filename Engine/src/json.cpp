@@ -10,12 +10,12 @@ namespace IonixEngine
         json data;
         data["highscore"] = score;
 
-        std::ofstream file("highscore.json");
+        std::ofstream file("flappyBirdHighScore.json");
         file << data.dump(4); // pretty print with indent 4
     }
 
     int LoadHighScore() {
-        std::ifstream file("highscore.json");
+        std::ifstream file("flappyBirdHighScore.json");
         if (!file.is_open())
             return 0; // default if no file exists
 
