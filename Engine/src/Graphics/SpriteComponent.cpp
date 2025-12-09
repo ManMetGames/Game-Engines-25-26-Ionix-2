@@ -72,6 +72,25 @@ namespace IonixEngine {
 		initialiseSpritesheet();
 	}
 
+
+	// New constructors with animation setup
+
+	SpriteComponent::SpriteComponent(Entity* entity, std::string alias, int x, int y, int zedOrder, int rows_, int cols_, int spriteW, int spriteH, int end_Frame) : SpriteComponent(entity, alias, x, y, zedOrder) {
+		setAnimation(rows_, cols_, spriteW, spriteH);
+		calculateTotalFrames();
+		initialiseSpritesheet();
+
+		if (end_Frame > 0) { endFrame = end_Frame; }
+	}
+
+	SpriteComponent::SpriteComponent(Entity* entity, uint32_t hash, int x, int y, int zedOrder, int rows_, int cols_, int spriteW, int spriteH, int end_Frame): SpriteComponent(entity, hash, x, y, zedOrder) {
+		setAnimation(rows_, cols_, spriteW, spriteH);
+		calculateTotalFrames();
+		initialiseSpritesheet();
+
+		if (end_Frame > 0) { endFrame = end_Frame; }
+	}
+
 	void SpriteComponent::Render(RenderData* data)
 	{
 
