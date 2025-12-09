@@ -3,7 +3,7 @@ local ParticleSystem = {}
 local assets = require("Scripts.Assets")
 local HIT_PARTICLE_SIZE = 16
 local HIT_PARTICLE_LIFETIME = 0.25
-local HIT_PARTICLE_COUNT = 8
+local HIT_PARTICLE_COUNT = 20
 local HIT_PARTICLE_MIN_SPEED = 240
 local HIT_PARTICLE_MAX_SPEED = 520
 
