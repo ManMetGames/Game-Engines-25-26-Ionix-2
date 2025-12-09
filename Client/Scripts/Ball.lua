@@ -35,7 +35,6 @@ local paddleOffset = 0.5  -- distance from left/right edges in world units
 local ballSize  = 128       -- sprite size in pixels (visual only)
 local paddleW   = 0.5     -- world units (physics + visual)
 local paddleH   = 4     -- world units (physics + visual)
-
 ----------------------------------------------------------------
 -- Helpers
 ----------------------------------------------------------------
@@ -209,39 +208,64 @@ function game:OnStart()
     ResetBall()
 end
 
-function game:OnFixedUpdate()
-    ------------------------------------------------
-    -- 1. Handle Player 1 Input (Left Paddle)
-    ------------------------------------------------
+local function Inputs()
+    -- Refresh controller count each frame (recommended)
+    numControllers = Input.get_controller_count()
+
     local p1MoveY = 0
-
-    if Input.get_key_held(Keys.ionix_w) then
-        p1MoveY = -1
-    elseif Input.get_key_held(Keys.ionix_s) then
-        p1MoveY = 1
-    end
-
-    local c1Stick = Input.get_left_stick_y(0)
-    if Mafs.abs(c1Stick) > 0.1 then
-        p1MoveY = c1Stick
-    end
-
-    ------------------------------------------------
-    -- 2. Handle Player 2 Input (Right Paddle)
-    ------------------------------------------------
     local p2MoveY = 0
+    print (numControllers .. " controllers connected.")
+    
+    if numControllers == 0 then
+        -- Player 1 keyboard
+        if Input.get_key_held(Keys.ionix_w) then
+            p1MoveY = -1
+        elseif Input.get_key_held(Keys.ionix_s) then
+            p1MoveY = 1
+        end
 
-    local c2Stick = Input.get_left_stick_y(1)
-    if Mafs.abs(c2Stick) > 0.1 then
-        p2MoveY = c2Stick
+        -- Player 2 keyboard
+        if Input.get_key_held(Keys.arrow_up) then
+            p2MoveY = -1
+        elseif Input.get_key_held(Keys.arrow_down) then
+            p2MoveY = 1
+        end
+
+    elseif numControllers == 1 then
+        -- Player 1 keyboard
+        if Input.get_key_held(Keys.ionix_w) then
+            p1MoveY = -1
+        elseif Input.get_key_held(Keys.ionix_s) then
+            p1MoveY = 1
+        end
+
+        -- Player 2 controller
+        local c2Stick = Input.get_left_stick_y(0)
+        if Mafs.abs(c2Stick) > 0.1 then
+            p2MoveY = c2Stick
+        end
+
+    elseif numControllers >= 2 then
+        -- Player 1 controller
+        local c1Stick = Input.get_left_stick_y(0)
+        if Mafs.abs(c1Stick) > 0.1 then
+            p1MoveY = c1Stick
+        end
+
+        -- Player 2 controller
+        local c2Stick = Input.get_left_stick_y(1)
+        if Mafs.abs(c2Stick) > 0.1 then
+            p2MoveY = c2Stick
+        end
     end
 
-    ------------------------------------------------
-    -- 3. Move Paddles (Kinematic Movement)
-    ------------------------------------------------
+    -- Move both paddles
     UpdatePaddle(leftPaddle,  p1MoveY)
     UpdatePaddle(rightPaddle, p2MoveY)
+end
 
+function game:OnFixedUpdate()
+    Inputs()
     ------------------------------------------------
     -- 4. Scoring Logic (Reset Ball)
     ------------------------------------------------
