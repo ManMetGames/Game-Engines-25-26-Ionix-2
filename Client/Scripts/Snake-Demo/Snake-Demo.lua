@@ -16,9 +16,11 @@ local text = "Hello, World!"
 local font = assets.fonts.DefaultFont
 local Apple
 local AppleX = 400
-local AppleY= 500
+local AppleY = 500
+local randomX = math.random(10, 490)
+local randomY = math.random(10, 490)
 local AppleSprite
-
+local Speed = 5
 ----------------------------------------------------------
 -- OnStart
 ----------------------------------------------------------
@@ -135,7 +137,7 @@ end
 ----------------------------------------------------------
 function ExampleScript:OnUpdate()
 
-    local Speed = 5
+
     local vx = 0
     local vy = 0
 
@@ -167,8 +169,11 @@ end
 
 function ExampleScript:OnTriggerEnter(collision1, collision2)
     if(collision2 == Apple) then
-        Entity.destroy_entity(collision2)
+       Entity.set_local_pos(Apple, randomX, randomY)
     end
 end
+
+
+
 
 return ExampleScript
