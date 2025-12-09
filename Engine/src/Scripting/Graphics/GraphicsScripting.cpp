@@ -1,6 +1,8 @@
 #include "Scripting/Graphics/GraphicsScripting.h"
 #include "Architecture/TextureManager/TextureManager.h"
 #include "GraphicsScripting.h"
+#include "Architecture/Application.h"
+#include "Architecture/Scene.h"
 #include <Graphics/SpriteComponent.h>
 #include <Graphics/Camera.h>
 
@@ -118,6 +120,38 @@ namespace IonixEngine {
             spriteComponent->setColor(static_cast<Uint8>(r), static_cast<Uint8>(g), static_cast<Uint8>(b));
         };
 
+        auto emitParticle = [](uint32_t textureHash,
+                               int renderLayer,
+                               float x,
+                               float y,
+                               float vx,
+                               float vy,
+                               float lifetime,
+                               float startSize,
+                               float endSize) {
+            if (!Application::Get().layerScene || !Application::Get().layerScene->GetScene()) {
+                return;
+            }
+
+            Scene* scene = Application::Get().layerScene->GetScene();
+            scene->GetParticleSystem().Emit(
+                textureHash,
+                renderLayer,
+                x,
+                y,
+                vx,
+                vy,
+                lifetime,
+                startSize,
+                endSize,
+                255, 255, 255, 255,
+                255, 255, 255, 0,
+                7,
+                0.0f, 0.0f,
+                0.0f
+            );
+        };
+
         //camera
 		auto Camera = [](float startX, float startY, int renderLayer) {
 			return new IonixEngine::Camera(startX, startY, renderLayer);
@@ -203,6 +237,10 @@ namespace IonixEngine {
             "set_tick_rate", setTickRate
         );
        
+        lua["Particles"] = lua.create_table_with(
+            "emit", emitParticle
+        );
+
         lua["Camera"] = lua.create_table_with(
             "create_camera", Camera,
 			"initialize_camera", initializeCamera,

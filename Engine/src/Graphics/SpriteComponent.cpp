@@ -111,6 +111,7 @@ namespace IonixEngine {
 			colorR,
 			colorG,
 			colorB,
+			static_cast<Uint8>(255),
 			spriteAngle,
 			renderLayer
 		});

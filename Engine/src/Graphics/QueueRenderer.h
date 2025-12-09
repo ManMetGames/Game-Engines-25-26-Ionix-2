@@ -20,6 +20,7 @@ namespace IonixEngine {
 		Uint8 r = 255;  // Color tint (default white = no tint)
 		Uint8 g = 255;
 		Uint8 b = 255;
+		Uint8 a = 255;
 		float rotation;
 		int renderLayer;
 	};
