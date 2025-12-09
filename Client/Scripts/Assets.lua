@@ -9,6 +9,7 @@ return {
         PimBall = 3518613816,
         Sand = 2995081222,
         Test = 510180426,
+        backgroundDuckHunt = 2360523392,
         ball = 369994598,
         ball2 = 1354646532,
         horse_fat = 963803500,

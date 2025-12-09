@@ -12,6 +12,7 @@ struct Textures {
     uint32_t PimBall = 3518613816u;
     uint32_t Sand = 2995081222u;
     uint32_t Test = 510180426u;
+    uint32_t backgroundDuckHunt = 2360523392u;
     uint32_t ball = 369994598u;
     uint32_t ball2 = 1354646532u;
     uint32_t horse_fat = 963803500u;
@@ -28,6 +29,7 @@ struct Textures {
         map["PimBall"] = "./Assets/PimBall.png";
         map["Sand"] = "./Assets/Sand.png";
         map["Test"] = "./Assets/Test.png";
+        map["backgroundDuckHunt"] = "./Assets/backgroundDuckHunt.png";
         map["ball"] = "./Assets/ball.png";
         map["ball2"] = "./Assets/ball2.png";
         map["horse_fat"] = "./Assets/horse-fat.gif";
