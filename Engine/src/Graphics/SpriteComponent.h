@@ -15,6 +15,7 @@ namespace IonixEngine {
 		PLAYONCE,
 		ONEFRAME
 	};
+
 	class SpriteComponent : public Component {
 		SDL_Texture* texture;
 		SDL_Point size;
