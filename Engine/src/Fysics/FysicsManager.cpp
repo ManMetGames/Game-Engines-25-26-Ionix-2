@@ -74,11 +74,6 @@ namespace IonixEngine
 		return nullptr;
 	}
 
-	b2Fixture* FysicsManager::GetFixtureFromEntity(Entity* entity)
-	{
-		return GetBodyFromEntity(entity)->GetFixtureList();
-	}
-
 	void FysicsManager::AddEntityBodyPair(Entity* entity, b2Body* body)
 	{
 		//entityBodyMap[entity] = body; // Not needed as we have helper methods which get what we need from 1 data structure.

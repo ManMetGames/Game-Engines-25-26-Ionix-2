@@ -15,7 +15,10 @@ namespace IonixEngine {
 		PLAYONCE,
 		ONEFRAME
 	};
+
 	class SpriteComponent : public Component {
+		// for now we will assume all spritesheets are 1 row	and of uniform size (32x32, 64x64 etc.)
+		// will improve later on	
 		SDL_Texture* texture;
 		SDL_Point size;
 		SDL_Rect src;
@@ -24,7 +27,7 @@ namespace IonixEngine {
 		int totalFrames;
 		int currentFrame;
 		int endFrame;
-		bool isReversing;
+		bool isReversing; // kai is smelly (its true)
 		int rows, cols;
 		int spriteWidth, spriteHeight;
 		int currentRow, currentCol;
@@ -44,8 +47,6 @@ namespace IonixEngine {
 	public:
 		SpriteComponent(Entity* entity, std::string alias, int width, int height, int zedOrder);
 		SpriteComponent(Entity* entity, uint32_t hash, int width, int height, int zedOrder);
-		SpriteComponent(Entity* entity, std::string alias, int x, int y, int zedOrder, int rows_, int cols_, int spriteW, int spriteH, int end_Frame = 0);
-		SpriteComponent(Entity* entity, uint32_t hash, int x, int y, int zedOrder, int rows_, int cols_, int spriteW, int spriteH, int end_Frame = 0);
 		virtual void Render(RenderData* data) override;
 		virtual void Update(float deltaTime) override;
 
@@ -69,7 +70,6 @@ namespace IonixEngine {
 		void setZedOrder(int x);
 		void setWidth(int x);
 		void setHeight(int x);
-		void setSize(int x, int y);
 		void setAngle(float angle);
 		void setTickRate(float x);
 		void setBoxColliderSize(b2Vec2 newSize);
