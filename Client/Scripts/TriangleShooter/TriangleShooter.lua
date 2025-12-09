@@ -179,7 +179,7 @@ local knockbackDirY = 0
 
 -- MUSIC CONTROL
 local musicEntity
-local musicVolume = 64
+local musicVolume = 32
 local musicMuted = false
 local bpm = 133 
 local secondsPerBeat = 60.0 / bpm
@@ -357,11 +357,11 @@ function TriangleShooter:OnStart()
 
     gunshot3SfxEntity = Entity.create_entity()
     Entity.add_audio_component(gunshot3SfxEntity, "gunshot3", false)
-    AudioComponent.change_volume(gunshot3SfxEntity, 1)
+    AudioComponent.change_volume(gunshot3SfxEntity, 4)
 
     impact3SfxEntity = Entity.create_entity()
     Entity.add_audio_component(impact3SfxEntity, "impact3", false)
-    AudioComponent.change_volume(impact3SfxEntity, 32)
+    AudioComponent.change_volume(impact3SfxEntity, 16)
 end
 
 ----------------------------------------------------------
@@ -478,11 +478,6 @@ function TriangleShooter:OnUpdate()
         isFiring = true
         if fireCooldownTimer <= 0 then
             SpawnProjectile()
-            if gunshot3SfxEntity then
-                local v = math.random(1, 5)
-                AudioComponent.change_volume(gunshot3SfxEntity, v)
-                AudioComponent.play(gunshot3SfxEntity)
-            end
             local interval = TriangleShooterPlayerProgress.getCurrentFireInterval()
             if not interval or interval <= 0 then
                 interval = 0.5
@@ -499,8 +494,7 @@ function TriangleShooter:OnUpdate()
     if isFiring and fireCooldownTimer <= 0 then
         SpawnProjectile()
         if gunshot3SfxEntity then
-            local v = math.random(24, 36)
-            AudioComponent.change_volume(gunshot3SfxEntity, v)
+            AudioComponent.change_volume(gunshot3SfxEntity, 4)
             AudioComponent.play(gunshot3SfxEntity)
         end
         local interval = TriangleShooterPlayerProgress.getCurrentFireInterval()
@@ -692,7 +686,7 @@ function UpdateProjectiles()
             ParticleSystem.emitHitBurst(enemyCenterX, enemyCenterY)
 
             if impact3SfxEntity then
-                local v = math.random(48, 64)
+                local v = math.random(12, 20)
                 AudioComponent.change_volume(impact3SfxEntity, v)
                 AudioComponent.play(impact3SfxEntity)
             end
