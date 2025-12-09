@@ -153,7 +153,7 @@ function ExampleScript:OnUpdate()
     local maxY = 610
     
     if px <= minX or px >= maxX or py <= minY or py >= maxY then
-        Fysics.set_pos(player1, 32 / 100, 32 / 100)
+        Fysics.set_pos(player1, 200 / 100, 320 / 100)
         Fysics.set_linear_velocity(player1, 0, 0)
     end
 
