@@ -19,6 +19,7 @@ local AppleX = 400
 local AppleY = 500
 local randomX = math.random(10, 490)
 local randomY = math.random(10, 490)
+
 local AppleSprite
 local Speed = 5
 ----------------------------------------------------------
@@ -46,7 +47,7 @@ function ExampleScript:OnStart()
     -- Freeze bird
     Fysics.set_gravity_scale(player1, 0) 
 
-      local tileSize = 64
+    local tileSize = 64
     local floorY = -67
     local CeilingY = 650
     local floorx = 300
@@ -137,7 +138,6 @@ end
 ----------------------------------------------------------
 function ExampleScript:OnUpdate()
 
-
     local vx = 0
     local vy = 0
 
@@ -165,12 +165,18 @@ function ExampleScript:OnUpdate()
 
      end
 
+
 end
 
 function ExampleScript:OnTriggerEnter(collision1, collision2)
     if(collision2 == Apple) then
-       Entity.set_local_pos(Apple, randomX, randomY)
+        print("new apple location")
+       --Fysics.set_pos(Apple, randomX, randomY)
+       Speed = Speed + 0.25
+        print(Speed)
     end
+
+
 end
 
 
