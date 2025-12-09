@@ -216,12 +216,15 @@ namespace IonixEngine
 			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddPolygon(entity, tileSize, terrainPositions);
 		};
 
-		auto addEdgeCollider = [](Entity* entity, float v1x, float v1y, float v2x, float v2y, bool isTrigger) {
-			b2Vec2 b1 = b2Vec2(v1x, v1y);
-			b2Vec2 b2 = b2Vec2(v2x, v2y);
-			b2Vec2 b0 = b2Vec2(v1x - 10, v1y);
-			b2Vec2 b3 = b2Vec2(v1x + 10, v1y);
-			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddEdgeCollider(entity, b1, b2, b0, b3, isTrigger);
+		auto addEdgeCollider = [](Entity* entity, bool isTrigger) {
+
+			float width = entity->GetComponent<SpriteComponent>()->getWidth() / 100;
+			b2Vec2 p1 = b2Vec2(0, 0);
+			b2Vec2 p2 = b2Vec2(p1.x + width, p1.y);
+			b2Vec2 b0 = b2Vec2(p1.x - 10, p1.y);
+			b2Vec2 b3 = b2Vec2(p1.x + 10, p1.x);
+
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddEdgeCollider(entity, p1, p2, b0, b3, isTrigger);
 		};
 
 		/*auto getColliderWidth = [](Entity* entity) -> float {

@@ -93,7 +93,8 @@ function ExampleScript:OnStart()
 	-- Background Texture
 	------------------------------------------------------
     Background = Entity.create_entity()
-    Entity.add_sprite_component(Background, assets.textures.Background, 960, 640, 0)
+    local BgBackground = Entity.add_sprite_component(Background, assets.textures.Background, 1920, 1080, 0)
+    
 
     ------------------------------------------------------
     -- Create player1
@@ -137,11 +138,14 @@ function ExampleScript:OnStart()
     ------------------------------------------------------
     platform1 = Entity.create_entity()
 	Entity.set_global_pos(platform1, 300, 400)
-    local platformSprite = Entity.add_sprite_component(platform1, assets.textures.Sand, 500, 50, 1)
+    local platformSprite = Entity.add_sprite_component(platform1, assets.textures.Sand, 200, 10, 1)
     Sprite.set_columns(platformSprite, 1)
-
-	Entity.add_fysics_component(platform1, enums.bodytype.staticBody, false)
-	Fysics.add_edge_collider(platform1, 20, 30, 50, 30, false)
+		------------------------------------------------------
+		-- add physics body + collider
+		------------------------------------------------------
+	Entity.add_fysics_component(platform1, enums.bodytype.staticBody, false)  -- static
+    --Fysics.add_sprite_collider(platform1, false, 1)
+	Fysics.add_edge_collider(platform1, false)
 end
 
 ----------------------------------------------------------
@@ -160,10 +164,7 @@ function ExampleScript:OnUpdate()
     local vx2 = Mafs.get_vec_x(vel2)
     local vy2 = Mafs.get_vec_y(vel2)
 
-    --------------------------------------------------
-    -- JUMPING
-    --------------------------------------------------
-	if Input.get_button_down(0, Buttons.ionix_a) then
+	if Input.get_button_down(0, Buttons.ionix_a) and jumpCount1 <= 1 then
         jumpCount1 = jumpCount1 + 1
         Fysics.add_force_to_center(player1, 0, -30 / jumpCount1)
 	end
@@ -257,13 +258,15 @@ function ExampleScript:OnUpdate()
     UpdateProjectiles(dt)
 end
 
-----------------------------------------------------------
--- Collisions
-----------------------------------------------------------
-function ExampleScript:OnCollisionEnter()
-    if Fysics.col(player1, tile) or Fysics.col(player1, platform1) then
-        jumpCount1 = 0
-        print("player1 grounded")
+    function ExampleScript:OnCollisionEnter()
+        if Fysics.col(player1, tile) or Fysics.col(player1, platform1) then
+                jumpCount1 = 0
+                print("grounded")
+            end
+        if Fysics.col(player2, tile) or Fysics.col(player2, platform1) then
+                jumpCount1 = 0
+                print("grounded")
+            end
     end
     if Fysics.col(player2, tile) or Fysics.col(player2, platform1) then
         jumpCount2 = 0
