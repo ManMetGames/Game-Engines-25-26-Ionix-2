@@ -140,14 +140,14 @@ function ExampleScript:OnStart()
     
     --Fysics.create_weld_joint(player2, player1) --Weld Joint
 
-  -- local player1Vec = Mafs.vec_2(3,0)
-   --   local player2Vec = Mafs.vec_2(5,0)
-  -- Fysics.create_pulley_joint(player1, player2,player1Vec, player2Vec, 1, 1, 1) --Pulley Joint
+    local player1Vec = Mafs.vec_2(3,0)
+    local player2Vec = Mafs.vec_2(5,0)
+    Fysics.create_pulley_joint(player1, player2,player1Vec, player2Vec, 1, 1, 1) --Pulley Joint
     
     --Fysics.create_revolute_joint(player2,player1, false, 5, 8, true, 20, 60) --Revolute Joint
 
-    Fysics.create_distance_joint(player1, player2, 10) --Distance Joint
-    Fysics.set_linear_stiffness(0,60.0, 1.0)  
+    --Fysics.create_distance_joint(player1, player2, 10) --Distance Joint
+    --Fysics.set_linear_stiffness(0,60.0, 1.0)  
     
 end
 
