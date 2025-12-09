@@ -15,6 +15,7 @@ namespace IonixEngine {
 		PLAYONCE,
 		ONEFRAME
 	};
+
 	class SpriteComponent : public Component {
 		// for now we will assume all spritesheets are 1 row	and of uniform size (32x32, 64x64 etc.)
 		// will improve later on	
