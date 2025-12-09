@@ -14,7 +14,7 @@ namespace IonixEngine
 
 		ImGui::SetCursorPos(ImVec2(xpos, ypos));
 		ImGui::SetWindowSize(ImVec2(xsize, ysize));
-
+	    ImGui::SetWindowFontScale(1.8);
 		std::unordered_map<std::string, ImFont*>& map = Application::Get().layerUI->GetUIManager()->fontLoader.fontMap;
 		ImFont* fontToPush = map[font];
 
