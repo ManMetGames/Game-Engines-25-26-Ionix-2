@@ -22,7 +22,7 @@ local pipeT2
 local pipeSpeed = -3
 local pipeStartX = 900
 local pipe2StartX = 1200
-local pipeOffScreenLeft = -100
+local pipeOffScreenLeft = -100 
 local xPos = 0  -- Initialize xPos to avoid undefined global warning
 
 local coins = {}
@@ -46,13 +46,13 @@ local function resetGame()
     finalScoreText = "Final Score: 0"
 
     --Reset player
-    Entity.set_global_pos(player1, x, 300)
+    Fysics.set_pos(player1, 2, 3)
     Fysics.set_gravity_scale(player1, 0)
     Fysics.set_linear_velocity(player1, 0, 0)
 
     --Reset pipes
     local function resetPipe(pipeEntity, xPos, yPos)
-        Entity.set_global_pos(pipeEntity, xPos, yPos)
+        Fysics.set_pos(pipeEntity, xPos / 100, yPos / 100)
         Fysics.set_linear_velocity(pipeEntity, 0, 0)
     end
 
