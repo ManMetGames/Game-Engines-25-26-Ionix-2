@@ -6,7 +6,7 @@ local player1
 local player2
 local player3
 local player4
-local x = 300
+local x = 600
 local jumpCount1 = 0
 local jumpCount2 = 0
 local tile
@@ -21,7 +21,7 @@ function ExampleScript:OnStart()
 	-- Background Texture
 	------------------------------------------------------
     Background = Entity.create_entity()
-    local BgBackground = Entity.add_sprite_component(Background, assets.textures.OutsideSmilingOffice,1920 , 1280, 0)
+    local BgBackground = Entity.add_sprite_component(Background, assets.textures.OutsideSmilingOffice,1920 , 1080, 0)
     
 
     ------------------------------------------------------
@@ -96,7 +96,7 @@ function ExampleScript:OnStart()
 		------------------------------------------------------
 		-- place sprite
 		------------------------------------------------------
-	Entity.set_global_pos(tile, 250, floorY)
+	Entity.set_global_pos(tile, 500, floorY)
     local tileSprite = Entity.add_sprite_component(tile, assets.textures.Platform, 1000, 100, 1)
     Sprite.set_columns(tileSprite, 1)
 		------------------------------------------------------
@@ -109,8 +109,8 @@ function ExampleScript:OnStart()
 		------------------------------------------------------
 		-- place sprite
 		------------------------------------------------------
-	Entity.set_global_pos(platform1, 300, 400)
-    local platformSprite = Entity.add_sprite_component(tile, assets.textures.Platform, 1000, 100, 1)
+	Entity.set_global_pos(platform1, 0, 0)
+    local platformSprite = Entity.add_sprite_component(tile, assets.textures.Platform, 500, 50, 1)
     Sprite.set_columns(platformSprite, 1)
 		------------------------------------------------------
 		-- add physics body + collider
