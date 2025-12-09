@@ -13,18 +13,26 @@ local leftPaddle
 local rightPaddle
 local floorEntity
 local ceilingEntity
+local leftTopWall
+local leftBottomWall
+local rightTopWall
+local rightBottomWall
+local boingEntity  
 
 local screenW
 local screenH
 
 -- Movement (pixels per fixed update)
-local paddleSpeed = 30
+local paddleSpeed = 3
 local ballSpeed   = 300 -- pixels per second-ish (we convert to m/s when giving velocity)
 
 -- Sprite sizes (pixels)
 local ballSize = 128
 local paddleW  = 32
 local paddleH  = 300
+
+local previousPaddlePos = {}  -- cache per-entity previous positions in pixels
+local FIXED_DT = 1 / 60       -- use your engine’s actual fixed timestep if different
 
 ----------------------------------------------------------------
 -- Helpers
@@ -55,60 +63,91 @@ local function ResetBall()
     Fysics.set_linear_velocity(ballEntity, vx, vy)
 end
 
--- Move a kinematic paddle using pixel delta -> physics pos
-    local function MovePaddleByPixels(entity, deltaPixelsY, deltaPixelsX)
-        -- Read current physics pos (meters) — authoritative
-        local phys = Fysics.get_pos(entity)
-        if not phys then
-            -- fallback: use transform
-            local tr = Entity.get_global_pos(entity)
-            local tx = Mafs.get_vec_x(tr)
-            local ty = Mafs.get_vec_y(tr)
-            local newY = ty + deltaPixelsY
-            -- clamp in pixels
-            local halfH = paddleH * 0.5
-            if newY < halfH then newY = halfH end
-            if newY > screenH - halfH then newY = screenH - halfH end
-            Entity.set_global_pos(entity, tx, newY)
-            return
-        end
 
-        local physX = Mafs.get_vec_x(phys)
-        local physY = Mafs.get_vec_y(phys)
+local function MovePaddleByPixels(entity, deltaPixelsY, deltaPixelsX)
+    deltaPixelsX = deltaPixelsX or 0
 
-        -- convert to pixels, modify, clamp, convert back
-        local px = m_to_px(physX)
-        local py = m_to_px(physY)
-
-        py = py + deltaPixelsY
-        px = px + (deltaPixelsX or 0)
-
-        -- vertical clamp
-        local halfH = paddleH * 0.2
-        if py < halfH then py = halfH end
-        if py > screenH - halfH then py = screenH - halfH end
-
-        -- horizontal clamp: each paddle can move only within its half of the screen
-        local halfW = paddleW * 0.5
-        local minX, maxX
-        if entity == leftPaddle then
-            minX = halfW
-            maxX = screenW * 0.5 - halfW
-        elseif entity == rightPaddle then
-            minX = screenW * 0.5 + halfW
-            maxX = screenW - halfW
-        else
-            -- default: full screen, just in case
-            minX = halfW
-            maxX = screenW - halfW
-        end
-
-        if px < minX then px = minX end
-        if px > maxX then px = maxX end
-
-        -- write back to physics in meters
-        Fysics.set_pos(entity, px_to_m(px), px_to_m(py))
+    -- current physics pos (meters)
+    local phys = Fysics.get_pos(entity)
+    if not phys then
+        return
     end
+
+    local physX = Mafs.get_vec_x(phys)
+    local physY = Mafs.get_vec_y(phys)
+
+    local px = m_to_px(physX)
+    local py = m_to_px(physY)
+
+    -- store previous pixel position for velocity calculation
+    local prev = previousPaddlePos[entity]
+    if not prev then
+        prev = { x = px, y = py }
+        previousPaddlePos[entity] = prev
+    end
+
+    -- early‑out: no input → no velocity
+    if deltaPixelsX == 0 and deltaPixelsY == 0 then
+        -- keep position as is, but make sure velocity is zero
+        Fysics.set_linear_velocity(entity, 0, 0)
+        -- sync cache so we don't invent motion next frame
+        prev.x = px
+        prev.y = py
+        return
+    end
+
+    -- apply input in pixels
+    local newPx = px + deltaPixelsX
+    local newPy = py + deltaPixelsY
+
+    -- vertical clamp
+    local halfH = paddleH * 0.2
+    if newPy < halfH then newPy = halfH end
+    if newPy > screenH - halfH then newPy = screenH - halfH end
+
+    -- horizontal clamp per side
+    local halfW = paddleW * 0.5
+    local minX, maxX
+    if entity == leftPaddle then
+        minX = halfW
+        maxX = screenW * 0.5 - halfW
+    elseif entity == rightPaddle then
+        minX = screenW * 0.5 + halfW
+        maxX = screenW - halfW
+    else
+        minX = halfW
+        maxX = screenW - halfW
+    end
+
+    if newPx < minX then newPx = minX end
+    if newPx > maxX then newPx = maxX end
+
+    -- if clamping means we didn't actually move, kill velocity
+    if newPx == prev.x and newPy == prev.y then
+        Fysics.set_pos(entity, px_to_m(newPx), px_to_m(newPy))
+        Fysics.set_linear_velocity(entity, 0, 0)
+        prev.x = newPx
+        prev.y = newPy
+        return
+    end
+
+    -- compute velocity in meters/second from pixel displacement over fixed dt
+    local vx_px = (newPx - prev.x) / FIXED_DT
+    local vy_px = (newPy - prev.y) / FIXED_DT
+
+    local vx_m = vx_px / PIXELS_PER_METER
+    local vy_m = vy_px / PIXELS_PER_METER
+
+    -- write back position (meters)
+    Fysics.set_pos(entity, px_to_m(newPx), px_to_m(newPy))
+
+    -- tell physics the paddle’s velocity
+    Fysics.set_linear_velocity(entity, vx_m, vy_m)
+
+    -- update cache
+    prev.x = newPx
+    prev.y = newPy
+end
 ----------------------------------------------------------------
 -- Init
 ----------------------------------------------------------------
@@ -161,20 +200,125 @@ local function InitPaddles()
 end
 
 local function InitWalls()
+    -- How far in from the screen edges the arena top/bottom are
+    local arenaMarginY = 150          -- tweak to taste
     local wallThicknessPx = 20
     local halfT = px_to_m(wallThicknessPx * 0.5)
 
-    -- Bottom wall (place slightly off-screen)
+    -----------------------------
+    -- Top / Bottom arena walls
+    -----------------------------
+    -- Bottom wall (inside the screen)
     floorEntity = Entity.create_entity()
-    Entity.set_global_pos(floorEntity, screenW * 0.5, screenH + wallThicknessPx * 0.5)
+    Entity.set_global_pos(floorEntity, screenW * 0.5, screenH - arenaMarginY)
+    Entity.add_sprite_component(
+        floorEntity,
+        assets.textures.Wall,
+        screenW,
+        wallThicknessPx,
+        50
+    )
     Entity.add_fysics_component(floorEntity, 1, false)
     Fysics.add_box_collider(floorEntity, px_to_m(screenW), halfT, 0, 0, 0, false)
 
-    -- Top wall
+    -- Top wall (inside the screen)
     ceilingEntity = Entity.create_entity()
-    Entity.set_global_pos(ceilingEntity, screenW * 0.5, -wallThicknessPx * 0.5)
+    Entity.set_global_pos(ceilingEntity, screenW * 0.5, arenaMarginY)
+    Entity.add_sprite_component(
+        ceilingEntity,
+        assets.textures.Wall,
+        screenW,
+        wallThicknessPx,
+        50
+    )
     Entity.add_fysics_component(ceilingEntity, 1, false)
     Fysics.add_box_collider(ceilingEntity, px_to_m(screenW), halfT, 0, 0, 0, false)
+
+    local sideWallWidthPx = 30
+    local sideWallHalfWm = px_to_m(sideWallWidthPx * 0.5)
+
+    -- Vertical usable arena height (between inner edges of top/bottom walls)
+    local arenaHeightPx = screenH - 2 * arenaMarginY - wallThicknessPx
+
+    -- How tall each pillar is inside that arena
+    local pillarHeightPx = arenaHeightPx * 0.3   -- 30% top, 30% bottom, 40% gap; tweak to taste
+    local pillarHalfHm  = px_to_m(pillarHeightPx * 0.5)
+
+    -- Y positions for pillars so they butt up against the walls
+    -- Top pillar sits just below the top wall
+    local topPillarCenterY =
+        arenaMarginY + (wallThicknessPx * 0.5) + (pillarHeightPx * 0.5)
+
+    -- Bottom pillar sits just above the bottom wall
+    local bottomPillarCenterY =
+        screenH - arenaMarginY - (wallThicknessPx * 0.5) - (pillarHeightPx * 0.5)
+
+    -- X positions (goal line at the very left/right)
+    local leftPillarX  = sideWallWidthPx * 0.5
+    local rightPillarX = screenW - sideWallWidthPx * 0.5
+
+    -- LEFT TOP BLOCKER (inside arena)
+    leftTopWall = Entity.create_entity()
+    Entity.set_global_pos(leftTopWall, leftPillarX, topPillarCenterY)
+    Entity.add_sprite_component(
+        leftTopWall,
+        assets.textures.Wall,
+        sideWallWidthPx,
+        pillarHeightPx,
+        50
+    )
+    Entity.add_fysics_component(leftTopWall, 1, false)
+    Fysics.add_box_collider(leftTopWall, sideWallHalfWm, pillarHalfHm, 0, 0, 0, false)
+
+    -- LEFT BOTTOM BLOCKER (inside arena)
+    leftBottomWall = Entity.create_entity()
+    Entity.set_global_pos(leftBottomWall, leftPillarX, bottomPillarCenterY)
+    Entity.add_sprite_component(
+        leftBottomWall,
+        assets.textures.Wall,
+        sideWallWidthPx,
+        pillarHeightPx,
+        50
+    )
+    Entity.add_fysics_component(leftBottomWall, 1, false)
+    Fysics.add_box_collider(leftBottomWall, sideWallHalfWm, pillarHalfHm, 0, 0, 0, false)
+
+    -- RIGHT TOP BLOCKER (inside arena)
+    rightTopWall = Entity.create_entity()
+    Entity.set_global_pos(rightTopWall, rightPillarX, topPillarCenterY)
+    Entity.add_sprite_component(
+        rightTopWall,
+        assets.textures.ArenaSideWall,
+        sideWallWidthPx,
+        pillarHeightPx,
+        50
+    )
+    Entity.add_fysics_component(rightTopWall, 1, false)
+    Fysics.add_box_collider(rightTopWall, sideWallHalfWm, pillarHalfHm, 0, 0, 0, false)
+
+    -- RIGHT BOTTOM BLOCKER (inside arena)
+    rightBottomWall = Entity.create_entity()
+    Entity.set_global_pos(rightBottomWall, rightPillarX, bottomPillarCenterY)
+    Entity.add_sprite_component(
+        rightBottomWall,
+        assets.textures.ArenaSideWall,
+        sideWallWidthPx,
+        pillarHeightPx,
+        50
+    )
+    Entity.add_fysics_component(rightBottomWall, 1, false)
+    Fysics.add_box_collider(rightBottomWall, sideWallHalfWm, pillarHalfHm, 0, 0, 0, false)
+end
+local function InitAudio()
+    boingEntity = Entity.create_entity()
+    print("[Lua] Loading 'Client/Assets/Boing.wav' audio asset...")
+    Entity.add_audio_component(boingEntity, "Boing", false)
+end
+
+local function PlayBoing()
+    if not boingEntity then return end
+    print("BOING")
+    AudioComponent.play(boingEntity)
 end
 
 ----------------------------------------------------------------
@@ -189,7 +333,7 @@ end
         InitWalls()
         InitBall()
         InitPaddles()
-
+        InitAudio()
         ResetBall()
     end
 
@@ -244,15 +388,29 @@ end
         -- If stick values are fractional, scale by paddleSpeed
         MovePaddleByPixels(leftPaddle,  p1MoveY * paddleSpeed, p1MoveX * paddleSpeed)
         MovePaddleByPixels(rightPaddle, p2MoveY * paddleSpeed, p2MoveX * paddleSpeed)
+        if  Fysics.col(ballEntity, leftPaddle)
+                or Fysics.col(ballEntity, rightPaddle)
+                or Fysics.col(ballEntity, floorEntity)
+                or Fysics.col(ballEntity, ceilingEntity)
+                or Fysics.col(ballEntity, leftTopWall)
+                or Fysics.col(ballEntity, leftBottomWall)
+                or Fysics.col(ballEntity, rightTopWall)
+                or Fysics.col(ballEntity, rightBottomWall)
+            then
+                PlayBoing()
+            end
 
+        
         -- Scoring - check sprite position (pixels)
-        local ballPos = Fysics.get_pos(ballEntity) -- meters
-        local bx = m_to_px(Mafs.get_vec_x(ballPos))
-
-        if bx < -100 or bx > screenW + 100 then
-            ResetBall()
-        end
+            local ballPos = Fysics.get_pos(ballEntity) -- meters
+            local bx = m_to_px(Mafs.get_vec_x(ballPos))
+        
+            -- NOTE:
+            -- Only crossing fully off the left/right edges counts as a goal.
+            -- The side blockers physically prevent using the top/bottom corners as goals.
+            if bx < -100 or bx > screenW + 100 then
+                ResetBall()
+            end
     end
-
 
 return game

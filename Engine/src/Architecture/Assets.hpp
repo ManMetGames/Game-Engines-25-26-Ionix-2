@@ -16,6 +16,7 @@ struct Textures {
     uint32_t Sand = 2995081222u;
     uint32_t Test = 510180426u;
     uint32_t Triangle = 801038052u;
+    uint32_t Wall = 1599523972u;
     uint32_t ball = 369994598u;
     uint32_t ball2 = 1354646532u;
     uint32_t hermer = 242799782u;
@@ -37,6 +38,7 @@ struct Textures {
         map["Sand"] = "./Assets/Sand.png";
         map["Test"] = "./Assets/Test.png";
         map["Triangle"] = "./Assets/Triangle.png";
+        map["Wall"] = "./Assets/Wall.png";
         map["ball"] = "./Assets/ball.png";
         map["ball2"] = "./Assets/ball2.png";
         map["hermer"] = "./Assets/hermer.png";
@@ -47,11 +49,13 @@ struct Textures {
 };
 
 struct Sounds {
+    uint32_t Boing = 4039225408u;
     uint32_t test = 1642075152u;
     uint32_t test0 = 280276284u;
 
     inline std::map<std::string, std::string> GetSounds() {
         std::map<std::string, std::string> map;
+        map["Boing"] = "./Assets/Boing.wav";
         map["test"] = "./Assets/test.mp3";
         map["test0"] = "./Assets/test.wav";
         return map;
