@@ -414,8 +414,8 @@ struct Sounds {
         map["impact3"] = "./Assets/Audio/impact3.mp3";
         map["playerDamage"] = "./Assets/Audio/playerDamage.mp3";
         map["technoSong"] = "./Assets/technoSong.mp3";
-        map["test"] = "./Assets/test.wav";
-        map["test_1"] = "./Assets/test.mp3";
+        map["test"] = "./Assets/test.mp3";
+        map["test_1"] = "./Assets/test.wav";
         return map;
     };
 };
