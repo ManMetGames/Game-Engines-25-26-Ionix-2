@@ -83,7 +83,7 @@ footer {
 
 <header>
   <h1>Ionix Engine Lua API</h1>
-  <p>Full Lua scripting reference (2025 build — all modules)</p>
+  <p>Full Lua scripting reference (2025 build v1.3 — all modules)</p>
 </header>
 
 <main>
@@ -166,40 +166,6 @@ footer {
         </p>
     </section>
 
-<<<<<<< Updated upstream
-<!-- ================= MAFS ================= -->
-<section>
-  <h2>Mafs (Math Library)</h2>
-  <table>
-      <tr><th>Function</th><th>Description</th></tr>
-      <tr><td><code>Mafs.clamp(x, min, max)</code></td><td>Clamp value within [min, max].</td></tr>
-      <tr><td><code>Mafs.abs(x)</code></td><td>Absolute value.</td></tr>
-      <tr><td><code>Mafs.min(x, minVal)</code></td><td>Return the smaller of x and minVal.</td></tr>
-      <tr><td><code>Mafs.max(x, maxVal)</code></td><td>Return the larger of x and maxVal.</td></tr>
-      <tr><td><code>Mafs.round(x)</code></td><td>Rounds to nearest integer.</td></tr>
-      <tr><td><code>Mafs.log(x)</code></td><td>Natural logarithm.</td></tr>
-      <tr><td><code>Mafs.log_10(x)</code></td><td>Base-10 logarithm.</td></tr>
-      <tr><td><code>Mafs.log_custom(x, base)</code></td><td>Logarithm with custom base.</td></tr>
-      <tr><td><code>Mafs.square_root(x)</code></td><td>Square root.</td></tr>
-      <tr><td><code>Mafs.mod(x, y)</code></td><td>Modulo operation (x % y).</td></tr>
-      <tr><td><code>Mafs.div(x, y)</code></td><td>Division helper (x / y).</td></tr>
-      <tr><td><code>Mafs.lerp(a, b, t)</code></td><td>Linear interpolation between a and b by t.</td></tr>
-      <tr><td><code>Mafs.sin(x)</code></td><td>Sine (x in radians).</td></tr>
-      <tr><td><code>Mafs.cos(x)</code></td><td>Cosine (x in radians).</td></tr>
-      <tr><td><code>Mafs.tan(x)</code></td><td>Tangent (x in radians).</td></tr>
-      <tr><td><code>Mafs.pi()</code></td><td>Returns π.</td></tr>
-      <tr><td><code>Mafs.vector2(x, y)</code></td><td>Create a 2D vector.</td></tr>
-      <tr><td><code>Mafs.vector2_x(vec2)</code></td><td>Get x component of a 2D vector.</td></tr>
-      <tr><td><code>Mafs.vector2_y(vec2)</code></td><td>Get y component of a 2D vector.</td></tr>
-      <tr><td><code>Mafs.sqr_magnitude_vector2(vec2)</code></td><td>Squared length of a 2D vector.</td></tr>
-      <tr><td><code>Mafs.sqr_magnitude_vector3(vec3)</code></td><td>Squared length of a 3D vector.</td></tr>
-      <tr><td><code>Mafs.delta_time()</code></td><td>Time in seconds between the last two frames.</td></tr>
-      <tr><td><code>Mafs.time()</code></td><td>Time in seconds since the application started.</td></tr>
-      <tr><td><code>Mafs.red2deg(radians)</code></td><td>converts radians to degrees.</td></tr>
-      <tr><td><code>Mafs.deg2rag(degrees)</code></td><td>converts degrees to radians.</td></tr>
-  </table>
-</section>
-=======
     <!-- ================= MAFS ================= -->
     <section>
         <h2>Mafs (Math Library)</h2>
@@ -234,7 +200,7 @@ footer {
             <tr><td><code>Mafs.time()</code></td><td>Time in seconds since the application started.</td></tr>
         </table>
     </section>
->>>>>>> Stashed changes
+
 
     <!-- ================= GRAPHICS / TEXTURE / SPRITE ================= -->
     <section>
@@ -261,6 +227,8 @@ footer {
             <tr><td><code>Sprite.columns(sprite)</code></td><td>Get number of columns in the sprite sheet.</td></tr>
             <tr><td><code>Sprite.width(sprite)</code></td><td>Get the sprite frame width in pixels.</td></tr>
             <tr><td><code>Sprite.height(sprite)</code></td><td>Get the sprite frame height in pixels.</td></tr>
+            <tr><td><code>Sprite.imagewidth(sprite)</code></td><td>get the sprite frame width of an image in pixels.</td></tr>
+            <tr><td><code>Sprite.imageheight(sprite)</code></td><td>get the sprite frame height of an image in pixels.</td></tr>
             <tr><td><code>Sprite.zed_order(sprite)</code></td><td>Get draw order (z-index) of the sprite.</td></tr>
             <tr><td><code>Sprite.total_frames(sprite)</code></td><td>Get total number of frames in the animation.</td></tr>
             <tr><td><code>Sprite.current_column(sprite)</code></td><td>Get the current column in the sprite sheet.</td></tr>
@@ -272,6 +240,8 @@ footer {
             <tr><td><code>Sprite.set_columns(sprite, cols)</code></td><td>Set number of columns in the sprite sheet.</td></tr>
             <tr><td><code>Sprite.set_width(sprite, width)</code></td><td>Set the sprite frame width in pixels.</td></tr>
             <tr><td><code>Sprite.set_height(sprite, height)</code></td><td>Set the sprite frame height in pixels.</td></tr>
+            <tr><td><code>Sprite.set_imagewidth(sprite, width)</code></td><td>Set the sprite frame width in pixels for an image.</td></tr>
+            <tr><td><code>Sprite.set_imageheight(sprite, width)</code></td><td>Set the sprite frame height in pixels for an image.</td></tr>
             <tr><td><code>Sprite.set_zed_order(sprite, order)</code></td><td>Set draw order (z-index) of the sprite.</td></tr>
 
             <tr><td><code>Sprite.get_playback_mode(sprite)</code></td><td>Get the current playback mode as an integer enum.</td></tr>
@@ -401,10 +371,27 @@ footer {
       <tr><td><code>Fysics.clear_forces(entity)</code></td><td>Clear all forces/torques applied to the body.</td></tr>
       <tr><td><code>Fysics.get_gravity_scale(entity)</code></td><td>Get current gravity scale.</td></tr>
       <tr><td><code>Fysics.set_gravity_scale(entity, graityScale)</code></td><td>Sets gravity scale for listed entity.</td></tr>
+      <!-- collider -->
+      <tr><td><code>Fysics.get_collider_width(entity)</code></td><td>Get body's collider witdth.</td></tr>
+      <tr><td><code>Fysics.set_collider_width(entity)</code></td><td>Set body's collider witdth.</td></tr>
+      <tr><td><code>Fysics.get_collider_height(entity)</code></td><td>Get body's collider height.</td></tr>
+      <tr><td><code>Fysics.set_collider_height(entity)</code></td><td>Set body's collider height.</td></tr>
+      <tr><td><code>Fysics.is_collider_trigger(entity)</code></td><td>Get body's collider behave as trigger.</td></tr>
+      <tr><td><code>Fysics.set_collider_trigger(entity)</code></td><td>Set body's collider behave as trigger.</td></tr>
+      <tr><td><code>Fysics.get_collider_vertices(entity)</code></td><td>Retriesves the vertices that define the shape of the body's collider.</td></tr>
+      <tr><td><code>Fysics.set_collider_vertices(entity)</code></td><td>Set the vertices that define the shape of the body's collider.</td></tr>
+      <tr><td><code>Fysics.get_collider_type(entity)</code></td><td>get body's collider's shape type.</td></tr>
+      <tr><td><code>Fysics.add_sprite_colliderEntity(entity,isTrigger,scaleFactor)</code></td><td>Adds a collider component to a sprite for 2dphysics interactions.(scaleFactor can't be 0 or it will be set as 1)</td></tr>
+      <tr><td><code>Fysics.get_radius(entity)</code></td><td>returns the radius of the entitys collision.</td></tr>
+      <tr><td><code>Fysics.set_radius(entity, radius, bodytochange, shapetype)</code></td><td>sets the radius of the entity while defining the bodytochange and what kind of shape it is used for.</td></tr>
+      <!-- friction -->
+      <tr><td><code>Fysics.set_material_properties(entity,friction,restitution)</code></td><td>Set the friction and restitution(bounciness) properties for and entity's physics materil.</td></tr>
+      <tr><td><code>Fysics.get_friction(entity)</code></td><td>get entity's friction.</td></tr>
+      <tr><td><code>Fysics.get_restitution(entity)</code></td><td>get entity's restitution(bounciness).</td></tr>
 
   </table>
 </section>
-=======
+
     <!-- ================= UI ================= -->
     <section>
         <h2>UI</h2>
@@ -441,7 +428,7 @@ footer {
             </tr>
         </table>
     </section>
->>>>>>> Stashed changes
+
 
     <!-- ================= AUDIO ================= -->
     <section>
@@ -524,7 +511,7 @@ AudioComponent.play(e)
 </main>
 
 <footer id="footer-easteregg">
-  © 2025 Ionix Engine Lua API — Made by <strong>Peter &amp; ChatGPT</strong>
+  © 2025 Ionix Engine Lua API — Made by <strong>2025/26 Game Dev Course &amp; ChatGPT</strong>
 </footer>
 
 <img src="Client/Assets/horse-fat.gif" class="hidden-gif" id="easter-egg-gif"/>
