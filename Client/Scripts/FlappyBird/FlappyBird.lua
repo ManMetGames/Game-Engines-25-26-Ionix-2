@@ -12,9 +12,7 @@ local goalX = 500
 local goalY = 500
 local y = 300
 local t = 10
-local length = 20
 local coinCount = 0
-
 
 -- Pipe variables
 local pipe
@@ -31,43 +29,28 @@ function ExampleScript:OnStart()
     ------------------------------------------------------
 	-- Background Texture
 	------------------------------------------------------
-   Background = Entity.create_entity()
-   local BgBackground = Entity.add_sprite_component(Background, assets.textures.Background,960 , 640, 0)
+    Background = Entity.create_entity()
+    local BgBackground = Entity.add_sprite_component(Background, assets.textures.Background,960 , 640, 0)
     
 
     ------------------------------------------------------
     -- Create player1
     ------------------------------------------------------
-     player1 = Entity.create_entity()
+    player1 = Entity.create_entity()
 
     Entity.set_global_pos(player1, x, 300)
 	
     local playerSprite1 = Entity.add_sprite_component(player1, assets.textures.FlappyBird, 32, 32, 10)
     Sprite.set_columns(playerSprite1,1)
-    -- PLAYER 1 FYSICS
+    -- PLAYER 1 PHYSICS
 
-   Entity.add_fysics_component(player1, enums.bodytype.dynamicBody, true) -- dynamic body
+    Entity.add_fysics_component(player1, enums.bodytype.dynamicBody, true) -- dynamic body
     --Fysics.add_sprite_collider(player1, false)
     Fysics.add_sprite_collider(player1,false,1)
     -- Freeze bird
-    Fysics.set_gravity_scale(player1, 0)
+    Fysics.set_gravity_scale(player1, 1)
 
-
-
-    -----------------------------
-    ------Coins
-    ------------
-    coin = Entity.create_entity()
-    Entity.set_global_pos(coin, 200, 200)
-    local coinSprite = Entity.add_sprite_component(coin, assets.textures.Coin, 100, 32, 10)
-    Sprite.set_columns(coinSprite, 1)
-    Entity.add_fysics_component(coin, enums.bodytype.kinematicBody, false)
-    Fysics.add_sprite_collider(coin, true, 1)
-
-    local tileSize = 64
-    local floorY = 600
-
-  ------------------------------------------------------
+ ------------------------------------------------------
     -- Create player2
     ------------------------------------------------------
 
@@ -83,9 +66,21 @@ function ExampleScript:OnStart()
     --Fysics.add_sprite_collider(player1, false)
     Fysics.add_sprite_collider(player2,false,1)
     -- Freeze bird
-    Fysics.set_gravity_scale(player2, 0)
+    Fysics.set_gravity_scale(player2, 1)
 
-  
+    -----------------------------
+    ------Coins
+    ------------
+    coin = Entity.create_entity()
+    Entity.set_global_pos(coin, 200, 200)
+    local coinSprite = Entity.add_sprite_component(coin, assets.textures.Coin, 100, 32, 10)
+    Sprite.set_columns(coinSprite, 1)
+    Entity.add_fysics_component(coin, enums.bodytype.kinematicBody, false)
+    Fysics.add_sprite_collider(coin, true, 1)
+
+    local tileSize = 64
+    local floorY = 600
+    
 	------------------------------------------------------
 	-- pick texture for left / middle / right
 	------------------------------------------------------
@@ -104,36 +99,22 @@ function ExampleScript:OnStart()
 		------------------------------------------------------
 		-- add physics body + collider
 		------------------------------------------------------
-
 		Entity.add_fysics_component(tile, enums.bodytype.staticBody, false)  -- static
 		Fysics.add_sprite_collider(tile, false,1)
-	end    
-    
-    -------------------------------
-    --Polygon Testing
-    --------------------------------
-    -- local polygon = Entity.create_entity()
-    -- Entity.set_entity_pos(polygon, 400, 300)
-    -- local s = Entity.add_sprite_component(polygon, "Sand", tileSize, tileSize, 0)
-    -- Sprite.set_playback_mode(s, 4)
-    -- Entity.add_fysics_component(polygon, 0, false)
-    -- --Fysics.add_sprite_collider(polygon)
-    -- Fysics.add_polygon_collider(polygon, 64)
+	end
 
-    -------------------------------
-    --Joints Testing
-    --------------------------------
+	------------------------------------------------------
+	-- Create pipe obstacle
+	------------------------------------------------------
+    --BOTTOM PIPE
+	pipe = Entity.create_entity()
+	Entity.set_global_pos(pipe, 640, 400)
 
-     --Fysics.create_prismatic_joint(player2, player1, 0, 0, 5, 10, true, 50 , 20, true) --Prismatic Joint
-    
-    --Fysics.create_weld_joint(player2, player1) --Weld Joint
-    
-    --Fysics.create_pulley_joint(player1, player2, 3, 0, 5, 0, 1, 1, 1) --Pulley Joint
-    
-    --Fysics.create_revolute_joint(player2,player1, false, 5, 8, true, 20, 60) --Revolute Joint
-
-    --Fysics.create_distance_joint(player1, player2, 10) --Distance Joint
-    --Fysics.set_linear_stiffness(0,4.0f, 5.0f)  
+	local pipeSprite = Entity.add_sprite_component(pipe, assets.textures.FlappyPipe, 80, 300, 0)
+    Sprite.set_columns(pipeSprite,1)
+	-- Kinematic body so it moves but isn't affected by gravity
+	Entity.add_fysics_component(pipe, enums.bodytype.kinematicBody, false)
+	Fysics.add_sprite_collider(pipe, false,1)
 
 
     -- TOP PIPE
@@ -150,6 +131,24 @@ function ExampleScript:OnStart()
         Entity.set_global_pos(pipe, xPos, floorY)
 	end
 
+
+ -------------------------------
+    --Joints Testing
+    --------------------------------
+     --local worldAxis = Mafs.vec_2(0,0)
+     --Fysics.create_prismatic_joint(player2, player1, worldAxis, 5, 10, true, 50 , 20, true) --Prismatic Joint
+    
+    --Fysics.create_weld_joint(player2, player1) --Weld Joint
+
+  -- local player1Vec = Mafs.vec_2(3,0)
+   --   local player2Vec = Mafs.vec_2(5,0)
+  -- Fysics.create_pulley_joint(player1, player2,player1Vec, player2Vec, 1, 1, 1) --Pulley Joint
+    
+    --Fysics.create_revolute_joint(player2,player1, false, 5, 8, true, 20, 60) --Revolute Joint
+
+    Fysics.create_distance_joint(player1, player2, 10) --Distance Joint
+    Fysics.set_linear_stiffness(0,60.0, 1.0)  
+    
 end
 
 ----------------------------------------------------------
@@ -165,15 +164,14 @@ function ExampleScript:OnUpdate()
 
 	if Input.get_key_down(Keys.ionix_space) then
         -- Bird move if space is pressed (allow gravity)
-        Fysics.set_gravity_scale(player1, 1)
-        Fysics.set_linear_velocity(pipe, pipeSpeed, 0)
-        Fysics.set_linear_velocity(pipeT, pipeSpeed, 0)
+        --Fysics.set_gravity_scale(player1, 1)
+        --Fysics.set_linear_velocity(pipe, pipeSpeed, 0)
+        --Fysics.set_linear_velocity(pipeT, pipeSpeed, 0)
         -- Set velocity directly to cancel out falling momentum
         vy1 = -5  -- Jump velocity for player1
 	end
 
-
-    if Input.get_key_down(Keys.ionix_e) then
+ if Input.get_key_down(Keys.ionix_e) then
         Fysics.set_length(0,length)
         length = Fysics.get_length(0)
         print(length)
@@ -187,13 +185,10 @@ function ExampleScript:OnUpdate()
         print(length)
         length = length - 10
     end
-
-
     
     if Input.get_key_down(Keys.ionix_m) then
         Entity.destroy_entity(coin)
     end
-
     Fysics.set_linear_velocity(player1, vx, vy1)
 
     -- Pipe movement
