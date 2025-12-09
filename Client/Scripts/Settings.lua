@@ -6,8 +6,13 @@ function LoadModule(name, path)
     modules[name] = module
 end
 
+-- Retrieve module by name (for cross-module communication)
+function GetModule(name)
+    return modules[name]
+end
+
 -- Load System Modules
-LoadModule("Coroutines", "Scripts/Coroutines.lua")
+LoadModule("Comodusoperandi", "Scripts/Autism.lua")
 
 -- Load all game modules here
 --LoadModule("Audio", "Scripts/Audio.lua")
@@ -92,11 +97,6 @@ function OnTriggerExit(collision1, collision2)
             module:OnTriggerExit(collision1, collision2)
         end
     end
-end
-
--- Retrieve module by name (for cross-module communication)
-function GetModule(name)
-    return modules[name]
 end
 
 return {
