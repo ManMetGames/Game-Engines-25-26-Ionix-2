@@ -12,12 +12,14 @@ local y = 300
 local t = 10
 local h = 500
 local w = 400
-local text = "Hello, World!"
-local font = assets.fonts.DefaultFont
+local text = "Hello"
 local Apple
 local AppleX = 400
 local AppleY= 500
 local AppleSprite
+local xSize = 32
+local ySize = 32
+
 
 ----------------------------------------------------------
 -- OnStart
@@ -26,7 +28,8 @@ function ExampleScript:OnStart()
 
     Background = Entity.create_entity()
     local BgBackground = Entity.add_sprite_component(Background, assets.textures.Background,960 , 640, 0)   
-
+    UI.Add_label( 350, 350, xSize, ySize, text)
+ 
    ------------------------------------------------------
     -- Create player1
     ------------------------------------------------------
@@ -50,6 +53,7 @@ function ExampleScript:OnStart()
     local floorx = 300
     
   
+
     --Create Apple
 
     Apple = Entity.create_entity()
@@ -125,6 +129,7 @@ function ExampleScript:OnStart()
 		Entity.add_fysics_component(Right, 0, false)  -- static
 		Fysics.add_sprite_collider(Right, false,1)
 
+        
 
 end
 
@@ -138,6 +143,8 @@ function ExampleScript:OnUpdate()
     local Speed = 5
     local vx = 0
     local vy = 0
+   
+
 
   -- basic movment using the WASD keys
     if Input.get_key_down(Keys.ionix_d) then
@@ -168,6 +175,7 @@ end
 function ExampleScript:OnTriggerEnter(collision1, collision2)
     if(collision2 == Apple) then
         Entity.destroy_entity(collision2)
+        
     end
 end
 
