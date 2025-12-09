@@ -116,7 +116,7 @@ function ExampleScript:OnUpdate()
     if Input.get_button_down(1, Buttons.ionix_a) and jumpCount2 <= 1 then
         jumpCount2 = jumpCount2 + 1
         Fysics.add_force_to_center(player2, 0, -30  / jumpCount2)
-	end
+	end 
     
     if Input.get_key_down(Keys.ionix_m) then
         Entity.destroy_entity(coin)
@@ -149,6 +149,15 @@ end
                 print("grounded")
             end
     end
+
+    --Collision between players 
+   function ExampleScript:OnHitCollision()
+       -- Get distance between player and other player 
+       -- make hit radius 
+       -- if hit radius equals distance of collisionradius 
+       -- knockback player 
+       -- playerHealth - playerHealth - 2
+   end 
     
 
     function ExampleScript:OnTriggerEnter()
