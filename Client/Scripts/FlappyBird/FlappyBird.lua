@@ -11,13 +11,13 @@ local goalX = 500
 local goalY = 500
 local y = 300
 local t = 10
-local coinCount = 0
 
 -- Pipe variables
 local pipe
 local pipeT
 local pipe2
 local pipeT2
+local pipeSets = {}
 
 -- Pipe movement and positioning
 local pipeSpeed = -3
@@ -222,6 +222,12 @@ function ExampleScript:OnStart()
 		Entity.set_global_pos(pipe3, xPos, floorY)
 	end
 
+    pipeSets = {
+    { bottom = pipe,  top = pipeT,  passed = false },
+    { bottom = pipe2, top = pipeT2, passed = false },
+    { bottom = pipe3, top = pipeT3, passed = false }
+    }
+
 	------------------------------------------------------
 	-- Create coins
 	------------------------------------------------------
@@ -309,7 +315,7 @@ function ExampleScript:OnUpdate()
         -- Bird move if space is pressed (allow gravity)
         Fysics.set_gravity_scale(player1, 0.75)
         -- Set velocity directly to cancel out falling momentum
-        vy1 = -3.5  -- Jump velocity for player1
+        vy1 = -3  -- Jump velocity for player1
 
         -- Pipes move left if space if pressed
         Fysics.set_linear_velocity(pipe, pipeSpeed, 0)
@@ -412,6 +418,30 @@ function ExampleScript:OnUpdate()
 			end
 		end
 	end
+
+    -- Bird X position
+local birdPos = Fysics.get_pos(player1)
+local birdX = Mafs.get_vec_x(birdPos)
+
+-- Pipe passing logic
+for _, set in ipairs(pipeSets) do
+    local pipePos = Fysics.get_pos(set.bottom)
+    local pipeX = Mafs.get_vec_x(pipePos)
+
+    -- Bird passed pipe midpoint
+    if (birdX > pipeX) and (set.passed == false) then
+        score = score + 10
+        scoreText = "Score: " .. tostring(score)
+        print("Passed Pipe! Score = " .. score)
+        set.passed = true
+    end
+
+    -- When pipe resets behind screen, allow scoring again
+    if pipeX > birdX then
+        set.passed = false
+    end
+end
+
 
     --Coin respawn logic
     for _, c in ipairs(coins) do
