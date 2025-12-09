@@ -29,7 +29,7 @@ function ExampleScript:OnStart()
 
     Background = Entity.create_entity()
     local BgBackground = Entity.add_sprite_component(Background, assets.textures.Background,960 , 640, 0)   
-    -- UI.Add_label( 350, 350, xSize, ySize, text)
+    --UI.Add_label(350, 350, xSize, ySize, text)
  
    ------------------------------------------------------
     -- Create player1
