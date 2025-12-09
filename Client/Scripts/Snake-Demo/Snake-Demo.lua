@@ -170,16 +170,14 @@ end
 
 function ExampleScript:OnTriggerEnter(collision1, collision2)
     if(collision2 == Apple) then
+        AppleX = randomX
+        AppleY = randomY
         print("new apple location")
-       --Fysics.set_pos(Apple, randomX, randomY)
-       Speed = Speed + 0.25
+        --Entity.set_local_pos(Apple, randomX, randomY)
+        Fysics.set_pos(Apple, 500, 500)
+        Speed = Speed + 0.25
         print(Speed)
     end
-
-
 end
-
-
-
 
 return ExampleScript
