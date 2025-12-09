@@ -12,7 +12,7 @@ local y = 300
 local t = 10
 local h = 500
 local w = 400
-local text = "Hello"
+local text = "Score: 0"
 local Apple
 local Apple2
 local AppleX = 400
@@ -20,7 +20,7 @@ local AppleY= 500
 local AppleSprite
 local xSize = 32
 local ySize = 32
-  local Score = 0
+local Score = 0
 
 ----------------------------------------------------------
 -- OnStart
@@ -29,7 +29,8 @@ function ExampleScript:OnStart()
 
     Background = Entity.create_entity()
     local BgBackground = Entity.add_sprite_component(Background, assets.textures.Background,960 , 640, 0)   
-    --UI.Add_label(350, 350, xSize, ySize, text)
+   
+    UI.Add_label(350, 350, xSize, ySize, text)
  
    ------------------------------------------------------
     -- Create player1
