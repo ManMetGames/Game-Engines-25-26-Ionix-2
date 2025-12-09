@@ -12,7 +12,7 @@ function GetModule(name)
 end
 
 -- Load System Modules
-LoadModule("Comodusoperandi", "Scripts/Autism.lua")
+LoadModule("CoModusOperandi", "Scripts/Autism.lua")
 
 -- Load all game modules here
 --LoadModule("Audio", "Scripts/Audio.lua")
@@ -22,6 +22,7 @@ LoadModule("Comodusoperandi", "Scripts/Autism.lua")
 --LoadModule("Assets", "Scripts/Assets.lua")
 LoadModule("Enums", "Scripts/Enums.lua")
 LoadModule("FlappyBird", "Scripts/FlappyBird/FlappyBird.lua")
+--LoadModule("CorutineTest", "Scripts/TestingCoroutine/CoroutineTest.lua")
 --LoadModule("ExampleScript", "Scripts/ExampleScript.lua")
 --LoadModule("Ball", "Scripts/Ball.lua")
 
