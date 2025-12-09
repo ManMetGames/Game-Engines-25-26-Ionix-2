@@ -51,13 +51,13 @@ function ExampleScript:OnStart()
 
     Entity.set_global_pos(player1, x, 300)
 	
-    local playerSprite1 = Entity.add_sprite_component(player1, assets.textures.FlappyBird, 64, 64, 10)
+    local playerSprite1 = Entity.add_sprite_component(player1, assets.textures.FlappyBird, 32, 32, 10)
     Sprite.set_columns(playerSprite1,1)
     -- PLAYER 1 PHYSICS
 
     Entity.add_fysics_component(player1, enums.bodytype.dynamicBody, true) -- dynamic body
     --Fysics.add_sprite_collider(player1, false)
-    Fysics.add_sprite_collider(player1,false,1)
+    Fysics.add_sprite_collider(player1,false, 0.5)
     -- Freeze bird
     Fysics.set_gravity_scale(player1, 0)
 
@@ -97,7 +97,7 @@ function ExampleScript:OnStart()
 	pipe = Entity.create_entity()
 	Entity.set_global_pos(pipe, 640, 400)
 
-	local pipeSprite = Entity.add_sprite_component(pipe, assets.textures.FlappyPipe, 80, 300, 0)
+	local pipeSprite = Entity.add_sprite_component(pipe, assets.textures.FlappyPipe, 60, 300, 0)
     Sprite.set_columns(pipeSprite,1)
 	-- Kinematic body so it moves but isn't affected by gravity
 	Entity.add_fysics_component(pipe, enums.bodytype.kinematicBody, false)
@@ -108,7 +108,7 @@ function ExampleScript:OnStart()
     pipeT = Entity.create_entity()
 	Entity.set_global_pos(pipeT, 640, 0)
 
-	local pipeSpriteT = Entity.add_sprite_component(pipeT,assets.textures.FlappyPipe2, 80, 300, 0)
+	local pipeSpriteT = Entity.add_sprite_component(pipeT,assets.textures.FlappyPipe2, 60, 300, 0)
     Sprite.set_columns(pipeSpriteT,1)
 	-- Kinematic body so it moves but isn't affected by gravity
 	Entity.add_fysics_component(pipeT, enums.bodytype.kinematicBody, false)
@@ -124,7 +124,7 @@ function ExampleScript:OnStart()
 	pipe2 = Entity.create_entity() 
 	Entity.set_global_pos(pipe2, 940, 400)
 
-	local pipeSprite2 = Entity.add_sprite_component(pipe2, assets.textures.FlappyPipe, 80, 300, 0)
+	local pipeSprite2 = Entity.add_sprite_component(pipe2, assets.textures.FlappyPipe, 60, 300, 0)
     Sprite.set_columns(pipeSprite2,1)
 	-- Kinematic body so it moves but isn't affected by gravity
 	Entity.add_fysics_component(pipe2, enums.bodytype.kinematicBody, false)
@@ -134,7 +134,7 @@ function ExampleScript:OnStart()
     pipeT2 = Entity.create_entity()
 	Entity.set_global_pos(pipeT2, 940, -40)
 
-	local pipeSpriteT2 = Entity.add_sprite_component(pipeT2,assets.textures.FlappyPipe2, 80, 300, 0)
+	local pipeSpriteT2 = Entity.add_sprite_component(pipeT2,assets.textures.FlappyPipe2, 60, 300, 0)
     Sprite.set_columns(pipeSpriteT2,1)
 	-- Kinematic body so it moves but isn't affected by gravity
 	Entity.add_fysics_component(pipeT2, enums.bodytype.kinematicBody, false)
@@ -151,7 +151,7 @@ function ExampleScript:OnStart()
 	pipe3 = Entity.create_entity() 
 	Entity.set_global_pos(pipe3, 1240, 360)
 
-	local pipeSprite3 = Entity.add_sprite_component(pipe3, assets.textures.FlappyPipe, 80, 300, 0)
+	local pipeSprite3 = Entity.add_sprite_component(pipe3, assets.textures.FlappyPipe, 60, 300, 0)
     Sprite.set_columns(pipeSprite3,1)
 	-- Kinematic body so it moves but isn't affected by gravity
 	Entity.add_fysics_component(pipe3, enums.bodytype.kinematicBody, false)
@@ -161,7 +161,7 @@ function ExampleScript:OnStart()
     pipeT3 = Entity.create_entity()
 	Entity.set_global_pos(pipeT3, 1240, -40)
 
-	local pipeSpriteT3 = Entity.add_sprite_component(pipeT3,assets.textures.FlappyPipe2, 80, 300, 0)
+	local pipeSpriteT3 = Entity.add_sprite_component(pipeT3,assets.textures.FlappyPipe2, 60, 300, 0)
     Sprite.set_columns(pipeSpriteT3,1)
 	-- Kinematic body so it moves but isn't affected by gravity
 	Entity.add_fysics_component(pipeT3, enums.bodytype.kinematicBody, false)
@@ -342,6 +342,33 @@ function ExampleScript:OnUpdate()
 			end
 		end
 	end
+
+    --Coin respawn logic
+    for _, c in ipairs(coins) do
+    local p = Fysics.get_pos(c)
+    local px = Mafs.get_vec_x(p)
+
+    --If the coin is offscreen
+    if px < 0 then  
+
+        --New positions for the coins
+        local newX = 10 + math.random(4, 10)
+        
+        --random Y positions
+        local newY = math.random(1, 6)
+
+        Fysics.set_pos(c, newX, newY)
+
+        --unhide the coin sprite
+        local s = Entity.get_sprite_component(c)
+        if s then
+            Sprite.set_width(s, 16)
+            Sprite.set_height(s, 16)
+        end
+
+        coinHidden[c] = false
+    end
+end
     
     ------------------------------------------------------
 	-- UI
