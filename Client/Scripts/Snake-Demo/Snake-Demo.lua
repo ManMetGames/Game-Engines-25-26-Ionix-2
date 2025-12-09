@@ -18,6 +18,7 @@ local Apple
 local AppleX = 400
 local AppleY= 500
 local AppleSprite
+local AppleSound
 
 ----------------------------------------------------------
 -- OnStart
@@ -59,6 +60,9 @@ function ExampleScript:OnStart()
     local AppleSprite = Entity.add_sprite_component(Apple, assets.textures.Apple, 32, 32, 10)
     Sprite.set_columns(AppleSprite,1)
 
+    AppleSound = Entity.create_entity()
+    Entity.add_audio_component(AppleSound, "AppleCollide", false)
+ 
     
     Entity.add_fysics_component(Apple, 2, true) -- dynamic body
     --Fysics.add_sprite_collider(player1, false)
@@ -124,7 +128,7 @@ function ExampleScript:OnStart()
 		------------------------------------------------------
 		Entity.add_fysics_component(Right, 0, false)  -- static
 		Fysics.add_sprite_collider(Right, false,1)
-
+end
 
 end
 
@@ -161,14 +165,17 @@ function ExampleScript:OnUpdate()
          Fysics.set_linear_velocity(player1, vx, vy)
     end   
 
-     end
 
 end
 
 function ExampleScript:OnTriggerEnter(collision1, collision2)
     if(collision2 == Apple) then
         Entity.destroy_entity(collision2)
+        AudioComponent.play(AppleSound)
+        AudioComponent.change_volume(AppleSound, 64)
     end
+
+    
 end
 
 return ExampleScript

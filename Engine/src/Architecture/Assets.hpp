@@ -49,11 +49,13 @@ struct Textures {
 };
 
 struct Sounds {
+    uint32_t AppleCollide = 2454044178u;
     uint32_t test = 1642075152u;
     uint32_t test0 = 280276284u;
 
     inline std::map<std::string, std::string> GetSounds() {
         std::map<std::string, std::string> map;
+        map["AppleCollide"] = "./Assets/AppleCollide.wav";
         map["test"] = "./Assets/test.mp3";
         map["test0"] = "./Assets/test.wav";
         return map;
