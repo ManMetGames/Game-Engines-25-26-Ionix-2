@@ -24,10 +24,8 @@ local AppleSprite
 ----------------------------------------------------------
 function ExampleScript:OnStart()
 
-Background = Entity.create_entity()
-local BgBackground = Entity.add_sprite_component(Background, assets.textures.Background,960 , 640, 0)
-
-   
+    Background = Entity.create_entity()
+    local BgBackground = Entity.add_sprite_component(Background, assets.textures.Background,960 , 640, 0)   
 
    ------------------------------------------------------
     -- Create player1
@@ -165,6 +163,12 @@ function ExampleScript:OnUpdate()
 
      end
 
+end
+
+function ExampleScript:OnTriggerEnter(collision1, collision2)
+    if(collision2 == Apple) then
+        Entity.destroy_entity(collision2)
+    end
 end
 
 return ExampleScript
