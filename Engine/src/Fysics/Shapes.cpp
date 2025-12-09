@@ -5,24 +5,19 @@
 namespace IonixEngine {
 
     
-
-
-    
     //add circle
     void FysicsShapes::AddCircle(Entity* entity, float radius, b2Vec2 offset, bool isTrigger) {
-        b2CircleShape shape;
-
-        shape.m_radius = radius;
-        shape.m_p = offset;
+        b2CircleShape circle;
+        
+        body = FysicsManager::GetManager()->GetBodyFromEntity(entity);
+        circle.m_radius = radius;
+        circle.m_p = offset;
         b2FixtureDef fixtureDef;
 
-        fixtureDef.shape = &shape;
+        fixtureDef.shape = &circle;
         fixtureDef.isSensor = isTrigger;
-
-        if (fixture) {
-            body->DestroyFixture(fixture);
-        }
-        fixture = FysicsManager::GetManager()->GetBodyFromEntity(entity)->CreateFixture(&fixtureDef);
+        fixtureDef.density = 1.0f;
+        fixture = body->CreateFixture(&fixtureDef);
     }
 
     //add box
@@ -38,7 +33,6 @@ namespace IonixEngine {
         b2Vec2 halfSize(size.x * 0.5f, size.y * 0.5f);
 
         shape.SetAsBox(halfSize.x, halfSize.y, offset, angle);
-
         b2FixtureDef fixtureDef;
         fixtureDef.shape = &shape;
         fixtureDef.isSensor = isTrigger;
@@ -67,12 +61,10 @@ namespace IonixEngine {
         offset.y = yScale / 2;
 
         shape.SetAsBox(halfSize.x, halfSize.y, offset, angle);
-
         b2FixtureDef fixtureDef;
         fixtureDef.shape = &shape;
         fixtureDef.isSensor = isTrigger;
         fixtureDef.density = 1.0f;
-
         fixture = body->CreateFixture(&fixtureDef);        
     }
 
@@ -92,7 +84,6 @@ namespace IonixEngine {
             vertices[i] = tileSize * vertices[i];
         }
         shape.Set(vertices.data(), static_cast<int32>(vertices.size()));
-
         b2FixtureDef fixtureDef;
 
         fixtureDef.shape = &shape;

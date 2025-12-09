@@ -103,6 +103,9 @@ namespace IonixEngine {
         auto getTriggerPressure = [this](int index, SDL_GameControllerAxis trigger) -> float {
             return Application::Get().layerInput->GetControllerPressure(index, trigger);
             };
+        auto getControllerCount = [this]() -> int {
+            return (int)m_Controllers.size();
+        };
 
         auto getLeftStickX = [=](int index) { return getStickAxis(index, SDL_CONTROLLER_AXIS_LEFTX); };
         auto getLeftStickY = [=](int index) { return getStickAxis(index, SDL_CONTROLLER_AXIS_LEFTY); };
@@ -166,7 +169,11 @@ namespace IonixEngine {
             "ionix_rctrl", SDL_SCANCODE_RCTRL,
             "ionix_rshift", SDL_SCANCODE_RSHIFT,
             "ionix_ralt", SDL_SCANCODE_RALT,
-            "ionix_rgui", SDL_SCANCODE_RGUI
+            "ionix_rgui", SDL_SCANCODE_RGUI,
+            "arrow_up", SDL_SCANCODE_UP,
+            "arrow_down", SDL_SCANCODE_DOWN,
+            "arrow_left", SDL_SCANCODE_LEFT,
+            "arrow_right", SDL_SCANCODE_RIGHT
         );
 
         lua["Buttons"] = lua.create_table_with(
@@ -210,7 +217,8 @@ namespace IonixEngine {
             "get_right_stick_x", getRightStickX,
             "get_right_stick_y", getRightStickY,
             "get_left_trigger", getLeftTrigger,
-            "get_right_trigger", getRightTrigger
+            "get_right_trigger", getRightTrigger,
+            "get_controller_count", getControllerCount
         );
     }
 }
