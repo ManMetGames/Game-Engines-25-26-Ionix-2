@@ -32,19 +32,25 @@ local coinSpacing = 200
 local coinSpeed = -3
 local coinHidden = {}
 local score = 0
-local scoreText = "Score: 0"
+local Pscore = 0
+local pipeScoreText = "Score: 0"
+local scoreText = "Coins: 0"
 local text1 = "Press SPACE to start!"
-local finalScoreText = "Final Score: 0"
 local text2 = "Press SPACE to restart"
+local finalScoreText = "Final Score: 0"
+local coinsText = "Coins Collected: "
+
 local gameOver = false
 
 local function resetGame()
     --Reset game state
     gameOver = false
     score = 0
-    scoreText = "Score: 0"
+    pipeScoreText = "Score: 0"
+    scoreText = "Coins: 0"
     text1 = "Press SPACE to start!"
     finalScoreText = "Final Score: 0"
+    coinsText = "Coins Collected: "
 
     --Reset player
     Fysics.set_pos(player1, 2, 3)
@@ -301,14 +307,20 @@ function ExampleScript:OnUpdate()
     
     -- Display instruction text at the start of the game
     if text1 ~= "" then
+        UI.Add_label(20, 20, 1000, 1000, pipeScoreText)
+
         -- UI - Display score in top-left corner
-        UI.Add_label(20, 20, 200, 50, scoreText)
-        
+        UI.Add_label(20, 50, 1000, 1000, scoreText)
+
         -- Display instruction text (only at start)
         UI.Add_label(300, 250, 1000, 1000, text1)
+
     else
+        UI.Add_label(20, 20, 1000, 1000, pipeScoreText)
+
         -- UI - Display score in top-left corner
-        UI.Add_label(20, 20, 200, 50, scoreText)
+        UI.Add_label(20, 50, 1000, 1000, scoreText)
+
     end
 
 	if Input.get_key_down(Keys.ionix_space) and (not gameOver) then
@@ -430,9 +442,9 @@ for _, set in ipairs(pipeSets) do
 
     -- Bird passed pipe midpoint
     if (birdX > pipeX) and (set.passed == false) then
-        score = score + 10
-        scoreText = "Score: " .. tostring(score)
-        print("Passed Pipe! Score = " .. score)
+        Pscore = Pscore + 1
+        pipeScoreText = "Score: " .. tostring(Pscore)
+        print("Passed Pipe! Score = " .. Pscore)
         set.passed = true
     end
 
@@ -508,7 +520,7 @@ end
                     
                     -- Update score
                     score = score + 10  -- 10 points per coin
-                    scoreText = "Score: " .. tostring(score)
+                    scoreText = "Coins: " .. tostring(score)
                     print(scoreText)  -- Debug output
                     
                     break
@@ -539,8 +551,9 @@ end
     end
 
     text1 = "GAME OVER!! TRY AGAIN"
-    finalScoreText = "Final Score: " .. tostring(score)
+    finalScoreText = "Final Score: " .. tostring(Pscore)
     local finalScoreText = "Final Score: 0"
+    local coinsCollected = ""
     local text2 = ""
 end
     ------------------------------------------------------
