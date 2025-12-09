@@ -102,13 +102,13 @@ function ExampleScript:OnStart()
 
     Entity.set_global_pos(player1, x, 300)
 	
-    local playerSprite1 = Entity.add_sprite_component(player1, assets.textures.FlappyBird, 32, 32, 10)
+    local playerSprite1 = Entity.add_sprite_component(player1, assets.textures.FlappyBird, 48, 48, 10)
     Sprite.set_columns(playerSprite1,1)
     -- PLAYER 1 PHYSICS
 
     Entity.add_fysics_component(player1, enums.bodytype.dynamicBody, true) -- dynamic body
     --Fysics.add_sprite_collider(player1, false)
-    Fysics.add_sprite_collider(player1,false, 0.4)
+    Fysics.add_sprite_collider(player1,false, 0.5)
     -- Freeze bird
     Fysics.set_gravity_scale(player1, 0)
 
