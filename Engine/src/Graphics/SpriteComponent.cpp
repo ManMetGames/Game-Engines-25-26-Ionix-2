@@ -114,7 +114,8 @@ namespace IonixEngine {
 		}
 		angleDegrees = entity->transform.GetGlobalRotation();
 
-		printf("Position: [ %.1f, %.1f ], rot: %.1f\n" , position.x, position.y, angleDegrees);
+
+		//printf("Position: [ %.1f, %.1f ], rot: %.1f\n" , position.x, position.y, angleDegrees);
 
 		//create and send render data to the render queue
 		data->queue->AddToQueue(RenderCall{

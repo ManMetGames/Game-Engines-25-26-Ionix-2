@@ -64,9 +64,11 @@ namespace IonixEngine {
             if (entity->TryGetComponent(&body))
             {
                 body->SetPosition(entity, x / 100, y / 100);
+
             }
-            
-            entity->transform.SetGlobalPosition(Vec2{ x, y });
+            else {
+                entity->transform.SetGlobalPosition(Vec2{ x, y });
+            }
             };
 
         auto setGlobalRot = [](Entity* entity, float rot) {
