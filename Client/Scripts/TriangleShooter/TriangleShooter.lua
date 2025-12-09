@@ -81,8 +81,10 @@ local projectileLifetimeSeconds = 2  -- seconds projectile can live before auto-
 local fireCooldownTimer = 0
 local isFiring = false
 
+local currentFireInterval = 0.5
+
 local recoilOffset = 0
-local recoilMaxOffset = 24
+local recoilMaxOffset = 16
 local recoilLerpSpeed = 12
 
 -- Current aim direction (updated each frame)
@@ -461,6 +463,7 @@ function TriangleShooter:OnUpdate()
             if not interval or interval <= 0 then
                 interval = 0.5
             end
+            currentFireInterval = interval
             fireCooldownTimer = interval
         end
     end
@@ -475,6 +478,7 @@ function TriangleShooter:OnUpdate()
         if not interval or interval <= 0 then
             interval = 0.5
         end
+        currentFireInterval = interval
         fireCooldownTimer = interval
     end
     
@@ -815,20 +819,39 @@ function UpdatePlayerRecoil()
     local dt = GetDt()
 
     local target = 0
-    if isFiring then
-        target = recoilMaxOffset
+
+    local interval = currentFireInterval or 0.5
+    if interval < 0.001 then
+        interval = 0.5
     end
 
-    local diff = target - recoilOffset
-    if math.abs(diff) > 0.01 then
-        local step = recoilLerpSpeed * dt
-        if step > 1 then
-            step = 1
+    if fireCooldownTimer >= 0 then
+        local remaining = fireCooldownTimer
+        if remaining < 0 then remaining = 0 end
+        if remaining > interval then remaining = interval end
+
+        local elapsed = interval - remaining
+        if elapsed < 0 then elapsed = 0 end
+        if elapsed > interval then elapsed = interval end
+
+        local tNorm = 0
+        if interval > 0 then
+            tNorm = elapsed / interval
+            if tNorm < 0 then tNorm = 0 end
+            if tNorm > 1 then tNorm = 1 end
         end
-        recoilOffset = recoilOffset + diff * step
-    else
-        recoilOffset = target
+
+        local tri = 0
+        if tNorm <= 0.5 then
+            tri = tNorm / 0.5
+        else
+            tri = (1.0 - tNorm) / 0.5
+        end
+
+        target = recoilMaxOffset * tri
     end
+
+    recoilOffset = target
 
     local rx = 0
     local ry = 0
