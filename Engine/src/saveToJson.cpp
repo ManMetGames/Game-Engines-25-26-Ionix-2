@@ -1,12 +1,11 @@
 #include <iostream>
-#include "json.hpp"
 #include <fstream>
+#include "saveToJson.h"
 
 namespace IonixEngine
 {
-    using json = nlohmann::json;
 
-    void SaveHighScore(int score) {
+    void SaveFlappyBirdHighScore(int score) {
         json data;
         data["highscore"] = score;
 
@@ -14,7 +13,7 @@ namespace IonixEngine
         file << data.dump(4); // pretty print with indent 4
     }
 
-    int LoadHighScore() {
+    int LoadFlappyBirdHighScore() {
         std::ifstream file("flappyBirdHighScore.json");
         if (!file.is_open())
             return 0; // default if no file exists

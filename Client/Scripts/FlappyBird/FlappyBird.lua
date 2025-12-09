@@ -11,6 +11,7 @@ local goalX = 500
 local goalY = 500
 local y = 300
 local t = 10
+local highscore
 
 -- Pipe variables
 local pipe
