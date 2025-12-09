@@ -12,6 +12,9 @@ local playerSizeX = 32
 local playerSizeY = 32
 local playerSpeed = 2.5
 
+--Hit boxs 
+local hitboxes = {}
+
 
 local x = 300
 local jumpCount1 = 0
@@ -119,6 +122,16 @@ function ExampleScript:OnUpdate()
         jumpCount2 = jumpCount2 + 1
         Fysics.add_force_to_center(player2, 0, -30  / jumpCount2)
 	end 
+	
+	--Hitbox spawning testing 
+    	if Input.get_button_down(0, Buttons.ionix_x) then
+            local pos = Entity.get_global_pos(player1)
+            local px = Mafs.get_vec_x(pos)
+            local py = Mafs.get_vec_y(pos)
+            
+            Hitbox.spawn(player1, px + 40, py, 20, 20, 0.5, assets, enums)
+        end
+      --  Hitbox.update()
     
     if Input.get_key_down(Keys.ionix_m) then
         Entity.destroy_entity(coin)
