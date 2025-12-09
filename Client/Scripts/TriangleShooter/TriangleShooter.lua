@@ -5,6 +5,7 @@ local TriangleShooterLevels = require("Scripts.TriangleShooter.TriangleShooterLe
 local TriangleShooterEnemy = require("Scripts.TriangleShooter.TriangleShooterEnemy")
 local TriangleShooterAbilities = require("Scripts.TriangleShooter.TriangleShooterAbilities")
 local TriangleShooterPlayerProgress = require("Scripts.TriangleShooter.TriangleShooterPlayerProgress")
+local ParticleSystem = require("Scripts.TriangleShooter.ParticleSystem")
 
 local function GetDt()
     return Mafs.delta_time()
@@ -513,6 +514,8 @@ function TriangleShooter:OnUpdate()
     -- Update all projectiles
     UpdateProjectiles()
     UpdateEnemyProjectiles()
+
+    ParticleSystem.update(dt)
     
     -- Update flash effect
     UpdateFlash()
@@ -683,6 +686,11 @@ function UpdateProjectiles()
             enemy.health = (enemy.health or 0) - 1
             TriangleShooterPlayerProgress.addXp(1)
             FlashEnemy(enemy)
+
+            local enemyCenterX = enemy.x + enemySize / 2
+            local enemyCenterY = enemy.y + enemySize / 2
+            ParticleSystem.emitHitBurst(enemyCenterX, enemyCenterY)
+
             if impact3SfxEntity then
                 local v = math.random(48, 64)
                 AudioComponent.change_volume(impact3SfxEntity, v)
