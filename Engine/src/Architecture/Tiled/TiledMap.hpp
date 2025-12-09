@@ -85,6 +85,7 @@ public:
 
     TiledMap(JSONDeserialize* json);
     size_t GetTilemapIdx(TiledTileLayer& layer);
+    std::string ToString();
 };
 
 };

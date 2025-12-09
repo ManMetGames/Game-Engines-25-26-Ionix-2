@@ -11,7 +11,7 @@ bool is_windows = true;
 bool is_windows = false;
 #endif
 
-void get_sources(const char* path, Nob_File_Paths* source, Nob_File_Paths* header, Nob_File_Paths* include);
+void get_sources(const char* path, Nob_File_Paths* source, Nob_File_Paths* header);
 
 void multi_da_append(Nob_File_Paths* first, Nob_File_Paths* second, const char* path);
 
@@ -31,6 +31,12 @@ int main(int argc, char* argv[]) {
     #endif
 
     NOB_GO_REBUILD_URSELF(argc, argv);
+
+    Nob_File_Paths old_objs = { 0 };
+    if (nob_read_entire_dir("./build/Engine/", &old_objs)) {
+        nob_da_foreach(const char*, objFile, &old_objs) nob_delete_file(nob_temp_sprintf("./build/Engine/%s", *objFile));
+    }
+    nob_da_free(old_objs);
 
     nob_mkdir_if_not_exists("build/");
     nob_mkdir_if_not_exists("build/Engine/");
@@ -57,8 +63,8 @@ int main(int argc, char* argv[]) {
     nob_da_append(&warnings, "-Wno-switch");
     nob_da_append(&warnings, "-Wno-unknown-warning-option");
 
-    get_sources("./Engine/src/", &engine_source_files, &engine_header_files, &engine_include);
-    get_sources("./Client/src/", &client_source_files, &client_header_files, &client_include);
+    get_sources("./Engine/src/", &engine_source_files, &engine_header_files);
+    get_sources("./Client/src/", &client_source_files, &client_header_files);
     get_libs(&client_include, &engine_include, &client_libs, &engine_libs, &os_libs);
 
 
@@ -143,8 +149,7 @@ int main(int argc, char* argv[]) {
     }
 };
 
-void get_sources(const char* path, Nob_File_Paths* source, Nob_File_Paths* header, Nob_File_Paths* include) {
-    nob_da_append(include, nob_temp_sprintf("-I%s", path));
+void get_sources(const char* path, Nob_File_Paths* source, Nob_File_Paths* header) {
     Nob_File_Paths files = {0};
     nob_read_entire_dir(path, &files);
     for (size_t i = 0; i < files.count; i++) {
@@ -152,7 +157,7 @@ void get_sources(const char* path, Nob_File_Paths* source, Nob_File_Paths* heade
         if (strcmp(files.items[i], ".") == 0) { continue; }
         if (strcmp(files.items[i], "..") == 0) { continue; }
         if (nob_get_file_type(file_path) == NOB_FILE_DIRECTORY) {
-            get_sources(nob_temp_sprintf("%s/", file_path), source, header, include);
+            get_sources(nob_temp_sprintf("%s/", file_path), source, header);
         }
         Nob_String_View sv = nob_sv_from_cstr(file_path);
         if (nob_sv_end_with(sv, ".h") || nob_sv_end_with(sv, ".hpp")) {
@@ -175,9 +180,12 @@ void get_libs(Nob_File_Paths* clientInclude, Nob_File_Paths* engineInclude, Nob_
     } else {
         multi_da_append(clientInclude, engineInclude, "-I/usr/include/box2d/");
         multi_da_append(clientInclude, engineInclude, "-I/usr/include/SDL2/");
+        // Link to system lua headers
     }
     multi_da_append(clientInclude, engineInclude, "-I./dependencies/bin/sol2/include/");
     multi_da_append(clientInclude, engineInclude, "-I./dependencies/bin/imgui/");
+    multi_da_append(clientInclude, engineInclude, "-I./Engine/src/");
+    nob_da_append(clientInclude, "-I./Client/src/");
 
     if (is_windows) {
         multi_da_append(clientLibs, engineLibs, "-L./dependencies/bin/lua/");

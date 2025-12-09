@@ -1,7 +1,7 @@
 #include "Architecture/ECS/Component.hpp"
 #include "SDL_rect.h"
 #include "SDL_render.h"
-#include "Tiled/TiledMap.hpp"
+#include "TiledMap.hpp"
 
 namespace IonixEngine {
 

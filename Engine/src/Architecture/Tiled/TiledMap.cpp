@@ -1,6 +1,7 @@
 #include "TiledMap.hpp"
 #include "TiledObject.hpp"
-#include "JSON/JSONDeserialize.hpp"
+#include "Architecture/JSON/JSONDeserialize.hpp"
+#include <cstdio>
 #include <sstream>
 
 namespace IonixEngine {
@@ -94,7 +95,7 @@ TiledTileLayer::TiledTileLayer(JSONDeserialize* json) {
     bool ok = true;
     ok = json->BeginObject(); if (!ok) { return; }
 
-    ok = json->BeginField("data"); if (ok) { return; }
+    ok = json->BeginField("data"); if (!ok) { printf("Could not find tile data\n"); return; }
     ok = json->BeginArray();
     if (ok) {
         do {
@@ -105,42 +106,60 @@ TiledTileLayer::TiledTileLayer(JSONDeserialize* json) {
             }
             json->EndElement();
         } while (json->HasNext());
+    } else {
+        printf("[Tiled] failed to begin data array\n");
     }
+    ok = json->EndArray(); if (!ok) { return; }
     ok = json->EndField(); if (!ok) { return; }
+    printf("[Tiled] Finished data array\n");
 
     ok = json->BeginField("height"); if (!ok) { return; }
     ok = json->GetFloat(&size.y); if (!ok) { return; }
     ok = json->EndField(); if (!ok) { return; }
+    printf("[Tiled] Parsed height\n");
 
     ok = json->BeginField("id"); if (!ok) { return; }
     ok = json->GetInt(&id); if (!ok) { return; }
     ok = json->EndField(); if (!ok) { return; }
+    printf("[Tiled] Parsed id\n");
+
+    ok = json->BeginField("name"); if (!ok) { return; }
+    ok = json->GetString(&name); if (!ok) { return; }
+    ok = json->EndField(); if (!ok) { return; }
+    printf("[Tiled] Parsed name\n");
 
     ok = json->BeginField("opacity"); if (!ok) { return; }
     ok = json->GetFloat(&opacity); if (!ok) { return; }
     ok = json->EndField(); if (!ok) { return; }
+    printf("[Tiled] Parsed opacity\n");
 
     ok = json->BeginField("type"); if (!ok) { return; }
     ok = json->GetString(&type); if (!ok) { return; }
     ok = json->EndField(); if (!ok) { return; }
+    printf("[Tiled] Parsed type\n");
 
     ok = json->BeginField("visible"); if (!ok) { return; }
     ok = json->GetBool(&visible); if (!ok) { return; }
     ok = json->EndField(); if (!ok) { return; }
+    printf("[Tiled] Parsed visible\n");
 
     ok = json->BeginField("width"); if (!ok) { return; }
     ok = json->GetFloat(&size.x); if (!ok) { return; }
     ok = json->EndField(); if (!ok) { return; }
+    printf("[Tiled] Parsed width\n");
 
     ok = json->BeginField("x"); if (!ok) { return; }
     ok = json->GetFloat(&position.x); if (!ok) { return; }
     ok = json->EndField(); if (!ok) { return; }
+    printf("[Tiled] Parsed x\n");
 
     ok = json->BeginField("y"); if (!ok) { return; }
     ok = json->GetFloat(&position.x); if (!ok) { return; }
     ok = json->EndField(); if (!ok) { return; }
+    printf("[Tiled] Parsed y\n");
 
-    ok = json->EndObject(); if (!ok) { return; }
+    ok = json->EndObject(); if (!ok) { printf("Failed to finish tile layer\n"); return; }
+    printf("[Tiled] Successfully loaded layer: %s\n", name.c_str());
 }
 
 TiledTileset::TiledTileset(JSONDeserialize* json) {
@@ -309,6 +328,7 @@ TiledMap::TiledMap(JSONDeserialize* json) {
 
 size_t TiledMap::GetTilemapIdx(TiledTileLayer& layer) {
     size_t idx = 0;
+    if (layer.data.size() == 0) { return 0; }
     int tile = layer.data[0];
     for (; idx < tilesets.size(); idx++) {
         TiledTileset* tileset = &tilesets[idx];
@@ -317,6 +337,35 @@ size_t TiledMap::GetTilemapIdx(TiledTileLayer& layer) {
         }
     }
     return 0;
+}
+
+std::string TiledMap::ToString() {
+    std::stringstream stream;
+    stream << "Map data:\n";
+    stream << "\tCompression: " << compressionLevel << "\n";
+    stream << "\tInfinite: " << infinite << "\n";
+    stream << "\tSize: [ " << size.x << ", " << size.y << "\n";
+    stream << "\tTile Size: [ " << tileSize.x << ", " << tileSize.y << "\n";
+    stream << "\tLayers:\n";
+    for (TiledLayer& layer : layers) {
+        if (layer.isTile) {
+            stream << "\tTile layer: " << layer.tileLayer.name << "\n";
+        } else {
+            stream << "\tLayer: \n" << layer.objectLayer.ToString() << "\n";
+        }
+    }
+    stream << "\tOrientation: " << orientation << "\n";
+    stream << "\tRender Order: " << renderOrder << "\n";
+    stream << "\tTiled Version: " << tiledVersion << "\n";
+
+    for (TiledTileset& tileset : tilesets) {
+        stream << "\tTileset: \n" << tileset.ToString() << "\n";
+    }
+
+    stream << "\tType: " << type << "\n";
+    stream << "\tVersion: " << version << "\n";
+
+    return stream.str();
 }
 
 }

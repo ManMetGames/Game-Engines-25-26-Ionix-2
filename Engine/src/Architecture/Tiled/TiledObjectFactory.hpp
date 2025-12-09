@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Scene.h"
-#include "Tiled/TiledMap.hpp"
-#include "Tiled/TiledObject.hpp"
+#include "Architecture/Scene.h"
+#include "TiledMap.hpp"
+#include "TiledObject.hpp"
 #include <unordered_map>
 
 namespace IonixEngine {

@@ -12,6 +12,8 @@ JSONDeserialize::JSONDeserialize(const std::string& json) {
     pos = 0;
     brackets = std::stack<char>();
     objectContext = std::stack<size_t>();
+
+    printf("[JSON] Loaded %zu chars of data\n", data.size());
 }
 
 void JSONDeserialize::Reset() {
@@ -139,6 +141,7 @@ bool JSONDeserialize::BeginArray() {
         return false;
     }
     brackets.push('[');
+    printf("JSON Begin Array pushed '['");
     objectContext.push(objectContext.size());
     pos++;
 
@@ -147,7 +150,8 @@ bool JSONDeserialize::BeginArray() {
 
 bool JSONDeserialize::HasNext() {
     size_t endLine = data.find('\n', pos);
-    if (endLine != data.npos && data[endLine - 1] == ',') {
+    size_t endComma = data.find(',', pos);
+    if (endLine != data.npos && endComma != data.npos && endComma < endLine) {
         return true;
     } else {
         return false;
@@ -177,6 +181,7 @@ bool JSONDeserialize::EndElement() {
 bool JSONDeserialize::EndArray() {
     if (brackets.top() != '[') { printf("[JSON Deserialize] Most recent unresolved bracket was not ']'\n"); return false; }
     brackets.pop();
+    printf("JSON End Array popped ']'");
     return ValidEndObject();
 }
 
@@ -186,6 +191,7 @@ bool JSONDeserialize::BeginObject() {
     if (newPos == data.npos) { printf("[JSON Deserialize] Could not find start of object after char %zu", pos); return false; }
 
     brackets.push('{');
+    printf("JSON Begin Object pushed '{'");
     objectContext.push(objectContext.size());
     pos = newPos;
 
@@ -198,6 +204,7 @@ bool JSONDeserialize::EndObject() {
     pos = newPos;
     if (brackets.top() != '{') { printf("[JSON Deserialize] Most recent unresolved bracket was not '{'\n"); return false; }
     brackets.pop();
+    printf("JSON End Object popped '}'");
     return ValidEndObject();
 }
 
@@ -240,6 +247,7 @@ size_t JSONDeserialize::AdvanceToNonWhitespace(size_t maxDistance) {
 bool JSONDeserialize::ValidEndObject() {
     size_t size = objectContext.top();
     objectContext.pop();
+    printf("[JSON] Evaluating brackets: top: %zu, size: %zu\n", size, objectContext.size());
     return objectContext.size() == size;
 }
 

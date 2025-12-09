@@ -1,5 +1,4 @@
 #include "TileMapRenderer.hpp"
-#include "ECS/Component.hpp"
 #include "Architecture/TextureManager/TextureManager.h"
 #include "Graphics/QueueRenderer.h"
 

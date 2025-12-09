@@ -1,7 +1,12 @@
 #include "Scene.h"
 #include "Architecture/Application.h"
+#include "Architecture/JSON/JSONDeserialize.hpp"
+#include "Architecture/Tiled/TiledMap.hpp"
+#include "Architecture/Tiled/TiledObjectFactory.hpp"
 #include "SDL_log.h"
 #include <cstdio>
+#include <fstream>
+#include <sstream>
 
 namespace IonixEngine {
     void Scene::OnEnter() {
@@ -47,6 +52,47 @@ namespace IonixEngine {
         //thirdEntity->transform.SetParent(&secondEntity->transform, false);
         //thirdEntity->AddComponent(new SpriteComponent(thirdEntity, "ball",100,100, 0));
         
+
+        SDL_Log("[Scene] Beginning Tiled Loading...");
+        std::ifstream jsonFile = std::ifstream("./First.json");
+        std::stringstream jsonData;
+        jsonData << jsonFile.rdbuf();
+        JSONDeserialize json = JSONDeserialize(jsonData.str());
+        TiledMap map = TiledMap(&json);
+
+        SDL_Log("[Tiled] Loaded map data:\n%s", map.ToString().c_str());
+
+        TiledObjectFactory factory;
+
+        size_t capacity = 0;
+        for (TiledLayer& layer : map.layers) {
+            if (layer.isTile) { continue; }
+            capacity += layer.objectLayer.objects.size();
+        }
+        std::vector<std::pair<TiledObject, TiledObjectLayer>> orderedObjects;
+        orderedObjects.reserve(capacity);
+
+        std::vector<std::pair<TiledTileLayer, size_t>> tileLayers;
+
+        for (TiledLayer& layer : map.layers) {
+            if (layer.isTile) {
+                tileLayers.push_back(std::make_pair(layer.tileLayer, map.GetTilemapIdx(layer.tileLayer)));
+            } else {
+                for (TiledObject& object : layer.objectLayer.objects) {
+                    for (TiledProperty& property : object.properties) {
+                        orderedObjects.push_back(std::make_pair(object, layer.objectLayer));
+                    }
+                }
+            }
+        }
+
+        for (std::pair<TiledObject, TiledObjectLayer>& object : orderedObjects) {
+            factory.CreateEntityFromObjectID(this, object.first, object.second);
+        }
+
+        for (std::pair<TiledTileLayer, size_t>& tile : tileLayers) {
+            factory.CreateTilemapFromLayer(this, tile.first, map.tilesets[tile.second]);
+        }
     }
 
     void Scene::OnUpdate(float dt) {
