@@ -11,7 +11,7 @@ local goalX = 500
 local goalY = 500
 local y = 300
 local t = 10
-local highscore
+local highscore = Json.load_high_score()
 
 -- Pipe variables
 local pipe
@@ -456,7 +456,6 @@ for _, set in ipairs(pipeSets) do
     end
 end
 
-
     --Coin respawn logic
     for _, c in ipairs(coins) do
     local p = Fysics.get_pos(c)
@@ -557,6 +556,13 @@ end
     local finalScoreText = "Final Score: 0"
     local coinsCollected = ""
     local text2 = ""
+    if Pscore > highscore then 
+        highscore = Pscore 
+        Json.save_high_score(highscore)
+        print (highscore)
+    end
+    
+    
 end
     ------------------------------------------------------
 	--Collision
