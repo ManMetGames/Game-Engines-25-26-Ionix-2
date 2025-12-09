@@ -144,10 +144,17 @@ function ExampleScript:OnUpdate()
     local vy = 0
 
     local playerPos = Entity.get_global_pos(player1)
-    local vx1 = Mafs.get_vec_x(playerPos)
+    local px = Mafs.get_vec_x(playerPos)
+    local py = Mafs.get_vec_y(playerPos)
 
-    if(vx1 >= 930) then
+    local minX = 0
+    local maxX = 930
+    local minY = 0
+    local maxY = 610
+    
+    if px <= minX or px >= maxX or py <= minY or py >= maxY then
         Fysics.set_pos(player1, 32 / 100, 32 / 100)
+        Fysics.set_linear_velocity(player1, 0, 0)
     end
 
   -- basic movment using the WASD keys
