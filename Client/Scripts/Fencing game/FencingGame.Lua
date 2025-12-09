@@ -25,6 +25,11 @@ local aiStartX = 700
 local aiStartY = 400
 
 local playerSpeed = 70.0
+local aiSpeed = 5.0
+
+local aiLeftX = 400
+local aiRightX = 700
+local aiDirection = -1
 
 local currentRound = 1
 local maxRounds = 5
@@ -59,7 +64,7 @@ local function endRound(winner)
         return
     end
 
-    roundActive = false
+    roundActive = true
 
     if winner == "player" then
         playerScore = playerScore + 1
@@ -90,6 +95,7 @@ local function endRound(winner)
 end
 
 function FencingGame:OnStart()
+    
     player = Entity.create_entity()
     Entity.set_global_pos(player, playerStartX, playerStartY)
     local playerColliderSprite = Entity.add_sprite_component(player, assets.textures.Player, 128, 128, 5)
@@ -223,6 +229,22 @@ function FencingGame:OnUpdate()
     end
 
     if roundActive and not matchOver then
+        local aiPos = Fysics.get_pos(ai)
+        local ax = Mafs.get_vec_x(aiPos)
+        local ay = Mafs.get_vec_y(aiPos)
+
+        if ax <= aiLeftX then
+            ax = aiLeftX
+            aiDirection = 1
+        elseif ax >= aiRightX then
+            ax = aiRightX
+            aiDirection = -1
+        end
+
+        Entity.set_global_pos(ai, ax, ay)
+
+        local avx = aiSpeed * aiDirection
+        Fysics.set_linear_velocity(ai, avx, 0)
     end
 
     UI.Add_label(20, 20, 400, 40, roundText)
