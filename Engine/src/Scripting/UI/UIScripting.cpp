@@ -44,6 +44,9 @@ namespace IonixEngine {
         auto AddSliderFloat = [](int x, int y, float xSize, float ySize,const char* text, float* value,float min, float max) {
             Application::Get().layerUI->m_UIManager->AddSliderFloat(x, y, xSize, ySize,text, value, min, max);
             };
+        auto AddCheckbox = [](int x, int y, float xSize, float ySize, const char* text, bool* checked) {
+            Application::Get().layerUI->m_UIManager->AddCheckbox(x, y, xSize, ySize, text, checked);
+            };
  
         lua["UI"] = lua.create_table_with(
           "Add_label", AddLabel,
@@ -55,7 +58,8 @@ namespace IonixEngine {
 			"add_drop_down", AddDropdown,
             "add_radio_button", AddRadioButton,
             "add_input_text", AddInputText,
-            "add_slider_float",AddSliderFloat
+            "add_slider_float",AddSliderFloat,
+            "add_checkbox ", AddCheckbox
         );
     }
 
