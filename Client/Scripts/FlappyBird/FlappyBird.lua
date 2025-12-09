@@ -38,7 +38,7 @@ local scoreText = "Coins: 0"
 local text1 = "Press SPACE to start!"
 local text2 = "Press SPACE to restart"
 local finalScoreText = "Final Score: 0"
-local coinsText = "Coins Collected: "
+local coinsText = "Coins Collected: 0"
 
 local gameOver = false
 
@@ -46,11 +46,13 @@ local function resetGame()
     --Reset game state
     gameOver = false
     score = 0
+    Pscore = 0
     pipeScoreText = "Score: 0"
     scoreText = "Coins: 0"
     text1 = "Press SPACE to start!"
+    text2 = "Press SPACE to restart"
     finalScoreText = "Final Score: 0"
-    coinsText = "Coins Collected: "
+    coinsText = "Coins Collected: 0"
 
     --Reset player
     Fysics.set_pos(player1, 2, 3)
@@ -279,13 +281,16 @@ function ExampleScript:OnUpdate()
 
     if gameOver then
         --Score and Game Over text
-        UI.Add_label(350, 235, 1000, 1000, text1)
+        UI.Add_label(300, 225, 1000, 1000, text1)
 
         --Display final score
-        UI.Add_label(375, 260, 1000, 1000, finalScoreText)
+        UI.Add_label(345, 250, 1000, 1000, finalScoreText)
+
+        --Display coin score
+        UI.Add_label(325, 275, 1000, 1000, coinsText)
 
         --Display retry text
-        UI.Add_label(350, 285, 1000, 1000, text2)
+        UI.Add_label(300, 300, 1000, 1000, text2)
 
         if gameOver and Input.get_key_down(Keys.ionix_space) then
         resetGame()
@@ -520,7 +525,7 @@ end
                     
                     -- Update score
                     score = score + 10  -- 10 points per coin
-                    scoreText = "Coins: " .. tostring(score)
+                    scoreText = " " .. tostring(score)
                     print(scoreText)  -- Debug output
                     
                     break
@@ -552,8 +557,9 @@ end
 
     text1 = "GAME OVER!! TRY AGAIN"
     finalScoreText = "Final Score: " .. tostring(Pscore)
+    coinsText = "Coins Collected: " .. tostring(score)
     local finalScoreText = "Final Score: 0"
-    local coinsCollected = ""
+    local coinsText = ""
     local text2 = ""
 end
     ------------------------------------------------------
