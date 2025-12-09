@@ -29,6 +29,9 @@ local DuckRightFlySpeed
 local SpawnPointLeft = Mafs.vector2(-75,450)
 local SpawnPointRight = Mafs.vector2(Window.get_width(), 490)
 
+local SendLeftDuck = true
+local SendRightDuck = false
+
 ----------------------------------------------------------
 -- OnStart
 ----------------------------------------------------------
@@ -80,7 +83,7 @@ function ExampleScript:OnStart()
 
     DuckRight = Entity.create_entity()
     print(Window.get_width())
-    Entity.set_entity_pos(DuckRight, Mafs.vector2_x(SpawnPointRight), Mafs.vector2_y(SpawnPointRight) - 200)  
+    Entity.set_entity_pos(DuckRight, Mafs.vector2_x(SpawnPointRight), Mafs.vector2_y(SpawnPointRight) - 150)  
 	print(Mafs.vector2_x(SpawnPointRight))
     local DuckRightSprite = Entity.add_sprite_component(DuckRight, assets.textures.Duck, 75, 75, 1)
     Sprite.set_columns(DuckRightSprite,1)
@@ -106,12 +109,34 @@ function ExampleScript:OnUpdate()
     local DuckLeftPos = Mafs.vector2_y(Entity.get_entity_pos(DuckLeft))
     if DuckLeftPos >= Window.get_height()  then
         print(DuckLeftPos)
-       --Entity.set_entity_pos(DuckLeft, Mafs.vector2_x(SpawnPointLeft), Mafs.vector2_y(SpawnPointLeft))
-       Fysics.set_pos(DuckLeft, Mafs.vector2_x(SpawnPointLeft), Mafs.vector2_y(SpawnPointLeft))
+       Fysics.set_pos(DuckLeft, Mafs.vector2_x(SpawnPointLeft), Mafs.vector2_y(SpawnPointLeft)- 1500)
        Fysics.set_gravity_scale(DuckLeft, 0)
        Fysics.clear_forces(DuckLeft)
+       SendRightDuck = true
     end
 
+    local DuckRightPos = Mafs.vector2_y(Entity.get_entity_pos(DuckRight))
+      if DuckRightPos >= Window.get_height()  then
+        print(DuckRightPos)
+       Fysics.set_pos(DuckRight, Mafs.vector2_x(SpawnPointRight), Mafs.vector2_y(SpawnPointRight) - 1500)
+       Fysics.set_gravity_scale(DuckRight, 0)
+       Fysics.clear_forces(DuckRight)
+       SendLeftDuck = true
+    end
+
+    if SendLeftDuck == true then
+        SendLeftDuck = false
+         Fysics.set_pos(DuckLeft, Mafs.vector2_x(SpawnPointLeft), Mafs.vector2_y(SpawnPointLeft))
+          Fysics.set_gravity_scale(DuckLeft, 1)
+         Fysics.add_force(DuckLeft, 220,-250,1,1)  
+    end
+
+    if SendRightDuck == true then
+        SendRightDuck = false
+         Fysics.set_pos(DuckRight, Mafs.vector2_x(SpawnPointRight), Mafs.vector2_y(SpawnPointRight))
+          Fysics.set_gravity_scale(DuckRight, 1)
+         Fysics.add_force(DuckRight, -220,-250,1,1) 
+    end
 
      if Input.get_key_down(Keys.ionix_e) then
         Fysics.set_gravity_scale(DuckLeft, 0)
