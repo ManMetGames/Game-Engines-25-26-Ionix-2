@@ -69,6 +69,21 @@ namespace IonixEngine {
         fixture = body->CreateFixture(&fixtureDef);        
     }
 
+    void FysicsShapes::AddEdgeCollider(Entity* entity, b2Vec2 v1, b2Vec2 v2, b2Vec2 v0, b2Vec2 v3, bool isTrigger)
+    {
+        body = FysicsManager::GetManager()->GetBodyFromEntity(entity);
+        
+        b2EdgeShape edge;
+        edge.SetOneSided(v0, v1, v2, v3);
+
+
+        b2FixtureDef fixtureDef;
+        fixtureDef.shape = &edge;
+        fixtureDef.isSensor = isTrigger;
+        fixtureDef.density = 1.0f;
+        fixture = body->CreateFixture(&fixtureDef);
+    }
+
     //add polygon
     void FysicsShapes::AddPolygon(Entity* entity, float tileSize, std::vector<b2Vec2>& vertices) {
         body = FysicsManager::GetManager()->GetBodyFromEntity(entity);

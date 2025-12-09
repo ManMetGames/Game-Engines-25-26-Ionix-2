@@ -3,22 +3,12 @@ local assets = require("Scripts.Assets")
 local enums = require("Scripts.Enums")
 local Background
 local player1
-local goal
-local playerSprite
-local goalSprite
-local x = 200
-local goalX = 500
-local goalY = 500
-local y = 300
-local t = 10
-local coinCount = 0
-
--- Pipe variables
-local pipe
-local pipeT
-local pipeSpeed = -3
-local pipeStartX = 900
-local pipeOffScreenLeft = 0
+local player2
+local x = 300
+local jumpCount1 = 0
+local jumpCount2 = 0
+local tile
+local platform1
 
 ----------------------------------------------------------
 -- OnStart
@@ -37,7 +27,7 @@ function ExampleScript:OnStart()
     ------------------------------------------------------
     player1 = Entity.create_entity()
 
-    Entity.set_global_pos(player1, x, 300)
+    Entity.set_global_pos(player1, x, 200)
 	
     local playerSprite1 = Entity.add_sprite_component(player1, assets.textures.FlappyBird, 32, 32, 10)
     Sprite.set_columns(playerSprite1,1)
@@ -46,74 +36,55 @@ function ExampleScript:OnStart()
     Entity.add_fysics_component(player1, enums.bodytype.dynamicBody, true) -- dynamic body
     --Fysics.add_sprite_collider(player1, false)
     Fysics.add_sprite_collider(player1,false,1)
-    -- Freeze bird
-    Fysics.set_gravity_scale(player1, 0)
 
+    ------------------------------------------------------
+    -- Create player2
+    ------------------------------------------------------
+    player2 = Entity.create_entity()
 
+    Entity.set_global_pos(player2, x + 50, 200)
+	
+    local playerSprite2 = Entity.add_sprite_component(player2, assets.textures.FlappyBird, 32, 32, 10)
+    Sprite.set_columns(playerSprite2,1)
+    -- PLAYER 1 PHYSICS
 
-    -----------------------------
-    ------Coins
-    ------------
-    coin = Entity.create_entity()
-    Entity.set_global_pos(coin, 200, 200)
-    local coinSprite = Entity.add_sprite_component(coin, assets.textures.Coin, 100, 32, 10)
-    Sprite.set_columns(coinSprite, 1)
-    Entity.add_fysics_component(coin, enums.bodytype.kinematicBody, false)
-    Fysics.add_sprite_collider(coin, true, 1)
+    Entity.add_fysics_component(player2, enums.bodytype.dynamicBody, true) -- dynamic body
+    --Fysics.add_sprite_collider(player2, false)
+    Fysics.add_sprite_collider(player2,false,1)
 
     local tileSize = 64
-    local floorY = 600
+    local floorY = 500
     
 	------------------------------------------------------
 	-- pick texture for left / middle / right
 	------------------------------------------------------
 	local tex = "middle"
 
-	for i = 0, 30 do
-		local tile = Entity.create_entity()
-		local xPos = i * tileSize
-
+	tile = Entity.create_entity()
 		------------------------------------------------------
 		-- place sprite
 		------------------------------------------------------
-		Entity.set_global_pos(tile, xPos, floorY)
-		local s = Entity.add_sprite_component(tile, assets.textures.Sand, tileSize, tileSize, 1)
-        Sprite.set_columns(s,1)
+	Entity.set_global_pos(tile, 250, floorY)
+    local tileSprite = Entity.add_sprite_component(tile, assets.textures.Sand, 500, 50, 1)
+    Sprite.set_columns(tileSprite, 1)
 		------------------------------------------------------
 		-- add physics body + collider
 		------------------------------------------------------
-		Entity.add_fysics_component(tile, enums.bodytype.staticBody, false)  -- static
-		Fysics.add_sprite_collider(tile, false,1)
-	end
+	Entity.add_fysics_component(tile, enums.bodytype.staticBody, false)  -- static
+	Fysics.add_sprite_collider(tile, false, 1)
 
-	------------------------------------------------------
-	-- Create pipe obstacle
-	------------------------------------------------------
-    --BOTTOM PIPE
-	pipe = Entity.create_entity()
-	Entity.set_global_pos(pipe, 640, 400)
-
-	local pipeSprite = Entity.add_sprite_component(pipe, assets.textures.FlappyPipe, 80, 300, 0)
-    Sprite.set_columns(pipeSprite,1)
-	-- Kinematic body so it moves but isn't affected by gravity
-	Entity.add_fysics_component(pipe, enums.bodytype.kinematicBody, false)
-	Fysics.add_sprite_collider(pipe, false,1)
-
-
-    -- TOP PIPE
-    pipeT = Entity.create_entity()
-	Entity.set_global_pos(pipeT, 640, 0)
-
-	local pipeSpriteT = Entity.add_sprite_component(pipeT,assets.textures.FlappyPipe , 80, 300, 0)
-    Sprite.set_columns(pipeSpriteT,1)
-	-- Kinematic body so it moves but isn't affected by gravity
-	Entity.add_fysics_component(pipeT, enums.bodytype.kinematicBody, false)
-	Fysics.add_sprite_collider(pipeT, false,1)
-
-    if Input.get_key_down(Keys.ionix_a) then
-        Entity.set_global_pos(pipe, xPos, floorY)
-	end
-
+    platform1 = Entity.create_entity()
+		------------------------------------------------------
+		-- place sprite
+		------------------------------------------------------
+	Entity.set_global_pos(platform1, 300, 400)
+    local platformSprite = Entity.add_sprite_component(tile, assets.textures.Sand, 500, 50, 1)
+    Sprite.set_columns(platformSprite, 1)
+		------------------------------------------------------
+		-- add physics body + collider
+		------------------------------------------------------
+	Entity.add_fysics_component(platform1, enums.bodytype.staticBody, false)  -- static
+	Fysics.add_edge_collider(platform1, 20, 30, 50, 30, false)
 end
 
 ----------------------------------------------------------
@@ -122,61 +93,62 @@ end
 function ExampleScript:OnUpdate()
     -- get current velocity
     local vel1 = Fysics.get_linear_velocity(player1)
-    local vy1 = Fysics.get_linear_velocity(pipe)
-    -- Constant rightward movement
-    local vx = 0
+    local vx2 = Mafs.get_vec_x(vel1)
     local vy1 = Mafs.get_vec_y(vel1)
 
-	if Input.get_key_down(Keys.ionix_space) then
-        -- Bird move if space is pressed (allow gravity)
-        Fysics.set_gravity_scale(player1, 1)
-        Fysics.set_linear_velocity(pipe, pipeSpeed, 0)
-        Fysics.set_linear_velocity(pipeT, pipeSpeed, 0)
-        -- Set velocity directly to cancel out falling momentum
-        vy1 = -5  -- Jump velocity for player1
+    -- get current velocity
+    local vel2 = Fysics.get_linear_velocity(player2)
+    local vx2 = Mafs.get_vec_x(vel2)
+    local vy2 = Mafs.get_vec_y(vel2)
+
+	if Input.get_button_down(0, Buttons.ionix_a) then
+        jumpCount1 = jumpCount1 + 1
+        Fysics.add_force_to_center(player1, 0, -30 / jumpCount1)
+	end
+    if Input.get_button_down(1, Buttons.ionix_a) and jumpCount2 <= 1 then
+        jumpCount2 = jumpCount2 + 1
+        Fysics.add_force_to_center(player2, 0, -30  / jumpCount2)
 	end
     
     if Input.get_key_down(Keys.ionix_m) then
         Entity.destroy_entity(coin)
     end
-    Fysics.set_linear_velocity(player1, vx, vy1)
 
-    -- Pipe movement
-    local pipePos = Fysics.get_pos(pipe)
-    if Mafs.get_vec_x(pipePos) <= pipeOffScreenLeft then
-        Entity.set_global_pos(pipe, pipeStartX, Mafs.get_vec_y(pipePos))
-        Fysics.set_pos(pipe, pipeStartX, Mafs.get_vec_y(pipePos))
-         Entity.set_global_pos(pipeT, pipeStartX, Mafs.get_vec_y(pipePos))
-        Fysics.set_pos(pipeT, pipeStartX, Mafs.get_vec_y(pipePos))
-     end
+    if Input.get_left_stick_x(0) then
+        vx1 = 2.5 * Input.get_left_stick_x(0)
+    else
+        vx1 = 0
+    end
+	
+    if Input.get_left_stick_x(1) then
+        vx2 = 2.5 * Input.get_left_stick_x(1)
+    else
+        vx2 = 0
+    end
+
+    Fysics.set_linear_velocity(player1, vx1, vy1)
+    Fysics.set_linear_velocity(player2, vx2, vy2)
      
 end
 
     function ExampleScript:OnCollisionEnter()
-        if Fysics.col(player1, pipe) then
-                print("CollisionPipe")
+        if Fysics.col(player1, tile) or Fysics.col(player1, platform1) then
+                jumpCount1 = 0
+                print("grounded")
+            end
+        if Fysics.col(player2, tile) or Fysics.col(player1, platform1) then
+                jumpCount1 = 0
+                print("grounded")
             end
     end
 
     function ExampleScript:OnTriggerEnter()
-        if Fysics.col(player1, coin) then
-             print("CoinCollision")
-                Entity.destroy_entity(coin)
-                coinCount = coinCount + 1
-                print(coinCount)
-        end
     end
 
     function ExampleScript:OnTriggerExit()
-        if Fysics.col(player1, coin) then
-            print("ExitCoinCollision")
-        end
     end
 
     function ExampleScript:OnCollisionExit()
-        if Fysics.col(player1, pipe) then
-            print("ExitCollisionPipe")
-        end
     end
 
 return ExampleScript

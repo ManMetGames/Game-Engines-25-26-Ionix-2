@@ -129,7 +129,7 @@ namespace IonixEngine
             deltaTime = static_cast<double>(currentTick - lastTick) / SDL_GetPerformanceFrequency();
             time += deltaTime;
 		    
-            
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);
             SDL_RenderClear(renderer);
             
             // fixed update time accumulation

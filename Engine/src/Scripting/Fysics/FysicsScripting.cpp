@@ -216,6 +216,14 @@ namespace IonixEngine
 			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddPolygon(entity, tileSize, terrainPositions);
 		};
 
+		auto addEdgeCollider = [](Entity* entity, float v1x, float v1y, float v2x, float v2y, bool isTrigger) {
+			b2Vec2 b1 = b2Vec2(v1x, v1y);
+			b2Vec2 b2 = b2Vec2(v2x, v2y);
+			b2Vec2 b0 = b2Vec2(v1x - 10, v1y);
+			b2Vec2 b3 = b2Vec2(v1x + 10, v1y);
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddEdgeCollider(entity, b1, b2, b0, b3, isTrigger);
+		};
+
 		/*auto getColliderWidth = [](Entity* entity) -> float {
 			return Application::Get().layerFysics->GetFysicsManager()->GetShapes()->GetWidth();
 			};*/
@@ -495,6 +503,7 @@ namespace IonixEngine
 			"add_box_collider",	addBoxCollider,
 			"add_box_collider_v", addBoxColliderv,
 			"add_polygon_collider",addPolygonCollider,
+			"add_edge_collider", addEdgeCollider,
 			"add_circle_collider", addCircleCollider,
 			"get_pos", getFysicsPos,
 			"set_pos", setFysicsPos,
