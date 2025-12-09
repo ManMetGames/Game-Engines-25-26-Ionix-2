@@ -30,11 +30,11 @@ namespace IonixEngine
 	private:
 		static LayerFysics* instance;
 		FysicsManager* fysicsManager{ nullptr };
-
 		float timeStep{ 1.f / 60.f };
 		int32 velocityIterations{ 6 };
 		int32 positionIterations{ 2 };
 		float ppm{ 100.f }; // pixels per meter
+
 
 	};
 }
