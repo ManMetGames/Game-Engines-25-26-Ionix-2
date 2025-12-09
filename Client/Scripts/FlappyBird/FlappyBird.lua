@@ -46,6 +46,7 @@ local function resetGame()
     --Reset game state
     gameOver = false
     score = 0
+    Pscore = 0
     pipeScoreText = "Score: 0"
     scoreText = "Coins: 0"
     text1 = "Press SPACE to start!"
@@ -345,7 +346,7 @@ function ExampleScript:OnUpdate()
     Fysics.set_linear_velocity(player1, vx, vy1)
 
     ------------------------------------------------------
-	-- Resetting pipe back to start logicr
+	-- Resetting pipe back to start logic
 	------------------------------------------------------
 
     -- Set 1
