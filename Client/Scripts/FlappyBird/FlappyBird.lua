@@ -1,6 +1,7 @@
 local ExampleScript = {}
 local assets = require("Scripts.Assets")
-local enums = require("Scripts.Enums")
+local enums  = require("Scripts.Enums")
+local Projectiles = require("Scripts.FlappyBird.Projectiles")
 
 local Background
 local player1
@@ -20,144 +21,27 @@ local jumpForce  = -30
 local fireCooldown = 0
 local fireInterval = 1.0
 
-local projectiles = {}
-local projectileSpeed = 600
-local projectileSize = 16
-local projectileLifetime = 2.0
-
+-- charge / projectile size config (used for UI + size)
 local chargeP1 = 0
 local chargeP2 = 0
 local isChargingP1 = false
 local isChargingP2 = false
-local maxCharge = 2.0
+local maxCharge         = 2.0
 local minProjectileSize = 16
 local maxProjectileSize = 64
 
 local lastDirP1 = 1
 local lastDirP2 = 1
 
-local knockbackP1Time = 0
-local knockbackP2Time = 0
-local knockbackP1Dir = 0
-local knockbackP2Dir = 0
-local knockbackBaseDuration = 0.25
-local knockbackBaseSpeed    = 2.5
-
 local chargeBarP1
 local chargeBarP2
 local chargeBarSpriteP1
 local chargeBarSpriteP2
-local chargeBarWidth  = 60
-local chargeBarHeight = 8
+local chargeBarWidth   = 60
+local chargeBarHeight  = 8
 local chargeBarYOffset = -40
 
 local groundLineY = 450
-
-----------------------------------------------------------
--- PROJECTILE HELPERS
-----------------------------------------------------------
-local function SpawnProjectile(spawnX, spawnY, dirX, dirY, size, owner)
-    size = size or projectileSize
-
-    if dirX == 0 and dirY == 0 then
-        dirX = 1
-        dirY = 0
-    else
-        local len = math.sqrt(dirX * dirX + dirY * dirY)
-        if len > 0 then
-            dirX = dirX / len
-            dirY = dirY / len
-        else
-            dirX = 1
-            dirY = 0
-        end
-    end
-
-    local proj = Entity.create_entity()
-    local sprite = Entity.add_sprite_component(
-        proj,
-        assets.textures.Ghast_Tear,
-        size,
-        size,
-        5
-    )
-
-    Entity.set_global_pos(proj, spawnX, spawnY)
-
-    local projData = {
-        entity = proj,
-        sprite = sprite,
-        x = spawnX,
-        y = spawnY,
-        vx = dirX * projectileSpeed,
-        vy = dirY * projectileSpeed,
-        age = 0,
-        size = size,
-        owner = owner
-    }
-
-    table.insert(projectiles, projData)
-end
-
-local function UpdateProjectiles(dt)
-    for i = #projectiles, 1, -1 do
-        local p = projectiles[i]
-
-        p.x = p.x + p.vx * dt
-        p.y = p.y + p.vy * dt
-        Entity.set_global_pos(p.entity, p.x, p.y)
-
-        local hit = false
-        local size = p.size or projectileSize
-        local radiusProj = size * 0.5
-        local radiusPlayer = 16 
-
-        local isTapShot = size <= (minProjectileSize + 0.5)
-        local sizeScale = math.min(size / minProjectileSize, 2.0)
-
-        if player1 and p.owner ~= 1 then
-            local pos = Entity.get_global_pos(player1)
-            local px = Mafs.get_vec_x(pos)
-            local py = Mafs.get_vec_y(pos)
-            local dx = px - p.x
-            local dy = py - p.y
-            local r = radiusProj + radiusPlayer
-
-            if dx * dx + dy * dy <= r * r then
-                if not isTapShot then
-                    local dirX = (p.vx >= 0) and 1 or -1
-                    knockbackP1Time = knockbackBaseDuration * sizeScale
-                    knockbackP1Dir  = dirX * sizeScale
-                end
-                hit = true
-            end
-        end
-
-        if not hit and player2 and p.owner ~= 2 then
-            local pos = Entity.get_global_pos(player2)
-            local px = Mafs.get_vec_x(pos)
-            local py = Mafs.get_vec_y(pos)
-            local dx = px - p.x
-            local dy = py - p.y
-            local r = radiusProj + radiusPlayer
-
-            if dx * dx + dy * dy <= r * r then
-                if not isTapShot then
-                    local dirX = (p.vx >= 0) and 1 or -1
-                    knockbackP2Time = knockbackBaseDuration * sizeScale
-                    knockbackP2Dir  = dirX * sizeScale
-                end
-                hit = true
-            end
-        end
-
-        p.age = p.age + dt
-        if hit or p.age > projectileLifetime then
-            Entity.destroy_entity(p.entity)
-            table.remove(projectiles, i)
-        end
-    end
-end
 
 ----------------------------------------------------------
 -- OnStart
@@ -166,6 +50,7 @@ function ExampleScript:OnStart()
     Background = Entity.create_entity()
     Entity.add_sprite_component(Background, assets.textures.Background, 1920, 1080, 0)
 
+    -- PLAYER 1
     player1 = Entity.create_entity()
     Entity.set_global_pos(player1, x, 200)
     local playerSprite1 = Entity.add_sprite_component(player1, assets.textures.FlappyBird, 32, 32, 10)
@@ -174,11 +59,12 @@ function ExampleScript:OnStart()
     Entity.add_fysics_component(player1, enums.bodytype.dynamicBody, true)
     Fysics.add_sprite_collider(player1, false, 1)
 
+    -- PLAYER 2
     player2 = Entity.create_entity()
     Entity.set_global_pos(player2, x + 50, 200)
     local playerSprite2 = Entity.add_sprite_component(player2, assets.textures.FlappyBird, 32, 32, 10)
     Sprite.set_columns(playerSprite2, 1)
-    Sprite.set_color(playerSprite2, 0, 255, 255)
+    Sprite.set_color(playerSprite2, 0, 0, 255)
     Entity.add_fysics_component(player2, enums.bodytype.dynamicBody, true)
     Fysics.add_sprite_collider(player2, false, 1)
 
@@ -227,13 +113,14 @@ function ExampleScript:OnUpdate()
     local dt = Mafs.delta_time()
 
     local vel1 = Fysics.get_linear_velocity(player1)
-    local vx1 = Mafs.get_vec_x(vel1)
-    local vy1 = Mafs.get_vec_y(vel1)
+    local vx1  = Mafs.get_vec_x(vel1)
+    local vy1  = Mafs.get_vec_y(vel1)
 
     local vel2 = Fysics.get_linear_velocity(player2)
-    local vx2 = Mafs.get_vec_x(vel2)
-    local vy2 = Mafs.get_vec_y(vel2)
+    local vx2  = Mafs.get_vec_x(vel2)
+    local vy2  = Mafs.get_vec_y(vel2)
 
+    -- pseudo-grounded off Y position
     local pos1 = Entity.get_global_pos(player1)
     local p1y  = Mafs.get_vec_y(pos1)
     grounded1  = (vy1 >= 0 and p1y >= groundLineY)
@@ -242,14 +129,10 @@ function ExampleScript:OnUpdate()
     local p2y  = Mafs.get_vec_y(pos2)
     grounded2  = (vy2 >= 0 and p2y >= groundLineY)
 
-    if grounded1 then
-        jumpCount1 = 0
-    end
+    if grounded1 then jumpCount1 = 0 end
+    if grounded2 then jumpCount2 = 0 end
 
-    if grounded2 then
-        jumpCount2 = 0
-    end
-
+    -- double jump
 	if Input.get_button_down(0, Buttons.ionix_a) and jumpCount1 < maxJumps then
         jumpCount1 = jumpCount1 + 1
         Fysics.add_force_to_center(player1, 0, jumpForce)
@@ -275,32 +158,23 @@ function ExampleScript:OnUpdate()
         lastDirP2 = -1
     end
 
-    if knockbackP1Time > 0 then
-        local t = knockbackP1Time / knockbackBaseDuration
-        vx1 = knockbackP1Dir * knockbackBaseSpeed * t
-        knockbackP1Time = knockbackP1Time - dt
-        if knockbackP1Time < 0 then knockbackP1Time = 0 end
-    else
-        vx1 = 2.5 * stickX1
-    end
+    -- base movement from stick
+    vx1 = 2.5 * stickX1
+    vx2 = 2.5 * stickX2
 
-    if knockbackP2Time > 0 then
-        local t = knockbackP2Time / knockbackBaseDuration
-        vx2 = knockbackP2Dir * knockbackBaseSpeed * t
-        knockbackP2Time = knockbackP2Time - dt
-        if knockbackP2Time < 0 then knockbackP2Time = 0 end
-    else
-        vx2 = 2.5 * stickX2
-    end
+    -- let projectile system override vx via knockback if active
+    vx1, vx2 = Projectiles.ApplyKnockback(dt, vx1, vx2)
 
     Fysics.set_linear_velocity(player1, vx1, vy1)
     Fysics.set_linear_velocity(player2, vx2, vy2)
 
+    -- shooting cooldown
     if fireCooldown > 0 then
         fireCooldown = fireCooldown - dt
         if fireCooldown < 0 then fireCooldown = 0 end
     end
 
+    -- start charging
     if Input.get_button_down(0, Buttons.ionix_b) and fireCooldown <= 0 and not isChargingP1 then
         isChargingP1 = true
         chargeP1 = 0
@@ -311,6 +185,7 @@ function ExampleScript:OnUpdate()
         chargeP2 = 0
     end
 
+    -- P1 charge + bar
     if isChargingP1 then
         if Input.get_button_held(0, Buttons.ionix_b) then
             chargeP1 = math.min(chargeP1 + dt, maxCharge)
@@ -323,19 +198,19 @@ function ExampleScript:OnUpdate()
             Sprite.set_color(chargeBarSpriteP1, r, g, 0)
 
             local pos = Entity.get_global_pos(player1)
-            local px = Mafs.get_vec_x(pos)
-            local py = Mafs.get_vec_y(pos)
+            local px  = Mafs.get_vec_x(pos)
+            local py  = Mafs.get_vec_y(pos)
             Entity.set_global_pos(chargeBarP1, px - chargeBarWidth * 0.5, py + chargeBarYOffset)
         else
             local pos = Entity.get_global_pos(player1)
-            local px = Mafs.get_vec_x(pos)
-            local py = Mafs.get_vec_y(pos)
+            local px  = Mafs.get_vec_x(pos)
+            local py  = Mafs.get_vec_y(pos)
 
             local t = chargeP1 / maxCharge
             if t > 1 then t = 1 end
             local size = minProjectileSize + (maxProjectileSize - minProjectileSize) * t
 
-            SpawnProjectile(px, py, lastDirP1, 0, size, 1)
+            Projectiles.SpawnProjectile(px, py, lastDirP1, 0, size, 1)
 
             chargeP1 = 0
             isChargingP1 = false
@@ -347,6 +222,7 @@ function ExampleScript:OnUpdate()
         Entity.set_global_pos(chargeBarP1, -1000, -1000)
     end
 
+    -- P2 charge + bar
     if isChargingP2 then
         if Input.get_button_held(1, Buttons.ionix_b) then
             chargeP2 = math.min(chargeP2 + dt, maxCharge)
@@ -359,19 +235,19 @@ function ExampleScript:OnUpdate()
             Sprite.set_color(chargeBarSpriteP2, r, g, 0)
 
             local pos = Entity.get_global_pos(player2)
-            local px = Mafs.get_vec_x(pos)
-            local py = Mafs.get_vec_y(pos)
+            local px  = Mafs.get_vec_x(pos)
+            local py  = Mafs.get_vec_y(pos)
             Entity.set_global_pos(chargeBarP2, px - chargeBarWidth * 0.5, py + chargeBarYOffset)
         else
             local pos = Entity.get_global_pos(player2)
-            local px = Mafs.get_vec_x(pos)
-            local py = Mafs.get_vec_y(pos)
+            local px  = Mafs.get_vec_x(pos)
+            local py  = Mafs.get_vec_y(pos)
 
             local t = chargeP2 / maxCharge
             if t > 1 then t = 1 end
             local size = minProjectileSize + (maxProjectileSize - minProjectileSize) * t
 
-            SpawnProjectile(px, py, lastDirP2, 0, size, 2)
+            Projectiles.SpawnProjectile(px, py, lastDirP2, 0, size, 2)
 
             chargeP2 = 0
             isChargingP2 = false
@@ -383,12 +259,10 @@ function ExampleScript:OnUpdate()
         Entity.set_global_pos(chargeBarP2, -1000, -1000)
     end
 
-    UpdateProjectiles(dt)
+    -- finally, move and resolve projectiles & knockback timers
+    Projectiles.Update(dt, player1, player2)
 end
 
-----------------------------------------------------------
--- Collisions
-----------------------------------------------------------
 function ExampleScript:OnCollisionEnter() end
 function ExampleScript:OnCollisionExit() end
 function ExampleScript:OnTriggerEnter() end
