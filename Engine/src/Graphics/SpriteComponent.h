@@ -46,6 +46,8 @@ namespace IonixEngine {
 	public:
 		SpriteComponent(Entity* entity, std::string alias, int width, int height, int zedOrder);
 		SpriteComponent(Entity* entity, uint32_t hash, int width, int height, int zedOrder);
+		SpriteComponent(Entity* entity, std::string alias, int x, int y, int zedOrder, int rows_, int cols_, int spriteW, int spriteH, int end_Frame = 0);
+		SpriteComponent(Entity* entity, uint32_t hash, int x, int y, int zedOrder, int rows_, int cols_, int spriteW, int spriteH, int end_Frame = 0);
 		virtual void Render(RenderData* data) override;
 		virtual void Update(float deltaTime) override;
 

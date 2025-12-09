@@ -18,13 +18,14 @@ namespace IonixEngine {
 	void QueueRenderer::RenderFromQueue() {
 		while (!sprites.empty()) {
 			RenderCall call = sprites.front();
-			// Apply color tint
-			SDL_SetTextureColorMod(call.texture, call.r, call.g, call.b);
-			SDL_RenderCopyEx(Application::Get().GetWindow().GetSdlRenderer(), call.texture, &call.src, &call.dest, call.angle, NULL, SDL_FLIP_NONE);
-			// Reset color mod to white for next texture
-			SDL_SetTextureColorMod(call.texture, 255, 255, 255);
 			if (call.renderLayer == Application::Get().currentCam->renderLayer) {
-				SDL_RenderCopyEx(Application::Get().GetWindow().GetSdlRenderer(), call.texture, &call.src, &call.dest, call.rotation, NULL, SDL_FLIP_NONE);
+				// Apply color tint
+				SDL_SetTextureColorMod(call.texture, call.r, call.g, call.b);
+				// Combine base entity rotation and any additional sprite rotation
+				double finalAngle = call.angle + call.rotation;
+				SDL_RenderCopyEx(Application::Get().GetWindow().GetSdlRenderer(), call.texture, &call.src, &call.dest, finalAngle, NULL, SDL_FLIP_NONE);
+				// Reset color mod to white for next texture
+				SDL_SetTextureColorMod(call.texture, 255, 255, 255);
 			}
 			sprites.pop();
 		}
