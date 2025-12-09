@@ -13,6 +13,7 @@
 #include <iostream>
 #include <third-party/imgui_impl_sdlrenderer2.h>
 #include "Input/ControllerManager.h"
+#include "saveToJson.h"
 
 namespace IonixEngine {
     Application* Application::s_Instance = nullptr;
@@ -83,6 +84,8 @@ namespace IonixEngine
             std::cerr << "Unknown exception while loading Scripts/Settings.lua"
                       << std::endl;
         }
+
+        json* myJson = new json();
     }
         
     Application::~Application() 
