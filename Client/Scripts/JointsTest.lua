@@ -1,9 +1,9 @@
-
 local ExampleScript = {}
 local assets = require("Scripts.Assets")
 local enums = require("Scripts.Enums")
 local Background
 local player1
+local player2
 local goal
 local playerSprite
 local goalSprite
@@ -48,9 +48,25 @@ function ExampleScript:OnStart()
     --Fysics.add_sprite_collider(player1, false)
     Fysics.add_sprite_collider(player1,false,1)
     -- Freeze bird
-    Fysics.set_gravity_scale(player1, 0)
+    Fysics.set_gravity_scale(player1, 1)
 
+ ------------------------------------------------------
+    -- Create player2
+    ------------------------------------------------------
 
+     player2 = Entity.create_entity()
+
+    Entity.set_global_pos(player2, x + 200, 300)
+	
+    local playerSprite2 = Entity.add_sprite_component(player2, assets.textures.Sand, 32, 32, 10)
+   Sprite.set_columns(playerSprite2,1)
+    -- PLAYER 1 PHYSICS
+
+   Entity.add_fysics_component(player2, enums.bodytype.dynamicBody, true) -- dynamic body
+    --Fysics.add_sprite_collider(player1, false)
+    Fysics.add_sprite_collider(player2,false,1)
+    -- Freeze bird
+    Fysics.set_gravity_scale(player2, 1)
 
     -----------------------------
     ------Coins
@@ -115,6 +131,24 @@ function ExampleScript:OnStart()
         Entity.set_global_pos(pipe, xPos, floorY)
 	end
 
+
+ -------------------------------
+    --Joints Testing
+    --------------------------------
+     --local worldAxis = Mafs.vec_2(0,0)
+     --Fysics.create_prismatic_joint(player2, player1, worldAxis, 5, 10, true, 50 , 20, true) --Prismatic Joint
+    
+    --Fysics.create_weld_joint(player2, player1) --Weld Joint
+
+    local player1Vec = Mafs.vec_2(3,0)
+    local player2Vec = Mafs.vec_2(5,0)
+    Fysics.create_pulley_joint(player1, player2,player1Vec, player2Vec, 1, 1, 1) --Pulley Joint
+    
+    --Fysics.create_revolute_joint(player2,player1, false, 5, 8, true, 20, 60) --Revolute Joint
+
+    --Fysics.create_distance_joint(player1, player2, 10) --Distance Joint
+    --Fysics.set_linear_stiffness(0,60.0, 1.0)  
+    
 end
 
 ----------------------------------------------------------
@@ -130,12 +164,27 @@ function ExampleScript:OnUpdate()
 
 	if Input.get_key_down(Keys.ionix_space) then
         -- Bird move if space is pressed (allow gravity)
-        Fysics.set_gravity_scale(player1, 1)
-        Fysics.set_linear_velocity(pipe, pipeSpeed, 0)
-        Fysics.set_linear_velocity(pipeT, pipeSpeed, 0)
+        --Fysics.set_gravity_scale(player1, 1)
+        --Fysics.set_linear_velocity(pipe, pipeSpeed, 0)
+        --Fysics.set_linear_velocity(pipeT, pipeSpeed, 0)
         -- Set velocity directly to cancel out falling momentum
         vy1 = -5  -- Jump velocity for player1
 	end
+
+ if Input.get_key_down(Keys.ionix_e) then
+        Fysics.set_length(0,length)
+        length = Fysics.get_length(0)
+        print(length)
+        length = length + 10
+    end
+
+
+    if Input.get_key_down(Keys.ionix_q) then
+        Fysics.set_length(0,length)
+        length = Fysics.get_length(0)
+        print(length)
+        length = length - 10
+    end
     
     if Input.get_key_down(Keys.ionix_m) then
         Entity.destroy_entity(coin)

@@ -17,6 +17,7 @@ LoadModule("Coroutines", "Scripts/Coroutines.lua")
 --LoadModule("Assets", "Scripts/Assets.lua")
 LoadModule("Enums", "Scripts/Enums.lua")
 LoadModule("FlappyBird", "Scripts/FlappyBird/FlappyBird.lua")
+--LoadModule("JointsTest", "Scripts/JointsTest.lua")
 --LoadModule("ExampleScript", "Scripts/ExampleScript.lua")
 --LoadModule("Ball", "Scripts/Ball.lua")
 
