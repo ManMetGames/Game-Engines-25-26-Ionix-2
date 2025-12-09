@@ -60,6 +60,7 @@ namespace IonixEngine {
 
         auto setGlobalPos = [](Entity* entity, float x, float y) {
             if (entity == nullptr) return;
+   
             entity->transform.SetGlobalPosition(Vec2{ x, y });
             };
 

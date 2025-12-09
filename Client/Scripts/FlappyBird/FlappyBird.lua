@@ -17,7 +17,7 @@ local coinCount = 0
 local pipe
 local pipeT
 local pipeSpeed = -3
-local pipeStartX = 900
+local pipeStartX = 700
 local pipeOffScreenLeft = 0
 
 ----------------------------------------------------------
@@ -142,12 +142,18 @@ function ExampleScript:OnUpdate()
     Fysics.set_linear_velocity(player1, vx, vy1)
 
     -- Pipe movement
+    
     local pipePos = Fysics.get_pos(pipe)
+    local pipeTPos = Fysics.get_pos(pipeT)
+    -- local pipeTPos = Entity.get_global_pos(pipeT)
+    -- local pipePos = Entity.get_global_pos(pipe)
     if Mafs.get_vec_x(pipePos) <= pipeOffScreenLeft then
-        Entity.set_global_pos(pipe, pipeStartX, Mafs.get_vec_y(pipePos))
-        Fysics.set_pos(pipe, pipeStartX, Mafs.get_vec_y(pipePos))
-         Entity.set_global_pos(pipeT, pipeStartX, Mafs.get_vec_y(pipePos))
-        Fysics.set_pos(pipeT, pipeStartX, Mafs.get_vec_y(pipePos))
+        -- Entity.set_global_pos(pipe, pipeStartX, 400)
+        -- Entity.set_global_pos(pipeT, pipeStartX, 0)
+        Fysics.set_pos(pipe, pipeStartX, 400)
+        Fysics.set_pos(pipeT, pipeStartX, 0)  
+        print(Mafs.get_vec_y(pipePos))
+        
      end
      
 end

@@ -21,11 +21,11 @@ namespace IonixEngine
 			};
 
 		auto setFysicsPos = [](Entity* entity, float x, float y) {
-			entity->GetComponent<FysicsBody>()->SetPosition(entity, x, y);
+			entity->GetComponent<FysicsBody>()->SetPosition(entity, x / 100, y / 100);
 			};
 
 		auto setFysicsPosv = [](Entity* entity, b2Vec2 vec2) {
-			entity->GetComponent<FysicsBody>()->SetPosition(entity, vec2.x, vec2.y);
+			entity->GetComponent<FysicsBody>()->SetPosition(entity, vec2.x / 100, vec2.y / 100);
 			};
 
 		auto getFysicsAngle = [](Entity* entity) -> float{
