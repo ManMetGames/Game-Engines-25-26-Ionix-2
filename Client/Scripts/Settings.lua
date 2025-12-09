@@ -16,9 +16,9 @@ LoadModule("Coroutines", "Scripts/Coroutines.lua")
 --LoadModule("EntityPlayer", "Scripts/EntityPlayer.lua")
 --LoadModule("Assets", "Scripts/Assets.lua")
 LoadModule("Enums", "Scripts/Enums.lua")
-LoadModule("FlappyBird", "Scripts/FlappyBird/FlappyBird.lua")
+--LoadModule("FlappyBird", "Scripts/FlappyBird/FlappyBird.lua")
 --LoadModule("ExampleScript", "Scripts/ExampleScript.lua")
---LoadModule("Ball", "Scripts/Ball.lua")
+LoadModule("Ball", "Scripts/Ball.lua")
 
 -- Lifecycle hooks
 function OnStart()
