@@ -4,6 +4,14 @@ local enums = require("Scripts.Enums")
 local Background
 local player1
 local player2
+
+--PLayer Properties
+local playeHealth = 20
+local playerSizeX = 32
+local playerSizeY = 32
+local playerSpeed = 2.5
+
+
 local x = 300
 local jumpCount1 = 0
 local jumpCount2 = 0
@@ -29,7 +37,7 @@ function ExampleScript:OnStart()
 
     Entity.set_global_pos(player1, x, 200)
 	
-    local playerSprite1 = Entity.add_sprite_component(player1, assets.textures.FlappyBird, 32, 32, 10)
+    local playerSprite1 = Entity.add_sprite_component(player1, assets.textures.FlappyBird, playerSizeX, playerSizeY, 10)
     Sprite.set_columns(playerSprite1,1)
     -- PLAYER 1 PHYSICS
 
@@ -44,7 +52,7 @@ function ExampleScript:OnStart()
 
     Entity.set_global_pos(player2, x + 50, 200)
 	
-    local playerSprite2 = Entity.add_sprite_component(player2, assets.textures.FlappyBird, 32, 32, 10)
+    local playerSprite2 = Entity.add_sprite_component(player2, assets.textures.FlappyBird, playerSizeX, playerSizeY, 10)
     Sprite.set_columns(playerSprite2,1)
     -- PLAYER 1 PHYSICS
 
@@ -115,13 +123,13 @@ function ExampleScript:OnUpdate()
     end
 
     if Input.get_left_stick_x(0) then
-        vx1 = 2.5 * Input.get_left_stick_x(0)
+        vx1 = playerSpeed * Input.get_left_stick_x(0)
     else
         vx1 = 0
     end
 	
     if Input.get_left_stick_x(1) then
-        vx2 = 2.5 * Input.get_left_stick_x(1)
+        vx2 = playerSpeed * Input.get_left_stick_x(1)
     else
         vx2 = 0
     end
@@ -141,6 +149,7 @@ end
                 print("grounded")
             end
     end
+    
 
     function ExampleScript:OnTriggerEnter()
     end
