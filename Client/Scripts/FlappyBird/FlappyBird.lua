@@ -76,9 +76,7 @@ function ExampleScript:OnStart()
 		------------------------------------------------------
 		-- place sprite
 		------------------------------------------------------
-		Entity.set_global_pos(tile, xPos, floorY)
-		local s = Entity.add_sprite_component(tile, assets.textures.Sand, tileSize, tileSize, 1)
-        Sprite.set_columns(s,1)
+		
 		------------------------------------------------------
 		-- add physics body + collider
 		------------------------------------------------------
