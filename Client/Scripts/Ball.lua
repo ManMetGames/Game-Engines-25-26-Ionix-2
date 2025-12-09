@@ -35,30 +35,7 @@ local function px_to_m(px) return px / PIXELS_PER_METER end
 local function m_to_px(m) return m * PIXELS_PER_METER end
 
 -- Center sprite top-left on physics body (physics pos is center in meters)
-local function CenterSpriteOnBody(entity, spriteWidth, spriteHeight)
-    -- Get physics position (b2Vec2 in meters)
-    local phys = Fysics.get_pos(entity)
-    if not phys then
-        -- fallback to transform if physics not present
-        local tr = Entity.get_global_pos(entity)
-        local tx = Mafs.get_vec_x(tr)
-        local ty = Mafs.get_vec_y(tr)
-        Entity.set_global_pos(entity, tx - spriteWidth * 0.5, ty - spriteHeight * 0.5)
-        return
-    end
 
-    local physX = Mafs.get_vec_x(phys) -- meters
-    local physY = Mafs.get_vec_y(phys) -- meters
-
-    local px = m_to_px(physX)
-    local py = m_to_px(physY)
-
-    -- Because renderer expects top-left, subtract half sprite dims
-    px = px - spriteWidth * 0.5
-    py = py - spriteHeight * 0.5
-
-    Entity.set_global_pos(entity, px, py)
-end
 
 -- Reset ball to center and give random velocity (converted to meters/sec)
 local function ResetBall()
@@ -76,9 +53,6 @@ local function ResetBall()
     local vy = dirY * (ballSpeed / PIXELS_PER_METER)
 
     Fysics.set_linear_velocity(ballEntity, vx, vy)
-
-    -- Also update sprite top-left immediately
-    CenterSpriteOnBody(ballEntity, ballSize, ballSize)
 end
 
 -- Move a kinematic paddle using pixel delta -> physics pos
@@ -108,15 +82,12 @@ local function MovePaddleByPixels(entity, deltaPixelsY)
 
     py = py + deltaPixelsY
 
-    local halfH = paddleH * 0.5
+    local halfH = paddleH * 0.2
     if py < halfH then py = halfH end
     if py > screenH - halfH then py = screenH - halfH end
 
     -- write back to physics in meters
     Fysics.set_pos(entity, px_to_m(px), px_to_m(py))
-
-    -- update sprite top-left
-    CenterSpriteOnBody(entity, paddleW, paddleH)
 end
 
 ----------------------------------------------------------------
@@ -136,19 +107,17 @@ local function InitBall()
     Entity.set_global_pos(ballEntity, screenW * 0.5, screenH * 0.5)
 
     Entity.add_sprite_component(ballEntity, assets.textures.PimBall, ballSize, ballSize, 100)
-    Entity.add_fysics_component(ballEntity, 2, true) -- dynamic, rotation locked
+    Entity.add_fysics_component(ballEntity, 2, false) -- dynamic
 
     local halfW = px_to_m(ballSize * 0.5)
     local halfH = px_to_m(ballSize * 0.5)
 
     -- centered collider (offset 0,0 is body center)
-    Fysics.add_box_collider(ballEntity, halfW, halfH, 0, 0, 0, false)
+    Fysics.add_circle_collider(ballEntity, halfW, 0.5, 0.5, false)
+    --Fysics.add_sprite_collider(ballEntity, false)
 
-    Fysics.set_material_properties(ballEntity, 0.0, 1.0)
+    Fysics.set_material_properties(ballEntity, 0.0, 1.1)
     Fysics.set_gravity_scale(ballEntity, 0)
-
-    -- ensure sprite is centered now (visual)
-    CenterSpriteOnBody(ballEntity, ballSize, ballSize)
 end
 
 local function InitPaddles()
@@ -156,24 +125,20 @@ local function InitPaddles()
     leftPaddle = Entity.create_entity()
     -- position entity transform (pixels) — center of sprite desired
     Entity.set_global_pos(leftPaddle, 50, screenH * 0.5)
-    Entity.add_sprite_component(leftPaddle, assets.textures.PimBall, paddleW, paddleH, 100)
+    Entity.add_sprite_component(leftPaddle, assets.textures.LaptopBattery, paddleW, paddleH, 100)
     Entity.add_fysics_component(leftPaddle, 1, true) -- kinematic
 
     local halfWx = px_to_m(paddleW * 0.5)
     local halfHy = px_to_m(paddleH * 0.5)
-    Fysics.add_box_collider(leftPaddle, halfWx, halfHy, 0, 0, 0, false)
+    Fysics.add_sprite_collider(leftPaddle,false)
 
     -- Create right paddle
     rightPaddle = Entity.create_entity()
     Entity.set_global_pos(rightPaddle, screenW - 50, screenH * 0.5)
-    Entity.add_sprite_component(rightPaddle, assets.textures.PimBall, paddleW, paddleH, 100)
+    Entity.add_sprite_component(rightPaddle, assets.textures.LaptopBattery, paddleW, paddleH, 100)
     Entity.add_fysics_component(rightPaddle, 1, true)
 
-    Fysics.add_box_collider(rightPaddle, halfWx, halfHy, 0, 0, 0, false)
-
-    -- Immediately align visual to physics
-    CenterSpriteOnBody(leftPaddle, paddleW, paddleH)
-    CenterSpriteOnBody(rightPaddle, paddleW, paddleH)
+    Fysics.add_sprite_collider(rightPaddle,false)
 end
 
 local function InitWalls()
@@ -184,13 +149,13 @@ local function InitWalls()
     floorEntity = Entity.create_entity()
     Entity.set_global_pos(floorEntity, screenW * 0.5, screenH + wallThicknessPx * 0.5)
     Entity.add_fysics_component(floorEntity, 1, false)
-    Fysics.add_box_collider(floorEntity, px_to_m(screenW * 0.5), halfT, 0, 0, 0, false)
+    Fysics.add_box_collider(floorEntity, px_to_m(screenW), halfT, 0, 0, 0, false)
 
     -- Top wall
     ceilingEntity = Entity.create_entity()
     Entity.set_global_pos(ceilingEntity, screenW * 0.5, -wallThicknessPx * 0.5)
     Entity.add_fysics_component(ceilingEntity, 1, false)
-    Fysics.add_box_collider(ceilingEntity, px_to_m(screenW * 0.5), halfT, 0, 0, 0, false)
+    Fysics.add_box_collider(ceilingEntity, px_to_m(screenW), halfT, 0, 0, 0, false)
 end
 
 ----------------------------------------------------------------
@@ -243,11 +208,6 @@ function game:OnFixedUpdate()
     -- If stick values are fractional, scale by paddleSpeed
     MovePaddleByPixels(leftPaddle,  p1Move * paddleSpeed)
     MovePaddleByPixels(rightPaddle, p2Move * paddleSpeed)
-
-    -- After physics step, center sprite visuals on body
-    CenterSpriteOnBody(ballEntity, ballSize, ballSize)
-    CenterSpriteOnBody(leftPaddle, paddleW, paddleH)
-    CenterSpriteOnBody(rightPaddle, paddleW, paddleH)
 
     -- Scoring - check sprite position (pixels)
     local ballPos = Fysics.get_pos(ballEntity) -- meters
