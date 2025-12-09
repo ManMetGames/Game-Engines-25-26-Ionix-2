@@ -145,7 +145,7 @@ function ExampleScript:OnStart()
 	---------------------------
     --BOTTOM PIPE
 	pipe = Entity.create_entity()
-	Entity.set_global_pos(pipe, 640, 400)
+	Entity.set_global_pos(pipe, 640, 430)
 
 	local pipeSprite = Entity.add_sprite_component(pipe, assets.textures.FlappyPipe, 60, 300, 0)
     Sprite.set_columns(pipeSprite,1)
@@ -306,9 +306,9 @@ function ExampleScript:OnUpdate()
 
 	if Input.get_key_down(Keys.ionix_space) and (not gameOver) then
         -- Bird move if space is pressed (allow gravity)
-        Fysics.set_gravity_scale(player1, 1)
+        Fysics.set_gravity_scale(player1, 0.75)
         -- Set velocity directly to cancel out falling momentum
-        vy1 = -5  -- Jump velocity for player1
+        vy1 = -3.5  -- Jump velocity for player1
 
         -- Pipes move left if space if pressed
         Fysics.set_linear_velocity(pipe, pipeSpeed, 0)
@@ -333,14 +333,14 @@ function ExampleScript:OnUpdate()
     local pipePos = Fysics.get_pos(pipe)
     local pipePosX = Mafs.get_vec_x(pipePos)
     if pipePosX < 0 then
-        local random1 = math.random(2, 4)
+        local random1 = math.random(2, 3)
         local offset = random1/10
         local plusOrMinus = math.random(1, 2)
         if plusOrMinus < 2 then
             offset = offset*-1
         end
         Fysics.set_pos(pipe, 10, 4+offset)
-        random1 = math.random(2, 4)
+        random1 = math.random(2, 3)
         offset = random1/10
         plusOrMinus = math.random(1, 2)
         if plusOrMinus < 2 then
@@ -353,14 +353,14 @@ function ExampleScript:OnUpdate()
     local pipePos2 = Fysics.get_pos(pipe2)
     local pipePos2X = Mafs.get_vec_x(pipePos2)
     if pipePos2X < 0 then
-        random1 = math.random(2, 4)
+        random1 = math.random(2, 3)
         offset = random1/10
         plusOrMinus = math.random(1, 2)
         if plusOrMinus < 2 then
             offset = offset*-1
         end
         Fysics.set_pos(pipe2, 10, 4+offset)
-        random1 = math.random(2, 4)
+        random1 = math.random(2, 3)
         offset = random1/10
         plusOrMinus = math.random(1, 2)
         if plusOrMinus < 2 then
@@ -373,14 +373,14 @@ function ExampleScript:OnUpdate()
     local pipePos3 = Fysics.get_pos(pipe3)
     local pipePos3X = Mafs.get_vec_x(pipePos3)
     if pipePos3X < 0 then
-        random1 = math.random(2, 4)
+        random1 = math.random(2, 3)
         offset = random1/10
         plusOrMinus = math.random(1, 2)
         if plusOrMinus < 2 then
             offset = offset*-1
         end
         Fysics.set_pos(pipe3, 10, 4+offset)
-        random1 = math.random(2, 4)
+        random1 = math.random(2, 3)
         offset = random1/10
         plusOrMinus = math.random(1, 2)
         if plusOrMinus < 2 then
@@ -424,7 +424,7 @@ function ExampleScript:OnUpdate()
         local newX = 10 + math.random(4, 10)
         
         --random Y positions
-        local newY = math.random(1, 6)
+        local newY = math.random(1, 4)
 
         Fysics.set_pos(c, newX, newY)
 
