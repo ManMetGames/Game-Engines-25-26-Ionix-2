@@ -430,7 +430,7 @@ for _, set in ipairs(pipeSets) do
 
     -- Bird passed pipe midpoint
     if (birdX > pipeX) and (set.passed == false) then
-        score = score + 10
+        score = score + 1
         scoreText = "Score: " .. tostring(score)
         print("Passed Pipe! Score = " .. score)
         set.passed = true
@@ -507,7 +507,7 @@ end
                     coinHidden[coin] = true
                     
                     -- Update score
-                    score = score + 10  -- 10 points per coin
+                    score = score + 1  -- 1 points per coin
                     scoreText = "Score: " .. tostring(score)
                     print(scoreText)  -- Debug output
                     
