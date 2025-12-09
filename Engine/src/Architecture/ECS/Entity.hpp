@@ -22,7 +22,6 @@ namespace IonixEngine {
         bool remove;
 
     public:
-        Vec2 position;
         float rotation;
         int32_t zOrder;
         EntityID id;

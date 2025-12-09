@@ -2,6 +2,7 @@
 #include <iostream>
 #include "Architecture/Application.h"
 #include <SDL.h>
+#include "Architecture/ECS/Temp_Vec2.hpp"
 #include "Fysics/FysicsBody.h"
 
 namespace IonixEngine
@@ -83,8 +84,8 @@ namespace IonixEngine
                 }
             }
             
-            it->position.x += deltaX;
-            it->position.y += deltaY;
+            Vec2 delta = { deltaX, deltaY };
+            it->transform.SetLocalPosition(delta);
         }
 	}
     

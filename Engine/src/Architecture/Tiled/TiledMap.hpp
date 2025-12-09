@@ -14,7 +14,6 @@ public:
     std::string name;
     std::vector<TiledObject> objects;
     float opacity;
-    std::vector<TiledProperty> properties; // Not sure if I need to parse these
     std::string type;
     bool visible;
     b2Vec2 position;

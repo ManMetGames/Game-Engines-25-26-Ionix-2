@@ -90,7 +90,7 @@ TiledObject::TiledObject(JSONDeserialize* json) {
     ok = json->GetString(&name); if (!ok) { return; }
     ok = json->EndField(); if (!ok) { return; }
 
-    if (json->StringInRange("properties", 40)) {
+    if (json->StringInRange("properties", 30)) {
         ok = json->BeginField("properties"); if (!ok) { return; }
         ok = json->BeginArray(); 
         if (ok) {
@@ -99,10 +99,11 @@ TiledObject::TiledObject(JSONDeserialize* json) {
                 properties.push_back(TiledProperty(json));
                 json->EndElement();
             } while (json->HasNext());
-        }
+        } 
         ok = json->EndArray(); if (!ok) { return; }
         ok = json->EndField(); if (!ok) { return; }
-    } else {
+    } 
+    if (json->StringInRange("polygon", 20)) {
         ok = json->BeginField("polygon"); if (!ok) { return; }
         ok = json->BeginArray();
         if (ok) {
@@ -147,7 +148,7 @@ TiledObject::TiledObject(JSONDeserialize* json) {
     ok = json->EndField(); if (!ok) { return; }
 
     ok = json->EndObject(); if (!ok) { return; }
-    std::cout << "Successfully parsed object: " << name << "\n";
+    printf("[Tiled] Loaded object: %s\n", name.c_str());
 }
 
 std::string TiledObject::ToString() {
@@ -165,12 +166,16 @@ std::string TiledObject::ToString() {
         for (TiledProperty& property : properties) {
             stream << property.ToString() << "\n";
         }
+    } else {
+        stream << "\t\t\tNo proprties\n";
     }
     if (polygon.size() > 0) {
         stream << "\t\t\tPolygons:\n";
         for (b2Vec2 vert : polygon) {
             stream << "\t\t\t\t[ " << vert.x << ", " << vert.y << "]\n";
         }
+    } else {
+        stream << "\t\t\tNo Polygon\n";
     }
 
     return stream.str();

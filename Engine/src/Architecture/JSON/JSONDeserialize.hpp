@@ -47,6 +47,7 @@ public:
 
     // Utility
     bool StringInRange(const std::string& str, size_t range);
+    void PrintPosition(size_t dist);
 };
 
 }

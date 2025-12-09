@@ -4,13 +4,10 @@
 #include <vector>
 #include <cmath>
 
-#include "SDL_log.h"
-
 namespace IonixEngine {
 
     Entity::Entity(EntityID id, int renderLayer) :
         id(id),
-        position(Vec2{ 0, 0 }),
         zOrder(0),
         rotation(0),
         remove(false),

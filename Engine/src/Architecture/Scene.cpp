@@ -57,6 +57,7 @@ namespace IonixEngine {
         std::ifstream jsonFile = std::ifstream("./First.json");
         std::stringstream jsonData;
         jsonData << jsonFile.rdbuf();
+        
         JSONDeserialize json = JSONDeserialize(jsonData.str());
         TiledMap map = TiledMap(&json);
 
@@ -64,13 +65,13 @@ namespace IonixEngine {
 
         TiledObjectFactory factory;
 
-        size_t capacity = 0;
-        for (TiledLayer& layer : map.layers) {
-            if (layer.isTile) { continue; }
-            capacity += layer.objectLayer.objects.size();
-        }
+        // size_t capacity = 0;
+        // for (TiledLayer& layer : map.layers) {
+        //     if (layer.isTile) { continue; }
+        //     capacity += layer.objectLayer.objects.size();
+        // }
         std::vector<std::pair<TiledObject, TiledObjectLayer>> orderedObjects;
-        orderedObjects.reserve(capacity);
+        // orderedObjects.reserve(capacity);
 
         std::vector<std::pair<TiledTileLayer, size_t>> tileLayers;
 
@@ -79,9 +80,7 @@ namespace IonixEngine {
                 tileLayers.push_back(std::make_pair(layer.tileLayer, map.GetTilemapIdx(layer.tileLayer)));
             } else {
                 for (TiledObject& object : layer.objectLayer.objects) {
-                    for (TiledProperty& property : object.properties) {
-                        orderedObjects.push_back(std::make_pair(object, layer.objectLayer));
-                    }
+                    orderedObjects.push_back(std::make_pair(object, layer.objectLayer));
                 }
             }
         }

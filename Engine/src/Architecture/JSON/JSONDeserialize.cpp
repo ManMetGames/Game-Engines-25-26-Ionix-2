@@ -141,7 +141,6 @@ bool JSONDeserialize::BeginArray() {
         return false;
     }
     brackets.push('[');
-    printf("JSON Begin Array pushed '['");
     objectContext.push(objectContext.size());
     pos++;
 
@@ -151,7 +150,10 @@ bool JSONDeserialize::BeginArray() {
 bool JSONDeserialize::HasNext() {
     size_t endLine = data.find('\n', pos);
     size_t endComma = data.find(',', pos);
-    if (endLine != data.npos && endComma != data.npos && endComma < endLine) {
+    if (endLine == data.npos || endComma == data.npos) {
+        return false;
+    }
+    if (endComma < endLine) {
         return true;
     } else {
         return false;
@@ -181,7 +183,6 @@ bool JSONDeserialize::EndElement() {
 bool JSONDeserialize::EndArray() {
     if (brackets.top() != '[') { printf("[JSON Deserialize] Most recent unresolved bracket was not ']'\n"); return false; }
     brackets.pop();
-    printf("JSON End Array popped ']'");
     return ValidEndObject();
 }
 
@@ -191,7 +192,6 @@ bool JSONDeserialize::BeginObject() {
     if (newPos == data.npos) { printf("[JSON Deserialize] Could not find start of object after char %zu", pos); return false; }
 
     brackets.push('{');
-    printf("JSON Begin Object pushed '{'");
     objectContext.push(objectContext.size());
     pos = newPos;
 
@@ -204,7 +204,6 @@ bool JSONDeserialize::EndObject() {
     pos = newPos;
     if (brackets.top() != '{') { printf("[JSON Deserialize] Most recent unresolved bracket was not '{'\n"); return false; }
     brackets.pop();
-    printf("JSON End Object popped '}'");
     return ValidEndObject();
 }
 
@@ -247,7 +246,6 @@ size_t JSONDeserialize::AdvanceToNonWhitespace(size_t maxDistance) {
 bool JSONDeserialize::ValidEndObject() {
     size_t size = objectContext.top();
     objectContext.pop();
-    printf("[JSON] Evaluating brackets: top: %zu, size: %zu\n", size, objectContext.size());
     return objectContext.size() == size;
 }
 
@@ -259,6 +257,10 @@ bool JSONDeserialize::StringInRange(const std::string& str, size_t range) {
         return false;
     }
     return true;
+}
+
+void JSONDeserialize::PrintPosition(size_t dist) {
+    printf("[JSON] Currently at:\n%s\n", data.substr(pos - dist, dist * 2).c_str());
 }
 
 }

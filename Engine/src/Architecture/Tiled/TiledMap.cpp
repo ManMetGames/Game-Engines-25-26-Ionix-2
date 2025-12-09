@@ -38,18 +38,6 @@ TiledObjectLayer::TiledObjectLayer(JSONDeserialize* json) {
     ok = json->GetFloat(&opacity); if (!ok) { return; }
     ok = json->EndField(); if (!ok) { return; }
 
-    ok = json->BeginField("properties"); if (!ok) { return; }
-    ok = json->BeginArray();
-    if (ok) {
-        do {
-            json->BeginElement();
-            properties.push_back(TiledProperty(json));
-            json->EndElement();
-        } while (json->HasNext());
-    }
-    ok = json->EndArray(); if (!ok) { return; }
-    ok = json->EndField(); if (!ok) { return; }
-
     ok = json->BeginField("type"); if (!ok) { return; }
     ok = json->GetString(&type); if (!ok) { return; }
     ok = json->EndField(); if (!ok) { return; }
@@ -67,6 +55,7 @@ TiledObjectLayer::TiledObjectLayer(JSONDeserialize* json) {
     ok = json->EndField(); if (!ok) { return; }
     
     ok = json->EndObject(); if (!ok) { return; }
+    printf("[Tiled] Loaded object layer: %s\n", name.c_str());
 }
 
 std::string TiledObjectLayer::ToString() {
@@ -80,10 +69,6 @@ std::string TiledObjectLayer::ToString() {
         stream << object.ToString() << "\n";
     }
     stream << "\t\tOpacity: " << opacity << "\n";
-    stream << "\t\tProperties:\n";
-    for (TiledProperty& property : properties) {
-        stream << property.ToString() << "\n";
-    }
     stream << "\t\tType: " << type << "\n";
     stream << "\t\tVisible: " << visible << "\n";
     stream << "\t\tPosition: [" << position.x << ", " << position.y << "]\n";
@@ -265,6 +250,7 @@ TiledMap::TiledMap(JSONDeserialize* json) {
             json->BeginElement();
             layers.push_back(TiledLayer(json));
             json->EndElement();
+            json->PrintPosition(10);
         } while (json->HasNext());
     }
     ok = json->EndArray(); if (!ok) { return; }
