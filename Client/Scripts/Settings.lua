@@ -7,7 +7,7 @@ function LoadModule(name, path)
 end
 
 -- Load System Modules
-LoadModule("Coroutines", "Scripts/Coroutines.lua")
+--LoadModule("Coroutines", "Scripts/Coroutines.lua")
 
 -- Load all game modules here
 --LoadModule("Audio", "Scripts/Audio.lua")
