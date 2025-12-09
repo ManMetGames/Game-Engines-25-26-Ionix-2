@@ -16,8 +16,6 @@ namespace IonixEngine {
 		ONEFRAME
 	};
 	class SpriteComponent : public Component {
-		// for now we will assume all spritesheets are 1 row	and of uniform size (32x32, 64x64 etc.)
-		// will improve later on	
 		SDL_Texture* texture;
 		SDL_Point size;
 		SDL_Rect src;
@@ -26,7 +24,7 @@ namespace IonixEngine {
 		int totalFrames;
 		int currentFrame;
 		int endFrame;
-		bool isReversing; // kai is smelly (its true)
+		bool isReversing;
 		int rows, cols;
 		int spriteWidth, spriteHeight;
 		int currentRow, currentCol;
@@ -71,6 +69,7 @@ namespace IonixEngine {
 		void setZedOrder(int x);
 		void setWidth(int x);
 		void setHeight(int x);
+		void setSize(int x, int y);
 		void setAngle(float angle);
 		void setTickRate(float x);
 		void setBoxColliderSize(b2Vec2 newSize);
