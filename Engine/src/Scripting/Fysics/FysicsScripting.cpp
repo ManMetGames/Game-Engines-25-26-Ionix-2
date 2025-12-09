@@ -460,6 +460,7 @@ namespace IonixEngine
 		lua["Fysics"] = lua.create_table_with(
 			"add_box_collider",	addBoxCollider,
 			"add_box_collider_v", addBoxColliderv,
+			"add_edge_collider", addEdgeCollider,
 			"add_polygon_collider",addPolygonCollider,
 			"add_circle_collider", addCircleCollider,
 			"get_pos", getFysicsPos,
