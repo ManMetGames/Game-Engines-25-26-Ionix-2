@@ -20,11 +20,20 @@ local pipeSpeed = -3
 local pipeStartX = 700
 local pipeOffScreenLeft = 0
 
+--PacMan
+local xDir -- -1 goes left, 1 goes right
+local yDir -- -1 goes up, 1 goes down
+
+local windowSize
+
 ----------------------------------------------------------
 -- OnStart
 ----------------------------------------------------------
 function ExampleScript:OnStart()
 
+    local pie = Mafs.pi()
+    windowSize = Window.get_height()
+    print(windowSize)    
     ------------------------------------------------------
 	-- Background Texture
 	------------------------------------------------------
@@ -36,14 +45,24 @@ function ExampleScript:OnStart()
     -- Create player1
     ------------------------------------------------------
     player1 = Entity.create_entity()
+    collider = Entity.create_entity()
 
-    Entity.set_global_pos(player1, x, 300)
+    Entity.set_global_pos(player1, x, y)
+    Entity.set_global_pos(collider, x, 300)
+
+
 	
-    local playerSprite1 = Entity.add_sprite_component(player1, assets.textures.FlappyBird, 32, 32, 10)
-    Sprite.set_columns(playerSprite1,1)
+    local playerSprite1 = Entity.add_sprite_component(player1, assets.textures.PacMan, 32, 32, 10) --Pac man sprite render + animation
+    Sprite.set_columns(playerSprite1, 2)
+    Sprite.rows(playerSprite1, 2)
+    Sprite.set_height(playerSprite1, 32)
+    Sprite.set_width(playerSprite1, 32)
+    Sprite.set_playback_mode(playerSprite1, 4)
     -- PLAYER 1 PHYSICS
 
-    Entity.add_fysics_component(player1, enums.bodytype.dynamicBody, true) -- dynamic body
+    Entity.add_fysics_component(player1, enums.bodytype.dynamicBody, true) -- dynamic body, last value is rotation lock
+    --Entity.add_fysics_component(collider, enums.bodytype.dynamicBody, true) -- dynamic body, last value is rotation lock
+
     --Fysics.add_sprite_collider(player1, false)
     Fysics.add_sprite_collider(player1,false,1)
     -- Freeze bird
@@ -124,21 +143,37 @@ function ExampleScript:OnUpdate()
     local vel1 = Fysics.get_linear_velocity(player1)
     local vy1 = Fysics.get_linear_velocity(pipe)
     -- Constant rightward movement
-    local vx = 0
+    local vx = Mafs.get_vec_x(vel1);
     local vy1 = Mafs.get_vec_y(vel1)
-
-	if Input.get_key_down(Keys.ionix_space) then
-        -- Bird move if space is pressed (allow gravity)
-        Fysics.set_gravity_scale(player1, 1)
-        Fysics.set_linear_velocity(pipe, pipeSpeed, 0)
-        Fysics.set_linear_velocity(pipeT, pipeSpeed, 0)
-        -- Set velocity directly to cancel out falling momentum
-        vy1 = -5  -- Jump velocity for player1
-	end
     
-    if Input.get_key_down(Keys.ionix_m) then
-        Entity.destroy_entity(coin)
+    --if Input.get_key_down(Kyes.ionix_d) then Fysics.set_linear_velocity(player1, 20, 0) end
+
+	if Input.get_key_down(Keys.ionix_w) then -- move up
+        vy1 = -1  
+        vx = 0
+        --Fysics.set_angle(player1, 270 * (Mafs.pi() / 180))
+        Entity.set_global_rot(player1, 270)
+        Entity.set_global_pos(player1, 500, 200)
+	end
+    if Input.get_key_down(Keys.ionix_s) then -- move down
+         vy1 = 1
+          vx = 0
+        --Fysics.set_angle(player1, 90 * (Mafs.pi() / 180))
+        Entity.set_global_rot(player1, 180)
     end
+    if Input.get_key_down(Keys.ionix_a) then -- move left
+        vx = -1
+        vy1 = 0
+        --Fysics.set_angle(player1, Mafs.pi())
+        Entity.set_global_rot(player1, 90)
+    end
+    if Input.get_key_down(Keys.ionix_d) then -- move right
+        vx = 1
+        vy1 = 0
+        Entity.set_global_rot(player1, 0)
+    end
+
+
     Fysics.set_linear_velocity(player1, vx, vy1)
 
     -- Pipe movement

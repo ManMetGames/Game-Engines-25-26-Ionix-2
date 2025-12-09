@@ -98,7 +98,6 @@ namespace IonixEngine
             if (e.Handled)
                 break;
         }
-
     }
     Camera* cam = new Camera(0.0f, 0.0f, 0);
     Camera* cam2 = new Camera(100.0f, 100.0f, 1);

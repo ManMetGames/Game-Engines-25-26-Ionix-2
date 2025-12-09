@@ -105,11 +105,16 @@ namespace IonixEngine {
 		if (fysicsBody) {
 			// Box2D returns radians, SDL expects degrees
 			float angleRadians = fysicsBody->GetAngle(entity);
+			b2Vec2 pos = fysicsBody->GetPosition(entity);
+			position.x = pos.x;
+			position.y = pos.y;
 			angleDegrees = angleRadians * (180.0 / 3.14159265358979323846);
 		} else {
 			// Transform rotation is in degrees
-			angleDegrees = entity->transform.GetGlobalRotation();
 		}
+		angleDegrees = entity->transform.GetGlobalRotation();
+
+		printf("Position: [ %.1f, %.1f ], rot: %.1f\n" , position.x, position.y, angleDegrees);
 
 		//create and send render data to the render queue
 		data->queue->AddToQueue(RenderCall{
