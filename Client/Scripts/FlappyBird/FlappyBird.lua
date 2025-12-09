@@ -525,7 +525,7 @@ end
                     
                     -- Update score
                     score = score + 10  -- 10 points per coin
-                    scoreText = " " .. tostring(score)
+                    scoreText = "Coins: " .. tostring(score)
                     print(scoreText)  -- Debug output
                     
                     break
