@@ -56,40 +56,59 @@ local function ResetBall()
 end
 
 -- Move a kinematic paddle using pixel delta -> physics pos
-local function MovePaddleByPixels(entity, deltaPixelsY)
-    -- Read current physics pos (meters) — authoritative
-    local phys = Fysics.get_pos(entity)
-    if not phys then
-        -- fallback: use transform
-        local tr = Entity.get_global_pos(entity)
-        local tx = Mafs.get_vec_x(tr)
-        local ty = Mafs.get_vec_y(tr)
-        local newY = ty + deltaPixelsY
-        -- clamp in pixels
-        local halfH = paddleH * 0.5
-        if newY < halfH then newY = halfH end
-        if newY > screenH - halfH then newY = screenH - halfH end
-        Entity.set_global_pos(entity, tx, newY)
-        return
+    local function MovePaddleByPixels(entity, deltaPixelsY, deltaPixelsX)
+        -- Read current physics pos (meters) — authoritative
+        local phys = Fysics.get_pos(entity)
+        if not phys then
+            -- fallback: use transform
+            local tr = Entity.get_global_pos(entity)
+            local tx = Mafs.get_vec_x(tr)
+            local ty = Mafs.get_vec_y(tr)
+            local newY = ty + deltaPixelsY
+            -- clamp in pixels
+            local halfH = paddleH * 0.5
+            if newY < halfH then newY = halfH end
+            if newY > screenH - halfH then newY = screenH - halfH end
+            Entity.set_global_pos(entity, tx, newY)
+            return
+        end
+
+        local physX = Mafs.get_vec_x(phys)
+        local physY = Mafs.get_vec_y(phys)
+
+        -- convert to pixels, modify, clamp, convert back
+        local px = m_to_px(physX)
+        local py = m_to_px(physY)
+
+        py = py + deltaPixelsY
+        px = px + (deltaPixelsX or 0)
+
+        -- vertical clamp
+        local halfH = paddleH * 0.2
+        if py < halfH then py = halfH end
+        if py > screenH - halfH then py = screenH - halfH end
+
+        -- horizontal clamp: each paddle can move only within its half of the screen
+        local halfW = paddleW * 0.5
+        local minX, maxX
+        if entity == leftPaddle then
+            minX = halfW
+            maxX = screenW * 0.5 - halfW
+        elseif entity == rightPaddle then
+            minX = screenW * 0.5 + halfW
+            maxX = screenW - halfW
+        else
+            -- default: full screen, just in case
+            minX = halfW
+            maxX = screenW - halfW
+        end
+
+        if px < minX then px = minX end
+        if px > maxX then px = maxX end
+
+        -- write back to physics in meters
+        Fysics.set_pos(entity, px_to_m(px), px_to_m(py))
     end
-
-    local physX = Mafs.get_vec_x(phys)
-    local physY = Mafs.get_vec_y(phys)
-
-    -- convert to pixels, modify, clamp, convert back
-    local px = m_to_px(physX)
-    local py = m_to_px(physY)
-
-    py = py + deltaPixelsY
-
-    local halfH = paddleH * 0.2
-    if py < halfH then py = halfH end
-    if py > screenH - halfH then py = screenH - halfH end
-
-    -- write back to physics in meters
-    Fysics.set_pos(entity, px_to_m(px), px_to_m(py))
-end
-
 ----------------------------------------------------------------
 -- Init
 ----------------------------------------------------------------
@@ -97,7 +116,7 @@ end
 local function InitBackground()
     backgroundEntity = Entity.create_entity()
     Entity.set_global_pos(backgroundEntity, 0, 0)
-    Entity.add_sprite_component(backgroundEntity, assets.textures.office, 1920, 1080, 0)
+    Entity.add_sprite_component(backgroundEntity, assets.textures.office, screenW, screenH, 0)
 end
 
 local function InitBall()
@@ -159,63 +178,81 @@ local function InitWalls()
 end
 
 ----------------------------------------------------------------
--- Game start / fixed update
-----------------------------------------------------------------
+    -- Game start / fixed update
+    ----------------------------------------------------------------
 
-function game:OnStart()
-    screenW = Window.get_width()
-    screenH = Window.get_height()
+    function game:OnStart()
+        screenW = Window.get_width()
+        screenH = Window.get_height()
 
-    InitBackground()
-    InitWalls()
-    InitBall()
-    InitPaddles()
+        InitBackground()
+        InitWalls()
+        InitBall()
+        InitPaddles()
 
-    ResetBall()
-end
-
-function game:OnFixedUpdate()
-    -- Query controller count *each frame* (avoid stale value)
-    local numControllers = Input.get_controller_count()
-
-    local p1Move = 0
-    local p2Move = 0
-
-    if numControllers == 0 then
-        if Input.get_key_held(Keys.ionix_w) then p1Move = -1 end
-        if Input.get_key_held(Keys.ionix_s) then p1Move =  1 end
-
-        if Input.get_key_held(Keys.arrow_up) then p2Move = -1 end
-        if Input.get_key_held(Keys.arrow_down) then p2Move =  1 end
-
-    elseif numControllers == 1 then
-        -- Player 1 keyboard, player 2 controller
-        if Input.get_key_held(Keys.ionix_w) then p1Move = -1 end
-        if Input.get_key_held(Keys.ionix_s) then p1Move =  1 end
-
-        local c2 = Input.get_left_stick_y(0)
-        if Mafs.abs(c2) > 0.1 then p2Move = c2 end
-
-    else
-        local c1 = Input.get_left_stick_y(0)
-        if Mafs.abs(c1) > 0.1 then p1Move = c1 end
-
-        local c2 = Input.get_left_stick_y(1)
-        if Mafs.abs(c2) > 0.1 then p2Move = c2 end
-    end
-
-    -- Convert input (-1..1) into pixel movement per fixed tick
-    -- If stick values are fractional, scale by paddleSpeed
-    MovePaddleByPixels(leftPaddle,  p1Move * paddleSpeed)
-    MovePaddleByPixels(rightPaddle, p2Move * paddleSpeed)
-
-    -- Scoring - check sprite position (pixels)
-    local ballPos = Fysics.get_pos(ballEntity) -- meters
-    local bx = m_to_px(Mafs.get_vec_x(ballPos))
-
-    if bx < -100 or bx > screenW + 100 then
         ResetBall()
     end
-end
+
+    function game:OnFixedUpdate()
+        -- Query controller count *each frame* (avoid stale value)
+        local numControllers = Input.get_controller_count()
+
+        local p1MoveY = 0
+        local p1MoveX = 0
+        local p2MoveY = 0
+        local p2MoveX = 0
+
+        if numControllers == 0 then
+            -- Player 1: W/S for up/down, A/D for left/right
+            if Input.get_key_held(Keys.ionix_w) then p1MoveY = -1 end
+            if Input.get_key_held(Keys.ionix_s) then p1MoveY =  1 end
+            if Input.get_key_held(Keys.ionix_a) then p1MoveX = -1 end
+            if Input.get_key_held(Keys.ionix_d) then p1MoveX =  1 end
+
+            -- Player 2: arrow keys
+            if Input.get_key_held(Keys.arrow_up)    then p2MoveY = -1 end
+            if Input.get_key_held(Keys.arrow_down)  then p2MoveY =  1 end
+            if Input.get_key_held(Keys.arrow_left)  then p2MoveX = -1 end
+            if Input.get_key_held(Keys.arrow_right) then p2MoveX =  1 end
+
+        elseif numControllers == 1 then
+            -- Player 1 keyboard, player 2 controller
+                if Input.get_key_held(Keys.ionix_w) then p1MoveY = -1 end
+                if Input.get_key_held(Keys.ionix_s) then p1MoveY =  1 end
+                if Input.get_key_held(Keys.ionix_a) then p1MoveX = -1 end
+                if Input.get_key_held(Keys.ionix_d) then p1MoveX =  1 end
+            
+                local c2y = Input.get_left_stick_y(0)
+                local c2x = Input.get_left_stick_x(0)
+                if Mafs.abs(c2y) > 0.1 then p2MoveY = c2y end
+                if Mafs.abs(c2x) > 0.1 then p2MoveX = c2x end
+
+        else
+            -- Two controllers
+                local c1y = Input.get_left_stick_y(0)
+                local c1x = Input.get_left_stick_x(0)
+                if Mafs.abs(c1y) > 0.1 then p1MoveY = c1y end
+                if Mafs.abs(c1x) > 0.1 then p1MoveX = c1x end
+            
+                local c2y = Input.get_left_stick_y(1)
+                local c2x = Input.get_left_stick_x(1)
+                if Mafs.abs(c2y) > 0.1 then p2MoveY = c2y end
+                if Mafs.abs(c2x) > 0.1 then p2MoveX = c2x end
+        end
+
+        -- Convert input (-1..1) into pixel movement per fixed tick
+        -- If stick values are fractional, scale by paddleSpeed
+        MovePaddleByPixels(leftPaddle,  p1MoveY * paddleSpeed, p1MoveX * paddleSpeed)
+        MovePaddleByPixels(rightPaddle, p2MoveY * paddleSpeed, p2MoveX * paddleSpeed)
+
+        -- Scoring - check sprite position (pixels)
+        local ballPos = Fysics.get_pos(ballEntity) -- meters
+        local bx = m_to_px(Mafs.get_vec_x(ballPos))
+
+        if bx < -100 or bx > screenW + 100 then
+            ResetBall()
+        end
+    end
+
 
 return game

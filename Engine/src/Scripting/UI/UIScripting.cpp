@@ -26,9 +26,9 @@ namespace IonixEngine {
             return Application::Get().layerUI->m_UIManager->AddButton(x, y, xSize, ySize, text, onClick);
             };
 
-        auto AddSlider = [](const char* label, float value, int xsize, int ysize, int xpos, int ypos, float minval, float maxval) -> float {
-            return Application::Get().layerUI->m_UI->AddSlider((char*)label, value, xsize, ysize, xpos, ypos, minval, maxval);
-            };
+        //auto AddSlider = [](const char* label, float value, int xsize, int ysize, int xpos, int ypos, float minval, float maxval) -> float {
+            //return Application::Get().layerUI->m_UI->AddSlider((char*)label, value, xsize, ysize, xpos, ypos, minval, maxval);
+            //};
 		auto AddColorPicker = [](int x, int y, float xSize, float ySize, const char* label, float* color) {
 			return Application::Get().layerUI->m_UI->DrawColorPicker(x, y, xSize, ySize, label, color);
 			};
@@ -38,7 +38,7 @@ namespace IonixEngine {
 			    "draw_label", drawLabel,
           "draw_button", DrawButton,
 			    "add_button", AddButton,
-			    "add_slider", AddSlider,
+			    //"add_slider", AddSlider,
 			"add_color_picker", AddColorPicker
 			
         );

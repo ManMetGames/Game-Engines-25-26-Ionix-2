@@ -53,7 +53,7 @@ namespace IonixEngine
         
         b2Body* GetBodyFromEntity(Entity* entity);
         Entity* GetEntityFromBody(b2Body* body);
-        b2Fixture* GetFixtureFromEntity(Entity* entity);
+
         void AddEntityBodyPair(Entity* entity, b2Body* body);
     };
 }
