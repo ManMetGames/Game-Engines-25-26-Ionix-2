@@ -1,5 +1,6 @@
 return {
     textures = {
+        Apple = 3562895354,
         Background = 2667361274,
         Coin = 2929616156,
         Cube = 2849387920,
@@ -17,6 +18,7 @@ return {
         hermer = 242799782,
         horse_fat = 963803500,
         office = 2084752704,
+        player1 = 2740174956,
     },
     sounds = {
         test = 1642075152,
