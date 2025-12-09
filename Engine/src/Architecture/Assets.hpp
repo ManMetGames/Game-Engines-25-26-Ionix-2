@@ -53,7 +53,11 @@ struct Sounds {
         map["test"] = "./Assets/test.mp3";
         map["test0"] = "./Assets/test.wav";
         map["technoSong"] = "./Assets/technoSong.mp3";
-        map["playerDamage"] = "./Assets/playerDamage.mp3";
+        map["playerDamage"] = "./Assets/Audio/playerDamage.mp3";
+        map["gunshot1"] = "./Assets/Audio/gunshot1.mp3";
+        map["gunshot2"] = "./Assets/Audio/gunshot2.mp3";
+        map["gunshot3"] = "./Assets/Audio/gunshot3.mp3";
+        map["impact3"] = "./Assets/Audio/impact3.mp3";
         return map;
     };
 };

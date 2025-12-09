@@ -199,6 +199,8 @@ local peaceDurationSeconds = 4
 
 -- SFX
 local playerDamageSfxEntity
+local gunshot3SfxEntity
+local impact3SfxEntity
 
 -- LEVEL SETTINGS
 local currentLevel = 1
@@ -350,7 +352,15 @@ function TriangleShooter:OnStart()
     playerDamageSfxEntity = Entity.create_entity()
     Entity.add_audio_component(playerDamageSfxEntity, "playerDamage", false)
     -- Set player damage SFX volume to half (range is 0-128)
-    AudioComponent.change_volume(playerDamageSfxEntity, 64)
+    AudioComponent.change_volume(playerDamageSfxEntity, 48)
+
+    gunshot3SfxEntity = Entity.create_entity()
+    Entity.add_audio_component(gunshot3SfxEntity, "gunshot3", false)
+    AudioComponent.change_volume(gunshot3SfxEntity, 1)
+
+    impact3SfxEntity = Entity.create_entity()
+    Entity.add_audio_component(impact3SfxEntity, "impact3", false)
+    AudioComponent.change_volume(impact3SfxEntity, 32)
 end
 
 ----------------------------------------------------------
@@ -467,6 +477,11 @@ function TriangleShooter:OnUpdate()
         isFiring = true
         if fireCooldownTimer <= 0 then
             SpawnProjectile()
+            if gunshot3SfxEntity then
+                local v = math.random(1, 5)
+                AudioComponent.change_volume(gunshot3SfxEntity, v)
+                AudioComponent.play(gunshot3SfxEntity)
+            end
             local interval = TriangleShooterPlayerProgress.getCurrentFireInterval()
             if not interval or interval <= 0 then
                 interval = 0.5
@@ -482,6 +497,11 @@ function TriangleShooter:OnUpdate()
 
     if isFiring and fireCooldownTimer <= 0 then
         SpawnProjectile()
+        if gunshot3SfxEntity then
+            local v = math.random(24, 36)
+            AudioComponent.change_volume(gunshot3SfxEntity, v)
+            AudioComponent.play(gunshot3SfxEntity)
+        end
         local interval = TriangleShooterPlayerProgress.getCurrentFireInterval()
         if not interval or interval <= 0 then
             interval = 0.5
@@ -663,6 +683,11 @@ function UpdateProjectiles()
             enemy.health = (enemy.health or 0) - 1
             TriangleShooterPlayerProgress.addXp(1)
             FlashEnemy(enemy)
+            if impact3SfxEntity then
+                local v = math.random(48, 64)
+                AudioComponent.change_volume(impact3SfxEntity, v)
+                AudioComponent.play(impact3SfxEntity)
+            end
             if enemy.health <= 0 then
                 Entity.set_global_pos(enemy.entity, -1000, -1000)
                 table.remove(enemies, hitEnemyIndex)
