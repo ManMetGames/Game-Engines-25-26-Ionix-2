@@ -91,6 +91,7 @@ function ExampleScript:OnStart()
 		------------------------------------------------------
 		Entity.add_fysics_component(Bottom, 0, false)  -- static
 		Fysics.add_sprite_collider(Bottom, false,1)
+        if setColliderTrigger then setColliderTrigger(Bottom, true) end
 
         
         --Top
@@ -103,6 +104,7 @@ function ExampleScript:OnStart()
 		------------------------------------------------------
 		Entity.add_fysics_component(Top, 0, false)  -- static
 		Fysics.add_sprite_collider(Top, false,1)
+        if setColliderTrigger then setColliderTrigger(Top, true) end
 
         --Left 
         Entity.set_local_pos(Left, -67, yPos)
@@ -113,6 +115,7 @@ function ExampleScript:OnStart()
 		------------------------------------------------------
 		Entity.add_fysics_component(Left, 0, false)  -- static
 		Fysics.add_sprite_collider(Left, false,1)
+        if setColliderTrigger then setColliderTrigger(Left, true) end
 
 
         --Right
@@ -124,6 +127,7 @@ function ExampleScript:OnStart()
 		------------------------------------------------------
 		Entity.add_fysics_component(Right, 0, false)  -- static
 		Fysics.add_sprite_collider(Right, false,1)
+        if setColliderTrigger then setColliderTrigger(Right, true) end
 
 
 end
@@ -138,6 +142,13 @@ function ExampleScript:OnUpdate()
     local Speed = 5
     local vx = 0
     local vy = 0
+
+    local playerPos = Entity.get_global_pos(player1)
+    local vx1 = Mafs.get_vec_x(playerPos)
+
+    if(vx1 >= 930) then
+        Fysics.set_pos(player1, 32 / 100, 32 / 100)
+    end
 
   -- basic movment using the WASD keys
     if Input.get_key_down(Keys.ionix_d) then
@@ -163,12 +174,22 @@ function ExampleScript:OnUpdate()
 
      end
 
+
+
 end
 
 function ExampleScript:OnTriggerEnter(collision1, collision2)
     if(collision2 == Apple) then
         Entity.destroy_entity(collision2)
     end
+    --if isColliderTrigger and isColliderTrigger(collision2) and collision2 ~= Apple then
+    --    if setGlobalPos then
+    --        setGlobalPos(player1, 32, 32)
+    --    else
+    --    Entity.set_local_pos(player1, 32, 32)
+    --    end
+    --    Fysics.set_linear_velocity(player1, 0, 0)
+    --end
 end
 
 return ExampleScript
