@@ -12,6 +12,7 @@ typedef void (*AddComponent)(Entity* entity, std::unordered_map<std::string, Til
 class TiledObjectFactory {
     std::unordered_map<std::string, AddComponent> addComponent;
     static void  AddSpriteComponent(Entity* entity, std::unordered_map<std::string, TiledProperty&>& properties, TiledObject& object);
+    static void  AddAnimatorComponent(Entity* entity, std::unordered_map<std::string, TiledProperty&>& properties, TiledObject& object);
     static void AddFysicsBody(Entity* entity, std::unordered_map<std::string, TiledProperty&>& properties, TiledObject& object);
     static void AddBoxCollider(Entity* entity, std::unordered_map<std::string, TiledProperty&>& properties, TiledObject& object);
     static void AddAudioComponent(Entity* entity, std::unordered_map<std::string, TiledProperty&>& properties, TiledObject& object);

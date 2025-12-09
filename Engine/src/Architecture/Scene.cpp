@@ -5,8 +5,10 @@
 #include "Architecture/Tiled/TiledObject.hpp"
 #include "Architecture/Tiled/TiledObjectFactory.hpp"
 #include "SDL_log.h"
+#include <cstddef>
 #include <cstdio>
 #include <fstream>
+#include <utility>
 
 namespace IonixEngine {
     void Scene::OnEnter() {
@@ -25,15 +27,36 @@ namespace IonixEngine {
 
         TiledObjectFactory factory;
 
+        size_t capacity = 0;
+        for (TiledLayer& layer : map.layers) {
+            if (layer.isTile) { continue; }
+            capacity += layer.objectLayer.objects.size();
+        }
+        std::vector<std::pair<TiledObject&, TiledObjectLayer&>> orderedObjects;
+        orderedObjects.reserve(capacity);
+
+        std::vector<std::pair<TiledTileLayer, size_t>> tileLayers;
+
         for (TiledLayer& layer : map.layers) {
             if (layer.isTile) {
-                size_t tilesetIdx = map.GetTilemapIdx(layer.tileLayer);
-                factory.CreateTilemapFromLayer(this, layer.tileLayer, map.tilesets[tilesetIdx]);
+                tileLayers.push_back(std::make_pair(layer.tileLayer, map.GetTilemapIdx(layer.tileLayer)));
             } else {
                 for (TiledObject& object : layer.objectLayer.objects) {
-                    factory.CreateEntityFromObjectID(this, object, layer.objectLayer);
+                    for (TiledProperty& property : object.properties) {
+                        if (property.name == "EntityID") {
+                            orderedObjects[property.intValue] = std::make_pair(object, layer.objectLayer);
+                        }
+                    }
                 }
             }
+        }
+
+        for (std::pair<TiledObject&, TiledObjectLayer&>& object : orderedObjects) {
+            factory.CreateEntityFromObjectID(this, object.first, object.second);
+        }
+
+        for (std::pair<TiledTileLayer, size_t>& tile : tileLayers) {
+            factory.CreateTilemapFromLayer(this, tile.first, map.tilesets[tile.second]);
         }
     }
 
