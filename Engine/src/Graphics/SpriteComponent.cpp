@@ -72,25 +72,6 @@ namespace IonixEngine {
 		initialiseSpritesheet();
 	}
 
-
-	// New constructors with animation setup
-
-	SpriteComponent::SpriteComponent(Entity* entity, std::string alias, int x, int y, int zedOrder, int rows_, int cols_, int spriteW, int spriteH, int end_Frame) : SpriteComponent(entity, alias, x, y, zedOrder) {
-		setAnimation(rows_, cols_, spriteW, spriteH);
-		calculateTotalFrames();
-		initialiseSpritesheet();
-
-		if (end_Frame > 0) { endFrame = end_Frame; }
-	}
-
-	SpriteComponent::SpriteComponent(Entity* entity, uint32_t hash, int x, int y, int zedOrder, int rows_, int cols_, int spriteW, int spriteH, int end_Frame): SpriteComponent(entity, hash, x, y, zedOrder) {
-		setAnimation(rows_, cols_, spriteW, spriteH);
-		calculateTotalFrames();
-		initialiseSpritesheet();
-
-		if (end_Frame > 0) { endFrame = end_Frame; }
-	}
-
 	void SpriteComponent::Render(RenderData* data)
 	{
 
@@ -98,6 +79,15 @@ namespace IonixEngine {
 		// src is the indivudal frame we're rendering
 		src.x = spriteWidth * currentCol;
 		Vec2 position = entity->transform.GetGlobalPosition();
+
+		//if (currentCol == cols) {
+		//	currentRow++;
+		//	currentCol = 0;
+		//}
+		//if (src.x < 0) {
+		//	currentCol = cols;
+		//	currentRow--;
+		//}
 
 		// Get rotation from physics body if it exists, otherwise use transform rotation
 		double angleDegrees = 0.0;
@@ -124,6 +114,52 @@ namespace IonixEngine {
 			spriteAngle,
 			renderLayer
 		});
+
+
+		//This is just here so we can see the animation play at a normal speed
+		//THIS WILL BE REMOVED
+
+
+		//if ((currentFrame != endFrame) && playbackMode != playbackOptions::ONEFRAME)
+		//{
+		//	if (isReversing) {
+		//		currentFrame--;
+		//		currentCol--;
+		//	}
+		//	else {
+		//		currentFrame++;
+		//		currentCol++;
+		//	}
+		//}
+
+		//else {
+		//	switch (playbackMode) {
+		//	case playbackOptions::FORWARD:
+		//		currentFrame = 0;
+		//		currentCol = 0;
+		//		currentRow = 0;
+		//		break;
+		//	case playbackOptions::BACKWARD:
+		//		currentFrame = totalFrames;
+		//		currentCol = cols - 1;
+		//		currentRow = rows - 1;
+		//		break;
+		//	case playbackOptions::FORWARDANDBACKWARD:
+		//		if (isReversing) {
+		//			isReversing = false;
+		//			currentFrame = 0;
+		//			endFrame = totalFrames;
+		//		}
+		//		else {
+		//			isReversing = true;
+		//			endFrame = 0;
+		//			currentFrame = totalFrames;
+		//		}
+		//		break;
+		//	case playbackOptions::PLAYONCE: case playbackOptions::ONEFRAME:
+		//		break;
+		//	}
+		//}
 	}
 
 	void SpriteComponent::Update(float deltaTime)
@@ -205,7 +241,6 @@ namespace IonixEngine {
 	void SpriteComponent::setZedOrder(int x) { zOrder = x; }
 	void SpriteComponent::setWidth(int x) { width = x; }
 	void SpriteComponent::setHeight(int x) { height = x; }
-	void SpriteComponent::setSize(int x, int y) { width = x; height = y; }
 	void SpriteComponent::setAngle(float angle){ spriteAngle = angle; }
 	void SpriteComponent::setTickRate(float x) { tickRate = x; }
 
