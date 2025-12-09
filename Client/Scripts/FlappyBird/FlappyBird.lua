@@ -33,6 +33,10 @@ local coinHidden = {}
 local score = 0
 local scoreText = "Score: 0"
 local text1 = "Press SPACE to start!"
+local finalScoreText = "Final Score: 0"
+local text2 = "Press SPACE to restart"
+local gameOver = false
+
 ----------------------------------------------------------
 -- OnStart
 ----------------------------------------------------------
@@ -57,7 +61,7 @@ function ExampleScript:OnStart()
 
     Entity.add_fysics_component(player1, enums.bodytype.dynamicBody, true) -- dynamic body
     --Fysics.add_sprite_collider(player1, false)
-    Fysics.add_sprite_collider(player1,false, 0.5)
+    Fysics.add_sprite_collider(player1,false, 0.4)
     -- Freeze bird
     Fysics.set_gravity_scale(player1, 0)
 
@@ -210,6 +214,21 @@ end
 -- OnUpdate
 ----------------------------------------------------------
 function ExampleScript:OnUpdate()
+    ------------------
+	-- Score
+	------------------
+
+    if gameOver then
+        --Score and Game Over text
+        UI.Add_label(350, 235, 1000, 1000, text1)
+
+        --Display final score
+        UI.Add_label(375, 260, 1000, 1000, finalScoreText)
+
+        --Display retry text
+        UI.Add_label(350, 285, 1000, 1000, text2)
+        return
+    end
 
     ------------------------------------------------------
 	-- Player
@@ -235,7 +254,7 @@ function ExampleScript:OnUpdate()
         UI.Add_label(20, 20, 200, 50, scoreText)
     end
 
-	if Input.get_key_down(Keys.ionix_space) then
+	if Input.get_key_down(Keys.ionix_space) and (not gameOver) then
         -- Bird move if space is pressed (allow gravity)
         Fysics.set_gravity_scale(player1, 1)
         -- Set velocity directly to cancel out falling momentum
@@ -373,14 +392,7 @@ end
     ------------------------------------------------------
 	-- UI
 	------------------------------------------------------
-
 end
-
-    function ExampleScript:OnCollisionEnter()
-        if Fysics.col(player1, pipe) then
-            print("CollisionPipe")
-            end
-    end
 
     function ExampleScript:OnTriggerEnter(collision1, collision2)
         -- Initialize coinHidden table if it doesn't exist
@@ -423,6 +435,46 @@ end
             end
         end
     end
+
+    ------------------------------------------------------
+	-- Game Over
+	------------------------------------------------------
+    local function triggerGameOver()
+    gameOver = true
+
+    --Stop all pipe
+    Fysics.set_linear_velocity(pipe, 0, 0)
+    Fysics.set_linear_velocity(pipeT, 0, 0)
+    Fysics.set_linear_velocity(pipe2, 0, 0)
+    Fysics.set_linear_velocity(pipeT2, 0, 0)
+    Fysics.set_linear_velocity(pipe3, 0, 0)
+    Fysics.set_linear_velocity(pipeT3, 0, 0)
+
+    --Stop all coins & hide coins
+    for _, c in ipairs(coins) do
+        Fysics.set_linear_velocity(c, 0, 0)
+        local s = Entity.get_sprite_component(c)
+        if s then Sprite.set_width(s, 0); Sprite.set_height(s, 0) end
+    end
+
+    text1 = "GAME OVER!! TRY AGAIN"
+    finalScoreText = "Final Score: " .. tostring(score)
+    local finalScoreText = "Final Score: 0"
+    local text2 = ""
+end
+    ------------------------------------------------------
+	--Collision
+	------------------------------------------------------
+function ExampleScript:OnCollisionEnter(a, b)
+    if gameOver then return end
+
+    --If player touches any pipe then game over
+    if (a == player1 and (b == pipe or b == pipeT or b == pipe2 or b == pipeT2 or b == pipe3 or b == pipeT3))
+    or (b == player1 and (a == pipe or a == pipeT or a == pipe2 or a == pipeT2 or a == pipe3 or a == pipeT3)) then
+        print("GAME OVER: Hit pipe! Try Again")
+        triggerGameOver()
+    end
+end
 
 return ExampleScript
 
