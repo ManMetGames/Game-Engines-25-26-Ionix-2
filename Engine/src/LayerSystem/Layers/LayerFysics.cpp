@@ -142,9 +142,9 @@ namespace IonixEngine
            pos.x = val.first->GetPosition().x * ppm;
            pos.y = val.first->GetPosition().y * ppm;
 
-           val.second->transform.SetLocalPosition(pos);
-            //val.second->position.x = pos.x;
-            //val.second->position.y = pos.y;
+           //val.second->transform.SetLocalPosition(pos);
+            val.second->position.x = pos.x;
+            val.second->position.y = pos.y;
             
             // update current transform state for interpolation
             if (transformMap.find(val.first) != transformMap.end())

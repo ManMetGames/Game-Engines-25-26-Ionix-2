@@ -143,16 +143,16 @@ function ExampleScript:OnUpdate()
 
     -- Pipe movement
     
-    local pipePos = Fysics.get_pos(pipe)
-    local pipeTPos = Fysics.get_pos(pipeT)
-    -- local pipeTPos = Entity.get_global_pos(pipeT)
-    -- local pipePos = Entity.get_global_pos(pipe)
+    -- local pipePos = Fysics.get_pos(pipe)
+    -- local pipeTPos = Fysics.get_pos(pipeT)
+    local pipeTPos = Entity.get_global_pos(pipeT)
+    local pipePos = Entity.get_global_pos(pipe)
     if Mafs.get_vec_x(pipePos) <= pipeOffScreenLeft then
-        -- Entity.set_global_pos(pipe, pipeStartX, 400)
-        -- Entity.set_global_pos(pipeT, pipeStartX, 0)
-        Fysics.set_pos(pipe, pipeStartX, 400)
-        Fysics.set_pos(pipeT, pipeStartX, 0)  
-        print(Mafs.get_vec_y(pipePos))
+        Entity.set_global_pos(pipe, pipeStartX, 400)
+        Entity.set_global_pos(pipeT, pipeStartX, 0)
+        -- Fysics.set_pos(pipe, pipeStartX, 400)
+        -- Fysics.set_pos(pipeT, pipeStartX, 0)  
+        print(Mafs.get_vec_x(pipePos))
         
      end
      
