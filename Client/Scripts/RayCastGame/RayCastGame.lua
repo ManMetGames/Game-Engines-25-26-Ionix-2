@@ -40,7 +40,7 @@ function ExampleScript:OnStart()
 
     Entity.set_entity_pos(Player, PlayerStartPosX, PlayerStartPosY)  
 	
-    local PlayerSprite = Entity.add_sprite_component(Player, assets.textures.FlappyBird, 32, 32, 10)
+    local PlayerSprite = Entity.add_sprite_component(Player, assets.textures.NEWcrosshair, 25, 23, 1)
     Sprite.set_columns(PlayerSprite,1)
     -- PLAYER 1 PHYSICS
     Entity.add_fysics_component(Player, 2, false) -- dynamic body
