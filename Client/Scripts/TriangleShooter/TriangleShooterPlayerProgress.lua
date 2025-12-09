@@ -2,13 +2,13 @@ local TriangleShooterPlayerProgress = {}
 
 local playerLevel = 1
 local xp = 0
-local xpToNextLevel = 120
+local xpToNextLevel = 100
 local currentShootAbility = "basic"
-local currentFireIntervalSeconds = 0.2
+local currentFireIntervalSeconds = 0.25
 
 local function GetXpForNextLevel(level)
     local n = level - 1
-    return math.floor(120 + 120 * n + 20 * n * math.max(n - 1, 0))
+    return math.floor(100 + 60 * n + 20 * n * math.max(n - 1, 0))
 end
 
 local function OnLevelUp()
@@ -17,25 +17,25 @@ local function OnLevelUp()
 
     if playerLevel == 2 then
         currentShootAbility = "dual"
-        currentFireIntervalSeconds = 0.2
+        currentFireIntervalSeconds = 0.25
     elseif playerLevel == 3 then
         currentShootAbility = "dual"
-        currentFireIntervalSeconds = 0.1
+        currentFireIntervalSeconds = 0.15
     elseif playerLevel == 4 then
         currentShootAbility = "triple"
-        currentFireIntervalSeconds = 0.1
+        currentFireIntervalSeconds = 0.15
     elseif playerLevel == 5 then
         currentShootAbility = "triple"
-        currentFireIntervalSeconds = 0.05
+        currentFireIntervalSeconds = 0.075
     elseif playerLevel == 6 then
         currentShootAbility = "wide"
-        currentFireIntervalSeconds = 0.05
+        currentFireIntervalSeconds = 0.075
     elseif playerLevel == 7 then
         currentShootAbility = "wide"
-        currentFireIntervalSeconds = 0.01
+        currentFireIntervalSeconds = 0.025
     end
 
-    local minInterval = 0.15
+    local minInterval = 0.0015
     currentFireIntervalSeconds = math.max(minInterval, currentFireIntervalSeconds)
 end
 
