@@ -3,7 +3,9 @@
 #include <string>
 
 struct Textures {
+    uint32_t Allan = 212892162u;
     uint32_t Background = 2667361274u;
+    uint32_t Charlie = 1159197392u;
     uint32_t Coin = 2929616156u;
     uint32_t Cube = 2849387920u;
     uint32_t Debug = 2430642766u;
@@ -11,7 +13,12 @@ struct Textures {
     uint32_t FlappyPipe = 1290161702u;
     uint32_t FlappyPipe2 = 2484853856u;
     uint32_t Ghast_Tear = 3650266058u;
+    uint32_t Glep = 3501606462u;
+    uint32_t Laser = 972663398u;
+    uint32_t OutsideSmilingOffice = 3602223054u;
+    uint32_t Pim = 3316777482u;
     uint32_t PimBall = 3518613816u;
+    uint32_t Platform = 4171711112u;
     uint32_t Sand = 2995081222u;
     uint32_t Test = 510180426u;
     uint32_t Triangle = 801038052u;
@@ -23,7 +30,9 @@ struct Textures {
 
     inline std::map<std::string, std::string> GetTextures() {
         std::map<std::string, std::string> map;
+        map["Allan"] = "./Assets/Allan.png";
         map["Background"] = "./Assets/Background.png";
+        map["Charlie"] = "./Assets/Charlie.png";
         map["Coin"] = "./Assets/Coin.png";
         map["Cube"] = "./Assets/Cube.jpg";
         map["Debug"] = "./Assets/Debug.png";
@@ -31,7 +40,12 @@ struct Textures {
         map["FlappyPipe"] = "./Assets/FlappyPipe.png";
         map["FlappyPipe2"] = "./Assets/FlappyPipe2.png";
         map["Ghast_Tear"] = "./Assets/Ghast_Tear.png";
+        map["Glep"] = "./Assets/Glep.png";
+        map["Laser"] = "./Assets/Laser.png";
+        map["OutsideSmilingOffice"] = "./Assets/OutsideSmilingOffice.png";
+        map["Pim"] = "./Assets/Pim.png";
         map["PimBall"] = "./Assets/PimBall.png";
+        map["Platform"] = "./Assets/Platform.png";
         map["Sand"] = "./Assets/Sand.png";
         map["Test"] = "./Assets/Test.png";
         map["Triangle"] = "./Assets/Triangle.png";

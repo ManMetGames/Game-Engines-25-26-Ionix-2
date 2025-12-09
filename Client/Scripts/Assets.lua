@@ -1,6 +1,8 @@
 return {
     textures = {
+        Allan = 212892162,
         Background = 2667361274,
+        Charlie = 1159197392,
         Coin = 2929616156,
         Cube = 2849387920,
         Debug = 2430642766,
@@ -8,7 +10,12 @@ return {
         FlappyPipe = 1290161702,
         FlappyPipe2 = 2484853856,
         Ghast_Tear = 3650266058,
+        Glep = 3501606462,
+        Laser = 972663398,
+        OutsideSmilingOffice = 3602223054,
+        Pim = 3316777482,
         PimBall = 3518613816,
+        Platform = 4171711112,
         Sand = 2995081222,
         Test = 510180426,
         Triangle = 801038052,
