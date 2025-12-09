@@ -35,6 +35,7 @@ project "Engine"
         "dependencies/bin/lua/include",
         "dependencies/bin/ImGui",
         "dependencies/bin/box2d/include/box2d",
+        "dependencies/bin/firebase_cpp_sdk/include",
 		"dependencies/bin/sol2/include"
     }
 
