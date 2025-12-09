@@ -66,7 +66,7 @@ local playerHealth = 100
 
 -- PLAYER FLASH EFFECT
 local playerFlashTimer = 0
-local playerFlashDuration = 0.005  -- seconds
+local playerFlashDuration = 0.2  -- seconds
 
 -- DAMAGE COOLDOWN
 local damageCooldown = 0
@@ -196,6 +196,9 @@ local enemyBaseImageSize = enemySize
 local globalFrame = 0
 local peaceTimerSeconds = 0
 local peaceDurationSeconds = 4
+
+-- SFX
+local playerDamageSfxEntity
 
 -- LEVEL SETTINGS
 local currentLevel = 1
@@ -343,6 +346,11 @@ function TriangleShooter:OnStart()
     Entity.add_audio_component(musicEntity, "technoSong", false)
     AudioComponent.play(musicEntity, 0, -1)
     AudioComponent.change_volume(musicEntity, musicVolume)
+
+    playerDamageSfxEntity = Entity.create_entity()
+    Entity.add_audio_component(playerDamageSfxEntity, "playerDamage", false)
+    -- Set player damage SFX volume to half (range is 0-128)
+    AudioComponent.change_volume(playerDamageSfxEntity, 64)
 end
 
 ----------------------------------------------------------
@@ -791,6 +799,9 @@ function UpdateEnemyCollision()
             playerHealth = playerHealth - 10
             FlashPlayer()
             damageCooldown = damageCooldownDuration
+            if playerDamageSfxEntity then
+                AudioComponent.play(playerDamageSfxEntity)
+            end
             break
         end
     end
