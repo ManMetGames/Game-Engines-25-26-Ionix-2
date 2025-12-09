@@ -1,12 +1,13 @@
 local ExampleScript = {}
 local assets = require("Scripts.Assets")
 local enums = require("Scripts.Enums")
+local Hitbox = require("Scripts.Hitbox")
 local Background
 local player1
 local player2
 
 --PLayer Properties
-local playeHealth = 20
+local playerHealth = 20
 local playerSizeX = 32
 local playerSizeY = 32
 local playerSpeed = 2.5
@@ -108,7 +109,8 @@ function ExampleScript:OnUpdate()
     local vel2 = Fysics.get_linear_velocity(player2)
     local vx2 = Mafs.get_vec_x(vel2)
     local vy2 = Mafs.get_vec_y(vel2)
-
+    
+    -- Jumping
 	if Input.get_button_down(0, Buttons.ionix_a) then
         jumpCount1 = jumpCount1 + 1
         Fysics.add_force_to_center(player1, 0, -30 / jumpCount1)
@@ -122,6 +124,7 @@ function ExampleScript:OnUpdate()
         Entity.destroy_entity(coin)
     end
 
+    --Movement 
     if Input.get_left_stick_x(0) then
         vx1 = playerSpeed * Input.get_left_stick_x(0)
     else
@@ -150,14 +153,6 @@ end
             end
     end
 
-    --Collision between players 
-   function ExampleScript:OnHitCollision()
-       -- Get distance between player and other player 
-       -- make hit radius 
-       -- if hit radius equals distance of collisionradius 
-       -- knockback player 
-       -- playerHealth - playerHealth - 2
-   end 
     
 
     function ExampleScript:OnTriggerEnter()
