@@ -216,6 +216,17 @@ namespace IonixEngine
 			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddPolygon(entity, tileSize, terrainPositions);
 		};
 
+		auto addEdgeCollider = [](Entity* entity, bool isTrigger) {
+
+			float width = entity->GetComponent<SpriteComponent>()->getWidth() / 100;
+			b2Vec2 p1 = b2Vec2(0, 0);
+			b2Vec2 p2 = b2Vec2(p1.x + width, p1.y);
+			b2Vec2 b0 = b2Vec2(p1.x - 10, p1.y);
+			b2Vec2 b3 = b2Vec2(p1.x + 10, p1.x);
+
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddEdgeCollider(entity, p1, p2, b0, b3, isTrigger);
+		};
+
 		/*auto getColliderWidth = [](Entity* entity) -> float {
 			return Application::Get().layerFysics->GetFysicsManager()->GetShapes()->GetWidth();
 			};*/
@@ -494,6 +505,7 @@ namespace IonixEngine
 		lua["Fysics"] = lua.create_table_with(
 			"add_box_collider",	addBoxCollider,
 			"add_box_collider_v", addBoxColliderv,
+			"add_edge_collider", addEdgeCollider,
 			"add_polygon_collider",addPolygonCollider,
 			"add_circle_collider", addCircleCollider,
 			"get_pos", getFysicsPos,
