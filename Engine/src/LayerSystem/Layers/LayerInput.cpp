@@ -47,6 +47,8 @@ namespace IonixEngine
             OnControllerTrigger(controllerTrigger);
             break;
         }
+        default:
+            break;
         }
 
     }
@@ -77,6 +79,8 @@ namespace IonixEngine
 
         if (controllerManager != nullptr)
             return controllerManager->IsButtonDown(instanceId, button);
+
+        return false;
     }
 
     bool LayerInput::IsControllerButtonUp(int instanceId, Uint8 button)
@@ -85,6 +89,8 @@ namespace IonixEngine
 
         if (controllerManager != nullptr)
             return controllerManager->IsButtonUp(instanceId, button);
+
+        return false;
     }
 
     bool LayerInput::IsControllerButtonHeld(int instanceId, Uint8 button)
@@ -93,6 +99,8 @@ namespace IonixEngine
 
         if (controllerManager != nullptr)
             return controllerManager->IsButtonHeld(instanceId, button);
+
+        return 0.0f;
     }
 
     float LayerInput::GetControllerAxis(int instanceId, SDL_GameControllerAxis axis)
@@ -101,6 +109,8 @@ namespace IonixEngine
         
         if (controllerManager != nullptr)
             return controllerManager->GetStickAxis(axis);
+
+        return 0.0f;
     }
 
     float LayerInput::GetControllerPressure(int instanceId, SDL_GameControllerAxis trigger)
@@ -109,6 +119,8 @@ namespace IonixEngine
 
         if (controllerManager != nullptr)
             return controllerManager->GetTriggerPressure(trigger);
+
+        return 0.0f;
     }
 
 }

@@ -29,7 +29,6 @@ namespace IonixEngine {
         auto toggle_mute = [](Entity* e) { if (auto* p = e ? e->GetComponent<AudioPlayer>() : nullptr) p->ToggleMute(); };
         auto get_volume = [](Entity* e)->float { if (auto* p = e ? e->GetComponent<AudioPlayer>() : nullptr) return p->volume; return 0.f; };
         auto get_mute = [](Entity* e)->bool { if (auto* p = e ? e->GetComponent<AudioPlayer>() : nullptr) return p->mute; return false; };
-        auto get_clip = [](Entity* e)->std::string { if (auto* p = e ? e->GetComponent<AudioPlayer>() : nullptr) return p->clip; return {}; };
         auto get_awake = [](Entity* e)->bool { if (auto* p = e ? e->GetComponent<AudioPlayer>() : nullptr) return p->playOnAwake; return false; };
 
         lua["AudioComponent"] = lua.create_table_with(
@@ -43,7 +42,6 @@ namespace IonixEngine {
             "toggle_mute", toggle_mute,
             "get_volume", get_volume,
             "get_mute", get_mute,
-            "get_clip", get_clip,
             "get_play_on_awake", get_awake
         );
     }

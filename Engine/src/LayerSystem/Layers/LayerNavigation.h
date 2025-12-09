@@ -2,6 +2,7 @@
 #include "Fysics/NavMef.h"
 #include "Fysics/NavAgent.h"
 #include "LayerSystem/Layer.h"
+#include <memory>
 #include <vector>
 
 namespace IonixEngine

@@ -1,3 +1,4 @@
+#include <cctype>
 #include <cstdint>
 #include <filesystem>
 #include <fstream>
@@ -151,22 +152,23 @@ std::string get_lua_table(std::map<std::string, std::string>& textures, std::map
 
 void add_entry(std::map<std::string, std::string>& map, const std::filesystem::path& path) {
     std::string entry = path.stem().string();
+    if (isdigit(entry[0])) { entry = "_" + entry; }
     replace_all(entry, "-", "_");
     replace_all(entry, " ", "_");
     replace_all(entry, ",", "_");
+    replace_all(entry, "(", "_");
+    replace_all(entry, ")", "_");
 
     std::string filepath = path.string();
     replace_all(filepath, "\\", "/");
 
     if (map.find(entry) != map.end()) {
         int i = 0;
-        std::string new_entry = entry + std::to_string(i);
-        while (map.find(new_entry) != map.end()) {
+        while (map.find(entry) != map.end()) {
             i++;
-            new_entry.pop_back();
-            new_entry.push_back(i);
+            entry += std::string("_") + std::to_string(i);
         }
-        map[new_entry] = filepath;
+        map[entry] = filepath;
     } else {
         map[entry] = filepath;
     }

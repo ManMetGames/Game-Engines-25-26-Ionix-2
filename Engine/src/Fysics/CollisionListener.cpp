@@ -76,6 +76,7 @@ namespace IonixEngine
                 return false;
             }
         }
+        return false;
     }
 
     void CollisionListener::AddEntityBodiesToDestroy(b2Body* entityToDestroy)

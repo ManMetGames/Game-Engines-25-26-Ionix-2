@@ -1,4 +1,6 @@
 #include "AudioPlayer.h"
+#include "Architecture/AudioSystem/SoundManager.h"
+#include <cstdint>
 
 namespace IonixEngine {
 
@@ -7,14 +9,21 @@ AudioPlayer::AudioPlayer(Entity* entity, const std::string& audioClip, bool shou
 {
     if (!audioClip.empty())
     {
-        clip = audioClip;
+        hash = SoundManager::HashFromPath(audioClip);
     }
+    playOnAwake = shouldPlayOnAwake;
+}
+
+AudioPlayer::AudioPlayer(Entity* entity, uint32_t soundHash, bool shouldPlayOnAwake) 
+    : Component(entity, false, false, false)  // no physics, no render, not a tag
+{
+    hash = soundHash;
     playOnAwake = shouldPlayOnAwake;
 }
 
 void AudioPlayer::Start()
 {
-    if (playOnAwake && !clip.empty())
+    if (playOnAwake && hash != uint32_t(-1))
     {
         Play();
     }

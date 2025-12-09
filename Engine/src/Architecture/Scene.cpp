@@ -1,6 +1,5 @@
 #include "Scene.h"
 #include "Architecture/Application.h"
-#include "Architecture/ECS/ECS_Test.hpp"
 #include "SDL_log.h"
 #include <cstdio>
 
@@ -82,6 +81,10 @@ namespace IonixEngine {
         m_Entities.push_back(Entity{ entityId , renderLayer});
         m_IdToIndex[entityId] = index;
         return entityId;
+    }
+
+    Entity* Scene::CreateAndGetEntity(int renderLayer) {
+        return GetEntityFromID(CreateEntity(renderLayer));
     }
 
     bool Scene::DestroyEntity(EntityID entityId) {

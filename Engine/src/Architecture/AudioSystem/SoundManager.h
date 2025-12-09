@@ -1,11 +1,14 @@
 #pragma once
 #include <cstdint>
+#include <filesystem>
 #include <unordered_map>
 #include <string>
 #include <memory>
 #include <SDL.h>
 #include "AudioData.h"
+#include "Architecture/SHA256.hpp"
 
+#include "Architecture/StringUtils.hpp"
 namespace IonixEngine
 {
     class SoundManager 
@@ -24,6 +27,22 @@ namespace IonixEngine
         void SetVolume(uint32_t hash, float volume); // 0.0f to 1.0f
         float GetPlayTime(const std::string& alias);
         float GetPlayTime(uint32_t hash);
+
+        static uint32_t HashFromPath(const std::string& str) {
+            uint32_t hash = uint32_t(-1);
+
+            std::string base = std::filesystem::path(str).stem().string();
+
+            if (isdigit(base[0])) { base = "_" + base; }
+
+            ReplaceAll(base, "-", "_");
+            ReplaceAll(base, " ", "_");
+            ReplaceAll(base, ",", "_");
+
+            hash = Get32BitHash(base);
+
+            return hash;
+        }
 
     private:
         SoundManager() = default;

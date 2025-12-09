@@ -4,6 +4,7 @@
 #include "../SDL/SDL2_mixer-2.8.0/include/SDL_mixer.h"
 #include "Architecture/AudioSystem/SoundManager.h"
 #include "Architecture/ECS/Component.hpp"
+#include <cstdint>
 #include <iostream>
 #include <string>
 
@@ -15,11 +16,12 @@ namespace IonixEngine
         // Per-instance properties (more should be added, leaving it to the audio team members)
         float volume = 128.0f;
         bool mute = false;
-        std::string clip = "";
+        uint32_t hash;
         bool playOnAwake = false;
 
         // Constructor
         AudioPlayer(Entity* entity, const std::string& audioClip = "", bool playOnAwake = false);
+        AudioPlayer(Entity* entity, uint32_t soundHash, bool shouldPlayOnAwake);
 
         // Component lifecycle overrides
         void Start() override;
@@ -28,16 +30,16 @@ namespace IonixEngine
 
         void Play(int fadeMilliseconds = 0, int numOfLoops = 0)
         {
-            if (clip.empty())
+            if (hash == uint32_t(-1))
             {
                 SDL_Log("[AudioPlayer] Cannot play: no clip assigned");
                 return;
             }
 
-            Mix_Chunk* chunk = SoundManager::GetInstance().GetAudio(clip);
+            Mix_Chunk* chunk = SoundManager::GetInstance().GetAudio(hash);
             if (chunk == nullptr)
             {
-                SDL_Log("[AudioPlayer] Failed to play sound: %s not found", clip.c_str());
+                SDL_Log("[AudioPlayer] Failed to play sound: %u not found", hash);
                 return;
             }
 

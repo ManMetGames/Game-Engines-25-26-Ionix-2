@@ -29,7 +29,7 @@ namespace IonixEngine
 		SDL_Color GetColor() const { return currentColor; }
 		void MoveCamera(float deltaX, float deltaY, bool moveCamDelta = true);
 		void SwitchCamera();
-		void SetZoom(SDL_Renderer* renderer, int zoom);
+		void SetZoom(SDL_Renderer* renderer, float zoom);
 		void ClearBackground(SDL_Renderer* renderer);
 		void SetBackgroundColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 

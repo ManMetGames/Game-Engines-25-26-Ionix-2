@@ -4,7 +4,6 @@
 #include "Architecture/Assets.hpp"
 #include "Architecture/SHA256.hpp"
 #include <cstdint>
-#include <iostream>
 #include <string>
 
 namespace IonixEngine {

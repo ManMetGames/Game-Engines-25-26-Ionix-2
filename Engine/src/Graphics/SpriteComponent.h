@@ -2,7 +2,7 @@
 #include "Architecture/ECS/Entity.hpp"
 #include "Architecture/ECS/Component.hpp"
 #include "SDL.h"
-#include "Architecture/TextureManager/TextureManager.h"
+#include <Architecture/TextureManager/TextureManager.h>
 #include <iostream>
 #include <box2d.h>
 

@@ -1,4 +1,3 @@
-#pragma once
 #include "Joints.h"
 #include "Architecture/Application.h"
 #include "FysicsManager.h"

@@ -36,6 +36,7 @@ namespace IonixEngine
         inline std::size_t Count() const { return m_Entities.size(); }
         
         Entity* GetEntityFromID(EntityID id);
+        Entity* CreateAndGetEntity(int renderLayer);
 
         std::vector<Entity>& GetEntities() { return m_Entities; }
 
