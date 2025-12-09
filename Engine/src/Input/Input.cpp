@@ -59,15 +59,6 @@ namespace IonixEngine
         currentMouse.erase(code);
     }
 
-    //Micrphone 
-    
-
-    // bool Input::IsAudioRecording() const
-    // void Input::SetRecordingAudioStart() const
-    // void Input::SetRecordingAudioStop() const
-
-   
-
     //Frame management
     void Input::CopyCodesEndFrame()
     {

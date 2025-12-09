@@ -23,7 +23,7 @@ namespace IonixEngine
             ERROR
         };
 
-        void MicrophoneRecordingStates(recordingState state); // <- don't move this!!! stuff in .cpp breaks if so (c++ logic moment)
+        void MicrophoneRecordingStates(recordingState state);
 
     private:
         SDL_AudioSpec desired{};

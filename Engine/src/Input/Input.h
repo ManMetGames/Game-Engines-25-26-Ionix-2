@@ -37,13 +37,6 @@ namespace IonixEngine
         //Update state
         void CopyCodesEndFrame();
 
-        //Microphone
-
-        // bool IsAudioRecording();
-        // void SetRecordingAudioStart();  -- Potentially Push to Talk?
-        // void SetRecordingAudioStop();
-
-
     private:
         //Keyboard
         std::unordered_set<SDL_Scancode> currentKeys;
@@ -56,9 +49,9 @@ namespace IonixEngine
         //Microphone
 
         const int maxRecordingDevices = 10;
-        const int currentRecDevicesNumber; // <- i don't know if this is needed, but made it encase
+        const int currentRecDevicesNumber; 
         const int maxRecordingSeconds = 30;
-        const int recordingBufferSeconds = maxRecordingSeconds + 1; // <- ensures all audio is captured by going over a second
+        const int recordingBufferSeconds = maxRecordingSeconds + 1;
 
     };
 }
