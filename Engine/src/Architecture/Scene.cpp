@@ -16,7 +16,7 @@ namespace IonixEngine {
         //Entity* firstEntity = GetEntityFromID(first);
         //if (!firstEntity)
         //{
-        //    SDL_Log("[DEBUG TEST] First entity failed, returning...");
+        //   SDL_Log("[DEBUG TEST] First entity failed, returning...");
         //    return;
         //}
         //firstEntity->transform.SetLocalPosition(Vec2 { 500, 300 });
@@ -76,10 +76,10 @@ namespace IonixEngine {
         m_IdToIndex.reserve(count * 2);
     }
 
-    EntityID Scene::CreateEntity() {
+    EntityID Scene::CreateEntity(int renderLayer) {
         const EntityID entityId = m_NextId++;
         const std::size_t index = m_Entities.size();
-        m_Entities.push_back(Entity{ entityId });
+        m_Entities.push_back(Entity{ entityId , renderLayer});
         m_IdToIndex[entityId] = index;
         return entityId;
     }

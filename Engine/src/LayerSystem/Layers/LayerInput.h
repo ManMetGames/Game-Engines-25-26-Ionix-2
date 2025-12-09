@@ -1,12 +1,13 @@
 #pragma once
 #include "LayerSystem/Layer.h"
 #include "Input/Input.h"
-#include "Input/ControllerManager.h"
-
+#include <unordered_map>
 
 
 namespace IonixEngine
 {
+    class ControllerManager;
+
     class LayerInput : public Layer
     {
     public:
@@ -16,12 +17,22 @@ namespace IonixEngine
         virtual void OnDetach() override;
         virtual void OnUpdate() override;
         virtual void OnEvent(IonixEvent& e) override;
+
+        bool IsControllerButtonDown(int instanceId, Uint8 button);
+        bool IsControllerButtonUp(int instanceId, Uint8 button);
+        bool IsControllerButtonHeld(int instanceId, Uint8 button);
+        float GetControllerAxis(int instanceId, SDL_GameControllerAxis axis);
+        float GetControllerPressure(int instanceID, SDL_GameControllerAxis trigger);
+
         Input* m_Input;  
-        ControllerManager* m_ControllerManager;
     
+        std::unordered_map<int, ControllerManager*>& GetControllerManager() { return controllerManagers; }
 
     private:
-        void OnWindowClosedEvent(WindowClosedEvent& e);
-        
+        void OnControllerButtonDown(ControllerButtonDownEvent& e);
+        void OnControllerButtonUp(ControllerButtonUpEvent& e);
+        void OnControllerAxis(ControllerAxisEvent& e);
+        void OnControllerTrigger(ControllerTriggerEvent& e);
+        std::unordered_map<int, ControllerManager*> controllerManagers;
     };
 }

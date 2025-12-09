@@ -49,7 +49,12 @@ namespace IonixEngine {
         auto getKeyHeld = [](int code) -> bool {
             return Application::Get().layerInput->m_Input->IsKeyHeld(static_cast<SDL_Scancode>(code));
             };
-
+        auto getScrollDiff = []() ->float {
+            return Application::Get().layerInput->m_Input->GetScrollDiff();
+            };
+        auto setScrollDiff = [](float diff) {
+            Application::Get().layerInput->m_Input->SetScrollDiff(diff);
+            };
         auto getMouseX = []() -> int {
             return Application::Get().layerInput->m_Input->GetMousePosition().x;
             };
@@ -63,27 +68,48 @@ namespace IonixEngine {
             return Application::Get().layerInput->m_Input->IsMouseButtonUp(static_cast<uint8>(mousecode));
             };
 
+        auto showCursor = [](bool show) {
+            SDL_ShowCursor(show ? SDL_ENABLE : SDL_DISABLE);
+            };
+        auto setRelativeMouseMode = [](bool enabled) {
+            SDL_SetRelativeMouseMode(enabled ? SDL_TRUE : SDL_FALSE);
+            };
+        auto getMouseDelta = [](sol::this_state L) -> sol::object {
+            int x, y;
+            SDL_GetRelativeMouseState(&x, &y);
+            sol::state_view lua(L);
+            sol::table result = lua.create_table();
+            result["x"] = x;
+            result["y"] = y;
+            return result;
+            };
+
         auto getButtonDown = [this](int index, int btn) -> bool {
-            if (index < 0 || index >= (int)m_Controllers.size() || !m_Controllers[index])
-                return false;
-            return SDL_GameControllerGetButton(
-                m_Controllers[index], static_cast<SDL_GameControllerButton>(btn)
-            );
+            return Application::Get().layerInput->IsControllerButtonDown(index, static_cast<Uint8>(btn));
             };
 
-        auto getStickAxis = [this](int index, SDL_GameControllerAxis axis, float divisor) -> float {
-            if (index < 0 || index >= (int)m_Controllers.size() || !m_Controllers[index])
-                return 0.0f;
-            float val = static_cast<float>(SDL_GameControllerGetAxis(m_Controllers[index], axis)) / divisor;
-            return std::round(val * 100.0f) / 100.0f;
+        auto getButtonUp = [this](int index, int btn) -> bool {
+            return Application::Get().layerInput->IsControllerButtonUp(index, static_cast<Uint8>(btn));
             };
 
-        auto getLeftStickX = [=](int index) { return getStickAxis(index, SDL_CONTROLLER_AXIS_LEFTX, 32768.0f); };
-        auto getLeftStickY = [=](int index) { return getStickAxis(index, SDL_CONTROLLER_AXIS_LEFTY, 32768.0f); };
-        auto getRightStickX = [=](int index) { return getStickAxis(index, SDL_CONTROLLER_AXIS_RIGHTX, 32768.0f); };
-        auto getRightStickY = [=](int index) { return getStickAxis(index, SDL_CONTROLLER_AXIS_RIGHTY, 32768.0f); };
-        auto getLeftTrigger = [=](int index) { return getStickAxis(index, SDL_CONTROLLER_AXIS_TRIGGERLEFT, 32767.0f); };
-        auto getRightTrigger = [=](int index) { return getStickAxis(index, SDL_CONTROLLER_AXIS_TRIGGERRIGHT, 32767.0f); };
+        auto getButtonHeld = [this](int index, int btn) -> bool {
+            return Application::Get().layerInput->IsControllerButtonHeld(index, static_cast<Uint8>(btn));
+            };
+
+        auto getStickAxis = [this](int index, SDL_GameControllerAxis axis) -> float {
+            return Application::Get().layerInput->GetControllerAxis(index, axis);
+            };
+
+        auto getTriggerPressure = [this](int index, SDL_GameControllerAxis trigger) -> float {
+            return Application::Get().layerInput->GetControllerPressure(index, trigger);
+            };
+
+        auto getLeftStickX = [=](int index) { return getStickAxis(index, SDL_CONTROLLER_AXIS_LEFTX); };
+        auto getLeftStickY = [=](int index) { return getStickAxis(index, SDL_CONTROLLER_AXIS_LEFTY); };
+        auto getRightStickX = [=](int index) { return getStickAxis(index, SDL_CONTROLLER_AXIS_RIGHTX); };
+        auto getRightStickY = [=](int index) { return getStickAxis(index, SDL_CONTROLLER_AXIS_RIGHTY); };
+        auto getLeftTrigger = [=](int index) { return getTriggerPressure(index, SDL_CONTROLLER_AXIS_TRIGGERLEFT); };
+        auto getRightTrigger = [=](int index) { return getTriggerPressure(index, SDL_CONTROLLER_AXIS_TRIGGERRIGHT); };
 
         lua["Keys"] = lua.create_table_with(
             "ionix_a", SDL_SCANCODE_A,
@@ -157,7 +183,9 @@ namespace IonixEngine {
             "ionix_left_shoulder", SDL_CONTROLLER_BUTTON_LEFTSHOULDER,
             "ionix_right_shoulder", SDL_CONTROLLER_BUTTON_RIGHTSHOULDER,
             "ionix_left_stick", SDL_CONTROLLER_BUTTON_LEFTSTICK,
-            "ionix_right_stick", SDL_CONTROLLER_BUTTON_RIGHTSTICK
+            "ionix_right_stick", SDL_CONTROLLER_BUTTON_RIGHTSTICK,
+            "ionix_right_trigger", SDL_CONTROLLER_AXIS_TRIGGERRIGHT,
+            "ionix_left_trigger", SDL_CONTROLLER_AXIS_TRIGGERLEFT
         );
 
         lua["Input"] = lua.create_table_with(
@@ -169,8 +197,14 @@ namespace IonixEngine {
             "get_mouse_y", getMouseY,
             "get_mouse_button_down", getMouseButtonDown,
             "get_mouse_button_up", getMouseButtonUp,
-
+            "show_cursor", showCursor,
+            "get_scroll_diff",getScrollDiff,
+            "set_scroll_diff", setScrollDiff,
+            "set_relative_mouse_mode", setRelativeMouseMode,
+            "get_mouse_delta", getMouseDelta,
             "get_button_down", getButtonDown,
+            "get_button_up", getButtonUp,
+            "get_button_held", getButtonHeld,
             "get_left_stick_x", getLeftStickX,
             "get_left_stick_y", getLeftStickY,
             "get_right_stick_x", getRightStickX,
