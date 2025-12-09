@@ -12,9 +12,6 @@ local playerSizeX = 32
 local playerSizeY = 32
 local playerSpeed = 2.5
 
---Hit boxs 
-local hitboxes = {}
-
 
 local x = 300
 local jumpCount1 = 0
@@ -131,7 +128,8 @@ function ExampleScript:OnUpdate()
             
             Hitbox.spawn(player1, px + 40, py, 20, 20, 0.5, assets, enums)
         end
-      --  Hitbox.update()
+    Hitbox.update()
+    
     
     if Input.get_key_down(Keys.ionix_m) then
         Entity.destroy_entity(coin)
@@ -152,6 +150,7 @@ function ExampleScript:OnUpdate()
 
     Fysics.set_linear_velocity(player1, vx1, vy1)
     Fysics.set_linear_velocity(player2, vx2, vy2)
+    
      
 end
 

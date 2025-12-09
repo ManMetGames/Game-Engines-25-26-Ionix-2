@@ -26,4 +26,17 @@ function Hitbox.spawn(owner, x, y, width, height, duration, assets, enums)
     return hitbox
 end
 
+function Hitbox.update()
+    for i = #hitboxes, 1, -1 do
+        local hb = hitboxes[i]
+        if hb.timer then
+            hb.timer = hb.timer - Mafs.delta_time()
+            if hb.timer <= 0 then
+                Entity.destroy_entity(hb)
+                table.remove(hitboxes, i)
+            end
+        end
+    end
+end
+
 return Hitbox
