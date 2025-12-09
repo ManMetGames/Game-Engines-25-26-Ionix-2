@@ -39,7 +39,8 @@ namespace IonixEngine {
         AudioScripting::Get().Init(m_LuaState);
         GraphicsScripting::Get().Init(m_LuaState);
         EntityScripting::Get().Init(m_LuaState);
-        UIScripting::Get().Init(m_LuaState);       
+        UIScripting::Get().Init(m_LuaState); 
+        JsonScripting::Get().Init(m_LuaState);
     }
 
     void Scripting::ExecuteScript(const std::string& scriptName) {
