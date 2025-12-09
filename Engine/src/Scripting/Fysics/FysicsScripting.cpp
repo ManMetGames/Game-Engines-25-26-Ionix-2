@@ -227,7 +227,7 @@ namespace IonixEngine
 			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddEdgeCollider(entity, p1, p2, b0, b3, isTrigger);
 		};
 
-		/*auto getColliderWidth = [](Entity* entity) -> float {
+		auto getColliderWidth = [](Entity* entity) -> float {
 			return Application::Get().layerFysics->GetFysicsManager()->GetShapes()->GetWidth();
 			};
 
