@@ -30,6 +30,7 @@ local windowSize
 ----------------------------------------------------------
 function ExampleScript:OnStart()
 
+    local pie = Mafs.pi()
     windowSize = Window.get_height()
     print(windowSize)    
     ------------------------------------------------------
@@ -54,7 +55,7 @@ function ExampleScript:OnStart()
     Sprite.set_playback_mode(playerSprite1, 4)
     -- PLAYER 1 PHYSICS
 
-    Entity.add_fysics_component(player1, enums.bodytype.dynamicBody, true) -- dynamic body
+    Entity.add_fysics_component(player1, enums.bodytype.dynamicBody, false) -- dynamic body, last value is rotation lock
     --Fysics.add_sprite_collider(player1, false)
     Fysics.add_sprite_collider(player1,false,1)
     -- Freeze bird
@@ -128,18 +129,26 @@ function ExampleScript:OnUpdate()
     
     --if Input.get_key_down(Kyes.ionix_d) then Fysics.set_linear_velocity(player1, 20, 0) end
 
-	if Input.get_key_down(Keys.ionix_w) then
-        -- Bird move if space is pressed (allow gravity)
-        --Fysics.set_gravity_scale(player1, 1)
-        --Fysics.set_linear_velocity(pipe, pipeSpeed, 0)
-        --Fysics.set_linear_velocity(pipeT, pipeSpeed, 0)
-        -- Set velocity directly to cancel out falling momentum
-        vy1 = -1  -- Jump velocity for player1
+	if Input.get_key_down(Keys.ionix_w) then -- move up
+        vy1 = -1  
         vx = 0
+        Fysics.set_angle(player1, 270 * (Mafs.pi() / 180))
 	end
-    if Input.get_key_down(Keys.ionix_s) then vy1 = 1 vx = 0 end
-        if Input.get_key_down(Keys.ionix_a) then vx = -1 vy1 = 0 end
-            if Input.get_key_down(Keys.ionix_d) then vx = 1 vy1 = 0 end
+    if Input.get_key_down(Keys.ionix_s) then -- move down
+         vy1 = 1
+          vx = 0
+        Fysics.set_angle(player1, 90 * (Mafs.pi() / 180))
+    end
+    if Input.get_key_down(Keys.ionix_a) then -- move left
+        vx = -1
+        vy1 = 0
+        Fysics.set_angle(player1, Mafs.pi())
+    end
+    if Input.get_key_down(Keys.ionix_d) then -- move right
+        vx = 1
+        vy1 = 0
+        Fysics.set_angle(player1, 0)
+    end
 
 
     Fysics.set_linear_velocity(player1, vx, vy1)
