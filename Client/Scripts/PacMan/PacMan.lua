@@ -44,8 +44,12 @@ function ExampleScript:OnStart()
     -- Create player1
     ------------------------------------------------------
     player1 = Entity.create_entity()
+    collider = Entity.create_entity()
 
-    Entity.set_global_pos(player1, x, 300)
+    Entity.set_global_pos(player1, x, y)
+    Entity.set_global_pos(collider, x, 300)
+
+
 	
     local playerSprite1 = Entity.add_sprite_component(player1, assets.textures.PacMan, 32, 32, 10) --Pac man sprite render + animation
     Sprite.set_columns(playerSprite1, 2)
@@ -55,7 +59,9 @@ function ExampleScript:OnStart()
     Sprite.set_playback_mode(playerSprite1, 4)
     -- PLAYER 1 PHYSICS
 
-    Entity.add_fysics_component(player1, enums.bodytype.dynamicBody, false) -- dynamic body, last value is rotation lock
+    Entity.add_fysics_component(player1, enums.bodytype.dynamicBody, true) -- dynamic body, last value is rotation lock
+    --Entity.add_fysics_component(collider, enums.bodytype.dynamicBody, true) -- dynamic body, last value is rotation lock
+
     --Fysics.add_sprite_collider(player1, false)
     Fysics.add_sprite_collider(player1,false,1)
     -- Freeze bird
