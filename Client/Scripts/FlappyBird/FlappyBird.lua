@@ -37,6 +37,52 @@ local finalScoreText = "Final Score: 0"
 local text2 = "Press SPACE to restart"
 local gameOver = false
 
+local function resetGame()
+    --Reset game state
+    gameOver = false
+    score = 0
+    scoreText = "Score: 0"
+    text1 = "Press SPACE to start!"
+    finalScoreText = "Final Score: 0"
+
+    --Reset player
+    Entity.set_global_pos(player1, x, 300)
+    Fysics.set_gravity_scale(player1, 0)
+    Fysics.set_linear_velocity(player1, 0, 0)
+
+    --Reset pipes
+    local function resetPipe(pipeEntity, xPos, yPos)
+        Entity.set_global_pos(pipeEntity, xPos, yPos)
+        Fysics.set_linear_velocity(pipeEntity, 0, 0)
+    end
+
+    resetPipe(pipe, 640, 400)
+    resetPipe(pipeT, 640, 0)
+    resetPipe(pipe2, 940, 400)
+    resetPipe(pipeT2, 940, -40)
+    resetPipe(pipe3, 1240, 360)
+    resetPipe(pipeT3, 1240, -40)
+
+    --Reset coins
+    for i, c in ipairs(coins) do
+        local startX = pipeStartX + (i - 1) * coinSpacing
+        local cy
+        if (i % 3) == 1 then cy = 240
+        elseif (i % 3) == 2 then cy = 120
+        else cy = 520 end
+
+        Entity.set_global_pos(c, startX, cy)
+        Fysics.set_linear_velocity(c, 0, 0)
+        
+        local s = Entity.get_sprite_component(c)
+        if s then
+            Sprite.set_width(s, 16)
+            Sprite.set_height(s, 16)
+        end
+        coinHidden[c] = false
+    end
+end
+
 ----------------------------------------------------------
 -- OnStart
 ----------------------------------------------------------
@@ -227,6 +273,10 @@ function ExampleScript:OnUpdate()
 
         --Display retry text
         UI.Add_label(350, 285, 1000, 1000, text2)
+
+        if gameOver and Input.get_key_down(Keys.ionix_space) then
+        resetGame()
+        end
         return
     end
 
