@@ -3,10 +3,11 @@
 #define NOMINMAX // Prevents conflicts with min/max macros
 #include <windows.h>
 
+#include <iostream>
 #include "sol/sol.hpp"
 #include "firebase/app.h"
 #include "firebase/database.h"
-#include "firebase/log.h"
+
 
 namespace IonixEngine 
 {
@@ -14,6 +15,6 @@ namespace IonixEngine
     {
     public:
         static void Init();
-        static void TestWrite();
+        static void TestWrite(int score);
     };
 }
