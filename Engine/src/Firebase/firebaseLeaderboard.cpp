@@ -7,7 +7,7 @@ namespace IonixEngine
     firebase::App* g_app = nullptr;
     firebase::database::Database* g_db = nullptr;
    
-    void Init() {
+    void FirebaseLeaderboard::Init() {
         firebase::AppOptions options;
 
         options.set_project_id("flappybird-leaderboard-2489c");
@@ -16,6 +16,22 @@ namespace IonixEngine
         options.set_database_url("https://flappybird-leaderboard-2489c-default-rtdb.firebaseio.com/");
 
         g_app = firebase::App::Create(options);
+
+        if (!g_app) {
+            std::cout << "Firebase App creation failed!\n";
+            return;
+        }
+        else {
+            std::cout << "Firebase App created!\n";
+        }
+
         g_db = firebase::database::Database::GetInstance(g_app);
+
+        if (!g_db) {
+            std::cout << "Firebase Database Init FAILED!\n";
+        }
+        else {
+            std::cout << "Firebase Database initialized successfully!\n";
+        }
     }
 }

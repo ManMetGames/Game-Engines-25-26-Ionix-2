@@ -13,7 +13,7 @@
 #include <iostream>
 #include <third-party/imgui_impl_sdlrenderer2.h>
 #include "Input/ControllerManager.h"
-#include "saveToJson.h"
+#include "Firebase/firebaseLeaderboard.h"
 
 namespace IonixEngine {
     Application* Application::s_Instance = nullptr;
@@ -30,7 +30,6 @@ namespace IonixEngine
         s_Instance = this;
         startTick = SDL_GetPerformanceCounter();
         currentTick = SDL_GetPerformanceCounter();
-
 
         //Initialise layers...
         layerEditor = new LayerEditor();
@@ -56,6 +55,8 @@ namespace IonixEngine
 
         layerScene = new LayerScene();
         AddLayer(layerScene);
+
+        FirebaseLeaderboard::Init();
 
         //layerNavigation = new LayerNavigation();  
         //AddLayer(layerNavigation);
@@ -84,8 +85,6 @@ namespace IonixEngine
             std::cerr << "Unknown exception while loading Scripts/Settings.lua"
                       << std::endl;
         }
-
-        json* myJson = new json();
     }
         
     Application::~Application() 
