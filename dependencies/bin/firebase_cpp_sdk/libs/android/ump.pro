@@ -1,0 +1,19 @@
+-ignorewarnings
+-keep,includedescriptorclasses public class com.google.android.ump.ConsentDebugSettings { *; }
+-keep,includedescriptorclasses public class com.google.android.ump.ConsentDebugSettings$Builder { *; }
+-keep,includedescriptorclasses public class com.google.android.ump.ConsentDebugSettings$DebugGeography { *; }
+-keep,includedescriptorclasses public class com.google.android.ump.ConsentForm { *; }
+-keep,includedescriptorclasses public class com.google.android.ump.ConsentForm$OnConsentFormDismissedListener { *; }
+-keep,includedescriptorclasses public class com.google.android.ump.ConsentInformation { *; }
+-keep,includedescriptorclasses public class com.google.android.ump.ConsentInformation$ConsentStatus { *; }
+-keep,includedescriptorclasses public class com.google.android.ump.ConsentInformation$OnConsentInfoUpdateFailureListener { *; }
+-keep,includedescriptorclasses public class com.google.android.ump.ConsentInformation$OnConsentInfoUpdateSuccessListener { *; }
+-keep,includedescriptorclasses public class com.google.android.ump.ConsentInformation$PrivacyOptionsRequirementStatus { *; }
+-keep,includedescriptorclasses public class com.google.android.ump.ConsentRequestParameters { *; }
+-keep,includedescriptorclasses public class com.google.android.ump.ConsentRequestParameters$Builder { *; }
+-keep,includedescriptorclasses public class com.google.android.ump.FormError { *; }
+-keep,includedescriptorclasses public class com.google.android.ump.FormError$ErrorCode { *; }
+-keep,includedescriptorclasses public class com.google.android.ump.UserMessagingPlatform { *; }
+-keep,includedescriptorclasses public class com.google.android.ump.UserMessagingPlatform$OnConsentFormLoadFailureListener { *; }
+-keep,includedescriptorclasses public class com.google.android.ump.UserMessagingPlatform$OnConsentFormLoadSuccessListener { *; }
+-keep,includedescriptorclasses public class com.google.firebase.example.LoggingUtils { * ; }
