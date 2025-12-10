@@ -41,16 +41,26 @@ namespace IonixEngine
             return;
         }
 
+        // 1. Get a reference to your leaderboard path.
+        // For example, "leaderboard/scores" or just "leaderboard".
+        // Each entry can be pushed with a unique ID to form a list.
+        // If you want to automatically generate a unique key for each entry, use PushChild().
         auto leaderboard_ref = g_db->GetReference("leaderboard").PushChild();
 
+        // 2. Create a map to hold the name and score.
+        // firebase::Variant is used to represent different data types in Firebase.
         std::map<std::string, firebase::Variant> entry_data;
-        entry_data["name"] = firebase::Variant(name);
-        entry_data["score"] = firebase::Variant(score); 
+        entry_data["name"] = firebase::Variant(name); // Convert string to Variant
+        entry_data["score"] = firebase::Variant(score); // Convert int to Variant
 
-
+        // 3. Set the map as the value for the new entry.
         firebase::Future<void> result = leaderboard_ref.SetValue(entry_data);
 
+        // 4. Wait for the operation to complete and check the result.
+        // For games, polling the status in a game loop is a common approach.
         while (result.status() == firebase::kFutureStatusPending) {
+            // In a real game, you would yield control or process other game logic here
+            // to avoid blocking the main thread.
         }
 
         if (result.error() == firebase::database::kErrorNone) {
@@ -60,4 +70,33 @@ namespace IonixEngine
             std::cout << "Leaderboard entry failed: " << result.error_message() << "\n";
         }
     }
+
+    // Example usage (you would call this from your game logic)
+    // int main() {
+    //     // Assume g_db is initialized here
+    //     WriteLeaderboardEntry("PlayerOne", 1500);
+    //     WriteLeaderboardEntry("PlayerTwo", 1200);
+    //     return 0;
+    // }
+    /*
+    void FirebaseLeaderboard::TestWrite(int score) {
+        if (!g_db) {
+            std::cout << "Database not initialized!\n";
+            return;
+        }
+
+        // Write score to path: /test_score
+        auto ref = g_db->GetReference("test_score");
+
+        firebase::Future<void> result = ref.SetValue(score);
+
+        // Simple wait loop (rookie-friendly)
+        while (result.status() == firebase::kFutureStatusPending) {}
+
+        if (result.error() == 0)
+            std::cout << "Write succeeded! Score uploaded: " << score << "\n";
+        else
+            std::cout << "Write failed: " << result.error_message() << "\n";
+    }
+    */
 }

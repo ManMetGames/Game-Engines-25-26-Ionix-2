@@ -7,7 +7,7 @@
 #include "sol/sol.hpp"
 #include "firebase/app.h"
 #include "firebase/database.h"
-
+#include "firebase/variant.h"
 
 namespace IonixEngine 
 {
@@ -15,6 +15,10 @@ namespace IonixEngine
     {
     public:
         static void Init();
-        static void TestWrite(int score);
+        static void SubmitScore(const std::string& name, int score);
+       
+
+
+        //static void TestWrite(int score);
     };
 }

@@ -57,7 +57,8 @@ namespace IonixEngine
         AddLayer(layerScene);
 
         FirebaseLeaderboard::Init();
-
+        FirebaseLeaderboard::SubmitScore("Zulfaqaar", 90);
+        //FirebaseLeaderboard::TestWrite(123);
         //layerNavigation = new LayerNavigation();  
         //AddLayer(layerNavigation);
 

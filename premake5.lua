@@ -110,6 +110,7 @@ project "Client"
         "dependencies/bin/lua/include",
         "dependencies/bin/ImGui",
         "dependencies/bin/box2d/include/box2d",
+        "dependencies/bin/firebase_cpp_sdk/include",
 		"dependencies/bin/sol2/include"
     }
 
@@ -119,7 +120,8 @@ project "Client"
         "dependencies/bin/SDL/SDL2_image/lib",
         "dependencies/bin/SDL/SDL_TTF/lib",
         "dependencies/bin/lua",
-        "dependencies/bin/box2d/lib"
+        "dependencies/bin/box2d/lib",
+        "dependencies/bin/firebase_cpp_sdk/libs/windows/VS2019/MD/x64/Release"
     }
 
     links {
@@ -128,7 +130,13 @@ project "Client"
         "SDL2_image",
         "SDL2_ttf",
         "lua54",
-        "box2d.lib"
+        "box2d.lib",
+        "firebase_app",
+        "firebase_database",
+        "ws2_32",
+        "psapi",
+        "iphlpapi",
+        "userenv"
     }
 
     postbuildcommands {
