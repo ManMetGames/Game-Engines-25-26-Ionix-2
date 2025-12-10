@@ -56,8 +56,7 @@ namespace IonixEngine
         layerScene = new LayerScene();
         AddLayer(layerScene);
 
-        //FirebaseLeaderboard::Init();
-        //FirebaseLeaderboard::TestWrite(123);
+        FirebaseLeaderboard::Init();
 
         //layerNavigation = new LayerNavigation();  
         //AddLayer(layerNavigation);
@@ -87,7 +86,7 @@ namespace IonixEngine
                       << std::endl;
         }
     }
-
+        
     Application::~Application() 
     {
         delete m_Window;

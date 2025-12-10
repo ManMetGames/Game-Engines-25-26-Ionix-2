@@ -34,24 +34,4 @@ namespace IonixEngine
             std::cout << "Firebase Database initialized successfully!\n";
         }
     }
-
-    void FirebaseLeaderboard::TestWrite(int score) {
-        if (!g_db) {
-            std::cout << "Database not initialized!\n";
-            return;
-        }
-
-        // Write score to path: /test_score
-        auto ref = g_db->GetReference("test_score");
-
-        firebase::Future<void> result = ref.SetValue(score);
-
-        // Simple wait loop
-        while (result.status() == firebase::kFutureStatusPending) {}
-
-        if (result.error() == 0)
-            std::cout << "Write succeeded! Score uploaded: " << score << "\n";
-        else
-            std::cout << "Write failed: " << result.error_message() << "\n";
-    }
 }

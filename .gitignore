@@ -55,7 +55,7 @@ Thumbs.db
 Desktop.ini
 
 # --- Project ---
-!dependencies/bin
+dependencies
 
 # --- Misc ---
 .idea/
@@ -72,4 +72,3 @@ Client/*
 !Client/Assets/
 !Client/Assets/*.png
 Client/Scripts/Settings.lua
-
