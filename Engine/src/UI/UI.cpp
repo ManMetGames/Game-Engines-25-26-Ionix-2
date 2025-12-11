@@ -117,4 +117,11 @@ namespace IonixEngine
 		}
 		return *currentIndex;
 	}
+
+	void UI::InputText(char* text, int xPos, int yPos) 
+	{
+		ImGui::SetCursorPos(ImVec2(xPos, yPos));
+		static char inputBuffer[64] = "";
+		ImGui::InputText(text, inputBuffer, IM_ARRAYSIZE(inputBuffer));
+	}
 }

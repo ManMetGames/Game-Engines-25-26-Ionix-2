@@ -255,8 +255,9 @@ void IonixEngine::UIManager::RenderElement(UIElement* element)
 	case UIType::InputText:
 		if (element->inputBuffer)
 		{
-			ImGui::SetCursorPos(ImVec2(element->xPos, element->yPos));
-			ImGui::InputText(element->text, element->inputBuffer, element->inputBufferSize);
+			m_ui->InputText(element->text, element->xPos, element->yPos);
+			//ImGui::SetCursorPos(ImVec2(element->xPos, element->yPos));
+			//ImGui::InputText(element->text, element->inputBuffer, element->inputBufferSize);
 		}
 		break;
 	case UIType::RadioButton:
