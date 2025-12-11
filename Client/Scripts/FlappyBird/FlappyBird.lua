@@ -316,7 +316,7 @@ function ExampleScript:OnUpdate()
     -- Constant rightward movement
     local vx = 0
     local vy1 = Mafs.get_vec_y(vel1)
-    
+    --UI.add_button(300, 300, 50, 25, "Test")
     -- Display instruction text at the start of the game
     if text1 ~= "" then
         UI.Add_label(20, 20, 1000, 1000, pipeScoreText)

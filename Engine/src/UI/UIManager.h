@@ -30,7 +30,7 @@ namespace IonixEngine
 		float xSize;
 		float ySize;
 		char* text = nullptr;
-		std::function<void()> onClick = nullptr; // only for buttons
+		//std::function<void()> onClick = nullptr; // only for buttons
 		bool* checked = nullptr; // only for checkboxes
 		float* sliderValue = nullptr; // only for sliders
 		float sliderMin = 0.0f;// only for sliders
@@ -91,7 +91,7 @@ namespace IonixEngine
 
 		void AddLabel(int x, int y, float xSize, float ySize, const char* text, const std::string& fontName = "");
 
-		void AddButton(int x, int y, float xSize, float ySize, const char* text, std::function<void()> onClick, const std::string& fontName = "");
+		void AddButton(int x, int y, float xSize, float ySize, const char* text);
 
 		void AddCheckbox(int x, int y, float xSize, float ySize, const char* text, bool* checked, const std::string& fontName = "");
 
