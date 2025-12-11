@@ -33,7 +33,7 @@ namespace IonixEngine {
 		int currentRow, currentCol;
 		float spriteAngle;
 		int renderLayer;
-		float timer;
+		float timer = 0.0f;
 		float tickRate;
 		b2Vec2 boxColliderSize;
 		
