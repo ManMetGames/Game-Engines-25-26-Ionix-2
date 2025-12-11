@@ -11,18 +11,32 @@ namespace IonixEngine
 {
 	void UI::DrawLabel(char* text, int xsize, int ysize, int xpos, int ypos, std::string font)
 	{
-
-		ImGui::SetCursorPos(ImVec2(xpos, ypos));
-		ImGui::SetWindowSize(ImVec2(xsize, ysize));
-		ImGui::SetWindowFontScale(1.8);
-		std::unordered_map<std::string, ImFont*>& map = Application::Get().layerUI->GetUIManager()->fontLoader.fontMap;
-		ImFont* fontToPush = map[font];
-
-		ImGui::PushFont(fontToPush);
-
-		ImGui::Text(text);
-		//ImGui::Text(text, ImVec2(xsize, ysize));
-		ImGui::PopFont();
+		ImGui::SetNextWindowPos(ImVec2((float)xpos, (float)ypos));
+		ImGui::SetNextWindowSize(ImVec2((float)xsize, (float)ysize));
+		ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
+			ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar |
+			ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoBackground;
+		char windowName[64];
+		std::snprintf(windowName, sizeof(windowName), "Label_%d_%d_%d_%d", xpos, ypos, xsize, ysize);
+		if (ImGui::Begin(windowName, nullptr, flags))
+		{
+			ImFont* fontToPush = nullptr;
+			if (Application::Get().layerUI && Application::Get().layerUI->m_FontLoader)
+			{
+				fontToPush = Application::Get().layerUI->m_FontLoader->GetFont("Font1Bold");
+			}
+			if (fontToPush)
+			{
+				ImGui::PushFont(fontToPush);
+				ImGui::TextUnformatted(text);
+				ImGui::PopFont();
+			}
+			else
+			{
+				ImGui::TextUnformatted(text);
+			}
+		}
+		ImGui::End();
 	}
 
 	bool UI::DrawButton(char* text, int xsize, int ysize, int xpos, int ypos)
@@ -71,9 +85,54 @@ namespace IonixEngine
 		ImGui::ColorEdit4(label, color, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_PickerHueWheel);
 		return *color;
 	}
-
-
-	float UI::DrawProgressBar(int xPos, int yPos, float xSize, float ySize, float maxValue, float& currentValue, float incrementAmount)
+	
+	void UI::DrawProgressBar(int xPos, int yPos, float xSize, float ySize, float maxValue, float currentValue, int colorId)
+	{
+		float clampedMax = maxValue <= 0.0f ? 1.0f : maxValue;
+		float clampedCurrent = currentValue;
+		if (clampedCurrent < 0.0f) clampedCurrent = 0.0f;
+		if (clampedCurrent > clampedMax) clampedCurrent = clampedMax;
+		float progress = clampedCurrent / clampedMax;
+		progress = IM_CLAMP(progress, 0.0f, 1.0f);
+		ImGui::SetNextWindowPos(ImVec2((float)xPos, (float)yPos));
+		ImGui::SetNextWindowSize(ImVec2(xSize, ySize));
+		ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
+			ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar |
+			ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoBackground;
+		char windowName[64];
+		std::snprintf(windowName, sizeof(windowName), "Bar_%d_%d_%d_%d", xPos, yPos, (int)xSize, (int)ySize);
+		if (ImGui::Begin(windowName, nullptr, flags))
+		{
+			ImVec4 fgColor;
+			ImVec4 bgColor;
+			switch (colorId)
+			{
+			case 1: // red
+				fgColor = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
+				bgColor = ImVec4(0.2f, 0.0f, 0.0f, 0.6f);
+				break;
+			case 2: // green
+				fgColor = ImVec4(0.0f, 1.0f, 0.0f, 1.0f);
+				bgColor = ImVec4(0.0f, 0.2f, 0.0f, 0.6f);
+				break;
+			case 3: // white
+				fgColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+				bgColor = ImVec4(0.2f, 0.2f, 0.2f, 0.6f);
+				break;
+			default: // 0 = default/orange
+				fgColor = ImVec4(1.0f, 0.6f, 0.0f, 1.0f);
+				bgColor = ImVec4(0.2f, 0.12f, 0.0f, 0.6f);
+				break;
+			}
+			ImGui::PushStyleColor(ImGuiCol_PlotHistogram, fgColor);
+			ImGui::PushStyleColor(ImGuiCol_FrameBg, bgColor);
+			ImGui::ProgressBar(progress, ImVec2(xSize, ySize), "");
+			ImGui::PopStyleColor(2);
+		}
+		ImGui::End();
+	}
+	
+	float UI::ProgressBar(int xPos, int yPos, float xSize, float ySize, float maxValue, float& currentValue, float incrementAmount)
 	{
 		ImGui::SetCursorPos(ImVec2(xPos, yPos));
 

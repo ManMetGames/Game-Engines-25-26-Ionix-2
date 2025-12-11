@@ -70,6 +70,11 @@ namespace IonixEngine
         ImGui_ImplSDL2_InitForSDLRenderer(window, renderer);
         ImGui_ImplSDLRenderer2_Init(renderer);
         std::cout << "ImGui Initialised " << std::endl;
+
+        if (m_FontLoader)
+        {
+            m_FontLoader->LoadFonts();
+        }
     }
 
     void LayerUI::OnDetach()

@@ -12,7 +12,8 @@ function GetModule(name)
 end
 
 -- Load System Modules
-LoadModule("CoModusOperandi", "Scripts/Autism.lua")
+--LoadModule("CoModusOperandi", "Scripts/Autism.lua")
+--LoadModule("Coroutines", "Scripts/Coroutines.lua")
 
 -- Load all game modules here
 --LoadModule("Audio", "Scripts/Audio.lua")
@@ -20,11 +21,15 @@ LoadModule("CoModusOperandi", "Scripts/Autism.lua")
 --LoadModule("Player", "Scripts/Player.lua")
 --LoadModule("EntityPlayer", "Scripts/EntityPlayer.lua")
 --LoadModule("Assets", "Scripts/Assets.lua")
-LoadModule("Enums", "Scripts/Enums.lua")
-LoadModule("FlappyBird", "Scripts/FlappyBird/FlappyBird.lua")
+--LoadModule("Enums", "Scripts/Enums.lua")
+--LoadModule("FlappyBird", "Scripts/FlappyBird/FlappyBird.lua")
 --LoadModule("CorutineTest", "Scripts/TestingCoroutine/CoroutineTest.lua")
 --LoadModule("ExampleScript", "Scripts/ExampleScript.lua")
 --LoadModule("Ball", "Scripts/Ball.lua")
+--LoadModule("FlappyBird", "Scripts/FlappyBird/FlappyBird.lua")
+--LoadModule("ExampleScript", "Scripts/ExampleScript.lua")
+--LoadModule("Ball","Scripts/Ball.lua")
+LoadModule("TriangleShooter", "Scripts/TriangleShooter/TriangleShooter.lua")
 
 -- Lifecycle hooks
 function OnStart()

@@ -147,7 +147,8 @@ namespace IonixEngine {
             if (t < 0.0f) t = 0.0f;
             if (t > 1.0f) t = 1.0f;
 
-            float size = p.startSize + (p.endSize - p.startSize) * t;
+            float sizeT = t * t * (3.0f - 2.0f * t); // smoothstep easing for floaty size change
+            float size = p.startSize + (p.endSize - p.startSize) * sizeT;
             if (size < 0.0f) size = 0.0f;
 
             int destSize = static_cast<int>(size + 0.5f);
