@@ -41,8 +41,9 @@ local text2 = "Press SPACE to restart"
 local finalScoreText = "Final Score: 0"
 local coinsText = "Coins Collected: "
 local topScore = "Highscore: "
-
 local gameOver = false
+
+Window.set_size_centered(960, 640)
 
 local function resetGame()
     --Reset game state

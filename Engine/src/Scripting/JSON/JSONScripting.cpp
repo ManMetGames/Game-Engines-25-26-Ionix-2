@@ -1,4 +1,4 @@
-#include "Scripting/Json/JsonScripting.h"
+#include "JsonScripting.h"
 #include "Architecture/Application.h"
 #include <fstream>
 
@@ -28,8 +28,8 @@ namespace IonixEngine
 			json data;
 			file >> data;
 			return data.value("highscore", 0);
-
 			};
+
 		lua["Json"] = lua.create_table_with(
 			"save_high_score", saveHighScore,
 			"load_high_score", loadHighScore
