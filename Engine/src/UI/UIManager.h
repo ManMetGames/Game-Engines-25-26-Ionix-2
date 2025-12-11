@@ -14,7 +14,7 @@ namespace IonixEngine
 		Button,
 		Checkbox,
 		SliderFloat,
-		InputText,
+	    InputText,
 		Panel,
 		RadioButton,
 		Dropdown,
@@ -24,7 +24,7 @@ namespace IonixEngine
 	struct UIElement
 	{
 		UIType type;
-		std::string groupName;
+		//std::string groupName;
 		int xPos;
 		int yPos;
 		float xSize;
@@ -35,8 +35,6 @@ namespace IonixEngine
 		float* sliderValue = nullptr; // only for sliders
 		float sliderMin = 0.0f;// only for sliders
 		float slidermax = 1.0f;// only for sliders
-		char* inputBuffer = nullptr; // only for input text
-		size_t inputBufferSize; // only for input text
 		int* radioValuePtr = nullptr;
 		int RadioButtonValue = 0;
 		bool sameline = false;
@@ -44,7 +42,6 @@ namespace IonixEngine
 
 		// Font name for this element
 		std::string fontName;
-
 		float maxValue = 0.0f; // only for ProgressBar
 		float* currentValue = nullptr; // only for ProgressBar
 		float incrementAmount = 0.0f; // only for ProgressBar
@@ -100,7 +97,7 @@ namespace IonixEngine
 
 		void AddSliderFloat(int x, int y, float xSize, float ySize, const char* text, float* value, float min, float max, const std::string& fontName = "");
 
-		void AddInputText(int x, int y, float xSize, float ySize, const char* text, char* buffer, size_t bufferSize, const std::string& fontName = "");
+		void AddInputText(float xSize, float ySize, const char* text);
 
 		void AddRadioButton(int x, int y, float xSize, float ySize, const char* text, int* radioValuePointer, int value, bool sameline = false, const std::string& fontName = "");
 

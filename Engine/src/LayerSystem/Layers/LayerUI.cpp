@@ -85,9 +85,10 @@ namespace IonixEngine
          ImGui_ImplSDL2_NewFrame();
          ImGui::NewFrame();
          ImGui::Begin("null", nullptr, window_flags);
+		 ImGui::SetWindowPos(ImVec2(0, 0));
          // Render the UI
          m_UIManager->RenderUI();
-         m_UIManager->AddInputText("ŒN‚Ì–¼‚Í", 100, 100);
+         //m_UIManager->AddInputText(320, 200, "Your name:");
          ImGui::End();
          //m_UIManager->ClearElements();
          //std::vector<std::string> dropdownOptions = { "Option 1", "Option 2", "Option 3" };

@@ -121,7 +121,8 @@ namespace IonixEngine
 	void UI::InputText(char* text, int xPos, int yPos) 
 	{
 		ImGui::SetCursorPos(ImVec2(xPos, yPos));
-		static char inputBuffer[64] = "";
+		ImGui::SetWindowSize(ImVec2(500, 500));
+		static char inputBuffer[16] = "";
 		ImGui::InputText(text, inputBuffer, IM_ARRAYSIZE(inputBuffer));
 	}
 }

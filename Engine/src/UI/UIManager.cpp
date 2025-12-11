@@ -64,7 +64,7 @@ void IonixEngine::UIManager::AddLabel(int x, int y, float xSize, float ySize, co
 
 void IonixEngine::UIManager::AddButton(int x, int y, float xSize, float ySize, const char* text, std::function<void()> onClick, const std::string& fontName)
 {
-	UIElement* element;
+	UIElement* element = new UIElement;
 	element->type = UIType::Button;
 	//element->groupName = currentGroupName;
 	element->xPos = x;
@@ -80,7 +80,7 @@ void IonixEngine::UIManager::AddButton(int x, int y, float xSize, float ySize, c
 void IonixEngine::UIManager::AddCheckbox(int x, int y, float xSize, float ySize, const char* text, bool* checked, const std::string& fontName)
 {
 
-	UIElement* element;
+	UIElement* element = new UIElement;
 	element->type = UIType::Checkbox;
 	//element->groupName = currentGroupName;
 	element->xPos = x;
@@ -95,7 +95,7 @@ void IonixEngine::UIManager::AddCheckbox(int x, int y, float xSize, float ySize,
 
 void IonixEngine::UIManager::AddSliderFloat(int x, int y, float xSize, float ySize, const char* text, float* value, float min, float max, const std::string& fontName)
 {
-	UIElement* element;
+	UIElement* element = new UIElement;
 	element->type = UIType::SliderFloat;
 	//element->groupName = currentGroupName;
 	element->xPos = x;
@@ -110,25 +110,21 @@ void IonixEngine::UIManager::AddSliderFloat(int x, int y, float xSize, float ySi
 	AddChildToPanel(element);
 }
 
-void IonixEngine::UIManager::AddInputText(int x, int y, float xSize, float ySize, const char* text, char* buffer, size_t bufferSize, const std::string& fontName)
+void IonixEngine::UIManager::AddInputText(float xSize, float ySize, const char* text)
 {
-	UIElement* element;
+	UIElement* element = new UIElement;
 	element->type = UIType::InputText;
 	//element->groupName = currentGroupName;
-	element->xPos = x;
-	element->yPos = y;
+	const std::string fontName;
 	element->xSize = xSize;
 	element->ySize = ySize;
 	element->text = const_cast<char*>(text);
-	element->inputBuffer = buffer;
-	element->inputBufferSize = bufferSize;
-	element->fontName = fontName;
 	AddChildToPanel(element);
 }
 
 void IonixEngine::UIManager::AddRadioButton(int x, int y, float xSize, float ySize, const char* text, int* radioValuePointer, int value, bool sameline, const std::string& fontName)
 {
-	UIElement* element;
+	UIElement* element = new UIElement;
 	element->type = UIType::RadioButton;
 	//element->groupName = currentGroupName;
 	element->xPos = x;
@@ -147,7 +143,7 @@ void IonixEngine::UIManager::AddRadioButton(int x, int y, float xSize, float ySi
 
 void IonixEngine::UIManager::AddColorPicker(int x, int y, float xSize, float ySize, const char* label, float* color, const std::string& fontName)
 {
-	UIElement* element;
+	UIElement* element = new UIElement;
 	element->type = UIType::ColorPicker;
 	//element->groupName = currentGroupName;
 	element->xPos = x;
@@ -167,7 +163,7 @@ void IonixEngine::UIManager::ClearElements()
 
 void IonixEngine::UIManager::AddDropdown(int x, int y, float xSize, float ySize, const char* text, std::vector<std::string> options, int* currentIndex, const std::string& fontName)
 {
-	UIElement* element;
+	UIElement* element = new UIElement;
 	element->type = UIType::Dropdown;
 	//element->groupName = currentGroupName;
 	element->xPos = x;
@@ -182,7 +178,7 @@ void IonixEngine::UIManager::AddDropdown(int x, int y, float xSize, float ySize,
 }
 void IonixEngine::UIManager::AddProgressBar(int x, int y, float xSize, float ySize, float maxvalue, float* currentvalue, float incrementamount, const std::string& fontName)
 {
-	UIElement* element;
+	UIElement* element = new UIElement;
 	element->type = UIType::ProgressBar;
 	//element->groupName = currentGroupName;
 	element->xPos = x;
@@ -253,12 +249,9 @@ void IonixEngine::UIManager::RenderElement(UIElement* element)
 			*element->sliderValue = m_ui->DrawSlider(element->text, *element->sliderValue, element->xSize, element->ySize, element->xPos, element->yPos, element->sliderMin, element->slidermax);
 		break;
 	case UIType::InputText:
-		if (element->inputBuffer)
-		{
 			m_ui->InputText(element->text, element->xPos, element->yPos);
 			//ImGui::SetCursorPos(ImVec2(element->xPos, element->yPos));
 			//ImGui::InputText(element->text, element->inputBuffer, element->inputBufferSize);
-		}
 		break;
 	case UIType::RadioButton:
 		if (element->radioValuePtr)
