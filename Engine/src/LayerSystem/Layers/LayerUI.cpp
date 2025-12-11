@@ -85,6 +85,8 @@ namespace IonixEngine
          ImGui_ImplSDL2_NewFrame();
          ImGui::NewFrame();
          ImGui::Begin("null", nullptr, window_flags);
+         Window& window = Application::Get().GetWindow();
+         ImGui::SetWindowSize(ImVec2(window.m_Data.Width, window.m_Data.Height));
 		 ImGui::SetWindowPos(ImVec2(0, 0));
          // Render the UI
          m_UIManager->RenderUI();

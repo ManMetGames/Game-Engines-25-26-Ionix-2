@@ -60,7 +60,6 @@ namespace IonixEngine
         //FirebaseLeaderboard::SubmitScore("Zulfaqaar", 90);
         //FirebaseLeaderboard::RetrieveTopScores(5);
         //FirebaseLeaderboard::TestWrite(123);
-        // 
         //layerNavigation = new LayerNavigation();  
         //AddLayer(layerNavigation);
 
