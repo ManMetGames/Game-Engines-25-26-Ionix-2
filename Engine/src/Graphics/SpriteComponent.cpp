@@ -72,25 +72,6 @@ namespace IonixEngine {
 		initialiseSpritesheet();
 	}
 
-
-	// New constructors with animation setup
-
-	SpriteComponent::SpriteComponent(Entity* entity, std::string alias, int x, int y, int zedOrder, int rows_, int cols_, int spriteW, int spriteH, int end_Frame) : SpriteComponent(entity, alias, x, y, zedOrder) {
-		setAnimation(rows_, cols_, spriteW, spriteH);
-		calculateTotalFrames();
-		initialiseSpritesheet();
-
-		if (end_Frame > 0) { endFrame = end_Frame; }
-	}
-
-	SpriteComponent::SpriteComponent(Entity* entity, uint32_t hash, int x, int y, int zedOrder, int rows_, int cols_, int spriteW, int spriteH, int end_Frame): SpriteComponent(entity, hash, x, y, zedOrder) {
-		setAnimation(rows_, cols_, spriteW, spriteH);
-		calculateTotalFrames();
-		initialiseSpritesheet();
-
-		if (end_Frame > 0) { endFrame = end_Frame; }
-	}
-
 	void SpriteComponent::Render(RenderData* data)
 	{
 
@@ -130,6 +111,7 @@ namespace IonixEngine {
 			colorR,
 			colorG,
 			colorB,
+			static_cast<Uint8>(255),
 			spriteAngle,
 			renderLayer
 		});
@@ -217,18 +199,12 @@ namespace IonixEngine {
 	void SpriteComponent::initialiseSpritesheet()
 	{
 		switch (playbackMode) {
-		case playbackOptions::FORWARD: case playbackOptions::FORWARDANDBACKWARD: case playbackOptions::PLAYONCE:
+			//only forward and oneframe work for now, im sorry :(
+		case playbackOptions::FORWARD: case playbackOptions::FORWARDANDBACKWARD: case playbackOptions::PLAYONCE: case playbackOptions::BACKWARD:
 			endFrame = totalFrames;
 			currentFrame = 0;
 			currentRow = 0; //0 indexed
 			currentCol = 0; //0 indexed
-			break;
-		case playbackOptions::BACKWARD:
-			isReversing = true;
-			endFrame = 0;
-			currentFrame = totalFrames;
-			currentCol = cols - 1;
-			currentRow = rows - 1;
 			break;
 		case playbackOptions::ONEFRAME:
 			currentFrame = 0;

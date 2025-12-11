@@ -6,16 +6,25 @@ function LoadModule(name, path)
     modules[name] = module
 end
 
+-- Retrieve module by name (for cross-module communication)
+function GetModule(name)
+    return modules[name]
+end
+
 -- Load System Modules
-LoadModule("Coroutines", "Scripts/Coroutines.lua")
+LoadModule("CoModusOperandi", "Scripts/Autism.lua")
 
 -- Load all game modules here
 --LoadModule("Audio", "Scripts/Audio.lua")
 --LoadModule("Enemy", "Scripts/Enemy.lua")
 --LoadModule("Player", "Scripts/Player.lua")
+--LoadModule("EntityPlayer", "Scripts/EntityPlayer.lua")
+--LoadModule("Assets", "Scripts/Assets.lua")
+LoadModule("Enums", "Scripts/Enums.lua")
 LoadModule("FlappyBird", "Scripts/FlappyBird/FlappyBird.lua")
+--LoadModule("CorutineTest", "Scripts/TestingCoroutine/CoroutineTest.lua")
 --LoadModule("ExampleScript", "Scripts/ExampleScript.lua")
---LoadModule("Ball","Scripts/Ball.lua")
+--LoadModule("Ball", "Scripts/Ball.lua")
 
 -- Lifecycle hooks
 function OnStart()
@@ -89,11 +98,6 @@ function OnTriggerExit(collision1, collision2)
             module:OnTriggerExit(collision1, collision2)
         end
     end
-end
-
--- Retrieve module by name (for cross-module communication)
-function GetModule(name)
-    return modules[name]
 end
 
 return {

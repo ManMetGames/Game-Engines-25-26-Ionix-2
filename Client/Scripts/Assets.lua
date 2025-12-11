@@ -8,6 +8,7 @@ return {
         FlappyPipe = 1290161702,
         FlappyPipe2 = 2484853856,
         Ghast_Tear = 3650266058,
+        LaptopBattery = 817581490,
         PimBall = 3518613816,
         Sand = 2995081222,
         Test = 510180426,

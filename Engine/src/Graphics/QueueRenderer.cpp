@@ -21,11 +21,15 @@ namespace IonixEngine {
 			if (call.renderLayer == Application::Get().currentCam->renderLayer) {
 				// Apply color tint
 				SDL_SetTextureColorMod(call.texture, call.r, call.g, call.b);
+				// Apply alpha modulation
+				SDL_SetTextureAlphaMod(call.texture, call.a);
 				// Combine base entity rotation and any additional sprite rotation
 				double finalAngle = call.angle + call.rotation;
 				SDL_RenderCopyEx(Application::Get().GetWindow().GetSdlRenderer(), call.texture, &call.src, &call.dest, finalAngle, NULL, SDL_FLIP_NONE);
 				// Reset color mod to white for next texture
 				SDL_SetTextureColorMod(call.texture, 255, 255, 255);
+				// Reset alpha mod to fully opaque for next texture
+				SDL_SetTextureAlphaMod(call.texture, 255);
 			}
 			sprites.pop();
 		}
