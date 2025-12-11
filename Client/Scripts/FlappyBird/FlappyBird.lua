@@ -163,12 +163,10 @@ function ExampleScript:OnStart()
         local topPipe = Entity.create_entity()
         Entity.set_global_pos(topPipe, topX, topY)
         Entity.add_sprite_component(topPipe, assets.textures.FlappyPipe2, 60, 300, 0)
-
-	---------------------------
-	Entity.set_global_pos(pipe, 640, 430)
-
-	Entity.add_fysics_component(pipe, enums.bodytype.kinematicBody, false)
-	Fysics.add_sprite_collider(pipe, false,1)
+        Entity.add_fysics_component(topPipe, enums.bodytype.kinematicBody, false)
+        Fysics.add_sprite_collider(topPipe, false, 1)
+        return bottomPipe, topPipe
+    end
 
     pipe, pipeT = createPipeSet(640, 430, 640, 0)
     pipe2, pipeT2 = createPipeSet(940, 400, 940, -40)
