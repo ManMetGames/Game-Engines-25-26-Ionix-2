@@ -1,16 +1,18 @@
--- Scripts/FlappyBird/Projectiles.lua
 local assets = require("Scripts.Assets")
 
 local Projectiles = {}
 
 local projectileSpeed     = 600
 local projectileLifetime  = 2.0
-local defaultSize         = 16
+
 local minProjectileSize   = 16
+
 local knockbackBaseDuration = 0.25
 local knockbackBaseSpeed    = 2.5
 
--- state
+Projectiles.baseDamage = 0.6
+Projectiles.maxDamage  = 2.0
+
 local projectiles = {}
 
 local knockbackP1Time = 0
@@ -18,13 +20,19 @@ local knockbackP2Time = 0
 local knockbackP1Dir  = 0
 local knockbackP2Dir  = 0
 
+local function calc_damage(size)
+    local t = (size - minProjectileSize) / (64 - minProjectileSize)
+    if t < 0 then t = 0 end
+    if t > 1 then t = 1 end
+    return Projectiles.baseDamage + (Projectiles.maxDamage - Projectiles.baseDamage) * t
+end
+
 ----------------------------------------------------------
 -- SPAWN
 ----------------------------------------------------------
 function Projectiles.SpawnProjectile(spawnX, spawnY, dirX, dirY, size, owner)
-    size = size or defaultSize
+    size = size or minProjectileSize
 
-    -- normalise dir
     if dirX == 0 and dirY == 0 then
         dirX = 1
         dirY = 0
@@ -47,6 +55,7 @@ function Projectiles.SpawnProjectile(spawnX, spawnY, dirX, dirY, size, owner)
         size,
         5
     )
+    Sprite.set_columns(sprite, 1)
 
     Entity.set_global_pos(proj, spawnX, spawnY)
 
@@ -59,16 +68,17 @@ function Projectiles.SpawnProjectile(spawnX, spawnY, dirX, dirY, size, owner)
         vy = dirY * projectileSpeed,
         age = 0,
         size = size,
-        owner = owner
+        owner = owner,
+        damage = calc_damage(size)
     }
 
     table.insert(projectiles, projData)
 end
 
 ----------------------------------------------------------
--- UPDATE + HIT DETECTION 
+-- UPDATE + HIT DETECTION
 ----------------------------------------------------------
-function Projectiles.Update(dt, player1, player2)
+function Projectiles.Update(dt, player1, player2, Shield)
     for i = #projectiles, 1, -1 do
         local p = projectiles[i]
 
@@ -77,12 +87,33 @@ function Projectiles.Update(dt, player1, player2)
         Entity.set_global_pos(p.entity, p.x, p.y)
 
         local hit = false
-        local size = p.size or defaultSize
+        local size = p.size or minProjectileSize
         local radiusProj   = size * 0.5
         local radiusPlayer = 16
 
         local isTapShot = size <= (minProjectileSize + 0.5)
         local sizeScale  = math.min(size / minProjectileSize, 2.0)
+
+        local function handle_hit(targetIndex, targetEntity)
+            if Shield and Shield.IsActive and Shield.IsActive(targetIndex) then
+                if Shield.Absorb then
+                    Shield.Absorb(targetIndex, p.damage or 0)
+                end
+                return true
+            end
+
+            if not isTapShot then
+                local dirX = (p.vx >= 0) and 1 or -1
+                if targetIndex == 1 then
+                    knockbackP1Time = knockbackBaseDuration * sizeScale
+                    knockbackP1Dir  = dirX * sizeScale
+                else
+                    knockbackP2Time = knockbackBaseDuration * sizeScale
+                    knockbackP2Dir  = dirX * sizeScale
+                end
+            end
+            return true
+        end
 
         -- hit player1
         if player1 and p.owner ~= 1 then
@@ -94,12 +125,7 @@ function Projectiles.Update(dt, player1, player2)
             local r   = radiusProj + radiusPlayer
 
             if dx * dx + dy * dy <= r * r then
-                if not isTapShot then
-                    local dirX = (p.vx >= 0) and 1 or -1
-                    knockbackP1Time = knockbackBaseDuration * sizeScale
-                    knockbackP1Dir  = dirX * sizeScale
-                end
-                hit = true
+                hit = handle_hit(1, player1)
             end
         end
 
@@ -113,12 +139,7 @@ function Projectiles.Update(dt, player1, player2)
             local r   = radiusProj + radiusPlayer
 
             if dx * dx + dy * dy <= r * r then
-                if not isTapShot then
-                    local dirX = (p.vx >= 0) and 1 or -1
-                    knockbackP2Time = knockbackBaseDuration * sizeScale
-                    knockbackP2Dir  = dirX * sizeScale
-                end
-                hit = true
+                hit = handle_hit(2, player2)
             end
         end
 

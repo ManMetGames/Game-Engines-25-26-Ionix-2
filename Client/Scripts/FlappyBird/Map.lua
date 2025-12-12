@@ -1,16 +1,14 @@
--- Scripts/FlappyBird/Map.lua
 local assets = require("Scripts.Assets")
 local enums  = require("Scripts.Enums")
 
 local Map = {}
 
 function Map.create_level1()
-    -- background
     local Background = Entity.create_entity()
     Entity.add_sprite_component(Background, assets.textures.Background, 1920, 1080, 0)
 
     --------------------------------------------------
-    -- MAIN FLOOR PLATFORM
+    -- MAIN FLOOR 
     --------------------------------------------------
     local floorY      = 550
     local floorWidth  = 900
