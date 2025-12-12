@@ -69,7 +69,7 @@ function ExampleScript:OnStart()
 
     DuckLeft = Entity.create_entity()
 
-    Entity.set_entity_pos(DuckLeft, Mafs.vector2_x(SpawnPointLeft), Mafs.vector2_y(SpawnPointLeft))  
+    Entity.set_entity_pos(DuckLeft, Mafs.vector2_x(SpawnPointLeft), Mafs.vector2_y(SpawnPointLeft) - 1500)  
 	
     local DuckLeftSprite = Entity.add_sprite_component(DuckLeft, assets.textures.DuckLeft, 75, 75, 1)
     Sprite.set_columns(DuckLeftSprite,1)
@@ -79,9 +79,7 @@ function ExampleScript:OnStart()
     -- Freeze bird
     Fysics.set_gravity_scale(DuckLeft, 0)
 
-
-
- ------------------------------------------------------
+    ------------------------------------------------------
     -- Duck Right
     ------------------------------------------------------
 
@@ -134,18 +132,22 @@ function ExampleScript:OnUpdate()
             t = 0
             StartTimer = false
             HasGotTimerValue = false
-            if SendLeftDuck then
+            local leftOrRight = math.random(1,2)
+            if leftOrRight == 1 then
                 SendOffLeftDuck()
             end
-            if SendRightDuck then
+            if leftOrRight == 2 then
                 SendOffRightDuck()
             end
         end
     end
 end
 
+----------------------------------------------------------
+-- SendOffLeftDuck
+----------------------------------------------------------
 function SendOffLeftDuck()
-   SendLeftDuck = false
+   --SendLeftDuck = false
    local YPositionOffset = math.random(0,180)
    Fysics.set_pos(DuckLeft, Mafs.vector2_x(SpawnPointLeft), Mafs.vector2_y(SpawnPointLeft) - YPositionOffset)
    Fysics.set_gravity_scale(DuckLeft, 1)
@@ -153,8 +155,11 @@ function SendOffLeftDuck()
    print(YPositionOffset)
 end
 
+----------------------------------------------------------
+-- SendOffRightDuck
+----------------------------------------------------------
 function SendOffRightDuck()
-    SendRightDuck = false
+    --SendRightDuck = false
     local YPositionOffset = math.random(0,180)
     Fysics.set_pos(DuckRight, Mafs.vector2_x(SpawnPointRight), Mafs.vector2_y(SpawnPointRight) - YPositionOffset)
     Fysics.set_gravity_scale(DuckRight, 1)
@@ -162,6 +167,9 @@ function SendOffRightDuck()
     print(YPositionOffset)
 end
 
+----------------------------------------------------------
+-- GetRandomTimer
+----------------------------------------------------------
 function GetRandomTimer()
 HasGotTimerValue = true
  return math.random(1,99) / 100 
