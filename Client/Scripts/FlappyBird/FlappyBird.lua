@@ -30,8 +30,8 @@ local coinsText = "Coins Collected: "
 local topScore = "Highscore: "
 local gameOver = false
 
+-- Window
 Window.set_size_centered(960, 640)
-
 
 ----------------------------------------------------------
 -- Spawn coins between pipes
@@ -211,6 +211,13 @@ function ExampleScript:OnUpdate()
     ------------------
 	-- Score
 	------------------
+    Window.set_size_centered(960, 640)
+    local windowW = Window.get_width()
+    local windowH = Window.get_height()
+
+    ------------------
+	-- Score
+	------------------
 
     if gameOver then
         --Score and Game Over text
@@ -226,8 +233,8 @@ function ExampleScript:OnUpdate()
         UI.Add_label(320, 290, 1000, 1000, text2)
 
         --Display Highscore
-        UI.Add_label(100, 260, 1000, 1000, topScore)
-
+        UI.Add_label(100, windowH/2, 1000, 1000, topScore)
+        
         if Input.get_key_down(Keys.ionix_space) then
             resetGame()
         end
