@@ -15,7 +15,9 @@ local Bullet
 local BulletSprite
 local BulletSpeed
 
-local t = 10
+local StartTimer = true
+
+local t = 10.0
 
 --Duck Variables
 local DuckLeft
@@ -27,7 +29,7 @@ local DuckRightSprite
 local DuckRightFlySpeed
 
 local SpawnPointLeft = Mafs.vector2(-75,450)
-local SpawnPointRight = Mafs.vector2(Window.get_width(), 490)
+local SpawnPointRight = Mafs.vector2(Window.get_width(), 450)
 
 local SendLeftDuck = true
 local SendRightDuck = false
@@ -82,9 +84,7 @@ function ExampleScript:OnStart()
     ------------------------------------------------------
 
     DuckRight = Entity.create_entity()
-    print(Window.get_width())
-    Entity.set_entity_pos(DuckRight, Mafs.vector2_x(SpawnPointRight), Mafs.vector2_y(SpawnPointRight) - 150)  
-	print(Mafs.vector2_x(SpawnPointRight))
+    Entity.set_entity_pos(DuckRight, Mafs.vector2_x(SpawnPointRight), Mafs.vector2_y(SpawnPointRight) - 1500)  
     local DuckRightSprite = Entity.add_sprite_component(DuckRight, assets.textures.DuckRight, 75, 75, 1)
     Sprite.set_columns(DuckRightSprite,1)
     -- DUCK 1 PHYSICS
@@ -108,45 +108,55 @@ function ExampleScript:OnUpdate()
 
     local DuckLeftPos = Mafs.vector2_y(Entity.get_entity_pos(DuckLeft))
     if DuckLeftPos >= Window.get_height()  then
-        print(DuckLeftPos)
        Fysics.set_pos(DuckLeft, Mafs.vector2_x(SpawnPointLeft), Mafs.vector2_y(SpawnPointLeft)- 1500)
        Fysics.set_gravity_scale(DuckLeft, 0)
        Fysics.clear_forces(DuckLeft)
        SendRightDuck = true
+       StartTimer = true
     end
 
     local DuckRightPos = Mafs.vector2_y(Entity.get_entity_pos(DuckRight))
       if DuckRightPos >= Window.get_height()  then
-        print(DuckRightPos)
        Fysics.set_pos(DuckRight, Mafs.vector2_x(SpawnPointRight), Mafs.vector2_y(SpawnPointRight) - 1500)
        Fysics.set_gravity_scale(DuckRight, 0)
        Fysics.clear_forces(DuckRight)
        SendLeftDuck = true
+       StartTimer = true
     end
 
-    if SendLeftDuck == true then
-        SendLeftDuck = false
-         Fysics.set_pos(DuckLeft, Mafs.vector2_x(SpawnPointLeft), Mafs.vector2_y(SpawnPointLeft))
-          Fysics.set_gravity_scale(DuckLeft, 1)
-         Fysics.add_force(DuckLeft, 220,-250,1,1)  
-         print(math.random(10,15))
+    if StartTimer == true then
+        t = t + Mafs.delta_time()
+        print(t)
+        if t >= 1.5 then
+            t = 0
+            print("Done")
+            StartTimer = false
+            if SendLeftDuck then
+                SendOffLeftDuck()
+            end
+            if SendRightDuck then
+                SendOffRightDuck()
+            end
+        end
     end
-
-    if SendRightDuck == true then
-        SendRightDuck = false
-         Fysics.set_pos(DuckRight, Mafs.vector2_x(SpawnPointRight), Mafs.vector2_y(SpawnPointRight))
-          Fysics.set_gravity_scale(DuckRight, 1)
-         Fysics.add_force(DuckRight, -220,-250,1,1) 
-    end
-
-     if Input.get_key_down(Keys.ionix_e) then
-        Fysics.set_gravity_scale(DuckLeft, 0)
-        Fysics.clear_forces(DuckLeft)
-           -- Entity.set_entity_pos(DuckLeft, Mafs.vector2_x(SpawnPointLeft), Mafs.vector2_y(SpawnPointLeft))
-            Fysics.set_pos(DuckLeft, Mafs.vector2_x(SpawnPointLeft), Mafs.vector2_y(SpawnPointLeft))
-                 
-	end
 end
-    
+
+function SendOffLeftDuck()
+   SendLeftDuck = false
+   local YPositionOffset = math.random(0,180)
+   Fysics.set_pos(DuckLeft, Mafs.vector2_x(SpawnPointLeft), Mafs.vector2_y(SpawnPointLeft) - YPositionOffset)
+   Fysics.set_gravity_scale(DuckLeft, 1)
+   Fysics.add_force(DuckLeft, 220,-250,1,1)  
+   print(YPositionOffset)
+end
+
+function SendOffRightDuck()
+    SendRightDuck = false
+    local YPositionOffset = math.random(0,180)
+    Fysics.set_pos(DuckRight, Mafs.vector2_x(SpawnPointRight), Mafs.vector2_y(SpawnPointRight) - YPositionOffset)
+    Fysics.set_gravity_scale(DuckRight, 1)
+    Fysics.add_force(DuckRight, -220,-250,1,1) 
+    print(YPositionOffset)
+end
 
 return ExampleScript
