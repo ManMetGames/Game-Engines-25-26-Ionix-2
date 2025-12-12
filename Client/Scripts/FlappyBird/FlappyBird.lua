@@ -221,19 +221,19 @@ function ExampleScript:OnUpdate()
 
     if gameOver then
         --Score and Game Over text
-        UI.Add_label(320, 215, 1000, 1000, text1)
+        UI.Add_label(320, 230, 1000, 1000, text1)
 
         --Display final score
-        UI.Add_label(365, 240, 1000, 1000, finalScoreText)
+        UI.Add_label(365, 255, 1000, 1000, finalScoreText)
 
         --Display coins collected
-        UI.Add_label(335, 265, 1000, 1000, coinsText)
+        UI.Add_label(335, 280, 1000, 1000, coinsText)
 
         --Display retry text
-        UI.Add_label(320, 290, 1000, 1000, text2)
+        UI.Add_label(320, 305, 1000, 1000, text2)
 
         --Display Highscore
-        UI.Add_label(100, windowH/2, 1000, 1000, topScore)
+        UI.Add_label(100, (windowH/2)-32, 1000, 1000, topScore)
         
         if Input.get_key_down(Keys.ionix_space) then
             resetGame()
@@ -317,7 +317,7 @@ function ExampleScript:OnTriggerEnter(a, b)
                 Sprite.set_height(s, 0)
             end
             coinHidden[c] = true
-            score = score + 10
+            score = score + 1
             scoreText = "Coins: " .. tostring(score)
             break
         end
