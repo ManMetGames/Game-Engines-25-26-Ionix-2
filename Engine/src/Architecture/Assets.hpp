@@ -6,7 +6,8 @@ struct Textures {
     uint32_t Background = 2667361274u;
     uint32_t Coin = 2929616156u;
     uint32_t Debug = 2430642766u;
-    uint32_t Duck = 1065181016u;
+    uint32_t DuckLeft = 367995890u;
+    uint32_t DuckRight = 4029090160u;
     uint32_t FlappyBird = 2136167952u;
     uint32_t FlappyPipe = 1290161702u;
     uint32_t FlappyPipe2 = 2484853856u;
@@ -29,7 +30,8 @@ struct Textures {
         map["Background"] = "./Assets/Background.png";
         map["Coin"] = "./Assets/Coin.png";
         map["Debug"] = "./Assets/Debug.png";
-        map["Duck"] = "./Assets/Duck.png";
+        map["DuckLeft"] = "./Assets/DuckLeft.png";
+        map["DuckRight"] = "./Assets/DuckRight.png";
         map["FlappyBird"] = "./Assets/FlappyBird.png";
         map["FlappyPipe"] = "./Assets/FlappyPipe.png";
         map["FlappyPipe2"] = "./Assets/FlappyPipe2.png";

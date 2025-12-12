@@ -67,7 +67,7 @@ function ExampleScript:OnStart()
 
     Entity.set_entity_pos(DuckLeft, Mafs.vector2_x(SpawnPointLeft), Mafs.vector2_y(SpawnPointLeft))  
 	
-    local DuckLeftSprite = Entity.add_sprite_component(DuckLeft, assets.textures.Duck, 75, 75, 1)
+    local DuckLeftSprite = Entity.add_sprite_component(DuckLeft, assets.textures.DuckLeft, 75, 75, 1)
     Sprite.set_columns(DuckLeftSprite,1)
     -- DUCK 1 PHYSICS
     Entity.add_fysics_component(DuckLeft, 2, true) -- dynamic body
@@ -85,7 +85,7 @@ function ExampleScript:OnStart()
     print(Window.get_width())
     Entity.set_entity_pos(DuckRight, Mafs.vector2_x(SpawnPointRight), Mafs.vector2_y(SpawnPointRight) - 150)  
 	print(Mafs.vector2_x(SpawnPointRight))
-    local DuckRightSprite = Entity.add_sprite_component(DuckRight, assets.textures.Duck, 75, 75, 1)
+    local DuckRightSprite = Entity.add_sprite_component(DuckRight, assets.textures.DuckRight, 75, 75, 1)
     Sprite.set_columns(DuckRightSprite,1)
     -- DUCK 1 PHYSICS
     Entity.add_fysics_component(DuckRight, 2, true) -- dynamic body
@@ -129,6 +129,7 @@ function ExampleScript:OnUpdate()
          Fysics.set_pos(DuckLeft, Mafs.vector2_x(SpawnPointLeft), Mafs.vector2_y(SpawnPointLeft))
           Fysics.set_gravity_scale(DuckLeft, 1)
          Fysics.add_force(DuckLeft, 220,-250,1,1)  
+         print(math.random(10,15))
     end
 
     if SendRightDuck == true then
