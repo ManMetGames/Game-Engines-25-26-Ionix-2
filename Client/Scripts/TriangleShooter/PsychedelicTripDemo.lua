@@ -7,7 +7,7 @@ local t = 0
 local bpm = 133
 local secondsPerBeat = 60.0 / bpm
 
-local SPIRAL_EMITTER_COUNT = 8
+local SPIRAL_EMITTER_COUNT = 12
 local SPIRAL_INTERVAL = 0.25
 local spiralTimer = 0
 
@@ -15,8 +15,8 @@ local RING_POINT_COUNT = 24
 local RING_INTERVAL = 1.0
 local ringTimer = 0
 
-local WAVE_POINT_COUNT = 18
-local WAVE_INTERVAL = 0.5
+local WAVE_POINT_COUNT = 14
+local WAVE_INTERVAL = 0.25
 local waveTimer = 0
 
 local function emitSpiral(centerX, centerY, t)
