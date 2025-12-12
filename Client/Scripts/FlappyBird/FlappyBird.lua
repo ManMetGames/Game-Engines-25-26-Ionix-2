@@ -3,7 +3,7 @@ local assets = require("Scripts.Assets")
 local enums = require("Scripts.Enums")
 local Background
 local player1
-local x = 200
+local x = 100
 local gameOver = false
 local highscore = Json.load_high_score()
 
@@ -69,7 +69,7 @@ local function resetGame()
     highscore = Json.load_high_score()
 
     -- Reset player
-    Fysics.set_pos(player1, 2, 3)
+    Fysics.set_pos(player1, 1, 3)
     Fysics.set_gravity_scale(player1, 0)
     Fysics.set_linear_velocity(player1, 0, 0)
 
@@ -79,12 +79,12 @@ local function resetGame()
         Fysics.set_linear_velocity(pipeEntity, 0, 0)
     end
 
-    resetPipe(pipe, 640, 400)
-    resetPipe(pipeT, 640, 0)
-    resetPipe(pipe2, 940, 400)
-    resetPipe(pipeT2, 940, -40)
-    resetPipe(pipe3, 1240, 360)
-    resetPipe(pipeT3, 1240, -40)
+    resetPipe(pipe, 400, 400)
+    resetPipe(pipeT, 400, 0)
+    resetPipe(pipe2, 750, 400)
+    resetPipe(pipeT2, 750, -40)
+    resetPipe(pipe3, 1100, 360)
+    resetPipe(pipeT3, 1100, -40)
 
     -- Reset coins
     for i, c in ipairs(coins) do
@@ -172,10 +172,10 @@ function ExampleScript:OnStart()
         return bottomPipe, topPipe
     end
 
-    pipe, pipeT = createPipeSet(640, 430, 640, 0)
-    pipe2, pipeT2 = createPipeSet(940, 400, 940, -40)
-    pipe3, pipeT3 = createPipeSet(1240, 360, 1240, -40)
-
+    pipe, pipeT = createPipeSet(400, 430, 400, 0)
+    pipe2, pipeT2 = createPipeSet(750, 400, 750, -40)
+    pipe3, pipeT3 = createPipeSet(1100, 360, 1100, -40)
+    
     pipeSets = {
     { bottom = pipe,  top = pipeT,  passed = false },
     { bottom = pipe2, top = pipeT2, passed = false },
@@ -261,11 +261,11 @@ function ExampleScript:OnUpdate()
     -- Pipe & coin reset
     for _, set in ipairs(pipeSets) do
         local pipeX = Mafs.get_vec_x(Fysics.get_pos(set.bottom))
-        if pipeX < 0 then
+        if pipeX < -0.6 then
 
             -- Reset pipes
-            Fysics.set_pos(set.bottom, 10, 4 + (math.random(2, 3) / 10 * (math.random(1, 2) == 1 and -1 or 1)))
-            Fysics.set_pos(set.top, 10, -0.5 + (math.random(2, 3) / 10 * (math.random(1, 2) == 1 and -1 or 1)))
+            Fysics.set_pos(set.bottom, (windowW+60)/100, 4 + (math.random(2, 3) / 10 * (math.random(1, 2) == 1 and -1 or 1)))
+            Fysics.set_pos(set.top, (windowW+60)/100, -0.5 + (math.random(2, 3) / 10 * (math.random(1, 2) == 1 and -1 or 1)))
 
             -- Reset coin
             if set.coin then
@@ -296,8 +296,8 @@ function ExampleScript:OnUpdate()
     end
 
     -- UI
-    UI.Add_label(20, 20, 1000, 1000, pipeScoreText)
-    UI.Add_label(20, 50, 1000, 1000, scoreText)
+    UI.Add_label(10, 10, 1000, 1000, pipeScoreText)
+    UI.Add_label(10, 40, 1000, 1000, scoreText)
 end
 
 ----------------------------------------------------------
