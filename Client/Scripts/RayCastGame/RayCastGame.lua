@@ -3,6 +3,7 @@ local assets = require("Scripts.Assets")
 
 
 local Background
+local BottomPanel
 local ScreenH = Window.get_width()
 local ScreenW = Window.get_height()
 
@@ -46,6 +47,8 @@ function ExampleScript:OnStart()
 	------------------------------------------------------
     Background = Entity.create_entity()
     local BgBackground = Entity.add_sprite_component(Background, assets.textures.backgroundDuckHunt,ScreenH , ScreenW, 0)
+
+  
 
     ------------------------------------------------------
     -- Create Player (Shooter)
@@ -92,7 +95,11 @@ function ExampleScript:OnStart()
     Fysics.add_sprite_collider(DuckRight ,false, 1)
     -- Freeze bird
     Fysics.set_gravity_scale(DuckRight, 0)
-
+       ------------------------------------------------------
+	-- Bottom Panel Texture
+	------------------------------------------------------
+    BottomPanel = Entity.create_entity()
+    local BgBottomPanel = Entity.add_sprite_component(BottomPanel, assets.textures.bottomPanel,ScreenH , ScreenW, 1)
 end
 ----------------------------------------------------------
 -- OnUpdate
@@ -151,7 +158,9 @@ function SendOffLeftDuck()
    local YPositionOffset = math.random(0,180)
    Fysics.set_pos(DuckLeft, Mafs.vector2_x(SpawnPointLeft), Mafs.vector2_y(SpawnPointLeft) - YPositionOffset)
    Fysics.set_gravity_scale(DuckLeft, 1)
-   Fysics.add_force(DuckLeft, 220,-250,1,1)  
+   Fysics.add_force(DuckLeft, 190,-250,1,1)  -- Slow Speed
+   --Fysics.add_force(DuckLeft, 220,-250,1,1)  -- Medium Speed
+   --Fysics.add_force(DuckLeft, 260,-250,1,1)  -- Fast Speed
    print(YPositionOffset)
 end
 
@@ -163,7 +172,9 @@ function SendOffRightDuck()
     local YPositionOffset = math.random(0,180)
     Fysics.set_pos(DuckRight, Mafs.vector2_x(SpawnPointRight), Mafs.vector2_y(SpawnPointRight) - YPositionOffset)
     Fysics.set_gravity_scale(DuckRight, 1)
-    Fysics.add_force(DuckRight, -220,-250,1,1) 
+     Fysics.add_force(DuckRight, -190,-250,1,1)  -- Slow Speed
+   --Fysics.add_force(DuckRight, -220,-250,1,1) -- Medium Speed
+    --Fysics.add_force(DuckRight, -260,-250,1,1)  -- Fast Speed
     print(YPositionOffset)
 end
 

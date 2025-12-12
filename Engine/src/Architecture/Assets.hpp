@@ -19,6 +19,7 @@ struct Textures {
     uint32_t backgroundDuckHunt = 2360523392u;
     uint32_t ball = 369994598u;
     uint32_t ball2 = 1354646532u;
+    uint32_t bottomPanel = 3898366832u;
     uint32_t crosshair2 = 99284478u;
     uint32_t horse_fat = 963803500u;
     uint32_t office = 2084752704u;
@@ -43,6 +44,7 @@ struct Textures {
         map["backgroundDuckHunt"] = "./Assets/backgroundDuckHunt.png";
         map["ball"] = "./Assets/ball.png";
         map["ball2"] = "./Assets/ball2.png";
+        map["bottomPanel"] = "./Assets/bottomPanel.png";
         map["crosshair2"] = "./Assets/crosshair2.png";
         map["horse_fat"] = "./Assets/horse-fat.gif";
         map["office"] = "./Assets/office.png";

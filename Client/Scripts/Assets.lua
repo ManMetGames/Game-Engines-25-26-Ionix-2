@@ -16,6 +16,7 @@ return {
         backgroundDuckHunt = 2360523392,
         ball = 369994598,
         ball2 = 1354646532,
+        bottomPanel = 3898366832,
         crosshair2 = 99284478,
         horse_fat = 963803500,
         office = 2084752704,
