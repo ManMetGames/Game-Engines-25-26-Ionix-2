@@ -17,7 +17,7 @@ namespace IonixEngine {
             Application::Get().layerUI->m_UIManager->AddLabel(x, y, xSize, ySize, text);
             };
         auto AddButton = [](int x, int y, float xSize, float ySize, const char* text) {
-            Application::Get().layerUI->m_UIManager->AddButton(x, y, xSize, ySize, text);
+            return Application::Get().layerUI->m_UIManager->AddButton(x, y, xSize, ySize, text);
             };
         //auto AddSlider = [](const char* label, float value, int xsize, int ysize, int xpos, int ypos, float minval, float maxval) -> float {
             //return Application::Get().layerUI->m_UI->AddSlider((char*)label, value, xsize, ysize, xpos, ypos, minval, maxval);
