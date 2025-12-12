@@ -16,6 +16,8 @@ local BulletSprite
 local BulletSpeed
 
 local StartTimer = true
+local HasGotTimerValue = false
+local TimerMaxValue = 0.0
 
 local t = 10.0
 
@@ -54,7 +56,7 @@ function ExampleScript:OnStart()
 	
     local PlayerSprite = Entity.add_sprite_component(Player, assets.textures.NEWcrosshair, 25, 23, 1)
     Sprite.set_columns(PlayerSprite,1)
-    -- PLAYER 1 PHYSICS
+    -- PLAYER 1 FYSICS
     Entity.add_fysics_component(Player, 2, false) -- dynamic body
     Fysics.add_sprite_collider(Player ,false, 1)
     -- Freeze bird
@@ -71,7 +73,7 @@ function ExampleScript:OnStart()
 	
     local DuckLeftSprite = Entity.add_sprite_component(DuckLeft, assets.textures.DuckLeft, 75, 75, 1)
     Sprite.set_columns(DuckLeftSprite,1)
-    -- DUCK 1 PHYSICS
+    -- DUCK 1 FYSICS
     Entity.add_fysics_component(DuckLeft, 2, true) -- dynamic body
     Fysics.add_sprite_collider(DuckLeft ,false, 1)
     -- Freeze bird
@@ -87,14 +89,11 @@ function ExampleScript:OnStart()
     Entity.set_entity_pos(DuckRight, Mafs.vector2_x(SpawnPointRight), Mafs.vector2_y(SpawnPointRight) - 1500)  
     local DuckRightSprite = Entity.add_sprite_component(DuckRight, assets.textures.DuckRight, 75, 75, 1)
     Sprite.set_columns(DuckRightSprite,1)
-    -- DUCK 1 PHYSICS
+    -- DUCK 1 FYSICS
     Entity.add_fysics_component(DuckRight, 2, true) -- dynamic body
     Fysics.add_sprite_collider(DuckRight ,false, 1)
     -- Freeze bird
     Fysics.set_gravity_scale(DuckRight, 0)
-
-
-
 
 end
 ----------------------------------------------------------
@@ -126,11 +125,15 @@ function ExampleScript:OnUpdate()
 
     if StartTimer == true then
         t = t + Mafs.delta_time()
-        print(t)
-        if t >= 1.5 then
+        
+        if HasGotTimerValue == false then
+            TimerMaxValue = GetRandomTimer()
+            print(TimerMaxValue)
+        end
+        if t >= 1 + TimerMaxValue then
             t = 0
-            print("Done")
             StartTimer = false
+            HasGotTimerValue = false
             if SendLeftDuck then
                 SendOffLeftDuck()
             end
@@ -157,6 +160,11 @@ function SendOffRightDuck()
     Fysics.set_gravity_scale(DuckRight, 1)
     Fysics.add_force(DuckRight, -220,-250,1,1) 
     print(YPositionOffset)
+end
+
+function GetRandomTimer()
+HasGotTimerValue = true
+ return math.random(1,99) / 100 
 end
 
 return ExampleScript
