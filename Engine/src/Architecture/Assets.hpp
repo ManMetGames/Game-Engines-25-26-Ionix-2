@@ -49,7 +49,6 @@ struct Textures {
     uint32_t FlappyPipe = 1290161702u;
     uint32_t FlappyPipe2 = 2484853856u;
     uint32_t Ghast_Tear = 3650266058u;
-    uint32_t LaptopBattery = 817581490u;
     uint32_t Gray = 220346788u;
     uint32_t Green = 1896123910u;
     uint32_t Grey_Off = 321655170u;
@@ -86,6 +85,7 @@ struct Textures {
     uint32_t Jump__32x32__1_2 = 2035765630u;
     uint32_t Jump__32x32__1_2_3 = 3155186396u;
     uint32_t Kiwi = 3083716762u;
+    uint32_t LaptopBattery = 817581490u;
     uint32_t Leaderboard = 2306970682u;
     uint32_t Left_Hit__42x42_ = 821196782u;
     uint32_t Left_Hit__54x52_ = 2895036318u;
@@ -246,7 +246,6 @@ struct Textures {
         map["FlappyPipe"] = "./Assets/FlappyPipe.png";
         map["FlappyPipe2"] = "./Assets/FlappyPipe2.png";
         map["Ghast_Tear"] = "./Assets/Ghast_Tear.png";
-        map["LaptopBattery"] = "./Assets/LaptopBattery.png";
         map["Gray"] = "./Assets/Jimmy Demo/Background/Gray.png";
         map["Green"] = "./Assets/Jimmy Demo/Background/Green.png";
         map["Grey_Off"] = "./Assets/Jimmy Demo/Traps/Platforms/Grey Off.png";
@@ -283,6 +282,7 @@ struct Textures {
         map["Jump__32x32__1_2"] = "./Assets/Jimmy Demo/Main Characters/Pink Man/Jump (32x32).png";
         map["Jump__32x32__1_2_3"] = "./Assets/Jimmy Demo/Main Characters/Virtual Guy/Jump (32x32).png";
         map["Kiwi"] = "./Assets/Jimmy Demo/Items/Fruits/Kiwi.png";
+        map["LaptopBattery"] = "./Assets/LaptopBattery.png";
         map["Leaderboard"] = "./Assets/Jimmy Demo/Menu/Buttons/Leaderboard.png";
         map["Left_Hit__42x42_"] = "./Assets/Jimmy Demo/Traps/Rock Head/Left Hit (42x42).png";
         map["Left_Hit__54x52_"] = "./Assets/Jimmy Demo/Traps/Spike Head/Left Hit (54x52).png";
