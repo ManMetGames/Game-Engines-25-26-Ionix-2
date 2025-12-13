@@ -4,8 +4,9 @@
 #include <functional>
 #include <vector>
 #include "Fontloader.h"
-
 #include "UI/UI.h"
+#include <unordered_map>
+
 namespace IonixEngine
 {
 	enum UIType
@@ -39,6 +40,11 @@ namespace IonixEngine
 		int RadioButtonValue = 0;
 		bool sameline = false;
 		float* color = nullptr; // only for ColorPicker4
+
+		char* inputBuffer = nullptr; // only for InputText
+		size_t inputBufferSize = 0; //only for InputText
+		float width = 100.0f; // only for InputText
+		std::string inputId;   // only for InputText
 
 		// Font name for this element
 		std::string fontName;
@@ -97,7 +103,7 @@ namespace IonixEngine
 
 		void AddSliderFloat(int x, int y, float xSize, float ySize, const char* text, float* value, float min, float max, const std::string& fontName = "");
 
-		void AddInputText(float xSize, float ySize, const char* text);
+		void AddInputText(float xPos, float yPos, const char* text);
 
 		void AddRadioButton(int x, int y, float xSize, float ySize, const char* text, int* radioValuePointer, int value, bool sameline = false, const std::string& fontName = "");
 

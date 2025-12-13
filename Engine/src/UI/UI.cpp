@@ -117,16 +117,15 @@ namespace IonixEngine
 		return *currentIndex;
 	}
 
-	void UI::InputText(char* text, int xPos, int yPos) 
+	void UI::InputText(const char* label, int xPos, int yPos, float width, char* buffer, size_t bufferSize)
 	{
 		ImGui::SetWindowFontScale(1.0);
-		static char inputBuffer[16] = "";
 
 		ImGui::SetCursorPos(ImVec2((float)xPos, (float)yPos));
-		ImGui::TextUnformatted(text);
+		ImGui::TextUnformatted(label);
 
-		ImGui::SetCursorPos(ImVec2((float)xPos, (float)yPos+15));
-		ImGui::SetNextItemWidth(120.0f);                // choose width you like
-		ImGui::InputText("##playername", inputBuffer, IM_ARRAYSIZE(inputBuffer));
+		ImGui::SetCursorPos(ImVec2((float)xPos, (float)yPos+20));
+		ImGui::SetNextItemWidth(width);          
+		ImGui::InputText("##input", buffer, bufferSize);
 	}
 }

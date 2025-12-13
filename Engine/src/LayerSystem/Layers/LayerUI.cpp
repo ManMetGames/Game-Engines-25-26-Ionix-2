@@ -90,7 +90,7 @@ namespace IonixEngine
 		 ImGui::SetWindowPos(ImVec2(0, 0));
          // Render the UI
          m_UIManager->RenderUI();
-         //Application::Get().layerUI->m_UIManager->AddInputText(200, 200, "Your name:");
+         Application::Get().layerUI->m_UIManager->AddInputText(200, 200, "Your name:");
          ImGui::End();
          //m_UIManager->ClearElements();
          //std::vector<std::string> dropdownOptions = { "Option 1", "Option 2", "Option 3" };
