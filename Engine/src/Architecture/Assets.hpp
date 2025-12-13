@@ -107,6 +107,7 @@ struct Textures {
     uint32_t PimBall = 3518613816u;
     uint32_t Pineapple = 854290486u;
     uint32_t Pink = 1179858848u;
+    uint32_t PipeEffect = 2652724152u;
     uint32_t Play = 1380681860u;
     uint32_t PointEffect = 4172305526u;
     uint32_t Previous = 1657061876u;
@@ -305,6 +306,7 @@ struct Textures {
         map["PimBall"] = "./Assets/PimBall.png";
         map["Pineapple"] = "./Assets/Jimmy Demo/Items/Fruits/Pineapple.png";
         map["Pink"] = "./Assets/Jimmy Demo/Background/Pink.png";
+        map["PipeEffect"] = "./Assets/PipeEffect.png";
         map["Play"] = "./Assets/Jimmy Demo/Menu/Buttons/Play.png";
         map["PointEffect"] = "./Assets/PointEffect.png";
         map["Previous"] = "./Assets/Jimmy Demo/Menu/Buttons/Previous.png";
