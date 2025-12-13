@@ -30,6 +30,11 @@ local pointEffectDuration = 40
 local pointX = 0
 local pointY = 0
 
+-- Pipe point effect
+local pipeEffect
+local pipeEffectTimer = 0
+local pipeEffectDuration = 40
+
 -- Text
 local pipeScoreText = "Score: 0"
 local scoreText = "Coins: 0"
@@ -64,12 +69,29 @@ local function showPointEffect()
 
     local pointE = Entity.get_sprite_component(pointEffect)
     if pointE then
-        Sprite.set_width(pointE, 32)
+        Sprite.set_width(pointE, 25)
         Sprite.set_height(pointE, 25)
     end
 
     pointEffectTimer = pointEffectDuration
 end
+
+local function showPipeEffect()
+    local birdPos = Entity.get_global_pos(player1)
+    local bx = Mafs.get_vec_x(birdPos)
+    local by = Mafs.get_vec_y(birdPos)
+
+    Entity.set_global_pos(pipeEffect, bx + 25, by - 25)
+
+    local pipeE = Entity.get_sprite_component(pipeEffect)
+    if pipeE then
+        Sprite.set_width(pipeE, 25)
+        Sprite.set_height(pipeE, 25)
+    end
+
+    pipeEffectTimer = pipeEffectDuration
+end
+
 
 ----------------------------------------------------------
 -- Spawn coins between pipes
@@ -253,12 +275,22 @@ function ExampleScript:OnStart()
 	------------------------------------------------------
     pointEffect = Entity.create_entity()
 
-    Entity.set_global_pos(pointEffect, x + 25 , 295)
-	local point_Effect = Entity.add_sprite_component(pointEffect, assets.textures.PointEffect, 32, 25, 5)
+	local point_Effect = Entity.add_sprite_component(pointEffect, assets.textures.PointEffect, 25, 25, 0)
 
     Sprite.set_columns(point_Effect,1)
     Sprite.set_width(point_Effect, 0)
     Sprite.set_height(point_Effect, 0)
+
+    ------------------------------
+    -- Create pipe point effect
+    ------------------------------
+    pipeEffect = Entity.create_entity()
+
+    local pipe_Effect = Entity.add_sprite_component(pipeEffect, assets.textures.PipeEffect, 25, 25, 0)
+
+    Sprite.set_columns(pipe_Effect, 1)
+    Sprite.set_width(pipe_Effect, 0)
+    Sprite.set_height(pipe_Effect, 0)
 end
 
 ----------------------------------------------------------
@@ -291,6 +323,26 @@ function ExampleScript:OnUpdate()
             if pointE then
                 Sprite.set_width(pointE, 0)
                 Sprite.set_height(pointE, 0)
+            end
+        end
+    end
+
+    -----------------------
+    -- Pipe point effect
+    -----------------------
+    if pipeEffectTimer > 0 then
+        pipeEffectTimer = pipeEffectTimer - 1
+
+        local pos = Entity.get_global_pos(pipeEffect)
+        local x = Mafs.get_vec_x(pos)
+        local y = Mafs.get_vec_y(pos)
+        Entity.set_global_pos(pipeEffect, x, y - 1)
+
+        if pipeEffectTimer <= 0 then
+            local pipeE = Entity.get_sprite_component(pipeEffect)
+            if pipeE then
+                Sprite.set_width(pipeE, 0)
+                Sprite.set_height(pipeE, 0)
             end
         end
     end
@@ -398,6 +450,9 @@ function ExampleScript:OnUpdate()
             Pscore = Pscore + 1
             pipeScoreText = "Score: " .. tostring(Pscore)
             set.passed = true
+
+            -- Show pipe point effect
+            showPipeEffect()
         end
         if pipeX > birdX then
             set.passed = false

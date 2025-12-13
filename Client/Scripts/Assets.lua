@@ -104,6 +104,7 @@ return {
         PimBall = 3518613816,
         Pineapple = 854290486,
         Pink = 1179858848,
+        PipeEffect = 2652724152,
         Play = 1380681860,
         PointEffect = 4172305526,
         Previous = 1657061876,
