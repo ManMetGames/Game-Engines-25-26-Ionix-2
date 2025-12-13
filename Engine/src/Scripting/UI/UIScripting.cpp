@@ -33,6 +33,8 @@ namespace IonixEngine {
             return Application::Get().layerUI->m_UIManager->GetCommittedText(id);
             };
 
+
+
         lua["UI"] = lua.create_table_with(
             "Add_label", AddLabel,
             "add_button", AddButton,

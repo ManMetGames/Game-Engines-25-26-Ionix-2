@@ -6,6 +6,7 @@ local player1
 local x = 100
 local gameOver = false
 local highscore = Json.load_high_score()
+local submitted = false -- For Highscore submission
 local playerName = ""
 -- Pipes
 local pipe, pipeT, pipe2, pipeT2, pipe3, pipeT3
@@ -30,9 +31,8 @@ local coinsText = "Coins Collected: "
 local topScore = "Highscore: "
 local gameOver = false
 
-local topLeaderboard
-
-topLeaderboard = Firebase.retrieve_high_score(5)
+local topLeaderboard = nil
+local leaderboardFetched = false
 
 -- Window
 Window.set_size_centered(960, 640)
@@ -101,6 +101,11 @@ local function resetGame()
         coinHidden[c] = false
         Fysics.set_linear_velocity(c, 0, 0)
     end
+
+    submitted = false
+    playerName = ""
+    topLeaderboard = nil
+    leaderboardFetched = false
 end
 
 ----------------------------------------------------------
@@ -241,6 +246,33 @@ function ExampleScript:OnUpdate()
         if Input.get_key_down(Keys.ionix_space) then
             resetGame()
         end
+
+        UI.add_input_text(300, 350, 220, "New Highscore! Enter your name:", "player_name", 16)
+
+        -- this only changes when Enter is pressed (because your C++ commits on Enter)
+        local newName = UI.get_input_text("player_name")
+
+        if newName ~= "" and newName ~= playerName and not submitted then
+            playerName = newName
+            submitted = true
+
+            -- submit score (use Pscore or highscore depending on your design)
+            Firebase.submit_high_score(playerName, highscore)  -- or Pscore
+
+            -- refresh leaderboard if you want
+            topLeaderboard = Firebase.retrieve_high_score(5)
+        end
+        if gameOver and not leaderboardFetched then
+          topLeaderboard = Firebase.retrieve_high_score(5)
+          leaderboardFetched = true
+        end
+
+        if gameOver and topLeaderboard then
+          for i, e in ipairs(topLeaderboard) do
+            local line = string.format("%d. %s - %d", i, e.name, e.score)
+            UI.Add_label(10, 70 + (i-1)*20, 0, 0, line)
+          end
+        end  
         return
     end
 
@@ -303,10 +335,10 @@ function ExampleScript:OnUpdate()
     UI.Add_label(10, 40, 1000, 1000, scoreText)
     ------------------------------------------------------
               -- For leaderboard dont touch --
-  for i, e in ipairs(topLeaderboard) do
-    local line = string.format("%d. %s - %d", i, e.name, e.score)
-    UI.Add_label(20, 100 + (i-1)*20, 0, 0, line)
-  end
+    --for i, e in ipairs(topLeaderboard) do
+      --local line = string.format("%d. %s - %d", i, e.name, e.score)
+      --UI.Add_label(20, 100 + (i-1)*20, 0, 0, line)
+    --end
     
     
     --UI.add_input_text(300, 350, 100, "New Highscore! Enter your name: ", "player_name", 16)
