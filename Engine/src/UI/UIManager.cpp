@@ -26,7 +26,8 @@ void UIManager::AddLabel(int x, int y, float xSize, float ySize, const char* tex
 	element->yPos = y;
 	element->xSize = xSize;
 	element->ySize = ySize;
-	element->text = const_cast<char*>(text);
+	element->ownedText = (text ? text : "");
+	element->text = const_cast<char*>(element->ownedText.c_str());
 	element->fontName = fontName;
 	elements.push_back(element);
 	AddChildToPanel(element);
@@ -40,7 +41,8 @@ void UIManager::AddButton(int x, int y, float xSize, float ySize, const char* te
 	element->yPos = y;
 	element->xSize = xSize;
 	element->ySize = ySize;
-	element->text = const_cast<char*>(text);
+	element->ownedText = (text ? text : "");
+	element->text = const_cast<char*>(element->ownedText.c_str());
 	AddChildToPanel(element);
 }
 
@@ -52,7 +54,8 @@ void UIManager::AddCheckbox(int x, int y, float xSize, float ySize, const char* 
 	element->yPos = y;
 	element->xSize = xSize;
 	element->ySize = ySize;
-	element->text = const_cast<char*>(text);
+	element->ownedText = (text ? text : "");
+	element->text = const_cast<char*>(element->ownedText.c_str());
 	element->checked = checked;
 	element->fontName = fontName;
 	AddChildToPanel(element);
@@ -66,7 +69,8 @@ void UIManager::AddSliderFloat(int x, int y, float xSize, float ySize, const cha
 	element->yPos = y;
 	element->xSize = xSize;
 	element->ySize = ySize;
-	element->text = const_cast<char*>(text);
+	element->ownedText = (text ? text : "");
+	element->text = const_cast<char*>(element->ownedText.c_str());
 	element->sliderValue = value;
 	element->sliderMin = min;
 	element->slidermax = max;
@@ -81,7 +85,8 @@ void UIManager::AddInputText(int xPos, int yPos, float width, const char* label,
 	element->xPos = xPos;
 	element->yPos = yPos;
 	element->width = width;
-	element->text = const_cast<char*>(label);
+	element->ownedText = (label ? label : "");
+	element->text = const_cast<char*>(element->ownedText.c_str());
 	element->inputId = id;
 
 	auto& buf = m_inputBuffers[element->inputId];
@@ -109,7 +114,8 @@ void UIManager::AddRadioButton(int x, int y, float xSize, float ySize, const cha
 	element->yPos = y;
 	element->xSize = xSize;
 	element->ySize = ySize;
-	element->text = const_cast<char*>(text);
+	element->ownedText = (text ? text : "");
+	element->text = const_cast<char*>(element->ownedText.c_str());
 	element->radioValuePtr = radioValuePointer;
 	element->RadioButtonValue = value;
 	element->sameline = sameline;
@@ -125,7 +131,8 @@ void UIManager::AddColorPicker(int x, int y, float xSize, float ySize, const cha
 	element->yPos = y;
 	element->xSize = xSize;
 	element->ySize = ySize;
-	element->text = const_cast<char*>(label);
+	element->ownedText = (label ? label : "");
+	element->text = const_cast<char*>(element->ownedText.c_str());
 	element->color = color;
 	element->fontName = fontName;
 	AddChildToPanel(element);
@@ -139,7 +146,8 @@ void UIManager::AddDropdown(int x, int y, float xSize, float ySize, const char* 
 	element->yPos = y;
 	element->xSize = xSize;
 	element->ySize = ySize;
-	element->text = const_cast<char*>(text);
+	element->ownedText = (text ? text : "");
+	element->text = const_cast<char*>(element->ownedText.c_str());
 	element->dropdownOptions = options;
 	element->dropdownCurrentIndex = currentIndex;
 	element->fontName = fontName;

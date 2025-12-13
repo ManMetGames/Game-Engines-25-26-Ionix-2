@@ -30,6 +30,7 @@ namespace IonixEngine
 		int yPos;
 		float xSize;
 		float ySize;
+		std::string ownedText;
 		char* text = nullptr;
 		//std::function<void()> onClick = nullptr; // only for buttons
 		bool* checked = nullptr; // only for checkboxes
@@ -40,6 +41,7 @@ namespace IonixEngine
 		int RadioButtonValue = 0;
 		bool sameline = false;
 		float* color = nullptr; // only for ColorPicker4
+
 
 		char* inputBuffer = nullptr; // only for InputText
 		size_t inputBufferSize = 0; //only for InputText
@@ -67,6 +69,8 @@ namespace IonixEngine
 
 		std::unordered_map<std::string, std::vector<char>> m_inputBuffers;
 		std::unordered_map<std::string, std::string> m_committedText;
+
+		std::vector<std::string> m_frameText; // keeps label/button text alive for this frame
 
 	public:
 		Fontloader fontLoader;

@@ -33,7 +33,7 @@ local gameOver = false
 local topLeaderboard
 
 topLeaderboard = Firebase.retrieve_high_score(5)
---print(topLeaderboard)
+
 -- Window
 Window.set_size_centered(960, 640)
 
@@ -301,6 +301,17 @@ function ExampleScript:OnUpdate()
     -- UI
     UI.Add_label(10, 10, 1000, 1000, pipeScoreText)
     UI.Add_label(10, 40, 1000, 1000, scoreText)
+    ------------------------------------------------------
+              -- For leaderboard dont touch --
+  for i, e in ipairs(topLeaderboard) do
+    local line = string.format("%d. %s - %d", i, e.name, e.score)
+    UI.Add_label(20, 100 + (i-1)*20, 0, 0, line)
+  end
+    
+    
+    --UI.add_input_text(300, 350, 100, "New Highscore! Enter your name: ", "player_name", 16)
+    --playerName = UI.get_input_text("player_name")
+    ------------------------------------------------------
 end
 
 ----------------------------------------------------------
@@ -370,11 +381,7 @@ function ExampleScript:OnCollisionEnter(a, b)
         triggerGameOver()
     end
 end
-    ------------------------------------------------------
-    -- For leaderboard dont touch
-    --UI. Add_label(600, 50, 300, 300, tostring(topLeaderboard))
-    --UI.add_input_text(300, 350, 100, "New Highscore! Enter your name: ", "player_name", 16)
-    --playerName = UI.get_input_text("player_name")
+
 
 return ExampleScript
 

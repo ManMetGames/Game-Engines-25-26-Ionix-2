@@ -61,54 +61,37 @@ namespace IonixEngine
         }
     }
 
-    void FirebaseLeaderboard::RetrieveTopScores(int count) {
-        if (!g_db) {
-            std::cout << "Database not initialized!\n";
-            return;
-        }
+    std::vector<FirebaseLeaderboard::LeaderboardEntry>
+        FirebaseLeaderboard::GetTopScores(int count)
+    {
+        std::vector<LeaderboardEntry> top_scores;
 
-        firebase::database::DatabaseReference leaderboard_ref = g_db->GetReference("leaderboard");
-        firebase::database::Query query = leaderboard_ref.OrderByChild("score").LimitToLast(count);
-        firebase::Future<firebase::database::DataSnapshot> result = query.GetValue();
+        if (!g_db) return top_scores;
 
-        std::cout << "Retrieving top " << count << " scores...\n";
+        auto leaderboard_ref = g_db->GetReference("leaderboard");
+        auto query = leaderboard_ref.OrderByChild("score").LimitToLast(count);
+        auto result = query.GetValue();
 
         while (result.status() == firebase::kFutureStatusPending) {}
 
-        if (result.error() == firebase::database::kErrorNone) {
-            std::cout << "Successfully retrieved scores!\n";
-            const firebase::database::DataSnapshot& snapshot = *result.result();
+        if (result.error() != firebase::database::kErrorNone)
+            return top_scores;
 
-            std::vector<LeaderboardEntry> top_scores;
+        const auto& snapshot = *result.result();
 
-            if (snapshot.children_count() > 0) {
-                std::cout << "--- Leaderboard Top " << count << " ---\n";
-                for (const auto& child_snapshot : snapshot.children()) {
-                    if (child_snapshot.HasChild("name") && child_snapshot.HasChild("score")) {
-                        firebase::Variant nameVar = child_snapshot.Child("name").value();
-                        firebase::Variant scoreVar = child_snapshot.Child("score").value();
-                        std::string name = nameVar.string_value();
-                        int score = (int)scoreVar.int64_value();
-                        top_scores.push_back({ name, score });
-                    }
-                }
+        for (const auto& child : snapshot.children())
+        {
+            if (!child.HasChild("name") || !child.HasChild("score")) continue;
 
-                std::sort(top_scores.begin(), top_scores.end(), [](const LeaderboardEntry& a, const LeaderboardEntry& b) {
-                    return a.score > b.score;
-                    });
+            firebase::Variant nameVar = child.Child("name").value();
+            firebase::Variant scoreVar = child.Child("score").value();
 
-                for (size_t i = 0; i < top_scores.size(); ++i) {
-                    std::cout << (i + 1) << ". Name: " << top_scores[i].name << ", Score: " << top_scores[i].score << "\n";
-                }
-                std::cout << "-----------------------\n";
-            }
-            else {
-                std::cout << "No scores found in the leaderboard.\n";
-            }
-
+            top_scores.push_back({ nameVar.string_value(), (int)scoreVar.int64_value() });
         }
-        else {
-            std::cout << "Failed to retrieve scores: " << result.error_message() << "\n";
-        }
+
+        std::sort(top_scores.begin(), top_scores.end(),
+            [](const LeaderboardEntry& a, const LeaderboardEntry& b) { return a.score > b.score; });
+
+        return top_scores;
     }
 }

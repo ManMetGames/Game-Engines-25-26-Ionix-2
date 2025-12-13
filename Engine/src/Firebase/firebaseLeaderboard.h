@@ -28,7 +28,7 @@ namespace IonixEngine
             int score;
         };
 
-        static void RetrieveTopScores(int count);
+        std::vector<LeaderboardEntry> GetTopScores(int count);
 
     };
 };

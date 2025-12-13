@@ -19,7 +19,7 @@ namespace IonixEngine
 
 		ImGui::PushFont(fontToPush);
 
-		ImGui::Text(text);
+		ImGui::TextUnformatted(text);
 		//ImGui::Text(text, ImVec2(xsize, ysize));
 		ImGui::PopFont();
 	}
@@ -28,9 +28,7 @@ namespace IonixEngine
 	{
 		ImGui::SetCursorPos(ImVec2(xpos, ypos));
 		ImGui::SetWindowFontScale(1);
-		if (ImGui::Button(text, ImVec2(xsize, ysize))) {
-			return true;
-		}
+		return ImGui::Button(text, ImVec2(xsize, ysize));
 	}
 
 	float UI::DrawSlider(char* text, static float i, int xsize, int ysize, int xpos, int ypos, int minval, int maxval) {

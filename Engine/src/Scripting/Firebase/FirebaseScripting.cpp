@@ -15,7 +15,21 @@ namespace IonixEngine
 		auto submitHighScore = [](const std::string& name, int score) {Application::Get().firebaseLeaderboard->SubmitScore(name, score);
 			};
 
-		auto retrieveHighScore = [](int count) {Application::Get().firebaseLeaderboard->RetrieveTopScores(count);
+		auto retrieveHighScore = [](sol::this_state ts, int count)
+			{
+				sol::state_view lua(ts);
+
+				auto scores = Application::Get().firebaseLeaderboard->GetTopScores(count);
+
+				sol::table out = lua.create_table((int)scores.size(), 0);
+
+				int i = 1;
+				for (auto& e : scores)
+				{
+					out[i++] = lua.create_table_with("name", e.name, "score", e.score);
+				}
+
+				return out;
 			};
 
 		lua["Firebase"] = lua.create_table_with(
