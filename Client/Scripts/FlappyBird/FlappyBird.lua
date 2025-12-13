@@ -22,6 +22,14 @@ local coinHidden = {}
 local score = 0
 local Pscore = 0
 
+-- Point effect
+local pointEffect
+local pointEffectTimer = 0
+local pointEffectDuration = 40
+
+local pointX = 0
+local pointY = 0
+
 -- Text
 local pipeScoreText = "Score: 0"
 local scoreText = "Coins: 0"
@@ -38,6 +46,30 @@ local leaderboardFetched = false
 
 -- Window
 Window.set_size_centered(960, 640)
+
+----------------------------------------------------------
+-- Show point effect
+----------------------------------------------------------
+local function showPointEffect()
+    local birdPos = Entity.get_global_pos(player1)
+    local birdX = Mafs.get_vec_x(birdPos)
+    local birdY = Mafs.get_vec_y(birdPos)
+
+    -- Offset
+    pointX = birdX + 25
+    pointY = birdY - 25
+
+    -- Set position
+    Entity.set_global_pos(pointEffect, pointX, pointY)
+
+    local pointE = Entity.get_sprite_component(pointEffect)
+    if pointE then
+        Sprite.set_width(pointE, 32)
+        Sprite.set_height(pointE, 25)
+    end
+
+    pointEffectTimer = pointEffectDuration
+end
 
 ----------------------------------------------------------
 -- Spawn coins between pipes
@@ -73,6 +105,7 @@ local function resetGame()
     coinsText = "Coins Collected: "
     topScore = "Highscore: "
     highscore = Json.load_high_score()
+
     -- Reset player
     Fysics.set_pos(player1, 1, 3)
     Fysics.set_gravity_scale(player1, 0)
@@ -214,6 +247,18 @@ function ExampleScript:OnStart()
         -- Associate coin with pipe sets
         pipeSet.coin = c
     end
+
+    ------------------------------------------------------
+	-- Create point effect
+	------------------------------------------------------
+    pointEffect = Entity.create_entity()
+
+    Entity.set_global_pos(pointEffect, x + 25 , 295)
+	local point_Effect = Entity.add_sprite_component(pointEffect, assets.textures.PointEffect, 32, 25, 5)
+
+    Sprite.set_columns(point_Effect,1)
+    Sprite.set_width(point_Effect, 0)
+    Sprite.set_height(point_Effect, 0)
 end
 
 ----------------------------------------------------------
@@ -226,6 +271,29 @@ function ExampleScript:OnUpdate()
     Window.set_size_centered(960, 640)
     local windowW = Window.get_width()
     local windowH = Window.get_height()
+
+    ------------------
+	-- Point effect
+	------------------
+    -- Update point effect timer
+    if pointEffectTimer > 0 then
+        pointEffectTimer = pointEffectTimer - 1
+
+        -- Make it go up slightly
+        local pos = Entity.get_global_pos(pointEffect)
+        local x = Mafs.get_vec_x(pos)
+        local y = Mafs.get_vec_y(pos)
+        Entity.set_global_pos(pointEffect, x, y - 1)
+
+        -- Hide when timer ends
+        if pointEffectTimer <= 0 then
+            local pointE = Entity.get_sprite_component(pointEffect)
+            if pointE then
+                Sprite.set_width(pointE, 0)
+                Sprite.set_height(pointE, 0)
+            end
+        end
+    end
 
     ------------------
 	-- Score
@@ -361,6 +429,9 @@ function ExampleScript:OnTriggerEnter(a, b)
             coinHidden[c] = true
             score = score + 1
             scoreText = "Coins: " .. tostring(score)
+
+            -- Show point effect
+            showPointEffect()
             break
         end
     end
