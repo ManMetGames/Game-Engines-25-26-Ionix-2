@@ -199,18 +199,12 @@ namespace IonixEngine {
 	void SpriteComponent::initialiseSpritesheet()
 	{
 		switch (playbackMode) {
-		case playbackOptions::FORWARD: case playbackOptions::FORWARDANDBACKWARD: case playbackOptions::PLAYONCE:
+			//only forward and oneframe work for now, im sorry :(
+		case playbackOptions::FORWARD: case playbackOptions::FORWARDANDBACKWARD: case playbackOptions::PLAYONCE: case playbackOptions::BACKWARD:
 			endFrame = totalFrames;
 			currentFrame = 0;
 			currentRow = 0; //0 indexed
 			currentCol = 0; //0 indexed
-			break;
-		case playbackOptions::BACKWARD:
-			isReversing = true;
-			endFrame = 0;
-			currentFrame = totalFrames;
-			currentCol = cols - 1;
-			currentRow = rows - 1;
 			break;
 		case playbackOptions::ONEFRAME:
 			currentFrame = 0;

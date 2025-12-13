@@ -24,7 +24,6 @@ namespace IonixEngine
     {
         instance = this;
         fysicsManager = new FysicsManager();
-
         //create default ground box
         /*b2World* world = fysicsManager->GetWorld();
         b2BodyDef groundDef; groundDef.position.Set(0.f, -2.f); // roughly 600 pixels down from the top
@@ -156,6 +155,7 @@ namespace IonixEngine
             }
 
         }
+
 
     } 
     void LayerFysics::OnEvent(IonixEvent& e)

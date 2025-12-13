@@ -46,6 +46,7 @@ return {
         FlappyPipe = 1290161702,
         FlappyPipe2 = 2484853856,
         Ghast_Tear = 3650266058,
+        LaptopBattery = 817581490,
         Gray = 220346788,
         Green = 1896123910,
         Grey_Off = 321655170,

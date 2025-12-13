@@ -49,6 +49,7 @@ struct Textures {
     uint32_t FlappyPipe = 1290161702u;
     uint32_t FlappyPipe2 = 2484853856u;
     uint32_t Ghast_Tear = 3650266058u;
+    uint32_t LaptopBattery = 817581490u;
     uint32_t Gray = 220346788u;
     uint32_t Green = 1896123910u;
     uint32_t Grey_Off = 321655170u;
@@ -245,6 +246,7 @@ struct Textures {
         map["FlappyPipe"] = "./Assets/FlappyPipe.png";
         map["FlappyPipe2"] = "./Assets/FlappyPipe2.png";
         map["Ghast_Tear"] = "./Assets/Ghast_Tear.png";
+        map["LaptopBattery"] = "./Assets/LaptopBattery.png";
         map["Gray"] = "./Assets/Jimmy Demo/Background/Gray.png";
         map["Green"] = "./Assets/Jimmy Demo/Background/Green.png";
         map["Grey_Off"] = "./Assets/Jimmy Demo/Traps/Platforms/Grey Off.png";
