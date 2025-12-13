@@ -121,5 +121,9 @@ namespace IonixEngine
 		void RenderUI();
 
 		std::string GetCommittedText(const std::string& id) const;
+		std::unordered_map<std::string, bool> m_inputCommittedThisFrame;
+		bool WasInputCommitted(const std::string& id) const;
+
+		void ClearInput(const std::string& id);
 	};
 }

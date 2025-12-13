@@ -106,6 +106,23 @@ std::string IonixEngine::UIManager::GetCommittedText(const std::string& id) cons
 	return (it == m_committedText.end()) ? "" : it->second;
 }
 
+bool UIManager::WasInputCommitted(const std::string& id) const
+{
+	auto it = m_inputCommittedThisFrame.find(id);
+	return it != m_inputCommittedThisFrame.end() && it->second;
+}
+
+void UIManager::ClearInput(const std::string& id)
+{
+	// clear committed text
+	m_committedText[id].clear();
+
+	// clear live buffer
+	auto it = m_inputBuffers.find(id);
+	if (it != m_inputBuffers.end() && !it->second.empty())
+		it->second[0] = '\0';
+}
+
 void UIManager::AddRadioButton(int x, int y, float xSize, float ySize, const char* text, int* radioValuePointer, int value, bool sameline, const std::string& fontName)
 {
 	UIElement* element = new UIElement;
@@ -226,6 +243,7 @@ void UIManager::RenderElement(UIElement* element)
 		if (pressedEnter)
 		{
 			m_committedText[element->inputId] = std::string(element->inputBuffer);
+			m_inputCommittedThisFrame[element->inputId] = true;
 			std::cout << "Entered name: " << m_committedText[element->inputId] << "\n";
 		}
 		break;
@@ -265,7 +283,7 @@ void UIManager::RenderElement(UIElement* element)
 
 void UIManager::RenderUI()
 {
-	;
+	m_inputCommittedThisFrame.clear();
 	for (auto& element : elements)
 	{
 		RenderElement(element);

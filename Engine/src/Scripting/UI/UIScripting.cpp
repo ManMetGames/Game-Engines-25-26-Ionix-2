@@ -33,7 +33,13 @@ namespace IonixEngine {
             return Application::Get().layerUI->m_UIManager->GetCommittedText(id);
             };
 
+        auto WasInputCommitted = [](const std::string& id) {
+            return Application::Get().layerUI->m_UIManager->WasInputCommitted(id);
+            };
 
+        auto ClearInput = [](const std::string& id) {
+            Application::Get().layerUI->m_UIManager->ClearInput(id);
+            };
 
         lua["UI"] = lua.create_table_with(
             "Add_label", AddLabel,
@@ -42,7 +48,9 @@ namespace IonixEngine {
             "draw_progress_bar", DrawProgressBar,
             "add_input_text", AddInputText,
             
-			"get_input_text", GetInputText
+			"get_input_text", GetInputText,
+            "was_input_committed", WasInputCommitted,
+            "clear_input", ClearInput
         );
     }
 }

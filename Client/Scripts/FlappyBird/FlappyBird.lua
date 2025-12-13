@@ -6,6 +6,7 @@ local player1
 local x = 100
 local gameOver = false
 local highscore = Json.load_high_score()
+local newHighScore = false
 local submitted = false -- For Highscore submission
 local playerName = ""
 -- Pipes
@@ -30,6 +31,7 @@ local finalScoreText = "Final Score: 0"
 local coinsText = "Coins Collected: "
 local topScore = "Highscore: "
 local gameOver = false
+
 
 local topLeaderboard = nil
 local leaderboardFetched = false
@@ -102,10 +104,12 @@ local function resetGame()
         Fysics.set_linear_velocity(c, 0, 0)
     end
 
+    newHighScore = false
     submitted = false
     playerName = ""
     topLeaderboard = nil
     leaderboardFetched = false
+    UI.clear_input("player_name")
 end
 
 ----------------------------------------------------------
@@ -247,32 +251,29 @@ function ExampleScript:OnUpdate()
             resetGame()
         end
 
-        UI.add_input_text(300, 350, 220, "New Highscore! Enter your name:", "player_name", 16)
+        -- show TextInput only if new high score
+        if newHighScore and not submitted then
+            UI.add_input_text(300, 350, 220, "New Highscore! Enter your name:", "player_name", 16)
 
-        -- this only changes when Enter is pressed (because your C++ commits on Enter)
-        local newName = UI.get_input_text("player_name")
+            if UI.was_input_committed("player_name") then
+                local name = UI.get_input_text("player_name")
+                if name == "" then name = "Anon" end
 
-        if newName ~= "" and newName ~= playerName and not submitted then
-            playerName = newName
-            submitted = true
+                Firebase.submit_high_score(name, highscore)
+                submitted = true
 
-            -- submit score (use Pscore or highscore depending on your design)
-            Firebase.submit_high_score(playerName, highscore)  -- or Pscore
-
-            -- refresh leaderboard if you want
-            topLeaderboard = Firebase.retrieve_high_score(5)
-        end
-        if gameOver and not leaderboardFetched then
-          topLeaderboard = Firebase.retrieve_high_score(5)
-          leaderboardFetched = true
+                -- Refresh leaderboard next frame
+                leaderboardFetched = false
+            end
         end
 
-        if gameOver and topLeaderboard then
-          for i, e in ipairs(topLeaderboard) do
-            local line = string.format("%d. %s - %d", i, e.name, e.score)
-            UI.Add_label(10, 70 + (i-1)*20, 0, 0, line)
-          end
-        end  
+        -- Display leaderboard
+        if topLeaderboard then
+            for i, e in ipairs(topLeaderboard) do
+                local line = string.format("%d. %s - %d", i, e.name, e.score)
+                UI.Add_label(10, 70 + (i-1)*20, 0, 0, line)
+            end
+        end
         return
     end
 
@@ -333,17 +334,7 @@ function ExampleScript:OnUpdate()
     -- UI
     UI.Add_label(10, 10, 1000, 1000, pipeScoreText)
     UI.Add_label(10, 40, 1000, 1000, scoreText)
-    ------------------------------------------------------
-              -- For leaderboard dont touch --
-    --for i, e in ipairs(topLeaderboard) do
-      --local line = string.format("%d. %s - %d", i, e.name, e.score)
-      --UI.Add_label(20, 100 + (i-1)*20, 0, 0, line)
-    --end
-    
-    
-    --UI.add_input_text(300, 350, 100, "New Highscore! Enter your name: ", "player_name", 16)
-    --playerName = UI.get_input_text("player_name")
-    ------------------------------------------------------
+
 end
 
 ----------------------------------------------------------
@@ -384,8 +375,10 @@ end
         if s then Sprite.set_width(s, 0); Sprite.set_height(s, 0) end
     end
     
-    if Pscore > highscore then 
-        highscore = Pscore 
+    newHighScore = (Pscore > highscore)
+
+    if newHighScore then
+        highscore = Pscore
         Json.save_high_score(highscore)
     end
 
