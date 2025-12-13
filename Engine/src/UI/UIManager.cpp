@@ -94,11 +94,11 @@ void UIManager::AddInputText(int xPos, int yPos, float width, const char* label,
 	AddChildToPanel(element);
 }
 
-std::string UIManager::GetInputText(const std::string& id) const
+// - To fetch inputted text from AddInputText
+std::string IonixEngine::UIManager::GetCommittedText(const std::string& id) const
 {
-	auto it = m_inputBuffers.find(id);
-	if (it == m_inputBuffers.end()) return "";
-	return std::string(it->second.data()); // buffer is null-terminated
+	auto it = m_committedText.find(id);
+	return (it == m_committedText.end()) ? "" : it->second;
 }
 
 void UIManager::AddRadioButton(int x, int y, float xSize, float ySize, const char* text, int* radioValuePointer, int value, bool sameline, const std::string& fontName)
@@ -202,11 +202,26 @@ void UIManager::RenderElement(UIElement* element)
 			*element->sliderValue = m_ui->DrawSlider(element->text, *element->sliderValue, element->xSize, element->ySize, element->xPos, element->yPos, element->sliderMin, element->slidermax);
 		break;
 	case UIType::InputText:
+	{
 		ImGui::PushID(element->inputId.c_str());
-		m_ui->InputText(element->text, element->xPos, element->yPos, element->width,
-			element->inputBuffer, element->inputBufferSize);
+
+		bool pressedEnter = m_ui->InputText(
+			element->text,
+			element->xPos, element->yPos,
+			element->width,
+			element->inputBuffer, element->inputBufferSize,
+			ImGuiInputTextFlags_EnterReturnsTrue
+		);
+
 		ImGui::PopID();
+
+		if (pressedEnter)
+		{
+			m_committedText[element->inputId] = std::string(element->inputBuffer);
+			std::cout << "Committed name: " << m_committedText[element->inputId] << "\n";
+		}
 		break;
+	}
 	case UIType::RadioButton:
 		if (element->radioValuePtr)
 		{

@@ -117,15 +117,18 @@ namespace IonixEngine
 		return *currentIndex;
 	}
 
-	void UI::InputText(const char* label, int xPos, int yPos, float width, char* buffer, size_t bufferSize)
+	bool UI::InputText(const char* label, int xPos, int yPos, float width,
+		char* buffer, size_t bufferSize,
+		ImGuiInputTextFlags flags)
 	{
 		ImGui::SetWindowFontScale(1.0);
 
 		ImGui::SetCursorPos(ImVec2((float)xPos, (float)yPos));
 		ImGui::TextUnformatted(label);
 
-		ImGui::SetCursorPos(ImVec2((float)xPos, (float)yPos+20));
-		ImGui::SetNextItemWidth(width);          
-		ImGui::InputText("##input", buffer, bufferSize);
+		ImGui::SetCursorPos(ImVec2((float)xPos, (float)yPos + 20));
+		ImGui::SetNextItemWidth(width);
+
+		return ImGui::InputText("##input", buffer, bufferSize, flags);
 	}
 }

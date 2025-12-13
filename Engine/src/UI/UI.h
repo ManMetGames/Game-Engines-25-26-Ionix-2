@@ -1,6 +1,7 @@
 #pragma once
 #include <unordered_map>
 #include <string>
+#include "imgui.h"
 
 namespace IonixEngine
 {
@@ -22,7 +23,7 @@ namespace IonixEngine
         bool& getCheckboxState(int index) { return checkboxMap[index]; }
         float DrawProgressBar(int xpos, int ypos, float xsize, float ysize, float maxvalue, float& currentvalue, float incrementamount);
         float DrawDropdown(int xPos, int yPos, float xSize, float ySize, const char* text, std::vector<std::string> options, int* currentIndex);
-        void InputText(const char* label, int xPos, int yPos, float width, char* buffer, size_t bufferSize);
+        bool InputText(const char* label, int xPos, int yPos, float width, char* buffer, size_t bufferSize, ImGuiInputTextFlags flags = 0);
     };
 
 

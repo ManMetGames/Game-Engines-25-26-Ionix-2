@@ -66,6 +66,8 @@ namespace IonixEngine
 		UI* m_ui = nullptr;
 
 		std::unordered_map<std::string, std::vector<char>> m_inputBuffers;
+		std::unordered_map<std::string, std::string> m_committedText;
+
 	public:
 		Fontloader fontLoader;
 		std::vector<UIElement*> GetElements()
@@ -114,7 +116,6 @@ namespace IonixEngine
 
 		void RenderUI();
 
-		std::string GetInputText(const std::string& id) const;
-
+		std::string GetCommittedText(const std::string& id) const;
 	};
 }

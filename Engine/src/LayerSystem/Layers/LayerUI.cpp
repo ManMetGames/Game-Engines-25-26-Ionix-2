@@ -90,8 +90,8 @@ namespace IonixEngine
 		 ImGui::SetWindowPos(ImVec2(0, 0));
          // Render the UI
          m_UIManager->RenderUI();
-         Application::Get().layerUI->m_UIManager->AddInputText(20, 500, 160.0f, "Your name:", "player_name", 16);
-         std::string name = Application::Get().layerUI->m_UIManager->GetInputText("player_name");
+         Application::Get().layerUI->m_UIManager->AddInputText(200, 300, 100.0f, "Your name:", "player_name", 16);
+         std::string name = Application::Get().layerUI->m_UIManager->GetCommittedText("player_name");
 		 cout << "Player name: " << name << std::endl;
          ImGui::End();
          //m_UIManager->ClearElements();
