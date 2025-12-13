@@ -18,7 +18,6 @@ void UIManager::AddChildToPanel(UIElement* element)
 	elements.push_back(element);
 }
 
-
 void UIManager::AddLabel(int x, int y, float xSize, float ySize, const char* text, const std::string& fontName)
 {
 	UIElement* element = new UIElement;
@@ -47,7 +46,6 @@ void UIManager::AddButton(int x, int y, float xSize, float ySize, const char* te
 
 void UIManager::AddCheckbox(int x, int y, float xSize, float ySize, const char* text, bool* checked, const std::string& fontName)
 {
-
 	UIElement* element = new UIElement;
 	element->type = UIType::Checkbox;
 	element->xPos = x;
@@ -76,18 +74,31 @@ void UIManager::AddSliderFloat(int x, int y, float xSize, float ySize, const cha
 	AddChildToPanel(element);
 }
 
-void UIManager::AddInputText(float xPos, float yPos, const char* text)
+void UIManager::AddInputText(int xPos, int yPos, float width, const char* label, const char* id, size_t maxLen)
 {
 	UIElement* element = new UIElement;
 	element->type = UIType::InputText;
-	const std::string fontName;
 	element->xPos = xPos;
 	element->yPos = yPos;
-	element->text = const_cast<char*>(text);
+	element->width = width;
+	element->text = const_cast<char*>(label);
+	element->inputId = id;
 
+	auto& buf = m_inputBuffers[element->inputId];
+	if (buf.empty())
+		buf.assign(maxLen, '\0');   // persistent storage
+	element->inputBuffer = buf.data();
 	element->inputBufferSize = 16;
-	element->inputBuffer = new char[element->inputBufferSize] {};
+	element->inputBufferSize = buf.size();
+	const std::string fontName;
 	AddChildToPanel(element);
+}
+
+std::string UIManager::GetInputText(const std::string& id) const
+{
+	auto it = m_inputBuffers.find(id);
+	if (it == m_inputBuffers.end()) return "";
+	return std::string(it->second.data()); // buffer is null-terminated
 }
 
 void UIManager::AddRadioButton(int x, int y, float xSize, float ySize, const char* text, int* radioValuePointer, int value, bool sameline, const std::string& fontName)
@@ -106,8 +117,6 @@ void UIManager::AddRadioButton(int x, int y, float xSize, float ySize, const cha
 	AddChildToPanel(element);
 }
 
-
-
 void UIManager::AddColorPicker(int x, int y, float xSize, float ySize, const char* label, float* color, const std::string& fontName)
 {
 	UIElement* element = new UIElement;
@@ -120,11 +129,6 @@ void UIManager::AddColorPicker(int x, int y, float xSize, float ySize, const cha
 	element->color = color;
 	element->fontName = fontName;
 	AddChildToPanel(element);
-}
-
-void UIManager::ClearElements()
-{
-	elements.clear();
 }
 
 void UIManager::AddDropdown(int x, int y, float xSize, float ySize, const char* text, std::vector<std::string> options, int* currentIndex, const std::string& fontName)
@@ -141,6 +145,7 @@ void UIManager::AddDropdown(int x, int y, float xSize, float ySize, const char* 
 	element->fontName = fontName;
 	AddChildToPanel(element);
 }
+
 void UIManager::AddProgressBar(int x, int y, float xSize, float ySize, float maxvalue, float* currentvalue, float incrementamount, const std::string& fontName)
 {
 	UIElement* element = new UIElement;
@@ -160,6 +165,11 @@ void UIManager::EndPanel()
 {
 	ImGui::EndChild();
 	return;
+}
+
+void UIManager::ClearElements()
+{
+	elements.clear();
 }
 
 void UIManager::RenderElement(UIElement* element)
@@ -192,8 +202,10 @@ void UIManager::RenderElement(UIElement* element)
 			*element->sliderValue = m_ui->DrawSlider(element->text, *element->sliderValue, element->xSize, element->ySize, element->xPos, element->yPos, element->sliderMin, element->slidermax);
 		break;
 	case UIType::InputText:
-			m_ui->InputText(element->text, element->xPos, element->yPos, 160.0f,
-				element->inputBuffer, element->inputBufferSize);
+		ImGui::PushID(element->inputId.c_str());
+		m_ui->InputText(element->text, element->xPos, element->yPos, element->width,
+			element->inputBuffer, element->inputBufferSize);
+		ImGui::PopID();
 		break;
 	case UIType::RadioButton:
 		if (element->radioValuePtr)
@@ -235,7 +247,8 @@ void UIManager::RenderUI()
 	{
 		RenderElement(element);
 	}
-	
+	//for (auto* e : elements) delete e;
 	elements.clear();
 }
+
 }

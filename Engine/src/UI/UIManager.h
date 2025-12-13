@@ -62,13 +62,10 @@ namespace IonixEngine
 	class UIManager
 	{
 	private:
-		//std::string currentGroupName; 
-
-		//std::vector<UIElement*> groupStack; 
-
 		void RenderElement(UIElement* element);
-
 		UI* m_ui = nullptr;
+
+		std::unordered_map<std::string, std::vector<char>> m_inputBuffers;
 	public:
 		Fontloader fontLoader;
 		std::vector<UIElement*> GetElements()
@@ -103,7 +100,7 @@ namespace IonixEngine
 
 		void AddSliderFloat(int x, int y, float xSize, float ySize, const char* text, float* value, float min, float max, const std::string& fontName = "");
 
-		void AddInputText(float xPos, float yPos, const char* text);
+		void AddInputText(int xPos, int yPos, float width, const char* label, const char* id, size_t maxLen = 16);
 
 		void AddRadioButton(int x, int y, float xSize, float ySize, const char* text, int* radioValuePointer, int value, bool sameline = false, const std::string& fontName = "");
 
@@ -116,6 +113,8 @@ namespace IonixEngine
 		void AddProgressBar(int x, int y, float xSize, float ySize, float maxvalue, float* currentvalue, float incrementamount, const std::string& fontName = "");
 
 		void RenderUI();
+
+		std::string GetInputText(const std::string& id) const;
 
 	};
 }
