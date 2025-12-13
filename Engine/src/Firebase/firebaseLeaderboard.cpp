@@ -35,31 +35,68 @@ namespace IonixEngine
         }
     }
 
-    void FirebaseLeaderboard::SubmitScore(const std::string& name, int score) {
+    static std::string MakeNameKey(std::string name)
+    {
+        // lowercase = case-insensitive names (simplest)
+        for (char& c : name) c = (char)tolower((unsigned char)c);
+
+        // Firebase RTDB keys cannot contain: . # $ [ ] /
+        for (char& c : name)
+        {
+            if (c == '.' || c == '#' || c == '$' || c == '[' || c == ']' || c == '/')
+                c = '_';
+            if (c == ' ') c = '_';
+        }
+
+        if (name.empty()) name = "anon";
+        return name;
+    }
+
+    void FirebaseLeaderboard::SubmitScore(const std::string& name, int score)
+    {
         if (!g_db) {
             std::cout << "Database not initialized!\n";
             return;
         }
 
-        // Gets a reference to your leaderboard path.
-        auto leaderboard_ref = g_db->GetReference("leaderboard").PushChild();
+        const std::string key = MakeNameKey(name);
+        firebase::database::DatabaseReference player_ref =
+            g_db->GetReference("leaderboard").Child(key.c_str());
 
-        // Creates a map to holds the name and score.
-        std::map<std::string, firebase::Variant> entry_data;
-        entry_data["name"] = firebase::Variant(name); 
-        entry_data["score"] = firebase::Variant(score); 
+        // Transaction: read existing score, only replace if score is higher.
+        auto future = player_ref.RunTransaction([name, score](firebase::database::MutableData* data) {
+            int64_t oldScore = -1;
 
-        firebase::Future<void> result = leaderboard_ref.SetValue(entry_data);
+            if (data->HasChild("score")) {
+                firebase::Variant v = data->Child("score").value();
+                if (v.is_int64()) oldScore = v.int64_value();
+                else if (v.is_double()) oldScore = (int64_t)v.double_value();
+            }
 
-        while (result.status() == firebase::kFutureStatusPending) {}
+            // If existing score is already >= new score, do nothing.
+            if (oldScore >= (int64_t)score) {
+                return firebase::database::kTransactionResultAbort;
+            }
 
-        if (result.error() == firebase::database::kErrorNone) {
-            std::cout << "Leaderboard entry succeeded! Name: " << name << ", Score: " << score << "\n";
+            // Write whole entry at /leaderboard/<key>
+            std::map<std::string, firebase::Variant> entry;
+            entry["name"] = firebase::Variant(name);
+            entry["score"] = firebase::Variant((int64_t)score);
+
+            data->set_value(firebase::Variant(entry));
+            return firebase::database::kTransactionResultSuccess;
+            });
+
+        while (future.status() == firebase::kFutureStatusPending) {}
+
+        if (future.error() == firebase::database::kErrorNone) {
+            std::cout << "SubmitScore done for '" << name << "' with " << score << "\n";
         }
         else {
-            std::cout << "Leaderboard entry failed: " << result.error_message() << "\n";
+            std::cout << "SubmitScore failed: " << future.error_message() << "\n";
         }
     }
+
 
     std::vector<FirebaseLeaderboard::LeaderboardEntry>
         FirebaseLeaderboard::GetTopScores(int count)
