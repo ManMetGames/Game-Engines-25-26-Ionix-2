@@ -119,8 +119,14 @@ namespace IonixEngine
 
 	void UI::InputText(char* text, int xPos, int yPos) 
 	{
-		ImGui::SetCursorPos(ImVec2(xPos, yPos));
+		ImGui::SetWindowFontScale(1.0);
 		static char inputBuffer[16] = "";
-		ImGui::InputText(text, inputBuffer, IM_ARRAYSIZE(inputBuffer));
+
+		ImGui::SetCursorPos(ImVec2((float)xPos, (float)yPos));
+		ImGui::TextUnformatted(text);
+
+		ImGui::SetCursorPos(ImVec2((float)xPos, (float)yPos+15));
+		ImGui::SetNextItemWidth(120.0f);                // choose width you like
+		ImGui::InputText("##playername", inputBuffer, IM_ARRAYSIZE(inputBuffer));
 	}
 }
