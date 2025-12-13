@@ -28,7 +28,8 @@ function ParticleSystem.emitHitBurst(x, y)
 			vy,
 			HIT_PARTICLE_LIFETIME,
 			HIT_PARTICLE_SIZE,
-			HIT_PARTICLE_SIZE * 0.25
+			HIT_PARTICLE_SIZE * 0.25,
+			true -- useRainbow
 		)
 	end
 end

@@ -4,7 +4,7 @@ local PsychedelicTripDemo = {}
 
 local t = 0
 
-local bpm = 133
+local bpm = 132
 local secondsPerBeat = 60.0 / bpm
 
 local SPIRAL_EMITTER_COUNT = 12
