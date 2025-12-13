@@ -6,7 +6,7 @@ local player1
 local x = 100
 local gameOver = false
 local highscore = Json.load_high_score()
-
+local playerName = ""
 -- Pipes
 local pipe, pipeT, pipe2, pipeT2, pipe3, pipeT3
 local pipeSets = {}
@@ -67,7 +67,6 @@ local function resetGame()
     coinsText = "Coins Collected: "
     topScore = "Highscore: "
     highscore = Json.load_high_score()
-
     -- Reset player
     Fysics.set_pos(player1, 1, 3)
     Fysics.set_gravity_scale(player1, 0)
@@ -209,7 +208,7 @@ end
 ----------------------------------------------------------
 function ExampleScript:OnUpdate()
     ------------------
-	-- Score
+	-- Window
 	------------------
     Window.set_size_centered(960, 640)
     local windowW = Window.get_width()
@@ -351,6 +350,7 @@ end
     local coinsText = ""
     local text2 = ""
     local topScore = "Highscore: "
+
     
 end
     ------------------------------------------------------
@@ -366,6 +366,10 @@ function ExampleScript:OnCollisionEnter(a, b)
         triggerGameOver()
     end
 end
+    ------------------------------------------------------
+    -- For leaderboard dont touch
+    --UI.add_input_text(300, 350, 100, "New Highscore! Enter your name: ", "player_name", 16)
+    --playerName = UI.get_input_text("player_name")
 
 return ExampleScript
 

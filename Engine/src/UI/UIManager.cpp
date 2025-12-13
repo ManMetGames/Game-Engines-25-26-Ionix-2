@@ -218,7 +218,7 @@ void UIManager::RenderElement(UIElement* element)
 		if (pressedEnter)
 		{
 			m_committedText[element->inputId] = std::string(element->inputBuffer);
-			std::cout << "Committed name: " << m_committedText[element->inputId] << "\n";
+			std::cout << "Entered name: " << m_committedText[element->inputId] << "\n";
 		}
 		break;
 	}
