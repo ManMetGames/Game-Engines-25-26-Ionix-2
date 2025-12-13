@@ -266,6 +266,11 @@ function ExampleScript:OnUpdate()
                 leaderboardFetched = false
             end
         end
+        -- Fetch leaderboard
+        if not leaderboardFetched then
+            topLeaderboard = Firebase.retrieve_high_score(5)
+            leaderboardFetched = true
+        end
 
         -- Display leaderboard
         if topLeaderboard then
