@@ -18,6 +18,7 @@
 #include "LayerSystem/Layers/LayerSound.h"
 #include "Audio/AudioPlayer.h"
 #include "Graphics/Camera.h"
+#include "Firebase/firebaseLeaderboard.h"
 
 namespace IonixEngine {    
     class ENGINE_API Application {
@@ -58,7 +59,7 @@ namespace IonixEngine {
         LayerFysics* layerFysics;
         LayerInput* layerInput;
         LayerSound* layerSound;
-
+        FirebaseLeaderboard* firebaseLeaderboard;
 
     private:
         uint64_t startTick;
@@ -66,7 +67,6 @@ namespace IonixEngine {
         static Application* s_Instance;
         Window* m_Window;
         LayerStack m_LayerStack;
-        
         // fixed update timing
         float m_FixedTimeStep = 1.0f / 60.0f;  // 60 Hz fixed update
         float m_FixedTimeAccumulator = 0.0f;

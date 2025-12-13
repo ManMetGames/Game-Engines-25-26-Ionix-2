@@ -13,7 +13,6 @@
 #include <iostream>
 #include <third-party/imgui_impl_sdlrenderer2.h>
 #include "Input/ControllerManager.h"
-#include "Firebase/firebaseLeaderboard.h"
 
 namespace IonixEngine {
     Application* Application::s_Instance = nullptr;
@@ -56,10 +55,11 @@ namespace IonixEngine
         layerScene = new LayerScene();
         AddLayer(layerScene);
 
-        FirebaseLeaderboard::Init();
+		firebaseLeaderboard = new FirebaseLeaderboard();
+		firebaseLeaderboard->Init();
         //FirebaseLeaderboard::SubmitScore("Zulfaqaar", 90);
         //FirebaseLeaderboard::RetrieveTopScores(5);
-        //FirebaseLeaderboard::TestWrite(123);
+        
         //layerNavigation = new LayerNavigation();  
         //AddLayer(layerNavigation);
 

@@ -39,7 +39,7 @@ namespace IonixEngine {
             "add_color_picker", AddColorPicker,
             "draw_progress_bar", DrawProgressBar,
             "add_input_text", AddInputText,
-
+            
 			"get_input_text", GetInputText
         );
     }
