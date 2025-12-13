@@ -160,8 +160,7 @@ end
 
 local function InitBall()
     ballEntity = Entity.create_entity()
-
-    -- **Important**: set entity transform (pixels) first so the FysicsBody uses correct initial pos
+    
     Entity.set_global_pos(ballEntity, screenW * 0.5, screenH * 0.5)
 
     Entity.add_sprite_component(ballEntity, assets.textures.PimBall, ballSize, ballSize, 100)
@@ -174,7 +173,7 @@ local function InitBall()
     Fysics.add_circle_collider(ballEntity, halfW, 0.5, 0.5, false)
     --Fysics.add_sprite_collider(ballEntity, false)
 
-    Fysics.set_material_properties(ballEntity, 0.0, 1.1)
+    Fysics.set_material_properties(ballEntity, 0.0, 0.8)
     Fysics.set_gravity_scale(ballEntity, 0)
 end
 
