@@ -69,7 +69,7 @@ local function showPointEffect()
 
     local pointE = Entity.get_sprite_component(pointEffect)
     if pointE then
-        Sprite.set_width(pointE, 32)
+        Sprite.set_width(pointE, 25)
         Sprite.set_height(pointE, 25)
     end
 
@@ -85,7 +85,7 @@ local function showPipeEffect()
 
     local pipeE = Entity.get_sprite_component(pipeEffect)
     if pipeE then
-        Sprite.set_width(pipeE, 32)
+        Sprite.set_width(pipeE, 25)
         Sprite.set_height(pipeE, 25)
     end
 
@@ -327,9 +327,9 @@ function ExampleScript:OnUpdate()
         end
     end
 
-    ------------------------------------------------------
-    -- Pipe point effect update
-    ------------------------------------------------------
+    -----------------------
+    -- Pipe point effect
+    -----------------------
     if pipeEffectTimer > 0 then
         pipeEffectTimer = pipeEffectTimer - 1
 
@@ -346,7 +346,6 @@ function ExampleScript:OnUpdate()
             end
         end
     end
-
 
     ------------------
 	-- Score
