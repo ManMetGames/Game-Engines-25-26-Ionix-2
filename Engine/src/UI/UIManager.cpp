@@ -72,13 +72,13 @@ void IonixEngine::UIManager::AddSliderFloat(int x, int y, float xSize, float ySi
 	AddChildToPanel(element);
 }
 
-void IonixEngine::UIManager::AddInputText(float xSize, float ySize, const char* text)
+void IonixEngine::UIManager::AddInputText(float xPos, float yPos, const char* text)
 {
 	UIElement* element = new UIElement;
 	element->type = UIType::InputText;
 	const std::string fontName;
-	element->xSize = xSize;
-	element->ySize = ySize;
+	element->xPos = xPos;
+	element->yPos = yPos;
 	element->text = const_cast<char*>(text);
 	AddChildToPanel(element);
 }
