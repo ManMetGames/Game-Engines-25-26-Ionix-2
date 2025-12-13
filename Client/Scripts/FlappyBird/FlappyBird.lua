@@ -30,6 +30,10 @@ local coinsText = "Coins Collected: "
 local topScore = "Highscore: "
 local gameOver = false
 
+local topLeaderboard
+
+topLeaderboard = Firebase.retrieve_high_score(5)
+--print(topLeaderboard)
 -- Window
 Window.set_size_centered(960, 640)
 
@@ -368,6 +372,7 @@ function ExampleScript:OnCollisionEnter(a, b)
 end
     ------------------------------------------------------
     -- For leaderboard dont touch
+    --UI. Add_label(600, 50, 300, 300, tostring(topLeaderboard))
     --UI.add_input_text(300, 350, 100, "New Highscore! Enter your name: ", "player_name", 16)
     --playerName = UI.get_input_text("player_name")
 
