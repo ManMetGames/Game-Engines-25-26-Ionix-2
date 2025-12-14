@@ -60,6 +60,9 @@ namespace IonixEngine
 		float panelRounding = 6.0f; // only for panel
 
 
+		bool centerAligned = false;
+		float centerX = 0.0f;
+
 		std::vector<std::string> dropdownOptions;
 		int* dropdownCurrentIndex = nullptr;
 
@@ -124,11 +127,15 @@ namespace IonixEngine
 
 		void AddPanel(int x, int y, float w, float h, float alpha = 0.45f, float rounding = 6.0f);
 
+		void AddCenteredLabel(float centerX, float y, const char* text, const std::string& fontName = "");
+
+
 		void RenderUI();
 
 		std::string GetCommittedText(const std::string& id) const;
 		std::unordered_map<std::string, bool> m_inputCommittedThisFrame;
 		bool WasInputCommitted(const std::string& id) const;
+
 
 		void ClearInput(const std::string& id);
 	};

@@ -379,20 +379,16 @@ function ExampleScript:OnUpdate()
 
         UI.add_panel(panelX, panelY, panelW, panelH, 0.45, 8)
 
-local y0 = panelY + 30
-local gap = 24
-local centerX = panelX + panelW / 2
+        local y0 = panelY + 30
+        local gap = 24
+        local centerX = panelX + (panelW / 2)
 
-local function drawCenterAligned(text, y)
-    local w = UI.calc_text_width(text)
-    UI.Add_label(centerX - (w / 2), y, 1000, 1000, text)
-end
+        UI.add_centered_label(centerX, y0 + gap*0, text1)
+        UI.add_centered_label(centerX, y0 + gap*1, finalScoreText)
+        UI.add_centered_label(centerX, y0 + gap*2, coinsText)
+        UI.add_centered_label(centerX, y0 + gap*3, topScore)
+        UI.add_centered_label(centerX, y0 + gap*4, text2)
 
-drawCenterAligned(text1,          y0 + gap*0)
-drawCenterAligned(finalScoreText, y0 + gap*1)
-drawCenterAligned(coinsText,      y0 + gap*2)
-drawCenterAligned(topScore,       y0 + gap*3)
-drawCenterAligned(text2,          y0 + gap*4)
 
         -- Show TextInput only if new high score
         if newHighScore and not submitted then

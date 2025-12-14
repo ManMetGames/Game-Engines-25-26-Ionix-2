@@ -199,6 +199,17 @@ void UIManager::AddPanel(int x, int y, float w, float h, float alpha, float roun
 	AddChildToPanel(element);
 }
 
+void IonixEngine::UIManager::AddCenteredLabel(float centerX, float y, const char* text, const std::string& fontName)
+{
+	UIElement* element = new UIElement{};
+	element->type = UIType::Label;
+	element->centerAligned = true;
+	element->centerX = centerX;
+	element->yPos = (int)y;
+	element->text = const_cast<char*>(text);
+	element->fontName = fontName;
+	AddChildToPanel(element);
+}
 
 void UIManager::EndPanel()
 {
@@ -226,9 +237,19 @@ void UIManager::RenderElement(UIElement* element)
 	switch (element->type)
 	{
 	case UIType::Label:
+	{
+		float x = (float)element->xPos;
 
-		m_ui->DrawLabel(element->text, element->xSize, element->ySize, element->xPos, element->yPos, element->fontName);
+		if (element->centerAligned)
+		{
+			// This runs during rendering, with the correct font pushed already
+			float w = ImGui::CalcTextSize(element->text).x;
+			x = element->centerX - (w * 0.5f);
+		}
+
+		m_ui->DrawLabel(element->text, element->xSize, element->ySize, (int)x, element->yPos, element->fontName);
 		break;
+	}
 	case UIType::Button:
 		m_ui->DrawButton(element->text, element->xSize, element->ySize, element->xPos, element->yPos);
 		break;

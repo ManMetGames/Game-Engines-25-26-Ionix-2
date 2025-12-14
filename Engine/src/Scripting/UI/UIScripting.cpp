@@ -48,6 +48,9 @@ namespace IonixEngine {
         auto CalcTextWidth = [](const char* text) {
             return ImGui::CalcTextSize(text).x;
             };
+        auto AddCenteredLabel = [](float centerX, float y, const char* text) {
+            Application::Get().layerUI->m_UIManager->AddCenteredLabel(centerX, y, text);
+            };
 
         lua["UI"] = lua.create_table_with(
             "Add_label", AddLabel,
@@ -60,7 +63,8 @@ namespace IonixEngine {
 			"get_input_text", GetInputText,
             "was_input_committed", WasInputCommitted,
             "clear_input", ClearInput,
-            "calc_text_width", CalcTextWidth
+            "calc_text_width", CalcTextWidth,
+            "add_centered_label", AddCenteredLabel
         );
     }
 }
