@@ -892,6 +892,37 @@ function FlashPlayer()
     end
 end
 
+function SpawnBeam(enemy, fromX, fromY, toX, toY)
+    local dx = toX - fromX
+    local dy = toY - fromY
+    local dist = math.sqrt(dx * dx + dy * dy)
+    if dist < 1 then return end
+    
+    local dirX = dx / dist
+    local dirY = dy / dist
+    
+    local maxDist = math.sqrt(screenW * screenW + screenH * screenH)
+    local spacing = 8
+    local particleCount = math.floor(maxDist / spacing)
+    
+    for i = 0, particleCount - 1 do
+        local offset = i * spacing
+        local px = fromX + dirX * offset
+        local py = fromY + dirY * offset
+        if px >= -20 and px <= screenW + 20 and py >= -20 and py <= screenH + 20 then
+            ParticleSystem.emitBeamParticle(px, py, 255, 255, 50, dirX, dirY)
+        end
+    end
+end
+
+function EmitTeleportBurst(x, y, r, g, b, inward)
+    ParticleSystem.emitTeleportBurst(x, y, r, g, b, inward)
+end
+
+function EmitBeamCharge(fromX, fromY, toX, toY, r, g, b)
+    ParticleSystem.emitBeamCharge(fromX, fromY, toX, toY, r, g, b)
+end
+
 function UpdateEnemyMovement()
     TriangleShooterEnemy.updateEnemyMovement(
         enemies,
@@ -899,7 +930,10 @@ function UpdateEnemyMovement()
         screenW, screenH,
         enemyProjectilesEnabled, enemyShootIntervalSeconds,
         SpawnEnemyProjectile,
-        TriggerWallLerp
+        TriggerWallLerp,
+        SpawnBeam,
+        EmitTeleportBurst,
+        EmitBeamCharge
     )
 end
 
@@ -972,16 +1006,18 @@ function UpdateBeatBop()
         for i = 1, #enemies do
             local enemy = enemies[i]
             if enemy and enemy.sprite then
-                Sprite.set_image_width(enemy.sprite, math.floor(enemyBaseImageSize * scale))
-                Sprite.set_image_height(enemy.sprite, math.floor(enemyBaseImageSize * scale))
+                local baseSize = enemy.baseSize or enemy.size or enemyBaseImageSize
+                Sprite.set_image_width(enemy.sprite, math.floor(baseSize * scale))
+                Sprite.set_image_height(enemy.sprite, math.floor(baseSize * scale))
             end
         end
     else
         for i = 1, #enemies do
             local enemy = enemies[i]
             if enemy and enemy.sprite then
-                Sprite.set_image_width(enemy.sprite, enemyBaseImageSize)
-                Sprite.set_image_height(enemy.sprite, enemyBaseImageSize)
+                local baseSize = enemy.baseSize or enemy.size or enemyBaseImageSize
+                Sprite.set_image_width(enemy.sprite, baseSize)
+                Sprite.set_image_height(enemy.sprite, baseSize)
             end
         end
     end

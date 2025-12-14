@@ -24,7 +24,7 @@ local DEFAULTS = {
     beamDuration = 0.3,
 }
 
-local MOVEMENT_COLORS = {
+local ENEMY_TYPE_COLORS = {
     bounce = {100, 255, 100},
     stationary = {100, 150, 255},
     orbit = {200, 100, 255},
@@ -39,7 +39,7 @@ function TriangleShooterEnemy.createEnemy(x, y, config, playerX, playerY, player
     local size = config.size or DEFAULTS.size
     local health = config.health or DEFAULTS.health
     local movementType = config.movementType or DEFAULTS.movementType
-    local color = config.color or MOVEMENT_COLORS[movementType] or {255, 255, 255}
+    local color = config.color or ENEMY_TYPE_COLORS[movementType] or {255, 255, 255}
     
     local entity = Entity.create_entity()
     Entity.set_global_pos(entity, x, y)
@@ -106,6 +106,7 @@ function TriangleShooterEnemy.createEnemy(x, y, config, playerX, playerY, player
         beamTargetX = 0,
         beamTargetY = 0,
         rainbowHue = 0,
+        baseSize = size,
     }
 
     return enemy
@@ -219,6 +220,131 @@ local function updateOrbitMovement(enemy, dt, screenW, screenH)
     enemy.y = centerY + math.sin(enemy.orbitAngle) * enemy.orbitRadius - enemy.size/2
 end
 
+local function hsvToRgb(h, s, v)
+    local i = math.floor(h * 6)
+    local f = h * 6 - i
+    local p = v * (1 - s)
+    local q = v * (1 - f * s)
+    local t = v * (1 - (1 - f) * s)
+    i = i % 6
+    if i == 0 then return v, t, p
+    elseif i == 1 then return q, v, p
+    elseif i == 2 then return p, v, t
+    elseif i == 3 then return p, q, v
+    elseif i == 4 then return t, p, v
+    else return v, p, q
+    end
+end
+
+local TELEPORT_SHRINK_DURATION = 0.25
+local TELEPORT_GROW_DURATION = 0.25
+
+local function updateTeleporterMovement(enemy, dt, playerCenterX, playerCenterY, screenW, screenH, SpawnBeam, EmitTeleportBurst, EmitBeamCharge)
+    enemy.teleportTimer = enemy.teleportTimer + dt
+    
+    enemy.rainbowHue = (enemy.rainbowHue + dt * 0.5) % 1.0
+    local r, g, b = hsvToRgb(enemy.rainbowHue, 1, 1)
+    enemy.color = {math.floor(r * 255), math.floor(g * 255), math.floor(b * 255)}
+    if enemy.teleportVisible and enemy.sprite then
+        Sprite.set_color(enemy.sprite, enemy.color[1], enemy.color[2], enemy.color[3])
+    end
+    
+    enemy.rotation = (enemy.rotation or 0) + dt * 120
+    
+    if enemy.teleportState == "charging" then
+        local enemyCenterX = enemy.x + enemy.size/2
+        local enemyCenterY = enemy.y + enemy.size/2
+        local dx = playerCenterX - enemyCenterX
+        local dy = playerCenterY - enemyCenterY
+        local dist = math.sqrt(dx * dx + dy * dy)
+        local chargeX = enemyCenterX
+        local chargeY = enemyCenterY
+        if dist > 0 then
+            local dirX = dx / dist
+            local dirY = dy / dist
+            chargeX = enemyCenterX + dirX * (enemy.size / 2)
+            chargeY = enemyCenterY + dirY * (enemy.size / 2)
+        end
+        if EmitBeamCharge then
+            EmitBeamCharge(chargeX, chargeY, playerCenterX, playerCenterY, enemy.color[1], enemy.color[2], enemy.color[3])
+        end
+        if enemy.teleportTimer >= enemy.teleportChargeTime then
+            enemy.teleportState = "shooting"
+            enemy.teleportTimer = 0
+            enemy.beamTargetX = playerCenterX
+            enemy.beamTargetY = playerCenterY
+        end
+    elseif enemy.teleportState == "shooting" then
+        local enemyCenterX = enemy.x + enemy.size/2
+        local enemyCenterY = enemy.y + enemy.size/2
+        local dx = enemy.beamTargetX - enemyCenterX
+        local dy = enemy.beamTargetY - enemyCenterY
+        local dist = math.sqrt(dx * dx + dy * dy)
+        local beamStartX = enemyCenterX
+        local beamStartY = enemyCenterY
+        if dist > 0 then
+            local dirX = dx / dist
+            local dirY = dy / dist
+            beamStartX = enemyCenterX + dirX * (enemy.size / 2)
+            beamStartY = enemyCenterY + dirY * (enemy.size / 2)
+        end
+        if SpawnBeam then
+            SpawnBeam(enemy, beamStartX, beamStartY, enemy.beamTargetX, enemy.beamTargetY)
+        end
+        if enemy.teleportTimer >= enemy.beamDuration then
+            enemy.teleportState = "cooldown"
+            enemy.teleportTimer = 0
+        end
+    elseif enemy.teleportState == "cooldown" then
+        if enemy.teleportTimer >= enemy.teleportCooldown then
+            enemy.teleportState = "shrinking"
+            enemy.teleportTimer = 0
+            enemy.baseSize = enemy.baseSize or enemy.size
+        end
+    elseif enemy.teleportState == "shrinking" then
+        local t = enemy.teleportTimer / TELEPORT_SHRINK_DURATION
+        if t > 1 then t = 1 end
+        local scale = 1 - t
+        if scale < 0.01 then scale = 0.01 end
+        Entity.set_global_scale(enemy.entity, scale, scale)
+        if EmitTeleportBurst then
+            local cx = enemy.x + enemy.baseSize/2
+            local cy = enemy.y + enemy.baseSize/2
+            EmitTeleportBurst(cx, cy, enemy.color[1], enemy.color[2], enemy.color[3], true)
+        end
+        if enemy.teleportTimer >= TELEPORT_SHRINK_DURATION then
+            enemy.teleportState = "teleporting"
+            enemy.teleportTimer = 0
+            enemy.teleportVisible = false
+            Entity.set_global_pos(enemy.entity, -1000, -1000)
+        end
+    elseif enemy.teleportState == "teleporting" then
+        local margin = enemy.baseSize + 20
+        enemy.x = margin + math.random() * (screenW - 2 * margin)
+        enemy.y = margin + math.random() * (screenH - 2 * margin)
+        enemy.teleportVisible = true
+        enemy.teleportState = "growing"
+        enemy.teleportTimer = 0
+        Entity.set_global_scale(enemy.entity, 0.01, 0.01)
+    elseif enemy.teleportState == "growing" then
+        local t = enemy.teleportTimer / TELEPORT_GROW_DURATION
+        if t > 1 then t = 1 end
+        local scale = t
+        if scale < 0.01 then scale = 0.01 end
+        Entity.set_global_scale(enemy.entity, scale, scale)
+        if EmitTeleportBurst then
+            local cx = enemy.x + enemy.baseSize/2
+            local cy = enemy.y + enemy.baseSize/2
+            EmitTeleportBurst(cx, cy, enemy.color[1], enemy.color[2], enemy.color[3], false)
+        end
+        if enemy.teleportTimer >= TELEPORT_GROW_DURATION then
+            enemy.teleportState = "charging"
+            enemy.teleportTimer = 0
+            Entity.set_global_scale(enemy.entity, 1, 1)
+        end
+    end
+end
+
 local function updateSpin(enemy, dt)
     local speed = math.abs(enemy.spinVelocity or 0)
     local t = speed / enemy.spinMaxVelocity
@@ -245,7 +371,10 @@ function TriangleShooterEnemy.updateEnemyMovement(
     screenW, screenH,
     enemyProjectilesEnabled, enemyShootIntervalSeconds,
     SpawnEnemyProjectile,
-    TriggerWallLerp
+    TriggerWallLerp,
+    SpawnBeam,
+    EmitTeleportBurst,
+    EmitBeamCharge
 )
     local dt = Mafs.delta_time()
     local playerCenterX = playerX + playerSize/2
@@ -261,14 +390,18 @@ function TriangleShooterEnemy.updateEnemyMovement(
             updateOrbitMovement(enemy, dt, screenW, screenH)
         elseif movementType == "stationary" then
             -- No movement
+        elseif movementType == "teleporter" then
+            updateTeleporterMovement(enemy, dt, playerCenterX, playerCenterY, screenW, screenH, SpawnBeam, EmitTeleportBurst, EmitBeamCharge)
         end
 
-        local shootInterval = enemy.shootInterval
-        if enemyProjectilesEnabled and shootInterval and shootInterval > 0 then
-            enemy.shootTimer = (enemy.shootTimer or 0) + dt
-            if enemy.shootTimer >= shootInterval then
-                SpawnEnemyProjectile(enemy)
-                enemy.shootTimer = enemy.shootTimer - shootInterval
+        if movementType ~= "teleporter" then
+            local shootInterval = enemy.shootInterval
+            if enemyProjectilesEnabled and shootInterval and shootInterval > 0 then
+                enemy.shootTimer = (enemy.shootTimer or 0) + dt
+                if enemy.shootTimer >= shootInterval then
+                    SpawnEnemyProjectile(enemy)
+                    enemy.shootTimer = enemy.shootTimer - shootInterval
+                end
             end
         end
 
@@ -276,7 +409,9 @@ function TriangleShooterEnemy.updateEnemyMovement(
         updateSpin(enemy, dt)
         
         Entity.set_global_rot(enemy.entity, enemy.rotation)
-        Entity.set_global_pos(enemy.entity, enemy.x, enemy.y)
+        if enemy.teleportVisible ~= false then
+            Entity.set_global_pos(enemy.entity, enemy.x, enemy.y)
+        end
     end
 end
 

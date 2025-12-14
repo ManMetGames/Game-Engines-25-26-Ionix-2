@@ -2,14 +2,15 @@ local TriangleShooterLevels = {}
 
 local levels = {
     [1] = {
-        timeLimitSeconds = 20,
-        enemyCount = 1,
-        enemyHealth = 35,
-        enemyProjectiles = false,
+        timeLimitSeconds = 30,
+        enemyProjectiles = true,
         wallPingPong = false,
         coinPerHit = 1,
-        windowWidth = 1000,
-        windowHeight = 600,
+        windowWidth = 1100,
+        windowHeight = 700,
+        enemies = {
+            { movementType = "teleporter", x = 550, y = 350, health = 300, size = 40, teleportChargeTime = 0.5, beamDuration = 0.3, teleportCooldown = 1.5 },
+        },
     },
     [2] = {
         timeLimitSeconds = 20,
@@ -179,6 +180,44 @@ local levels = {
             { movementType = "orbit", orbitCenter = {650, 375}, orbitRadius = 200, orbitSpeed = 0.8, health = 60, color = {50, 200, 255}, shootPattern = "cone", projectileCount = 2, shootInterval = 0.8 },
             { movementType = "orbit", orbitCenter = {650, 375}, orbitRadius = 200, orbitSpeed = -0.8, health = 60, color = {50, 200, 255}, shootPattern = "cone", projectileCount = 2, shootInterval = 0.8 },
             { movementType = "bounce", health = 50, speed = 1.3, color = {150, 255, 100}, shootInterval = 0.5 },
+        },
+    },
+    [16] = {
+        timeLimitSeconds = 30,
+        enemyProjectiles = true,
+        wallPingPong = false,
+        coinPerHit = 1,
+        windowWidth = 1100,
+        windowHeight = 700,
+        enemies = {
+            { movementType = "teleporter", x = 550, y = 350, health = 300, size = 40, teleportChargeTime = 0.5, beamDuration = 0.3, teleportCooldown = 1.5 },
+        },
+    },
+    [17] = {
+        timeLimitSeconds = 35,
+        enemyProjectiles = true,
+        wallPingPong = false,
+        coinPerHit = 1,
+        windowWidth = 1200,
+        windowHeight = 700,
+        enemies = {
+            { movementType = "teleporter", x = 600, y = 350, health = 250, size = 40, teleportChargeTime = 0.6, beamDuration = 0.25, teleportCooldown = 1.8 },
+            { movementType = "orbit", orbitCenter = {600, 350}, orbitRadius = 180, orbitSpeed = 1.0, health = 50, shootInterval = 0.7 },
+            { movementType = "orbit", orbitCenter = {600, 350}, orbitRadius = 180, orbitSpeed = -1.0, health = 50, shootInterval = 0.7 },
+        },
+    },
+    [18] = {
+        timeLimitSeconds = 40,
+        enemyProjectiles = true,
+        wallPingPong = false,
+        coinPerHit = 1,
+        windowWidth = 1400,
+        windowHeight = 800,
+        enemies = {
+            { movementType = "teleporter", x = 400, y = 400, health = 200, size = 40, teleportChargeTime = 0.4, beamDuration = 0.35, teleportCooldown = 1.2 },
+            { movementType = "teleporter", x = 1000, y = 400, health = 200, size = 40, teleportChargeTime = 0.6, beamDuration = 0.35, teleportCooldown = 1.4 },
+            { movementType = "bounce", health = 60, speed = 1.2, shootPattern = "cone", projectileCount = 2, shootInterval = 0.5 },
+            { movementType = "stationary", x = 700, y = 400, health = 80, shootPattern = "circle", projectileCount = 6, shootInterval = 0.8, spinWhileShooting = true },
         },
     },
 }
