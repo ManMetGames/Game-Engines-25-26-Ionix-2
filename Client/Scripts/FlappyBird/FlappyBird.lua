@@ -5,10 +5,13 @@ local Background
 local player1
 local x = 100
 local gameOver = false
-local highscore = Json.load_high_score()
+local GAME_ID = "flappy_bird"
+local highscore = Json.load_high_score(GAME_ID)
 local newHighScore = false
 local submitted = false -- For Highscore submission
-local playerName = ""
+local playerName = Json.load_player_name()
+if playerName == "" then playerName = "Anon" end
+
 -- Pipes
 local pipe, pipeT, pipe2, pipeT2, pipe3, pipeT3
 local pipeSets = {}
@@ -43,7 +46,6 @@ local text2 = "Press SPACE to restart"
 local finalScoreText = "Final Score: 0"
 local coinsText = "Coins Collected: "
 local topScore = "Highscore: "
-local gameOver = false
 
 -- Audio
 local birdJumpSound
@@ -128,7 +130,7 @@ local function resetGame()
     finalScoreText = "Final Score: 0"
     coinsText = "Coins Collected: "
     topScore = "Highscore: "
-    highscore = Json.load_high_score()
+    highscore = Json.load_high_score(GAME_ID)
 
     -- Reset player
     Fysics.set_pos(player1, 1, 3)
@@ -163,7 +165,8 @@ local function resetGame()
 
     newHighScore = false
     submitted = false
-    playerName = ""
+    playerName = Json.load_player_name()
+    if playerName == "" then playerName = "Anon" end
     topLeaderboard = nil
     leaderboardFetched = false
     UI.clear_input("player_name")
@@ -327,15 +330,15 @@ function ExampleScript:OnUpdate()
     --     resetGame()
     -- end
 
-    UI.add_checkbox(20, 60, 0, 0, "Music", "music_chk", true)
+    -- UI.add_checkbox(20, 60, 0, 0, "Music", "music_chk", true)
 
-    if UI.get_checkbox("music_chk") then
+    -- if UI.get_checkbox("music_chk") then
         -- music on
-    end
+    -- end
 
-    if UI.was_checkbox_changed("music_chk") then
-        print("toggled to:", UI.get_checkbox("music_chk"))
-    end
+    -- if UI.was_checkbox_changed("music_chk") then
+    --     print("toggled to:", UI.get_checkbox("music_chk"))
+    -- end
 
 
     ------------------
@@ -388,7 +391,7 @@ function ExampleScript:OnUpdate()
     if gameOver then
         -- Fetch leaderboard once --
         if not leaderboardFetched then
-            topLeaderboard = Firebase.retrieve_high_score(5)
+            topLeaderboard = Firebase.retrieve_high_score(GAME_ID, 5)
             leaderboardFetched = true
         end
 
@@ -430,7 +433,7 @@ function ExampleScript:OnUpdate()
             local nhX = (windowW - nhW) / 2
             local nhY = panelY + panelH + 12   -- 12px gap under the main panel
 
-            UI.add_panel(nhX, nhY, nhW, nhH+15, 0.75, 12, 95, 150, 165)
+            UI.add_panel(nhX, nhY, nhW, nhH+15, 0.75, 10, 70, 160, 115)
 
             local centerX = nhX + (nhW / 2)
 
@@ -448,11 +451,15 @@ function ExampleScript:OnUpdate()
             if UI.was_input_committed("player_name") then
                 local name = UI.get_input_text("player_name")
                 if name == "" then name = "Anon" end
-    
-                Firebase.submit_high_score(name, highscore)
-                submitted = true
 
-                -- Refresh leaderboard next frame
+                -- persist name locally
+                playerName = name
+                Json.save_player_name(playerName)
+
+                -- submit to the correct game's leaderboard
+                Firebase.submit_high_score(GAME_ID, playerName, highscore)
+
+                submitted = true
                 leaderboardFetched = false
             end
         end
@@ -585,7 +592,7 @@ end
 
     if newHighScore then
         highscore = Pscore
-        Json.save_high_score(highscore)
+        Json.save_high_score(GAME_ID, highscore)
     end
 
     text1 = "GAME OVER!! TRY AGAIN"
