@@ -174,4 +174,21 @@ namespace IonixEngine
 
 		return ImGui::InputText("##input", buffer, bufferSize, flags);
 	}
+
+	void UI::DrawPanel(int x, int y, float w, float h, float alpha, float rounding)
+	{
+		ImGui::SetCursorPos(ImVec2((float)x, (float)y));
+		ImVec2 p = ImGui::GetCursorScreenPos();
+
+		ImU32 col = IM_COL32(0, 0, 0, (int)(alpha * 255.0f));
+		ImDrawList* dl = ImGui::GetWindowDrawList();
+
+		dl->AddRectFilled(p, ImVec2(p.x + w, p.y + h), col, rounding);
+		//dl->AddRect(p, ImVec2(p.x + w, p.y + h), IM_COL32(255,255,255,60), rounding);
+	}
+
+	float UI::CalcTextWidth(const char* text)
+	{
+		return ImGui::CalcTextSize(text).x;
+	}
 }

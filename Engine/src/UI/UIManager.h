@@ -56,6 +56,10 @@ namespace IonixEngine
 		std::vector<UIElement> children;
 		bool isChildGroup = false;
 
+		float panelAlpha = 0.45f; // only for panel
+		float panelRounding = 6.0f; // only for panel
+
+
 		std::vector<std::string> dropdownOptions;
 		int* dropdownCurrentIndex = nullptr;
 
@@ -117,6 +121,8 @@ namespace IonixEngine
 		void ClearElements();
 
 		void AddProgressBar(int x, int y, float xSize, float ySize, float maxvalue, float* currentvalue, float incrementamount, const std::string& fontName = "");
+
+		void AddPanel(int x, int y, float w, float h, float alpha = 0.45f, float rounding = 6.0f);
 
 		void RenderUI();
 

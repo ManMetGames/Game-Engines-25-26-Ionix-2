@@ -186,6 +186,20 @@ void UIManager::AddProgressBar(int x, int y, float xSize, float ySize, float max
 	AddChildToPanel(element);
 }
 
+void UIManager::AddPanel(int x, int y, float w, float h, float alpha, float rounding)
+{
+	UIElement* element = new UIElement{};
+	element->type = UIType::Panel;
+	element->xPos = x;
+	element->yPos = y;
+	element->xSize = w;
+	element->ySize = h;
+	element->panelAlpha = alpha;
+	element->panelRounding = rounding;
+	AddChildToPanel(element);
+}
+
+
 void UIManager::EndPanel()
 {
 	ImGui::EndChild();
@@ -270,6 +284,12 @@ void UIManager::RenderElement(UIElement* element)
 			m_ui->DrawDropdown(element->xPos, element->yPos, element->ySize, element->xSize, element->text, element->dropdownOptions, element->dropdownCurrentIndex);
 		}
 		break;
+
+	case UIType::Panel:
+		m_ui->DrawPanel(element->xPos, element->yPos, element->xSize, element->ySize,
+			element->panelAlpha, element->panelRounding);
+		break;
+
 		// --- FONT POP ---
 		if (font)
 		{

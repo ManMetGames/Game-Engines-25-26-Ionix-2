@@ -25,5 +25,9 @@ namespace IonixEngine
         float ProgressBar(int xpos, int ypos, float xsize, float ysize, float maxvalue, float& currentvalue, float incrementamount);
         float DrawDropdown(int xPos, int yPos, float xSize, float ySize, const char* text, std::vector<std::string> options, int* currentIndex);
         bool InputText(const char* label, int xPos, int yPos, float width, char* buffer, size_t bufferSize, ImGuiInputTextFlags flags = 0);
+        void DrawPanel(int x, int y, float w, float h, float alpha = 0.45f, float rounding = 6.0f);
+
+        float CalcTextWidth(const char* text);
+
     };
 }

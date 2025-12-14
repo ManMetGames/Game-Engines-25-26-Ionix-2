@@ -352,33 +352,56 @@ function ExampleScript:OnUpdate()
 	------------------
 
     if gameOver then
-        --Score and Game Over text
-        UI.Add_label(320, 230, 1000, 1000, text1)
-
-        --Display final score
-        UI.Add_label(365, 255, 1000, 1000, finalScoreText)
-
-        --Display coins collected
-        UI.Add_label(335, 280, 1000, 1000, coinsText)
-
-        --Display retry text
-        UI.Add_label(320, 305, 1000, 1000, text2)
-
-        --Display Highscore
-        UI.Add_label(100, (windowH/2)-32, 1000, 1000, topScore)
-        
-        if Input.get_key_down(Keys.ionix_space) then
-            resetGame()
+        -- Fetch leaderboard once --
+        if not leaderboardFetched then
+            topLeaderboard = Firebase.retrieve_high_score(5)
+            leaderboardFetched = true
         end
 
-        -- show TextInput only if new high score
+        -- Leaderboard (top-left) --
+        local lbX, lbY = 10, 10
+        local lbW, lbH = 260, 170
+        UI.add_panel(lbX, lbY, lbW, lbH, 0.35, 6)
+
+        UI.Add_label(lbX + 10, lbY + 10, 0, 0, "Leaderboard Ranking")
+
+        if topLeaderboard then
+          for i, e in ipairs(topLeaderboard) do
+            local line = string.format("%d. %s - %d", i, e.name, e.score)
+            UI.Add_label(lbX + 10, lbY + 35 + (i-1)*22, 0, 0, line)
+          end
+        end
+
+        -- Center Game Over panel
+        local panelW, panelH = 460, 205
+        local panelX = (windowW - panelW) / 2
+        local panelY = 200
+
+        UI.add_panel(panelX, panelY, panelW, panelH, 0.45, 8)
+
+local y0 = panelY + 30
+local gap = 24
+local centerX = panelX + panelW / 2
+
+local function drawCenterAligned(text, y)
+    local w = UI.calc_text_width(text)
+    UI.Add_label(centerX - (w / 2), y, 1000, 1000, text)
+end
+
+drawCenterAligned(text1,          y0 + gap*0)
+drawCenterAligned(finalScoreText, y0 + gap*1)
+drawCenterAligned(coinsText,      y0 + gap*2)
+drawCenterAligned(topScore,       y0 + gap*3)
+drawCenterAligned(text2,          y0 + gap*4)
+
+        -- Show TextInput only if new high score
         if newHighScore and not submitted then
-            UI.add_input_text(300, 350, 220, "New Highscore! Enter your name:", "player_name", 16)
+            UI.add_input_text(panelX + 40, panelY + 175, 260, "New Highscore! Enter your name:", "player_name", 16)
 
             if UI.was_input_committed("player_name") then
                 local name = UI.get_input_text("player_name")
                 if name == "" then name = "Anon" end
-
+    
                 Firebase.submit_high_score(name, highscore)
                 submitted = true
 
@@ -386,21 +409,14 @@ function ExampleScript:OnUpdate()
                 leaderboardFetched = false
             end
         end
-        -- Fetch leaderboard
-        if not leaderboardFetched then
-            topLeaderboard = Firebase.retrieve_high_score(5)
-            leaderboardFetched = true
+
+        if Input.get_key_down(Keys.ionix_space) then
+            resetGame()
         end
 
-        -- Display leaderboard
-        if topLeaderboard then
-            for i, e in ipairs(topLeaderboard) do
-                local line = string.format("%d. %s - %d", i, e.name, e.score)
-                UI.Add_label(10, 70 + (i-1)*20, 0, 0, line)
-            end
-        end
         return
     end
+
 
     -- Player input
     local vel = Fysics.get_linear_velocity(player1)

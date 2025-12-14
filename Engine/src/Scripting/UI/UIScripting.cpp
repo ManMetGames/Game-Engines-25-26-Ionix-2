@@ -41,16 +41,26 @@ namespace IonixEngine {
             Application::Get().layerUI->m_UIManager->ClearInput(id);
             };
 
+        auto AddPanel = [](int x, int y, float w, float h, float alpha, float rounding) {
+            Application::Get().layerUI->m_UIManager->AddPanel(x, y, w, h, alpha, rounding);
+            };
+
+        auto CalcTextWidth = [](const char* text) {
+            return ImGui::CalcTextSize(text).x;
+            };
+
         lua["UI"] = lua.create_table_with(
             "Add_label", AddLabel,
             "add_button", AddButton,
             "add_color_picker", AddColorPicker,
             "draw_progress_bar", DrawProgressBar,
             "add_input_text", AddInputText,
-            
+            "add_panel", AddPanel,
+
 			"get_input_text", GetInputText,
             "was_input_committed", WasInputCommitted,
-            "clear_input", ClearInput
+            "clear_input", ClearInput,
+            "calc_text_width", CalcTextWidth
         );
     }
 }
