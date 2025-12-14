@@ -565,8 +565,15 @@ function TriangleShooter:OnUpdate()
 
     local levelCfg = TriangleShooterLevels.getLevelConfig(currentLevel)
     if levelCfg ~= nil then
-        local enemyCount = levelCfg.enemyCount or 1
-        local maxEnemyHealthTotal = (levelCfg.enemyHealth or levelEnemyHealth) * enemyCount
+        local maxEnemyHealthTotal = 0
+        if levelCfg.enemies then
+            for _, enemyCfg in ipairs(levelCfg.enemies) do
+                maxEnemyHealthTotal = maxEnemyHealthTotal + (enemyCfg.health or levelEnemyHealth)
+            end
+        else
+            local enemyCount = levelCfg.enemyCount or 1
+            maxEnemyHealthTotal = (levelCfg.enemyHealth or levelEnemyHealth) * enemyCount
+        end
         local currentEnemyHealthTotal = 0
         for i = 1, #enemies do
             currentEnemyHealthTotal = currentEnemyHealthTotal + (enemies[i].health or 0)
@@ -724,7 +731,8 @@ function UpdateProjectiles()
 
             local enemyCenterX = enemy.x + enemySize / 2
             local enemyCenterY = enemy.y + enemySize / 2
-            ParticleSystem.emitHitBurst(enemyCenterX, enemyCenterY)
+            local color = enemy.color or {255, 255, 255}
+            ParticleSystem.emitHitBurst(enemyCenterX, enemyCenterY, color[1], color[2], color[3])
 
             if impact3SfxEntity then
                 local v = math.random(12, 20)

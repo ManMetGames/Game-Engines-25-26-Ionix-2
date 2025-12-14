@@ -6,7 +6,6 @@ local DEFAULTS = {
     baseSpeed = 550,
     size = 48,
     health = 50,
-    color = {255, 255, 255},
     movementType = "bounce",
     shootPattern = "single",
     projectileCount = 1,
@@ -20,6 +19,16 @@ local DEFAULTS = {
     spinBoost = 1,
     spinDecayBase = 0.0004,
     spinDecayExtra = 0.01,
+    teleportChargeTime = 0.5,
+    teleportCooldown = 1.5,
+    beamDuration = 0.3,
+}
+
+local MOVEMENT_COLORS = {
+    bounce = {100, 255, 100},
+    stationary = {100, 150, 255},
+    orbit = {200, 100, 255},
+    teleporter = nil,
 }
 
 TriangleShooterEnemy.DEFAULTS = DEFAULTS
@@ -29,7 +38,8 @@ function TriangleShooterEnemy.createEnemy(x, y, config, playerX, playerY, player
     
     local size = config.size or DEFAULTS.size
     local health = config.health or DEFAULTS.health
-    local color = config.color or DEFAULTS.color
+    local movementType = config.movementType or DEFAULTS.movementType
+    local color = config.color or MOVEMENT_COLORS[movementType] or {255, 255, 255}
     
     local entity = Entity.create_entity()
     Entity.set_global_pos(entity, x, y)
@@ -66,7 +76,7 @@ function TriangleShooterEnemy.createEnemy(x, y, config, playerX, playerY, player
         shootTimer = 0,
         flashTimer = 0,
         
-        movementType = config.movementType or DEFAULTS.movementType,
+        movementType = movementType,
         baseSpeed = config.baseSpeed or DEFAULTS.baseSpeed,
         bounceSteer = config.bounceSteer or DEFAULTS.bounceSteer,
         steerStrength = config.steerStrength or DEFAULTS.steerStrength,
@@ -86,6 +96,16 @@ function TriangleShooterEnemy.createEnemy(x, y, config, playerX, playerY, player
         spinBoost = config.spinBoost or DEFAULTS.spinBoost,
         spinDecayBase = config.spinDecayBase or DEFAULTS.spinDecayBase,
         spinDecayExtra = config.spinDecayExtra or DEFAULTS.spinDecayExtra,
+        
+        teleportChargeTime = config.teleportChargeTime or DEFAULTS.teleportChargeTime,
+        teleportCooldown = config.teleportCooldown or DEFAULTS.teleportCooldown,
+        beamDuration = config.beamDuration or DEFAULTS.beamDuration,
+        teleportState = "charging",
+        teleportTimer = 0,
+        teleportVisible = true,
+        beamTargetX = 0,
+        beamTargetY = 0,
+        rainbowHue = 0,
     }
 
     return enemy

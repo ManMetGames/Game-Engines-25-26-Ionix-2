@@ -9,7 +9,11 @@ local HIT_PARTICLE_MAX_SPEED = 600
 
 local RENDER_LAYER = 0
 
-function ParticleSystem.emitHitBurst(x, y)
+function ParticleSystem.emitHitBurst(x, y, r, g, b)
+	r = r or 255
+	g = g or 255
+	b = b or 255
+	
 	for i = 1, HIT_PARTICLE_COUNT do
 		local angle = math.random() * 2 * math.pi
 		local speed = math.random(HIT_PARTICLE_MIN_SPEED, HIT_PARTICLE_MAX_SPEED)
@@ -29,7 +33,9 @@ function ParticleSystem.emitHitBurst(x, y)
 			HIT_PARTICLE_LIFETIME,
 			HIT_PARTICLE_SIZE,
 			HIT_PARTICLE_SIZE * 0.25,
-			false -- useRainbow
+			false,
+			r, g, b, 255,
+			r, g, b, 0
 		)
 	end
 end

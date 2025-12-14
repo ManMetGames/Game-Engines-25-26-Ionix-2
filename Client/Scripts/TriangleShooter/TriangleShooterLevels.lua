@@ -82,7 +82,7 @@ local levels = {
     [8] = {
         timeLimitSeconds = 15,
         enemyProjectiles = true,
-        wallPingPong = true,
+        wallPingPong = false,
         coinPerHit = 1,
         windowWidth = 800,
         windowHeight = 500,
@@ -110,9 +110,9 @@ local levels = {
         windowWidth = 1100,
         windowHeight = 650,
         enemies = {
-            { movementType = "stationary", x = 550, y = 325, health = 80, shootPattern = "cone", projectileCount = 3, shootInterval = 0.7 },
-            { movementType = "orbit", orbitCenter = {550, 325}, orbitRadius = 150, orbitSpeed = 1.0, health = 40, color = {100, 255, 150}, shootInterval = 0.8 },
-            { movementType = "orbit", orbitCenter = {550, 325}, orbitRadius = 150, orbitSpeed = -1.0, health = 40, color = {100, 255, 150}, shootInterval = 0.8 },
+            { movementType = "stationary", x = 550, y = 325, health = 100, shootPattern = "cone", projectileCount = 3, shootInterval = 0.7 },
+            { movementType = "orbit", orbitCenter = {550, 325}, orbitRadius = 150, orbitSpeed = 1.0, health = 65, color = {100, 255, 150}, shootInterval = 0.8 },
+            { movementType = "orbit", orbitCenter = {550, 325}, orbitRadius = 150, orbitSpeed = -1.0, health = 65, color = {100, 255, 150}, shootInterval = 0.8 },
         },
     },
     [11] = {
