@@ -11,41 +11,24 @@ namespace IonixEngine
 {
 	void UI::DrawLabel(char* text, int xsize, int ysize, int xpos, int ypos, std::string font)
 	{
-		ImGui::SetNextWindowPos(ImVec2((float)xpos, (float)ypos));
-		ImGui::SetNextWindowSize(ImVec2((float)xsize, (float)ysize));
-		ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
-			ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar |
-			ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoBackground;
-		char windowName[64];
-		std::snprintf(windowName, sizeof(windowName), "Label_%d_%d_%d_%d", xpos, ypos, xsize, ysize);
-		if (ImGui::Begin(windowName, nullptr, flags))
-		{
-			ImFont* fontToPush = nullptr;
-			if (Application::Get().layerUI && Application::Get().layerUI->m_FontLoader)
-			{
-				fontToPush = Application::Get().layerUI->m_FontLoader->GetFont("Font1Bold");
-			}
-			if (fontToPush)
-			{
-				ImGui::PushFont(fontToPush);
-				ImGui::TextUnformatted(text);
-				ImGui::PopFont();
-			}
-			else
-			{
-				ImGui::TextUnformatted(text);
-			}
-		}
-		ImGui::End();
+
+		ImGui::SetCursorPos(ImVec2(xpos, ypos));
+	    ImGui::SetWindowFontScale(1.8);
+		std::unordered_map<std::string, ImFont*>& map = Application::Get().layerUI->GetUIManager()->fontLoader.fontMap;
+		ImFont* fontToPush = map[font];
+
+		ImGui::PushFont(fontToPush);
+
+		ImGui::TextUnformatted(text);
+		//ImGui::Text(text, ImVec2(xsize, ysize));
+		ImGui::PopFont();
 	}
 
 	bool UI::DrawButton(char* text, int xsize, int ysize, int xpos, int ypos)
 	{
 		ImGui::SetCursorPos(ImVec2(xpos, ypos));
-
-		if (ImGui::Button(text, ImVec2(xsize, ysize))) {
-			return true;
-		}
+		ImGui::SetWindowFontScale(1);
+		return ImGui::Button(text, ImVec2(xsize, ysize));
 	}
 
 	float UI::DrawSlider(char* text, static float i, int xsize, int ysize, int xpos, int ypos, int minval, int maxval) {
@@ -175,5 +158,20 @@ namespace IonixEngine
 			ImGui::EndCombo();
 		}
 		return *currentIndex;
+	}
+
+	bool UI::InputText(const char* label, int xPos, int yPos, float width,
+		char* buffer, size_t bufferSize,
+		ImGuiInputTextFlags flags)
+	{
+		ImGui::SetWindowFontScale(1.0);
+
+		ImGui::SetCursorPos(ImVec2((float)xPos, (float)yPos));
+		ImGui::TextUnformatted(label);
+
+		ImGui::SetCursorPos(ImVec2((float)xPos, (float)yPos + 20));
+		ImGui::SetNextItemWidth(width);
+
+		return ImGui::InputText("##input", buffer, bufferSize, flags);
 	}
 }

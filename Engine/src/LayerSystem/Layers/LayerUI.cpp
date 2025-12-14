@@ -11,7 +11,7 @@
 
 namespace IonixEngine
 {
-
+    
     /*enum UIType
     {
         Label,
@@ -29,13 +29,13 @@ namespace IonixEngine
         UIData(UIType type, char* text, int x, int y) : type(type), text(text), x(x), y(y) {}
     };
 
-
+   
 
     std::vector<UIData> uiDrawData;
     */
     // Factory class needs a method to add a UIData object to the above vector
 
-    void LayerUI::OnAttach()
+    void LayerUI::OnAttach() 
     {
         m_UIManager = new UIManager();
         m_UI = new UI();
@@ -75,46 +75,51 @@ namespace IonixEngine
         m_FontLoader->LoadFonts();
     }
 
-    void LayerUI::OnDetach()
+    void LayerUI::OnDetach() 
     {
     }
 
-    void LayerUI::OnUpdate()
+    void LayerUI::OnUpdate()    
     {
 
         // Start the Dear ImGui frame. Immediate mode rendering - UI gets rebuilt each frame
-        ImGui_ImplSDLRenderer2_NewFrame();
-        ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
-        ImGui_ImplSDL2_NewFrame();
-        ImGui::NewFrame();
-        ImGui::Begin("null", nullptr, window_flags);
-        // Render the UI
-        m_UIManager->RenderUI();
-        ImGui::End();
-        //m_UIManager->ClearElements();
-        //std::vector<std::string> dropdownOptions = { "Option 1", "Option 2", "Option 3" };
-        //int dropdownIndex = 0;
-        //bool checkboxValue = true;
-        // int radioValue = 0;
-        //static float sliderValue = 0.5f;
-        //m_UIManager->AddLabel(10, 10, 100, 20, "Test Label");
-        /*uiManager.AddButton(10, 40, 100, 25, "Click Me", []() { printf("Button clicked!\n"); });
-        uiManager.AddCheckbox(10, 70, 120, 25, "Enable", &checkboxValue);
-        uiManager.AddSliderFloat(10, 100, 150, 25, "Slider", &sliderValue, 0.0f, 1.0f);
-        uiManager.AddRadioButton(10, 130, 100, 25, "Option 1", &radioValue, 0,true);
-        uiManager.AddRadioButton(120, 130, 100, 25, "Option 2", &radioValue, 1, true);
-        uiManager.AddDropdown(10, 160, 150, 25, "Dropdown", dropdownOptions, &dropdownIndex);
-        uiManager.AddColorPicker(10, 190, 150, 150, "Pick Color", m_UI->myColor);*/
+         ImGui_ImplSDLRenderer2_NewFrame();
+         ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+         ImGui_ImplSDL2_NewFrame();
+         ImGui::NewFrame();
+         ImGui::Begin("null", nullptr, window_flags);
+         Window& window = Application::Get().GetWindow();
+         ImGui::SetWindowSize(ImVec2(window.m_Data.Width, window.m_Data.Height));
+		 ImGui::SetWindowPos(ImVec2(0, 0));
+         // Render the UI
+         m_UIManager->RenderUI();
+         //std::string name = Application::Get().layerUI->m_UIManager->GetCommittedText("player_name");
+		 //cout << "Player name: " << name << std::endl;
+         ImGui::End();
+         //m_UIManager->ClearElements();
+         //std::vector<std::string> dropdownOptions = { "Option 1", "Option 2", "Option 3" };
+         //int dropdownIndex = 0;
+         //bool checkboxValue = true;
+         // int radioValue = 0;
+         //static float sliderValue = 0.5f;
+         //m_UIManager->AddLabel(10, 10, 100, 20, "Test Label");
+         /*uiManager.AddButton(10, 40, 100, 25, "Click Me", []() { printf("Button clicked!\n"); });
+         uiManager.AddCheckbox(10, 70, 120, 25, "Enable", &checkboxValue);
+         uiManager.AddSliderFloat(10, 100, 150, 25, "Slider", &sliderValue, 0.0f, 1.0f);
+         uiManager.AddRadioButton(10, 130, 100, 25, "Option 1", &radioValue, 0,true);
+         uiManager.AddRadioButton(120, 130, 100, 25, "Option 2", &radioValue, 1, true);
+         uiManager.AddDropdown(10, 160, 150, 25, "Dropdown", dropdownOptions, &dropdownIndex);
+         uiManager.AddColorPicker(10, 190, 150, 150, "Pick Color", m_UI->myColor);*/
 
-        // Render the UI
-        //uiManager.RenderUI();
-        //uiManager.EndPanel();
+         // Render the UI
+         //uiManager.RenderUI();
+         //uiManager.EndPanel();
+        
+		
+         // Rendering
+         
 
-
-        // Rendering
-
-
-        // TODO - Will be done by graphics unit eventually. Here for testing for the time being.
+         // TODO - Will be done by graphics unit eventually. Here for testing for the time being.
 
     }
 

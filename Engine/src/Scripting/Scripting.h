@@ -15,6 +15,7 @@
 #include "Scripting/Entity/EntityScripting.h"
 #include "Scripting/UI/UIScripting.h"
 #include "Scripting/Json/JsonScripting.h"
+#include "Scripting/Firebase/FirebaseScripting.h"
 
 namespace IonixEngine
 {

@@ -8,69 +8,77 @@ namespace IonixEngine {
 
 	//Constructors
 
-	SpriteComponent::SpriteComponent(Entity* entity, std::string alias, int x, int y, int zedOrder) : Component(entity, false, true, false) {
-		texture = IonixEngine::TextureManager::Get().GetTexture(alias).GetTexture(); //adding sprite image file to the texture manager
+	SpriteComponent::SpriteComponent(Entity* entity, std::string alias, int x, int y, int zedOrder)
+		: Component(entity, false, true, false)
+	{
+		texture = IonixEngine::TextureManager::Get().GetTexture(alias).GetTexture();
 		zOrder = zedOrder;
+
 		isReversing = false;
 		playbackMode = playbackOptions::FORWARD;
-		boxColliderSize = b2Vec2{1 + (0.02f * (width - 75)), 1 + (0.02f * (height - 75))};
-		rows = 1; //default spritesheet size, can be changed in appropriate setters
-		cols = 1;
 		tickRate = 0.2f;
 
-		tickRate = 0.2f; //default tick rate
-
-		renderLayer = entity->renderLayer;
-
-		SDL_QueryTexture(texture, NULL, NULL, &size.x, &size.y);
-
-		// Auto-size width/height from texture if 0 is passed
-		width = (x == 0) ? size.x : x;
-		height = (y == 0) ? size.y : y;
-
-		// Also set sprite frame size to match (for single-image textures)
-		spriteWidth = (x == 0) ? size.x : 32;
-		spriteHeight = (y == 0) ? size.y : 32;
-
-		calculateTotalFrames();
-
-		initialiseSpritesheet();
-	}
-
-	SpriteComponent::SpriteComponent(Entity* entity, uint32_t hash, int x, int y, int zedOrder) : Component(entity, false, true, false) {
-		texture = IonixEngine::TextureManager::Get().GetTexture(hash).GetTexture(); //adding sprite image file to the texture manager
-		//std::cout << texture << std::endl;
-		IonixEngine::TextureManager::Get().GetTexture(hash);
-		zOrder = zedOrder;
-		isReversing = false;
-		playbackMode = playbackOptions::FORWARD;
-
-		//setRowsAndCols(2, 8);
-		cols = 1;
 		rows = 1;
-		tickRate = 0.2f;
-
-		tickRate = 0.2f; //default tick rate
+		cols = 1;
 
 		renderLayer = entity->renderLayer;
 
 		SDL_QueryTexture(texture, NULL, NULL, &size.x, &size.y);
-	/*
-		// Auto-size width/height from texture if 0 is passed
-		width = (x == 0) ? size.x : x;
-		height = (y == 0) ? size.y : y;
-	*/
-		width = x;
-		height = y;
-		// Also set sprite frame size to match (for single-image textures)
-		spriteWidth = (x == 0) ? 32 : size.x;
-		spriteHeight = (y == 0) ? 32 : size.y;
-		
+
+		// Auto-size if 0 passed in
+		width = (x == 0) ? (float)size.x : (float)x;
+		height = (y == 0) ? (float)size.y : (float)y;
+
+		// Frame size (for non-spritesheets)
+		RecalcFrameSize();
+
+		// IMPORTANT: init angle
+		spriteAngle = 0.0f;
+
+		// IMPORTANT: collider calc AFTER width/height set
+		boxColliderSize = b2Vec2{
+			1 + (0.02f * (width - 75)),
+			1 + (0.02f * (height - 75))
+		};
 
 		calculateTotalFrames();
-
 		initialiseSpritesheet();
 	}
+
+
+	SpriteComponent::SpriteComponent(Entity* entity, uint32_t hash, int x, int y, int zedOrder)
+		: Component(entity, false, true, false)
+	{
+		texture = IonixEngine::TextureManager::Get().GetTexture(hash).GetTexture();
+		zOrder = zedOrder;
+
+		isReversing = false;
+		playbackMode = playbackOptions::FORWARD;
+		tickRate = 0.2f;
+
+		rows = 1;
+		cols = 1;
+
+		renderLayer = entity->renderLayer;
+
+		SDL_QueryTexture(texture, NULL, NULL, &size.x, &size.y);
+
+		width = (x == 0) ? (float)size.x : (float)x;
+		height = (y == 0) ? (float)size.y : (float)y;
+
+		RecalcFrameSize();
+
+		spriteAngle = 0.0f;
+
+		boxColliderSize = b2Vec2{
+			1 + (0.02f * (width - 75)),
+			1 + (0.02f * (height - 75))
+		};
+
+		calculateTotalFrames();
+		initialiseSpritesheet();
+	}
+
 
 	void SpriteComponent::Render(RenderData* data)
 	{
@@ -220,16 +228,40 @@ namespace IonixEngine {
 		spriteHeight = spriteY;
 	}
 
+	void SpriteComponent::RecalcFrameSize()
+	{
+		if (cols <= 0) cols = 1;
+		if (rows <= 0) rows = 1;
+
+		spriteWidth = size.x / cols;
+		spriteHeight = size.y / rows;
+	}
+
 	//setters
 	void SpriteComponent::setEndFrame(int x) { endFrame = x; }
 	void SpriteComponent::setPlaybackMode(enum playbackOptions x) { playbackMode = x; }
 	void SpriteComponent::setCurrentFrame(int x) { if (!(x > totalFrames)) { currentFrame = x; } }
-	void SpriteComponent::setRows(int x) { rows = x; }
-	void SpriteComponent::setCols(int x) { cols = x; }
+	void SpriteComponent::setRows(int x) 
+	{
+		rows = x;
+		RecalcFrameSize();
+		calculateTotalFrames();
+		initialiseSpritesheet();
+	}
+	void SpriteComponent::setCols(int x) 
+	{
+		cols = x;
+		RecalcFrameSize();
+		calculateTotalFrames();
+		initialiseSpritesheet();
+	}
 	void SpriteComponent::setRowsAndCols(int Rows, int Cols)
 	{
-		if (Rows > Cols && Rows > 1) { rows = Rows - 1; cols = Cols; }
-		else { rows = Rows; cols = Cols - 1; }
+		rows = Rows;
+		cols = Cols;
+		RecalcFrameSize();
+		calculateTotalFrames();
+		initialiseSpritesheet();
 	}
 	void SpriteComponent::setSpriteWidth(int x) { spriteWidth = x; }
 	void SpriteComponent::setSpriteHeight(int x) { spriteHeight = x; }

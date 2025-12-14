@@ -1,6 +1,7 @@
 #pragma once
 #include <unordered_map>
 #include <string>
+#include "imgui.h"
 
 namespace IonixEngine
 {
@@ -23,5 +24,6 @@ namespace IonixEngine
         void DrawProgressBar(int xpos, int ypos, float xsize, float ysize, float maxvalue, float currentvalue, int colorId = 0);
         float ProgressBar(int xpos, int ypos, float xsize, float ysize, float maxvalue, float& currentvalue, float incrementamount);
         float DrawDropdown(int xPos, int yPos, float xSize, float ySize, const char* text, std::vector<std::string> options, int* currentIndex);
+        bool InputText(const char* label, int xPos, int yPos, float width, char* buffer, size_t bufferSize, ImGuiInputTextFlags flags = 0);
     };
 }
