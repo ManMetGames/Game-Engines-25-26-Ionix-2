@@ -306,7 +306,10 @@ local function updateTeleporterMovement(enemy, dt, playerCenterX, playerCenterY,
         if t > 1 then t = 1 end
         local scale = 1 - t
         if scale < 0.01 then scale = 0.01 end
-        Entity.set_global_scale(enemy.entity, scale, scale)
+        local scaledSize = math.floor(enemy.baseSize * scale)
+        if scaledSize < 1 then scaledSize = 1 end
+        Sprite.set_image_width(enemy.sprite, scaledSize)
+        Sprite.set_image_height(enemy.sprite, scaledSize)
         if EmitTeleportBurst then
             local cx = enemy.x + enemy.baseSize/2
             local cy = enemy.y + enemy.baseSize/2
@@ -325,13 +328,17 @@ local function updateTeleporterMovement(enemy, dt, playerCenterX, playerCenterY,
         enemy.teleportVisible = true
         enemy.teleportState = "growing"
         enemy.teleportTimer = 0
-        Entity.set_global_scale(enemy.entity, 0.01, 0.01)
+        Sprite.set_image_width(enemy.sprite, 1)
+        Sprite.set_image_height(enemy.sprite, 1)
     elseif enemy.teleportState == "growing" then
         local t = enemy.teleportTimer / TELEPORT_GROW_DURATION
         if t > 1 then t = 1 end
         local scale = t
         if scale < 0.01 then scale = 0.01 end
-        Entity.set_global_scale(enemy.entity, scale, scale)
+        local scaledSize = math.floor(enemy.baseSize * scale)
+        if scaledSize < 1 then scaledSize = 1 end
+        Sprite.set_image_width(enemy.sprite, scaledSize)
+        Sprite.set_image_height(enemy.sprite, scaledSize)
         if EmitTeleportBurst then
             local cx = enemy.x + enemy.baseSize/2
             local cy = enemy.y + enemy.baseSize/2
@@ -340,7 +347,8 @@ local function updateTeleporterMovement(enemy, dt, playerCenterX, playerCenterY,
         if enemy.teleportTimer >= TELEPORT_GROW_DURATION then
             enemy.teleportState = "charging"
             enemy.teleportTimer = 0
-            Entity.set_global_scale(enemy.entity, 1, 1)
+            Sprite.set_image_width(enemy.sprite, enemy.baseSize)
+            Sprite.set_image_height(enemy.sprite, enemy.baseSize)
         end
     end
 end

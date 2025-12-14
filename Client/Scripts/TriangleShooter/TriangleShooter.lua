@@ -1005,7 +1005,9 @@ function UpdateBeatBop()
 
         for i = 1, #enemies do
             local enemy = enemies[i]
-            if enemy and enemy.sprite then
+            local state = enemy.teleportState
+            local isTeleporting = state == "shrinking" or state == "growing" or state == "teleporting"
+            if enemy and enemy.sprite and not isTeleporting then
                 local baseSize = enemy.baseSize or enemy.size or enemyBaseImageSize
                 Sprite.set_image_width(enemy.sprite, math.floor(baseSize * scale))
                 Sprite.set_image_height(enemy.sprite, math.floor(baseSize * scale))
@@ -1014,7 +1016,9 @@ function UpdateBeatBop()
     else
         for i = 1, #enemies do
             local enemy = enemies[i]
-            if enemy and enemy.sprite then
+            local state = enemy.teleportState
+            local isTeleporting = state == "shrinking" or state == "growing" or state == "teleporting"
+            if enemy and enemy.sprite and not isTeleporting then
                 local baseSize = enemy.baseSize or enemy.size or enemyBaseImageSize
                 Sprite.set_image_width(enemy.sprite, baseSize)
                 Sprite.set_image_height(enemy.sprite, baseSize)
