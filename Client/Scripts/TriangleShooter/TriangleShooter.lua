@@ -772,9 +772,10 @@ function UpdateFlash()
                 if t < 0 then t = 0 end
                 if t > 1 then t = 1 end
 
-                local r = 255
-                local g = math.floor(255 * (1.0 - t) + 0.5)
-                local b = math.floor(255 * (1.0 - t) + 0.5)
+                local baseColor = enemy.color or {255, 255, 255}
+                local r = math.floor(255 * t + baseColor[1] * (1.0 - t) + 0.5)
+                local g = math.floor(0 * t + baseColor[2] * (1.0 - t) + 0.5)
+                local b = math.floor(0 * t + baseColor[3] * (1.0 - t) + 0.5)
                 Sprite.set_color(enemy.sprite, r, g, b)
             end
         end

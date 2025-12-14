@@ -213,7 +213,9 @@ end
 
 local function updateShootingRotation(enemy, dt)
     if enemy.spinWhileShooting and enemy.projectileCount > 4 then
-        enemy.shootAngleOffset = (enemy.shootAngleOffset or 0) + dt * 2
+        local spinSpeed = 2
+        enemy.shootAngleOffset = (enemy.shootAngleOffset or 0) + dt * spinSpeed
+        enemy.rotation = (enemy.rotation or 0) + dt * spinSpeed * 60
     end
 end
 
