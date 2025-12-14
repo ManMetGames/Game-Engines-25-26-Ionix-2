@@ -12,7 +12,6 @@ local submitted = false -- For Highscore submission
 local playerName = Json.load_player_name()
 if playerName == "" then playerName = "Anon" end
 
-local namePrefilled = false
 -- Pipes
 local pipe, pipeT, pipe2, pipeT2, pipe3, pipeT3
 local pipeSets = {}
@@ -47,7 +46,6 @@ local text2 = "Press SPACE to restart"
 local finalScoreText = "Final Score: 0"
 local coinsText = "Coins Collected: "
 local topScore = "Highscore: "
-local gameOver = false
 
 
 local topLeaderboard = nil
