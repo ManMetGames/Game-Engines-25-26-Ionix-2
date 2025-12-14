@@ -312,15 +312,15 @@ function ExampleScript:OnUpdate()
     --     resetGame()
     -- end
 
-    UI.add_checkbox(20, 60, 0, 0, "Music", "music_chk", true)
+    -- UI.add_checkbox(20, 60, 0, 0, "Music", "music_chk", true)
 
-    if UI.get_checkbox("music_chk") then
+    -- if UI.get_checkbox("music_chk") then
         -- music on
-    end
+    -- end
 
-    if UI.was_checkbox_changed("music_chk") then
-        print("toggled to:", UI.get_checkbox("music_chk"))
-    end
+    -- if UI.was_checkbox_changed("music_chk") then
+    --     print("toggled to:", UI.get_checkbox("music_chk"))
+    -- end
 
 
     ------------------
