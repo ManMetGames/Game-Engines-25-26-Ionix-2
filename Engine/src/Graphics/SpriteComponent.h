@@ -30,10 +30,10 @@ namespace IonixEngine {
 		bool isReversing; // kai is smelly (its true)
 		int rows, cols;
 		int spriteWidth, spriteHeight;
-		int currentRow, currentCol;
-		float spriteAngle;
+		int currentRow = 0, currentCol = 0;
+		float spriteAngle = 0.0f;
 		int renderLayer;
-		float timer;
+		float timer = 0.0f;
 		float tickRate;
 		b2Vec2 boxColliderSize;
 		
