@@ -100,8 +100,9 @@ local levelEnemyHealth = 50
 local StartLevel    
 local LoadLevel
 
-local function CreateEnemy(x, y, health)
-    return TriangleShooterEnemy.createEnemy(x, y, health, enemySize, playerX, playerY, playerSize)
+local function CreateEnemy(x, y, config)
+    config = config or {}
+    return TriangleShooterEnemy.createEnemy(x, y, config, playerX, playerY, playerSize)
 end
 
 function UpdateWindowTransition()
@@ -235,26 +236,66 @@ LoadLevel = function(index, resetPlayerState)
 
     ClearEnemies()
 
-    local enemyCount = cfg.enemyCount or 1
     levelEnemyHealth = cfg.enemyHealth or levelEnemyHealth
     enemyShootIntervalSeconds = cfg.enemyShootIntervalSeconds or enemyShootIntervalSeconds
 
     local centerX = screenW / 2 - enemySize / 2
     local centerY = screenH / 2 - enemySize / 2
 
-    if enemyCount == 1 then
-        local e = CreateEnemy(centerX, centerY, levelEnemyHealth)
-        table.insert(enemies, e)
-    else
-        local radius = 120
-        local playerCenterX = screenW / 2
-        local playerCenterY = screenH / 2
-        for i = 1, enemyCount do
-            local angle = (2 * math.pi * (i - 1)) / enemyCount
-            local ex = playerCenterX + math.cos(angle) * radius - enemySize / 2
-            local ey = playerCenterY + math.sin(angle) * radius - enemySize / 2
-            local e = CreateEnemy(ex, ey, levelEnemyHealth)
+    if cfg.enemies then
+        for i, enemyCfg in ipairs(cfg.enemies) do
+            local spawnX = enemyCfg.x or centerX
+            local spawnY = enemyCfg.y or centerY
+            
+            if not enemyCfg.x and not enemyCfg.y and #cfg.enemies > 1 then
+                local radius = 120
+                local angle = (2 * math.pi * (i - 1)) / #cfg.enemies
+                spawnX = screenW / 2 + math.cos(angle) * radius - (enemyCfg.size or enemySize) / 2
+                spawnY = screenH / 2 + math.sin(angle) * radius - (enemyCfg.size or enemySize) / 2
+            end
+            
+            local config = {
+                health = enemyCfg.health or levelEnemyHealth,
+                size = enemyCfg.size or enemySize,
+                color = enemyCfg.color,
+                speed = enemyCfg.speed,
+                baseSpeed = enemyCfg.baseSpeed,
+                movementType = enemyCfg.movementType,
+                shootPattern = enemyCfg.shootPattern,
+                projectileCount = enemyCfg.projectileCount,
+                shootInterval = enemyCfg.shootInterval or enemyShootIntervalSeconds,
+                spinWhileShooting = enemyCfg.spinWhileShooting,
+                bounceSteer = enemyCfg.bounceSteer,
+                steerStrength = enemyCfg.steerStrength,
+                orbitCenter = enemyCfg.orbitCenter,
+                orbitRadius = enemyCfg.orbitRadius,
+                orbitSpeed = enemyCfg.orbitSpeed,
+            }
+            
+            local e = CreateEnemy(spawnX, spawnY, config)
             table.insert(enemies, e)
+        end
+    else
+        local enemyCount = cfg.enemyCount or 1
+        local defaultConfig = {
+            health = levelEnemyHealth,
+            shootInterval = enemyShootIntervalSeconds,
+        }
+        
+        if enemyCount == 1 then
+            local e = CreateEnemy(centerX, centerY, defaultConfig)
+            table.insert(enemies, e)
+        else
+            local radius = 120
+            local playerCenterX = screenW / 2
+            local playerCenterY = screenH / 2
+            for i = 1, enemyCount do
+                local angle = (2 * math.pi * (i - 1)) / enemyCount
+                local ex = playerCenterX + math.cos(angle) * radius - enemySize / 2
+                local ey = playerCenterY + math.sin(angle) * radius - enemySize / 2
+                local e = CreateEnemy(ex, ey, defaultConfig)
+                table.insert(enemies, e)
+            end
         end
     end
 
@@ -517,8 +558,8 @@ function TriangleShooter:OnUpdate()
     -- Check enemy-player collision and apply damage
     UpdateEnemyCollision()
     
-    -- Update enemy dash behavior
-    UpdateEnemyDash()
+    -- Update enemy movement
+    UpdateEnemyMovement()
 
     UpdateBeatBop()
 
@@ -842,8 +883,8 @@ function FlashPlayer()
     end
 end
 
-function UpdateEnemyDash()
-    TriangleShooterEnemy.updateEnemyDash(
+function UpdateEnemyMovement()
+    TriangleShooterEnemy.updateEnemyMovement(
         enemies,
         playerX, playerY, playerSize,
         screenW, screenH,
@@ -940,37 +981,22 @@ end
 ----------------------------------------------------------
 -- Enemy projectile spawning
 ----------------------------------------------------------
-function SpawnEnemyProjectile(enemy)
+local function SpawnSingleProjectile(enemy, dirX, dirY)
     local projData
     
-    -- Try to reuse a pooled projectile
     if #enemyProjectilePool > 0 then
         projData = table.remove(enemyProjectilePool)
-        Sprite.set_color(projData.sprite, 128, 0, 255)  -- Purple
+        Sprite.set_color(projData.sprite, 128, 0, 255)
     else
-        -- Create new entity
         local proj = Entity.create_entity()
         local sprite = Entity.add_sprite_component(proj, assets.textures.Ghast_Tear, enemyProjectileSize, enemyProjectileSize, 5)
-        Sprite.set_color(sprite, 128, 0, 255)  -- Purple
+        Sprite.set_color(sprite, 128, 0, 255) -- Purple
         projData = { entity = proj, sprite = sprite }
     end
     
-    -- Direction towards player
-    local enemyCenterX = enemy.x + enemySize/2
-    local enemyCenterY = enemy.y + enemySize/2
-    local playerCenterX = playerX + playerSize/2
-    local playerCenterY = playerY + playerSize/2
-    local dx = playerCenterX - enemyCenterX
-    local dy = playerCenterY - enemyCenterY
-    local dist = math.sqrt(dx * dx + dy * dy)
-    
-    local dirX, dirY = 0, 0
-    if dist > 0 then
-        dirX = dx / dist
-        dirY = dy / dist
-    end
-    
-    -- Spawn at enemy center
+    local eSize = enemy.size or enemySize
+    local enemyCenterX = enemy.x + eSize/2
+    local enemyCenterY = enemy.y + eSize/2
     local spawnX = enemyCenterX - enemyProjectileSize/2
     local spawnY = enemyCenterY - enemyProjectileSize/2
     
@@ -985,6 +1011,51 @@ function SpawnEnemyProjectile(enemy)
     projData.age = 0
     
     table.insert(enemyProjectiles, projData)
+end
+
+function SpawnEnemyProjectile(enemy)
+    local eSize = enemy.size or enemySize
+    local enemyCenterX = enemy.x + eSize/2
+    local enemyCenterY = enemy.y + eSize/2
+    local playerCenterX = playerX + playerSize/2
+    local playerCenterY = playerY + playerSize/2
+    local dx = playerCenterX - enemyCenterX
+    local dy = playerCenterY - enemyCenterY
+    local dist = math.sqrt(dx * dx + dy * dy)
+    
+    local baseDirX, baseDirY = 0, -1
+    if dist > 0 then
+        baseDirX = dx / dist
+        baseDirY = dy / dist
+    end
+    
+    local shootPattern = enemy.shootPattern or "single"
+    local projectileCount = enemy.projectileCount or 1
+    
+    if shootPattern == "single" or projectileCount <= 1 then
+        SpawnSingleProjectile(enemy, baseDirX, baseDirY)
+        
+    elseif shootPattern == "cone" and projectileCount <= 4 then
+        local spreadAngle = math.rad(15)
+        local baseAngle = math.atan(baseDirY, baseDirX)
+        local startAngle = baseAngle - spreadAngle * (projectileCount - 1) / 2
+        
+        for i = 1, projectileCount do
+            local angle = startAngle + spreadAngle * (i - 1)
+            local dirX = math.cos(angle)
+            local dirY = math.sin(angle)
+            SpawnSingleProjectile(enemy, dirX, dirY)
+        end
+        
+    else
+        local angleOffset = enemy.shootAngleOffset or 0
+        for i = 1, projectileCount do
+            local angle = angleOffset + (2 * math.pi * (i - 1)) / projectileCount
+            local dirX = math.cos(angle)
+            local dirY = math.sin(angle)
+            SpawnSingleProjectile(enemy, dirX, dirY)
+        end
+    end
 end
 
 -- Update enemy projectiles
