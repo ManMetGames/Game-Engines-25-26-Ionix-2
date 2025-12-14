@@ -184,7 +184,10 @@ namespace IonixEngine
 		ImDrawList* dl = ImGui::GetWindowDrawList();
 
 		dl->AddRectFilled(p, ImVec2(p.x + w, p.y + h), col, rounding);
-		//dl->AddRect(p, ImVec2(p.x + w, p.y + h), IM_COL32(255,255,255,60), rounding);
+		ImU32 border = IM_COL32(155, 155, 155, 180);
+		dl->AddRect(p, ImVec2(p.x + w, p.y + h), border, rounding);
+		dl->AddRect(ImVec2(p.x + 1, p.y + 1), ImVec2(p.x + w - 1, p.y + h - 1), border, rounding);
+		dl->AddRect(ImVec2(p.x + 2, p.y + 2), ImVec2(p.x + w - 2, p.y + h - 2), border, rounding);
 	}
 
 	float UI::CalcTextWidth(const char* text)

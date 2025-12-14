@@ -361,7 +361,7 @@ function ExampleScript:OnUpdate()
         -- Leaderboard (top-left) --
         local lbX, lbY = 10, 10
         local lbW, lbH = 260, 170
-        UI.add_panel(lbX, lbY, lbW, lbH, 0.35, 6)
+        UI.add_panel(lbX, lbY, lbW, lbH, 0.95, 6)
 
         UI.Add_label(lbX + 10, lbY + 10, 0, 0, "Leaderboard Ranking")
 
@@ -377,10 +377,10 @@ function ExampleScript:OnUpdate()
         local panelX = (windowW - panelW) / 2
         local panelY = 200
 
-        UI.add_panel(panelX, panelY, panelW, panelH, 0.45, 8)
+        UI.add_panel(panelX, panelY, panelW, panelH + 10, 0.95, 8)
 
         local y0 = panelY + 30
-        local gap = 24
+        local gap = 26
         local centerX = panelX + (panelW / 2)
 
         UI.add_centered_label(centerX, y0 + gap*0, text1)
