@@ -304,6 +304,8 @@ function ExampleScript:OnUpdate()
     local windowW = Window.get_width()
     local windowH = Window.get_height()
 
+    
+
     ------------------
 	-- Point effect
 	------------------
@@ -462,6 +464,21 @@ function ExampleScript:OnUpdate()
     -- UI
     UI.Add_label(10, 10, 1000, 1000, pipeScoreText)
     UI.Add_label(10, 40, 1000, 1000, scoreText)
+
+    ------------------------------
+    -----------Raycast------------
+    ---------------------------------
+    local playerPos = Entity.get_global_pos(player1)
+    local mousePos = Input.get_mouse_pos()
+    local hit, info = Fysics.raycast(playerPos, mousePos)
+    Fysics.draw_raycast(playerPos, mousePos, false)
+    local hitEntity = Raycast.entity(info)
+    if hit and hitEntity then
+        Fysics.draw_raycast(playerPos, mousePos, true)
+        Entity.set_global_pos(hitEntity, 200, 300)
+    end
+
+
 
 end
 
