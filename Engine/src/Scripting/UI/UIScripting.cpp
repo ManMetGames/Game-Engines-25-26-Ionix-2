@@ -41,8 +41,14 @@ namespace IonixEngine {
             Application::Get().layerUI->m_UIManager->ClearInput(id);
             };
 
-        auto AddPanel = [](int x, int y, float w, float h, float alpha, float rounding) {
-            Application::Get().layerUI->m_UIManager->AddPanel(x, y, w, h, alpha, rounding);
+        auto AddPanel = [](int x, int y, float w, float h,
+            float alpha, float rounding,
+            sol::optional<int> r, sol::optional<int> g, sol::optional<int> b)
+            {
+                int R = r.value_or(0);
+                int G = g.value_or(0);
+                int B = b.value_or(0);
+                Application::Get().layerUI->m_UIManager->AddPanel(x, y, w, h, alpha, rounding, R, G, B);
             };
 
         auto CalcTextWidth = [](const char* text) {

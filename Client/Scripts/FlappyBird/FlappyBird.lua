@@ -361,7 +361,7 @@ function ExampleScript:OnUpdate()
         -- Leaderboard (top-left) --
         local lbX, lbY = 10, 10
         local lbW, lbH = 260, 170
-        UI.add_panel(lbX, lbY, lbW, lbH, 0.55, 6)
+        UI.add_panel(lbX, lbY, lbW, lbH, 0.75, 10, 70, 160, 115)
 
         UI.Add_label(lbX + 10, lbY + 10, 0, 0, "Leaderboard Ranking")
 
@@ -377,7 +377,7 @@ function ExampleScript:OnUpdate()
         local panelX = (windowW - panelW) / 2
         local panelY = 200
 
-        UI.add_panel(panelX, panelY, panelW, panelH + 10, 0.55, 8)
+        UI.add_panel(panelX, panelY, panelW, panelH, 0.75, 12, 95, 150, 165)
 
         local y0 = panelY + 20
         local gap = 26
@@ -396,11 +396,11 @@ function ExampleScript:OnUpdate()
             local nhX = (windowW - nhW) / 2
             local nhY = panelY + panelH + 12   -- 12px gap under the main panel
 
-            UI.add_panel(nhX, nhY, nhW, nhH, 0.55, 8)
+            UI.add_panel(nhX, nhY, nhW, nhH, 0.75, 12, 95, 150, 165)
 
             local centerX = nhX + (nhW / 2)
 
-            -- Title centered (uses your centered label function)
+            -- Title centered (uses centered label function)
             UI.add_centered_label(centerX, nhY + 10, "New Highscore! Enter your name:")
 
             -- Input box (put it centered-ish under the title)

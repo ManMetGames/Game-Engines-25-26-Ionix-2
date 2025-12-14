@@ -58,7 +58,7 @@ namespace IonixEngine
 
 		float panelAlpha = 0.45f; // only for panel
 		float panelRounding = 6.0f; // only for panel
-
+		int panelR = 0, panelG = 0, panelB = 0; // only for panel
 
 		bool centerAligned = false;
 		float centerX = 0.0f;
@@ -125,7 +125,8 @@ namespace IonixEngine
 
 		void AddProgressBar(int x, int y, float xSize, float ySize, float maxvalue, float* currentvalue, float incrementamount, const std::string& fontName = "");
 
-		void AddPanel(int x, int y, float w, float h, float alpha = 0.45f, float rounding = 6.0f);
+		void AddPanel(int x, int y, float w, float h, float alpha = 0.45f, float rounding = 6.0f,
+			int r = 0, int g = 0, int b = 0);
 
 		void AddCenteredLabel(float centerX, float y, const char* text, const std::string& fontName = "");
 

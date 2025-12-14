@@ -186,7 +186,9 @@ void UIManager::AddProgressBar(int x, int y, float xSize, float ySize, float max
 	AddChildToPanel(element);
 }
 
-void UIManager::AddPanel(int x, int y, float w, float h, float alpha, float rounding)
+void IonixEngine::UIManager::AddPanel(int x, int y, float w, float h,
+	float alpha, float rounding,
+	int r, int g, int b)
 {
 	UIElement* element = new UIElement{};
 	element->type = UIType::Panel;
@@ -196,6 +198,9 @@ void UIManager::AddPanel(int x, int y, float w, float h, float alpha, float roun
 	element->ySize = h;
 	element->panelAlpha = alpha;
 	element->panelRounding = rounding;
+	element->panelR = r;
+	element->panelG = g;
+	element->panelB = b;
 	AddChildToPanel(element);
 }
 
@@ -308,7 +313,8 @@ void UIManager::RenderElement(UIElement* element)
 
 	case UIType::Panel:
 		m_ui->DrawPanel(element->xPos, element->yPos, element->xSize, element->ySize,
-			element->panelAlpha, element->panelRounding);
+			element->panelAlpha, element->panelRounding,
+			element->panelR, element->panelG, element->panelB);
 		break;
 
 		// --- FONT POP ---

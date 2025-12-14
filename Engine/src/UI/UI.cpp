@@ -175,19 +175,18 @@ namespace IonixEngine
 		return ImGui::InputText("##input", buffer, bufferSize, flags);
 	}
 
-	void UI::DrawPanel(int x, int y, float w, float h, float alpha, float rounding)
+	void UI::DrawPanel(int x, int y, float w, float h, float alpha, float rounding, int r, int g, int b)
 	{
 		ImGui::SetCursorPos(ImVec2((float)x, (float)y));
 		ImVec2 p = ImGui::GetCursorScreenPos();
 
-		ImU32 col = IM_COL32(0, 0, 0, (int)(alpha * 255.0f));
+		ImU32 fill = IM_COL32(r, g, b, (int)(alpha * 255.0f));
 		ImDrawList* dl = ImGui::GetWindowDrawList();
 
-		dl->AddRectFilled(p, ImVec2(p.x + w, p.y + h), col, rounding);
-		ImU32 border = IM_COL32(155, 155, 155, 180);
+		dl->AddRectFilled(p, ImVec2(p.x + w, p.y + h), fill, rounding);
+
+		ImU32 border = IM_COL32(0, 0, 0, 80); // border for panel
 		dl->AddRect(p, ImVec2(p.x + w, p.y + h), border, rounding);
-		dl->AddRect(ImVec2(p.x + 1, p.y + 1), ImVec2(p.x + w - 1, p.y + h - 1), border, rounding);
-		dl->AddRect(ImVec2(p.x + 2, p.y + 2), ImVec2(p.x + w - 2, p.y + h - 2), border, rounding);
 	}
 
 	float UI::CalcTextWidth(const char* text)
