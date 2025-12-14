@@ -14,6 +14,10 @@ namespace IonixEngine
 
 	void FysicsScripting::Init(sol::state& lua)
 	{
+		auto getRaycastEntity = [](RayHit hit)->Entity*
+		{
+			return hit.entity;
+		};
 
 		//------------Fysics Body Methods---------------
 		auto getFysicsPos = [](Entity* entity) -> b2Vec2 {
@@ -444,6 +448,26 @@ namespace IonixEngine
 				Application::Get().layerFysics->GetFysicsManager()->GetCollisionListener()->AddToCollisionMap(entityA, entityB);
 			}
 		};
+		//---------------Raycasting--------
+		auto raycast = [](Vec2 startPos, Vec2 endPos)->std::tuple<bool, RayHit>
+		{
+			RayHit hit;
+			std::cout << endPos.x << ", " << endPos.y << std::endl;
+			bool hitSomething = Application::Get().layerFysics->GetFysicsManager()->GetRaycast()->CastFirst(b2Vec2(startPos.x / 100, startPos.y / 100), b2Vec2(endPos.x / 100, endPos.y / 100), hit);
+			if (!hitSomething)
+			{
+				return std::make_tuple(false, RayHit());
+			}
+
+			return std::make_tuple(true, hit);
+		};
+
+		auto drawRaycast = [](Vec2 startPos, Vec2 endPos, bool hitColor)
+		{
+			Application::Get().layerGraphics->GetQueue()->DrawLine(startPos.x, startPos.y, endPos.x, endPos.y, hitColor);
+		};
+
+		
 
 		auto checkActiveCollisions = [](Entity* entityA, Entity* entityB)->bool
 		{
@@ -455,7 +479,10 @@ namespace IonixEngine
 			return false;
 		};
 
+		lua["Raycast"] = lua.create_table_with(
+					"entity", getRaycastEntity
 
+					);
 
 		lua["Fysics"] = lua.create_table_with(
 			"add_box_collider",	addBoxCollider,
@@ -532,7 +559,10 @@ namespace IonixEngine
 			"get_stiffness", getStiffnessFromWeldJoint,
 			"set_stiffness", setStiffnessFromWeldJoint,
 			"add_to_collision_map", addToCollisionMap,
-			"col", checkActiveCollisions
+			"col", checkActiveCollisions,
+			"add_to_collision_map", addToCollisionMap,
+			"raycast", raycast,
+			"draw_raycast", drawRaycast
 		);
 	}
 }
