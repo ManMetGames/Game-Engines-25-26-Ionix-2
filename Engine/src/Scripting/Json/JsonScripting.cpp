@@ -14,25 +14,77 @@ namespace IonixEngine
 	{
 		using json = nlohmann::json;
 
-		auto saveHighScore = [](int score) {
-			json data;
-			data["highscore"] = score;
-			std::ofstream file("flappyBirdHighScore.json");
-			file << data.dump(4); // pretty print with indent 4
+        auto saveHighScore = [](const std::string& gameId, int score) {
+            using json = nlohmann::json;
 
-			};
-		auto loadHighScore = []() -> int {
-			std::ifstream file("flappyBirdHighScore.json");
-			if (!file.is_open())
-				return 0; // default if no file exists
-			json data;
-			file >> data;
-			return data.value("highscore", 0);
-			};
+            json data;
 
-		lua["Json"] = lua.create_table_with(
-			"save_high_score", saveHighScore,
-			"load_high_score", loadHighScore
+            // load existing
+            std::ifstream in("user_profile.json");
+            if (in.is_open()) {
+                try { in >> data; }
+                catch (...) {}
+            }
+
+            data["highScores"][gameId] = score;
+
+            std::ofstream out("user_profile.json");
+            out << data.dump(4);
+            };
+
+        auto loadHighScore = [](const std::string& gameId) -> int {
+            using json = nlohmann::json;
+
+            std::ifstream file("user_profile.json");
+            if (!file.is_open())
+                return 0;
+
+            json data;
+            try { file >> data; }
+            catch (...) { return 0; }
+
+            if (!data.contains("highScores"))
+                return 0;
+
+            return data["highScores"].value(gameId, 0);
+            };
+
+        // persistent player name
+        auto savePlayerName = [](const std::string& name) {
+            using json = nlohmann::json;
+
+            json data;
+            std::ifstream in("user_profile.json");
+            if (in.is_open()) {
+                try { in >> data; }
+                catch (...) {}
+            }
+
+            data["playerName"] = name;
+
+            std::ofstream out("user_profile.json");
+            out << data.dump(4);
+            };
+
+        auto loadPlayerName = []() -> std::string {
+            using json = nlohmann::json;
+
+            std::ifstream file("user_profile.json");
+            if (!file.is_open())
+                return "";
+
+            json data;
+            try { file >> data; }
+            catch (...) { return ""; }
+
+            return data.value("playerName", "");
+            };
+
+        lua["Json"] = lua.create_table_with(
+            "save_high_score", saveHighScore,
+            "load_high_score", loadHighScore,
+            "save_player_name", savePlayerName,
+            "load_player_name", loadPlayerName
 		);
 	}
 }
