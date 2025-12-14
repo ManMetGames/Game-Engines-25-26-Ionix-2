@@ -305,6 +305,14 @@ function ExampleScript:OnUpdate()
     local windowH = Window.get_height()
 
     ------------------
+	-- New button test
+	------------------
+    -- UI.add_button(20, 20, 120, 35, "Restart", "restart_btn")
+    -- if UI.was_button_pressed("restart_btn") then
+    --     resetGame()
+    -- end
+
+    ------------------
 	-- Point effect
 	------------------
     -- Update point effect timer

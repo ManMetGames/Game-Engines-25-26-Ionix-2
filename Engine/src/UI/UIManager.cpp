@@ -8,9 +8,7 @@ namespace IonixEngine
 
 void UIManager::BeginPanel(const std::string& panelName)
 {
-	UIElement* element = new UIElement{};
-	element->type = UIType::Panel;
-	elements.push_back(element);
+
 }
 
 void UIManager::AddChildToPanel(UIElement* element)
@@ -29,35 +27,83 @@ void UIManager::AddLabel(int x, int y, float xSize, float ySize, const char* tex
 	element->ownedText = (text ? text : "");
 	element->text = const_cast<char*>(element->ownedText.c_str());
 	element->fontName = fontName;
-	elements.push_back(element);
+
 	AddChildToPanel(element);
 }
 
-void UIManager::AddButton(int x, int y, float xSize, float ySize, const char* text)
+int UIManager::GetOrCreateCheckboxIntId(const std::string& id)
 {
-	UIElement* element = new UIElement;
-	element->type = UIType::Button;
-	element->xPos = x;
-	element->yPos = y;
-	element->xSize = xSize;
-	element->ySize = ySize;
-	element->ownedText = (text ? text : "");
-	element->text = const_cast<char*>(element->ownedText.c_str());
-	AddChildToPanel(element);
+	auto it = m_checkboxIntIds.find(id);
+	if (it != m_checkboxIntIds.end())
+		return it->second;
+
+	int newId = m_nextCheckboxId++;
+	m_checkboxIntIds[id] = newId;
+	return newId;
 }
 
-void UIManager::AddCheckbox(int x, int y, float xSize, float ySize, const char* text, bool* checked, const std::string& fontName)
+bool UIManager::WasButtonPressed(const std::string& id)
 {
-	UIElement* element = new UIElement;
+	auto it = m_buttonPressed.find(id);
+	if (it == m_buttonPressed.end()) return false;
+
+	bool pressed = it->second;
+	it->second = false; // consume
+	return pressed;
+}
+
+void UIManager::AddCheckboxID(int x, int y, float xSize, float ySize, const char* text, const char* id, bool defaultValue)
+{
+	UIElement* element = new UIElement{};
 	element->type = UIType::Checkbox;
 	element->xPos = x;
 	element->yPos = y;
 	element->xSize = xSize;
 	element->ySize = ySize;
+
 	element->ownedText = (text ? text : "");
 	element->text = const_cast<char*>(element->ownedText.c_str());
-	element->checked = checked;
-	element->fontName = fontName;
+
+	element->widgetId = (id && id[0]) ? id : element->ownedText;
+	element->defaultValue = defaultValue;
+
+	// only set default once
+	if (m_checkboxValues.find(element->widgetId) == m_checkboxValues.end())
+		m_checkboxValues[element->widgetId] = defaultValue;
+
+	AddChildToPanel(element);
+}
+
+bool UIManager::GetCheckbox(const std::string& id) const
+{
+	auto it = m_checkboxValues.find(id);
+	return (it != m_checkboxValues.end()) ? it->second : false;
+}
+
+bool UIManager::WasCheckboxChanged(const std::string& id)
+{
+	auto it = m_checkboxChanged.find(id);
+	if (it == m_checkboxChanged.end()) return false;
+
+	bool changed = it->second;
+	it->second = false; // consume
+	return changed;
+}
+
+void UIManager::AddButton(int x, int y, float xSize, float ySize, const char* text, const char* id)
+{
+	UIElement* element = new UIElement{};
+	element->type = UIType::Button;
+	element->xPos = x;
+	element->yPos = y;
+	element->xSize = xSize;
+	element->ySize = ySize;
+
+	element->ownedText = (text ? text : "");
+	element->text = const_cast<char*>(element->ownedText.c_str());
+
+	element->widgetId = (id && id[0]) ? id : element->ownedText; // fallback
+
 	AddChildToPanel(element);
 }
 
@@ -204,17 +250,21 @@ void IonixEngine::UIManager::AddPanel(int x, int y, float w, float h,
 	AddChildToPanel(element);
 }
 
-void IonixEngine::UIManager::AddCenteredLabel(float centerX, float y, const char* text, const std::string& fontName)
+void UIManager::AddCenteredLabel(float centerX, float y, const char* text, const std::string& fontName)
 {
 	UIElement* element = new UIElement{};
 	element->type = UIType::Label;
 	element->centerAligned = true;
 	element->centerX = centerX;
 	element->yPos = (int)y;
-	element->text = const_cast<char*>(text);
+
+	element->ownedText = (text ? text : "");
+	element->text = const_cast<char*>(element->ownedText.c_str());
+
 	element->fontName = fontName;
 	AddChildToPanel(element);
 }
+
 
 void UIManager::EndPanel()
 {
@@ -224,21 +274,19 @@ void UIManager::EndPanel()
 
 void UIManager::ClearElements()
 {
+	for (auto* e : elements)
+		delete e;
 	elements.clear();
 }
 
 void UIManager::RenderElement(UIElement* element)
 {
-	// --- FONT PUSH ---
 	ImFont* font = nullptr;
 	if (!element->fontName.empty())
-	{
 		font = fontLoader.GetFont(element->fontName);
-	}
-	if (font)
-	{
-		ImGui::PushFont(font);
-	}
+
+	if (font) ImGui::PushFont(font);
+
 	switch (element->type)
 	{
 	case UIType::Label:
@@ -256,12 +304,52 @@ void UIManager::RenderElement(UIElement* element)
 		break;
 	}
 	case UIType::Button:
-		m_ui->DrawButton(element->text, element->xSize, element->ySize, element->xPos, element->yPos);
+	{
+		// Make ImGui id unique: "Visible##id"
+		std::string imguiLabel = element->ownedText + "##" + element->widgetId;
+
+		bool pressed = m_ui->DrawButton(
+			const_cast<char*>(imguiLabel.c_str()),
+			(int)element->xSize, (int)element->ySize,
+			element->xPos, element->yPos
+		);
+
+		if (pressed)
+			m_buttonPressed[element->widgetId] = true;
+
 		break;
+	}
+
 	case UIType::Checkbox:
-		if (element->checked)
-			m_ui->DrawCheckbox(0, element->text, element->xPos, element->yPos, element->xSize, element->ySize);
+	{
+		if (element->widgetId.empty())
+			break;
+
+		// our stored value (defaulted in AddCheckboxID)
+		bool before = m_checkboxValues[element->widgetId];
+
+		int cid = GetOrCreateCheckboxIntId(element->widgetId);
+
+		// seed ImGui state ONCE so defaultValue works
+		if (m_ui->checkboxMap.find(cid) == m_ui->checkboxMap.end())
+			m_ui->checkboxMap[cid] = before;
+
+		std::string imguiLabel = element->ownedText + "##" + element->widgetId;
+
+		m_ui->DrawCheckbox(cid, const_cast<char*>(imguiLabel.c_str()),
+			element->xPos, element->yPos,
+			(int)element->xSize, (int)element->ySize);
+
+		bool after = m_ui->getCheckboxState(cid);
+		m_checkboxValues[element->widgetId] = after;
+
+		if (after != before)
+			m_checkboxChanged[element->widgetId] = true;
+
 		break;
+	}
+
+
 	case UIType::SliderFloat:
 		if (element->sliderValue)
 			*element->sliderValue = m_ui->DrawSlider(element->text, *element->sliderValue, element->xSize, element->ySize, element->xPos, element->yPos, element->sliderMin, element->slidermax);
@@ -317,26 +405,27 @@ void UIManager::RenderElement(UIElement* element)
 			element->panelR, element->panelG, element->panelB);
 		break;
 
-		// --- FONT POP ---
-		if (font)
-		{
-			ImGui::PopFont();
-		}
-
-		if (element->sameline)
-			ImGui::SameLine();
+	default:
+		break;
 	}
+
+	// --- FONT POP ---
+	if (font) ImGui::PopFont();
+	if (element->sameline) ImGui::SameLine();
 }
 
 void UIManager::RenderUI()
 {
+	// clear per-frame results
 	m_inputCommittedThisFrame.clear();
-	for (auto& element : elements)
+	m_buttonPressed.clear();
+	m_checkboxChanged.clear();
+
+	for (auto* element : elements)
 	{
 		RenderElement(element);
+		delete element;
 	}
-	//for (auto* e : elements) delete e;
 	elements.clear();
 }
-
 }

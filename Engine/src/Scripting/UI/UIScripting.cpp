@@ -16,9 +16,38 @@ namespace IonixEngine {
         auto AddLabel = [](const int x, int y, float xSize, float ySize, const char* text) {
             Application::Get().layerUI->m_UIManager->AddLabel(x, y, xSize, ySize, text);
             };
-        auto AddButton = [](int x, int y, float xSize, float ySize, const char* text) {
-            return Application::Get().layerUI->m_UIManager->AddButton(x, y, xSize, ySize, text);
+
+        auto AddButton = [](int x, int y, float w, float h, const char* text, sol::optional<std::string> id)
+            {
+                Application::Get().layerUI->m_UIManager->AddButton(
+                    x, y, w, h, text,
+                    id ? id->c_str() : nullptr
+                );
             };
+
+        auto WasButtonPressed = [](const std::string& id)
+            {
+                return Application::Get().layerUI->m_UIManager->WasButtonPressed(id);
+            };
+
+        auto AddCheckbox = [](int x, int y, float w, float h, const char* text, const std::string& id, sol::optional<bool> defaultValue)
+            {
+                Application::Get().layerUI->m_UIManager->AddCheckboxID(
+                    x, y, w, h, text, id.c_str(),
+                    defaultValue.value_or(false)
+                );
+            };
+
+        auto GetCheckbox = [](const std::string& id)
+            {
+                return Application::Get().layerUI->m_UIManager->GetCheckbox(id);
+            };
+
+        auto WasCheckboxChanged = [](const std::string& id)
+            {
+                return Application::Get().layerUI->m_UIManager->WasCheckboxChanged(id);
+            };
+
 		auto AddColorPicker = [](int x, int y, float xSize, float ySize, const char* label, float* color) {
 			return Application::Get().layerUI->m_UI->DrawColorPicker(x, y, xSize, ySize, label, color);
 			};
@@ -61,6 +90,10 @@ namespace IonixEngine {
         lua["UI"] = lua.create_table_with(
             "Add_label", AddLabel,
             "add_button", AddButton,
+            "was_button_pressed", WasButtonPressed,
+            "add_checkbox", AddCheckbox,
+            "get_checkbox", GetCheckbox,
+            "was_checkbox_changed", WasCheckboxChanged,
             "add_color_picker", AddColorPicker,
             "draw_progress_bar", DrawProgressBar,
             "add_input_text", AddInputText,

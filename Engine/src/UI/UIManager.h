@@ -32,8 +32,10 @@ namespace IonixEngine
 		float ySize;
 		std::string ownedText;
 		char* text = nullptr;
+
 		//std::function<void()> onClick = nullptr; // only for buttons
-		bool* checked = nullptr; // only for checkboxes
+		std::string widgetId;   // for button/checkbox lookup
+		bool defaultValue = false; // for checkbox default
 		float* sliderValue = nullptr; // only for sliders
 		float sliderMin = 0.0f;// only for sliders
 		float slidermax = 1.0f;// only for sliders
@@ -77,7 +79,14 @@ namespace IonixEngine
 		std::unordered_map<std::string, std::vector<char>> m_inputBuffers;
 		std::unordered_map<std::string, std::string> m_committedText;
 
-		std::vector<std::string> m_frameText; // keeps label/button text alive for this frame
+		std::unordered_map<std::string, bool> m_buttonPressed;
+		std::unordered_map<std::string, bool> m_checkboxValues;
+		std::unordered_map<std::string, bool> m_checkboxChanged;
+
+		std::unordered_map<std::string, int> m_checkboxIntIds;
+		int m_nextCheckboxId = 1;
+
+		int GetOrCreateCheckboxIntId(const std::string& id);
 
 	public:
 		Fontloader fontLoader;
@@ -93,9 +102,6 @@ namespace IonixEngine
 
 			m_ui = ui;
 		}
-		//void UIManager::BeginGroup(const std::string& groupName);
-
-		//void UIManager::EndGroup();
 
 		void UIManager::BeginPanel(const std::string& panelName);
 
@@ -107,9 +113,12 @@ namespace IonixEngine
 
 		void AddLabel(int x, int y, float xSize, float ySize, const char* text, const std::string& fontName = "");
 
-		void AddButton(int x, int y, float xSize, float ySize, const char* text);
+		void AddButton(int x, int y, float xSize, float ySize, const char* text, const char* id = nullptr);
+		bool WasButtonPressed(const std::string& id);
 
-		void AddCheckbox(int x, int y, float xSize, float ySize, const char* text, bool* checked, const std::string& fontName = "");
+		void AddCheckboxID(int x, int y, float xSize, float ySize, const char* text, const char* id, bool defaultValue = false);
+		bool GetCheckbox(const std::string& id) const;
+		bool WasCheckboxChanged(const std::string& id);
 
 		void AddSliderFloat(int x, int y, float xSize, float ySize, const char* text, float* value, float min, float max, const std::string& fontName = "");
 
@@ -130,14 +139,15 @@ namespace IonixEngine
 
 		void AddCenteredLabel(float centerX, float y, const char* text, const std::string& fontName = "");
 
-
 		void RenderUI();
+
+
 
 		std::string GetCommittedText(const std::string& id) const;
 		std::unordered_map<std::string, bool> m_inputCommittedThisFrame;
 		bool WasInputCommitted(const std::string& id) const;
 
-
 		void ClearInput(const std::string& id);
+
 	};
 }
