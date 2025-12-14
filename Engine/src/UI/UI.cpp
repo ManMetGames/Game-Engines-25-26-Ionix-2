@@ -38,14 +38,11 @@ namespace IonixEngine
 
 	}
 
-	void UI::DrawCheckbox(int id, char* text, int xpos, int ypos, int xsize, int ysize)
+	bool UI::DrawCheckbox(const char* label, bool* value, int xpos, int ypos)
 	{
-		if (checkboxMap.find(id) == checkboxMap.end())
-			checkboxMap.insert({ id, false });
-
-		bool& state = getCheckboxState(id);
-		ImGui::SetCursorPos(ImVec2(xpos, ypos));
-		ImGui::Checkbox(text, &state);
+		ImGui::SetWindowFontScale(1.0f);
+		ImGui::SetCursorPos(ImVec2((float)xpos, (float)ypos));
+		return ImGui::Checkbox(label, value);
 	}
 
 

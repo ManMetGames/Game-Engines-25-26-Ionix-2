@@ -31,17 +31,6 @@ void UIManager::AddLabel(int x, int y, float xSize, float ySize, const char* tex
 	AddChildToPanel(element);
 }
 
-int UIManager::GetOrCreateCheckboxIntId(const std::string& id)
-{
-	auto it = m_checkboxIntIds.find(id);
-	if (it != m_checkboxIntIds.end())
-		return it->second;
-
-	int newId = m_nextCheckboxId++;
-	m_checkboxIntIds[id] = newId;
-	return newId;
-}
-
 bool UIManager::WasButtonPressed(const std::string& id)
 {
 	auto it = m_buttonPressed.find(id);
@@ -325,29 +314,18 @@ void UIManager::RenderElement(UIElement* element)
 		if (element->widgetId.empty())
 			break;
 
-		// our stored value (defaulted in AddCheckboxID)
-		bool before = m_checkboxValues[element->widgetId];
-
-		int cid = GetOrCreateCheckboxIntId(element->widgetId);
-
-		// seed ImGui state ONCE so defaultValue works
-		if (m_ui->checkboxMap.find(cid) == m_ui->checkboxMap.end())
-			m_ui->checkboxMap[cid] = before;
+		bool& v = m_checkboxValues[element->widgetId];
 
 		std::string imguiLabel = element->ownedText + "##" + element->widgetId;
 
-		m_ui->DrawCheckbox(cid, const_cast<char*>(imguiLabel.c_str()),
-			element->xPos, element->yPos,
-			(int)element->xSize, (int)element->ySize);
+		bool changed = m_ui->DrawCheckbox(imguiLabel.c_str(), &v, element->xPos, element->yPos);
 
-		bool after = m_ui->getCheckboxState(cid);
-		m_checkboxValues[element->widgetId] = after;
-
-		if (after != before)
+		if (changed)
 			m_checkboxChanged[element->widgetId] = true;
 
 		break;
 	}
+
 
 
 	case UIType::SliderFloat:

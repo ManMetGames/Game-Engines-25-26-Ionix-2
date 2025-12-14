@@ -30,7 +30,9 @@ namespace IonixEngine {
                 return Application::Get().layerUI->m_UIManager->WasButtonPressed(id);
             };
 
-        auto AddCheckbox = [](int x, int y, float w, float h, const char* text, const std::string& id, sol::optional<bool> defaultValue)
+        auto AddCheckbox = [](int x, int y, float w, float h,
+            const char* text, const std::string& id,
+            sol::optional<bool> defaultValue)
             {
                 Application::Get().layerUI->m_UIManager->AddCheckboxID(
                     x, y, w, h, text, id.c_str(),
@@ -89,21 +91,21 @@ namespace IonixEngine {
 
         lua["UI"] = lua.create_table_with(
             "Add_label", AddLabel,
+            "add_centered_label", AddCenteredLabel,
             "add_button", AddButton,
-            "was_button_pressed", WasButtonPressed,
             "add_checkbox", AddCheckbox,
-            "get_checkbox", GetCheckbox,
-            "was_checkbox_changed", WasCheckboxChanged,
             "add_color_picker", AddColorPicker,
             "draw_progress_bar", DrawProgressBar,
             "add_input_text", AddInputText,
             "add_panel", AddPanel,
 
+            "was_button_pressed", WasButtonPressed,
+            "get_checkbox", GetCheckbox,
+            "was_checkbox_changed", WasCheckboxChanged,
 			"get_input_text", GetInputText,
             "was_input_committed", WasInputCommitted,
             "clear_input", ClearInput,
-            "calc_text_width", CalcTextWidth,
-            "add_centered_label", AddCenteredLabel
+            "calc_text_width", CalcTextWidth
         );
     }
 }

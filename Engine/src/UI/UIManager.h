@@ -83,11 +83,6 @@ namespace IonixEngine
 		std::unordered_map<std::string, bool> m_checkboxValues;
 		std::unordered_map<std::string, bool> m_checkboxChanged;
 
-		std::unordered_map<std::string, int> m_checkboxIntIds;
-		int m_nextCheckboxId = 1;
-
-		int GetOrCreateCheckboxIntId(const std::string& id);
-
 	public:
 		Fontloader fontLoader;
 		std::vector<UIElement*> GetElements()

@@ -305,12 +305,23 @@ function ExampleScript:OnUpdate()
     local windowH = Window.get_height()
 
     ------------------
-	-- New button test
+	-- New button/checkbox test
 	------------------
     -- UI.add_button(20, 20, 120, 35, "Restart", "restart_btn")
     -- if UI.was_button_pressed("restart_btn") then
     --     resetGame()
     -- end
+
+    UI.add_checkbox(20, 60, 0, 0, "Music", "music_chk", true)
+
+    if UI.get_checkbox("music_chk") then
+        -- music on
+    end
+
+    if UI.was_checkbox_changed("music_chk") then
+        print("toggled to:", UI.get_checkbox("music_chk"))
+    end
+
 
     ------------------
 	-- Point effect
@@ -367,7 +378,7 @@ function ExampleScript:OnUpdate()
         end
 
         -- Leaderboard (top-left) --
-        local lbX, lbY = 10, 10
+        local lbX, lbY = 5, 5
         local lbW, lbH = 260, 170
         UI.add_panel(lbX, lbY, lbW, lbH, 0.75, 10, 70, 160, 115)
 
