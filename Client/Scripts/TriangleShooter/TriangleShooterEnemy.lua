@@ -254,8 +254,20 @@ local function updateTeleporterMovement(enemy, dt, playerCenterX, playerCenterY,
     if enemy.teleportState == "charging" then
         local enemyCenterX = enemy.x + enemy.size/2
         local enemyCenterY = enemy.y + enemy.size/2
-        local dx = playerCenterX - enemyCenterX
-        local dy = playerCenterY - enemyCenterY
+        
+        local lockTime = enemy.teleportChargeTime - 0.2
+        if lockTime < 0 then lockTime = 0 end
+        if not enemy.beamLocked and enemy.teleportTimer >= lockTime then
+            enemy.beamTargetX = playerCenterX
+            enemy.beamTargetY = playerCenterY
+            enemy.beamLocked = true
+        end
+        
+        local targetX = enemy.beamLocked and enemy.beamTargetX or playerCenterX
+        local targetY = enemy.beamLocked and enemy.beamTargetY or playerCenterY
+        
+        local dx = targetX - enemyCenterX
+        local dy = targetY - enemyCenterY
         local dist = math.sqrt(dx * dx + dy * dy)
         local chargeX = enemyCenterX
         local chargeY = enemyCenterY
@@ -266,13 +278,12 @@ local function updateTeleporterMovement(enemy, dt, playerCenterX, playerCenterY,
             chargeY = enemyCenterY + dirY * (enemy.size / 2)
         end
         if EmitBeamCharge then
-            EmitBeamCharge(chargeX, chargeY, playerCenterX, playerCenterY, enemy.color[1], enemy.color[2], enemy.color[3])
+            EmitBeamCharge(chargeX, chargeY, targetX, targetY, enemy.color[1], enemy.color[2], enemy.color[3])
         end
         if enemy.teleportTimer >= enemy.teleportChargeTime then
             enemy.teleportState = "shooting"
             enemy.teleportTimer = 0
-            enemy.beamTargetX = playerCenterX
-            enemy.beamTargetY = playerCenterY
+            enemy.beamLocked = false
         end
     elseif enemy.teleportState == "shooting" then
         local enemyCenterX = enemy.x + enemy.size/2

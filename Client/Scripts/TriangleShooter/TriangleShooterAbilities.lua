@@ -29,9 +29,12 @@ local function tripleAbility(tipX, tipY, aimX, aimY, projectileSize)
     }
 end
 
-local function wideAbility(tipX, tipY, aimX, aimY)
+local function wideAbility(tipX, tipY, aimX, aimY, projectileSize, enemyCount)
     local count = 4
     local totalSpreadDeg = 40
+    if enemyCount and enemyCount < 3 then
+        totalSpreadDeg = 10
+    end
     local baseAngle = math.atan(aimY, aimX)
     local halfSpread = math.rad(totalSpreadDeg) / 2
     local step = (count == 1) and 0 or (2 * halfSpread / (count - 1))
@@ -53,14 +56,14 @@ local abilityDispatch = {
     end,
     dual = dualAbility,
     triple = tripleAbility,
-    wide = function(tipX, tipY, aimX, aimY, projectileSize)
-        return wideAbility(tipX, tipY, aimX, aimY)
+    wide = function(tipX, tipY, aimX, aimY, projectileSize, enemyCount)
+        return wideAbility(tipX, tipY, aimX, aimY, projectileSize, enemyCount)
     end,
 }
 
-function TriangleShooterAbilities.getShots(name, tipX, tipY, aimX, aimY, projectileSize)
+function TriangleShooterAbilities.getShots(name, tipX, tipY, aimX, aimY, projectileSize, enemyCount)
     local func = abilityDispatch[name] or abilityDispatch.basic
-    return func(tipX, tipY, aimX, aimY, projectileSize)
+    return func(tipX, tipY, aimX, aimY, projectileSize, enemyCount)
 end
 
 return TriangleShooterAbilities

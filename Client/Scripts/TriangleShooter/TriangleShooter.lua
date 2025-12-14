@@ -673,7 +673,7 @@ function SpawnProjectile()
     local tipX = centerX + aimDirX * (playerSize/2)
     local tipY = centerY + aimDirY * (playerSize/2)
     local abilityName = TriangleShooterPlayerProgress.getCurrentShootAbility()
-    local shots = TriangleShooterAbilities.getShots(abilityName, tipX, tipY, aimDirX, aimDirY, projectileSize)
+    local shots = TriangleShooterAbilities.getShots(abilityName, tipX, tipY, aimDirX, aimDirY, projectileSize, #enemies)
     if not shots then
         return
     end
@@ -892,6 +892,9 @@ function FlashPlayer()
     end
 end
 
+local BEAM_RADIUS = 16
+local BEAM_DAMAGE = 15
+
 function SpawnBeam(enemy, fromX, fromY, toX, toY)
     local dx = toX - fromX
     local dy = toY - fromY
@@ -911,6 +914,36 @@ function SpawnBeam(enemy, fromX, fromY, toX, toY)
         local py = fromY + dirY * offset
         if px >= -20 and px <= screenW + 20 and py >= -20 and py <= screenH + 20 then
             ParticleSystem.emitBeamParticle(px, py, 255, 255, 50, dirX, dirY)
+        end
+    end
+    
+    if damageCooldown <= 0 then
+        local playerCenterX = playerX + playerSize / 2
+        local playerCenterY = playerY + playerSize / 2
+        local playerRadius = playerSize / 2
+        
+        local apx = playerCenterX - fromX
+        local apy = playerCenterY - fromY
+        local abx = dirX * maxDist
+        local aby = dirY * maxDist
+        
+        local abLenSq = abx * abx + aby * aby
+        local t = (apx * abx + apy * aby) / abLenSq
+        if t < 0 then t = 0 end
+        if t > 1 then t = 1 end
+        
+        local closestX = fromX + abx * t
+        local closestY = fromY + aby * t
+        
+        local distToPlayerX = playerCenterX - closestX
+        local distToPlayerY = playerCenterY - closestY
+        local distToPlayerSq = distToPlayerX * distToPlayerX + distToPlayerY * distToPlayerY
+        
+        local hitRadius = playerRadius + BEAM_RADIUS
+        if distToPlayerSq < hitRadius * hitRadius then
+            playerHealth = playerHealth - BEAM_DAMAGE
+            FlashPlayer()
+            damageCooldown = damageCooldownDuration
         end
     end
 end
