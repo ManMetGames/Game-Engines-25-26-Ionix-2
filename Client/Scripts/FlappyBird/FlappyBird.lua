@@ -361,7 +361,7 @@ function ExampleScript:OnUpdate()
         -- Leaderboard (top-left) --
         local lbX, lbY = 10, 10
         local lbW, lbH = 260, 170
-        UI.add_panel(lbX, lbY, lbW, lbH, 0.75, 6)
+        UI.add_panel(lbX, lbY, lbW, lbH, 0.55, 6)
 
         UI.Add_label(lbX + 10, lbY + 10, 0, 0, "Leaderboard Ranking")
 
@@ -377,9 +377,9 @@ function ExampleScript:OnUpdate()
         local panelX = (windowW - panelW) / 2
         local panelY = 200
 
-        UI.add_panel(panelX, panelY, panelW, panelH + 10, 0.75, 8)
+        UI.add_panel(panelX, panelY, panelW, panelH + 10, 0.55, 8)
 
-        local y0 = panelY + 30
+        local y0 = panelY + 20
         local gap = 26
         local centerX = panelX + (panelW / 2)
 
@@ -387,12 +387,28 @@ function ExampleScript:OnUpdate()
         UI.add_centered_label(centerX, y0 + gap*1, finalScoreText)
         UI.add_centered_label(centerX, y0 + gap*2, coinsText)
         UI.add_centered_label(centerX, y0 + gap*3, topScore)
-        UI.add_centered_label(centerX, y0 + gap*4, text2)
+        UI.add_centered_label(centerX, y0 + gap*5.5, text2)
 
 
         -- Show TextInput only if new high score
         if newHighScore and not submitted then
-            UI.add_input_text(panelX + 40, panelY + 175, 260, "New Highscore! Enter your name:", "player_name", 16)
+            local nhW, nhH = 520, 85
+            local nhX = (windowW - nhW) / 2
+            local nhY = panelY + panelH + 12   -- 12px gap under the main panel
+
+            UI.add_panel(nhX, nhY, nhW, nhH, 0.55, 8)
+
+            local centerX = nhX + (nhW / 2)
+
+            -- Title centered (uses your centered label function)
+            UI.add_centered_label(centerX, nhY + 10, "New Highscore! Enter your name:")
+
+            -- Input box (put it centered-ish under the title)
+            local inputW = 260
+            local inputX = nhX + (nhW - inputW) / 2
+            local inputY = nhY + 25
+
+            UI.add_input_text(inputX, inputY, inputW, "", "player_name", 16)
 
             if UI.was_input_committed("player_name") then
                 local name = UI.get_input_text("player_name")
