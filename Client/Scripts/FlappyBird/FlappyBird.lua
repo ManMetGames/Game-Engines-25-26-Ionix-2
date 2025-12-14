@@ -45,6 +45,9 @@ local coinsText = "Coins Collected: "
 local topScore = "Highscore: "
 local gameOver = false
 
+-- Audio
+local birdJumpSound
+local coinSound
 
 local topLeaderboard = nil
 local leaderboardFetched = false
@@ -69,8 +72,8 @@ local function showPointEffect()
 
     local pointE = Entity.get_sprite_component(pointEffect)
     if pointE then
-        Sprite.set_width(pointE, 25)
-        Sprite.set_height(pointE, 25)
+        Sprite.set_width(pointE, 32)
+        Sprite.set_height(pointE, 32)
     end
 
     pointEffectTimer = pointEffectDuration
@@ -85,13 +88,12 @@ local function showPipeEffect()
 
     local pipeE = Entity.get_sprite_component(pipeEffect)
     if pipeE then
-        Sprite.set_width(pipeE, 25)
-        Sprite.set_height(pipeE, 25)
+        Sprite.set_width(pipeE, 32)
+        Sprite.set_height(pipeE, 32)
     end
 
     pipeEffectTimer = pipeEffectDuration
 end
-
 
 ----------------------------------------------------------
 -- Spawn coins between pipes
@@ -291,6 +293,19 @@ function ExampleScript:OnStart()
     Sprite.set_columns(pipe_Effect, 1)
     Sprite.set_width(pipe_Effect, 0)
     Sprite.set_height(pipe_Effect, 0)
+
+    ------------------------------------------------------
+	-- Audio / Sound Effects
+	------------------------------------------------------
+    -- Bird Jump SFX
+    birdJumpSound = Entity.create_entity()
+    Entity.add_audio_component(birdJumpSound, "Jump", false)
+    AudioComponent.change_volume(birdJumpSound, 100)
+
+    -- Coin SFX
+    coinSound = Entity.create_entity()
+    Entity.add_audio_component(coinSound, "Jump", false)
+    AudioComponent.change_volume(coinSound, 100)
 end
 
 ----------------------------------------------------------
@@ -449,7 +464,6 @@ function ExampleScript:OnUpdate()
         return
     end
 
-
     -- Player input
     local vel = Fysics.get_linear_velocity(player1)
     local vx, vy = 0, Mafs.get_vec_y(vel)
@@ -457,6 +471,12 @@ function ExampleScript:OnUpdate()
     if Input.get_key_down(Keys.ionix_space) then
         Fysics.set_gravity_scale(player1, 0.75)
         vy = -3
+
+        if birdJumpSound then
+            AudioComponent.play(birdJumpSound)
+            print("Bird jump sfx played")
+        end
+
         for _, p in ipairs({pipe, pipeT, pipe2, pipeT2, pipe3, pipeT3}) do
             Fysics.set_linear_velocity(p, pipeSpeed, 0)
         end
@@ -533,8 +553,15 @@ function ExampleScript:OnTriggerEnter(a, b)
             score = score + 1
             scoreText = "Coins: " .. tostring(score)
 
+            -- Output coin sfx
+            if coinSound then
+            AudioComponent.play(coinSound)
+            print("Coin sfx played")
+            end
+
             -- Show point effect
             showPointEffect()
+
             break
         end
     end

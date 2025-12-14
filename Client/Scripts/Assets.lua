@@ -198,6 +198,8 @@ return {
         office = 2084752704,
     },
     sounds = {
+        Jump = 3884640712,
+        coin = 1941127746,
         gunshot1 = 1107995564,
         gunshot2 = 1286261536,
         gunshot3 = 3098717796,
