@@ -304,7 +304,7 @@ function ExampleScript:OnStart()
 
     -- Coin SFX
     coinSound = Entity.create_entity()
-    Entity.add_audio_component(coinSound, "Jump", false)
+    Entity.add_audio_component(coinSound, "coin", false)
     AudioComponent.change_volume(coinSound, 100)
 end
 
