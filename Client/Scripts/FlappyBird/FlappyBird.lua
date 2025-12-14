@@ -468,7 +468,7 @@ function ExampleScript:OnUpdate()
     ------------------------------
     -----------Raycast------------
     ---------------------------------
-    local playerPos = Entity.get_global_pos(player1)
+    local playerPos = Entity.get_center_pos(player1)
     local mousePos = Input.get_mouse_pos()
     local hit, info = Fysics.raycast(playerPos, mousePos)
     Fysics.draw_raycast(playerPos, mousePos, false)

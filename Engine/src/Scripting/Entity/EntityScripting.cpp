@@ -48,6 +48,22 @@ namespace IonixEngine {
             return returnPos;
             };
 
+        auto getCenterPos = [](Entity* entity) -> b2Vec2 {
+            SpriteComponent* comp = nullptr;
+            if (!entity->TryGetComponent(&comp))
+            {
+                std::cout << "Entity : " << entity->id << " has no sprite component, returning default position"<< std::endl;
+                Vec2 pos = entity->transform.GetGlobalPosition();
+                b2Vec2 nonCenterPos = b2Vec2{ pos.x, pos.y };
+                return nonCenterPos;
+            }
+            Vec2 pos = entity->transform.GetGlobalPosition();            
+            int entW = entity->GetComponent<SpriteComponent>()->getWidth() / 2;
+            int entH = entity->GetComponent<SpriteComponent>()->getHeight() / 2;
+            b2Vec2 returnPos = b2Vec2{ pos.x + entW, pos.y + entH};
+            return returnPos;
+        };
+
         auto getGlobalRot = [](Entity* entity) -> float {
             return entity->transform.GetGlobalRotation();
             };
@@ -222,6 +238,7 @@ namespace IonixEngine {
             "create_entity", entity,
             "destroy_entity", destroy,
             "get_global_pos", getGlobalPos,
+            "get_center_pos", getCenterPos,
             "set_global_pos", setGlobalPos,
             "get_global_rot", getGlobalRot,
             "set_global_rot", setGlobalRot,
