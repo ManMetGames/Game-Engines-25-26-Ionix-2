@@ -50,9 +50,9 @@ namespace IonixEngine {
 
         auto getCenterPos = [](Entity* entity) -> b2Vec2 {
             SpriteComponent* comp = nullptr;
-            if (!entity->TryGetComponent(&comp))
+            if (!entity->TryGetComponent<SpriteComponent>(&comp))
             {
-                std::cout << "Entity : " << entity->id << " has no sprite component, returning default position"<< std::endl;
+                std::cout << "Entity : " << entity->id << " has no sprite component, returning default position."<< std::endl;
                 Vec2 pos = entity->transform.GetGlobalPosition();
                 b2Vec2 nonCenterPos = b2Vec2{ pos.x, pos.y };
                 return nonCenterPos;
@@ -76,6 +76,11 @@ namespace IonixEngine {
 
         auto setGlobalPos = [](Entity* entity, float x, float y) {
             if (entity == nullptr) return;
+            FysicsBody* body = nullptr;
+            if (entity->TryGetComponent<FysicsBody>(&body))
+            {
+                entity->GetComponent<FysicsBody>()->SetPosition(entity, x / 100, y / 100);
+            }
             entity->transform.SetGlobalPosition(Vec2{ x, y });
             };
 
