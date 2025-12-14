@@ -396,17 +396,18 @@ function ExampleScript:OnUpdate()
             local nhX = (windowW - nhW) / 2
             local nhY = panelY + panelH + 12   -- 12px gap under the main panel
 
-            UI.add_panel(nhX, nhY, nhW, nhH, 0.75, 12, 95, 150, 165)
+            UI.add_panel(nhX, nhY, nhW, nhH+15, 0.75, 12, 95, 150, 165)
 
             local centerX = nhX + (nhW / 2)
 
             -- Title centered (uses centered label function)
-            UI.add_centered_label(centerX, nhY + 10, "New Highscore! Enter your name:")
+            UI.add_centered_label(centerX, nhY + 10, "New Highscore! Enter your name")
+            UI.add_centered_label(centerX, nhY + 35, "to be added to the leaderboard:")
 
             -- Input box (put it centered-ish under the title)
             local inputW = 260
             local inputX = nhX + (nhW - inputW) / 2
-            local inputY = nhY + 25
+            local inputY = nhY + 45
 
             UI.add_input_text(inputX, inputY, inputW, "", "player_name", 16)
 
