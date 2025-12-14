@@ -29,8 +29,8 @@ end
 --LoadModule("FlappyBird", "Scripts/FlappyBird/FlappyBird.lua")
 --LoadModule("ExampleScript", "Scripts/ExampleScript.lua")
 --LoadModule("Ball","Scripts/Ball.lua")
---LoadModule("TriangleShooter", "Scripts/TriangleShooter/TriangleShooter.lua")
-LoadModule("TriangleShooter", "Scripts/TriangleShooter/TriangleShooterTrip.lua")
+LoadModule("TriangleShooter", "Scripts/TriangleShooter/TriangleShooter.lua")
+--LoadModule("TriangleShooter", "Scripts/TriangleShooter/TriangleShooterTrip.lua")
 -- Lifecycle hooks
 function OnStart()
     for name, module in pairs(modules) do
