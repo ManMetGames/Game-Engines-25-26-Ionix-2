@@ -50,6 +50,35 @@ namespace IonixEngine {
                 return Application::Get().layerUI->m_UIManager->WasCheckboxChanged(id);
             };
 
+        auto AddSliderFloat = [](int x, int y, float width,
+            const char* label, const std::string& id,
+            float min, float max,
+            sol::optional<float> defaultValue)
+            {
+                Application::Get().layerUI->m_UIManager->AddSliderFloat(
+                    x, y, width,
+                    label, id.c_str(),
+                    min, max,
+                    defaultValue.value_or(0.0f)
+                );
+            };
+
+        auto GetSlider = [](const std::string& id)
+            {
+                return Application::Get().layerUI->m_UIManager->GetSlider(id);
+            };
+
+        auto WasSliderChanged = [](const std::string& id)
+            {
+                return Application::Get().layerUI->m_UIManager->WasSliderChanged(id);
+            };
+
+        auto SetSlider = [](const std::string& id, float v)
+            {
+                Application::Get().layerUI->m_UIManager->SetSlider(id, v);
+            };
+
+
 		auto AddColorPicker = [](int x, int y, float xSize, float ySize, const char* label, float* color) {
 			return Application::Get().layerUI->m_UI->DrawColorPicker(x, y, xSize, ySize, label, color);
 			};
@@ -94,6 +123,7 @@ namespace IonixEngine {
             "add_centered_label", AddCenteredLabel,
             "add_button", AddButton,
             "add_checkbox", AddCheckbox,
+            "add_slider_float", AddSliderFloat,
             "add_color_picker", AddColorPicker,
             "draw_progress_bar", DrawProgressBar,
             "add_input_text", AddInputText,
@@ -102,6 +132,9 @@ namespace IonixEngine {
             "was_button_pressed", WasButtonPressed,
             "get_checkbox", GetCheckbox,
             "was_checkbox_changed", WasCheckboxChanged,
+            "get_slider", GetSlider,
+            "was_slider_changed", WasSliderChanged,
+            "set_slider", SetSlider,
 			"get_input_text", GetInputText,
             "was_input_committed", WasInputCommitted,
             "clear_input", ClearInput,

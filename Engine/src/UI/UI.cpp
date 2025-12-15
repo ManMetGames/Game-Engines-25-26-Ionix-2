@@ -31,11 +31,13 @@ namespace IonixEngine
 		return ImGui::Button(text, ImVec2(xsize, ysize));
 	}
 
-	float UI::DrawSlider(char* text, static float i, int xsize, int ysize, int xpos, int ypos, int minval, int maxval) {
-		ImGui::SetCursorPos(ImVec2(xpos, ypos));
-		ImGui::SliderFloat(text, &i, minval, maxval);
-		return i;
-
+	bool UI::DrawSlider(const char* label, float* value, float width,
+		int xpos, int ypos, float minval, float maxval)
+	{
+		ImGui::SetWindowFontScale(1.0);
+		ImGui::SetCursorPos(ImVec2((float)xpos, (float)ypos));
+		ImGui::SetNextItemWidth(width);
+		return ImGui::SliderFloat(label, value, minval, maxval);
 	}
 
 	bool UI::DrawCheckbox(const char* label, bool* value, int xpos, int ypos)

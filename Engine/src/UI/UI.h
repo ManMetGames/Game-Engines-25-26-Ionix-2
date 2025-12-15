@@ -12,7 +12,8 @@ namespace IonixEngine
     public:
         void DrawLabel(char* text, int xpos, int ypos, int xsize, int ysize, std::string font);
         bool DrawButton(char* text, int xsize, int ysize, int xpos, int ypos);
-        float DrawSlider(char* text, static float i, int xsize, int ysize, int xpos, int ypos, int minval, int maxval);
+        bool DrawSlider(const char* label, float* value, float width,
+            int xpos, int ypos, float minval, float maxval);
         bool DrawCheckbox(const char* label, bool* value, int xpos, int ypos);
 
         void DrawRadioButton(int xpos, int ypos, char* text, int& e, int value, bool sameline);

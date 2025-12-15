@@ -96,21 +96,50 @@ void UIManager::AddButton(int x, int y, float xSize, float ySize, const char* te
 	AddChildToPanel(element);
 }
 
-void UIManager::AddSliderFloat(int x, int y, float xSize, float ySize, const char* text, float* value, float min, float max, const std::string& fontName)
+void UIManager::AddSliderFloat(int x, int y, float width,
+	const char* label, const char* id,
+	float min, float max, float defaultValue)
 {
-	UIElement* element = new UIElement;
+	UIElement* element = new UIElement{};
 	element->type = UIType::SliderFloat;
 	element->xPos = x;
 	element->yPos = y;
-	element->xSize = xSize;
-	element->ySize = ySize;
-	element->ownedText = (text ? text : "");
+	element->xSize = width;          // use xSize as width
+	element->ySize = 0.0f;
+
+	element->ownedText = (label ? label : "");
 	element->text = const_cast<char*>(element->ownedText.c_str());
-	element->sliderValue = value;
+
+	element->widgetId = (id && id[0]) ? id : element->ownedText;
 	element->sliderMin = min;
 	element->slidermax = max;
-	element->fontName = fontName;
+
+	// init only once
+	if (m_sliderValues.find(element->widgetId) == m_sliderValues.end())
+		m_sliderValues[element->widgetId] = defaultValue;
+
 	AddChildToPanel(element);
+}
+
+float UIManager::GetSlider(const std::string& id) const
+{
+	auto it = m_sliderValues.find(id);
+	return (it != m_sliderValues.end()) ? it->second : 0.0f;
+}
+
+bool UIManager::WasSliderChanged(const std::string& id)
+{
+	auto it = m_sliderChanged.find(id);
+	if (it == m_sliderChanged.end()) return false;
+
+	bool changed = it->second;
+	it->second = false; // consume like your buttons/checkboxes
+	return changed;
+}
+
+void UIManager::SetSlider(const std::string& id, float v)
+{
+	m_sliderValues[id] = v;
 }
 
 void UIManager::AddInputText(int xPos, int yPos, float width, const char* label, const char* id, size_t maxLen)
@@ -327,11 +356,31 @@ void UIManager::RenderElement(UIElement* element)
 	}
 
 
-
 	case UIType::SliderFloat:
-		if (element->sliderValue)
-			*element->sliderValue = m_ui->DrawSlider(element->text, *element->sliderValue, element->xSize, element->ySize, element->xPos, element->yPos, element->sliderMin, element->slidermax);
+	{
+		if (element->widgetId.empty())
+			break;
+
+		float& v = m_sliderValues[element->widgetId];
+
+		// "Visible label##id" trick (same as your button/checkbox)
+		std::string imguiLabel = element->ownedText + "##" + element->widgetId;
+
+		bool changed = m_ui->DrawSlider(
+			imguiLabel.c_str(),
+			&v,
+			element->xSize,          // width
+			element->xPos, element->yPos,
+			element->sliderMin, element->slidermax
+		);
+
+		if (changed)
+			m_sliderChanged[element->widgetId] = true;
+
 		break;
+	}
+
+
 	case UIType::InputText:
 	{
 		ImGui::PushID(element->inputId.c_str());
@@ -398,6 +447,7 @@ void UIManager::RenderUI()
 	m_inputCommittedThisFrame.clear();
 	m_buttonPressed.clear();
 	m_checkboxChanged.clear();
+	m_sliderChanged.clear();
 
 	for (auto* element : elements)
 	{

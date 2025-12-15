@@ -323,7 +323,7 @@ function ExampleScript:OnUpdate()
     local windowH = Window.get_height()
 
     ------------------
-	-- New button/checkbox test
+	-- New button/checkbox/sliderFloat test
 	------------------
     -- UI.add_button(20, 20, 120, 35, "Restart", "restart_btn")
     -- if UI.was_button_pressed("restart_btn") then
@@ -339,6 +339,13 @@ function ExampleScript:OnUpdate()
     -- if UI.was_checkbox_changed("music_chk") then
     --     print("toggled to:", UI.get_checkbox("music_chk"))
     -- end
+
+    --UI.add_slider_float(20, 60, 110, "Volume", "volume", 0.0, 1.0, 0.75)
+
+    --local v = UI.get_slider("volume")
+    --if UI.was_slider_changed("volume") then
+    --    print("volume now:", v)
+    --end
 
 
     ------------------

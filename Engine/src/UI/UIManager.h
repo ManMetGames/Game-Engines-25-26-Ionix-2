@@ -115,7 +115,12 @@ namespace IonixEngine
 		bool GetCheckbox(const std::string& id) const;
 		bool WasCheckboxChanged(const std::string& id);
 
-		void AddSliderFloat(int x, int y, float xSize, float ySize, const char* text, float* value, float min, float max, const std::string& fontName = "");
+		void AddSliderFloat(int x, int y, float width,
+			const char* label, const char* id,
+			float min, float max, float defaultValue = 0.0f);
+		float GetSlider(const std::string& id) const;
+		bool WasSliderChanged(const std::string& id);
+		void SetSlider(const std::string& id, float v); // optional but handy
 
 		void AddInputText(int xPos, int yPos, float width, const char* label, const char* id, size_t maxLen = 16);
 
@@ -138,11 +143,12 @@ namespace IonixEngine
 
 
 
-		std::string GetCommittedText(const std::string& id) const;
-		std::unordered_map<std::string, bool> m_inputCommittedThisFrame;
-		bool WasInputCommitted(const std::string& id) const;
+		std::string GetCommittedText(const std::string& id) const; // For InputText
+		std::unordered_map<std::string, bool> m_inputCommittedThisFrame; // For InputText
+		bool WasInputCommitted(const std::string& id) const; // For InputText
+		void ClearInput(const std::string& id); // For InputText
 
-		void ClearInput(const std::string& id);
-
+		std::unordered_map<std::string, float> m_sliderValues;
+		std::unordered_map<std::string, bool>  m_sliderChanged;
 	};
 }
