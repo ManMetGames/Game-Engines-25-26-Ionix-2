@@ -312,6 +312,7 @@ LoadLevel = function(index, resetPlayerState)
         local defaultConfig = {
             health = levelEnemyHealth,
             shootInterval = enemyShootIntervalSeconds,
+            size = 32,
         }
         
         if enemyCount == 1 then
@@ -772,14 +773,17 @@ local function FindClosestEnemy(fromX, fromY)
     local closestDistSq = math.huge
     for j = 1, #enemies do
         local enemy = enemies[j]
-        local enemyCenterX = enemy.x + enemySize/2
-        local enemyCenterY = enemy.y + enemySize/2
-        local dx = enemyCenterX - fromX
-        local dy = enemyCenterY - fromY
-        local distSq = dx * dx + dy * dy
-        if distSq < closestDistSq then
-            closestDistSq = distSq
-            closestEnemy = enemy
+        if enemy.teleportVisible == nil or enemy.teleportVisible then
+            local eDisplaySize = enemy.displaySize or enemy.size or enemySize
+            local enemyCenterX = enemy.x + eDisplaySize/2
+            local enemyCenterY = enemy.y + eDisplaySize/2
+            local dx = enemyCenterX - fromX
+            local dy = enemyCenterY - fromY
+            local distSq = dx * dx + dy * dy
+            if distSq < closestDistSq then
+                closestDistSq = distSq
+                closestEnemy = enemy
+            end
         end
     end
     return closestEnemy
@@ -809,13 +813,16 @@ function UpdateProjectiles()
 
         for j = #enemies, 1, -1 do
             local enemy = enemies[j]
-            if not proj.hitEnemies[enemy] then
-                local enemyCenterX = enemy.x + enemySize/2
-                local enemyCenterY = enemy.y + enemySize/2
+            local isVisible = enemy.teleportVisible == nil or enemy.teleportVisible
+            if isVisible and not proj.hitEnemies[enemy] then
+                local eDisplaySize = enemy.displaySize or enemy.size or enemySize
+                local enemyCenterX = enemy.x + eDisplaySize/2
+                local enemyCenterY = enemy.y + eDisplaySize/2
+                local enemyHitRadius = eDisplaySize/2 + projectileSize/2
                 local dx = projCenterX - enemyCenterX
                 local dy = projCenterY - enemyCenterY
                 local distSq = dx * dx + dy * dy
-                if distSq < hitRadius * hitRadius then
+                if distSq < enemyHitRadius * enemyHitRadius then
                     hitEnemyIndex = j
                     break
                 end
@@ -829,9 +836,11 @@ function UpdateProjectiles()
             enemy.health = (enemy.health or 0) - 1
             TriangleShooterPlayerProgress.addXp(1)
             FlashEnemy(enemy)
+            TriangleShooterEnemy.updateDisplaySize(enemy)
 
-            local enemyCenterX = enemy.x + enemySize / 2
-            local enemyCenterY = enemy.y + enemySize / 2
+            local eSize = enemy.size or enemySize
+            local enemyCenterX = enemy.x + eSize / 2
+            local enemyCenterY = enemy.y + eSize / 2
             local color = enemy.color or {255, 255, 255}
             ParticleSystem.emitHitBurst(enemyCenterX, enemyCenterY, color[1], color[2], color[3])
 
@@ -887,14 +896,16 @@ function UpdateProjectiles()
                 if hitEdge then
                     if proj.bounceRemaining > 0 then
                         proj.bounceRemaining = proj.bounceRemaining - 1
+                        proj.hitEnemies = {}
 
                         local newProjCenterX = proj.x + projectileSize/2
                         local newProjCenterY = proj.y + projectileSize/2
                         local closestEnemy = FindClosestEnemy(newProjCenterX, newProjCenterY)
 
                         if closestEnemy then
-                            local targetX = closestEnemy.x + enemySize/2
-                            local targetY = closestEnemy.y + enemySize/2
+                            local ceDisplaySize = closestEnemy.displaySize or closestEnemy.size or enemySize
+                            local targetX = closestEnemy.x + ceDisplaySize/2
+                            local targetY = closestEnemy.y + ceDisplaySize/2
                             local dx = targetX - newProjCenterX
                             local dy = targetY - newProjCenterY
                             local len = math.sqrt(dx*dx + dy*dy)
@@ -1221,9 +1232,9 @@ function UpdateBeatBop()
             local state = enemy.teleportState
             local isTeleporting = state == "shrinking" or state == "growing" or state == "teleporting"
             if enemy and enemy.sprite and not isTeleporting then
-                local baseSize = enemy.baseSize or enemy.size or enemyBaseImageSize
-                Sprite.set_image_width(enemy.sprite, math.floor(baseSize * scale))
-                Sprite.set_image_height(enemy.sprite, math.floor(baseSize * scale))
+                local currentSize = enemy.displaySize or enemy.baseSize or enemy.size or enemyBaseImageSize
+                Sprite.set_image_width(enemy.sprite, math.floor(currentSize * scale))
+                Sprite.set_image_height(enemy.sprite, math.floor(currentSize * scale))
             end
         end
     else
@@ -1232,9 +1243,9 @@ function UpdateBeatBop()
             local state = enemy.teleportState
             local isTeleporting = state == "shrinking" or state == "growing" or state == "teleporting"
             if enemy and enemy.sprite and not isTeleporting then
-                local baseSize = enemy.baseSize or enemy.size or enemyBaseImageSize
-                Sprite.set_image_width(enemy.sprite, baseSize)
-                Sprite.set_image_height(enemy.sprite, baseSize)
+                local currentSize = enemy.displaySize or enemy.baseSize or enemy.size or enemyBaseImageSize
+                Sprite.set_image_width(enemy.sprite, math.floor(currentSize))
+                Sprite.set_image_height(enemy.sprite, math.floor(currentSize))
             end
         end
     end

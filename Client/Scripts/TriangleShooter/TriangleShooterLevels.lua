@@ -36,6 +36,7 @@ local ENEMY_TEMPLATES = {
         maxPerLevel = 4,
         spaceRequirement = 0,
         weight = 10,
+        baseSize = 32,
         generate = function(health, level, windowW, windowH)
             local speedBase = 1.0 + (level - 6) * 0.05
             local speed = speedBase + math.random() * 0.3
@@ -55,6 +56,7 @@ local ENEMY_TEMPLATES = {
         maxPerLevel = 2,
         spaceRequirement = 1,
         weight = 6,
+        baseSize = 36,
         generate = function(health, level, windowW, windowH)
             local margin = 100
             local x = margin + math.random() * (windowW - 2 * margin)
@@ -77,6 +79,7 @@ local ENEMY_TEMPLATES = {
         maxPerLevel = 4,
         spaceRequirement = 2,
         weight = 5,
+        baseSize = 28,
         generate = function(health, level, windowW, windowH)
             local centerX = windowW / 2
             local centerY = windowH / 2
@@ -101,6 +104,7 @@ local ENEMY_TEMPLATES = {
         maxPerLevel = 1,
         spaceRequirement = 2,
         weight = 3,
+        baseSize = 40,
         generate = function(health, level, windowW, windowH)
             local x = windowW / 2
             local y = windowH / 2
@@ -109,7 +113,6 @@ local ENEMY_TEMPLATES = {
                 x = x,
                 y = y,
                 health = health,
-                size = 64 + math.random(0, 16),
                 color = {255, 100, 100},
                 shootPattern = "circle",
                 projectileCount = 6 + math.random(0, 4),
@@ -125,6 +128,8 @@ local ENEMY_TEMPLATES = {
         maxPerLevel = 1,
         spaceRequirement = 2,
         weight = 6,
+        baseSize = 40,
+        healthScaling = false,
         generate = function(health, level, windowW, windowH)
             local margin = 100
             local x = margin + math.random() * (windowW - 2 * margin)
@@ -310,6 +315,8 @@ local function generateProceduralLevel(levelIndex)
             local targetHealth = scaledMin + math.random() * (healthMax - scaledMin)
             local health = math.floor(targetHealth)
             local enemy = template.generate(health, levelIndex, 1000, 600)
+            enemy.size = template.baseSize
+            enemy.healthScaling = template.healthScaling
             table.insert(enemies, enemy)
             counts[name] = (counts[name] or 0) + 1
             remainingBudget = remainingBudget - health
@@ -330,6 +337,8 @@ local function generateProceduralLevel(levelIndex)
             end
             
             local enemy = template.generate(health, levelIndex, 1000, 600)
+            enemy.size = template.baseSize
+            enemy.healthScaling = template.healthScaling
             table.insert(enemies, enemy)
             counts[name] = (counts[name] or 0) + 1
             remainingBudget = remainingBudget - health
@@ -405,7 +414,7 @@ local levels = {
         windowWidth = 1000,
         windowHeight = 600,
         enemies = {
-            { movementType = "stationary", x = 500, y = 300, health = 65, shootPattern = "cone", projectileCount = 3, shootInterval = 0.2 },
+            { movementType = "stationary", x = 500, y = 300, health = 65, size = 30, shootPattern = "cone", projectileCount = 3, shootInterval = 0.2 },
         },
     },
     [5] = {
@@ -413,11 +422,11 @@ local levels = {
         enemyProjectiles = true,
         wallPingPong = false,
         coinPerHit = 1,
-        windowWidth = 1000,
-        windowHeight = 600,
+        windowWidth = 600,
+        windowHeight = 1000,
         enemies = {
-            { movementType = "stationary", x = 500, y = 300, health = 35, shootPattern = "cone", projectileCount = 3, shootInterval = 0.3 },
-            { movementType = "stationary", x = 350, y = 200, health = 35, shootPattern = "cone", projectileCount = 3, shootInterval = 0.3 },
+            { movementType = "stationary", x = 500, y = 300, health = 35, size = 30, shootPattern = "cone", projectileCount = 3, shootInterval = 0.3 },
+            { movementType = "stationary", x = 350, y = 200, health = 35, size = 30, shootPattern = "cone", projectileCount = 3, shootInterval = 0.3 },
         },
     },
 }

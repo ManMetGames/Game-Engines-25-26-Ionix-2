@@ -10,7 +10,8 @@ local assets = require("Scripts.Assets")
  --=====================================================================
 local DEFAULTS = {
     baseSpeed = 550,
-    size = 48,
+    size = 30,
+    sizePerHp = 0.4,
     health = 50,
     movementType = "bounce",
     shootPattern = "single",
@@ -78,6 +79,15 @@ function TriangleShooterEnemy.createEnemy(x, y, config, playerX, playerY, player
         dirY = dy / dist
     end
 
+    local healthScaling = config.healthScaling
+    if healthScaling == nil then healthScaling = true end
+    
+    local sizePerHp = config.sizePerHp or DEFAULTS.sizePerHp
+    local displaySize = size
+    if healthScaling then
+        displaySize = size + (health * sizePerHp)
+    end
+
     local enemy = {
         entity = entity,
         sprite = sprite,
@@ -85,6 +95,9 @@ function TriangleShooterEnemy.createEnemy(x, y, config, playerX, playerY, player
         y = y,
         size = size,
         health = health,
+        healthScaling = healthScaling,
+        sizePerHp = sizePerHp,
+        displaySize = displaySize,
         color = color,
         rotation = 0,
         spinVelocity = 0,
@@ -127,7 +140,19 @@ function TriangleShooterEnemy.createEnemy(x, y, config, playerX, playerY, player
         baseSize = size,
     }
 
+    Sprite.set_image_width(sprite, math.floor(displaySize))
+    Sprite.set_image_height(sprite, math.floor(displaySize))
+
     return enemy
+end
+
+function TriangleShooterEnemy.updateDisplaySize(enemy)
+    if not enemy.healthScaling then return end
+    
+    local hp = enemy.health
+    if hp < 0 then hp = 0 end
+    
+    enemy.displaySize = enemy.size + (hp * enemy.sizePerHp)
 end
 
 function TriangleShooterEnemy.clearEnemies(enemies)
