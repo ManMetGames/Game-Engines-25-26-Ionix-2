@@ -353,12 +353,10 @@ namespace IonixEngine
 			return Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->isEnabled(jointList);
 		};
 
-		auto shfitOrigin = [](int jointID, float originX, float originY) {
+		auto shfitOrigin = [](int jointID, Vec2 originVec) {
 			b2Joint* jointList = Application::Get().layerFysics->GetFysicsManager()->GetJointFromID(jointID);
 
-			b2Vec2 origin;
-			origin.x = originX;
-			origin.y = originY;
+			b2Vec2 origin = b2Vec2(originVec.x, originVec.y);
 
 			Application::Get().layerFysics->GetFysicsManager()->GetWeldJoint()->shiftOrigin(jointList, origin);
 		};
