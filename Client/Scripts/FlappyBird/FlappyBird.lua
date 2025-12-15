@@ -50,7 +50,10 @@ local topScore = "Highscore: "
 -- Audio
 local birdJumpSound
 local coinSound
+local hitSound
+local gameOverSound
 
+-- Leaderboard
 local topLeaderboard = nil
 local leaderboardFetched = false
 
@@ -305,10 +308,20 @@ function ExampleScript:OnStart()
     Entity.add_audio_component(birdJumpSound, "Jump", false)
     AudioComponent.change_volume(birdJumpSound, 100)
 
+    -- Collision SFX
+    hitSound = Entity.create_entity()
+    Entity.add_audio_component(hitSound, "Hit", false)
+    AudioComponent.change_volume(hitSound, 50)
+
     -- Coin SFX
     coinSound = Entity.create_entity()
-    Entity.add_audio_component(coinSound, "coin", false)
+    Entity.add_audio_component(coinSound, "Coin", false)
     AudioComponent.change_volume(coinSound, 100)
+
+    -- Game over SFX
+    gameOverSound = Entity.create_entity()
+    Entity.add_audio_component(gameOverSound, "gameOver", false)
+    AudioComponent.change_volume(gameOverSound, 30)
 end
 
 ----------------------------------------------------------
@@ -579,6 +592,12 @@ end
 	------------------------------------------------------
     local function triggerGameOver()
     gameOver = true
+
+    if gameOverSound then
+    AudioComponent.play(gameOverSound)
+    print("GameOver sound played")
+    end
+
     for _, p in ipairs({pipe, pipeT, pipe2, pipeT2, pipe3, pipeT3}) do
         Fysics.set_linear_velocity(p, 0, 0)
     end
@@ -615,7 +634,14 @@ function ExampleScript:OnCollisionEnter(a, b)
     --If player touches any pipe then game over
     if (a == player1 and (b == pipe or b == pipeT or b == pipe2 or b == pipeT2 or b == pipe3 or b == pipeT3))
     or (b == player1 and (a == pipe or a == pipeT or a == pipe2 or a == pipeT2 or a == pipe3 or a == pipeT3)) then
+
+        if hitSound then
+            AudioComponent.play(hitSound)
+            print("Hit sfx played")
+        end
+
         print("GAME OVER: Hit pipe! Try Again")
+
         triggerGameOver()
     end
 end
