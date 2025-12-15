@@ -407,7 +407,7 @@ function ExampleScript:OnUpdate()
         local lbW, lbH = 260, 170
         UI.add_panel(lbX, lbY, lbW, lbH, 0.75, 10, 70, 160, 115)
 
-        UI.Add_label(lbX + 10, lbY + 10, 0, 0, "Leaderboard Ranking", "", 1.8)
+        UI.Add_label(lbX + 10, lbY + 10, 0, 0, "Leaderboard Ranking", "ImGuiDefaultBold", 1.8)
 
         if topLeaderboard then
           for i, e in ipairs(topLeaderboard) do
@@ -427,11 +427,11 @@ function ExampleScript:OnUpdate()
         local gap = 26
         local centerX = panelX + (panelW / 2)
 
-        UI.add_centered_label(centerX, y0 + gap*0, text1,  "", 1.8)
-        UI.add_centered_label(centerX, y0 + gap*1.5, finalScoreText,  "", 1.5)
-        UI.add_centered_label(centerX, y0 + gap*2.5, coinsText,  "", 1.5)
-        UI.add_centered_label(centerX, y0 + gap*3.5, topScore,  "", 1.5)
-        UI.add_centered_label(centerX, y0 + gap*5.5, text2, "", 1.8)
+        UI.add_centered_label(centerX, y0 + gap*-0.25, text1,  "ImGuiDefaultBold", 1.8) 
+        UI.add_centered_label(centerX, y0 + gap*1.5, topScore, "", 1.5)
+        UI.add_centered_label(centerX, y0 + gap*2.5, finalScoreText, "", 1.5)
+        UI.add_centered_label(centerX, y0 + gap*3.5, coinsText, "", 1.5)
+        UI.add_centered_label(centerX, y0 + gap*5.5, text2, "ImGuiDefaultBold", 1.8)
 
 
         -- Show TextInput only if new high score
@@ -445,8 +445,8 @@ function ExampleScript:OnUpdate()
             local centerX = nhX + (nhW / 2)
 
             -- Title centered (uses centered label function)
-            UI.add_centered_label(centerX, nhY + 10, "New Highscore! Enter your name")
-            UI.add_centered_label(centerX, nhY + 35, "to be added to the leaderboard:")
+            UI.add_centered_label(centerX, nhY + 10, "New Highscore! Enter your name", "", 1.5)
+            UI.add_centered_label(centerX, nhY + 35, "to be added to the leaderboard:", "", 1.5)
 
             -- Input box (put it centered-ish under the title)
             local inputW = 260

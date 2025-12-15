@@ -28,13 +28,26 @@ namespace IonixEngine
         {
             ImGuiIO& io = ImGui::GetIO();
             // Load the default font
-            io.Fonts->AddFontDefault();
+            ImFont* imguiDefault = io.Fonts->AddFontDefault();
+            IM_ASSERT(imguiDefault != NULL);
+            io.FontDefault = imguiDefault;
+            AddMap({"ImGuiDefault", imguiDefault });
+            
+
+
+            
+
+
 
 
             
            
 
-            // Load the font in
+            ImFontConfig bold_cfg;
+            bold_cfg.RasterizerMultiply = 1.65f; // tweak 1.10 - 1.40
+            ImFont* imguiDefaultBold = io.Fonts->AddFontDefault(&bold_cfg);
+            IM_ASSERT(imguiDefaultBold != NULL);
+            AddMap({"ImGuiDefaultBold", imguiDefaultBold });
             ImFont* font_title = io.Fonts->AddFontFromFileTTF("TTT-Regular.otf", 23.0f, NULL, io.Fonts->GetGlyphRangesDefault());
             IM_ASSERT(font_title != NULL);
             AddMap({"Font1", font_title });
