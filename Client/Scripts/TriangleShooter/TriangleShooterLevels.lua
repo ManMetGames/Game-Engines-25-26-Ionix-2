@@ -139,6 +139,7 @@ local ENEMY_TEMPLATES = {
                 x = x,
                 y = y,
                 health = health,
+                healthScaling = false,
                 size = 40,
                 teleportChargeTime = 0.7 + math.random() * 0.3,
                 beamDuration = 0.25 + math.random() * 0.15,

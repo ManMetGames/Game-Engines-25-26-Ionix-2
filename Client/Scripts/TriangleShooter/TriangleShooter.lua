@@ -288,6 +288,7 @@ LoadLevel = function(index, resetPlayerState)
             
             local config = {
                 health = enemyCfg.health or levelEnemyHealth,
+                healthScaling = enemyCfg.healthScaling,
                 size = enemyCfg.size or enemySize,
                 color = enemyCfg.color,
                 speed = enemyCfg.speed,
