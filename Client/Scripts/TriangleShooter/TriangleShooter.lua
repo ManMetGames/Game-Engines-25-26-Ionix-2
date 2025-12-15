@@ -376,6 +376,7 @@ end
 
 local function OnEnemyKilled()
     local nextIndex = currentLevel + 1
+    TriangleShooterLevels.regenerateLevel(nextIndex)
     if TriangleShooterLevels.getLevelConfig(nextIndex) then
         StartLevel(nextIndex, false)
     else

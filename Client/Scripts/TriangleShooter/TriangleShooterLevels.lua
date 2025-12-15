@@ -1,5 +1,321 @@
 local TriangleShooterLevels = {}
 
+local PROCEDURAL_START_LEVEL = 6
+
+local generatedLevelCache = {}
+
+local HEALTH_BUDGET = {
+    base = 70,
+    perLevel = 18,
+    levelSquaredFactor = 0.5,
+}
+
+local TIMER_CONFIG = {
+    min = 15,
+    max = 30,
+    standard = 17,
+    healthPerSecond = 12,
+}
+
+local WINDOW_CONFIG = {
+    minWidth = 400,
+    minHeight = 400,
+    maxWidth = 1400,
+    maxHeight = 900,
+    maxArea = 950000,
+}
+
+local ENEMY_TEMPLATES = {
+    bounce = {
+        minLevel = 1,
+        healthMin = 40,
+        healthMax = 80,
+        maxPerLevel = 4,
+        spaceRequirement = 0,
+        weight = 10,
+        generate = function(health, level, windowW, windowH)
+            local speedBase = 1.0 + (level - 6) * 0.05
+            local speed = speedBase + math.random() * 0.3
+            if speed > 1.6 then speed = 1.6 end
+            return {
+                movementType = "bounce",
+                health = health,
+                speed = speed,
+                shootInterval = 0.4 + math.random() * 0.3,
+            }
+        end,
+    },
+    stationary = {
+        minLevel = 1,
+        healthMin = 50,
+        healthMax = 120,
+        maxPerLevel = 2,
+        spaceRequirement = 1,
+        weight = 6,
+        generate = function(health, level, windowW, windowH)
+            local margin = 100
+            local x = margin + math.random() * (windowW - 2 * margin)
+            local y = margin + math.random() * (windowH - 2 * margin)
+            return {
+                movementType = "stationary",
+                x = x,
+                y = y,
+                health = health,
+                shootPattern = "cone",
+                projectileCount = 2 + math.random(0, 2),
+                shootInterval = 0.5 + math.random() * 0.4,
+            }
+        end,
+    },
+    orbit = {
+        minLevel = 8,
+        healthMin = 40,
+        healthMax = 70,
+        maxPerLevel = 4,
+        spaceRequirement = 2,
+        weight = 5,
+        generate = function(health, level, windowW, windowH)
+            local centerX = windowW / 2
+            local centerY = windowH / 2
+            local radius = 80 + math.random() * 80
+            local speed = 0.8 + math.random() * 0.8
+            if math.random() > 0.5 then speed = -speed end
+            return {
+                movementType = "orbit",
+                orbitCenter = {centerX, centerY},
+                orbitRadius = radius,
+                orbitSpeed = speed,
+                health = health,
+                color = {200, 100, 255},
+                shootInterval = 0.5 + math.random() * 0.4,
+            }
+        end,
+    },
+    stationary_boss = {
+        minLevel = 12,
+        healthMin = 150,
+        healthMax = 300,
+        maxPerLevel = 1,
+        spaceRequirement = 2,
+        weight = 3,
+        generate = function(health, level, windowW, windowH)
+            local x = windowW / 2
+            local y = windowH / 2
+            return {
+                movementType = "stationary",
+                x = x,
+                y = y,
+                health = health,
+                size = 64 + math.random(0, 16),
+                color = {255, 100, 100},
+                shootPattern = "circle",
+                projectileCount = 6 + math.random(0, 4),
+                shootInterval = 0.3 + math.random() * 0.3,
+                spinWhileShooting = true,
+            }
+        end,
+    },
+    teleporter = {
+        minLevel = 15,
+        healthMin = 180,
+        healthMax = 350,
+        maxPerLevel = 1,
+        spaceRequirement = 2,
+        weight = 2,
+        generate = function(health, level, windowW, windowH)
+            local margin = 100
+            local x = margin + math.random() * (windowW - 2 * margin)
+            local y = margin + math.random() * (windowH - 2 * margin)
+            return {
+                movementType = "teleporter",
+                x = x,
+                y = y,
+                health = health,
+                size = 40,
+                teleportChargeTime = 0.7 + math.random() * 0.3,
+                beamDuration = 0.25 + math.random() * 0.15,
+                teleportCooldown = 1.2 + math.random() * 0.6,
+            }
+        end,
+    },
+}
+
+local function calculateHealthBudget(level)
+    local n = level - PROCEDURAL_START_LEVEL
+    return HEALTH_BUDGET.base + (n * HEALTH_BUDGET.perLevel) + (n * n * HEALTH_BUDGET.levelSquaredFactor)
+end
+
+local function calculateTimer(totalHealth)
+    local timer = totalHealth / TIMER_CONFIG.healthPerSecond
+    timer = math.max(TIMER_CONFIG.min, math.min(TIMER_CONFIG.max, timer))
+    return timer
+end
+
+local function getAvailableTemplates(level)
+    local available = {}
+    for name, template in pairs(ENEMY_TEMPLATES) do
+        if level >= template.minLevel then
+            table.insert(available, {name = name, template = template})
+        end
+    end
+    return available
+end
+
+local function weightedRandomPick(available, counts)
+    local totalWeight = 0
+    for _, entry in ipairs(available) do
+        local name = entry.name
+        local template = entry.template
+        local currentCount = counts[name] or 0
+        if currentCount < template.maxPerLevel then
+            totalWeight = totalWeight + template.weight
+        end
+    end
+    if totalWeight <= 0 then return nil end
+    
+    local roll = math.random() * totalWeight
+    local cumulative = 0
+    for _, entry in ipairs(available) do
+        local name = entry.name
+        local template = entry.template
+        local currentCount = counts[name] or 0
+        if currentCount < template.maxPerLevel then
+            cumulative = cumulative + template.weight
+            if roll <= cumulative then
+                return entry
+            end
+        end
+    end
+    return available[1]
+end
+
+local function calculateWindowSize(enemies)
+    local spaceScore = 0
+    local enemyCount = #enemies
+    
+    for _, enemy in ipairs(enemies) do
+        local templateName = enemy.movementType
+        if templateName == "stationary" and enemy.spinWhileShooting then
+            templateName = "stationary_boss"
+        end
+        local template = ENEMY_TEMPLATES[templateName]
+        if template then
+            spaceScore = spaceScore + template.spaceRequirement
+        end
+    end
+    
+    spaceScore = spaceScore + enemyCount * 0.5
+    
+    local widthRatio = 0.5 + math.random() * 0.5
+    local baseArea = 350000 + spaceScore * 80000
+    if baseArea > WINDOW_CONFIG.maxArea then baseArea = WINDOW_CONFIG.maxArea end
+    
+    local width, height
+    if math.random() > 0.7 then
+        height = math.sqrt(baseArea * widthRatio)
+        width = baseArea / height
+    else
+        width = math.sqrt(baseArea / widthRatio)
+        height = baseArea / width
+    end
+    
+    width = math.max(WINDOW_CONFIG.minWidth, math.min(WINDOW_CONFIG.maxWidth, math.floor(width)))
+    height = math.max(WINDOW_CONFIG.minHeight, math.min(WINDOW_CONFIG.maxHeight, math.floor(height)))
+    
+    return width, height
+end
+
+local function repositionEnemies(enemies, windowW, windowH)
+    local centerX = windowW / 2
+    local centerY = windowH / 2
+    
+    for _, enemy in ipairs(enemies) do
+        if enemy.movementType == "stationary" or enemy.movementType == "teleporter" then
+            local margin = (enemy.size or 48) + 50
+            if enemy.x then
+                enemy.x = math.max(margin, math.min(windowW - margin, enemy.x))
+            end
+            if enemy.y then
+                enemy.y = math.max(margin, math.min(windowH - margin, enemy.y))
+            end
+        elseif enemy.movementType == "orbit" then
+            enemy.orbitCenter = {centerX, centerY}
+            local maxRadius = math.min(windowW, windowH) / 2 - 80
+            if enemy.orbitRadius > maxRadius then
+                enemy.orbitRadius = maxRadius
+            end
+        end
+    end
+end
+
+local function generateProceduralLevel(levelIndex)
+    math.randomseed(os.time() + levelIndex * 1000 + math.random(1, 10000))
+    
+    local healthBudget = calculateHealthBudget(levelIndex)
+    local available = getAvailableTemplates(levelIndex)
+    local enemies = {}
+    local counts = {}
+    local remainingBudget = healthBudget
+    
+    local minHealth = 999999
+    for _, entry in ipairs(available) do
+        if entry.template.healthMin < minHealth then
+            minHealth = entry.template.healthMin
+        end
+    end
+    
+    local maxEnemies = 6
+    local minEnemies = 2
+    
+    while remainingBudget >= minHealth and #enemies < maxEnemies do
+        local picked = weightedRandomPick(available, counts)
+        if not picked then break end
+        
+        local template = picked.template
+        local name = picked.name
+        
+        local healthMax = math.min(template.healthMax, remainingBudget)
+        if healthMax < template.healthMin then break end
+        
+        local health
+        if #enemies >= minEnemies and remainingBudget <= template.healthMax * 1.2 then
+            health = remainingBudget
+        else
+            local targetHealth = template.healthMin + math.random() * (healthMax - template.healthMin)
+            health = math.floor(targetHealth)
+        end
+        
+        local enemy = template.generate(health, levelIndex, 1000, 600)
+        table.insert(enemies, enemy)
+        counts[name] = (counts[name] or 0) + 1
+        remainingBudget = remainingBudget - health
+    end
+    
+    if remainingBudget > 0 and #enemies > 0 then
+        enemies[#enemies].health = enemies[#enemies].health + remainingBudget
+        remainingBudget = 0
+    end
+    
+    local windowW, windowH = calculateWindowSize(enemies)
+    repositionEnemies(enemies, windowW, windowH)
+    
+    local totalHealth = healthBudget - remainingBudget
+    local timer = calculateTimer(totalHealth)
+    
+    return {
+        timeLimitSeconds = timer,
+        enemyProjectiles = true,
+        wallPingPong = false,
+        coinPerHit = 1,
+        windowWidth = windowW,
+        windowHeight = windowH,
+        enemies = enemies,
+        _generated = true,
+        _healthBudget = healthBudget,
+        _actualHealth = totalHealth,
+    }
+end
+
 local levels = {
     [1] = {
         timeLimitSeconds = 15,
@@ -36,14 +352,14 @@ local levels = {
     },
     [4] = {
         timeLimitSeconds = 15,
-        enemyCount = 1,
-        enemyHealth = 65,
         enemyProjectiles = true,
         wallPingPong = false,
-        enemyShootIntervalSeconds = 0.1,
         coinPerHit = 1,
-        windowWidth = 600,
-        windowHeight = 400,
+        windowWidth = 1000,
+        windowHeight = 600,
+        enemies = {
+            { movementType = "stationary", x = 500, y = 300, health = 65, shootPattern = "cone", projectileCount = 3, shootInterval = 0.2 },
+        },
     },
     [5] = {
         timeLimitSeconds = 15,
@@ -53,193 +369,51 @@ local levels = {
         windowWidth = 1000,
         windowHeight = 600,
         enemies = {
-            { movementType = "stationary", x = 500, y = 300, health = 100, shootPattern = "cone", projectileCount = 3, shootInterval = 0.2 },
-        },
-    },
-    [6] = {
-        timeLimitSeconds = 15,
-        enemyProjectiles = true,
-        wallPingPong = false,
-        coinPerHit = 1,
-        windowWidth = 1026,
-        windowHeight = 640,
-        enemies = {
-            { movementType = "bounce", health = 50, shootInterval = 0.5 },
-            { movementType = "stationary", x = 513, y = 320, health = 50, shootPattern = "cone", projectileCount = 3, shootInterval = 0.8 },
-        },
-    },
-    [7] = {
-        timeLimitSeconds = 20,
-        enemyProjectiles = true,
-        wallPingPong = false,
-        coinPerHit = 1,
-        windowWidth = 1000,
-        windowHeight = 600,
-        enemies = {
-            { movementType = "orbit", orbitCenter = {500, 300}, orbitRadius = 120, orbitSpeed = 1.2, health = 50, color = {100, 150, 255}, shootInterval = 0.6 },
-            { movementType = "orbit", orbitCenter = {500, 300}, orbitRadius = 120, orbitSpeed = -1.2, health = 50, color = {100, 150, 255}, shootInterval = 0.6 },
-            { movementType = "orbit", orbitCenter = {500, 300}, orbitRadius = 120, orbitSpeed = -1.2, health = 50, color = {100, 150, 255}, shootInterval = 0.6 },
-            { movementType = "bounce", health = 40, shootInterval = 0.5 },
-
-        },
-    },
-    [8] = {
-        timeLimitSeconds = 20,
-        enemyProjectiles = true,
-        wallPingPong = false,
-        coinPerHit = 1,
-        windowWidth = 800,
-        windowHeight = 500,
-        enemies = {
-            { movementType = "bounce", health = 60, speed = 1.3, shootInterval = 0.4 },
-            { movementType = "bounce", health = 60, speed = 1.3, shootInterval = 0.4 },
-            { movementType = "bounce", health = 60, speed = 1.3, shootInterval = 0.4 },
-        },
-    },
-    [9] = {
-        timeLimitSeconds = 15,
-        enemyProjectiles = true,
-        wallPingPong = false,
-        coinPerHit = 1,
-        windowWidth = 1100,
-        windowHeight = 650,
-        enemies = {
-            { movementType = "stationary", x = 550, y = 325, health = 200, size = 64, color = {255, 100, 100}, shootPattern = "circle", projectileCount = 6, shootInterval = 0.3, spinWhileShooting = true },
-        },
-    },
-    [10] = {
-        timeLimitSeconds = 20,
-        enemyProjectiles = true,
-        wallPingPong = false,
-        coinPerHit = 1,
-        windowWidth = 1100,
-        windowHeight = 650,
-        enemies = {
-            { movementType = "stationary", x = 550, y = 325, health = 100, shootPattern = "cone", projectileCount = 3, shootInterval = 0.7 },
-            { movementType = "orbit", orbitCenter = {550, 325}, orbitRadius = 150, orbitSpeed = 1.0, health = 65, color = {100, 255, 150}, shootInterval = 0.8 },
-            { movementType = "orbit", orbitCenter = {550, 325}, orbitRadius = 150, orbitSpeed = -1.0, health = 65, color = {100, 255, 150}, shootInterval = 0.8 },
-        },
-    },
-    [11] = {
-        timeLimitSeconds = 20,
-        enemyProjectiles = true,
-        wallPingPong = false,
-        coinPerHit = 1,
-        windowWidth = 900,
-        windowHeight = 500,
-        enemies = {
-            { movementType = "bounce", health = 60, speed = 1.2, shootPattern = "cone", projectileCount = 2, shootInterval = 0.5 },
-            { movementType = "bounce", health = 60, speed = 1.2, shootPattern = "cone", projectileCount = 2, shootInterval = 0.5 },
-            { movementType = "orbit", orbitCenter = {550, 325}, orbitRadius = 150, orbitSpeed = -1.0, health = 65, color = {100, 255, 150}, shootInterval = 0.8 },
-            { movementType = "orbit", orbitCenter = {550, 325}, orbitRadius = 150, orbitSpeed = -1.0, health = 65, color = {100, 255, 150}, shootInterval = 0.8 },
-        },
-    },
-    [12] = {
-        timeLimitSeconds = 15,
-        enemyProjectiles = true,
-        wallPingPong = false,
-        coinPerHit = 1,
-        windowWidth = 1200,
-        windowHeight = 700,
-        enemies = {
-            { movementType = "orbit", orbitCenter = {600, 350}, orbitRadius = 100, orbitSpeed = 1.5, health = 60, shootPattern = "circle", projectileCount = 5, shootInterval = 1, spinWhileShooting = true },
-            { movementType = "orbit", orbitCenter = {600, 350}, orbitRadius = 100, orbitSpeed = -1.5, health = 60, shootPattern = "circle", projectileCount = 5, shootInterval = 1, spinWhileShooting = true },
-            { movementType = "bounce", health = 50, shootInterval = 0.6 },
-            { movementType = "bounce", health = 50, shootInterval = 0.6 },
-        },
-    },
-    [13] = {
-        timeLimitSeconds = 17.5,
-        enemyProjectiles = true,
-        wallPingPong = false,
-        coinPerHit = 1,
-        windowWidth = 1000,
-        windowHeight = 600,
-        enemies = {
-            { movementType = "stationary", x = 300, y = 300, health = 80, shootPattern = "cone", projectileCount = 3, shootInterval = 0.6 },
-            { movementType = "stationary", x = 700, y = 300, health = 80, shootPattern = "cone", projectileCount = 3, shootInterval = 0.6 },
-            { movementType = "bounce", health = 100, speed = 1.4, shootInterval = 0.4 },
-            { movementType = "orbit", orbitCenter = {600, 350}, orbitRadius = 100, orbitSpeed = -1.5, health = 50, shootPattern = "circle", projectileCount = 5, shootInterval = 1, spinWhileShooting = true },
-        },
-    },
-    [14] = {
-        timeLimitSeconds = 20,
-        enemyProjectiles = true,
-        wallPingPong = false,
-        coinPerHit = 1,
-        windowWidth = 900,
-        windowHeight = 550,
-        enemies = {
-            { movementType = "stationary", x = 450, y = 275, health = 200, size = 72, color = {255, 80, 80}, shootPattern = "circle", projectileCount = 8, shootInterval = 0.8, spinWhileShooting = true },
-            { movementType = "orbit", orbitCenter = {450, 275}, orbitRadius = 160, orbitSpeed = 0.9, health = 60, color = {80, 180, 255}, shootInterval = 0.7 },
-            { movementType = "orbit", orbitCenter = {450, 275}, orbitRadius = 160, orbitSpeed = -0.9, health = 60, color = {80, 180, 255}, shootInterval = 0.7 },
-            { movementType = "orbit", orbitCenter = {450, 275}, orbitRadius = 160, orbitSpeed = -0.9, health = 60, color = {80, 180, 255}, shootInterval = 0.7 },
-        },
-    },
-    [15] = {
-        timeLimitSeconds = 25,
-        enemyProjectiles = true,
-        wallPingPong = false,
-        coinPerHit = 1,
-        windowWidth = 1300,
-        windowHeight = 750,
-        enemies = {
-            { movementType = "stationary", x = 650, y = 375, health = 250, size = 80, color = {255, 50, 50}, shootPattern = "circle", projectileCount = 10, shootInterval = 0.5, spinWhileShooting = true },
-            { movementType = "orbit", orbitCenter = {650, 375}, orbitRadius = 200, orbitSpeed = 0.8, health = 60, color = {50, 200, 255}, shootPattern = "cone", projectileCount = 2, shootInterval = 0.8 },
-            { movementType = "orbit", orbitCenter = {650, 375}, orbitRadius = 200, orbitSpeed = -0.8, health = 60, color = {50, 200, 255}, shootPattern = "cone", projectileCount = 2, shootInterval = 0.8 },
-            { movementType = "bounce", health = 70, speed = 1.3, color = {150, 255, 100}, shootInterval = 0.5 },
-            { movementType = "bounce", health = 70, speed = 1.3, color = {150, 255, 100}, shootInterval = 0.5 },
-            { movementType = "bounce", health = 70, speed = 1.3, color = {150, 255, 100}, shootInterval = 0.5 },
-        },
-    },
-    [16] = {
-        timeLimitSeconds = 20,
-        enemyProjectiles = true,
-        wallPingPong = false,
-        coinPerHit = 1,
-        windowWidth = 1100,
-        windowHeight = 700,
-        enemies = {
-            { movementType = "teleporter", x = 550, y = 350, health = 500, size = 40, teleportChargeTime = 0.85, beamDuration = 0.3, teleportCooldown = 1.5 },
-        },
-    },
-    [17] = {
-        timeLimitSeconds = 30,
-        enemyProjectiles = true,
-        wallPingPong = false,
-        coinPerHit = 1,
-        windowWidth = 1200,
-        windowHeight = 700,
-        enemies = {
-            { movementType = "teleporter", x = 600, y = 350, health = 250, size = 40, teleportChargeTime = 0.95, beamDuration = 0.25, teleportCooldown = 1.8 },
-            { movementType = "orbit", orbitCenter = {600, 350}, orbitRadius = 180, orbitSpeed = 1.0, health = 50, shootInterval = 0.7 },
-            { movementType = "orbit", orbitCenter = {600, 350}, orbitRadius = 180, orbitSpeed = 1.0, health = 50, shootInterval = 0.7 },
-            { movementType = "orbit", orbitCenter = {600, 350}, orbitRadius = 180, orbitSpeed = 1.0, health = 50, shootInterval = 0.7 },
-            { movementType = "bounce", health = 75, speed = 1.3, color = {150, 255, 100}, shootInterval = 0.5 },
-            { movementType = "bounce", health = 75, speed = 1.3, color = {150, 255, 100}, shootInterval = 0.5 },
-            { movementType = "bounce", health = 75, speed = 1.3, color = {150, 255, 100}, shootInterval = 0.5 },
-        },
-    },
-    [18] = {
-        timeLimitSeconds = 30,
-        enemyProjectiles = true,
-        wallPingPong = false,
-        coinPerHit = 1,
-        windowWidth = 1400,
-        windowHeight = 800,
-        enemies = {
-            { movementType = "teleporter", x = 400, y = 400, health = 200, size = 40, teleportChargeTime = 0.75, beamDuration = 0.35, teleportCooldown = 1.2 },
-            { movementType = "bounce", health = 60, speed = 1.2, shootPattern = "cone", projectileCount = 2, shootInterval = 0.5 },
-            { movementType = "bounce", health = 60, speed = 1.2, shootPattern = "cone", projectileCount = 2, shootInterval = 0.5 },
-            { movementType = "bounce", health = 60, speed = 1.2, shootPattern = "cone", projectileCount = 2, shootInterval = 0.5 },
-            { movementType = "stationary", x = 650, y = 375, health = 200, size = 80, color = {255, 50, 50}, shootPattern = "circle", projectileCount = 10, shootInterval = 0.5, spinWhileShooting = true },
-            { movementType = "orbit", orbitCenter = {600, 350}, orbitRadius = 180, orbitSpeed = -1.0, health = 50, shootInterval = 0.7 },
+            { movementType = "stationary", x = 500, y = 300, health = 35, shootPattern = "cone", projectileCount = 3, shootInterval = 0.3 },
+            { movementType = "stationary", x = 350, y = 200, health = 35, shootPattern = "cone", projectileCount = 3, shootInterval = 0.3 },
         },
     },
 }
 
 function TriangleShooterLevels.getLevelConfig(index)
-    return levels[index]
+    if index < PROCEDURAL_START_LEVEL then
+        return levels[index]
+    end
+    if not generatedLevelCache[index] then
+        generatedLevelCache[index] = generateProceduralLevel(index)
+    end
+    return generatedLevelCache[index]
+end
+
+function TriangleShooterLevels.clearLevelCache(index)
+    if index then
+        generatedLevelCache[index] = nil
+    else
+        generatedLevelCache = {}
+    end
+end
+
+function TriangleShooterLevels.regenerateLevel(index)
+    if index >= PROCEDURAL_START_LEVEL then
+        generatedLevelCache[index] = generateProceduralLevel(index)
+    end
+    return TriangleShooterLevels.getLevelConfig(index)
+end
+
+function TriangleShooterLevels.getHealthBudgetConfig()
+    return HEALTH_BUDGET
+end
+
+function TriangleShooterLevels.getTimerConfig()
+    return TIMER_CONFIG
+end
+
+function TriangleShooterLevels.getWindowConfig()
+    return WINDOW_CONFIG
+end
+
+function TriangleShooterLevels.getEnemyTemplates()
+    return ENEMY_TEMPLATES
 end
 
 return TriangleShooterLevels
