@@ -507,26 +507,37 @@ function ExampleScript:OnUpdate()
     end
     Fysics.set_linear_velocity(player1, vx, vy)
 
-    -- Pipe & coin reset
+    -- Pipe reset
     for _, set in ipairs(pipeSets) do
         local pipeX = Mafs.get_vec_x(Fysics.get_pos(set.bottom))
+
         if pipeX < -0.6 then
 
             -- Reset pipes
             Fysics.set_pos(set.bottom, (windowW+60)/100, 4 + (math.random(2, 3) / 10 * (math.random(1, 2) == 1 and -1 or 1)))
             Fysics.set_pos(set.top, (windowW+60)/100, -0.5 + (math.random(2, 3) / 10 * (math.random(1, 2) == 1 and -1 or 1)))
 
-            -- Reset coin
-            if set.coin then
-                spawnCoins(set.coin, set, 140)
-                local s = Entity.get_sprite_component(set.coin)
-                if s then
-                    Sprite.set_width(s, 16)
-                    Sprite.set_height(s, 16)
-                end
-                coinHidden[set.coin] = false
-                Fysics.set_linear_velocity(set.coin, coinSpeed, 0)
+            set.passed = false
+        end
+    end
+
+    -- Coin reset
+    for i, c in ipairs(coins) do
+        local coinX = Mafs.get_vec_x(Fysics.get_pos(c))
+
+        if coinX < -0.6 then
+            local pipeSet = pipeSets[i]
+
+            spawnCoins(c, pipeSet, 140)
+
+            local s = Entity.get_sprite_component(c)
+            if s then
+                Sprite.set_width(s, 16)
+                Sprite.set_height(s, 16)
             end
+
+            coinHidden[c] = false
+            Fysics.set_linear_velocity(c, coinSpeed, 0)
         end
     end
 
