@@ -55,6 +55,16 @@ local coinSound
 local topLeaderboard = nil
 local leaderboardFetched = false
 
+--[[
+-- Settings test
+local settings_loaded = false
+local s_difficulty = 1
+local s_skin = 0
+local s_tint = {1,1,1,1}
+local s_music = true
+local s_volume = 0.75
+]]
+
 -- Window
 Window.set_size_centered(960, 640)
 
@@ -316,6 +326,20 @@ end
 -- OnUpdate
 ----------------------------------------------------------
 function ExampleScript:OnUpdate()
+
+    ------------------
+	-- Settings test load
+	------------------
+
+    if not settings_loaded then
+      s_difficulty = Json.load_setting(GAME_ID, "ui.difficulty", 1)
+      s_skin       = Json.load_setting(GAME_ID, "ui.skin_index", 0)
+      s_tint       = Json.load_setting(GAME_ID, "ui.tint", {1,1,1,1})
+      s_music      = Json.load_setting(GAME_ID, "audio.music", true)
+      s_volume     = Json.load_setting(GAME_ID, "audio.volume", 0.75)
+      settings_loaded = true
+    end
+
     ------------------
 	-- Window
 	------------------
@@ -436,29 +460,64 @@ function ExampleScript:OnUpdate()
     --[[
     UI.add_button(150, 20, 160, 35, showSettings and "Hide Settings" or "Show Settings", "settings_btn")
     if UI.was_button_pressed("settings_btn") then
-        showSettings = not showSettings
+      showSettings = not showSettings
     end
 
     if showSettings then
-        -- optional: draw a panel behind it (if you want your panel look)
-        -- UI.add_panel(10, 80, 340, 330, 0.75, 10, 70, 160, 115)
-    
-        -- child with background (using your new args)
-        UI.begin_child(20, 70, 320, 260, "SettingsChild", true, 0,
-                       true, 0.75, 10, 70, 160, 115)
+      UI.begin_child(20, 70, 320, 300, "SettingsChild", true, 0,
+                     true, 0.75, 10, 70, 160, 115)
 
-        UI.Add_label(10, 10, 0, 0, "Settings", "ImGuiDefaultBold", 1.4)
+      UI.Add_label(10, 10, 0, 0, "Settings (JSON test)", "ImGuiDefaultBold", 1.3)
 
-        UI.add_radio(10, 50, 0, 0, "Easy",   "difficulty", 0, 1, false)
-        UI.add_radio(10, 70, 0, 0, "Normal", "difficulty", 1, 1, false)
-        UI.add_radio(10, 90, 0, 0, "Hard",   "difficulty", 2, 1, false)
+      -- Radio: difficulty (default from JSON)
+      UI.add_radio(10, 45, 0, 0, "Easy",   "difficulty", 0, s_difficulty, false)
+      UI.add_radio(10, 65, 0, 0, "Normal", "difficulty", 1, s_difficulty, false)
+      UI.add_radio(10, 85, 0, 0, "Hard",   "difficulty", 2, s_difficulty, false)
 
-        UI.add_dropdown(10, 130, 240, 0, "Bird Skin", "bird_skin_dd",
-                        { "Classic", "Blue", "Red", "Gold" }, 0)
+      -- Dropdown: skin (default from JSON)
+      UI.add_dropdown(10, 115, 240, 0, "Bird Skin", "bird_skin_dd",
+                      { "Classic", "Blue", "Red", "Gold" }, s_skin)
 
-        UI.add_color_picker(10, 170, 0, 0, "Tint", "bird_tint", 1, 1, 1, 1)
+      -- Color picker: tint (default from JSON)
+      UI.add_color_picker(10, 150, 0, 0, "Tint", "bird_tint",
+                          s_tint[1], s_tint[2], s_tint[3], s_tint[4])
 
-        UI.end_child()
+      -- Checkbox + slider examples (default from JSON)
+      UI.add_checkbox(10, 220, 0, 0, "Music", "music_chk", s_music)
+      UI.add_slider(10, 245, 200, "Volume", "volume", 0.0, 1.0, s_volume)
+
+      -- Save on change
+      if UI.was_radio_changed("difficulty") then
+        local v = UI.get_radio("difficulty")
+        Json.save_setting(GAME_ID, "ui.difficulty", v)
+        s_difficulty = v
+      end
+
+      if UI.was_dropdown_changed("bird_skin_dd") then
+        local idx = UI.get_dropdown_index("bird_skin_dd")
+        Json.save_setting(GAME_ID, "ui.skin_index", idx)
+        s_skin = idx
+      end
+
+      if UI.was_color_changed("bird_tint") then
+        local c = UI.get_color("bird_tint")
+        Json.save_setting(GAME_ID, "ui.tint", c)
+        s_tint = c
+      end
+
+      if UI.was_checkbox_changed("music_chk") then
+        local m = UI.get_checkbox("music_chk")
+        Json.save_setting(GAME_ID, "audio.music", m)
+        s_music = m
+      end
+
+      if UI.was_slider_changed("volume") then
+        local vol = UI.get_slider("volume")
+        Json.save_setting(GAME_ID, "audio.volume", vol)
+        s_volume = vol
+      end
+
+      UI.end_child()
     end
     ]]
 
