@@ -28,8 +28,8 @@ local WINDOW_CONFIG = {
 local ENEMY_TEMPLATES = {
     bounce = {
         minLevel = 1,
-        healthMin = 40,
-        healthMax = 80,
+        healthMin = 25,
+        healthMax = 70,
         maxPerLevel = 4,
         spaceRequirement = 0,
         weight = 10,
@@ -47,7 +47,7 @@ local ENEMY_TEMPLATES = {
     },
     stationary = {
         minLevel = 1,
-        healthMin = 50,
+        healthMin = 30,
         healthMax = 120,
         maxPerLevel = 2,
         spaceRequirement = 1,
@@ -143,6 +143,14 @@ local ENEMY_TEMPLATES = {
 local function calculateHealthBudget(level)
     local n = level - PROCEDURAL_START_LEVEL
     return HEALTH_BUDGET.base + (n * HEALTH_BUDGET.perLevel) + (n * n * HEALTH_BUDGET.levelSquaredFactor)
+end
+
+local function getScaledHealthRange(template, level)
+    local n = level - PROCEDURAL_START_LEVEL
+    local scaleFactor = 1 + (n * 0.08)
+    local scaledMin = math.floor(template.healthMin * scaleFactor)
+    local scaledMax = math.floor(template.healthMax * scaleFactor)
+    return scaledMin, scaledMax
 end
 
 local function calculateTimer(totalHealth)
@@ -259,36 +267,64 @@ local function generateProceduralLevel(levelIndex)
     
     local minHealth = 999999
     for _, entry in ipairs(available) do
-        if entry.template.healthMin < minHealth then
-            minHealth = entry.template.healthMin
+        local scaledMin, _ = getScaledHealthRange(entry.template, levelIndex)
+        if scaledMin < minHealth then
+            minHealth = scaledMin
         end
     end
     
     local maxEnemies = 6
     local minEnemies = 2
     
-    while remainingBudget >= minHealth and #enemies < maxEnemies do
+    local attempts = 0
+    local maxAttempts = 20
+    
+    while #enemies < maxEnemies and attempts < maxAttempts do
+        attempts = attempts + 1
+        
         local picked = weightedRandomPick(available, counts)
         if not picked then break end
         
         local template = picked.template
         local name = picked.name
         
-        local healthMax = math.min(template.healthMax, remainingBudget)
-        if healthMax < template.healthMin then break end
+        local scaledMin, scaledMax = getScaledHealthRange(template, levelIndex)
         
-        local health
-        if #enemies >= minEnemies and remainingBudget <= template.healthMax * 1.2 then
-            health = remainingBudget
+        if #enemies < minEnemies then
+            local maxHealthForMinEnemies = remainingBudget - (minEnemies - #enemies - 1) * minHealth
+            local healthMax = math.min(scaledMax, maxHealthForMinEnemies)
+            if healthMax < scaledMin then
+                goto continue
+            end
+            local targetHealth = scaledMin + math.random() * (healthMax - scaledMin)
+            local health = math.floor(targetHealth)
+            local enemy = template.generate(health, levelIndex, 1000, 600)
+            table.insert(enemies, enemy)
+            counts[name] = (counts[name] or 0) + 1
+            remainingBudget = remainingBudget - health
         else
-            local targetHealth = template.healthMin + math.random() * (healthMax - template.healthMin)
-            health = math.floor(targetHealth)
+            if remainingBudget < minHealth then break end
+            
+            local healthMax = math.min(scaledMax, remainingBudget)
+            if healthMax < scaledMin then
+                goto continue
+            end
+            
+            local health
+            if remainingBudget <= scaledMax * 1.2 then
+                health = remainingBudget
+            else
+                local targetHealth = scaledMin + math.random() * (healthMax - scaledMin)
+                health = math.floor(targetHealth)
+            end
+            
+            local enemy = template.generate(health, levelIndex, 1000, 600)
+            table.insert(enemies, enemy)
+            counts[name] = (counts[name] or 0) + 1
+            remainingBudget = remainingBudget - health
         end
         
-        local enemy = template.generate(health, levelIndex, 1000, 600)
-        table.insert(enemies, enemy)
-        counts[name] = (counts[name] or 0) + 1
-        remainingBudget = remainingBudget - health
+        ::continue::
     end
     
     if remainingBudget > 0 and #enemies > 0 then
