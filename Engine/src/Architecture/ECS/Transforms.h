@@ -1,27 +1,26 @@
 #pragma once
 
+#include "Temp_Vec2.hpp"
+
 //#include <cmath>
 #include <vector>
 #include <stack>
-#include "Temp_Vec2.hpp"
 
 namespace IonixEngine
 {
-
+	typedef uint64_t EntityID;
 	class Entity;
-	class EntityID;
-
 	class Transform
 	{
 	private:
 		std::vector<Transform*> childTransforms;
-		std::vector<EntityID> childEntityIDs;
+		std::vector<EntityID> childEntityIds;
 
 		Transform* parentTransform;
-		EntityID parentEntityID;
+		EntityID parentEntityId;
 
-		Entity* entity;
-		EntityID entityID;
+		Entity* rootEntity;
+		EntityID rootEntityId;
 
 		Vec2 localPosition;
 		Vec2 localScale;
