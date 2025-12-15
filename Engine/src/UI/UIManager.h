@@ -51,7 +51,8 @@ namespace IonixEngine
 		std::string inputId;   // only for InputText
 
 		// Font name for this element
-		std::string fontName;
+		std::string fontName = "";
+		float fontScale = 1.0f;
 		float maxValue = 0.0f; // only for ProgressBar
 		float* currentValue = nullptr; // only for ProgressBar
 		float incrementAmount = 0.0f; // only for ProgressBar
@@ -106,29 +107,35 @@ namespace IonixEngine
 
 		// Add for new UITypes below
 
-		void AddLabel(int x, int y, float xSize, float ySize, const char* text, const std::string& fontName = "");
+		void AddLabel(int x, int y, float xSize, float ySize, const char* text, const std::string& fontName = "", float fontScale = 1.0f);
 
-		void AddButton(int x, int y, float xSize, float ySize, const char* text, const char* id = nullptr);
+		void AddCenteredLabel(float centerX, float y, const char* text, const std::string& fontName = "", float fontScale = 1.0f);
+
+		void AddButton(int x, int y, float xSize, float ySize, const char* text, const char* id = nullptr,
+			const std::string& fontName = "", float fontScale = 1.0f);
 		bool WasButtonPressed(const std::string& id);
 
-		void AddCheckboxID(int x, int y, float xSize, float ySize, const char* text, const char* id, bool defaultValue = false);
+		void AddCheckboxID(int x, int y, float xSize, float ySize, const char* text, const char* id, bool defaultValue = false,
+			const std::string& fontName = "", float fontScale = 1.0f);
 		bool GetCheckbox(const std::string& id) const;
 		bool WasCheckboxChanged(const std::string& id);
 
 		void AddSliderFloat(int x, int y, float width,
 			const char* label, const char* id,
-			float min, float max, float defaultValue = 0.0f);
+			float min, float max, float defaultValue = 0.0f,
+			const std::string& fontName = "", float fontScale = 1.0f);
 		float GetSlider(const std::string& id) const;
 		bool WasSliderChanged(const std::string& id);
 		void SetSlider(const std::string& id, float v); // optional but handy
 
-		void AddInputText(int xPos, int yPos, float width, const char* label, const char* id, size_t maxLen = 16);
+		void AddInputText(int xPos, int yPos, float width, const char* label, const char* id, size_t maxLen = 16,
+			const std::string& fontName = "", float fontScale = 1.0f);
 
-		void AddRadioButton(int x, int y, float xSize, float ySize, const char* text, int* radioValuePointer, int value, bool sameline = false, const std::string& fontName = "");
+		void AddRadioButton(int x, int y, float xSize, float ySize, const char* text, int* radioValuePointer, int value, bool sameline = false, const std::string& fontName = "", float fontScale = 1.0f);
 
-		void AddDropdown(int x, int y, float xSize, float ySize, const char* text, std::vector<std::string> options, int* currentIndex, const std::string& fontName = "");
+		void AddDropdown(int x, int y, float xSize, float ySize, const char* text, std::vector<std::string> options, int* currentIndex, const std::string& fontName = "", float fontScale = 1.0f);
 
-		void AddColorPicker(int x, int y, float xSize, float ySize, const char* label, float* color, const std::string& fontName = "");
+		void AddColorPicker(int x, int y, float xSize, float ySize, const char* label, float* color, const std::string& fontName = "", float fontScale = 1.0f);
 
 		void ClearElements();
 
@@ -137,7 +144,7 @@ namespace IonixEngine
 		void AddPanel(int x, int y, float w, float h, float alpha = 0.45f, float rounding = 6.0f,
 			int r = 0, int g = 0, int b = 0);
 
-		void AddCenteredLabel(float centerX, float y, const char* text, const std::string& fontName = "");
+
 
 		void RenderUI();
 

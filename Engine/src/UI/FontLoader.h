@@ -12,10 +12,12 @@ namespace IonixEngine
     public:
         std::unordered_map<std::string, ImFont*> fontMap;
 
-        ImFont* GetFont(std::string fontName)
+        ImFont* GetFont(const std::string& fontName)
         {
-            return fontMap[fontName];
+            auto it = fontMap.find(fontName);
+            return (it != fontMap.end()) ? it->second : nullptr;
         }
+
 
         void AddMap(std::pair<std::string, ImFont*> newFont)
         {

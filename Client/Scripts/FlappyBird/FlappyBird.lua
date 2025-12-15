@@ -323,7 +323,7 @@ function ExampleScript:OnUpdate()
     local windowH = Window.get_height()
 
     ------------------
-	-- New button/checkbox/sliderFloat test
+	-- New button/checkbox/sliderFloat examples
 	------------------
     -- UI.add_button(20, 20, 120, 35, "Restart", "restart_btn")
     -- if UI.was_button_pressed("restart_btn") then
@@ -407,12 +407,12 @@ function ExampleScript:OnUpdate()
         local lbW, lbH = 260, 170
         UI.add_panel(lbX, lbY, lbW, lbH, 0.75, 10, 70, 160, 115)
 
-        UI.Add_label(lbX + 10, lbY + 10, 0, 0, "Leaderboard Ranking")
+        UI.Add_label(lbX + 10, lbY + 10, 0, 0, "Leaderboard Ranking", "", 1.8)
 
         if topLeaderboard then
           for i, e in ipairs(topLeaderboard) do
             local line = string.format("%d. %s - %d", i, e.name, e.score)
-            UI.Add_label(lbX + 10, lbY + 35 + (i-1)*22, 0, 0, line)
+            UI.Add_label(lbX + 10, lbY + 40 + (i-1)*22, 0, 0, line,  "", 1.5)
           end
         end
 
@@ -427,11 +427,11 @@ function ExampleScript:OnUpdate()
         local gap = 26
         local centerX = panelX + (panelW / 2)
 
-        UI.add_centered_label(centerX, y0 + gap*0, text1)
-        UI.add_centered_label(centerX, y0 + gap*1, finalScoreText)
-        UI.add_centered_label(centerX, y0 + gap*2, coinsText)
-        UI.add_centered_label(centerX, y0 + gap*3, topScore)
-        UI.add_centered_label(centerX, y0 + gap*5.5, text2)
+        UI.add_centered_label(centerX, y0 + gap*0, text1,  "", 1.8)
+        UI.add_centered_label(centerX, y0 + gap*1.5, finalScoreText,  "", 1.5)
+        UI.add_centered_label(centerX, y0 + gap*2.5, coinsText,  "", 1.5)
+        UI.add_centered_label(centerX, y0 + gap*3.5, topScore,  "", 1.5)
+        UI.add_centered_label(centerX, y0 + gap*5.5, text2, "", 1.8)
 
 
         -- Show TextInput only if new high score
@@ -542,8 +542,8 @@ function ExampleScript:OnUpdate()
     end
 
     -- UI
-    UI.Add_label(10, 10, 1000, 1000, pipeScoreText)
-    UI.Add_label(10, 40, 1000, 1000, scoreText)
+    UI.Add_label(10, 10, 1000, 1000, pipeScoreText, "", 1.5)
+    UI.Add_label(10, 40, 1000, 1000, scoreText, "", 1.5)
 
 end
 

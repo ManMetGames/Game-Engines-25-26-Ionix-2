@@ -11,30 +11,19 @@ namespace IonixEngine
 {
 	void UI::DrawLabel(char* text, int xsize, int ysize, int xpos, int ypos, std::string font)
 	{
-
 		ImGui::SetCursorPos(ImVec2(xpos, ypos));
-	    ImGui::SetWindowFontScale(1.8);
-		std::unordered_map<std::string, ImFont*>& map = Application::Get().layerUI->GetUIManager()->fontLoader.fontMap;
-		ImFont* fontToPush = map[font];
-
-		ImGui::PushFont(fontToPush);
-
 		ImGui::TextUnformatted(text);
-		//ImGui::Text(text, ImVec2(xsize, ysize));
-		ImGui::PopFont();
 	}
 
 	bool UI::DrawButton(char* text, int xsize, int ysize, int xpos, int ypos)
 	{
 		ImGui::SetCursorPos(ImVec2(xpos, ypos));
-		ImGui::SetWindowFontScale(1);
 		return ImGui::Button(text, ImVec2(xsize, ysize));
 	}
 
 	bool UI::DrawSlider(const char* label, float* value, float width,
 		int xpos, int ypos, float minval, float maxval)
 	{
-		ImGui::SetWindowFontScale(1.0);
 		ImGui::SetCursorPos(ImVec2((float)xpos, (float)ypos));
 		ImGui::SetNextItemWidth(width);
 		return ImGui::SliderFloat(label, value, minval, maxval);
@@ -42,7 +31,6 @@ namespace IonixEngine
 
 	bool UI::DrawCheckbox(const char* label, bool* value, int xpos, int ypos)
 	{
-		ImGui::SetWindowFontScale(1.0f);
 		ImGui::SetCursorPos(ImVec2((float)xpos, (float)ypos));
 		return ImGui::Checkbox(label, value);
 	}
@@ -163,7 +151,6 @@ namespace IonixEngine
 		char* buffer, size_t bufferSize,
 		ImGuiInputTextFlags flags)
 	{
-		ImGui::SetWindowFontScale(1.0);
 
 		ImGui::SetCursorPos(ImVec2((float)xPos, (float)yPos));
 		ImGui::TextUnformatted(label);

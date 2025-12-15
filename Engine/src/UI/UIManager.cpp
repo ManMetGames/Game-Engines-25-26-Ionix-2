@@ -16,7 +16,7 @@ void UIManager::AddChildToPanel(UIElement* element)
 	elements.push_back(element);
 }
 
-void UIManager::AddLabel(int x, int y, float xSize, float ySize, const char* text, const std::string& fontName)
+void UIManager::AddLabel(int x, int y, float xSize, float ySize, const char* text, const std::string& fontName, float fontScale)
 {
 	UIElement* element = new UIElement;
 	element->type = UIType::Label;
@@ -27,6 +27,44 @@ void UIManager::AddLabel(int x, int y, float xSize, float ySize, const char* tex
 	element->ownedText = (text ? text : "");
 	element->text = const_cast<char*>(element->ownedText.c_str());
 	element->fontName = fontName;
+	element->fontScale = fontScale;
+	AddChildToPanel(element);
+}
+
+void UIManager::AddCenteredLabel(float centerX, float y, const char* text, const std::string& fontName, float fontScale)
+{
+	UIElement* element = new UIElement{};
+	element->type = UIType::Label;
+	element->centerAligned = true;
+	element->centerX = centerX;
+	element->yPos = (int)y;
+
+	element->fontName = fontName;
+	element->fontScale = fontScale;
+
+	element->ownedText = (text ? text : "");
+	element->text = const_cast<char*>(element->ownedText.c_str());
+
+	element->fontName = fontName;
+	AddChildToPanel(element);
+}
+
+void UIManager::AddButton(int x, int y, float xSize, float ySize, const char* text, const char* id, const std::string& fontName, float fontScale)
+{
+	UIElement* element = new UIElement{};
+	element->type = UIType::Button;
+	element->xPos = x;
+	element->yPos = y;
+	element->xSize = xSize;
+	element->ySize = ySize;
+
+	element->fontName = fontName;
+	element->fontScale = fontScale;
+
+	element->ownedText = (text ? text : "");
+	element->text = const_cast<char*>(element->ownedText.c_str());
+
+	element->widgetId = (id && id[0]) ? id : element->ownedText; // fallback
 
 	AddChildToPanel(element);
 }
@@ -41,7 +79,7 @@ bool UIManager::WasButtonPressed(const std::string& id)
 	return pressed;
 }
 
-void UIManager::AddCheckboxID(int x, int y, float xSize, float ySize, const char* text, const char* id, bool defaultValue)
+void UIManager::AddCheckboxID(int x, int y, float xSize, float ySize, const char* text, const char* id, bool defaultValue, const std::string& fontName, float fontScale)
 {
 	UIElement* element = new UIElement{};
 	element->type = UIType::Checkbox;
@@ -52,6 +90,9 @@ void UIManager::AddCheckboxID(int x, int y, float xSize, float ySize, const char
 
 	element->ownedText = (text ? text : "");
 	element->text = const_cast<char*>(element->ownedText.c_str());
+
+	element->fontName = fontName;
+	element->fontScale = fontScale;
 
 	element->widgetId = (id && id[0]) ? id : element->ownedText;
 	element->defaultValue = defaultValue;
@@ -79,26 +120,10 @@ bool UIManager::WasCheckboxChanged(const std::string& id)
 	return changed;
 }
 
-void UIManager::AddButton(int x, int y, float xSize, float ySize, const char* text, const char* id)
-{
-	UIElement* element = new UIElement{};
-	element->type = UIType::Button;
-	element->xPos = x;
-	element->yPos = y;
-	element->xSize = xSize;
-	element->ySize = ySize;
-
-	element->ownedText = (text ? text : "");
-	element->text = const_cast<char*>(element->ownedText.c_str());
-
-	element->widgetId = (id && id[0]) ? id : element->ownedText; // fallback
-
-	AddChildToPanel(element);
-}
 
 void UIManager::AddSliderFloat(int x, int y, float width,
 	const char* label, const char* id,
-	float min, float max, float defaultValue)
+	float min, float max, float defaultValue, const std::string& fontName, float fontScale)
 {
 	UIElement* element = new UIElement{};
 	element->type = UIType::SliderFloat;
@@ -109,6 +134,9 @@ void UIManager::AddSliderFloat(int x, int y, float width,
 
 	element->ownedText = (label ? label : "");
 	element->text = const_cast<char*>(element->ownedText.c_str());
+
+	element->fontName = fontName;
+	element->fontScale = fontScale;
 
 	element->widgetId = (id && id[0]) ? id : element->ownedText;
 	element->sliderMin = min;
@@ -142,7 +170,7 @@ void UIManager::SetSlider(const std::string& id, float v)
 	m_sliderValues[id] = v;
 }
 
-void UIManager::AddInputText(int xPos, int yPos, float width, const char* label, const char* id, size_t maxLen)
+void UIManager::AddInputText(int xPos, int yPos, float width, const char* label, const char* id, size_t maxLen, const std::string& fontName, float fontScale)
 {
 	UIElement* element = new UIElement;
 	element->type = UIType::InputText;
@@ -153,13 +181,15 @@ void UIManager::AddInputText(int xPos, int yPos, float width, const char* label,
 	element->text = const_cast<char*>(element->ownedText.c_str());
 	element->inputId = id;
 
+	element->fontName = fontName;
+	element->fontScale = fontScale;
+
 	auto& buf = m_inputBuffers[element->inputId];
 	if (buf.empty())
 		buf.assign(maxLen, '\0');   // persistent storage
 	element->inputBuffer = buf.data();
 	element->inputBufferSize = 16;
 	element->inputBufferSize = buf.size();
-	const std::string fontName;
 	AddChildToPanel(element);
 }
 
@@ -187,7 +217,7 @@ void UIManager::ClearInput(const std::string& id)
 		it->second[0] = '\0';
 }
 
-void UIManager::AddRadioButton(int x, int y, float xSize, float ySize, const char* text, int* radioValuePointer, int value, bool sameline, const std::string& fontName)
+void UIManager::AddRadioButton(int x, int y, float xSize, float ySize, const char* text, int* radioValuePointer, int value, bool sameline, const std::string& fontName, float fontScale)
 {
 	UIElement* element = new UIElement;
 	element->type = UIType::RadioButton;
@@ -201,10 +231,11 @@ void UIManager::AddRadioButton(int x, int y, float xSize, float ySize, const cha
 	element->RadioButtonValue = value;
 	element->sameline = sameline;
 	element->fontName = fontName;
+	element->fontScale = fontScale;
 	AddChildToPanel(element);
 }
 
-void UIManager::AddColorPicker(int x, int y, float xSize, float ySize, const char* label, float* color, const std::string& fontName)
+void UIManager::AddColorPicker(int x, int y, float xSize, float ySize, const char* label, float* color, const std::string& fontName, float fontScale)
 {
 	UIElement* element = new UIElement;
 	element->type = UIType::ColorPicker;
@@ -216,10 +247,11 @@ void UIManager::AddColorPicker(int x, int y, float xSize, float ySize, const cha
 	element->text = const_cast<char*>(element->ownedText.c_str());
 	element->color = color;
 	element->fontName = fontName;
+	element->fontScale = fontScale;
 	AddChildToPanel(element);
 }
 
-void UIManager::AddDropdown(int x, int y, float xSize, float ySize, const char* text, std::vector<std::string> options, int* currentIndex, const std::string& fontName)
+void UIManager::AddDropdown(int x, int y, float xSize, float ySize, const char* text, std::vector<std::string> options, int* currentIndex, const std::string& fontName, float fontScale)
 {
 	UIElement* element = new UIElement;
 	element->type = UIType::Dropdown;
@@ -232,6 +264,7 @@ void UIManager::AddDropdown(int x, int y, float xSize, float ySize, const char* 
 	element->dropdownOptions = options;
 	element->dropdownCurrentIndex = currentIndex;
 	element->fontName = fontName;
+	element->fontScale = fontScale;
 	AddChildToPanel(element);
 }
 
@@ -268,21 +301,6 @@ void IonixEngine::UIManager::AddPanel(int x, int y, float w, float h,
 	AddChildToPanel(element);
 }
 
-void UIManager::AddCenteredLabel(float centerX, float y, const char* text, const std::string& fontName)
-{
-	UIElement* element = new UIElement{};
-	element->type = UIType::Label;
-	element->centerAligned = true;
-	element->centerX = centerX;
-	element->yPos = (int)y;
-
-	element->ownedText = (text ? text : "");
-	element->text = const_cast<char*>(element->ownedText.c_str());
-
-	element->fontName = fontName;
-	AddChildToPanel(element);
-}
-
 
 void UIManager::EndPanel()
 {
@@ -304,6 +322,9 @@ void UIManager::RenderElement(UIElement* element)
 		font = fontLoader.GetFont(element->fontName);
 
 	if (font) ImGui::PushFont(font);
+
+	if (element->fontScale != 1.0f)
+		ImGui::SetWindowFontScale(element->fontScale);
 
 	switch (element->type)
 	{
@@ -436,6 +457,8 @@ void UIManager::RenderElement(UIElement* element)
 		break;
 	}
 
+	if (element->fontScale != 1.0f)
+		ImGui::SetWindowFontScale(1.0f);
 	// --- FONT POP ---
 	if (font) ImGui::PopFont();
 	if (element->sameline) ImGui::SameLine();
