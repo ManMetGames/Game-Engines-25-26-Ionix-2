@@ -84,7 +84,7 @@ function ExampleScript:OnStart()
     
     --Fysics.create_revolute_joint(player2,player, false, 5, 8, true, 20, 60) --Revolute Joint
 
-    --Fysics.create_distance_joint(player2, player, 10) --Distance Joint
+    Fysics.create_distance_joint(player2, player, 10) --Distance Joint
    
 end
 
