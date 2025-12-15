@@ -53,12 +53,12 @@ namespace IonixEngine
 			vec2->y = y;
 			};
 
-		auto getVector2x = [](b2Vec2* vec2) -> float {
-			return vec2->x;
+		auto getVector2x = [](b2Vec2 vec2) -> float {
+			return vec2.x;
 			};
 
-		auto getVector2y = [](b2Vec2* vec2) -> float {
-			return vec2->y;
+		auto getVector2y = [](b2Vec2 vec2) -> float {
+			return vec2.y;
 			};
 
 		auto mod = [](float x, float y) -> float {

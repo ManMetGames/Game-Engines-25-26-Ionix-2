@@ -23,17 +23,18 @@ namespace IonixEngine {
 		SDL_Point size;
 		SDL_Rect src;
 		int zOrder;
-		float width, height;
+		float width = 0.0f;
+		float height = 0.0f;
 		int totalFrames;
 		int currentFrame;
 		int endFrame;
 		bool isReversing; // kai is smelly (its true)
 		int rows, cols;
 		int spriteWidth, spriteHeight;
-		int currentRow, currentCol;
-		float spriteAngle;
+		int currentRow = 0, currentCol = 0;
+		float spriteAngle = 0.0f;
 		int renderLayer;
-		float timer;
+		float timer = 0.0f;
 		float tickRate;
 		b2Vec2 boxColliderSize;
 		
@@ -43,6 +44,7 @@ namespace IonixEngine {
 		Uint8 colorB = 255;
 
 		enum playbackOptions playbackMode;
+		void RecalcFrameSize();
 
 	public:
 		SpriteComponent(Entity* entity, std::string alias, int width, int height, int zedOrder);
