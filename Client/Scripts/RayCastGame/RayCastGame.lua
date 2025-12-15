@@ -158,7 +158,10 @@ function SendOffLeftDuck()
    local YPositionOffset = math.random(0,180)
    Fysics.set_pos(DuckLeft, Mafs.vector2_x(SpawnPointLeft), Mafs.vector2_y(SpawnPointLeft) - YPositionOffset)
    Fysics.set_gravity_scale(DuckLeft, 1)
-   Fysics.add_force(DuckLeft, 190,-250,1,1)  -- Slow Speed
+   local forceX = GetRandomSpeed()
+   Fysics.add_force(DuckLeft, forceX,-250,1,1)
+
+   --Fysics.add_force(DuckLeft, 190,-250,1,1)  -- Slow Speed
    --Fysics.add_force(DuckLeft, 220,-250,1,1)  -- Medium Speed
    --Fysics.add_force(DuckLeft, 260,-250,1,1)  -- Fast Speed
    print(YPositionOffset)
@@ -172,7 +175,10 @@ function SendOffRightDuck()
     local YPositionOffset = math.random(0,180)
     Fysics.set_pos(DuckRight, Mafs.vector2_x(SpawnPointRight), Mafs.vector2_y(SpawnPointRight) - YPositionOffset)
     Fysics.set_gravity_scale(DuckRight, 1)
-     Fysics.add_force(DuckRight, -190,-250,1,1)  -- Slow Speed
+    local forceX = -GetRandomSpeed()
+     Fysics.add_force(DuckRight, forceX,-250,1,1)
+
+    -- Fysics.add_force(DuckRight, -190,-250,1,1)  -- Slow Speed
    --Fysics.add_force(DuckRight, -220,-250,1,1) -- Medium Speed
     --Fysics.add_force(DuckRight, -260,-250,1,1)  -- Fast Speed
     print(YPositionOffset)
@@ -184,6 +190,26 @@ end
 function GetRandomTimer()
 HasGotTimerValue = true
  return math.random(1,99) / 100 
+end
+
+----------------------------------------------------------
+-- GetRandomSpeed
+----------------------------------------------------------
+function GetRandomSpeed()
+ local randInt = math.random(0,11)
+ local speed = 0
+ if randInt == 0 or randInt == 1 or randInt == 2 or randInt == 3 or randInt == 4 then
+  speed = 180
+ end
+  if randInt == 5 or randInt == 6 or randInt == 7 or randInt == 8  then
+  speed = 220
+ end
+  if randInt == 9 or randInt == 10 or randInt == 11  then
+  speed = 280
+ end
+ print("Speed: ")
+ print(speed)
+ return speed
 end
 
 return ExampleScript
