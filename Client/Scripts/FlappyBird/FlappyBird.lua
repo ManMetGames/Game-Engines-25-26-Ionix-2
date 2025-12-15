@@ -325,22 +325,22 @@ function ExampleScript:OnUpdate()
     ------------------
 	-- New button/checkbox/sliderFloat examples
 	------------------
-    -- UI.add_button(20, 20, 120, 35, "Restart", "restart_btn")
-    -- if UI.was_button_pressed("restart_btn") then
-    --     resetGame()
-    -- end
+     --UI.add_button(20, 20, 120, 35, "Restart", "restart_btn")
+     --if UI.was_button_pressed("restart_btn") then
+     --    resetGame()
+     --end
 
-    -- UI.add_checkbox(20, 60, 0, 0, "Music", "music_chk", true)
+     --UI.add_checkbox(20, 60, 0, 0, "Music", "music_chk", true)
 
-    -- if UI.get_checkbox("music_chk") then
-        -- music on
-    -- end
+     --if UI.get_checkbox("music_chk") then
+     --   -- music on
+     --end
 
-    -- if UI.was_checkbox_changed("music_chk") then
-    --     print("toggled to:", UI.get_checkbox("music_chk"))
-    -- end
+     --if UI.was_checkbox_changed("music_chk") then
+     --    print("toggled to:", UI.get_checkbox("music_chk"))
+     --end
 
-    --UI.add_slider_float(20, 60, 110, "Volume", "volume", 0.0, 1.0, 0.75)
+    --UI.add_slider(20, 80, 110, "Volume", "volume", 0.0, 1.0, 0.75)
 
     --local v = UI.get_slider("volume")
     --if UI.was_slider_changed("volume") then

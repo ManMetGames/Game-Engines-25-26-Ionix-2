@@ -115,12 +115,12 @@ namespace IonixEngine
 			const std::string& fontName = "", float fontScale = 1.0f);
 		bool WasButtonPressed(const std::string& id);
 
-		void AddCheckboxID(int x, int y, float xSize, float ySize, const char* text, const char* id, bool defaultValue = false,
+		void AddCheckbox(int x, int y, float xSize, float ySize, const char* text, const char* id, bool defaultValue = false,
 			const std::string& fontName = "", float fontScale = 1.0f);
 		bool GetCheckbox(const std::string& id) const;
 		bool WasCheckboxChanged(const std::string& id);
 
-		void AddSliderFloat(int x, int y, float width,
+		void AddSlider(int x, int y, float width,
 			const char* label, const char* id,
 			float min, float max, float defaultValue = 0.0f,
 			const std::string& fontName = "", float fontScale = 1.0f);

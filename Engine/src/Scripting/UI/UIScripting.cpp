@@ -49,7 +49,7 @@ namespace IonixEngine {
             sol::optional<bool> defaultValue, sol::optional<std::string> fontName,
             sol::optional<float> fontScale)
             {
-                Application::Get().layerUI->m_UIManager->AddCheckboxID(
+                Application::Get().layerUI->m_UIManager->AddCheckbox(
                     x, y, w, h, text, id.c_str(),
                     defaultValue.value_or(false),
                     fontName.value_or(""),
@@ -67,13 +67,13 @@ namespace IonixEngine {
                 return Application::Get().layerUI->m_UIManager->WasCheckboxChanged(id);
             };
 
-        auto AddSliderFloat = [](int x, int y, float width,
+        auto AddSlider = [](int x, int y, float width,
             const char* label, const std::string& id,
             float min, float max,
             sol::optional<float> defaultValue, sol::optional<std::string> fontName,
             sol::optional<float> fontScale)
             {
-                Application::Get().layerUI->m_UIManager->AddSliderFloat(
+                Application::Get().layerUI->m_UIManager->AddSlider(
                     x, y, width,
                     label, id.c_str(),
                     min, max,
@@ -143,7 +143,7 @@ namespace IonixEngine {
             "add_centered_label", AddCenteredLabel,
             "add_button", AddButton,
             "add_checkbox", AddCheckbox,
-            "add_slider_float", AddSliderFloat,
+            "add_slider", AddSlider,
             //"add_color_picker", AddColorPicker,
             "draw_progress_bar", DrawProgressBar,
             "add_input_text", AddInputText,

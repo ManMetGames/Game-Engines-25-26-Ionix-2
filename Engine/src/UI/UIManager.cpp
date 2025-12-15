@@ -79,7 +79,7 @@ bool UIManager::WasButtonPressed(const std::string& id)
 	return pressed;
 }
 
-void UIManager::AddCheckboxID(int x, int y, float xSize, float ySize, const char* text, const char* id, bool defaultValue, const std::string& fontName, float fontScale)
+void UIManager::AddCheckbox(int x, int y, float xSize, float ySize, const char* text, const char* id, bool defaultValue, const std::string& fontName, float fontScale)
 {
 	UIElement* element = new UIElement{};
 	element->type = UIType::Checkbox;
@@ -121,7 +121,7 @@ bool UIManager::WasCheckboxChanged(const std::string& id)
 }
 
 
-void UIManager::AddSliderFloat(int x, int y, float width,
+void UIManager::AddSlider(int x, int y, float width,
 	const char* label, const char* id,
 	float min, float max, float defaultValue, const std::string& fontName, float fontScale)
 {
