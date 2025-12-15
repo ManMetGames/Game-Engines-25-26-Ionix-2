@@ -5,12 +5,6 @@
 namespace IonixEngine
 {
 
-
-void UIManager::BeginPanel(const std::string& panelName)
-{
-
-}
-
 void UIManager::AddChildToPanel(UIElement* element)
 {
 	elements.push_back(element);
@@ -368,21 +362,28 @@ bool UIManager::WasColorChanged(const std::string& id)
 	return v;
 }
 
-void UIManager::BeginChild(int x, int y, float w, float h, const char* id, bool border, ImGuiWindowFlags flags)
+void UIManager::BeginChild(int x, int y, float w, float h, const char* id,
+	bool border, ImGuiWindowFlags flags,
+	bool hasBg, float alpha, float rounding,
+	int r, int g, int b)
 {
 	UIElement* element = new UIElement{};
 	element->type = UIType::BeginChild;
-	element->xPos = x;
-	element->yPos = y;
-	element->xSize = w;
-	element->ySize = h;
+	element->xPos = x; element->yPos = y;
+	element->xSize = w; element->ySize = h;
 
 	element->childId = (id && id[0]) ? id : "Child";
 	element->childBorder = border;
 	element->childFlags = flags;
 
+	element->childHasBg = hasBg;
+	element->childBgAlpha = alpha;
+	element->childBgRounding = rounding;
+	element->childBgR = r; element->childBgG = g; element->childBgB = b;
+
 	AddChildToPanel(element);
 }
+
 
 void UIManager::EndChild()
 {
@@ -581,21 +582,46 @@ void UIManager::RenderElement(UIElement* element)
 
 	case UIType::BeginChild:
 	{
+		ChildStylePop pops{};
+
+		if (element->childHasBg)
+		{
+			ImVec4 col(
+				element->childBgR / 255.0f,
+				element->childBgG / 255.0f,
+				element->childBgB / 255.0f,
+				element->childBgAlpha
+			);
+			ImGui::PushStyleColor(ImGuiCol_ChildBg, col);
+			pops.colors++;
+			ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, element->childBgRounding);
+			pops.vars++;
+		}
+
+		m_childStyleStack.push_back(pops);
+
 		ImGui::SetCursorPos(ImVec2((float)element->xPos, (float)element->yPos));
-		ImGui::BeginChild(
-			element->childId.c_str(),
+		ImGui::BeginChild(element->childId.c_str(),
 			ImVec2(element->xSize, element->ySize),
 			element->childBorder,
-			element->childFlags
-		);
+			element->childFlags);
 		break;
 	}
 
 	case UIType::EndChild:
 	{
 		ImGui::EndChild();
+
+		if (!m_childStyleStack.empty())
+		{
+			ChildStylePop pops = m_childStyleStack.back();
+			m_childStyleStack.pop_back();
+			if (pops.vars)   ImGui::PopStyleVar(pops.vars);
+			if (pops.colors) ImGui::PopStyleColor(pops.colors);
+		}
 		break;
 	}
+
 
 	default:
 		break;

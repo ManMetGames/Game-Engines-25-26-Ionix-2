@@ -228,13 +228,25 @@ namespace IonixEngine {
 
         auto BeginChild = [](int x, int y, float w, float h, const std::string& id,
             sol::optional<bool> border,
-            sol::optional<int> flags)
+            sol::optional<int> flags,
+            sol::optional<bool> hasBg,
+            sol::optional<float> alpha,
+            sol::optional<float> rounding,
+            sol::optional<int> r,
+            sol::optional<int> g,
+            sol::optional<int> b)
             {
                 Application::Get().layerUI->m_UIManager->BeginChild(
                     x, y, w, h,
                     id.c_str(),
                     border.value_or(false),
-                    (ImGuiWindowFlags)flags.value_or(0)
+                    (ImGuiWindowFlags)flags.value_or(0),
+                    hasBg.value_or(false),
+                    alpha.value_or(0.45f),
+                    rounding.value_or(6.0f),
+                    r.value_or(0),
+                    g.value_or(0),
+                    b.value_or(0)
                 );
             };
 

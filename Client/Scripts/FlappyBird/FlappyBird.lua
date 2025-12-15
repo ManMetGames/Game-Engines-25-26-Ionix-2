@@ -11,6 +11,7 @@ local newHighScore = false
 local submitted = false -- For Highscore submission
 local playerName = Json.load_player_name()
 if playerName == "" then playerName = "Anon" end
+local showSettings = showSettings or false
 
 -- Pipes
 local pipe, pipeT, pipe2, pipeT2, pipe3, pipeT3
@@ -405,10 +406,16 @@ function ExampleScript:OnUpdate()
     --end
 
     ------------------
-	-- Child panels
+	-- Child panel
 	------------------
-    ---- a child region positioned at (20, 100) sized 300x260
-    --UI.begin_child(20, 100, 300, 260, "SettingsChild", true, 0)
+
+    --UI.add_button(20, 20, 120, 35, "Restart", "restart_btn")
+     --if UI.was_button_pressed("restart_btn") then
+     --    resetGame()
+     --end
+
+    ---- A child region positioned at (20, 100) sized 300x260 with a coloured background
+    --UI.begin_child(20, 95, 320, 300, "FB_Settings", true, 0, true, 0.75, 10, 70, 160, 115) -- hasBg alpha rounding r  g   b
 
     --UI.Add_label(10, 10, 0, 0, "Settings", "ImGuiDefaultBold", 1.3)
     --UI.add_radio(10, 40, 0, 0, "Easy", "difficulty", 0, 1, false)
@@ -422,8 +429,40 @@ function ExampleScript:OnUpdate()
 
     --UI.end_child()
 
+    ------------------
+	-- Example Settings Panel showcase with button to toggle
+	------------------
+    --[[
+    UI.add_button(150, 20, 160, 35, showSettings and "Hide Settings" or "Show Settings", "settings_btn")
+    if UI.was_button_pressed("settings_btn") then
+        showSettings = not showSettings
+    end
+
+    if showSettings then
+        -- optional: draw a panel behind it (if you want your panel look)
+        -- UI.add_panel(10, 80, 340, 330, 0.75, 10, 70, 160, 115)
+    
+        -- child with background (using your new args)
+        UI.begin_child(20, 70, 320, 260, "SettingsChild", true, 0,
+                       true, 0.75, 10, 70, 160, 115)
+
+        UI.Add_label(10, 10, 0, 0, "Settings", "ImGuiDefaultBold", 1.4)
+
+        UI.add_radio(10, 50, 0, 0, "Easy",   "difficulty", 0, 1, false)
+        UI.add_radio(10, 70, 0, 0, "Normal", "difficulty", 1, 1, false)
+        UI.add_radio(10, 90, 0, 0, "Hard",   "difficulty", 2, 1, false)
+
+        UI.add_dropdown(10, 130, 240, 0, "Bird Skin", "bird_skin_dd",
+                        { "Classic", "Blue", "Red", "Gold" }, 0)
+
+        UI.add_color_picker(10, 170, 0, 0, "Tint", "bird_tint", 1, 1, 1, 1)
+
+        UI.end_child()
+    end
+    ]]
+
     ---------------------------------------------------------------------------------
-    -- End of user Interface examples
+    -- End of UI examples
     ---------------------------------------------------------------------------------
 
     ------------------

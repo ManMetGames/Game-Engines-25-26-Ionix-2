@@ -89,6 +89,10 @@ namespace IonixEngine
 		std::string childId;
 		bool childBorder = false;
 		ImGuiWindowFlags childFlags = 0;
+		bool  childHasBg = false;
+		float childBgAlpha = 0.45f;
+		float childBgRounding = 6.0f;
+		int   childBgR = 0, childBgG = 0, childBgB = 0;
 
 		// Font controls per element
 		std::string fontName = "";
@@ -126,6 +130,9 @@ namespace IonixEngine
 		std::unordered_map<std::string, ImVec4> m_colorValues;
 		std::unordered_map<std::string, bool>   m_colorChanged;
 
+		struct ChildStylePop { int colors = 0; int vars = 0; };
+		std::vector<ChildStylePop> m_childStyleStack;
+
 	public:
 		Fontloader fontLoader;
 		std::vector<UIElement*> elements;
@@ -136,8 +143,6 @@ namespace IonixEngine
 
 		void setUIRenderer(UI* ui) { m_ui = ui; }
 
-		void BeginPanel(const std::string& panelName);
-		void EndPanel();
 		void AddChildToPanel(UIElement* element);
 
 		// UI widgets
@@ -211,7 +216,10 @@ namespace IonixEngine
 
 		// Child windows
 		void BeginChild(int x, int y, float w, float h, const char* id,
-			bool border = false, ImGuiWindowFlags flags = 0);
+			bool border = false, ImGuiWindowFlags flags = 0,
+			bool hasBg = false, float alpha = 0.45f, float rounding = 6.0f,
+			int r = 0, int g = 0, int b = 0);
+
 		void EndChild();
 
 		// Main render functions
