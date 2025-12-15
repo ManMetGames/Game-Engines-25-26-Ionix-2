@@ -36,6 +36,11 @@ namespace IonixEngine {
             sol::optional<float> r, sol::optional<float> g,
             sol::optional<float> b, sol::optional<float> a)
             {
+                auto norm = [](float v) -> float
+                    {
+                        return (v > 1.0f) ? (v / 255.0f) : v;
+                    };
+
                 Application::Get().layerUI->m_UIManager->AddButton(
                     x, y, w, h, text,
                     id ? id->c_str() : nullptr,
@@ -43,10 +48,12 @@ namespace IonixEngine {
                     fontScale.value_or(1.0f),
                     rounding.value_or(0.0f),
                     useColor.value_or(false),
-                    r.value_or(0.2f), g.value_or(0.55f), b.value_or(0.8f), a.value_or(1.0f)
+                    norm(r.value_or(0.2f)),
+                    norm(g.value_or(0.55f)),
+                    norm(b.value_or(0.8f)),
+                    a.value_or(1.0f)
                 );
             };
-
 
         auto WasButtonPressed = [](const std::string& id)
             {
