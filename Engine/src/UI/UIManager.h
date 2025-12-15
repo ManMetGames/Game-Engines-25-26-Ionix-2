@@ -4,8 +4,9 @@
 #include <functional>
 #include <vector>
 #include "Fontloader.h"
-
 #include "UI/UI.h"
+#include <unordered_map>
+
 namespace IonixEngine
 {
 	enum UIType
@@ -14,7 +15,7 @@ namespace IonixEngine
 		Button,
 		Checkbox,
 		SliderFloat,
-		InputText,
+	    InputText,
 		Panel,
 		RadioButton,
 		Dropdown,
@@ -24,27 +25,31 @@ namespace IonixEngine
 	struct UIElement
 	{
 		UIType type;
-		std::string groupName;
+		//std::string groupName;
 		int xPos;
 		int yPos;
 		float xSize;
 		float ySize;
+		std::string ownedText;
 		char* text = nullptr;
-		std::function<void()> onClick = nullptr; // only for buttons
+		//std::function<void()> onClick = nullptr; // only for buttons
 		bool* checked = nullptr; // only for checkboxes
 		float* sliderValue = nullptr; // only for sliders
 		float sliderMin = 0.0f;// only for sliders
 		float slidermax = 1.0f;// only for sliders
-		char* inputBuffer = nullptr; // only for input text
-		size_t inputBufferSize; // only for input text
 		int* radioValuePtr = nullptr;
 		int RadioButtonValue = 0;
 		bool sameline = false;
 		float* color = nullptr; // only for ColorPicker4
 
+
+		char* inputBuffer = nullptr; // only for InputText
+		size_t inputBufferSize = 0; //only for InputText
+		float width = 100.0f; // only for InputText
+		std::string inputId;   // only for InputText
+
 		// Font name for this element
 		std::string fontName;
-
 		float maxValue = 0.0f; // only for ProgressBar
 		float* currentValue = nullptr; // only for ProgressBar
 		float incrementAmount = 0.0f; // only for ProgressBar
@@ -59,13 +64,14 @@ namespace IonixEngine
 	class UIManager
 	{
 	private:
-		//std::string currentGroupName; 
-
-		//std::vector<UIElement*> groupStack; 
-
 		void RenderElement(UIElement* element);
-
 		UI* m_ui = nullptr;
+
+		std::unordered_map<std::string, std::vector<char>> m_inputBuffers;
+		std::unordered_map<std::string, std::string> m_committedText;
+
+		std::vector<std::string> m_frameText; // keeps label/button text alive for this frame
+
 	public:
 		Fontloader fontLoader;
 		std::vector<UIElement*> GetElements()
@@ -94,13 +100,13 @@ namespace IonixEngine
 
 		void AddLabel(int x, int y, float xSize, float ySize, const char* text, const std::string& fontName = "");
 
-		void AddButton(int x, int y, float xSize, float ySize, const char* text, std::function<void()> onClick, const std::string& fontName = "");
+		void AddButton(int x, int y, float xSize, float ySize, const char* text);
 
 		void AddCheckbox(int x, int y, float xSize, float ySize, const char* text, bool* checked, const std::string& fontName = "");
 
 		void AddSliderFloat(int x, int y, float xSize, float ySize, const char* text, float* value, float min, float max, const std::string& fontName = "");
 
-		void AddInputText(int x, int y, float xSize, float ySize, const char* text, char* buffer, size_t bufferSize, const std::string& fontName = "");
+		void AddInputText(int xPos, int yPos, float width, const char* label, const char* id, size_t maxLen = 16);
 
 		void AddRadioButton(int x, int y, float xSize, float ySize, const char* text, int* radioValuePointer, int value, bool sameline = false, const std::string& fontName = "");
 
@@ -114,5 +120,10 @@ namespace IonixEngine
 
 		void RenderUI();
 
+		std::string GetCommittedText(const std::string& id) const;
+		std::unordered_map<std::string, bool> m_inputCommittedThisFrame;
+		bool WasInputCommitted(const std::string& id) const;
+
+		void ClearInput(const std::string& id);
 	};
 }

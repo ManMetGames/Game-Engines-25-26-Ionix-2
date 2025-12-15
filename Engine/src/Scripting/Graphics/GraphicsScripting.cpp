@@ -127,8 +127,17 @@ namespace IonixEngine {
                                float vx,
                                float vy,
                                float lifetime,
-                               float startSize,
-                               float endSize) {
+                               sol::optional<float> startSize,
+                               sol::optional<float> endSize,
+                               sol::optional<bool> useRainbow,
+                               sol::optional<int> startR,
+                               sol::optional<int> startG,
+                               sol::optional<int> startB,
+                               sol::optional<int> startA,
+                               sol::optional<int> endR,
+                               sol::optional<int> endG,
+                               sol::optional<int> endB,
+                               sol::optional<int> endA) {
             if (!Application::Get().layerScene || !Application::Get().layerScene->GetScene()) {
                 return;
             }
@@ -142,13 +151,20 @@ namespace IonixEngine {
                 vx,
                 vy,
                 lifetime,
-                startSize,
-                endSize,
-                255, 255, 255, 255,
-                255, 255, 255, 0,
+                startSize.value_or(32.0f),
+                endSize.value_or(8.0f),
+                static_cast<Uint8>(startR.value_or(255)),
+                static_cast<Uint8>(startG.value_or(255)),
+                static_cast<Uint8>(startB.value_or(255)),
+                static_cast<Uint8>(startA.value_or(255)),
+                static_cast<Uint8>(endR.value_or(255)),
+                static_cast<Uint8>(endG.value_or(255)),
+                static_cast<Uint8>(endB.value_or(255)),
+                static_cast<Uint8>(endA.value_or(0)),
                 7,
                 0.0f, 0.0f,
-                0.0f
+                0.0f,
+                useRainbow.value_or(false)
             );
         };
 
@@ -214,6 +230,8 @@ namespace IonixEngine {
             "columns", getColumns,
             "width", getWidth,
             "height", getHeight,
+            "image_width", getImageWidth,
+            "image_height", getImageHeight,
             "zed_order", getZedOrder,
             "total_frames", getTotalFrames,
             "current_column", getCurrentColumn,
@@ -225,6 +243,8 @@ namespace IonixEngine {
             "set_columns", setColumns,
             "set_width", setWidth,
             "set_height", setHeight,
+            "set_image_width", setImageWidth,
+            "set_image_height", setImageHeight,
             "set_zed_order", setZedOrder,
             "get_playback_mode", getPlaybackMode,
             "set_playback_mode", setPlaybackMode,

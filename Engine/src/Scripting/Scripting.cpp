@@ -41,6 +41,7 @@ namespace IonixEngine {
         EntityScripting::Get().Init(m_LuaState);
         UIScripting::Get().Init(m_LuaState); 
         JsonScripting::Get().Init(m_LuaState);
+		FirebaseScripting::Get().Init(m_LuaState);
     }
 
     void Scripting::ExecuteScript(const std::string& scriptName) {
