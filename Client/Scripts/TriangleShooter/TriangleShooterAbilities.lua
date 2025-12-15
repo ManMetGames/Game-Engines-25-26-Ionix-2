@@ -34,10 +34,7 @@ end
 
 local function wideAbility(tipX, tipY, aimX, aimY, projectileSize, enemyCount)
     local count = 4
-    local totalSpreadDeg = 40
-    if enemyCount and enemyCount < 3 then
-        totalSpreadDeg = 10
-    end
+    local totalSpreadDeg = 10
     local baseAngle = math.atan(aimY, aimX)
     local halfSpread = math.rad(totalSpreadDeg) / 2
     local step = (count == 1) and 0 or (2 * halfSpread / (count - 1))

@@ -20,19 +20,22 @@ local function OnLevelUp()
         currentFireIntervalSeconds = 0.3
     elseif playerLevel == 3 then
         currentShootAbility = "dual"
-        currentFireIntervalSeconds = 0.2
+        currentFireIntervalSeconds = 0.25
     elseif playerLevel == 4 then
         currentShootAbility = "triple"
-        currentFireIntervalSeconds = 0.2
+        currentFireIntervalSeconds = 0.25
     elseif playerLevel == 5 then
         currentShootAbility = "triple"
-        currentFireIntervalSeconds = 0.1
+        currentFireIntervalSeconds = 0.2
     elseif playerLevel == 6 then
         currentShootAbility = "wide"
-        currentFireIntervalSeconds = 0.1
+        currentFireIntervalSeconds = 0.2
     elseif playerLevel == 7 then
         currentShootAbility = "wide"
-        currentFireIntervalSeconds = 0.05
+        currentFireIntervalSeconds = 0.15
+    elseif playerLevel == 8 then
+        currentShootAbility = "wide"
+        currentFireIntervalSeconds = 0.1
     end
 
     local minInterval = 0.0015
