@@ -43,6 +43,8 @@ local function px_to_m(px) return px / PIXELS_PER_METER end
 local function m_to_px(m) return m * PIXELS_PER_METER end
 
 -- Center sprite top-left on physics body (physics pos is center in meters)
+local scoreLeft  = 0
+local scoreRight = 0
 
 
 -- Reset ball to center and give random velocity (converted to meters/sec)
@@ -267,7 +269,7 @@ local function InitWalls()
         50
     )
     Entity.add_fysics_component(leftTopWall, 1, false)
-    Fysics.add_box_collider(leftTopWall, sideWallHalfWm, pillarHalfHm, 0, 0, 0, false)
+    Fysics.add_box_collider(leftTopWall, sideWallHalfWm, pillarHalfHm + 2, 0, 0, 0, false)
 
     -- LEFT BOTTOM BLOCKER (inside arena)
     leftBottomWall = Entity.create_entity()
@@ -280,43 +282,41 @@ local function InitWalls()
         50
     )
     Entity.add_fysics_component(leftBottomWall, 1, false)
-    Fysics.add_box_collider(leftBottomWall, sideWallHalfWm, pillarHalfHm, 0, 0, 0, false)
+    Fysics.add_box_collider(leftBottomWall, sideWallHalfWm, pillarHalfHm + 2, 0, 0, 0, false)
 
     -- RIGHT TOP BLOCKER (inside arena)
     rightTopWall = Entity.create_entity()
     Entity.set_global_pos(rightTopWall, rightPillarX, topPillarCenterY)
     Entity.add_sprite_component(
         rightTopWall,
-        assets.textures.ArenaSideWall,
+        assets.textures.Wall,
         sideWallWidthPx,
         pillarHeightPx,
         50
     )
     Entity.add_fysics_component(rightTopWall, 1, false)
-    Fysics.add_box_collider(rightTopWall, sideWallHalfWm, pillarHalfHm, 0, 0, 0, false)
+    Fysics.add_box_collider(rightTopWall, sideWallHalfWm, pillarHalfHm + 2, 0, 0, 0, false)
 
     -- RIGHT BOTTOM BLOCKER (inside arena)
     rightBottomWall = Entity.create_entity()
     Entity.set_global_pos(rightBottomWall, rightPillarX, bottomPillarCenterY)
     Entity.add_sprite_component(
-        rightBottomWall,
-        assets.textures.ArenaSideWall,
+        rightBottomWall, 
+        assets.textures.Wall,
         sideWallWidthPx,
         pillarHeightPx,
         50
     )
     Entity.add_fysics_component(rightBottomWall, 1, false)
-    Fysics.add_box_collider(rightBottomWall, sideWallHalfWm, pillarHalfHm, 0, 0, 0, false)
+    Fysics.add_box_collider(rightBottomWall, sideWallHalfWm, pillarHalfHm + 2, 0, 0, 0, false)
 end
 local function InitAudio()
     boingEntity = Entity.create_entity()
-    print("[Lua] Loading 'Client/Assets/Boing.wav' audio asset...")
     Entity.add_audio_component(boingEntity, "Boing", false)
 end
 
 local function PlayBoing()
     if not boingEntity then return end
-    print("BOING")
     AudioComponent.play(boingEntity)
 end
 
@@ -407,9 +407,40 @@ end
             -- NOTE:
             -- Only crossing fully off the left/right edges counts as a goal.
             -- The side blockers physically prevent using the top/bottom corners as goals.
-            if bx < -100 or bx > screenW + 100 then
-                ResetBall()
-            end
+        if bx < -100 then
+            -- Right player scores
+            scoreRight = scoreRight + 1
+            ResetBall()
+
+        elseif bx > screenW + 100 then
+            -- Left player scores
+            scoreLeft = scoreLeft + 1
+            ResetBall()
+        end
+        -- Draw score UI
+        local scoreText = tostring(scoreLeft) .. "  :  " .. tostring(scoreRight)
+
+        -- Centered at top
+        UI.draw_label(
+                scoreText,
+                200,            -- width
+                60,             -- height
+                screenW * 0.5 - 100,  -- x (centered)
+                20,             -- y (top margin)
+                ""              -- font (empty = default)
+        )-- Draw score UI
+        local scoreText = tostring(scoreLeft) .. "  :  " .. tostring(scoreRight)
+
+        -- Centered at top
+        UI.draw_label(
+                scoreText,
+                200,            -- width
+                60,             -- height
+                screenW * 0.5 - 100,  -- x (centered)
+                20,             -- y (top margin)
+                ""              -- font (empty = default)
+        )
     end
+
 
 return game
