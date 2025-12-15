@@ -131,9 +131,9 @@ function ParticleSystem.emitBeamCharge(fromX, fromY, toX, toY, r, g, b)
 	end
 end
 
-local TELEPORT_PARTICLE_SIZE = 10
+local TELEPORT_PARTICLE_SIZE = 8
 local TELEPORT_PARTICLE_LIFETIME = 0.3
-local TELEPORT_PARTICLE_COUNT = 6
+local TELEPORT_PARTICLE_COUNT = 5
 
 function ParticleSystem.emitTeleportBurst(x, y, r, g, b, inward)
 	r = r or 255

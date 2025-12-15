@@ -1,7 +1,13 @@
 local TriangleShooterEnemy = {}
 
+ --=====================================================================
+ --  [MODULE] Dependencies
+ --=====================================================================
 local assets = require("Scripts.Assets")
 
+ --=====================================================================
+ --  [TUNING] ENEMY STATS / TYPES
+ --=====================================================================
 local DEFAULTS = {
     baseSpeed = 550,
     size = 48,
@@ -33,6 +39,18 @@ local ENEMY_TYPE_COLORS = {
 
 TriangleShooterEnemy.DEFAULTS = DEFAULTS
 
+ --=====================================================================
+ --  [INTERNAL] Forward Declarations
+ --=====================================================================
+ local updateBounceMovement
+ local updateOrbitMovement
+ local updateTeleporterMovement
+ local updateSpin
+ local updateShootingRotation
+
+ --=====================================================================
+ --  [PUBLIC API] Enemy Lifecycle (Create / Clear)
+ --=====================================================================
 function TriangleShooterEnemy.createEnemy(x, y, config, playerX, playerY, playerSize)
     config = config or {}
     
@@ -121,7 +139,63 @@ function TriangleShooterEnemy.clearEnemies(enemies)
     end
 end
 
-local function updateBounceMovement(enemy, dt, playerCenterX, playerCenterY, screenW, screenH, TriggerWallLerp)
+ --=====================================================================
+ --  [PUBLIC API] Per-Frame Update
+ --=====================================================================
+ function TriangleShooterEnemy.updateEnemyMovement(
+     enemies,
+     playerX, playerY, playerSize,
+     screenW, screenH,
+     enemyProjectilesEnabled, enemyShootIntervalSeconds,
+     SpawnEnemyProjectile,
+     TriggerWallLerp,
+     SpawnBeam,
+     EmitTeleportBurst,
+     EmitBeamCharge
+ )
+     local dt = Mafs.delta_time()
+     local playerCenterX = playerX + playerSize/2
+     local playerCenterY = playerY + playerSize/2
+
+     for i = 1, #enemies do
+         local enemy = enemies[i]
+         local movementType = enemy.movementType or "bounce"
+
+         if movementType == "bounce" then
+             updateBounceMovement(enemy, dt, playerCenterX, playerCenterY, screenW, screenH, TriggerWallLerp)
+         elseif movementType == "orbit" then
+             updateOrbitMovement(enemy, dt, screenW, screenH)
+         elseif movementType == "stationary" then
+             -- No movement
+         elseif movementType == "teleporter" then
+             updateTeleporterMovement(enemy, dt, playerCenterX, playerCenterY, screenW, screenH, SpawnBeam, EmitTeleportBurst, EmitBeamCharge)
+         end
+
+         if movementType ~= "teleporter" then
+             local shootInterval = enemy.shootInterval
+             if enemyProjectilesEnabled and shootInterval and shootInterval > 0 then
+                 enemy.shootTimer = (enemy.shootTimer or 0) + dt
+                 if enemy.shootTimer >= shootInterval then
+                     SpawnEnemyProjectile(enemy)
+                     enemy.shootTimer = enemy.shootTimer - shootInterval
+                 end
+             end
+         end
+
+         updateShootingRotation(enemy, dt)
+         updateSpin(enemy, dt)
+         
+         Entity.set_global_rot(enemy.entity, enemy.rotation)
+         if enemy.teleportVisible ~= false then
+             Entity.set_global_pos(enemy.entity, enemy.x, enemy.y)
+         end
+     end
+ end
+
+ --=====================================================================
+ --  [MOVEMENT] Bounce
+ --=====================================================================
+ updateBounceMovement = function(enemy, dt, playerCenterX, playerCenterY, screenW, screenH, TriggerWallLerp)
     local enemySize = enemy.size
     local minX, minY = 0, 0
     local maxX = screenW - enemySize
@@ -211,7 +285,10 @@ local function updateBounceMovement(enemy, dt, playerCenterX, playerCenterY, scr
     end
 end
 
-local function updateOrbitMovement(enemy, dt, screenW, screenH)
+ --=====================================================================
+ --  [MOVEMENT] Orbit
+ --=====================================================================
+ updateOrbitMovement = function(enemy, dt, screenW, screenH)
     local centerX = enemy.orbitCenter and enemy.orbitCenter[1] or (screenW / 2)
     local centerY = enemy.orbitCenter and enemy.orbitCenter[2] or (screenH / 2)
     
@@ -220,6 +297,9 @@ local function updateOrbitMovement(enemy, dt, screenW, screenH)
     enemy.y = centerY + math.sin(enemy.orbitAngle) * enemy.orbitRadius - enemy.size/2
 end
 
+ --=====================================================================
+ --  [HELPERS] Color / Math
+ --=====================================================================
 local function hsvToRgb(h, s, v)
     local i = math.floor(h * 6)
     local f = h * 6 - i
@@ -236,10 +316,13 @@ local function hsvToRgb(h, s, v)
     end
 end
 
+ --=====================================================================
+ --  [MOVEMENT] Teleporter State Machine
+ --=====================================================================
 local TELEPORT_SHRINK_DURATION = 0.25
 local TELEPORT_GROW_DURATION = 0.25
 
-local function updateTeleporterMovement(enemy, dt, playerCenterX, playerCenterY, screenW, screenH, SpawnBeam, EmitTeleportBurst, EmitBeamCharge)
+ updateTeleporterMovement = function(enemy, dt, playerCenterX, playerCenterY, screenW, screenH, SpawnBeam, EmitTeleportBurst, EmitBeamCharge)
     enemy.teleportTimer = enemy.teleportTimer + dt
     
     enemy.rainbowHue = (enemy.rainbowHue + dt * 0.5) % 1.0
@@ -364,7 +447,10 @@ local function updateTeleporterMovement(enemy, dt, playerCenterX, playerCenterY,
     end
 end
 
-local function updateSpin(enemy, dt)
+ --=====================================================================
+ --  [COMBAT / FEEL] Spin / Shooting Rotation
+ --=====================================================================
+ updateSpin = function(enemy, dt)
     local speed = math.abs(enemy.spinVelocity or 0)
     local t = speed / enemy.spinMaxVelocity
     if t > 1 then t = 1 end
@@ -376,61 +462,11 @@ local function updateSpin(enemy, dt)
     enemy.rotation = (enemy.rotation or 0) + enemy.spinVelocity
 end
 
-local function updateShootingRotation(enemy, dt)
+ updateShootingRotation = function(enemy, dt)
     if enemy.spinWhileShooting and enemy.projectileCount > 4 then
         local spinSpeed = 2
         enemy.shootAngleOffset = (enemy.shootAngleOffset or 0) + dt * spinSpeed
         enemy.rotation = (enemy.rotation or 0) + dt * spinSpeed * 60
-    end
-end
-
-function TriangleShooterEnemy.updateEnemyMovement(
-    enemies,
-    playerX, playerY, playerSize,
-    screenW, screenH,
-    enemyProjectilesEnabled, enemyShootIntervalSeconds,
-    SpawnEnemyProjectile,
-    TriggerWallLerp,
-    SpawnBeam,
-    EmitTeleportBurst,
-    EmitBeamCharge
-)
-    local dt = Mafs.delta_time()
-    local playerCenterX = playerX + playerSize/2
-    local playerCenterY = playerY + playerSize/2
-
-    for i = 1, #enemies do
-        local enemy = enemies[i]
-        local movementType = enemy.movementType or "bounce"
-
-        if movementType == "bounce" then
-            updateBounceMovement(enemy, dt, playerCenterX, playerCenterY, screenW, screenH, TriggerWallLerp)
-        elseif movementType == "orbit" then
-            updateOrbitMovement(enemy, dt, screenW, screenH)
-        elseif movementType == "stationary" then
-            -- No movement
-        elseif movementType == "teleporter" then
-            updateTeleporterMovement(enemy, dt, playerCenterX, playerCenterY, screenW, screenH, SpawnBeam, EmitTeleportBurst, EmitBeamCharge)
-        end
-
-        if movementType ~= "teleporter" then
-            local shootInterval = enemy.shootInterval
-            if enemyProjectilesEnabled and shootInterval and shootInterval > 0 then
-                enemy.shootTimer = (enemy.shootTimer or 0) + dt
-                if enemy.shootTimer >= shootInterval then
-                    SpawnEnemyProjectile(enemy)
-                    enemy.shootTimer = enemy.shootTimer - shootInterval
-                end
-            end
-        end
-
-        updateShootingRotation(enemy, dt)
-        updateSpin(enemy, dt)
-        
-        Entity.set_global_rot(enemy.entity, enemy.rotation)
-        if enemy.teleportVisible ~= false then
-            Entity.set_global_pos(enemy.entity, enemy.x, enemy.y)
-        end
     end
 end
 

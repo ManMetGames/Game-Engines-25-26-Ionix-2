@@ -1,5 +1,8 @@
 local TriangleShooterAbilities = {}
 
+ --=====================================================================
+ --  [INTERNAL] Ability Builders
+ --=====================================================================
 local function basicAbility(tipX, tipY, aimX, aimY)
     return {
         { offsetX = 0, offsetY = 0, dirX = aimX, dirY = aimY }
@@ -50,6 +53,9 @@ local function wideAbility(tipX, tipY, aimX, aimY, projectileSize, enemyCount)
     return shots
 end
 
+ --=====================================================================
+ --  [INTERNAL] Dispatch Table
+ --=====================================================================
 local abilityDispatch = {
     basic = function(tipX, tipY, aimX, aimY, projectileSize)
         return basicAbility(tipX, tipY, aimX, aimY)
@@ -61,6 +67,9 @@ local abilityDispatch = {
     end,
 }
 
+ --=====================================================================
+ --  [PUBLIC API] Resolve Shots
+ --=====================================================================
 function TriangleShooterAbilities.getShots(name, tipX, tipY, aimX, aimY, projectileSize, enemyCount)
     local func = abilityDispatch[name] or abilityDispatch.basic
     return func(tipX, tipY, aimX, aimY, projectileSize, enemyCount)

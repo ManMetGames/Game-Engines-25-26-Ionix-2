@@ -1,4 +1,8 @@
 local TriangleShooter = {}
+
+ --=====================================================================
+ --  [MODULE] Imports / Dependencies
+ --=====================================================================
 local assets = require("Scripts.Assets")
 local enums = require("Scripts.Enums")
 local TriangleShooterLevels = require("Scripts.TriangleShooter.TriangleShooterLevels")
@@ -7,10 +11,16 @@ local TriangleShooterAbilities = require("Scripts.TriangleShooter.TriangleShoote
 local TriangleShooterPlayerProgress = require("Scripts.TriangleShooter.TriangleShooterPlayerProgress")
 local ParticleSystem = require("Scripts.TriangleShooter.ParticleSystem")
 
+ --=====================================================================
+ --  [HELPERS] Time
+ --=====================================================================
 local function GetDt()
     return Mafs.delta_time()
 end
 
+ --=====================================================================
+ --  [STATE] Screen / Window / Walls
+ --=====================================================================
 -- SCREEN BOUNDS (UPDATED EACH FRAME FROM WINDOW SIZE)
 local screenW = 1920
 local screenH = 1080
@@ -56,6 +66,9 @@ local windowTransitionTargetH = 0
 local pendingLevelIndex = nil
 local pendingResetPlayerState = false
 
+ --=====================================================================
+ --  [STATE] Player (Triangle)
+ --=====================================================================
 -- PLAYER (TRIANGLE)
 local player
 local playerSprite
@@ -105,6 +118,9 @@ local function CreateEnemy(x, y, config)
     return TriangleShooterEnemy.createEnemy(x, y, config, playerX, playerY, playerSize)
 end
 
+ --=====================================================================
+ --  [LEVEL FLOW] Window Transition
+ --=====================================================================
 function UpdateWindowTransition()
     if not windowTransitionActive then
         return
@@ -157,6 +173,9 @@ local function ClearEnemies()
     enemies = {}
 end
 
+ --=====================================================================
+ --  [STATE] Enemy Projectiles
+ --=====================================================================
 -- ENEMY PROJECTILE SETTINGS
 local enemyProjectiles = {}
 local enemyProjectilePool = {}
@@ -208,11 +227,18 @@ local impact3SfxEntity
 local currentLevel = 1
 local levelTimerSeconds = 0
 
+ --=====================================================================
+ --  [LEVEL FLOW] Load / Start Level
+ --=====================================================================
 LoadLevel = function(index, resetPlayerState)
     local cfg = TriangleShooterLevels.getLevelConfig(index)
     if not cfg then
         return
     end
+
+     --=====================================================================
+     --  [LOAD LEVEL] Apply Config / Global Toggles
+     --=====================================================================
 
     currentLevel = index
     levelTimerSeconds = cfg.timeLimitSeconds or 0
@@ -221,6 +247,9 @@ LoadLevel = function(index, resetPlayerState)
 
     enemyProjectilesEnabled = cfg.enemyProjectiles and true or false
 
+     --=====================================================================
+     --  [LOAD LEVEL] Reset Walls / Clear Enemies
+     --=====================================================================
     if wallPingPongEnabled then
         leftWallOffset = 0
         leftWallExpandTimer = 0
@@ -242,6 +271,9 @@ LoadLevel = function(index, resetPlayerState)
     local centerX = screenW / 2 - enemySize / 2
     local centerY = screenH / 2 - enemySize / 2
 
+     --=====================================================================
+     --  [LOAD LEVEL] Spawn Enemies
+     --=====================================================================
     if cfg.enemies then
         for i, enemyCfg in ipairs(cfg.enemies) do
             local spawnX = enemyCfg.x or centerX
@@ -300,6 +332,10 @@ LoadLevel = function(index, resetPlayerState)
     end
 
     playerHealth = 100
+
+     --=====================================================================
+     --  [LOAD LEVEL] Reset Player State
+     --=====================================================================
     if resetPlayerState then
         playerX = screenW / 2 - playerSize / 2
         playerY = screenH / 2 - playerSize / 2
@@ -351,9 +387,9 @@ local function OnLevelTimeout()
     StartLevel(currentLevel, true)
 end
 
-----------------------------------------------------------
--- OnStart
-----------------------------------------------------------
+ --=====================================================================
+ --  [ENGINE CALLBACKS] OnStart
+ --=====================================================================
 function TriangleShooter:OnStart()
     -- Enable relative mouse mode (hides cursor, gives delta movement)
     Input.set_relative_mouse_mode(true)
@@ -405,10 +441,13 @@ function TriangleShooter:OnStart()
     AudioComponent.change_volume(impact3SfxEntity, 16)
 end
 
-----------------------------------------------------------
--- OnUpdate
-----------------------------------------------------------
+ --=====================================================================
+ --  [ENGINE CALLBACKS] OnUpdate (Main Loop)
+ --=====================================================================
 function TriangleShooter:OnUpdate()
+     --=====================================================================
+     --  [ONUPDATE] Frame Setup
+     --=====================================================================
     globalFrame = globalFrame + 1
     local dt = GetDt()
 
@@ -419,11 +458,17 @@ function TriangleShooter:OnUpdate()
         end
     end
 
+     --=====================================================================
+     --  [ONUPDATE] Transitions / Early Outs
+     --=====================================================================
     if windowTransitionActive then
         UpdateWindowTransition()
         return
     end
 
+     --=====================================================================
+     --  [ONUPDATE] World Bounds (Walls / Window)
+     --=====================================================================
     -- Update wall lerps
     UpdateWallLerps()
     
@@ -435,6 +480,9 @@ function TriangleShooter:OnUpdate()
         levelTimerSeconds = levelTimerSeconds - dt
     end
 
+     --=====================================================================
+     --  [ONUPDATE] Debug / Music Toggles
+     --=====================================================================
     if Input.get_key_down(Keys.ionix_space) then
         print(string.format("[BeatMarker] globalFrame=%d", globalFrame))
     end
@@ -447,6 +495,9 @@ function TriangleShooter:OnUpdate()
         end
     end
     
+     --=====================================================================
+     --  [ONUPDATE] Player Movement (Mouse + Knockback)
+     --=====================================================================
     -- Get mouse delta (relative movement)
     local delta = Input.get_mouse_delta()
     local deltaX = 0
@@ -477,7 +528,9 @@ function TriangleShooter:OnUpdate()
     playerX = math.max(0, math.min(screenW - playerSize, playerX))
     playerY = math.max(0, math.min(screenH - playerSize, playerY))
     
-    -- Rotate triangle to face the nearest enemy cube (if any)
+     --=====================================================================
+     --  [ONUPDATE] Aim (Nearest Enemy)
+     --=====================================================================
     local closestEnemy = nil
     local closestDistSq = nil
     local playerCenterX = playerX + playerSize/2
@@ -514,7 +567,9 @@ function TriangleShooter:OnUpdate()
     -- Apply visual recoil offset to player sprite based on aim direction
     UpdatePlayerRecoil()
     
-    -- Spawn projectile on LMB click
+     --=====================================================================
+     --  [ONUPDATE] Shooting
+     --=====================================================================
     if Input.get_mouse_button_down(1) then
         isFiring = true
         if fireCooldownTimer <= 0 then
@@ -546,6 +601,9 @@ function TriangleShooter:OnUpdate()
         fireCooldownTimer = interval
     end
     
+     --=====================================================================
+     --  [ONUPDATE] Systems Update
+     --=====================================================================
     -- Update all projectiles
     UpdateProjectiles()
     UpdateEnemyProjectiles()
@@ -563,6 +621,9 @@ function TriangleShooter:OnUpdate()
 
     UpdateBeatBop()
 
+     --=====================================================================
+     --  [ONUPDATE] UI
+     --=====================================================================
     local levelCfg = TriangleShooterLevels.getLevelConfig(currentLevel)
     if levelCfg ~= nil then
         local maxEnemyHealthTotal = 0
@@ -619,6 +680,9 @@ function TriangleShooter:OnUpdate()
         peaceTimerSeconds = 0
     end
 
+     --=====================================================================
+     --  [ONUPDATE] Level Flow (Win / Lose / Timeout)
+     --=====================================================================
     if playerHealth <= 0 then
         StartLevel(currentLevel, true)
     elseif not enemiesAlive then
@@ -635,10 +699,10 @@ function TriangleShooter:OnUpdate()
     end
 end
 
-----------------------------------------------------------
--- Spawn a projectile from the tip of the triangle
-----------------------------------------------------------
-local function SpawnSingleProjectile(spawnX, spawnY, dirX, dirY)
+ --=====================================================================
+ --  [PLAYER PROJECTILES] Spawn / Update
+ --=====================================================================
+local function SpawnPlayerSingleProjectile(spawnX, spawnY, dirX, dirY)
     local projData
 
     -- Try to reuse a pooled projectile
@@ -687,7 +751,7 @@ function SpawnProjectile()
 
         local spawnX = tipX + offsetX - projectileSize/2
         local spawnY = tipY + offsetY - projectileSize/2
-        SpawnSingleProjectile(spawnX, spawnY, dirX, dirY)
+        SpawnPlayerSingleProjectile(spawnX, spawnY, dirX, dirY)
     end
 end
 
@@ -757,9 +821,9 @@ function UpdateProjectiles()
     end
 end
 
-----------------------------------------------------------
--- Flash effect (frame-based, no coroutines)
-----------------------------------------------------------
+ --=====================================================================
+ --  [DAMAGE / FEEDBACK] Flash + Damage Cooldowns
+ --=====================================================================
 function FlashEnemy(enemy)
     if not enemy or not enemy.sprite then return end
     enemy.flashTimer = flashDuration
@@ -892,6 +956,9 @@ function FlashPlayer()
     end
 end
 
+ --=====================================================================
+ --  [ENEMY SPECIAL] Beam + Teleport Particles
+ --=====================================================================
 local BEAM_RADIUS = 16
 local BEAM_DAMAGE = 15
 
@@ -956,6 +1023,9 @@ function EmitBeamCharge(fromX, fromY, toX, toY, r, g, b)
     ParticleSystem.emitBeamCharge(fromX, fromY, toX, toY, r, g, b)
 end
 
+ --=====================================================================
+ --  [ENEMIES] Movement / Behavior (Wrapper)
+ --=====================================================================
 function UpdateEnemyMovement()
     TriangleShooterEnemy.updateEnemyMovement(
         enemies,
@@ -970,6 +1040,9 @@ function UpdateEnemyMovement()
     )
 end
 
+ --=====================================================================
+ --  [PLAYER FEEL] Recoil
+ --=====================================================================
 function UpdatePlayerRecoil()
     local dt = GetDt()
 
@@ -1018,6 +1091,9 @@ function UpdatePlayerRecoil()
     Entity.set_global_pos(player, playerX + rx, playerY + ry)
 end
 
+ --=====================================================================
+ --  [MUSIC / RHYTHM] Beat Bop
+ --=====================================================================
 function UpdateBeatBop()
     local dt = GetDt()
     if beatStartDelayCounter < beatStartDelaySeconds then
@@ -1060,10 +1136,10 @@ function UpdateBeatBop()
     end
 end
 
-----------------------------------------------------------
--- Enemy projectile spawning
-----------------------------------------------------------
-local function SpawnSingleProjectile(enemy, dirX, dirY)
+ --=====================================================================
+ --  [ENEMY PROJECTILES] Spawn / Update
+ --=====================================================================
+local function SpawnEnemySingleProjectile(enemy, dirX, dirY)
     local projData
     
     if #enemyProjectilePool > 0 then
@@ -1115,7 +1191,7 @@ function SpawnEnemyProjectile(enemy)
     local projectileCount = enemy.projectileCount or 1
     
     if shootPattern == "single" or projectileCount <= 1 then
-        SpawnSingleProjectile(enemy, baseDirX, baseDirY)
+        SpawnEnemySingleProjectile(enemy, baseDirX, baseDirY)
         
     elseif shootPattern == "cone" and projectileCount <= 4 then
         local spreadAngle = math.rad(15)
@@ -1126,7 +1202,7 @@ function SpawnEnemyProjectile(enemy)
             local angle = startAngle + spreadAngle * (i - 1)
             local dirX = math.cos(angle)
             local dirY = math.sin(angle)
-            SpawnSingleProjectile(enemy, dirX, dirY)
+            SpawnEnemySingleProjectile(enemy, dirX, dirY)
         end
         
     else
@@ -1135,7 +1211,7 @@ function SpawnEnemyProjectile(enemy)
             local angle = angleOffset + (2 * math.pi * (i - 1)) / projectileCount
             local dirX = math.cos(angle)
             local dirY = math.sin(angle)
-            SpawnSingleProjectile(enemy, dirX, dirY)
+            SpawnEnemySingleProjectile(enemy, dirX, dirY)
         end
     end
 end
@@ -1181,9 +1257,9 @@ function UpdateEnemyProjectiles()
     end
 end
 
-----------------------------------------------------------
--- Trigger a wall to start expanding (resets timer to full duration)
-----------------------------------------------------------
+ --=====================================================================
+ --  [WALLS / WINDOW] Ping-Pong Shrink / Expand
+ --=====================================================================
 function TriggerWallLerp(wall)
     if not wallPingPongEnabled then return end
     
