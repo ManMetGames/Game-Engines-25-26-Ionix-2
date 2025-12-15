@@ -9,7 +9,7 @@
 
 namespace IonixEngine
 {
-	void UI::DrawLabel(char* text, int xsize, int ysize, int xpos, int ypos, std::string font)
+	void UI::DrawLabel(const char* text, int xsize, int ysize, int xpos, int ypos)
 	{
 		ImGui::SetCursorPos(ImVec2(xpos, ypos));
 		ImGui::TextUnformatted(text);
@@ -35,25 +35,18 @@ namespace IonixEngine
 		return ImGui::Checkbox(label, value);
 	}
 
-
-	void UI::DrawRadioButton(int xpos, int ypos, char* text, int& e, int value, bool sameline)
+	bool UI::DrawRadioButton(int xpos, int ypos, const char* text, int* v, int value)
 	{
-		ImGui::SetCursorPos(ImVec2(xpos, ypos));
-		if (sameline == true)
-		{
-			ImGui::RadioButton(text, &e, value); ImGui::SameLine();
-		}
-
-		else
-		{
-			ImGui::RadioButton(text, &e, value);
-		}
+		ImGui::SetCursorPos(ImVec2((float)xpos, (float)ypos));
+		return ImGui::RadioButton(text, v, value);
 	}
-	float UI::DrawColorPicker(int x, int y, float xSize, float ySize, const char* label, float* color)
+
+	bool UI::DrawColorPicker(int x, int y, float xSize, float ySize, const char* label, float* color4)
 	{
-		ImGui::SetCursorPos(ImVec2(x, y));
-		ImGui::ColorEdit4(label, color, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_PickerHueWheel);
-		return *color;
+		ImGui::SetCursorPos(ImVec2((float)x, (float)y));
+		if (xSize > 0.0f) ImGui::SetNextItemWidth(xSize);
+		return ImGui::ColorEdit4(label, color4,
+			ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_PickerHueWheel);
 	}
 	
 	void UI::DrawProgressBar(int xPos, int yPos, float xSize, float ySize, float maxValue, float currentValue, int colorId)
@@ -125,26 +118,41 @@ namespace IonixEngine
 		return currentValue;
 	}
 
-	float UI::DrawDropdown(int xPos, int yPos, float xSize, float ySize, const char* text, std::vector<std::string> options, int* currentIndex)
+	bool UI::DrawDropdown(int xPos, int yPos, float xSize, float ySize, const char* text,
+		const std::vector<std::string>& options, int* currentIndex)
 	{
-		ImGui::SetCursorPos(ImVec2(xPos, yPos));
+		ImGui::SetCursorPos(ImVec2((float)xPos, (float)yPos));
+		if (xSize > 0.0f) ImGui::SetNextItemWidth(xSize);
+		if (!currentIndex) return false;
 
+		if (options.empty())
+		{
+			bool opened = ImGui::BeginCombo(text, "(empty)");
+			if (opened) ImGui::EndCombo();
+			return false;
+		}
+
+		if (*currentIndex < 0 || *currentIndex >= (int)options.size())
+			*currentIndex = 0;
+
+		bool changed = false;
 		const char* currentItem = options[*currentIndex].c_str();
+
 		if (ImGui::BeginCombo(text, currentItem))
 		{
-			for (size_t n = 0; n < options.size(); n++)
+			for (int n = 0; n < (int)options.size(); n++)
 			{
 				bool isSelected = (*currentIndex == n);
 				if (ImGui::Selectable(options[n].c_str(), isSelected))
 				{
-					*(currentIndex) = n;
+					*currentIndex = n;
+					changed = true;
 				}
-				if (isSelected)
-					ImGui::SetItemDefaultFocus();
+				if (isSelected) ImGui::SetItemDefaultFocus();
 			}
 			ImGui::EndCombo();
 		}
-		return *currentIndex;
+		return changed;
 	}
 
 	bool UI::InputText(const char* label, int xPos, int yPos, float width,

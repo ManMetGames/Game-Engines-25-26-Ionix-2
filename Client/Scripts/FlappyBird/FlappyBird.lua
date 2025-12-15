@@ -322,14 +322,21 @@ function ExampleScript:OnUpdate()
     local windowW = Window.get_width()
     local windowH = Window.get_height()
 
+    ---------------------------------------------------------------------------------
+	-- User Interface - button/checkbox/sliderFloat/radio button/ dropdown/ colour picker/ and child panel examples
+	---------------------------------------------------------------------------------
+
     ------------------
-	-- New button/checkbox/sliderFloat examples
+	-- Button
 	------------------
-     --UI.add_button(20, 20, 120, 35, "Restart", "restart_btn")
+    --UI.add_button(20, 20, 120, 35, "Restart", "restart_btn")
      --if UI.was_button_pressed("restart_btn") then
      --    resetGame()
      --end
 
+    ------------------
+	-- Checkbox
+	------------------
      --UI.add_checkbox(20, 60, 0, 0, "Music", "music_chk", true)
 
      --if UI.get_checkbox("music_chk") then
@@ -340,6 +347,9 @@ function ExampleScript:OnUpdate()
      --    print("toggled to:", UI.get_checkbox("music_chk"))
      --end
 
+    ------------------
+	-- Slider
+	------------------
     --UI.add_slider(20, 80, 110, "Volume", "volume", 0.0, 1.0, 0.75)
 
     --local v = UI.get_slider("volume")
@@ -347,6 +357,74 @@ function ExampleScript:OnUpdate()
     --    print("volume now:", v)
     --end
 
+    ------------------
+	-- Radio toggle
+	------------------
+    -- Three options in the same group "difficulty"
+    --UI.add_radio(20, 120, 0, 0, "Easy",   "difficulty", 0, 1, false) -- defaultValue = 1
+    --UI.add_radio(20, 140, 0, 0, "Normal", "difficulty", 1, 1, false)
+    --UI.add_radio(20, 160, 0, 0, "Hard",   "difficulty", 2, 1, false)
+
+    --local diff = UI.get_radio("difficulty")
+
+    --if UI.was_radio_changed("difficulty") then
+    --  print("difficulty now:", diff)
+    --end
+
+    ------------------
+	-- Dropdown
+	------------------
+    --UI.add_dropdown(
+    --  20, 200, 220, 0,
+    --  "Bird Skin",
+    --  "bird_skin_dd",
+    --  { "Classic", "Blue", "Red", "Gold" },
+    --  0 -- defaultIndex
+    --)
+
+    --local idx = UI.get_dropdown_index("bird_skin_dd")
+
+    --if UI.was_dropdown_changed("bird_skin_dd") then
+    --  print("dropdown index:", idx)
+    --end
+
+    ---- *string* option in Lua:
+    --local options = { "Classic", "Blue", "Red", "Gold" }
+    --local selected = options[idx + 1]  -- Lua is 1-based, index is 0-based
+
+    ------------------
+	-- Colour picker
+	------------------
+    --UI.add_color_picker(20, 250, 0, 0, "Tint", "bird_tint",
+    --  1.0, 1.0, 1.0, 1.0   -- r,g,b,a default
+    --)
+    --local c = UI.get_color("bird_tint")  -- table: { [1]=r, [2]=g, [3]=b, [4]=a }
+
+    --if UI.was_color_changed("bird_tint") then
+    --  print("color:", c[1], c[2], c[3], c[4])
+    --end
+
+    ------------------
+	-- Child panels
+	------------------
+    ---- a child region positioned at (20, 100) sized 300x260
+    --UI.begin_child(20, 100, 300, 260, "SettingsChild", true, 0)
+
+    --UI.Add_label(10, 10, 0, 0, "Settings", "ImGuiDefaultBold", 1.3)
+    --UI.add_radio(10, 40, 0, 0, "Easy", "difficulty", 0, 1, false)
+    --UI.add_radio(10, 60, 0, 0, "Normal", "difficulty", 1, 1, false)
+    --UI.add_radio(10, 80, 0, 0, "Hard", "difficulty", 2, 1, false)
+
+    --UI.add_dropdown(10, 120, 240, 0, "Bird Skin", "bird_skin_dd",
+    --  { "Classic", "Blue", "Red", "Gold" }, 0)
+
+    --UI.add_color_picker(10, 160, 0, 0, "Tint", "bird_tint", 1, 1, 1, 1)
+
+    --UI.end_child()
+
+    ---------------------------------------------------------------------------------
+    -- End of user Interface examples
+    ---------------------------------------------------------------------------------
 
     ------------------
 	-- Point effect

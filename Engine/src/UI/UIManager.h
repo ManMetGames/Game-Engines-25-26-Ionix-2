@@ -79,12 +79,11 @@ namespace IonixEngine
 
 		// Dropdown specific
 		std::vector<std::string> dropdownOptions;
-		int* dropdownCurrentIndex = 0;
 		std::string dropdownId;
 
 		// ColorPicker specific
 		ImVec4 colorDefault = ImVec4(1, 1, 1, 1);
-		std::string colorId;
+
 
 		// Begin/End child specific
 		std::string childId;
@@ -95,7 +94,6 @@ namespace IonixEngine
 		std::string fontName = "";
 		float fontScale = 1.0f;
 
-		std::string toggleId;
 	};
 
 	class UIManager
@@ -165,7 +163,7 @@ namespace IonixEngine
 		void AddInputText(int xPos, int yPos, float width, const char* label, const char* id, size_t maxLen = 16,
 			const std::string& fontName = "", float fontScale = 1.0f);
 
-		void AddRadio(int x, int y, float xSize, float ySize, const char* label,
+		void AddRadioToggle(int x, int y, float xSize, float ySize, const char* label,
 			const char* groupId, int value, int defaultValue = 0, bool sameline = false,
 			const std::string& fontName = "", float fontScale = 1.0f);
 

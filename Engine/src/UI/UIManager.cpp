@@ -217,54 +217,76 @@ void UIManager::ClearInput(const std::string& id)
 		it->second[0] = '\0';
 }
 
-void UIManager::AddRadioButton(int x, int y, float xSize, float ySize, const char* text, int* radioValuePointer, int value, bool sameline, const std::string& fontName, float fontScale)
+void UIManager::AddRadioToggle(int x, int y, float xSize, float ySize, const char* label,
+	const char* groupId, int value, int defaultValue, bool sameline,
+	const std::string& fontName, float fontScale)
 {
-	UIElement* element = new UIElement;
+	UIElement* element = new UIElement{};
 	element->type = UIType::RadioButton;
-	element->xPos = x;
-	element->yPos = y;
-	element->xSize = xSize;
-	element->ySize = ySize;
-	element->ownedText = (text ? text : "");
-	element->text = const_cast<char*>(element->ownedText.c_str());
-	element->radioValuePtr = radioValuePointer;
-	element->RadioButtonValue = value;
+	element->xPos = x; element->yPos = y;
+	element->xSize = xSize; element->ySize = ySize;
+	element->ownedText = (label ? label : "");
+	element->text = element->ownedText.c_str();
+
+	element->groupId = (groupId ? groupId : "");
+	element->radioValue = value;
+	element->radioDefaultValue = defaultValue;
 	element->sameline = sameline;
+
 	element->fontName = fontName;
 	element->fontScale = fontScale;
+
+	if (!element->groupId.empty() && m_radioGroupValue.find(element->groupId) == m_radioGroupValue.end())
+		m_radioGroupValue[element->groupId] = defaultValue;
+
 	AddChildToPanel(element);
 }
 
-void UIManager::AddColorPicker(int x, int y, float xSize, float ySize, const char* label, float* color, const std::string& fontName, float fontScale)
+
+void UIManager::AddColorPicker(int x, int y, float xSize, float ySize, const char* label,
+	const char* id, ImVec4 defaultColor,
+	const std::string& fontName, float fontScale)
 {
-	UIElement* element = new UIElement;
+	UIElement* element = new UIElement{};
 	element->type = UIType::ColorPicker;
-	element->xPos = x;
-	element->yPos = y;
-	element->xSize = xSize;
-	element->ySize = ySize;
+	element->xPos = x; element->yPos = y;
+	element->xSize = xSize; element->ySize = ySize;
+	element->ownedText = (label ? label : "");
+	element->text = element->ownedText.c_str();
+
+	element->widgetId = (id && id[0]) ? id : element->ownedText;
+	element->colorDefault = defaultColor;
+
+	element->fontName = fontName;
+	element->fontScale = fontScale;
+
+	if (m_colorValues.find(element->widgetId) == m_colorValues.end())
+		m_colorValues[element->widgetId] = defaultColor;
+
+	AddChildToPanel(element);
+}
+
+void UIManager::AddDropdown(int x, int y, float xSize, float ySize, const char* label,
+	const char* id, const std::vector<std::string>& options, int defaultIndex,
+	const std::string& fontName, float fontScale)
+{
+	UIElement* element = new UIElement{};
+	element->type = UIType::Dropdown;
+	element->xPos = x; element->yPos = y;
+	element->xSize = xSize; element->ySize = ySize;
+
 	element->ownedText = (label ? label : "");
 	element->text = const_cast<char*>(element->ownedText.c_str());
-	element->color = color;
-	element->fontName = fontName;
-	element->fontScale = fontScale;
-	AddChildToPanel(element);
-}
 
-void UIManager::AddDropdown(int x, int y, float xSize, float ySize, const char* text, std::vector<std::string> options, int* currentIndex, const std::string& fontName, float fontScale)
-{
-	UIElement* element = new UIElement;
-	element->type = UIType::Dropdown;
-	element->xPos = x;
-	element->yPos = y;
-	element->xSize = xSize;
-	element->ySize = ySize;
-	element->ownedText = (text ? text : "");
-	element->text = const_cast<char*>(element->ownedText.c_str());
+	element->widgetId = (id && id[0]) ? id : element->ownedText;
 	element->dropdownOptions = options;
-	element->dropdownCurrentIndex = currentIndex;
+
 	element->fontName = fontName;
 	element->fontScale = fontScale;
+
+	if (m_dropdownIndex.find(element->widgetId) == m_dropdownIndex.end())
+		m_dropdownIndex[element->widgetId] = defaultIndex;
+
 	AddChildToPanel(element);
 }
 
@@ -301,11 +323,72 @@ void IonixEngine::UIManager::AddPanel(int x, int y, float w, float h,
 	AddChildToPanel(element);
 }
 
-
-void UIManager::EndPanel()
+int UIManager::GetRadio(const std::string& groupId) const
 {
-	ImGui::EndChild();
-	return;
+	auto it = m_radioGroupValue.find(groupId);
+	return (it != m_radioGroupValue.end()) ? it->second : 0;
+}
+
+bool UIManager::WasRadioChanged(const std::string& groupId)
+{
+	auto it = m_radioChanged.find(groupId);
+	if (it == m_radioChanged.end()) return false;
+	bool v = it->second;
+	it->second = false;
+	return v;
+}
+
+int UIManager::GetDropdownIndex(const std::string& id) const
+{
+	auto it = m_dropdownIndex.find(id);
+	return (it != m_dropdownIndex.end()) ? it->second : 0;
+}
+
+bool UIManager::WasDropdownChanged(const std::string& id)
+{
+	auto it = m_dropdownChanged.find(id);
+	if (it == m_dropdownChanged.end()) return false;
+	bool v = it->second;
+	it->second = false;
+	return v;
+}
+
+ImVec4 UIManager::GetColor(const std::string& id) const
+{
+	auto it = m_colorValues.find(id);
+	return (it != m_colorValues.end()) ? it->second : ImVec4(1, 1, 1, 1);
+}
+
+bool UIManager::WasColorChanged(const std::string& id)
+{
+	auto it = m_colorChanged.find(id);
+	if (it == m_colorChanged.end()) return false;
+	bool v = it->second;
+	it->second = false;
+	return v;
+}
+
+void UIManager::BeginChild(int x, int y, float w, float h, const char* id, bool border, ImGuiWindowFlags flags)
+{
+	UIElement* element = new UIElement{};
+	element->type = UIType::BeginChild;
+	element->xPos = x;
+	element->yPos = y;
+	element->xSize = w;
+	element->ySize = h;
+
+	element->childId = (id && id[0]) ? id : "Child";
+	element->childBorder = border;
+	element->childFlags = flags;
+
+	AddChildToPanel(element);
+}
+
+void UIManager::EndChild()
+{
+	UIElement* element = new UIElement{};
+	element->type = UIType::EndChild;
+	AddChildToPanel(element);
 }
 
 void UIManager::ClearElements()
@@ -339,7 +422,7 @@ void UIManager::RenderElement(UIElement* element)
 			x = element->centerX - (w * 0.5f);
 		}
 
-		m_ui->DrawLabel(element->text, element->xSize, element->ySize, (int)x, element->yPos, element->fontName);
+		m_ui->DrawLabel(element->text, element->xSize, element->ySize, (int)x, element->yPos);
 		break;
 	}
 	case UIType::Button:
@@ -425,33 +508,94 @@ void UIManager::RenderElement(UIElement* element)
 		break;
 	}
 	case UIType::RadioButton:
-		if (element->radioValuePtr)
-		{
-			m_ui->DrawRadioButton(element->xPos, element->yPos, element->text, *element->radioValuePtr, element->RadioButtonValue, element->sameline);
-		}
+	{
+		if (element->groupId.empty()) break;
+
+		int& v = m_radioGroupValue[element->groupId];
+
+		// Unique ID: Visible##group_value
+		std::string imguiLabel = element->ownedText + "##" + element->groupId + "_" + std::to_string(element->radioValue);
+
+		bool changed = m_ui->DrawRadioButton(element->xPos, element->yPos, imguiLabel.c_str(), &v, element->radioValue);
+		if (changed)
+			m_radioChanged[element->groupId] = true;
+
 		break;
+	}
+
 	case UIType::ColorPicker:
-		if (element->color)
-			m_ui->DrawColorPicker(element->xPos, element->yPos, element->xSize, element->ySize, element->text, element->color);
+	{
+		if (element->widgetId.empty()) break;
+
+		ImVec4& c = m_colorValues[element->widgetId];
+
+		std::string imguiLabel = element->ownedText + "##" + element->widgetId;
+
+		bool changed = m_ui->DrawColorPicker(element->xPos, element->yPos,
+			element->xSize, element->ySize,
+			imguiLabel.c_str(), (float*)&c);
+		if (changed)
+			m_colorChanged[element->widgetId] = true;
+
 		break;
+	}
+
 	case UIType::ProgressBar:
 		if (element->currentValue)
 		{
 			m_ui->DrawProgressBar(element->xPos, element->yPos, element->xSize, element->ySize, element->maxValue, *element->currentValue, element->incrementAmount);
 		}
 		break;
+
 	case UIType::Dropdown:
-		if (element->dropdownCurrentIndex)
+	{
+		if (element->widgetId.empty()) break;
+
+		int& idx = m_dropdownIndex[element->widgetId];
+
+		// clamp safety
+		if (!element->dropdownOptions.empty())
 		{
-			m_ui->DrawDropdown(element->xPos, element->yPos, element->ySize, element->xSize, element->text, element->dropdownOptions, element->dropdownCurrentIndex);
+			if (idx < 0 || idx >= (int)element->dropdownOptions.size())
+				idx = 0;
 		}
+		else idx = 0;
+
+		std::string imguiLabel = element->ownedText + "##" + element->widgetId;
+
+		bool changed = m_ui->DrawDropdown(element->xPos, element->yPos,
+			element->xSize, element->ySize,   // NOTE: correct order
+			imguiLabel.c_str(),
+			element->dropdownOptions, &idx);
+		if (changed)
+			m_dropdownChanged[element->widgetId] = true;
+
 		break;
+	}
 
 	case UIType::Panel:
 		m_ui->DrawPanel(element->xPos, element->yPos, element->xSize, element->ySize,
 			element->panelAlpha, element->panelRounding,
 			element->panelR, element->panelG, element->panelB);
 		break;
+
+	case UIType::BeginChild:
+	{
+		ImGui::SetCursorPos(ImVec2((float)element->xPos, (float)element->yPos));
+		ImGui::BeginChild(
+			element->childId.c_str(),
+			ImVec2(element->xSize, element->ySize),
+			element->childBorder,
+			element->childFlags
+		);
+		break;
+	}
+
+	case UIType::EndChild:
+	{
+		ImGui::EndChild();
+		break;
+	}
 
 	default:
 		break;
@@ -471,6 +615,9 @@ void UIManager::RenderUI()
 	m_buttonPressed.clear();
 	m_checkboxChanged.clear();
 	m_sliderChanged.clear();
+	m_radioChanged.clear();
+	m_dropdownChanged.clear();
+	m_colorChanged.clear();
 
 	for (auto* element : elements)
 	{
