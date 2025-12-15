@@ -42,6 +42,11 @@ namespace IonixEngine
 		
 		std::string widgetId; // Shared ID for id-based widgets (button/checkbox/slider/input/toggle/dropdown/color)
 
+		// Button specific
+		bool  buttonCustomStyle = false;
+		float buttonRounding = 0.0f;
+		ImVec4 buttonColor = ImVec4(0, 0, 0, 0);
+
 		bool defaultValue = false; // for checkbox default
 
 		// Slider specific
@@ -151,8 +156,10 @@ namespace IonixEngine
 
 		void AddCenteredLabel(float centerX, float y, const char* text, const std::string& fontName = "", float fontScale = 1.0f);
 
-		void AddButton(int x, int y, float xSize, float ySize, const char* text, const char* id = nullptr,
-			const std::string& fontName = "", float fontScale = 1.0f);
+		void AddButton(int x, int y, float w, float h, const char* text, const char* id = nullptr,
+			const std::string& fontName = "", float fontScale = 1.0f,
+			float rounding = 0.0f, bool useColor = false,
+			float r = 0, float g = 0, float b = 0, float a = 1.0f);
 
 
 		void AddCheckbox(int x, int y, float xSize, float ySize, const char* text, const char* id, bool defaultValue = false,

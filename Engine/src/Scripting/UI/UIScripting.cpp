@@ -27,17 +27,26 @@ namespace IonixEngine {
                     fontScale.value_or(1.0f));
             };
 
-        auto AddButton = [](int x, int y, float w, float h, const char* text, sol::optional<std::string> id,
+        auto AddButton = [](int x, int y, float w, float h, const char* text,
+            sol::optional<std::string> id,
             sol::optional<std::string> fontName,
-            sol::optional<float> fontScale)
+            sol::optional<float> fontScale,
+            sol::optional<float> rounding,
+            sol::optional<bool> useColor,
+            sol::optional<float> r, sol::optional<float> g,
+            sol::optional<float> b, sol::optional<float> a)
             {
                 Application::Get().layerUI->m_UIManager->AddButton(
                     x, y, w, h, text,
                     id ? id->c_str() : nullptr,
                     fontName.value_or(""),
-                    fontScale.value_or(1.0f)
+                    fontScale.value_or(1.0f),
+                    rounding.value_or(0.0f),
+                    useColor.value_or(false),
+                    r.value_or(0.2f), g.value_or(0.55f), b.value_or(0.8f), a.value_or(1.0f)
                 );
             };
+
 
         auto WasButtonPressed = [](const std::string& id)
             {

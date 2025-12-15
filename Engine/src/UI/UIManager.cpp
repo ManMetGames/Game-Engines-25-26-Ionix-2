@@ -19,7 +19,7 @@ void UIManager::AddLabel(int x, int y, float xSize, float ySize, const char* tex
 	element->xSize = xSize;
 	element->ySize = ySize;
 	element->ownedText = (text ? text : "");
-	element->text = const_cast<char*>(element->ownedText.c_str());
+	element->text = element->ownedText.c_str();
 	element->fontName = fontName;
 	element->fontScale = fontScale;
 	AddChildToPanel(element);
@@ -37,13 +37,14 @@ void UIManager::AddCenteredLabel(float centerX, float y, const char* text, const
 	element->fontScale = fontScale;
 
 	element->ownedText = (text ? text : "");
-	element->text = const_cast<char*>(element->ownedText.c_str());
+	element->text = element->ownedText.c_str();
 
 	element->fontName = fontName;
 	AddChildToPanel(element);
 }
 
-void UIManager::AddButton(int x, int y, float xSize, float ySize, const char* text, const char* id, const std::string& fontName, float fontScale)
+void UIManager::AddButton(int x, int y, float xSize, float ySize, const char* text, const char* id, const std::string& fontName, float fontScale, float rounding, bool useColor,
+	float r, float g, float b, float a)
 {
 	UIElement* element = new UIElement{};
 	element->type = UIType::Button;
@@ -55,8 +56,15 @@ void UIManager::AddButton(int x, int y, float xSize, float ySize, const char* te
 	element->fontName = fontName;
 	element->fontScale = fontScale;
 
+	element->buttonCustomStyle = (rounding > 0 || useColor);
+	element->buttonRounding = rounding;
+
+	if (useColor)
+		element->buttonColor = ImVec4(r, g, b, a);
+	else
+		element->buttonColor = ImVec4(0, 0, 0, 0);
 	element->ownedText = (text ? text : "");
-	element->text = const_cast<char*>(element->ownedText.c_str());
+	element->text = element->ownedText.c_str();
 
 	element->widgetId = (id && id[0]) ? id : element->ownedText; // fallback
 
@@ -83,7 +91,7 @@ void UIManager::AddCheckbox(int x, int y, float xSize, float ySize, const char* 
 	element->ySize = ySize;
 
 	element->ownedText = (text ? text : "");
-	element->text = const_cast<char*>(element->ownedText.c_str());
+	element->text = element->ownedText.c_str();
 
 	element->fontName = fontName;
 	element->fontScale = fontScale;
@@ -127,7 +135,7 @@ void UIManager::AddSlider(int x, int y, float width,
 	element->ySize = 0.0f;
 
 	element->ownedText = (label ? label : "");
-	element->text = const_cast<char*>(element->ownedText.c_str());
+	element->text = element->ownedText.c_str();
 
 	element->fontName = fontName;
 	element->fontScale = fontScale;
@@ -172,7 +180,7 @@ void UIManager::AddInputText(int xPos, int yPos, float width, const char* label,
 	element->yPos = yPos;
 	element->width = width;
 	element->ownedText = (label ? label : "");
-	element->text = const_cast<char*>(element->ownedText.c_str());
+	element->text = element->ownedText.c_str();
 	element->inputId = id;
 
 	element->fontName = fontName;
@@ -270,7 +278,7 @@ void UIManager::AddDropdown(int x, int y, float xSize, float ySize, const char* 
 	element->xSize = xSize; element->ySize = ySize;
 
 	element->ownedText = (label ? label : "");
-	element->text = const_cast<char*>(element->ownedText.c_str());
+	element->text = element->ownedText.c_str();
 
 	element->widgetId = (id && id[0]) ? id : element->ownedText;
 	element->dropdownOptions = options;
@@ -431,11 +439,35 @@ void UIManager::RenderElement(UIElement* element)
 		// Make ImGui id unique: "Visible##id"
 		std::string imguiLabel = element->ownedText + "##" + element->widgetId;
 
+		int pushedColors = 0;
+		bool pushedRounding = false;
+
+		if (element->buttonCustomStyle)
+		{
+			if (element->buttonRounding > 0.0f) {
+				ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, element->buttonRounding);
+				pushedRounding = true;
+			}
+
+			if (element->buttonColor.w > 0.0f) {
+				ImVec4 base = element->buttonColor;
+				ImVec4 hover = ImVec4(std::min(base.x + 0.06f, 1.0f), std::min(base.y + 0.06f, 1.0f), std::min(base.z + 0.06f, 1.0f), base.w);
+				ImVec4 active = ImVec4(std::max(base.x - 0.06f, 0.0f), std::max(base.y - 0.06f, 0.0f), std::max(base.z - 0.06f, 0.0f), base.w);
+
+				ImGui::PushStyleColor(ImGuiCol_Button, base);        pushedColors++;
+				ImGui::PushStyleColor(ImGuiCol_ButtonHovered, hover); pushedColors++;
+				ImGui::PushStyleColor(ImGuiCol_ButtonActive, active); pushedColors++;
+			}
+		}
+
 		bool pressed = m_ui->DrawButton(
 			const_cast<char*>(imguiLabel.c_str()),
 			(int)element->xSize, (int)element->ySize,
 			element->xPos, element->yPos
 		);
+
+		if (pushedColors) ImGui::PopStyleColor(pushedColors);
+		if (pushedRounding) ImGui::PopStyleVar();
 
 		if (pressed)
 			m_buttonPressed[element->widgetId] = true;

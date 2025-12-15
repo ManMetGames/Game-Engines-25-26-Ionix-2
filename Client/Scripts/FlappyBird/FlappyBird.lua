@@ -335,6 +335,7 @@ function ExampleScript:OnUpdate()
      --    resetGame()
      --end
 
+    -- UI.add_button(20, 20, 160, 35, "Retry", "retry_btn", "ImGuiDefaultBold", 1.0, 12, true, 95/255, 150/255, 165/255, 0.8)
     ------------------
 	-- Checkbox
 	------------------
