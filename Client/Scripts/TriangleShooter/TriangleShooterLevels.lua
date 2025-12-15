@@ -8,6 +8,9 @@ local HEALTH_BUDGET = {
     base = 70,
     perLevel = 18,
     levelSquaredFactor = 0.5,
+    lateLevelThreshold = 12,
+    lateSquaredFactor = 2.5,
+    lateCubedFactor = 0.3,
 }
 
 local TIMER_CONFIG = {
@@ -121,7 +124,7 @@ local ENEMY_TEMPLATES = {
         healthMax = 350,
         maxPerLevel = 1,
         spaceRequirement = 2,
-        weight = 2,
+        weight = 6,
         generate = function(health, level, windowW, windowH)
             local margin = 100
             local x = margin + math.random() * (windowW - 2 * margin)
@@ -142,7 +145,15 @@ local ENEMY_TEMPLATES = {
 
 local function calculateHealthBudget(level)
     local n = level - PROCEDURAL_START_LEVEL
-    return HEALTH_BUDGET.base + (n * HEALTH_BUDGET.perLevel) + (n * n * HEALTH_BUDGET.levelSquaredFactor)
+    local budget = HEALTH_BUDGET.base + (n * HEALTH_BUDGET.perLevel) + (n * n * HEALTH_BUDGET.levelSquaredFactor)
+    
+    if level > HEALTH_BUDGET.lateLevelThreshold then
+        local lateN = level - HEALTH_BUDGET.lateLevelThreshold
+        budget = budget + (lateN * lateN * HEALTH_BUDGET.lateSquaredFactor)
+        budget = budget + (lateN * lateN * lateN * HEALTH_BUDGET.lateCubedFactor)
+    end
+    
+    return budget
 end
 
 local function getScaledHealthRange(template, level)

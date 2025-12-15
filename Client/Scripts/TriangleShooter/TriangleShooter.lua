@@ -703,7 +703,7 @@ end
  --=====================================================================
  --  [PLAYER PROJECTILES] Spawn / Update
  --=====================================================================
-local function SpawnPlayerSingleProjectile(spawnX, spawnY, dirX, dirY)
+local function SpawnPlayerSingleProjectile(spawnX, spawnY, dirX, dirY, pierceCount, bounceCount)
     local projData
 
     -- Try to reuse a pooled projectile
@@ -727,6 +727,10 @@ local function SpawnPlayerSingleProjectile(spawnX, spawnY, dirX, dirY)
     projData.vx = dirX * projectileSpeed
     projData.vy = dirY * projectileSpeed
     projData.age = 0
+    projData.pierceRemaining = pierceCount or 0
+    projData.bounceRemaining = bounceCount or 0
+    projData.maxLifetime = projectileLifetimeSeconds + (bounceCount * 2.5)
+    projData.hitEnemies = {}
 
     table.insert(projectiles, projData)
 end
@@ -737,8 +741,12 @@ function SpawnProjectile()
     local centerY = playerY + playerSize/2
     local tipX = centerX + aimDirX * (playerSize/2)
     local tipY = centerY + aimDirY * (playerSize/2)
-    local abilityName = TriangleShooterPlayerProgress.getCurrentShootAbility()
-    local shots = TriangleShooterAbilities.getShots(abilityName, tipX, tipY, aimDirX, aimDirY, projectileSize, #enemies)
+
+    local bulletCount = TriangleShooterPlayerProgress.getBulletCount()
+    local pierceCount = TriangleShooterPlayerProgress.getPierceCount()
+    local bounceCount = TriangleShooterPlayerProgress.getBounceCount()
+
+    local shots = TriangleShooterAbilities.getShots(bulletCount, tipX, tipY, aimDirX, aimDirY, projectileSize)
     if not shots then
         return
     end
@@ -752,13 +760,36 @@ function SpawnProjectile()
 
         local spawnX = tipX + offsetX - projectileSize/2
         local spawnY = tipY + offsetY - projectileSize/2
-        SpawnPlayerSingleProjectile(spawnX, spawnY, dirX, dirY)
+        SpawnPlayerSingleProjectile(spawnX, spawnY, dirX, dirY, pierceCount, bounceCount)
     end
 end
 
 ----------------------------------------------------------
 -- Update all active projectiles
 ----------------------------------------------------------
+local function FindClosestEnemy(fromX, fromY)
+    local closestEnemy = nil
+    local closestDistSq = math.huge
+    for j = 1, #enemies do
+        local enemy = enemies[j]
+        local enemyCenterX = enemy.x + enemySize/2
+        local enemyCenterY = enemy.y + enemySize/2
+        local dx = enemyCenterX - fromX
+        local dy = enemyCenterY - fromY
+        local distSq = dx * dx + dy * dy
+        if distSq < closestDistSq then
+            closestDistSq = distSq
+            closestEnemy = enemy
+        end
+    end
+    return closestEnemy
+end
+
+local function ReturnProjectileToPool(proj, index)
+    Entity.set_global_pos(proj.entity, -1000, -1000)
+    table.insert(projectilePool, table.remove(projectiles, index))
+end
+
 function UpdateProjectiles()
     local dt = GetDt()
     for i = #projectiles, 1, -1 do
@@ -775,18 +806,23 @@ function UpdateProjectiles()
         local projCenterY = proj.y + projectileSize/2
         local hitRadius = collisionRadius + projectileSize/2
         local hitEnemyIndex = nil
+
         for j = #enemies, 1, -1 do
             local enemy = enemies[j]
-            local enemyCenterX = enemy.x + enemySize/2
-            local enemyCenterY = enemy.y + enemySize/2
-            local dx = projCenterX - enemyCenterX
-            local dy = projCenterY - enemyCenterY
-            local distSq = dx * dx + dy * dy
-            if distSq < hitRadius * hitRadius then
-                hitEnemyIndex = j
-                break
+            if not proj.hitEnemies[enemy] then
+                local enemyCenterX = enemy.x + enemySize/2
+                local enemyCenterY = enemy.y + enemySize/2
+                local dx = projCenterX - enemyCenterX
+                local dy = projCenterY - enemyCenterY
+                local distSq = dx * dx + dy * dy
+                if distSq < hitRadius * hitRadius then
+                    hitEnemyIndex = j
+                    break
+                end
             end
         end
+
+        local shouldRemove = false
 
         if hitEnemyIndex ~= nil then
             local enemy = enemies[hitEnemyIndex]
@@ -804,20 +840,87 @@ function UpdateProjectiles()
                 AudioComponent.change_volume(impact3SfxEntity, v)
                 AudioComponent.play(impact3SfxEntity)
             end
+
             if enemy.health <= 0 then
                 Entity.set_global_pos(enemy.entity, -1000, -1000)
                 table.remove(enemies, hitEnemyIndex)
             end
-            Entity.set_global_pos(proj.entity, -1000, -1000)
-            table.insert(projectilePool, table.remove(projectiles, i))
-        else
-            -- Increment age and remove if expired or off screen
-            proj.age = proj.age + dt
-            if proj.age > projectileLifetimeSeconds or proj.y < -50 or proj.y > screenH + 50 or proj.x < -50 or proj.x > screenW + 50 then
-                -- Move entity off-screen and return to pool
-                Entity.set_global_pos(proj.entity, -1000, -1000)
-                table.insert(projectilePool, table.remove(projectiles, i))
+
+            if proj.pierceRemaining > 0 then
+                proj.pierceRemaining = proj.pierceRemaining - 1
+                proj.hitEnemies[enemy] = true
+            else
+                shouldRemove = true
             end
+        end
+
+        if not shouldRemove then
+            proj.age = proj.age + dt
+            local maxLife = proj.maxLifetime or projectileLifetimeSeconds
+
+            if proj.age > maxLife then
+                shouldRemove = true
+            else
+                local hitEdge = false
+                local edgeX, edgeY = nil, nil
+
+                if proj.x < 0 then
+                    hitEdge = true
+                    edgeX = "left"
+                    proj.x = 0
+                elseif proj.x + projectileSize > screenW then
+                    hitEdge = true
+                    edgeX = "right"
+                    proj.x = screenW - projectileSize
+                end
+
+                if proj.y < 0 then
+                    hitEdge = true
+                    edgeY = "top"
+                    proj.y = 0
+                elseif proj.y + projectileSize > screenH then
+                    hitEdge = true
+                    edgeY = "bottom"
+                    proj.y = screenH - projectileSize
+                end
+
+                if hitEdge then
+                    if proj.bounceRemaining > 0 then
+                        proj.bounceRemaining = proj.bounceRemaining - 1
+
+                        local newProjCenterX = proj.x + projectileSize/2
+                        local newProjCenterY = proj.y + projectileSize/2
+                        local closestEnemy = FindClosestEnemy(newProjCenterX, newProjCenterY)
+
+                        if closestEnemy then
+                            local targetX = closestEnemy.x + enemySize/2
+                            local targetY = closestEnemy.y + enemySize/2
+                            local dx = targetX - newProjCenterX
+                            local dy = targetY - newProjCenterY
+                            local len = math.sqrt(dx*dx + dy*dy)
+                            if len > 0 then
+                                dx = dx / len
+                                dy = dy / len
+                            end
+                            proj.vx = dx * projectileSpeed
+                            proj.vy = dy * projectileSpeed
+                        else
+                            if edgeX then proj.vx = -proj.vx end
+                            if edgeY then proj.vy = -proj.vy end
+                        end
+
+                        local projAngle = math.deg(math.atan(proj.vy, proj.vx)) + 90
+                        Entity.set_global_rot(proj.entity, projAngle)
+                        Entity.set_global_pos(proj.entity, proj.x, proj.y)
+                    else
+                        shouldRemove = true
+                    end
+                end
+            end
+        end
+
+        if shouldRemove then
+            ReturnProjectileToPool(proj, i)
         end
     end
 end

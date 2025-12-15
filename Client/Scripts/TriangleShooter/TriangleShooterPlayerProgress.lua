@@ -3,43 +3,71 @@ local TriangleShooterPlayerProgress = {}
 local playerLevel = 1
 local xp = 0
 local xpToNextLevel = 100
-local currentShootAbility = "basic"
-local currentFireIntervalSeconds = 0.3
+
+local playerStats = {
+    bulletCount = 1,
+    pierceCount = 0,
+    bounceCount = 0,
+    fireInterval = 0.3,
+}
 
 local function GetXpForNextLevel(level)
     local n = level - 1
-    return math.floor(100 + 60 * n + 20 * n * math.max(n - 1, 0))
+    local base = 100 + 60 * n + 20 * n * math.max(n - 1, 0)
+    
+    if level > 10 then
+        local lateN = level - 10
+        base = base + (lateN * lateN * lateN * 15)
+    end
+    
+    return math.floor(base)
+end
+
+local levelUpgrades = {
+    [2]  = { type = "bullet" },
+    [3]  = { type = "fire_rate", amount = 0.1 },
+    [4]  = { type = "bullet" },
+    [5]  = { type = "bounce" },
+    [6]  = { type = "pierce" },
+    [7]  = { type = "bullet" },
+    [8]  = { type = "fire_rate", amount = 0.05 },
+    [9]  = { type = "bounce" },
+    [10] = { type = "pierce" },
+    [11] = { type = "bullet" },
+}
+
+local function ApplyLevelUpgrade(level)
+    local upgrade = levelUpgrades[level]
+    if not upgrade then return end
+
+    if upgrade.type == "bullet" then
+        playerStats.bulletCount = playerStats.bulletCount + 1
+    elseif upgrade.type == "pierce" then
+        playerStats.pierceCount = playerStats.pierceCount + 1
+    elseif upgrade.type == "bounce" then
+        playerStats.bounceCount = playerStats.bounceCount + 1
+    elseif upgrade.type == "fire_rate" then
+        local reduction = upgrade.amount or 0.05
+        playerStats.fireInterval = math.max(0.05, playerStats.fireInterval - reduction)
+    end
 end
 
 local function OnLevelUp()
     playerLevel = playerLevel + 1
     xpToNextLevel = GetXpForNextLevel(playerLevel)
+    ApplyLevelUpgrade(playerLevel)
+end
 
-    if playerLevel == 2 then
-        currentShootAbility = "dual"
-        currentFireIntervalSeconds = 0.3
-    elseif playerLevel == 3 then
-        currentShootAbility = "dual"
-        currentFireIntervalSeconds = 0.25
-    elseif playerLevel == 4 then
-        currentShootAbility = "triple"
-        currentFireIntervalSeconds = 0.25
-    elseif playerLevel == 5 then
-        currentShootAbility = "triple"
-        currentFireIntervalSeconds = 0.2
-    elseif playerLevel == 6 then
-        currentShootAbility = "wide"
-        currentFireIntervalSeconds = 0.2
-    elseif playerLevel == 7 then
-        currentShootAbility = "wide"
-        currentFireIntervalSeconds = 0.15
-    elseif playerLevel == 8 then
-        currentShootAbility = "wide"
-        currentFireIntervalSeconds = 0.1
+function TriangleShooterPlayerProgress.applyUpgrade(upgradeType)
+    if upgradeType == "bullet" then
+        playerStats.bulletCount = playerStats.bulletCount + 1
+    elseif upgradeType == "pierce" then
+        playerStats.pierceCount = playerStats.pierceCount + 1
+    elseif upgradeType == "bounce" then
+        playerStats.bounceCount = playerStats.bounceCount + 1
+    elseif upgradeType == "fire_rate" then
+        playerStats.fireInterval = math.max(0.05, playerStats.fireInterval - 0.05)
     end
-
-    local minInterval = 0.0015
-    currentFireIntervalSeconds = math.max(minInterval, currentFireIntervalSeconds)
 end
 
 function TriangleShooterPlayerProgress.addXp(amount)
@@ -54,12 +82,24 @@ function TriangleShooterPlayerProgress.getProgress()
     return playerLevel, xp, xpToNextLevel
 end
 
-function TriangleShooterPlayerProgress.getCurrentShootAbility()
-    return currentShootAbility
+function TriangleShooterPlayerProgress.getBulletCount()
+    return playerStats.bulletCount
+end
+
+function TriangleShooterPlayerProgress.getPierceCount()
+    return playerStats.pierceCount
+end
+
+function TriangleShooterPlayerProgress.getBounceCount()
+    return playerStats.bounceCount
 end
 
 function TriangleShooterPlayerProgress.getCurrentFireInterval()
-    return currentFireIntervalSeconds
+    return playerStats.fireInterval
+end
+
+function TriangleShooterPlayerProgress.getStats()
+    return playerStats
 end
 
 return TriangleShooterPlayerProgress
