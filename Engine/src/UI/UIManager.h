@@ -98,6 +98,10 @@ namespace IonixEngine
 		float childBgAlpha = 0.45f;
 		float childBgRounding = 6.0f;
 		int   childBgR = 0, childBgG = 0, childBgB = 0;
+		float childBorderSize = 1.0f;     // thickness
+		bool  childAutoBorderColor = true;
+		float childBorderDarken = 0.85f;  // 0.85 = slightly darker than bg
+		ImVec4 childBorderColor = ImVec4(0, 0, 0, 1); // only used if auto=false
 
 		// Font controls per element
 		std::string fontName = "";
@@ -225,7 +229,9 @@ namespace IonixEngine
 		void BeginChild(int x, int y, float w, float h, const char* id,
 			bool border = false, ImGuiWindowFlags flags = 0,
 			bool hasBg = false, float alpha = 0.45f, float rounding = 6.0f,
-			int r = 0, int g = 0, int b = 0);
+			int r = 0, int g = 0, int b = 0, float borderSize = 1.0f,
+			bool autoBorder = true, float borderDarken = 0.85f,
+			ImVec4 borderColor = ImVec4(0, 0, 0, 1));
 
 		void EndChild();
 
