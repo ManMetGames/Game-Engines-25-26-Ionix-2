@@ -281,22 +281,28 @@ LoadLevel = function(index, resetPlayerState)
      --=====================================================================
      --  [LOAD LEVEL] Spawn Enemies
      --=====================================================================
+    local enemyTemplates = TriangleShooterLevels.getEnemyTemplates()
+    
     if cfg.enemies then
         for i, enemyCfg in ipairs(cfg.enemies) do
+            local movementType = enemyCfg.movementType or "bounce"
+            local template = enemyTemplates[movementType]
+            local templateSize = template and template.baseSize or 32
+            
             local spawnX = enemyCfg.x or centerX
             local spawnY = enemyCfg.y or centerY
             
             if not enemyCfg.x and not enemyCfg.y and #cfg.enemies > 1 then
                 local radius = 120
                 local angle = (2 * math.pi * (i - 1)) / #cfg.enemies
-                spawnX = screenW / 2 + math.cos(angle) * radius - (enemyCfg.size or enemySize) / 2
-                spawnY = screenH / 2 + math.sin(angle) * radius - (enemyCfg.size or enemySize) / 2
+                spawnX = screenW / 2 + math.cos(angle) * radius - templateSize / 2
+                spawnY = screenH / 2 + math.sin(angle) * radius - templateSize / 2
             end
             
             local config = {
                 health = enemyCfg.health or levelEnemyHealth,
                 healthScaling = enemyCfg.healthScaling,
-                size = enemyCfg.size or enemySize,
+                size = templateSize,
                 color = enemyCfg.color,
                 speed = enemyCfg.speed,
                 baseSpeed = enemyCfg.baseSpeed,
@@ -340,7 +346,7 @@ LoadLevel = function(index, resetPlayerState)
         end
     end
 
-    playerHealth = 100
+    playerHealth = TriangleShooterPlayerProgress.getMaxHealth()
 
      --=====================================================================
      --  [LOAD LEVEL] Reset Player State
@@ -554,13 +560,18 @@ function TriangleShooter:OnUpdate()
         local selectedUpgrade = TriangleShooterUI.handleInput()
         if selectedUpgrade then
             TriangleShooterPlayerProgress.applyUpgrade(selectedUpgrade.type)
+            if selectedUpgrade.type == "max_health" then
+                local maxH = TriangleShooterPlayerProgress.getMaxHealth()
+                playerHealth = math.min(maxH, playerHealth + 20)
+            end
         end
         return
     end
 
     if TriangleShooterPlayerProgress.hasPendingLevelUp() then
         TriangleShooterPlayerProgress.consumePendingLevelUp()
-        TriangleShooterUI.showUpgradeMenu()
+        local level = TriangleShooterPlayerProgress.getProgress()
+        TriangleShooterUI.showUpgradeMenu(nil, level)
         return
     end
 
@@ -762,7 +773,8 @@ function TriangleShooter:OnUpdate()
     local playerHpBarW = 200
     local playerHpBarH = 20
 
-    UI.draw_progress_bar(playerHpBarX, playerHpBarY, playerHpBarW, playerHpBarH, 100, playerHealth, 2)
+    local playerMaxHealth = TriangleShooterPlayerProgress.getMaxHealth()
+    UI.draw_progress_bar(playerHpBarX, playerHpBarY, playerHpBarW, playerHpBarH, playerMaxHealth, playerHealth, 2)
 
     local level, xp, xpToNextLevel = TriangleShooterPlayerProgress.getProgress()
     local playerInfoText = "Player Lv: " .. tostring(level) .. "  XP: " .. tostring(xp) .. " / " .. tostring(xpToNextLevel)

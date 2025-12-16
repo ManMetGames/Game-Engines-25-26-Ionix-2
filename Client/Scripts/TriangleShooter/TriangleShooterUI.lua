@@ -1,5 +1,7 @@
 local TriangleShooterUI = {}
 
+local TriangleShooterPlayerProgress = require("Scripts.TriangleShooter.TriangleShooterPlayerProgress")
+
 local isUpgradeMenuOpen = false
 local upgradeOptions = {}      -- { type, label, desc }
 local selectedIndex = 0        -- 0 = none
@@ -27,12 +29,11 @@ local BORDER_GREEN = {0, 170, 110, 1.0}
 local BTN_ROUND = 12
 
 local upgradePool = {
-  { type="pierce",     label="+1 Pierce",       desc="Bullets pierce +1 enemy." },
-  { type="bullet",     label="+1 Bullet",       desc="Shoot one extra bullet." },
-  { type="fire_rate",  label="+ Fire Rate",     desc="Shoot faster (lower cooldown)." },
-  { type="bounce",     label="+ Window Bounce", desc="Bullets bounce off the window edges." },
-  { type="max_health", label="+ Max Health",    desc="Increase your max health." },
-  { type="orb_heal",   label="+ Orb Healing",   desc="Heal a bit when collecting orbs." },
+  { type = "pierce",     label = "+1 Pierce",       desc = "Bullets pierce +1 enemy.",               minLevel = 6 },
+  { type = "bullet",     label = "+1 Bullet",       desc = "Shoot one extra bullet.",                minLevel = 1 },
+  { type = "fire_rate",  label = "+ Fire Rate",     desc = "Shoot faster (lower cooldown).",         minLevel = 1 },
+  { type = "bounce",     label = "+ Window Bounce", desc = "Bullets bounce off the window edges.",   minLevel = 3 },
+  { type = "max_health", label = "+ Max Health",    desc = "Increase your max health.",              minLevel = 4 },
 }
 
 local function splitLines(s)
@@ -44,16 +45,20 @@ local function splitLines(s)
   return t
 end
 
-function TriangleShooterUI.getRandomUpgradeOptions(count)
+function TriangleShooterUI.getRandomUpgradeOptions(count, playerLevel)
   count = count or 2
+  playerLevel = playerLevel or 1
 
   local available = {}
-  for _, u in ipairs(upgradePool) do
-    table.insert(available, { type=u.type, label=u.label, desc=u.desc })
+  for _, upgrade in ipairs(upgradePool) do
+    local minLevel = upgrade.minLevel or 1
+    if playerLevel >= minLevel and TriangleShooterPlayerProgress.canTakeUpgrade(upgrade.type) then
+      table.insert(available, { type = upgrade.type, label = upgrade.label, desc = upgrade.desc })
+    end
   end
 
   local chosen = {}
-  for _=1,count do
+  for _ = 1, count do
     if #available == 0 then break end
     local idx = math.random(1, #available)
     table.insert(chosen, table.remove(available, idx))
@@ -61,9 +66,9 @@ function TriangleShooterUI.getRandomUpgradeOptions(count)
   return chosen
 end
 
-function TriangleShooterUI.showUpgradeMenu(options)
+function TriangleShooterUI.showUpgradeMenu(options, playerLevel)
   isUpgradeMenuOpen = true
-  upgradeOptions = options or TriangleShooterUI.getRandomUpgradeOptions(2)
+  upgradeOptions = options or TriangleShooterUI.getRandomUpgradeOptions(2, playerLevel)
   selectedIndex = 0
 
   confirmPending = false

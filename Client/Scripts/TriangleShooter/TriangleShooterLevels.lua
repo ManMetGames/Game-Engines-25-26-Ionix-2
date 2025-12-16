@@ -14,9 +14,9 @@ local HEALTH_BUDGET = {
 }
 
 local TIMER_CONFIG = {
-    min = 15,
-    max = 30,
-    standard = 17,
+    min = 20,
+    max = 35,
+    standard = 20,
     healthPerSecond = 12,
 }
 
@@ -375,59 +375,59 @@ end
 
 local levels = {
     [1] = {
-        timeLimitSeconds = 15,
-        enemyCount = 1,
-        enemyHealth = 30,
-        enemyProjectiles = false,
-        enemyShootIntervalSeconds = 0.5,
+        timeLimitSeconds = 20,
+        wallPingPong = false,
+        coinPerHit = 1,
+        windowWidth = 800,
+        windowHeight = 400,
+        enemies = {
+            { movementType = "bounce", x = 900, y = 400, health = 35},
+        },
+    },
+    [2] = {
+        timeLimitSeconds = 20,
+        enemyProjectiles = true,
+        wallPingPong = false,
+        coinPerHit = 1,
+        windowWidth = 640,
+        windowHeight = 800,
+        enemies = {
+            { movementType = "stationary", x = 400, y = 500, health = 45, shootPattern = "cone", projectileCount = 2, shootInterval = 0.3 },
+        },
+    },
+    [3] = {
+        timeLimitSeconds = 20,
+        enemyProjectiles = true,
         wallPingPong = false,
         coinPerHit = 1,
         windowWidth = 1026,
         windowHeight = 640,
+        enemies = {
+            { movementType = "stationary", x = 500, y = 300, health = 30, shootPattern = "cone", projectileCount = 2, shootInterval = 0.3 },
+            { movementType = "bounce", x = 900, y = 550, health = 30, shootPattern = "cone", projectileCount = 0, shootInterval = 0},
+        },
     },
-    [2] = {
-        timeLimitSeconds = 22.5,
-        enemyCount = 1,
-        enemyHealth = 50,
-        enemyProjectiles = true,
+    [4] = {
+        timeLimitSeconds = 20,
+        enemyCount = 2,
+        enemyHealth = 40,
+        enemyProjectiles = false,
         enemyShootIntervalSeconds = 0.5,
         wallPingPong = false,
         coinPerHit = 1,
-        windowWidth = 1026,
-        windowHeight = 400,
-    },
-    [3] = {
-        timeLimitSeconds = 22.5,
-        enemyCount = 2,
-        enemyHealth = 40,
-        enemyProjectiles = true,
-        enemyShootIntervalSeconds = 0.75,
-        wallPingPong = false,
-        coinPerHit = 1,
-        windowWidth = 960,
-        windowHeight = 460,
-    },
-    [4] = {
-        timeLimitSeconds = 15,
-        enemyProjectiles = true,
-        wallPingPong = false,
-        coinPerHit = 1,
-        windowWidth = 1000,
-        windowHeight = 600,
-        enemies = {
-            { movementType = "stationary", x = 500, y = 300, health = 65, size = 30, shootPattern = "cone", projectileCount = 3, shootInterval = 0.2 },
-        },
+        windowWidth = 800,
+        windowHeight = 800,
     },
     [5] = {
-        timeLimitSeconds = 15,
+        timeLimitSeconds = 20,
         enemyProjectiles = true,
         wallPingPong = false,
         coinPerHit = 1,
         windowWidth = 600,
-        windowHeight = 1000,
+        windowHeight = 800,
         enemies = {
-            { movementType = "stationary", x = 500, y = 300, health = 35, size = 30, shootPattern = "cone", projectileCount = 3, shootInterval = 0.3 },
-            { movementType = "stationary", x = 350, y = 200, health = 35, size = 30, shootPattern = "cone", projectileCount = 3, shootInterval = 0.3 },
+            { movementType = "stationary", x = 500, y = 300, health = 40, shootPattern = "cone", projectileCount = 1, shootInterval = 0.4 },
+            { movementType = "stationary", x = 350, y = 200, health = 40, shootPattern = "cone", projectileCount = 2,  shootInterval = 0.6 },
         },
     },
 }
