@@ -52,10 +52,12 @@ local function ApplyLevelUpgrade(level)
     end
 end
 
+local pendingLevelUp = false
+
 local function OnLevelUp()
     playerLevel = playerLevel + 1
     xpToNextLevel = GetXpForNextLevel(playerLevel)
-    ApplyLevelUpgrade(playerLevel)
+    pendingLevelUp = true
 end
 
 function TriangleShooterPlayerProgress.applyUpgrade(upgradeType)
@@ -76,6 +78,18 @@ function TriangleShooterPlayerProgress.addXp(amount)
         xp = xp - xpToNextLevel
         OnLevelUp()
     end
+end
+
+function TriangleShooterPlayerProgress.hasPendingLevelUp()
+    return pendingLevelUp
+end
+
+function TriangleShooterPlayerProgress.consumePendingLevelUp()
+    if pendingLevelUp then
+        pendingLevelUp = false
+        return true
+    end
+    return false
 end
 
 function TriangleShooterPlayerProgress.getProgress()

@@ -10,6 +10,7 @@ local TriangleShooterEnemy = require("Scripts.TriangleShooter.TriangleShooterEne
 local TriangleShooterAbilities = require("Scripts.TriangleShooter.TriangleShooterAbilities")
 local TriangleShooterPlayerProgress = require("Scripts.TriangleShooter.TriangleShooterPlayerProgress")
 local ParticleSystem = require("Scripts.TriangleShooter.ParticleSystem")
+local TriangleShooterUI = require("Scripts.TriangleShooter.TriangleShooterUI")
 
  --=====================================================================
  --  [HELPERS] Time
@@ -466,6 +467,26 @@ function TriangleShooter:OnUpdate()
      --=====================================================================
     if windowTransitionActive then
         UpdateWindowTransition()
+        return
+    end
+
+     --=====================================================================
+     --  [ONUPDATE] Upgrade Menu (Freeze Game)
+     --=====================================================================
+    if TriangleShooterUI.isMenuOpen() then
+        screenW = Window.get_width()
+        screenH = Window.get_height()
+        TriangleShooterUI.draw(screenW, screenH)
+        local selectedUpgrade = TriangleShooterUI.handleInput()
+        if selectedUpgrade then
+            TriangleShooterPlayerProgress.applyUpgrade(selectedUpgrade.type)
+        end
+        return
+    end
+
+    if TriangleShooterPlayerProgress.hasPendingLevelUp() then
+        TriangleShooterPlayerProgress.consumePendingLevelUp()
+        TriangleShooterUI.showUpgradeMenu()
         return
     end
 
