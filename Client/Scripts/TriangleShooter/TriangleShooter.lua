@@ -13,6 +13,41 @@ local ParticleSystem = require("Scripts.TriangleShooter.ParticleSystem")
 local TriangleShooterUI = require("Scripts.TriangleShooter.TriangleShooterUI")
 
  --=====================================================================
+ --  [LEADERBOARD / SAVE DATA]
+ --=====================================================================
+local GAME_ID = "TRIANGLE_SHOOTER"
+
+-- Highest stage reached (persisted locally per-game)
+local bestStage = Json.load_high_score(GAME_ID) or 0
+
+-- Persistent player name (shared across games)
+local playerName = Json.load_player_name()
+if playerName == nil then playerName = "" end
+
+-- Menu screens: "main" | "leaderboard"
+local menuScreen = "main"
+local topLeaderboard = nil
+local leaderboardFetched = false
+
+local function GetPlayerNameForLeaderboard()
+    if playerName and playerName ~= "" then
+        return playerName
+    end
+    return "Anon"
+end
+
+local function TryUpdateBestStage(stage)
+    if stage == nil then return end
+    stage = math.floor(stage)
+    if stage > (bestStage or 0) then
+        bestStage = stage
+        Json.save_high_score(GAME_ID, bestStage)
+        Firebase.submit_high_score(GAME_ID, GetPlayerNameForLeaderboard(), bestStage)
+    end
+end
+
+
+ --=====================================================================
  --  [HELPERS] Time
  --=====================================================================
 local function GetDt()
@@ -248,6 +283,9 @@ LoadLevel = function(index, resetPlayerState)
      --=====================================================================
 
     currentLevel = index
+
+    -- Persist best stage + submit to leaderboard (only if improved)
+    TryUpdateBestStage(currentLevel)
     levelTimerSeconds = cfg.timeLimitSeconds or 0
 
     wallPingPongEnabled = cfg.wallPingPong and true or false
@@ -391,6 +429,7 @@ end
 
 local function OnEnemyKilled()
     local nextIndex = currentLevel + 1
+    TryUpdateBestStage(nextIndex)
     TriangleShooterLevels.regenerateLevel(nextIndex)
     if TriangleShooterLevels.getLevelConfig(nextIndex) then
         StartLevel(nextIndex, false)
@@ -458,13 +497,14 @@ function TriangleShooter:OnStart()
 end
 
  --=====================================================================
- --  [DRAW] Main Menu
+ --=====================================================================
+ --  [DRAW] Main Menu / Leaderboard
  --=====================================================================
 local function DrawMainMenu(screenW, screenH, dt)
     UI.add_panel(0, 0, screenW, screenH, 0.65, 0, 0, 0, 0)
 
-    local panelW = math.floor(math.max(420, math.min(screenW * 0.60, 760)))
-    local panelH = math.floor(math.max(320, math.min(screenH * 0.60, 520)))
+    local panelW = math.floor(math.max(520, math.min(screenW * 0.70, 860)))
+    local panelH = math.floor(math.max(420, math.min(screenH * 0.70, 600)))
     local panelX = math.floor((screenW - panelW) / 2)
     local panelY = math.floor((screenH - panelH) / 2)
 
@@ -477,16 +517,42 @@ local function DrawMainMenu(screenW, screenH, dt)
     local cx = panelW / 2
 
     -- Title / subtitle anchors (relative to panel height)
-    local titleY = math.floor(panelH * 0.18)
+    local titleY = math.floor(panelH * 0.16)
     local subY   = titleY + math.floor(panelH * 0.12)
 
     UI.add_centered_label(cx, titleY, "TRIANGLE SHOOTER", "ImGuiDefaultBold", 3.0)
     UI.add_centered_label(cx, subY, "Mouse to move | Hold LMB to shoot", "", 1.2)
 
-    -- Start button anchor (relative too)
-    local bw, bh = math.min(340, math.floor(panelW * 0.55)), 55
+    -- Best stage
+    UI.add_centered_label(cx, subY + math.floor(panelH * 0.08), "Best Stage: " .. tostring(bestStage or 0), "", 1.2)
+
+    -- Buttons
+    local bw, bh = math.min(360, math.floor(panelW * 0.60)), 55
     local bx = math.floor((panelW - bw) / 2)
-    local by = math.floor(panelH * 0.42)
+    local by = math.floor(panelH * 0.48)
+
+    -- Progress bar should sit just above the start button
+    if menuStarting then
+        menuStartTimer = menuStartTimer - dt
+        local elapsed = menuStartDelay - math.max(menuStartTimer, 0)
+
+        -- UI.draw_progress_bar is screen-space, so convert child-space to absolute screen coords
+        local barW = math.floor(math.max(200, math.min(bw * 0.75, 320)))
+        local barH = 12
+        local barX = panelX + bx + math.floor((bw - barW) / 2)
+        local barY = panelY + by - barH - 14
+
+        UI.draw_progress_bar(barX, barY, barW, barH, menuStartDelay, elapsed, 4)
+
+        if menuStartTimer <= 0 then
+            menuStarting = false
+            inMainMenu = false
+            menuScreen = "main"
+            Input.set_relative_mouse_mode(true)
+            LoadLevel(1, true)
+        end
+    end
+
 
     local startLabel = menuStarting and "Starting..." or "START GAME"
     UI.add_button(bx, by, bw, bh,
@@ -501,17 +567,80 @@ local function DrawMainMenu(screenW, screenH, dt)
         menuStartTimer = menuStartDelay
     end
 
-    if menuStarting then
-        menuStartTimer = menuStartTimer - dt
-        local elapsed = menuStartDelay - math.max(menuStartTimer, 0)
-        UI.draw_progress_bar(cx - 100, panelH - 40, 200, 10, menuStartDelay, elapsed, 4)
+    -- Leaderboard button
+    local gap = 16
+    UI.add_button(bx, by + bh + gap, bw, bh,
+        "LEADERBOARD", "menu_leaderboard",
+        "ImGuiDefaultBold", 1.1,
+        12, true,
+        0, 170, 110, 0.95
+    )
 
-        if menuStartTimer <= 0 then
-            menuStarting = false
-            inMainMenu = false
-            Input.set_relative_mouse_mode(true)
-            LoadLevel(1, true)
+    if (not menuStarting) and UI.was_button_pressed("menu_leaderboard") then
+        menuScreen = "leaderboard"
+        leaderboardFetched = false
+    end
+
+    UI.end_child()
+end
+
+local function DrawLeaderboardMenu(screenW, screenH, dt)
+    UI.add_panel(0, 0, screenW, screenH, 0.65, 0, 0, 0, 0)
+
+    local panelW = math.floor(math.max(520, math.min(screenW * 0.70, 860)))
+    local panelH = math.floor(math.max(420, math.min(screenH * 0.70, 600)))
+    local panelX = math.floor((screenW - panelW) / 2)
+    local panelY = math.floor((screenH - panelH) / 2)
+
+    UI.begin_child(panelX, panelY, panelW, panelH, "TS_Leaderboard",
+        true, 0,
+        true, 0.92, 12, 25, 25, 25,
+        2.5, true, 0.85
+    )
+
+    local cx = panelW / 2
+
+    UI.add_centered_label(cx, math.floor(panelH * 0.14), "LEADERBOARD", "ImGuiDefaultBold", 2.6)
+    UI.add_centered_label(cx, math.floor(panelH * 0.22), "Top 10 Highest Stages", "", 1.2)
+
+    if not leaderboardFetched then
+        topLeaderboard = Firebase.retrieve_high_score(GAME_ID, 10)
+        leaderboardFetched = true
+    end
+
+    local listX = math.floor(panelW * 0.20)
+    local listY = math.floor(panelH * 0.30)
+    local lineH = 26
+
+    if topLeaderboard then
+        for i = 1, 10 do
+            local e = topLeaderboard[i]
+            local line
+            if e then
+                line = string.format("%2d. %-16s  Stage %d", i, tostring(e.name), tonumber(e.score) or 0)
+            else
+                line = string.format("%2d. --", i)
+            end
+            UI.add_label(listX, listY + (i - 1) * lineH, 0, 0, line, "", 1.4)
         end
+    else
+        UI.add_centered_label(cx, listY + 10, "(No scores yet)", "", 1.2)
+    end
+
+    -- Back button
+    local bw, bh = math.min(320, math.floor(panelW * 0.55)), 50
+    local bx = math.floor((panelW - bw) / 2)
+    local by = panelH - bh - 32
+
+    UI.add_button(bx, by, bw, bh,
+        "BACK", "menu_back",
+        "ImGuiDefaultBold", 1.0,
+        12, true,
+        74, 12, 255, 0.95
+    )
+
+    if UI.was_button_pressed("menu_back") then
+        menuScreen = "main"
     end
 
     UI.end_child()
@@ -531,7 +660,11 @@ function TriangleShooter:OnUpdate()
     if inMainMenu then
         screenW = Window.get_width()
         screenH = Window.get_height()
-        DrawMainMenu(screenW, screenH, dt)
+        if menuScreen == "leaderboard" then
+            DrawLeaderboardMenu(screenW, screenH, dt)
+        else
+            DrawMainMenu(screenW, screenH, dt)
+        end
         return
     end
 

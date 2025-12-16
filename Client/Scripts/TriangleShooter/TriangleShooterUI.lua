@@ -200,7 +200,7 @@ if not isUpgradeMenuOpen then return end
     cr, cg, cb, 0.90
   )
 
-  -- Countdown bar (same look/placement as your between-level bar)
+  -- Countdown bar (same look/placement as between-level bar)
   if confirmPending then
     local elapsed = confirmDuration - confirmTimer
     if elapsed < 0 then elapsed = 0 end
