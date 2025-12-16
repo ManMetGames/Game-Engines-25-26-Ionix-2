@@ -17,8 +17,12 @@ local CARD_BG_ALPHA = 0.92
 local CARD_BG_R, CARD_BG_G, CARD_BG_B = 25, 25, 25
 
 local BORDER_SIZE = 3.0
-local BORDER_RED   = {200, 40, 40, 1.0}
-local BORDER_GREEN = {0, 200, 130, 1.0}
+local BORDER_RED   = {170, 25, 25, 1.0}
+local BORDER_GREEN = {0, 170, 110, 1.0}
+
+-- Slightly lighter Select option button collors
+--local BORDER_RED   = {200, 40, 40, 1.0}
+--local BORDER_GREEN = {0, 200, 130, 1.0}
 
 local BTN_ROUND = 12
 
