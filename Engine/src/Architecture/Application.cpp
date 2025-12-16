@@ -30,7 +30,6 @@ namespace IonixEngine
         startTick = SDL_GetPerformanceCounter();
         currentTick = SDL_GetPerformanceCounter();
 
-
         //Initialise layers...
         layerEditor = new LayerEditor();
         AddLayer(layerEditor);
@@ -56,6 +55,11 @@ namespace IonixEngine
         layerScene = new LayerScene();
         AddLayer(layerScene);
 
+		firebaseLeaderboard = new FirebaseLeaderboard();
+		firebaseLeaderboard->Init();
+        //FirebaseLeaderboard::SubmitScore("Zulfaqaar", 90);
+        //FirebaseLeaderboard::RetrieveTopScores(5);
+        
         //layerNavigation = new LayerNavigation();  
         //AddLayer(layerNavigation);
 
@@ -98,7 +102,6 @@ namespace IonixEngine
             if (e.Handled)
                 break;
         }
-
     }
     Camera* cam = new Camera(0.0f, 0.0f, 0);
     Camera* cam2 = new Camera(100.0f, 100.0f, 1);
@@ -123,6 +126,7 @@ namespace IonixEngine
         
         while (m_Running)
         {
+            
             uint64_t lastTick = currentTick;
             currentTick = SDL_GetPerformanceCounter();
             
@@ -159,7 +163,6 @@ namespace IonixEngine
             
             ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), m_Window->GetSdlRenderer());
             Get().layerFysics->GetFysicsManager()->GetWorld()->DebugDraw();
-
             SDL_RenderPresent(m_Window->m_Renderer);
 
             layerInput->m_Input->CopyCodesEndFrame();

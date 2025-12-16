@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "18212669222",
+    "firebase_url": "https://flappybird-leaderboard-2489c-default-rtdb.firebaseio.com",
+    "project_id": "flappybird-leaderboard-2489c",
+    "storage_bucket": "flappybird-leaderboard-2489c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:18212669222:android:44ceaaa844e1b92a51a3e7",
+        "android_client_info": {
+          "package_name": "com.flappybird.yourleaderboard"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCyZO-OrwcbnAqMHL57NxCMyAr46iMXTGM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,3 +1,4 @@
+
 #include "Scripting/Fysics/FysicsScripting.h"
 #include "Architecture/Application.h"
 #include "Fysics/FysicsBody.h"
@@ -14,6 +15,10 @@ namespace IonixEngine
 
 	void FysicsScripting::Init(sol::state& lua)
 	{
+		auto getRaycastEntity = [](RayHit hit)->Entity*
+		{
+			return hit.entity;
+		};
 
 		//------------Fysics Body Methods---------------
 		auto getFysicsPos = [](Entity* entity) -> b2Vec2 {
@@ -21,11 +26,11 @@ namespace IonixEngine
 			};
 
 		auto setFysicsPos = [](Entity* entity, float x, float y) {
-			entity->GetComponent<FysicsBody>()->SetPosition(entity, x, y);
+			entity->GetComponent<FysicsBody>()->SetPosition(entity, x / 100, y / 100);
 			};
 
 		auto setFysicsPosv = [](Entity* entity, b2Vec2 vec2) {
-			entity->GetComponent<FysicsBody>()->SetPosition(entity, vec2.x, vec2.y);
+			entity->GetComponent<FysicsBody>()->SetPosition(entity, vec2.x / 100, vec2.y / 100);
 			};
 
 		auto getFysicsAngle = [](Entity* entity) -> float{
@@ -187,7 +192,7 @@ namespace IonixEngine
 
 
 		//----------Collision Methods----------
-		//Commented out functions don't work due to FysicsShapes not actually be a component on the entity 
+
 		
 		auto addBoxCollider = [](Entity* entity, float sizeX, float sizeY, int offsetX, int offsetY, float angle, bool isTrigger) {
 
@@ -226,48 +231,38 @@ namespace IonixEngine
 
 		/*auto getColliderWidth = [](Entity* entity) -> float {
 			return Application::Get().layerFysics->GetFysicsManager()->GetShapes()->GetWidth();
-			};*/
+			};
 
-		/*auto setColliderWidth = [](Entity* entity, float w, int shapeType) {
+		auto setColliderWidth = [](Entity* entity, float w, int shapeType) {
 			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->SetWidth(w, static_cast<fysicShapeType>(shapeType));
-			};*/
+			};
 
-		/*auto getColliderHeight = [](Entity* entity) -> float {
+		auto getColliderHeight = [](Entity* entity) -> float {
 			return Application::Get().layerFysics->GetFysicsManager()->GetShapes()->GetHeight();
 			};
 
 		auto setColliderHeight = [](Entity* entity, float h, int shapeType) {
 			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->SetHeight(h, static_cast<fysicShapeType>(shapeType));
-			};*/
+			};
 
 		auto isColliderTrigger = [](Entity* entity) -> bool {
-			return Application::Get().layerFysics->GetFysicsManager()->GetFixtureFromEntity(entity)->IsSensor();
+			return Application::Get().layerFysics->GetFysicsManager()->GetShapes()->IsShapeTrigger();
 			};
 
 		auto setColliderTrigger = [](Entity* entity, bool value) {
-			Application::Get().layerFysics->GetFysicsManager()->GetFixtureFromEntity(entity)->SetSensor(value);
+			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->SetShapeTrigger(value);
 			};
 
-		/*auto getColliderVertices = [](Entity* entity) {
+		auto getColliderVertices = [](Entity* entity) {
 			return Application::Get().layerFysics->GetFysicsManager()->GetShapes()->GetVertices();
 			};
 
 		auto setColliderVertices = [](Entity* entity, std::vector<b2Vec2> verts, int shapeType) {
 			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->SetVertices(verts, static_cast<fysicShapeType>(shapeType));
-			};*/
+			};
 
-		auto getColliderShapeType = [](Entity* entity) -> fysicShapeType {
-			b2Shape::Type type = Application::Get().layerFysics->GetFysicsManager()->GetFixtureFromEntity(entity)->GetShape()->m_type;
-				switch (type)
-				{
-				case b2Shape::e_circle:
-					return fysicShapeType::circle;
-					break;
-				case b2Shape::e_polygon:
-					return fysicShapeType::polygon;
-					break;
-				}
-				return fysicShapeType::none;
+		auto getColliderShapeType = [](Entity* entity) {
+			return Application::Get().layerFysics->GetFysicsManager()->GetShapes()->GetShapeType();
 			};
 
 			
@@ -286,31 +281,7 @@ namespace IonixEngine
 			offset.x = offsetX;
 			offset.y = offsetY;
 			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->AddCircle(entity, radius, offset, isTrigger);
-
 		};
-
-		/*auto GetRadius = [](Entity* entity) -> float {
-			return Application::Get().layerFysics->GetFysicsManager()->GetShapes()->GetRadius();
-			};*/
-
-		/*auto SetRadius = [](Entity* entity, float r, b2Body* bodyToChange, fysicShapeType shapeType) {
-			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->SetRadius(entity, r, bodyToChange, static_cast<fysicShapeType>(shapeType));
-			};*/
-
-		/*auto GetAngle = [](Entity* entity) -> float {
-			return Application::Get().layerFysics->GetFysicsManager()->GetShapes()->GetAngle();
-			};
-
-		auto SetAngle = [](float a, fysicShapeType shapeType) {
-			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->SetAngle(a, static_cast<fysicShapeType>(shapeType));
-			};
-        auto GetOffset = [](Entity* entity) -> b2Vec2 {
-            return Application::Get().layerFysics->GetFysicsManager()->GetShapes()->GetOffset();
-			};
-		auto SetOffset = [](b2Vec2& off, fysicShapeType shapeType) {
-			Application::Get().layerFysics->GetFysicsManager()->GetShapes()->SetOffset(off, static_cast<fysicShapeType>(shapeType));
-			};*/
-
 
 //----------Joint Methods----------
 
@@ -486,6 +457,26 @@ namespace IonixEngine
 				Application::Get().layerFysics->GetFysicsManager()->GetCollisionListener()->AddToCollisionMap(entityA, entityB);
 			}
 		};
+		//---------------Raycasting--------
+		auto raycast = [](Vec2 startPos, Vec2 endPos)->std::tuple<bool, RayHit>
+		{
+			RayHit hit;
+			std::cout << endPos.x << ", " << endPos.y << std::endl;
+			bool hitSomething = Application::Get().layerFysics->GetFysicsManager()->GetRaycast()->CastFirst(b2Vec2(startPos.x / 100, startPos.y / 100), b2Vec2(endPos.x / 100, endPos.y / 100), hit);
+			if (!hitSomething)
+			{
+				return std::make_tuple(false, RayHit());
+			}
+
+			return std::make_tuple(true, hit);
+		};
+
+		auto drawRaycast = [](Vec2 startPos, Vec2 endPos, bool hitColor)
+		{
+			Application::Get().layerGraphics->GetQueue()->DrawLine(startPos.x, startPos.y, endPos.x, endPos.y, hitColor);
+		};
+
+		
 
 		auto checkActiveCollisions = [](Entity* entityA, Entity* entityB)->bool
 		{
@@ -497,11 +488,15 @@ namespace IonixEngine
 			return false;
 		};
 
+		lua["Raycast"] = lua.create_table_with(
+					"entity", getRaycastEntity
 
+					);
 
 		lua["Fysics"] = lua.create_table_with(
 			"add_box_collider",	addBoxCollider,
 			"add_box_collider_v", addBoxColliderv,
+			//"add_edge_collider", addEdgeCollider,
 			"add_polygon_collider",addPolygonCollider,
 			"add_edge_collider", addEdgeCollider,
 			"add_circle_collider", addCircleCollider,
@@ -541,21 +536,15 @@ namespace IonixEngine
 			"add_torque", addFysicsTorque,
 			"add_angular_impulse", addFysicsAngularImpulse,
 			"clear_forces", clearFysicsForces,
-			/*"get_collider_width", getColliderWidth,
+			"get_collider_width", getColliderWidth,
 			"set_collider_width", setColliderWidth,
 			"get_collider_height", getColliderHeight,
-			"set_collider_height", setColliderHeight,*/
+			"set_collider_height", setColliderHeight,
 			"is_collider_trigger", isColliderTrigger,
 			"set_collider_trigger", setColliderTrigger,
-			/*"get_collider_vertices", getColliderVertices,
-			"set_collider_vertices", setColliderVertices,*/
+			"get_collider_vertices", getColliderVertices,
+			"set_collider_vertices", setColliderVertices,
 			"get_collider_type", getColliderShapeType,
-			/*"get_radius", GetRadius,
-			"set_radius", SetRadius,
-			"get_angle" , GetAngle,
-			"set_angle", SetAngle,
-			"get_offset", GetOffset,
-			"set_offset", SetOffset,*/
 			"set_material_properties", fysicsUpdateMaterialProperties,
 			"get_friction", getFriction,
 			"get_restitution", getRestitution,
@@ -580,7 +569,10 @@ namespace IonixEngine
 			"get_stiffness", getStiffnessFromWeldJoint,
 			"set_stiffness", setStiffnessFromWeldJoint,
 			"add_to_collision_map", addToCollisionMap,
-			"col", checkActiveCollisions
+			"col", checkActiveCollisions,
+			"add_to_collision_map", addToCollisionMap,
+			"raycast", raycast,
+			"draw_raycast", drawRaycast
 		);
 	}
 }

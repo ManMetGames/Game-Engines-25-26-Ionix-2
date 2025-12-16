@@ -1,6 +1,8 @@
 #include "Scripting/Graphics/GraphicsScripting.h"
 #include "Architecture/TextureManager/TextureManager.h"
 #include "GraphicsScripting.h"
+#include "Architecture/Application.h"
+#include "Architecture/Scene.h"
 #include <Graphics/SpriteComponent.h>
 #include <Graphics/Camera.h>
 
@@ -118,6 +120,54 @@ namespace IonixEngine {
             spriteComponent->setColor(static_cast<Uint8>(r), static_cast<Uint8>(g), static_cast<Uint8>(b));
         };
 
+        auto emitParticle = [](uint32_t textureHash,
+                               int renderLayer,
+                               float x,
+                               float y,
+                               float vx,
+                               float vy,
+                               float lifetime,
+                               sol::optional<float> startSize,
+                               sol::optional<float> endSize,
+                               sol::optional<bool> useRainbow,
+                               sol::optional<int> startR,
+                               sol::optional<int> startG,
+                               sol::optional<int> startB,
+                               sol::optional<int> startA,
+                               sol::optional<int> endR,
+                               sol::optional<int> endG,
+                               sol::optional<int> endB,
+                               sol::optional<int> endA) {
+            if (!Application::Get().layerScene || !Application::Get().layerScene->GetScene()) {
+                return;
+            }
+
+            Scene* scene = Application::Get().layerScene->GetScene();
+            scene->GetParticleSystem().Emit(
+                textureHash,
+                renderLayer,
+                x,
+                y,
+                vx,
+                vy,
+                lifetime,
+                startSize.value_or(32.0f),
+                endSize.value_or(8.0f),
+                static_cast<Uint8>(startR.value_or(255)),
+                static_cast<Uint8>(startG.value_or(255)),
+                static_cast<Uint8>(startB.value_or(255)),
+                static_cast<Uint8>(startA.value_or(255)),
+                static_cast<Uint8>(endR.value_or(255)),
+                static_cast<Uint8>(endG.value_or(255)),
+                static_cast<Uint8>(endB.value_or(255)),
+                static_cast<Uint8>(endA.value_or(0)),
+                7,
+                0.0f, 0.0f,
+                0.0f,
+                useRainbow.value_or(false)
+            );
+        };
+
         //camera
 		auto Camera = [](float startX, float startY, int renderLayer) {
 			return new IonixEngine::Camera(startX, startY, renderLayer);
@@ -180,6 +230,8 @@ namespace IonixEngine {
             "columns", getColumns,
             "width", getWidth,
             "height", getHeight,
+            "image_width", getImageWidth,
+            "image_height", getImageHeight,
             "zed_order", getZedOrder,
             "total_frames", getTotalFrames,
             "current_column", getCurrentColumn,
@@ -191,6 +243,8 @@ namespace IonixEngine {
             "set_columns", setColumns,
             "set_width", setWidth,
             "set_height", setHeight,
+            "set_image_width", setImageWidth,
+            "set_image_height", setImageHeight,
             "set_zed_order", setZedOrder,
             "get_playback_mode", getPlaybackMode,
             "set_playback_mode", setPlaybackMode,
@@ -199,6 +253,10 @@ namespace IonixEngine {
             "set_tick_rate", setTickRate
         );
        
+        lua["Particles"] = lua.create_table_with(
+            "emit", emitParticle
+        );
+
         lua["Camera"] = lua.create_table_with(
             "create_camera", Camera,
 			"initialize_camera", initializeCamera,

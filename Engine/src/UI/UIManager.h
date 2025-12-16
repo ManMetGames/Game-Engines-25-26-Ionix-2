@@ -3,8 +3,10 @@
 #include <string>
 #include <functional>
 #include <vector>
-#include "FontLoader.h"
+#include "Fontloader.h"
 #include "UI/UI.h"
+#include <unordered_map>
+
 namespace IonixEngine
 {
 	enum UIType
@@ -13,87 +15,115 @@ namespace IonixEngine
 		Button,
 		Checkbox,
 		SliderFloat,
-		InputText,
+	    InputText,
 		Panel,
 		RadioButton,
 		Dropdown,
 		ColorPicker,
+		ProgressBar,
 	};
 	struct UIElement
 	{
 		UIType type;
-		std::string groupName;
+		//std::string groupName;
 		int xPos;
 		int yPos;
 		float xSize;
 		float ySize;
+		std::string ownedText;
 		char* text = nullptr;
-		std::function<void()> onClick = nullptr; // only for buttons
+		//std::function<void()> onClick = nullptr; // only for buttons
 		bool* checked = nullptr; // only for checkboxes
 		float* sliderValue = nullptr; // only for sliders
 		float sliderMin = 0.0f;// only for sliders
 		float slidermax = 1.0f;// only for sliders
-		char* inputBuffer = nullptr; // only for input text
-		size_t inputBufferSize; // only for input text
 		int* radioValuePtr = nullptr;
 		int RadioButtonValue = 0;
 		bool sameline = false;
 		float* color = nullptr; // only for ColorPicker4
-		
+
+
+		char* inputBuffer = nullptr; // only for InputText
+		size_t inputBufferSize = 0; //only for InputText
+		float width = 100.0f; // only for InputText
+		std::string inputId;   // only for InputText
+
+		// Font name for this element
+		std::string fontName;
+		float maxValue = 0.0f; // only for ProgressBar
+		float* currentValue = nullptr; // only for ProgressBar
+		float incrementAmount = 0.0f; // only for ProgressBar
 		std::vector<UIElement> children;
 		bool isChildGroup = false;
 
 		std::vector<std::string> dropdownOptions;
 		int* dropdownCurrentIndex = nullptr;
-		
+
 	};
 
 	class UIManager
 	{
-	private: 
-		std::string currentGroupName; 
+	private:
+		void RenderElement(UIElement* element);
+		UI* m_ui = nullptr;
 
-		std::vector<UIElement*> groupStack; 
+		std::unordered_map<std::string, std::vector<char>> m_inputBuffers;
+		std::unordered_map<std::string, std::string> m_committedText;
 
-		void RenderElement(UIElement& element);
+		std::vector<std::string> m_frameText; // keeps label/button text alive for this frame
+
 	public:
-		void BeginGroup(const std::string& groupName);
-
-		std::vector<UIElement> GetElements()
+		Fontloader fontLoader;
+		std::vector<UIElement*> GetElements()
 		{
 			return elements;
 		}
 
-		std::vector<UIElement> elements;
-		
-		void EndGroup();
+		std::vector<UIElement*> elements;
 
-		void BeginPanel(const std::string& panelName);
+		void setUIRenderer(UI* ui)
+		{
 
-		void EndPanel();
+			m_ui = ui;
+		}
+		//void UIManager::BeginGroup(const std::string& groupName);
 
-		void AddChildToPanel(UIElement element);
-		
+		//void UIManager::EndGroup();
+
+		void UIManager::BeginPanel(const std::string& panelName);
+
+		void UIManager::EndPanel();
+
+		void UIManager::AddChildToPanel(UIElement* element);
+
 		// Add for new UITypes below
-		void AddLabel(int x, int y, float xSize, float ySize, const char* text);
-		
-		void AddButton(int x, int y, float xSize, float ySize, const char* text, std::function<void()> onClick);
-		
-		void AddCheckbox(int x, int y, float xSize, float ySize, const char* text, bool* checked);
-		
-		void AddSliderFloat(int x, int y, float xSize, float ySize, const char* text, float* value, float min, float max);
-		
-		void AddInputText(int x, int y, float xSize, float ySize, const char* text, char* buffer, size_t bufferSize);
-		
-		void AddRadioButton(int x, int y, float xSize, float ySize, const char* text, int* radioValuePointer, int value, bool sameline);
-		
-		void AddDropdown(int x, int y, float xSize, float ySize, const char* text, std::vector<std::string> options, int* currentIndex);
-		
-		
-		void AddColorPicker(int x, int y, float xSize, float ySize, const char* label, float* color);
+
+		void AddLabel(int x, int y, float xSize, float ySize, const char* text, const std::string& fontName = "");
+
+		void AddButton(int x, int y, float xSize, float ySize, const char* text);
+
+		void AddCheckbox(int x, int y, float xSize, float ySize, const char* text, bool* checked, const std::string& fontName = "");
+
+		void AddSliderFloat(int x, int y, float xSize, float ySize, const char* text, float* value, float min, float max, const std::string& fontName = "");
+
+		void AddInputText(int xPos, int yPos, float width, const char* label, const char* id, size_t maxLen = 16);
+
+		void AddRadioButton(int x, int y, float xSize, float ySize, const char* text, int* radioValuePointer, int value, bool sameline = false, const std::string& fontName = "");
+
+		void AddDropdown(int x, int y, float xSize, float ySize, const char* text, std::vector<std::string> options, int* currentIndex, const std::string& fontName = "");
+
+		void AddColorPicker(int x, int y, float xSize, float ySize, const char* label, float* color, const std::string& fontName = "");
+
+		void ClearElements();
+
+		void AddProgressBar(int x, int y, float xSize, float ySize, float maxvalue, float* currentvalue, float incrementamount, const std::string& fontName = "");
 
 		void RenderUI();
-		
+
+		std::string GetCommittedText(const std::string& id) const;
+		std::unordered_map<std::string, bool> m_inputCommittedThisFrame;
+		bool WasInputCommitted(const std::string& id) const;
+
+		void ClearInput(const std::string& id);
 	};
 }
-
