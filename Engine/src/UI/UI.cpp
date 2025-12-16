@@ -9,81 +9,44 @@
 
 namespace IonixEngine
 {
-	void UI::DrawLabel(char* text, int xsize, int ysize, int xpos, int ypos, std::string font)
+	void UI::DrawLabel(const char* text, int xsize, int ysize, int xpos, int ypos)
 	{
-		ImGui::SetNextWindowPos(ImVec2((float)xpos, (float)ypos));
-		ImGui::SetNextWindowSize(ImVec2((float)xsize, (float)ysize));
-		ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
-			ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar |
-			ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoBackground;
-		char windowName[64];
-		std::snprintf(windowName, sizeof(windowName), "Label_%d_%d_%d_%d", xpos, ypos, xsize, ysize);
-		if (ImGui::Begin(windowName, nullptr, flags))
-		{
-			ImFont* fontToPush = nullptr;
-			if (Application::Get().layerUI && Application::Get().layerUI->m_FontLoader)
-			{
-				fontToPush = Application::Get().layerUI->m_FontLoader->GetFont("Font1Bold");
-			}
-			if (fontToPush)
-			{
-				ImGui::PushFont(fontToPush);
-				ImGui::TextUnformatted(text);
-				ImGui::PopFont();
-			}
-			else
-			{
-				ImGui::TextUnformatted(text);
-			}
-		}
-		ImGui::End();
+		ImGui::SetCursorPos(ImVec2(xpos, ypos));
+		ImGui::TextUnformatted(text);
 	}
 
 	bool UI::DrawButton(char* text, int xsize, int ysize, int xpos, int ypos)
 	{
 		ImGui::SetCursorPos(ImVec2(xpos, ypos));
-
-		if (ImGui::Button(text, ImVec2(xsize, ysize))) {
-			return true;
-		}
+		return ImGui::Button(text, ImVec2(xsize, ysize));
 	}
 
-	float UI::DrawSlider(char* text, static float i, int xsize, int ysize, int xpos, int ypos, int minval, int maxval) {
-		ImGui::SetCursorPos(ImVec2(xpos, ypos));
-		ImGui::SliderFloat(text, &i, minval, maxval);
-		return i;
-
-	}
-
-	void UI::DrawCheckbox(int id, char* text, int xpos, int ypos, int xsize, int ysize)
+	bool UI::DrawSlider(const char* label, float* value, float width,
+		int xpos, int ypos, float minval, float maxval)
 	{
-		if (checkboxMap.find(id) != checkboxMap.end())
-			checkboxMap.insert({ id, false });
-
-		bool& state = getCheckboxState(id);
-		ImGui::SetCursorPos(ImVec2(xpos, ypos));
-
-		ImGui::Checkbox(text, &state);
+		ImGui::SetCursorPos(ImVec2((float)xpos, (float)ypos));
+		ImGui::SetNextItemWidth(width);
+		return ImGui::SliderFloat(label, value, minval, maxval);
 	}
 
-	void UI::DrawRadioButton(int xpos, int ypos, char* text, int& e, int value, bool sameline)
+	bool UI::DrawCheckbox(const char* label, bool* value, int xpos, int ypos)
 	{
-		ImGui::SetCursorPos(ImVec2(xpos, ypos));
-		if (sameline == true)
-		{
-			ImGui::RadioButton(text, &e, value); ImGui::SameLine();
-		}
-
-		else
-		{
-			ImGui::RadioButton(text, &e, value);
-		}
+		ImGui::SetCursorPos(ImVec2((float)xpos, (float)ypos));
+		return ImGui::Checkbox(label, value);
 	}
-	float UI::DrawColorPicker(int x, int y, float xSize, float ySize, const char* label, float* color)
+
+	bool UI::DrawRadioButton(int xpos, int ypos, const char* text, int* v, int value)
 	{
-		ImGui::SetCursorPos(ImVec2(x, y));
-		ImGui::ColorEdit4(label, color, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_PickerHueWheel);
-		return *color;
+		ImGui::SetCursorPos(ImVec2((float)xpos, (float)ypos));
+		return ImGui::RadioButton(text, v, value);
+	}
+
+	bool UI::DrawColorPicker(int x, int y, float xSize, float ySize, const char* label, float* color4)
+	{
+		ImGui::SetCursorPos(ImVec2((float)x, (float)y));
+		if (xSize > 0.0f) ImGui::SetNextItemWidth(xSize);
+		return ImGui::ColorEdit4(label, color4,
+			ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_PickerHueWheel);
 	}
 	
 	void UI::DrawProgressBar(int xPos, int yPos, float xSize, float ySize, float maxValue, float currentValue, int colorId)
@@ -155,25 +118,73 @@ namespace IonixEngine
 		return currentValue;
 	}
 
-	float UI::DrawDropdown(int xPos, int yPos, float xSize, float ySize, const char* text, std::vector<std::string> options, int* currentIndex)
+	bool UI::DrawDropdown(int xPos, int yPos, float xSize, float ySize, const char* text,
+		const std::vector<std::string>& options, int* currentIndex)
 	{
-		ImGui::SetCursorPos(ImVec2(xPos, yPos));
+		ImGui::SetCursorPos(ImVec2((float)xPos, (float)yPos));
+		if (xSize > 0.0f) ImGui::SetNextItemWidth(xSize);
+		if (!currentIndex) return false;
 
+		if (options.empty())
+		{
+			bool opened = ImGui::BeginCombo(text, "(empty)");
+			if (opened) ImGui::EndCombo();
+			return false;
+		}
+
+		if (*currentIndex < 0 || *currentIndex >= (int)options.size())
+			*currentIndex = 0;
+
+		bool changed = false;
 		const char* currentItem = options[*currentIndex].c_str();
+
 		if (ImGui::BeginCombo(text, currentItem))
 		{
-			for (size_t n = 0; n < options.size(); n++)
+			for (int n = 0; n < (int)options.size(); n++)
 			{
 				bool isSelected = (*currentIndex == n);
 				if (ImGui::Selectable(options[n].c_str(), isSelected))
 				{
-					*(currentIndex) = n;
+					*currentIndex = n;
+					changed = true;
 				}
-				if (isSelected)
-					ImGui::SetItemDefaultFocus();
+				if (isSelected) ImGui::SetItemDefaultFocus();
 			}
 			ImGui::EndCombo();
 		}
-		return *currentIndex;
+		return changed;
+	}
+
+	bool UI::InputText(const char* label, int xPos, int yPos, float width,
+		char* buffer, size_t bufferSize,
+		ImGuiInputTextFlags flags)
+	{
+
+		ImGui::SetCursorPos(ImVec2((float)xPos, (float)yPos));
+		ImGui::TextUnformatted(label);
+
+		ImGui::SetCursorPos(ImVec2((float)xPos, (float)yPos + 20));
+		ImGui::SetNextItemWidth(width);
+
+		return ImGui::InputText("##input", buffer, bufferSize, flags);
+	}
+
+	void UI::DrawPanel(int x, int y, float w, float h, float alpha, float rounding, int r, int g, int b)
+	{
+		ImGui::SetCursorPos(ImVec2((float)x, (float)y));
+		ImVec2 p = ImGui::GetCursorScreenPos();
+
+		ImU32 fill = IM_COL32(r, g, b, (int)(alpha * 255.0f));
+		ImDrawList* dl = ImGui::GetWindowDrawList();
+
+		dl->AddRectFilled(p, ImVec2(p.x + w, p.y + h), fill, rounding);
+
+		ImU32 border = IM_COL32(0, 0, 0, 80); // border for panel
+		dl->AddRect(p, ImVec2(p.x + w, p.y + h), border, rounding);
+	}
+
+	float UI::CalcTextWidth(const char* text)
+	{
+		return ImGui::CalcTextSize(text).x;
 	}
 }

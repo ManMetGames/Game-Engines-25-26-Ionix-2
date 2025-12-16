@@ -23,7 +23,8 @@ namespace IonixEngine {
 		SDL_Point size;
 		SDL_Rect src;
 		int zOrder;
-		float width, height;
+		float width = 0.0f;
+		float height = 0.0f;
 		int totalFrames;
 		int currentFrame;
 		int endFrame;
@@ -43,6 +44,7 @@ namespace IonixEngine {
 		Uint8 colorB = 255;
 
 		enum playbackOptions playbackMode;
+		void RecalcFrameSize();
 
 	public:
 		SpriteComponent(Entity* entity, std::string alias, int width, int height, int zedOrder);

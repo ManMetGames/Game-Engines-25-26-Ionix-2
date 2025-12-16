@@ -107,7 +107,9 @@ struct Textures {
     uint32_t PimBall = 3518613816u;
     uint32_t Pineapple = 854290486u;
     uint32_t Pink = 1179858848u;
+    uint32_t PipeEffect = 2652724152u;
     uint32_t Play = 1380681860u;
+    uint32_t PointEffect = 4172305526u;
     uint32_t Previous = 1657061876u;
     uint32_t Purple = 1889853884u;
     uint32_t Restart = 3946504526u;
@@ -304,7 +306,9 @@ struct Textures {
         map["PimBall"] = "./Assets/PimBall.png";
         map["Pineapple"] = "./Assets/Jimmy Demo/Items/Fruits/Pineapple.png";
         map["Pink"] = "./Assets/Jimmy Demo/Background/Pink.png";
+        map["PipeEffect"] = "./Assets/PipeEffect.png";
         map["Play"] = "./Assets/Jimmy Demo/Menu/Buttons/Play.png";
+        map["PointEffect"] = "./Assets/PointEffect.png";
         map["Previous"] = "./Assets/Jimmy Demo/Menu/Buttons/Previous.png";
         map["Purple"] = "./Assets/Jimmy Demo/Background/Purple.png";
         map["Restart"] = "./Assets/Jimmy Demo/Menu/Buttons/Restart.png";
@@ -399,6 +403,10 @@ struct Textures {
 };
 
 struct Sounds {
+    uint32_t Coin = 2929616156u;
+    uint32_t Hit = 2134794416u;
+    uint32_t Jump = 3884640712u;
+    uint32_t gameOver = 3624654154u;
     uint32_t gunshot1 = 1107995564u;
     uint32_t gunshot2 = 1286261536u;
     uint32_t gunshot3 = 3098717796u;
@@ -410,6 +418,10 @@ struct Sounds {
 
     inline std::map<std::string, std::string> GetSounds() {
         std::map<std::string, std::string> map;
+        map["Coin"] = "./Assets/FlappyBird Audio/Coin.mp3";
+        map["Hit"] = "./Assets/FlappyBird Audio/Hit.wav";
+        map["Jump"] = "./Assets/FlappyBird Audio/Jump.mp3";
+        map["gameOver"] = "./Assets/FlappyBird Audio/gameOver.wav";
         map["gunshot1"] = "./Assets/Audio/gunshot1.mp3";
         map["gunshot2"] = "./Assets/Audio/gunshot2.mp3";
         map["gunshot3"] = "./Assets/Audio/gunshot3.mp3";
