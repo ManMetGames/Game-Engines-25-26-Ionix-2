@@ -19,6 +19,15 @@ local pipeSets = {}
 local pipeSpeed = -3
 local pipeOffScreenLeft = -100 
 
+-- Pipe randomness
+local pipeHeight = 3.0      
+local pipeStartGap = 2.2
+local pipeMinGap = 3.3 
+local pipeShrinkGap = 0.03
+
+local pipesetMinGap = 1
+local pipesetMaxGap = 3.5
+
 -- Coins
 local coins = {}
 local coinSpeed = -3
@@ -162,12 +171,12 @@ local function resetGame()
         Fysics.set_linear_velocity(pipeEntity, 0, 0)
     end
 
-    resetPipe(pipe, 400, 400)
-    resetPipe(pipeT, 400, 0)
-    resetPipe(pipe2, 750, 400)
-    resetPipe(pipeT2, 750, -40)
-    resetPipe(pipe3, 1100, 360)
-    resetPipe(pipeT3, 1100, -40)
+    resetPipe(pipe, 400, 360)
+    resetPipe(pipeT, 400, -250)
+    resetPipe(pipe2, 750, 300)
+    resetPipe(pipeT2, 750, -350)
+    resetPipe(pipe3, 1100, 400)
+    resetPipe(pipeT3, 1100, -200)
 
     -- Reset coins
     for i, c in ipairs(coins) do
@@ -251,21 +260,21 @@ function ExampleScript:OnStart()
     local function createPipeSet(bottomX, bottomY, topX, topY)
         local bottomPipe = Entity.create_entity()
         Entity.set_global_pos(bottomPipe, bottomX, bottomY)
-        Entity.add_sprite_component(bottomPipe, assets.textures.FlappyPipe, 60, 300, 0)
+        Entity.add_sprite_component(bottomPipe, assets.textures.FlappyPipe, 60, 500, 0)
         Entity.add_fysics_component(bottomPipe, enums.bodytype.kinematicBody, false)
         Fysics.add_sprite_collider(bottomPipe, false, 1)
 
         local topPipe = Entity.create_entity()
         Entity.set_global_pos(topPipe, topX, topY)
-        Entity.add_sprite_component(topPipe, assets.textures.FlappyPipe2, 60, 300, 0)
+        Entity.add_sprite_component(topPipe, assets.textures.FlappyPipe2, 60, 500, 0)
         Entity.add_fysics_component(topPipe, enums.bodytype.kinematicBody, false)
         Fysics.add_sprite_collider(topPipe, false, 1)
         return bottomPipe, topPipe
     end
 
-    pipe, pipeT = createPipeSet(400, 430, 400, 0)
-    pipe2, pipeT2 = createPipeSet(750, 400, 750, -40)
-    pipe3, pipeT3 = createPipeSet(1100, 360, 1100, -40)
+    pipe, pipeT = createPipeSet(400, 360, 400, -250)
+    pipe2, pipeT2 = createPipeSet(750, 300, 750, -350)
+    pipe3, pipeT3 = createPipeSet(1100, 400, 1100, -200)
     
     pipeSets = {
     { bottom = pipe,  top = pipeT,  passed = false },
@@ -707,15 +716,41 @@ function ExampleScript:OnUpdate()
     end
     Fysics.set_linear_velocity(player1, vx, vy)
 
-    -- Pipe reset
+    ------------------------------------
+    -- Pipe reset w randomness 
+    ------------------------------------
     for _, set in ipairs(pipeSets) do
         local pipeX = Mafs.get_vec_x(Fysics.get_pos(set.bottom))
 
         if pipeX < -0.6 then
 
-            -- Reset pipes
-            Fysics.set_pos(set.bottom, (windowW+60)/100, 4 + (math.random(2, 3) / 10 * (math.random(1, 2) == 1 and -1 or 1)))
-            Fysics.set_pos(set.top, (windowW+60)/100, -0.5 + (math.random(2, 3) / 10 * (math.random(1, 2) == 1 and -1 or 1)))
+            -- Added difficulty: shrink pipe gap as score increases
+            local gapSize = pipeStartGap - (Pscore * pipeShrinkGap)
+            if gapSize < pipeMinGap then
+                gapSize = pipeMinGap
+            end
+
+            -- Random gap
+            local gapCenter = pipesetMinGap +
+                math.random() * (pipesetMaxGap - pipesetMinGap)
+
+            if set.lastGapCenter then
+                local delta = gapCenter - set.lastGapCenter
+                if math.abs(delta) < 0.4 then
+                    gapCenter = gapCenter + (delta > 0 and 0.6 or -0.6)
+                end
+            end
+            set.lastGapCenter = gapCenter
+
+            -- Calculate pipe positions
+            local bottomY = gapCenter + (gapSize / 2)
+            local topY = gapCenter - (gapSize / 2) - pipeHeight
+
+            local spawnX = (windowW + 60) / 100
+
+            -- Apply positions
+            Fysics.set_pos(set.bottom, spawnX, bottomY)
+            Fysics.set_pos(set.top, spawnX, topY)
 
             set.passed = false
         end
@@ -813,6 +848,7 @@ end
     for _, p in ipairs({pipe, pipeT, pipe2, pipeT2, pipe3, pipeT3}) do
         Fysics.set_linear_velocity(p, 0, 0)
     end
+
     for _, c in ipairs(coins) do
         Fysics.set_linear_velocity(c, 0, 0)
         local s = Entity.get_sprite_component(c)
@@ -833,31 +869,48 @@ end
     local finalScoreText = "Final Score: 0"
     local coinsText = ""
     local text2 = ""
-    local topScore = "Highscore: "
-
-    
+    local topScore = "Highscore: "   
 end
+
     ------------------------------------------------------
 	-- Collision
 	------------------------------------------------------
 function ExampleScript:OnCollisionEnter(a, b)
     if gameOver then return end
 
-    --If player touches any pipe then game over
-    if (a == player1 and (b == pipe or b == pipeT or b == pipe2 or b == pipeT2 or b == pipe3 or b == pipeT3))
-    or (b == player1 and (a == pipe or a == pipeT or a == pipe2 or a == pipeT2 or a == pipe3 or a == pipeT3)) then
+    local other = nil
+    if a == player1 then other = b
+    elseif b == player1 then other = a end
+    if not other then return end
 
-        if hitSound then
-            AudioComponent.play(hitSound)
-            print("Hit sfx played")
+    
+    -- If player touches any pipe then game over
+    if other == pipe or other == pipeT or other == pipe2 or other == pipeT2 or other == pipe3 or other == pipeT3 then
+
+        if hitSound then 
+        AudioComponent.play(hitSound)
+        print("Hit sfx played")
         end
-
+        
         print("GAME OVER: Hit pipe! Try Again")
-
         triggerGameOver()
+        return
     end
-end
 
+    -- Hit floor or anything that is not a coin then game over
+    for _, c in ipairs(coins) do
+        if other == c then
+            return 
+        end
+    end
+
+    if hitSound then 
+    AudioComponent.play(hitSound) 
+    end
+
+    print("GAME OVER: Hit pipe! Try Again")
+    triggerGameOver()
+end
 
 return ExampleScript
 
