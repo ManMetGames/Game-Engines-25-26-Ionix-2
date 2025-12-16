@@ -24,35 +24,6 @@ local function GetXpForNextLevel(level)
     return math.floor(base)
 end
 
-local levelUpgrades = {
-    [2]  = { type = "bullet" },
-    [3]  = { type = "fire_rate", amount = 0.1 },
-    [4]  = { type = "bullet" },
-    [5]  = { type = "bounce" },
-    [6]  = { type = "pierce" },
-    [7]  = { type = "bullet" },
-    [8]  = { type = "fire_rate", amount = 0.05 },
-    [9]  = { type = "bounce" },
-    [10] = { type = "pierce" },
-    [11] = { type = "bullet" },
-}
-
-local function ApplyLevelUpgrade(level)
-    local upgrade = levelUpgrades[level]
-    if not upgrade then return end
-
-    if upgrade.type == "bullet" then
-        playerStats.bulletCount = playerStats.bulletCount + 1
-    elseif upgrade.type == "pierce" then
-        playerStats.pierceCount = playerStats.pierceCount + 1
-    elseif upgrade.type == "bounce" then
-        playerStats.bounceCount = playerStats.bounceCount + 1
-    elseif upgrade.type == "fire_rate" then
-        local reduction = upgrade.amount or 0.05
-        playerStats.fireInterval = math.max(0.05, playerStats.fireInterval - reduction)
-    end
-end
-
 local pendingLevelUp = false
 
 local function OnLevelUp()
