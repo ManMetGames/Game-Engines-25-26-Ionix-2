@@ -87,7 +87,7 @@ namespace IonixEngine {
             const char* label, const std::string& id,
             float min, float max,
             sol::optional<float> defaultValue, sol::optional<std::string> fontName,
-            sol::optional<float> fontScale)
+            sol::optional<float> fontScale, sol::optional<std::string> format)
             {
                 Application::Get().layerUI->m_UIManager->AddSlider(
                     x, y, width,
@@ -95,7 +95,8 @@ namespace IonixEngine {
                     min, max,
                     defaultValue.value_or(0.0f),
                     fontName.value_or(""),
-                    fontScale.value_or(1.0f)
+                    fontScale.value_or(1.0f),
+                    format.value_or("")
                 );
             };
 

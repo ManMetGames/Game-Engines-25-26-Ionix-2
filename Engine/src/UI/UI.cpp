@@ -22,11 +22,11 @@ namespace IonixEngine
 	}
 
 	bool UI::DrawSlider(const char* label, float* value, float width,
-		int xpos, int ypos, float minval, float maxval)
+		int xpos, int ypos, float minval, float maxval, const char* format)
 	{
 		ImGui::SetCursorPos(ImVec2((float)xpos, (float)ypos));
 		ImGui::SetNextItemWidth(width);
-		return ImGui::SliderFloat(label, value, minval, maxval);
+		return ImGui::SliderFloat(label, value, minval, maxval, format);
 	}
 
 	bool UI::DrawCheckbox(const char* label, bool* value, int xpos, int ypos)

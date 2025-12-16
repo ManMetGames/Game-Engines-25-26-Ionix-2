@@ -13,7 +13,8 @@ namespace IonixEngine
         void DrawLabel(const char* text, int xpos, int ypos, int xsize, int ysize);
         bool DrawButton(char* text, int xsize, int ysize, int xpos, int ypos);
         bool DrawSlider(const char* label, float* value, float width,
-            int xpos, int ypos, float minval, float maxval);
+            int xpos, int ypos, float minval, float maxval,
+            const char* format = nullptr);
         bool DrawCheckbox(const char* label, bool* value, int xpos, int ypos);
 
         bool DrawRadioButton(int xpos, int ypos, const char* text, int* v, int value);

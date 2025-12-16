@@ -799,7 +799,9 @@ local function DrawSettingsMenu(screenW, screenH, dt)
     local sliderX = math.floor((panelW - sliderW) / 2)
     local sliderY = math.floor(panelH * 0.34)
 
-    UI.add_slider(sliderX, sliderY, sliderW, "Volume", "ts_volume", 0.0, 1.0, volumeSetting)
+    UI.add_centered_label(cx, sliderY - 28, "Volume", "ImGuiDefaultBold", 1.1)
+
+    UI.add_slider(sliderX, sliderY, sliderW, "", "ts_volume", 0.0, 1.0, volumeSetting, nil, nil, " ")
 
     if UI.was_slider_changed("ts_volume") then
         volumeSetting = UI.get_slider("ts_volume") or volumeSetting
@@ -807,8 +809,10 @@ local function DrawSettingsMenu(screenW, screenH, dt)
         ApplyAudioVolumes()
     end
 
+    -- Percent showing on the right side of the slider
     local percent = math.floor(((UI.get_slider("ts_volume") or volumeSetting) * 100) + 0.5)
-    UI.add_centered_label(cx, sliderY + 40, tostring(percent) .. "%", "", 1.1)
+    UI.add_label(sliderX + sliderW + 12, sliderY + 2, 0, 0, tostring(percent) .. "%", "ImGuiDefaultBold", 1.0)
+
 
     -- Back button
     local bw, bh = math.min(320, math.floor(panelW * 0.55)), 50

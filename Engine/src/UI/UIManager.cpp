@@ -125,7 +125,7 @@ namespace IonixEngine
 
 	void UIManager::AddSlider(int x, int y, float width,
 		const char* label, const char* id,
-		float min, float max, float defaultValue, const std::string& fontName, float fontScale)
+		float min, float max, float defaultValue, const std::string& fontName, float fontScale, const std::string& format)
 	{
 		UIElement* element = new UIElement{};
 		element->type = UIType::SliderFloat;
@@ -143,6 +143,7 @@ namespace IonixEngine
 		element->widgetId = (id && id[0]) ? id : element->ownedText;
 		element->sliderMin = min;
 		element->slidermax = max;
+		element->sliderFormat = format;
 
 		// init only once
 		if (m_sliderValues.find(element->widgetId) == m_sliderValues.end())
@@ -551,7 +552,7 @@ namespace IonixEngine
 				&v,
 				element->xSize,          // width
 				element->xPos, element->yPos,
-				element->sliderMin, element->slidermax
+				element->sliderMin, element->slidermax, element->sliderFormat.c_str()
 			);
 
 			if (changed)

@@ -53,6 +53,7 @@ namespace IonixEngine
 		float* sliderValue = nullptr;
 		float sliderMin = 0.0f;
 		float slidermax = 1.0f;
+		std::string sliderFormat;
 
 		// InputText specific
 		char* inputBuffer = nullptr;
@@ -177,7 +178,7 @@ namespace IonixEngine
 		void AddSlider(int x, int y, float width,
 			const char* label, const char* id,
 			float min, float max, float defaultValue = 0.0f,
-			const std::string& fontName = "", float fontScale = 1.0f);
+			const std::string& fontName = "", float fontScale = 1.0f, const std::string& format = "");
 
 
 		void AddInputText(int xPos, int yPos, float width, const char* label, const char* id, size_t maxLen = 16,
