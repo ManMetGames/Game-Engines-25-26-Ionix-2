@@ -457,32 +457,32 @@ function ExampleScript:OnUpdate()
     ------------------
 	-- Example Settings Panel showcase with button to toggle
 	------------------
-    --[[
-    UI.add_button(150, 20, 160, 35, showSettings and "Hide Settings" or "Show Settings", "settings_btn")
+   --[[
+    UI.add_button(150, 20, 160, 35, showSettings and "Hide Settings" or "Show Settings", "settings_btn", "ImGuiDefaultBold", 1.0, 12, true, 95, 150, 165, 0.75)
     if UI.was_button_pressed("settings_btn") then
       showSettings = not showSettings
     end
 
     if showSettings then
       UI.begin_child(20, 70, 320, 300, "SettingsChild", true, 0,
-                     true, 0.75, 10, 70, 160, 115)
+                     true, 0.75, 5, 95, 150, 165)
 
-      UI.Add_label(10, 10, 0, 0, "Settings (JSON test)", "ImGuiDefaultBold", 1.3)
+      UI.Add_label(10, 10, 0, 0, "Settings", "ImGuiDefaultBold", 1.3)
 
-      -- Radio: difficulty (default from JSON)
+      -- Radio: difficulty 
       UI.add_radio(10, 45, 0, 0, "Easy",   "difficulty", 0, s_difficulty, false)
       UI.add_radio(10, 65, 0, 0, "Normal", "difficulty", 1, s_difficulty, false)
       UI.add_radio(10, 85, 0, 0, "Hard",   "difficulty", 2, s_difficulty, false)
 
-      -- Dropdown: skin (default from JSON)
+      -- Dropdown: skin 
       UI.add_dropdown(10, 115, 240, 0, "Bird Skin", "bird_skin_dd",
                       { "Classic", "Blue", "Red", "Gold" }, s_skin)
 
-      -- Color picker: tint (default from JSON)
+      -- Color picker: tint 
       UI.add_color_picker(10, 150, 0, 0, "Tint", "bird_tint",
                           s_tint[1], s_tint[2], s_tint[3], s_tint[4])
 
-      -- Checkbox + slider examples (default from JSON)
+      -- Checkbox + slider examples 
       UI.add_checkbox(10, 220, 0, 0, "Music", "music_chk", s_music)
       UI.add_slider(10, 245, 200, "Volume", "volume", 0.0, 1.0, s_volume)
 

@@ -3,6 +3,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <cmath>
 
 namespace IonixEngine
 {
@@ -47,9 +48,18 @@ namespace IonixEngine
         {
             if (!v.valid() || v == sol::nil) return nullptr;
             if (v.is<bool>()) return v.as<bool>();
-            if (v.is<int>()) return v.as<int>();
-            if (v.is<double>()) return v.as<double>();
-            if (v.is<float>()) return (double)v.as<float>();
+            if (v.get_type() == sol::type::number)
+            {
+                double d = v.as<double>();
+
+                // Round to 2 decimal places
+                d = std::round(d * 100.0) / 100.0;
+
+                // Keep integers as integers (1.0 -> 1)
+                if (std::floor(d) == d) return (int64_t)d;
+
+                return d;
+            }
             if (v.is<std::string>()) return v.as<std::string>();
 
             if (v.is<sol::table>()) {
