@@ -275,22 +275,28 @@ LoadLevel = function(index, resetPlayerState)
      --=====================================================================
      --  [LOAD LEVEL] Spawn Enemies
      --=====================================================================
+    local enemyTemplates = TriangleShooterLevels.getEnemyTemplates()
+    
     if cfg.enemies then
         for i, enemyCfg in ipairs(cfg.enemies) do
+            local movementType = enemyCfg.movementType or "bounce"
+            local template = enemyTemplates[movementType]
+            local templateSize = template and template.baseSize or 32
+            
             local spawnX = enemyCfg.x or centerX
             local spawnY = enemyCfg.y or centerY
             
             if not enemyCfg.x and not enemyCfg.y and #cfg.enemies > 1 then
                 local radius = 120
                 local angle = (2 * math.pi * (i - 1)) / #cfg.enemies
-                spawnX = screenW / 2 + math.cos(angle) * radius - (enemyCfg.size or enemySize) / 2
-                spawnY = screenH / 2 + math.sin(angle) * radius - (enemyCfg.size or enemySize) / 2
+                spawnX = screenW / 2 + math.cos(angle) * radius - templateSize / 2
+                spawnY = screenH / 2 + math.sin(angle) * radius - templateSize / 2
             end
             
             local config = {
                 health = enemyCfg.health or levelEnemyHealth,
                 healthScaling = enemyCfg.healthScaling,
-                size = enemyCfg.size or enemySize,
+                size = templateSize,
                 color = enemyCfg.color,
                 speed = enemyCfg.speed,
                 baseSpeed = enemyCfg.baseSpeed,
