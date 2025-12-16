@@ -5,18 +5,12 @@
 namespace IonixEngine
 {
 
-
-void UIManager::BeginPanel(const std::string& panelName)
-{
-
-}
-
 void UIManager::AddChildToPanel(UIElement* element)
 {
 	elements.push_back(element);
 }
 
-void UIManager::AddLabel(int x, int y, float xSize, float ySize, const char* text, const std::string& fontName)
+void UIManager::AddLabel(int x, int y, float xSize, float ySize, const char* text, const std::string& fontName, float fontScale)
 {
 	UIElement* element = new UIElement;
 	element->type = UIType::Label;
@@ -25,8 +19,54 @@ void UIManager::AddLabel(int x, int y, float xSize, float ySize, const char* tex
 	element->xSize = xSize;
 	element->ySize = ySize;
 	element->ownedText = (text ? text : "");
-	element->text = const_cast<char*>(element->ownedText.c_str());
+	element->text = element->ownedText.c_str();
 	element->fontName = fontName;
+	element->fontScale = fontScale;
+	AddChildToPanel(element);
+}
+
+void UIManager::AddCenteredLabel(float centerX, float y, const char* text, const std::string& fontName, float fontScale)
+{
+	UIElement* element = new UIElement{};
+	element->type = UIType::Label;
+	element->centerAligned = true;
+	element->centerX = centerX;
+	element->yPos = (int)y;
+
+	element->fontName = fontName;
+	element->fontScale = fontScale;
+
+	element->ownedText = (text ? text : "");
+	element->text = element->ownedText.c_str();
+
+	element->fontName = fontName;
+	AddChildToPanel(element);
+}
+
+void UIManager::AddButton(int x, int y, float xSize, float ySize, const char* text, const char* id, const std::string& fontName, float fontScale, float rounding, bool useColor,
+	float r, float g, float b, float a)
+{
+	UIElement* element = new UIElement{};
+	element->type = UIType::Button;
+	element->xPos = x;
+	element->yPos = y;
+	element->xSize = xSize;
+	element->ySize = ySize;
+
+	element->fontName = fontName;
+	element->fontScale = fontScale;
+
+	element->buttonCustomStyle = (rounding > 0 || useColor);
+	element->buttonRounding = rounding;
+
+	if (useColor)
+		element->buttonColor = ImVec4(r, g, b, a);
+	else
+		element->buttonColor = ImVec4(0, 0, 0, 0);
+	element->ownedText = (text ? text : "");
+	element->text = element->ownedText.c_str();
+
+	element->widgetId = (id && id[0]) ? id : element->ownedText; // fallback
 
 	AddChildToPanel(element);
 }
@@ -41,7 +81,7 @@ bool UIManager::WasButtonPressed(const std::string& id)
 	return pressed;
 }
 
-void UIManager::AddCheckboxID(int x, int y, float xSize, float ySize, const char* text, const char* id, bool defaultValue)
+void UIManager::AddCheckbox(int x, int y, float xSize, float ySize, const char* text, const char* id, bool defaultValue, const std::string& fontName, float fontScale)
 {
 	UIElement* element = new UIElement{};
 	element->type = UIType::Checkbox;
@@ -51,7 +91,10 @@ void UIManager::AddCheckboxID(int x, int y, float xSize, float ySize, const char
 	element->ySize = ySize;
 
 	element->ownedText = (text ? text : "");
-	element->text = const_cast<char*>(element->ownedText.c_str());
+	element->text = element->ownedText.c_str();
+
+	element->fontName = fontName;
+	element->fontScale = fontScale;
 
 	element->widgetId = (id && id[0]) ? id : element->ownedText;
 	element->defaultValue = defaultValue;
@@ -79,41 +122,57 @@ bool UIManager::WasCheckboxChanged(const std::string& id)
 	return changed;
 }
 
-void UIManager::AddButton(int x, int y, float xSize, float ySize, const char* text, const char* id)
+
+void UIManager::AddSlider(int x, int y, float width,
+	const char* label, const char* id,
+	float min, float max, float defaultValue, const std::string& fontName, float fontScale)
 {
 	UIElement* element = new UIElement{};
-	element->type = UIType::Button;
-	element->xPos = x;
-	element->yPos = y;
-	element->xSize = xSize;
-	element->ySize = ySize;
-
-	element->ownedText = (text ? text : "");
-	element->text = const_cast<char*>(element->ownedText.c_str());
-
-	element->widgetId = (id && id[0]) ? id : element->ownedText; // fallback
-
-	AddChildToPanel(element);
-}
-
-void UIManager::AddSliderFloat(int x, int y, float xSize, float ySize, const char* text, float* value, float min, float max, const std::string& fontName)
-{
-	UIElement* element = new UIElement;
 	element->type = UIType::SliderFloat;
 	element->xPos = x;
 	element->yPos = y;
-	element->xSize = xSize;
-	element->ySize = ySize;
-	element->ownedText = (text ? text : "");
-	element->text = const_cast<char*>(element->ownedText.c_str());
-	element->sliderValue = value;
+	element->xSize = width;          // use xSize as width
+	element->ySize = 0.0f;
+
+	element->ownedText = (label ? label : "");
+	element->text = element->ownedText.c_str();
+
+	element->fontName = fontName;
+	element->fontScale = fontScale;
+
+	element->widgetId = (id && id[0]) ? id : element->ownedText;
 	element->sliderMin = min;
 	element->slidermax = max;
-	element->fontName = fontName;
+
+	// init only once
+	if (m_sliderValues.find(element->widgetId) == m_sliderValues.end())
+		m_sliderValues[element->widgetId] = defaultValue;
+
 	AddChildToPanel(element);
 }
 
-void UIManager::AddInputText(int xPos, int yPos, float width, const char* label, const char* id, size_t maxLen)
+float UIManager::GetSlider(const std::string& id) const
+{
+	auto it = m_sliderValues.find(id);
+	return (it != m_sliderValues.end()) ? it->second : 0.0f;
+}
+
+bool UIManager::WasSliderChanged(const std::string& id)
+{
+	auto it = m_sliderChanged.find(id);
+	if (it == m_sliderChanged.end()) return false;
+
+	bool changed = it->second;
+	it->second = false; // consume like your buttons/checkboxes
+	return changed;
+}
+
+void UIManager::SetSlider(const std::string& id, float v)
+{
+	m_sliderValues[id] = v;
+}
+
+void UIManager::AddInputText(int xPos, int yPos, float width, const char* label, const char* id, size_t maxLen, const std::string& fontName, float fontScale)
 {
 	UIElement* element = new UIElement;
 	element->type = UIType::InputText;
@@ -121,8 +180,11 @@ void UIManager::AddInputText(int xPos, int yPos, float width, const char* label,
 	element->yPos = yPos;
 	element->width = width;
 	element->ownedText = (label ? label : "");
-	element->text = const_cast<char*>(element->ownedText.c_str());
+	element->text = element->ownedText.c_str();
 	element->inputId = id;
+
+	element->fontName = fontName;
+	element->fontScale = fontScale;
 
 	auto& buf = m_inputBuffers[element->inputId];
 	if (buf.empty())
@@ -130,7 +192,6 @@ void UIManager::AddInputText(int xPos, int yPos, float width, const char* label,
 	element->inputBuffer = buf.data();
 	element->inputBufferSize = 16;
 	element->inputBufferSize = buf.size();
-	const std::string fontName;
 	AddChildToPanel(element);
 }
 
@@ -158,51 +219,76 @@ void UIManager::ClearInput(const std::string& id)
 		it->second[0] = '\0';
 }
 
-void UIManager::AddRadioButton(int x, int y, float xSize, float ySize, const char* text, int* radioValuePointer, int value, bool sameline, const std::string& fontName)
+void UIManager::AddRadioToggle(int x, int y, float xSize, float ySize, const char* label,
+	const char* groupId, int value, int defaultValue, bool sameline,
+	const std::string& fontName, float fontScale)
 {
-	UIElement* element = new UIElement;
+	UIElement* element = new UIElement{};
 	element->type = UIType::RadioButton;
-	element->xPos = x;
-	element->yPos = y;
-	element->xSize = xSize;
-	element->ySize = ySize;
-	element->ownedText = (text ? text : "");
-	element->text = const_cast<char*>(element->ownedText.c_str());
-	element->radioValuePtr = radioValuePointer;
-	element->RadioButtonValue = value;
-	element->sameline = sameline;
-	element->fontName = fontName;
-	AddChildToPanel(element);
-}
-
-void UIManager::AddColorPicker(int x, int y, float xSize, float ySize, const char* label, float* color, const std::string& fontName)
-{
-	UIElement* element = new UIElement;
-	element->type = UIType::ColorPicker;
-	element->xPos = x;
-	element->yPos = y;
-	element->xSize = xSize;
-	element->ySize = ySize;
+	element->xPos = x; element->yPos = y;
+	element->xSize = xSize; element->ySize = ySize;
 	element->ownedText = (label ? label : "");
-	element->text = const_cast<char*>(element->ownedText.c_str());
-	element->color = color;
+	element->text = element->ownedText.c_str();
+
+	element->groupId = (groupId ? groupId : "");
+	element->radioValue = value;
+	element->radioDefaultValue = defaultValue;
+	element->sameline = sameline;
+
 	element->fontName = fontName;
+	element->fontScale = fontScale;
+
+	if (!element->groupId.empty() && m_radioGroupValue.find(element->groupId) == m_radioGroupValue.end())
+		m_radioGroupValue[element->groupId] = defaultValue;
+
 	AddChildToPanel(element);
 }
 
-void UIManager::AddDropdown(int x, int y, float xSize, float ySize, const char* text, std::vector<std::string> options, int* currentIndex, const std::string& fontName)
+
+void UIManager::AddColorPicker(int x, int y, float xSize, float ySize, const char* label,
+	const char* id, ImVec4 defaultColor,
+	const std::string& fontName, float fontScale)
 {
-	UIElement* element = new UIElement;
-	element->type = UIType::Dropdown;
-	element->xPos = x;
-	element->yPos = y;
-	element->xSize = xSize;
-	element->ySize = ySize;
-	element->ownedText = (text ? text : "");
-	element->text = const_cast<char*>(element->ownedText.c_str());
-	element->dropdownOptions = options;
-	element->dropdownCurrentIndex = currentIndex;
+	UIElement* element = new UIElement{};
+	element->type = UIType::ColorPicker;
+	element->xPos = x; element->yPos = y;
+	element->xSize = xSize; element->ySize = ySize;
+	element->ownedText = (label ? label : "");
+	element->text = element->ownedText.c_str();
+
+	element->widgetId = (id && id[0]) ? id : element->ownedText;
+	element->colorDefault = defaultColor;
+
 	element->fontName = fontName;
+	element->fontScale = fontScale;
+
+	if (m_colorValues.find(element->widgetId) == m_colorValues.end())
+		m_colorValues[element->widgetId] = defaultColor;
+
+	AddChildToPanel(element);
+}
+
+void UIManager::AddDropdown(int x, int y, float xSize, float ySize, const char* label,
+	const char* id, const std::vector<std::string>& options, int defaultIndex,
+	const std::string& fontName, float fontScale)
+{
+	UIElement* element = new UIElement{};
+	element->type = UIType::Dropdown;
+	element->xPos = x; element->yPos = y;
+	element->xSize = xSize; element->ySize = ySize;
+
+	element->ownedText = (label ? label : "");
+	element->text = element->ownedText.c_str();
+
+	element->widgetId = (id && id[0]) ? id : element->ownedText;
+	element->dropdownOptions = options;
+
+	element->fontName = fontName;
+	element->fontScale = fontScale;
+
+	if (m_dropdownIndex.find(element->widgetId) == m_dropdownIndex.end())
+		m_dropdownIndex[element->widgetId] = defaultIndex;
+
 	AddChildToPanel(element);
 }
 
@@ -239,26 +325,79 @@ void IonixEngine::UIManager::AddPanel(int x, int y, float w, float h,
 	AddChildToPanel(element);
 }
 
-void UIManager::AddCenteredLabel(float centerX, float y, const char* text, const std::string& fontName)
+int UIManager::GetRadio(const std::string& groupId) const
+{
+	auto it = m_radioGroupValue.find(groupId);
+	return (it != m_radioGroupValue.end()) ? it->second : 0;
+}
+
+bool UIManager::WasRadioChanged(const std::string& groupId)
+{
+	auto it = m_radioChanged.find(groupId);
+	if (it == m_radioChanged.end()) return false;
+	bool v = it->second;
+	it->second = false;
+	return v;
+}
+
+int UIManager::GetDropdownIndex(const std::string& id) const
+{
+	auto it = m_dropdownIndex.find(id);
+	return (it != m_dropdownIndex.end()) ? it->second : 0;
+}
+
+bool UIManager::WasDropdownChanged(const std::string& id)
+{
+	auto it = m_dropdownChanged.find(id);
+	if (it == m_dropdownChanged.end()) return false;
+	bool v = it->second;
+	it->second = false;
+	return v;
+}
+
+ImVec4 UIManager::GetColor(const std::string& id) const
+{
+	auto it = m_colorValues.find(id);
+	return (it != m_colorValues.end()) ? it->second : ImVec4(1, 1, 1, 1);
+}
+
+bool UIManager::WasColorChanged(const std::string& id)
+{
+	auto it = m_colorChanged.find(id);
+	if (it == m_colorChanged.end()) return false;
+	bool v = it->second;
+	it->second = false;
+	return v;
+}
+
+void UIManager::BeginChild(int x, int y, float w, float h, const char* id,
+	bool border, ImGuiWindowFlags flags,
+	bool hasBg, float alpha, float rounding,
+	int r, int g, int b)
 {
 	UIElement* element = new UIElement{};
-	element->type = UIType::Label;
-	element->centerAligned = true;
-	element->centerX = centerX;
-	element->yPos = (int)y;
+	element->type = UIType::BeginChild;
+	element->xPos = x; element->yPos = y;
+	element->xSize = w; element->ySize = h;
 
-	element->ownedText = (text ? text : "");
-	element->text = const_cast<char*>(element->ownedText.c_str());
+	element->childId = (id && id[0]) ? id : "Child";
+	element->childBorder = border;
+	element->childFlags = flags;
 
-	element->fontName = fontName;
+	element->childHasBg = hasBg;
+	element->childBgAlpha = alpha;
+	element->childBgRounding = rounding;
+	element->childBgR = r; element->childBgG = g; element->childBgB = b;
+
 	AddChildToPanel(element);
 }
 
 
-void UIManager::EndPanel()
+void UIManager::EndChild()
 {
-	ImGui::EndChild();
-	return;
+	UIElement* element = new UIElement{};
+	element->type = UIType::EndChild;
+	AddChildToPanel(element);
 }
 
 void UIManager::ClearElements()
@@ -276,6 +415,9 @@ void UIManager::RenderElement(UIElement* element)
 
 	if (font) ImGui::PushFont(font);
 
+	if (element->fontScale != 1.0f)
+		ImGui::SetWindowFontScale(element->fontScale);
+
 	switch (element->type)
 	{
 	case UIType::Label:
@@ -289,7 +431,7 @@ void UIManager::RenderElement(UIElement* element)
 			x = element->centerX - (w * 0.5f);
 		}
 
-		m_ui->DrawLabel(element->text, element->xSize, element->ySize, (int)x, element->yPos, element->fontName);
+		m_ui->DrawLabel(element->text, element->xSize, element->ySize, (int)x, element->yPos);
 		break;
 	}
 	case UIType::Button:
@@ -297,11 +439,35 @@ void UIManager::RenderElement(UIElement* element)
 		// Make ImGui id unique: "Visible##id"
 		std::string imguiLabel = element->ownedText + "##" + element->widgetId;
 
+		int pushedColors = 0;
+		bool pushedRounding = false;
+
+		if (element->buttonCustomStyle)
+		{
+			if (element->buttonRounding > 0.0f) {
+				ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, element->buttonRounding);
+				pushedRounding = true;
+			}
+
+			if (element->buttonColor.w > 0.0f) {
+				ImVec4 base = element->buttonColor;
+				ImVec4 hover = ImVec4(std::min(base.x + 0.06f, 1.0f), std::min(base.y + 0.06f, 1.0f), std::min(base.z + 0.06f, 1.0f), base.w);
+				ImVec4 active = ImVec4(std::max(base.x - 0.06f, 0.0f), std::max(base.y - 0.06f, 0.0f), std::max(base.z - 0.06f, 0.0f), base.w);
+
+				ImGui::PushStyleColor(ImGuiCol_Button, base);        pushedColors++;
+				ImGui::PushStyleColor(ImGuiCol_ButtonHovered, hover); pushedColors++;
+				ImGui::PushStyleColor(ImGuiCol_ButtonActive, active); pushedColors++;
+			}
+		}
+
 		bool pressed = m_ui->DrawButton(
 			const_cast<char*>(imguiLabel.c_str()),
 			(int)element->xSize, (int)element->ySize,
 			element->xPos, element->yPos
 		);
+
+		if (pushedColors) ImGui::PopStyleColor(pushedColors);
+		if (pushedRounding) ImGui::PopStyleVar();
 
 		if (pressed)
 			m_buttonPressed[element->widgetId] = true;
@@ -327,11 +493,31 @@ void UIManager::RenderElement(UIElement* element)
 	}
 
 
-
 	case UIType::SliderFloat:
-		if (element->sliderValue)
-			*element->sliderValue = m_ui->DrawSlider(element->text, *element->sliderValue, element->xSize, element->ySize, element->xPos, element->yPos, element->sliderMin, element->slidermax);
+	{
+		if (element->widgetId.empty())
+			break;
+
+		float& v = m_sliderValues[element->widgetId];
+
+		// "Visible label##id" trick (same as your button/checkbox)
+		std::string imguiLabel = element->ownedText + "##" + element->widgetId;
+
+		bool changed = m_ui->DrawSlider(
+			imguiLabel.c_str(),
+			&v,
+			element->xSize,          // width
+			element->xPos, element->yPos,
+			element->sliderMin, element->slidermax
+		);
+
+		if (changed)
+			m_sliderChanged[element->widgetId] = true;
+
 		break;
+	}
+
+
 	case UIType::InputText:
 	{
 		ImGui::PushID(element->inputId.c_str());
@@ -355,27 +541,70 @@ void UIManager::RenderElement(UIElement* element)
 		break;
 	}
 	case UIType::RadioButton:
-		if (element->radioValuePtr)
-		{
-			m_ui->DrawRadioButton(element->xPos, element->yPos, element->text, *element->radioValuePtr, element->RadioButtonValue, element->sameline);
-		}
+	{
+		if (element->groupId.empty()) break;
+
+		int& v = m_radioGroupValue[element->groupId];
+
+		// Unique ID: Visible##group_value
+		std::string imguiLabel = element->ownedText + "##" + element->groupId + "_" + std::to_string(element->radioValue);
+
+		bool changed = m_ui->DrawRadioButton(element->xPos, element->yPos, imguiLabel.c_str(), &v, element->radioValue);
+		if (changed)
+			m_radioChanged[element->groupId] = true;
+
 		break;
+	}
+
 	case UIType::ColorPicker:
-		if (element->color)
-			m_ui->DrawColorPicker(element->xPos, element->yPos, element->xSize, element->ySize, element->text, element->color);
+	{
+		if (element->widgetId.empty()) break;
+
+		ImVec4& c = m_colorValues[element->widgetId];
+
+		std::string imguiLabel = element->ownedText + "##" + element->widgetId;
+
+		bool changed = m_ui->DrawColorPicker(element->xPos, element->yPos,
+			element->xSize, element->ySize,
+			imguiLabel.c_str(), (float*)&c);
+		if (changed)
+			m_colorChanged[element->widgetId] = true;
+
 		break;
+	}
+
 	case UIType::ProgressBar:
 		if (element->currentValue)
 		{
 			m_ui->DrawProgressBar(element->xPos, element->yPos, element->xSize, element->ySize, element->maxValue, *element->currentValue, element->incrementAmount);
 		}
 		break;
+
 	case UIType::Dropdown:
-		if (element->dropdownCurrentIndex)
+	{
+		if (element->widgetId.empty()) break;
+
+		int& idx = m_dropdownIndex[element->widgetId];
+
+		// clamp safety
+		if (!element->dropdownOptions.empty())
 		{
-			m_ui->DrawDropdown(element->xPos, element->yPos, element->ySize, element->xSize, element->text, element->dropdownOptions, element->dropdownCurrentIndex);
+			if (idx < 0 || idx >= (int)element->dropdownOptions.size())
+				idx = 0;
 		}
+		else idx = 0;
+
+		std::string imguiLabel = element->ownedText + "##" + element->widgetId;
+
+		bool changed = m_ui->DrawDropdown(element->xPos, element->yPos,
+			element->xSize, element->ySize,   // NOTE: correct order
+			imguiLabel.c_str(),
+			element->dropdownOptions, &idx);
+		if (changed)
+			m_dropdownChanged[element->widgetId] = true;
+
 		break;
+	}
 
 	case UIType::Panel:
 		m_ui->DrawPanel(element->xPos, element->yPos, element->xSize, element->ySize,
@@ -383,10 +612,55 @@ void UIManager::RenderElement(UIElement* element)
 			element->panelR, element->panelG, element->panelB);
 		break;
 
+	case UIType::BeginChild:
+	{
+		ChildStylePop pops{};
+
+		if (element->childHasBg)
+		{
+			ImVec4 col(
+				element->childBgR / 255.0f,
+				element->childBgG / 255.0f,
+				element->childBgB / 255.0f,
+				element->childBgAlpha
+			);
+			ImGui::PushStyleColor(ImGuiCol_ChildBg, col);
+			pops.colors++;
+			ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, element->childBgRounding);
+			pops.vars++;
+		}
+
+		m_childStyleStack.push_back(pops);
+
+		ImGui::SetCursorPos(ImVec2((float)element->xPos, (float)element->yPos));
+		ImGui::BeginChild(element->childId.c_str(),
+			ImVec2(element->xSize, element->ySize),
+			element->childBorder,
+			element->childFlags);
+		break;
+	}
+
+	case UIType::EndChild:
+	{
+		ImGui::EndChild();
+
+		if (!m_childStyleStack.empty())
+		{
+			ChildStylePop pops = m_childStyleStack.back();
+			m_childStyleStack.pop_back();
+			if (pops.vars)   ImGui::PopStyleVar(pops.vars);
+			if (pops.colors) ImGui::PopStyleColor(pops.colors);
+		}
+		break;
+	}
+
+
 	default:
 		break;
 	}
 
+	if (element->fontScale != 1.0f)
+		ImGui::SetWindowFontScale(1.0f);
 	// --- FONT POP ---
 	if (font) ImGui::PopFont();
 	if (element->sameline) ImGui::SameLine();
@@ -398,6 +672,10 @@ void UIManager::RenderUI()
 	m_inputCommittedThisFrame.clear();
 	m_buttonPressed.clear();
 	m_checkboxChanged.clear();
+	m_sliderChanged.clear();
+	m_radioChanged.clear();
+	m_dropdownChanged.clear();
+	m_colorChanged.clear();
 
 	for (auto* element : elements)
 	{

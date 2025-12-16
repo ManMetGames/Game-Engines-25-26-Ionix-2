@@ -31,7 +31,7 @@ namespace IonixEngine {
 		bool isReversing; // kai is smelly (its true)
 		int rows, cols;
 		int spriteWidth, spriteHeight;
-		int currentRow, currentCol;
+		int currentRow = 0, currentCol = 0;
 		float spriteAngle = 0.0f;
 		int renderLayer;
 		float timer = 0.0f;

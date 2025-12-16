@@ -11,6 +11,7 @@ local newHighScore = false
 local submitted = false -- For Highscore submission
 local playerName = Json.load_player_name()
 if playerName == "" then playerName = "Anon" end
+local showSettings = showSettings or false
 
 -- Pipes
 local pipe, pipeT, pipe2, pipeT2, pipe3, pipeT3
@@ -65,6 +66,20 @@ local gameOverSound
 -- Leaderboard
 local topLeaderboard = nil
 local leaderboardFetched = false
+
+-- For delaying restart
+local RESTART_DELAY_FRAMES = 90   -- equivalent 1s at 60fps
+local restartDelayFrames = 0
+
+--[[
+-- Settings test
+local settings_loaded = false
+local s_difficulty = 1
+local s_skin = 0
+local s_tint = {1,1,1,1}
+local s_music = true
+local s_volume = 0.75
+]]
 
 -- Window
 Window.set_size_centered(960, 640)
@@ -133,6 +148,7 @@ end
 ----------------------------------------------------------
 local function resetGame()
     -- Reset game state
+    restartDelayFrames = 0
     gameOver = false
     score = 0
     Pscore = 0
@@ -337,6 +353,20 @@ end
 -- OnUpdate
 ----------------------------------------------------------
 function ExampleScript:OnUpdate()
+
+    ------------------
+	-- Settings test load
+	------------------
+
+    if not settings_loaded then
+      s_difficulty = Json.load_setting(GAME_ID, "ui.difficulty", 1)
+      s_skin       = Json.load_setting(GAME_ID, "ui.skin_index", 0)
+      s_tint       = Json.load_setting(GAME_ID, "ui.tint", {1,1,1,1})
+      s_music      = Json.load_setting(GAME_ID, "audio.music", true)
+      s_volume     = Json.load_setting(GAME_ID, "audio.volume", 0.75)
+      settings_loaded = true
+    end
+
     ------------------
 	-- Window
 	------------------
@@ -344,24 +374,184 @@ function ExampleScript:OnUpdate()
     local windowW = Window.get_width()
     local windowH = Window.get_height()
 
+    -- ===================================================================================================== 
+	-- User Interface - button/checkbox/sliderFloat/radio button/dropdown/colour picker/child panel examples
+	-- ===================================================================================================== 
+
     ------------------
-	-- New button/checkbox test
+	-- Button
 	------------------
-    -- UI.add_button(20, 20, 120, 35, "Restart", "restart_btn")
-    -- if UI.was_button_pressed("restart_btn") then
-    --     resetGame()
-    -- end
+    --UI.add_button(20, 20, 120, 35, "Restart", "restart_btn")
+     --if UI.was_button_pressed("restart_btn") then
+     --    resetGame()
+     --end
 
-    -- UI.add_checkbox(20, 60, 0, 0, "Music", "music_chk", true)
+    --UI.add_button(100, 50, 160, 35, "Retry", "retry_btn", "ImGuiDefaultBold", 1.0, 12, true, 70, 130, 180, 1)
+    ------------------
+	-- Checkbox
+	------------------
+     --UI.add_checkbox(20, 60, 0, 0, "Music", "music_chk", true)
 
-    -- if UI.get_checkbox("music_chk") then
-        -- music on
-    -- end
+     --if UI.get_checkbox("music_chk") then
+     --   -- music on
+     --end
 
-    -- if UI.was_checkbox_changed("music_chk") then
-    --     print("toggled to:", UI.get_checkbox("music_chk"))
-    -- end
+     --if UI.was_checkbox_changed("music_chk") then
+     --    print("toggled to:", UI.get_checkbox("music_chk"))
+     --end
 
+    ------------------
+	-- Slider
+	------------------
+    --UI.add_slider(20, 80, 110, "Volume", "volume", 0.0, 1.0, 0.75)
+
+    --local v = UI.get_slider("volume")
+    --if UI.was_slider_changed("volume") then
+    --    print("volume now:", v)
+    --end
+
+    ------------------
+	-- Radio toggle
+	------------------
+    -- Three options in the same group "difficulty"
+    --UI.add_radio(20, 120, 0, 0, "Easy",   "difficulty", 0, 1, false) -- defaultValue = 1
+    --UI.add_radio(20, 140, 0, 0, "Normal", "difficulty", 1, 1, false)
+    --UI.add_radio(20, 160, 0, 0, "Hard",   "difficulty", 2, 1, false)
+
+    --local diff = UI.get_radio("difficulty")
+
+    --if UI.was_radio_changed("difficulty") then
+    --  print("difficulty now:", diff)
+    --end
+
+    ------------------
+	-- Dropdown
+	------------------
+    --UI.add_dropdown(
+    --  20, 200, 220, 0,
+    --  "Bird Skin",
+    --  "bird_skin_dd",
+    --  { "Classic", "Blue", "Red", "Gold" },
+    --  0 -- defaultIndex
+    --)
+
+    --local idx = UI.get_dropdown_index("bird_skin_dd")
+
+    --if UI.was_dropdown_changed("bird_skin_dd") then
+    --  print("dropdown index:", idx)
+    --end
+
+    ---- *string* option in Lua:
+    --local options = { "Classic", "Blue", "Red", "Gold" }
+    --local selected = options[idx + 1]  -- Lua is 1-based, index is 0-based
+
+    ------------------
+	-- Colour picker
+	------------------
+    --UI.add_color_picker(20, 250, 0, 0, "Tint", "bird_tint",
+    --  1.0, 1.0, 1.0, 1.0   -- r,g,b,a default
+    --)
+    --local c = UI.get_color("bird_tint")  -- table: { [1]=r, [2]=g, [3]=b, [4]=a }
+
+    --if UI.was_color_changed("bird_tint") then
+    --  print("color:", c[1], c[2], c[3], c[4])
+    --end
+
+    ------------------
+	-- Child panel
+	------------------
+
+    --UI.add_button(20, 20, 120, 35, "Restart", "restart_btn")
+     --if UI.was_button_pressed("restart_btn") then
+     --    resetGame()
+     --end
+
+    ---- A child region positioned at (20, 100) sized 300x260 with a coloured background
+    --UI.begin_child(20, 95, 320, 300, "FB_Settings", true, 0, true, 0.75, 10, 70, 160, 115) -- hasBg alpha rounding r  g   b
+
+    --UI.add_label(10, 10, 0, 0, "Settings", "ImGuiDefaultBold", 1.3)
+    --UI.add_radio(10, 40, 0, 0, "Easy", "difficulty", 0, 1, false)
+    --UI.add_radio(10, 60, 0, 0, "Normal", "difficulty", 1, 1, false)
+    --UI.add_radio(10, 80, 0, 0, "Hard", "difficulty", 2, 1, false)
+
+    --UI.add_dropdown(10, 120, 240, 0, "Bird Skin", "bird_skin_dd",
+    --  { "Classic", "Blue", "Red", "Gold" }, 0)
+
+    --UI.add_color_picker(10, 160, 0, 0, "Tint", "bird_tint", 1, 1, 1, 1)
+
+    --UI.end_child()
+
+    ------------------
+	-- Example Settings Panel showcase with button to toggle
+    --(Have to uncomment the top 'settings test' block too)
+	------------------
+   --[[
+    UI.add_button(150, 20, 160, 35, showSettings and "Hide Settings" or "Show Settings", "settings_btn", "ImGuiDefaultBold", 1.0, 12, true, 95, 150, 165, 0.75)
+    if UI.was_button_pressed("settings_btn") then
+      showSettings = not showSettings
+    end
+
+    if showSettings then
+      UI.begin_child(20, 70, 320, 300, "SettingsChild", true, 0,
+                     true, 0.75, 5, 95, 150, 165)
+
+      UI.add_label(10, 10, 0, 0, "Settings", "ImGuiDefaultBold", 1.3)
+
+      -- Radio: difficulty 
+      UI.add_radio(10, 45, 0, 0, "Easy",   "difficulty", 0, s_difficulty, false)
+      UI.add_radio(10, 65, 0, 0, "Normal", "difficulty", 1, s_difficulty, false)
+      UI.add_radio(10, 85, 0, 0, "Hard",   "difficulty", 2, s_difficulty, false)
+
+      -- Dropdown: skin 
+      UI.add_dropdown(10, 115, 240, 0, "Bird Skin", "bird_skin_dd",
+                      { "Classic", "Blue", "Red", "Gold" }, s_skin)
+
+      -- Color picker: tint 
+      UI.add_color_picker(10, 150, 0, 0, "Tint", "bird_tint",
+                          s_tint[1], s_tint[2], s_tint[3], s_tint[4])
+
+      -- Checkbox + slider examples 
+      UI.add_checkbox(10, 220, 0, 0, "Music", "music_chk", s_music)
+      UI.add_slider(10, 245, 200, "Volume", "volume", 0.0, 1.0, s_volume)
+
+      -- Save on change
+      if UI.was_radio_changed("difficulty") then
+        local v = UI.get_radio("difficulty")
+        Json.save_setting(GAME_ID, "ui.difficulty", v)
+        s_difficulty = v
+      end
+
+      if UI.was_dropdown_changed("bird_skin_dd") then
+        local idx = UI.get_dropdown_index("bird_skin_dd")
+        Json.save_setting(GAME_ID, "ui.skin_index", idx)
+        s_skin = idx
+      end
+
+      if UI.was_color_changed("bird_tint") then
+        local c = UI.get_color("bird_tint")
+        Json.save_setting(GAME_ID, "ui.tint", c)
+        s_tint = c
+      end
+
+      if UI.was_checkbox_changed("music_chk") then
+        local m = UI.get_checkbox("music_chk")
+        Json.save_setting(GAME_ID, "audio.music", m)
+        s_music = m
+      end
+
+      if UI.was_slider_changed("volume") then
+        local vol = UI.get_slider("volume")
+        Json.save_setting(GAME_ID, "audio.volume", vol)
+        s_volume = vol
+      end
+
+      UI.end_child()
+    end
+    ]]
+
+    -- =====================================================================================================
+    -- End of UI examples
+    -- =====================================================================================================
 
     ------------------
 	-- Point effect
@@ -422,12 +612,12 @@ function ExampleScript:OnUpdate()
         local lbW, lbH = 260, 170
         UI.add_panel(lbX, lbY, lbW, lbH, 0.75, 10, 70, 160, 115)
 
-        UI.Add_label(lbX + 10, lbY + 10, 0, 0, "Leaderboard Ranking")
+        UI.add_label(lbX + 10, lbY + 10, 0, 0, "Leaderboard Ranking", "ImGuiDefaultBold", 1.8)
 
         if topLeaderboard then
           for i, e in ipairs(topLeaderboard) do
             local line = string.format("%d. %s - %d", i, e.name, e.score)
-            UI.Add_label(lbX + 10, lbY + 35 + (i-1)*22, 0, 0, line)
+            UI.add_label(lbX + 10, lbY + 40 + (i-1)*22, 0, 0, line,  "", 1.5)
           end
         end
 
@@ -442,11 +632,11 @@ function ExampleScript:OnUpdate()
         local gap = 26
         local centerX = panelX + (panelW / 2)
 
-        UI.add_centered_label(centerX, y0 + gap*0, text1)
-        UI.add_centered_label(centerX, y0 + gap*1, finalScoreText)
-        UI.add_centered_label(centerX, y0 + gap*2, coinsText)
-        UI.add_centered_label(centerX, y0 + gap*3, topScore)
-        UI.add_centered_label(centerX, y0 + gap*5.5, text2)
+        UI.add_centered_label(centerX, y0 + gap*-0.25, text1,  "ImGuiDefaultBold", 1.8) 
+        UI.add_centered_label(centerX, y0 + gap*1.5, topScore, "", 1.5)
+        UI.add_centered_label(centerX, y0 + gap*2.5, finalScoreText, "", 1.5)
+        UI.add_centered_label(centerX, y0 + gap*3.5, coinsText, "", 1.5)
+        UI.add_centered_label(centerX, y0 + gap*5.5, text2, "ImGuiDefaultBold", 1.8)
 
 
         -- Show TextInput only if new high score
@@ -460,8 +650,8 @@ function ExampleScript:OnUpdate()
             local centerX = nhX + (nhW / 2)
 
             -- Title centered (uses centered label function)
-            UI.add_centered_label(centerX, nhY + 10, "New Highscore! Enter your name")
-            UI.add_centered_label(centerX, nhY + 35, "to be added to the leaderboard:")
+            UI.add_centered_label(centerX, nhY + 10, "New Highscore! Enter your name", "", 1.5)
+            UI.add_centered_label(centerX, nhY + 35, "to be added to the leaderboard:", "", 1.5)
 
             -- Input box (put it centered-ish under the title)
             local inputW = 260
@@ -486,9 +676,19 @@ function ExampleScript:OnUpdate()
             end
         end
 
-        if Input.get_key_down(Keys.ionix_space) then
+        -- Count down once per frame (never below 0)
+        restartDelayFrames = math.max(0, restartDelayFrames - 1)
+
+        -- Only allow restart when delay is done AND name entry isn't active
+        local canRestart = (restartDelayFrames == 0) and not (newHighScore and not submitted)
+
+        text2 = canRestart and "Press SPACE to restart" or ""
+
+
+        if canRestart and Input.get_key_down(Keys.ionix_space) then
             resetGame()
         end
+
 
         return
     end
@@ -594,8 +794,8 @@ function ExampleScript:OnUpdate()
     end
 
     -- UI
-    UI.Add_label(10, 10, 1000, 1000, pipeScoreText)
-    UI.Add_label(10, 40, 1000, 1000, scoreText)
+    UI.add_label(10, 10, 1000, 1000, pipeScoreText, "", 1.5)
+    UI.add_label(10, 40, 1000, 1000, scoreText, "", 1.5)
 
 end
 
@@ -638,6 +838,7 @@ end
 	------------------------------------------------------
     local function triggerGameOver()
     gameOver = true
+    restartDelayFrames = RESTART_DELAY_FRAMES
 
     if gameOverSound then
     AudioComponent.play(gameOverSound)

@@ -61,7 +61,8 @@ namespace IonixEngine
             }
         }
         */
-
+        m_UIManager->setUIRenderer(m_UI);
+        m_UIManager->fontLoader.LoadFonts();
         // Setup Dear ImGui style
         ImGui::StyleColorsDark();
         //ImGui::StyleColorsLight();
@@ -70,9 +71,6 @@ namespace IonixEngine
         ImGui_ImplSDL2_InitForSDLRenderer(window, renderer);
         ImGui_ImplSDLRenderer2_Init(renderer);
         std::cout << "ImGui Initialised " << std::endl;
-
-        m_FontLoader = new Fontloader();
-        m_FontLoader->LoadFonts();
     }
 
     void LayerUI::OnDetach() 
