@@ -902,6 +902,7 @@ function ExampleScript:OnCollisionEnter(a, b)
         if other == c then
             return 
         end
+    end
 
     if hitSound then 
     AudioComponent.play(hitSound) 
