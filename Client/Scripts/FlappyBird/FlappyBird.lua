@@ -16,7 +16,7 @@ local showSettings = showSettings or false
 -- Pipes
 local pipe, pipeT, pipe2, pipeT2, pipe3, pipeT3
 local pipeSets = {}
-local pipeSpeed = -3
+local pipeSpeed = 0
 local pipeOffScreenLeft = -100 
 
 -- Pipe randomness
@@ -200,6 +200,45 @@ local function resetGame()
     UI.clear_input("player_name")
 end
 
+------------------------------------------------------
+-- Game Over
+------------------------------------------------------
+    local function triggerGameOver()
+    gameOver = true
+    restartDelayFrames = RESTART_DELAY_FRAMES
+
+    if gameOverSound then
+    AudioComponent.play(gameOverSound)
+    print("GameOver sound played")
+    end
+
+    for _, p in ipairs({pipe, pipeT, pipe2, pipeT2, pipe3, pipeT3}) do
+        Fysics.set_linear_velocity(p, 0, 0)
+    end
+
+    for _, c in ipairs(coins) do
+        Fysics.set_linear_velocity(c, 0, 0)
+        local s = Entity.get_sprite_component(c)
+        if s then Sprite.set_width(s, 0); Sprite.set_height(s, 0) end
+    end
+    
+    newHighScore = (Pscore > highscore)
+
+    if newHighScore then
+        highscore = Pscore
+        Json.save_high_score(GAME_ID, highscore)
+    end
+
+    text1 = "GAME OVER!! TRY AGAIN"
+    finalScoreText = "Final Score: " .. tostring(Pscore)
+    topScore = "Highscore: " .. tostring(highscore)
+    coinsText = "Coins Collected: " .. tostring(score)
+    local finalScoreText = "Final Score: 0"
+    local coinsText = ""
+    local text2 = ""
+    local topScore = "Highscore: "   
+end
+
 ----------------------------------------------------------
 -- OnStart
 ----------------------------------------------------------
@@ -223,7 +262,7 @@ function ExampleScript:OnStart()
 
     -- PLAYER 1 PHYSICS
     Entity.add_fysics_component(player1, enums.bodytype.dynamicBody, true) -- dynamic body
-    Fysics.add_sprite_collider(player1,false, 0.5)
+    Fysics.add_sprite_collider(player1,false, 0.4)
 
     -- Freeze bird
     Fysics.set_gravity_scale(player1, 0)
@@ -373,6 +412,22 @@ function ExampleScript:OnUpdate()
     Window.set_size_centered(960, 640)
     local windowW = Window.get_width()
     local windowH = Window.get_height()
+
+    -----------------------------------
+    -- Out of bounds check (Game Over)
+    -----------------------------------
+    if not gameOver then
+        local pos = Entity.get_global_pos(player1)
+        local birdY = Mafs.get_vec_y(pos)
+
+        local topLimit = -23
+
+        -- Game Over if flappybird is outside of window size
+        if birdY < topLimit then
+            triggerGameOver()
+            return
+        end
+    end
 
     -- ===================================================================================================== 
 	-- User Interface - button/checkbox/sliderFloat/radio button/dropdown/colour picker/child panel examples
@@ -833,48 +888,9 @@ function ExampleScript:OnTriggerEnter(a, b)
     end
 end
 
-    ------------------------------------------------------
-	-- Game Over
-	------------------------------------------------------
-    local function triggerGameOver()
-    gameOver = true
-    restartDelayFrames = RESTART_DELAY_FRAMES
-
-    if gameOverSound then
-    AudioComponent.play(gameOverSound)
-    print("GameOver sound played")
-    end
-
-    for _, p in ipairs({pipe, pipeT, pipe2, pipeT2, pipe3, pipeT3}) do
-        Fysics.set_linear_velocity(p, 0, 0)
-    end
-
-    for _, c in ipairs(coins) do
-        Fysics.set_linear_velocity(c, 0, 0)
-        local s = Entity.get_sprite_component(c)
-        if s then Sprite.set_width(s, 0); Sprite.set_height(s, 0) end
-    end
-    
-    newHighScore = (Pscore > highscore)
-
-    if newHighScore then
-        highscore = Pscore
-        Json.save_high_score(GAME_ID, highscore)
-    end
-
-    text1 = "GAME OVER!! TRY AGAIN"
-    finalScoreText = "Final Score: " .. tostring(Pscore)
-    topScore = "Highscore: " .. tostring(highscore)
-    coinsText = "Coins Collected: " .. tostring(score)
-    local finalScoreText = "Final Score: 0"
-    local coinsText = ""
-    local text2 = ""
-    local topScore = "Highscore: "   
-end
-
-    ------------------------------------------------------
-	-- Collision
-	------------------------------------------------------
+------------------------------------------------------
+-- Collision
+------------------------------------------------------
 function ExampleScript:OnCollisionEnter(a, b)
     if gameOver then return end
 
