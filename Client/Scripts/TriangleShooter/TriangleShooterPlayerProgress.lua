@@ -9,6 +9,7 @@ local playerStats = {
     pierceCount = 0,
     bounceCount = 0,
     fireInterval = 0.3,
+    maxHealth = 100,
 }
 
 local function GetXpForNextLevel(level)
@@ -69,6 +70,8 @@ function TriangleShooterPlayerProgress.applyUpgrade(upgradeType)
         playerStats.bounceCount = playerStats.bounceCount + 1
     elseif upgradeType == "fire_rate" then
         playerStats.fireInterval = math.max(0.05, playerStats.fireInterval - 0.05)
+    elseif upgradeType == "max_health" then
+        playerStats.maxHealth = (playerStats.maxHealth or 100) + 20
     end
 end
 
@@ -110,6 +113,10 @@ end
 
 function TriangleShooterPlayerProgress.getCurrentFireInterval()
     return playerStats.fireInterval
+end
+
+function TriangleShooterPlayerProgress.getMaxHealth()
+    return playerStats.maxHealth or 100
 end
 
 function TriangleShooterPlayerProgress.getStats()

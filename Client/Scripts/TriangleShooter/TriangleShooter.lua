@@ -334,7 +334,7 @@ LoadLevel = function(index, resetPlayerState)
         end
     end
 
-    playerHealth = 100
+    playerHealth = TriangleShooterPlayerProgress.getMaxHealth()
 
      --=====================================================================
      --  [LOAD LEVEL] Reset Player State
@@ -480,6 +480,10 @@ function TriangleShooter:OnUpdate()
         local selectedUpgrade = TriangleShooterUI.handleInput()
         if selectedUpgrade then
             TriangleShooterPlayerProgress.applyUpgrade(selectedUpgrade.type)
+            if selectedUpgrade.type == "max_health" then
+                local maxH = TriangleShooterPlayerProgress.getMaxHealth()
+                playerHealth = math.min(maxH, playerHealth + 20)
+            end
         end
         return
     end
@@ -688,7 +692,8 @@ function TriangleShooter:OnUpdate()
     local playerHpBarW = 200
     local playerHpBarH = 20
 
-    UI.draw_progress_bar(playerHpBarX, playerHpBarY, playerHpBarW, playerHpBarH, 100, playerHealth, 2)
+    local playerMaxHealth = TriangleShooterPlayerProgress.getMaxHealth()
+    UI.draw_progress_bar(playerHpBarX, playerHpBarY, playerHpBarW, playerHpBarH, playerMaxHealth, playerHealth, 2)
 
     local level, xp, xpToNextLevel = TriangleShooterPlayerProgress.getProgress()
     local playerInfoText = "Player Lv: " .. tostring(level) .. "  XP: " .. tostring(xp) .. " / " .. tostring(xpToNextLevel)

@@ -12,7 +12,7 @@ local upgradePool = {
     { type = "fire_rate",  label = "+ Fire Rate" },
     { type = "bounce",     label = "+ Window Bounce" },
     { type = "max_health", label = "+ Max Health" },
-    { type = "orb_heal",   label = "+ Orb Healing" },
+    --{ type = "orb_heal",   label = "+ Orb Healing" }, -- later
 }
 
 function TriangleShooterUI.getRandomUpgradeOptions(count)
