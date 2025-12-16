@@ -251,7 +251,10 @@ namespace IonixEngine {
             sol::optional<float> rounding,
             sol::optional<int> r,
             sol::optional<int> g,
-            sol::optional<int> b)
+            sol::optional<int> b,
+            sol::optional<float> borderSize,
+            sol::optional<bool> autoBorder,
+            sol::optional<float> borderDarken)
             {
                 Application::Get().layerUI->m_UIManager->BeginChild(
                     x, y, w, h,
@@ -263,9 +266,14 @@ namespace IonixEngine {
                     rounding.value_or(6.0f),
                     r.value_or(0),
                     g.value_or(0),
-                    b.value_or(0)
+                    b.value_or(0),
+                    borderSize.value_or(1.0f),
+                    autoBorder.value_or(true),
+                    borderDarken.value_or(0.85f),
+                    ImVec4(0, 0, 0, 1) // only used if autoBorder=false (you can expose later)
                 );
             };
+
 
         auto EndChild = []()
             {

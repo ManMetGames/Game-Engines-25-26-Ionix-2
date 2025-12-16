@@ -58,6 +58,10 @@ local gameOverSound
 local topLeaderboard = nil
 local leaderboardFetched = false
 
+-- For delaying restart
+local RESTART_DELAY_FRAMES = 90   -- equivalent 1s at 60fps
+local restartDelayFrames = 0
+
 --[[
 -- Settings test
 local settings_loaded = false
@@ -135,6 +139,7 @@ end
 ----------------------------------------------------------
 local function resetGame()
     -- Reset game state
+    restartDelayFrames = 0
     gameOver = false
     score = 0
     Pscore = 0
@@ -360,9 +365,9 @@ function ExampleScript:OnUpdate()
     local windowW = Window.get_width()
     local windowH = Window.get_height()
 
-    ---------------------------------------------------------------------------------
-	-- User Interface - button/checkbox/sliderFloat/radio button/ dropdown/ colour picker/ and child panel examples
-	---------------------------------------------------------------------------------
+    -- ===================================================================================================== 
+	-- User Interface - button/checkbox/sliderFloat/radio button/dropdown/colour picker/child panel examples
+	-- ===================================================================================================== 
 
     ------------------
 	-- Button
@@ -469,6 +474,7 @@ function ExampleScript:OnUpdate()
 
     ------------------
 	-- Example Settings Panel showcase with button to toggle
+    --(Have to uncomment the top 'settings test' block too)
 	------------------
    --[[
     UI.add_button(150, 20, 160, 35, showSettings and "Hide Settings" or "Show Settings", "settings_btn", "ImGuiDefaultBold", 1.0, 12, true, 95, 150, 165, 0.75)
@@ -534,9 +540,9 @@ function ExampleScript:OnUpdate()
     end
     ]]
 
-    ---------------------------------------------------------------------------------
+    -- =====================================================================================================
     -- End of UI examples
-    ---------------------------------------------------------------------------------
+    -- =====================================================================================================
 
     ------------------
 	-- Point effect
@@ -661,9 +667,19 @@ function ExampleScript:OnUpdate()
             end
         end
 
-        if Input.get_key_down(Keys.ionix_space) then
+        -- Count down once per frame (never below 0)
+        restartDelayFrames = math.max(0, restartDelayFrames - 1)
+
+        -- Only allow restart when delay is done AND name entry isn't active
+        local canRestart = (restartDelayFrames == 0) and not (newHighScore and not submitted)
+
+        text2 = canRestart and "Press SPACE to restart" or ""
+
+
+        if canRestart and Input.get_key_down(Keys.ionix_space) then
             resetGame()
         end
+
 
         return
     end
@@ -787,6 +803,7 @@ end
 	------------------------------------------------------
     local function triggerGameOver()
     gameOver = true
+    restartDelayFrames = RESTART_DELAY_FRAMES
 
     if gameOverSound then
     AudioComponent.play(gameOverSound)

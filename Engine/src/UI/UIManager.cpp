@@ -373,7 +373,9 @@ bool UIManager::WasColorChanged(const std::string& id)
 void UIManager::BeginChild(int x, int y, float w, float h, const char* id,
 	bool border, ImGuiWindowFlags flags,
 	bool hasBg, float alpha, float rounding,
-	int r, int g, int b)
+	int r, int g, int b, float borderSize,
+	bool autoBorder, float borderDarken,
+	ImVec4 borderColor)
 {
 	UIElement* element = new UIElement{};
 	element->type = UIType::BeginChild;
@@ -388,6 +390,11 @@ void UIManager::BeginChild(int x, int y, float w, float h, const char* id,
 	element->childBgAlpha = alpha;
 	element->childBgRounding = rounding;
 	element->childBgR = r; element->childBgG = g; element->childBgB = b;
+
+	element->childBorderSize = borderSize;
+	element->childAutoBorderColor = autoBorder;
+	element->childBorderDarken = borderDarken;
+	element->childBorderColor = borderColor;
 
 	AddChildToPanel(element);
 }
@@ -616,29 +623,54 @@ void UIManager::RenderElement(UIElement* element)
 	{
 		ChildStylePop pops{};
 
+		ImVec4 bgCol(0, 0, 0, 0);
 		if (element->childHasBg)
 		{
-			ImVec4 col(
+			bgCol = ImVec4(
 				element->childBgR / 255.0f,
 				element->childBgG / 255.0f,
 				element->childBgB / 255.0f,
 				element->childBgAlpha
 			);
-			ImGui::PushStyleColor(ImGuiCol_ChildBg, col);
+
+			ImGui::PushStyleColor(ImGuiCol_ChildBg, bgCol);
 			pops.colors++;
+
 			ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, element->childBgRounding);
 			pops.vars++;
+		}
+
+		// Border thickness + color
+		if (element->childBorder)
+		{
+			ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, element->childBorderSize);
+			pops.vars++;
+
+			ImVec4 borderCol = element->childBorderColor;
+
+			// Auto: slightly darker than background (only makes sense if bg exists)
+			if (element->childAutoBorderColor && element->childHasBg)
+			{
+				float f = element->childBorderDarken;
+				borderCol = ImVec4(bgCol.x * f, bgCol.y * f, bgCol.z * f, bgCol.w);
+			}
+
+			ImGui::PushStyleColor(ImGuiCol_Border, borderCol);
+			pops.colors++;
 		}
 
 		m_childStyleStack.push_back(pops);
 
 		ImGui::SetCursorPos(ImVec2((float)element->xPos, (float)element->yPos));
-		ImGui::BeginChild(element->childId.c_str(),
+		ImGui::BeginChild(
+			element->childId.c_str(),
 			ImVec2(element->xSize, element->ySize),
 			element->childBorder,
-			element->childFlags);
+			element->childFlags
+		);
 		break;
 	}
+
 
 	case UIType::EndChild:
 	{
