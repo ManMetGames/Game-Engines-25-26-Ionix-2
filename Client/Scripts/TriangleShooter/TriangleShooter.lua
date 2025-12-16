@@ -490,7 +490,8 @@ function TriangleShooter:OnUpdate()
 
     if TriangleShooterPlayerProgress.hasPendingLevelUp() then
         TriangleShooterPlayerProgress.consumePendingLevelUp()
-        TriangleShooterUI.showUpgradeMenu()
+        local level = TriangleShooterPlayerProgress.getProgress()
+        TriangleShooterUI.showUpgradeMenu(nil, level)
         return
     end
 

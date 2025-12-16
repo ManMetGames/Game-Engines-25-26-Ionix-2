@@ -7,19 +7,23 @@ local selectedUpgradeIndex = 0  -- 0 = none selected yet
 local RADIO_GROUP_ID = "upgrade_selection"
 
 local upgradePool = {
-    { type = "pierce",     label = "+1 Pierce" },
-    { type = "bullet",     label = "+1 Bullet" },
-    { type = "fire_rate",  label = "+ Fire Rate" },
-    { type = "bounce",     label = "+ Window Bounce" },
-    { type = "max_health", label = "+ Max Health" },
+    { type = "pierce",     label = "+1 Pierce",        minLevel = 6 },
+    { type = "bullet",     label = "+1 Bullet",        minLevel = 1 },
+    { type = "fire_rate",  label = "+ Fire Rate",      minLevel = 1 },
+    { type = "bounce",     label = "+ Window Bounce",  minLevel = 3 },
+    { type = "max_health", label = "+ Max Health",     minLevel = 4 },
     --{ type = "orb_heal",   label = "+ Orb Healing" }, -- later
 }
 
-function TriangleShooterUI.getRandomUpgradeOptions(count)
+function TriangleShooterUI.getRandomUpgradeOptions(count, playerLevel)
     count = count or 2
+    playerLevel = playerLevel or 1
     local available = {}
     for i, upgrade in ipairs(upgradePool) do
-        table.insert(available, { type = upgrade.type, label = upgrade.label })
+        local minLevel = upgrade.minLevel or 1
+        if playerLevel >= minLevel then
+            table.insert(available, { type = upgrade.type, label = upgrade.label })
+        end
     end
 
     local selected = {}
@@ -31,9 +35,9 @@ function TriangleShooterUI.getRandomUpgradeOptions(count)
     return selected
 end
 
-function TriangleShooterUI.showUpgradeMenu(options)
+function TriangleShooterUI.showUpgradeMenu(options, playerLevel)
     isUpgradeMenuOpen = true
-    upgradeOptions = options or TriangleShooterUI.getRandomUpgradeOptions(2)
+    upgradeOptions = options or TriangleShooterUI.getRandomUpgradeOptions(2, playerLevel)
     selectedUpgradeIndex = 0
     Input.set_relative_mouse_mode(false)
 end
