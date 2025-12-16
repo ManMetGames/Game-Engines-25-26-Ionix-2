@@ -792,16 +792,16 @@ local function DrawSettingsMenu(screenW, screenH, dt)
     )
 
     local cx = panelW / 2
-    UI.add_centered_label(cx, math.floor(panelH * 0.14), "SETTINGS", "ImGuiDefaultBold", 2.6)
-    UI.add_centered_label(cx, math.floor(panelH * 0.22), "Audio", "", 1.2)
+    UI.add_centered_label(cx, math.floor(panelH * 0.1), "SETTINGS", "ImGuiDefaultBold", 2.6)
+    UI.add_centered_label(cx, math.floor(panelH * 0.2), "Audio", "ImGuiDefaultBold", 1.5)
 
     local sliderW = math.floor(panelW * 0.60)
     local sliderX = math.floor((panelW - sliderW) / 2)
     local sliderY = math.floor(panelH * 0.34)
 
-    UI.add_centered_label(cx, sliderY - 28, "Volume", "ImGuiDefaultBold", 1.1)
+    UI.add_centered_label(cx, sliderY - 34, "Volume", "", 1.1)
 
-    UI.add_slider(sliderX, sliderY, sliderW, "", "ts_volume", 0.0, 1.0, volumeSetting, nil, nil, " ")
+    UI.add_slider(sliderX, sliderY, sliderW, "##ts_volume", "ts_volume", 0.0, 1.0, volumeSetting, nil, nil, " ")
 
     if UI.was_slider_changed("ts_volume") then
         volumeSetting = UI.get_slider("ts_volume") or volumeSetting
@@ -810,8 +810,12 @@ local function DrawSettingsMenu(screenW, screenH, dt)
     end
 
     -- Percent showing on the right side of the slider
-    local percent = math.floor(((UI.get_slider("ts_volume") or volumeSetting) * 100) + 0.5)
-    UI.add_label(sliderX + sliderW + 12, sliderY + 2, 0, 0, tostring(percent) .. "%", "ImGuiDefaultBold", 1.0)
+    local percentX = sliderX + sliderW + 18   
+    local percentY = sliderY + 2
+    local percent = math.floor((volumeSetting * 100) + 0.5)
+
+    UI.add_label(percentX, percentY, 0, 0, tostring(percent) .. "%", "ImGuiDefaultBold", 1.0)
+
 
 
     -- Back button
