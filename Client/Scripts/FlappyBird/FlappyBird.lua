@@ -460,7 +460,7 @@ function ExampleScript:OnUpdate()
     ---- A child region positioned at (20, 100) sized 300x260 with a coloured background
     --UI.begin_child(20, 95, 320, 300, "FB_Settings", true, 0, true, 0.75, 10, 70, 160, 115) -- hasBg alpha rounding r  g   b
 
-    --UI.Add_label(10, 10, 0, 0, "Settings", "ImGuiDefaultBold", 1.3)
+    --UI.add_label(10, 10, 0, 0, "Settings", "ImGuiDefaultBold", 1.3)
     --UI.add_radio(10, 40, 0, 0, "Easy", "difficulty", 0, 1, false)
     --UI.add_radio(10, 60, 0, 0, "Normal", "difficulty", 1, 1, false)
     --UI.add_radio(10, 80, 0, 0, "Hard", "difficulty", 2, 1, false)
@@ -486,7 +486,7 @@ function ExampleScript:OnUpdate()
       UI.begin_child(20, 70, 320, 300, "SettingsChild", true, 0,
                      true, 0.75, 5, 95, 150, 165)
 
-      UI.Add_label(10, 10, 0, 0, "Settings", "ImGuiDefaultBold", 1.3)
+      UI.add_label(10, 10, 0, 0, "Settings", "ImGuiDefaultBold", 1.3)
 
       -- Radio: difficulty 
       UI.add_radio(10, 45, 0, 0, "Easy",   "difficulty", 0, s_difficulty, false)
@@ -603,12 +603,12 @@ function ExampleScript:OnUpdate()
         local lbW, lbH = 260, 170
         UI.add_panel(lbX, lbY, lbW, lbH, 0.75, 10, 70, 160, 115)
 
-        UI.Add_label(lbX + 10, lbY + 10, 0, 0, "Leaderboard Ranking", "ImGuiDefaultBold", 1.8)
+        UI.add_label(lbX + 10, lbY + 10, 0, 0, "Leaderboard Ranking", "ImGuiDefaultBold", 1.8)
 
         if topLeaderboard then
           for i, e in ipairs(topLeaderboard) do
             local line = string.format("%d. %s - %d", i, e.name, e.score)
-            UI.Add_label(lbX + 10, lbY + 40 + (i-1)*22, 0, 0, line,  "", 1.5)
+            UI.add_label(lbX + 10, lbY + 40 + (i-1)*22, 0, 0, line,  "", 1.5)
           end
         end
 
@@ -759,8 +759,8 @@ function ExampleScript:OnUpdate()
     end
 
     -- UI
-    UI.Add_label(10, 10, 1000, 1000, pipeScoreText, "", 1.5)
-    UI.Add_label(10, 40, 1000, 1000, scoreText, "", 1.5)
+    UI.add_label(10, 10, 1000, 1000, pipeScoreText, "", 1.5)
+    UI.add_label(10, 40, 1000, 1000, scoreText, "", 1.5)
 
 end
 

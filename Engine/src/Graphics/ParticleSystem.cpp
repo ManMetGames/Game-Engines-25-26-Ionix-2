@@ -58,7 +58,8 @@ namespace IonixEngine {
         int zOrder,
         float gravityX,
         float gravityY,
-        float drag
+        float drag,
+        bool useRainbow
     ) {
         std::size_t index = GetFreeIndex();
         if (index >= m_Particles.size()) {
@@ -100,6 +101,7 @@ namespace IonixEngine {
         p.endA = endA;
         p.renderLayer = renderLayer;
         p.zOrder = zOrder;
+        p.useRainbow = useRainbow;
     }
 
     void ParticleSystem::Update(float dt) {
@@ -163,24 +165,31 @@ namespace IonixEngine {
 
             SDL_Rect src{ 0, 0, p.srcWidth, p.srcHeight };
 
-            float h = t * 6.0f;
-            int sector = static_cast<int>(h);
-            float f = h - static_cast<float>(sector);
-            float q = 1.0f - f;
-            float rf = 1.0f;
-            float gf = 0.0f;
-            float bf = 0.0f;
-            switch (sector % 6) {
-            case 0: rf = 1.0f; gf = f;    bf = 0.0f; break;
-            case 1: rf = q;    gf = 1.0f;  bf = 0.0f; break;
-            case 2: rf = 0.0f; gf = 1.0f;  bf = f;    break;
-            case 3: rf = 0.0f; gf = q;     bf = 1.0f; break;
-            case 4: rf = f;    gf = 0.0f;  bf = 1.0f; break;
-            case 5: rf = 1.0f; gf = 0.0f;  bf = q;    break;
+            int r, g, b;
+            if (p.useRainbow) {
+                float h = t * 6.0f;
+                int sector = static_cast<int>(h);
+                float f = h - static_cast<float>(sector);
+                float q = 1.0f - f;
+                float rf = 1.0f;
+                float gf = 0.0f;
+                float bf = 0.0f;
+                switch (sector % 6) {
+                case 0: rf = 1.0f; gf = f;    bf = 0.0f; break;
+                case 1: rf = q;    gf = 1.0f;  bf = 0.0f; break;
+                case 2: rf = 0.0f; gf = 1.0f;  bf = f;    break;
+                case 3: rf = 0.0f; gf = q;     bf = 1.0f; break;
+                case 4: rf = f;    gf = 0.0f;  bf = 1.0f; break;
+                case 5: rf = 1.0f; gf = 0.0f;  bf = q;    break;
+                }
+                r = static_cast<int>(rf * 255.0f);
+                g = static_cast<int>(gf * 255.0f);
+                b = static_cast<int>(bf * 255.0f);
+            } else {
+                r = static_cast<int>(static_cast<float>(p.startR) + (static_cast<float>(p.endR) - static_cast<float>(p.startR)) * t);
+                g = static_cast<int>(static_cast<float>(p.startG) + (static_cast<float>(p.endG) - static_cast<float>(p.startG)) * t);
+                b = static_cast<int>(static_cast<float>(p.startB) + (static_cast<float>(p.endB) - static_cast<float>(p.startB)) * t);
             }
-            int r = static_cast<int>(rf * 255.0f);
-            int g = static_cast<int>(gf * 255.0f);
-            int b = static_cast<int>(bf * 255.0f);
 
             if (r < 0) r = 0; if (r > 255) r = 255;
             if (g < 0) g = 0; if (g > 255) g = 255;

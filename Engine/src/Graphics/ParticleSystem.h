@@ -39,6 +39,7 @@ namespace IonixEngine {
 
         int renderLayer = 0;
         int zOrder = 0;
+        bool useRainbow = false;
     };
 
     class ParticleSystem {
@@ -74,7 +75,8 @@ namespace IonixEngine {
             int zOrder = 0,
             float gravityX = 0.0f,
             float gravityY = 0.0f,
-            float drag = 0.0f
+            float drag = 0.0f,
+            bool useRainbow = false
         );
 
     private:

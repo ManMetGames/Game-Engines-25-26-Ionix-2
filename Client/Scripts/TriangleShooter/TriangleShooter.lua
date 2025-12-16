@@ -1,4 +1,8 @@
 local TriangleShooter = {}
+
+ --=====================================================================
+ --  [MODULE] Imports / Dependencies
+ --=====================================================================
 local assets = require("Scripts.Assets")
 local enums = require("Scripts.Enums")
 local TriangleShooterLevels = require("Scripts.TriangleShooter.TriangleShooterLevels")
@@ -6,11 +10,18 @@ local TriangleShooterEnemy = require("Scripts.TriangleShooter.TriangleShooterEne
 local TriangleShooterAbilities = require("Scripts.TriangleShooter.TriangleShooterAbilities")
 local TriangleShooterPlayerProgress = require("Scripts.TriangleShooter.TriangleShooterPlayerProgress")
 local ParticleSystem = require("Scripts.TriangleShooter.ParticleSystem")
+local TriangleShooterUI = require("Scripts.TriangleShooter.TriangleShooterUI")
 
+ --=====================================================================
+ --  [HELPERS] Time
+ --=====================================================================
 local function GetDt()
     return Mafs.delta_time()
 end
 
+ --=====================================================================
+ --  [STATE] Screen / Window / Walls
+ --=====================================================================
 -- SCREEN BOUNDS (UPDATED EACH FRAME FROM WINDOW SIZE)
 local screenW = 1920
 local screenH = 1080
@@ -56,6 +67,9 @@ local windowTransitionTargetH = 0
 local pendingLevelIndex = nil
 local pendingResetPlayerState = false
 
+ --=====================================================================
+ --  [STATE] Player (Triangle)
+ --=====================================================================
 -- PLAYER (TRIANGLE)
 local player
 local playerSprite
@@ -100,10 +114,14 @@ local levelEnemyHealth = 50
 local StartLevel    
 local LoadLevel
 
-local function CreateEnemy(x, y, health)
-    return TriangleShooterEnemy.createEnemy(x, y, health, enemySize, playerX, playerY, playerSize)
+local function CreateEnemy(x, y, config)
+    config = config or {}
+    return TriangleShooterEnemy.createEnemy(x, y, config, playerX, playerY, playerSize)
 end
 
+ --=====================================================================
+ --  [LEVEL FLOW] Window Transition
+ --=====================================================================
 function UpdateWindowTransition()
     if not windowTransitionActive then
         return
@@ -156,6 +174,9 @@ local function ClearEnemies()
     enemies = {}
 end
 
+ --=====================================================================
+ --  [STATE] Enemy Projectiles
+ --=====================================================================
 -- ENEMY PROJECTILE SETTINGS
 local enemyProjectiles = {}
 local enemyProjectilePool = {}
@@ -207,11 +228,18 @@ local impact3SfxEntity
 local currentLevel = 1
 local levelTimerSeconds = 0
 
+ --=====================================================================
+ --  [LEVEL FLOW] Load / Start Level
+ --=====================================================================
 LoadLevel = function(index, resetPlayerState)
     local cfg = TriangleShooterLevels.getLevelConfig(index)
     if not cfg then
         return
     end
+
+     --=====================================================================
+     --  [LOAD LEVEL] Apply Config / Global Toggles
+     --=====================================================================
 
     currentLevel = index
     levelTimerSeconds = cfg.timeLimitSeconds or 0
@@ -220,6 +248,9 @@ LoadLevel = function(index, resetPlayerState)
 
     enemyProjectilesEnabled = cfg.enemyProjectiles and true or false
 
+     --=====================================================================
+     --  [LOAD LEVEL] Reset Walls / Clear Enemies
+     --=====================================================================
     if wallPingPongEnabled then
         leftWallOffset = 0
         leftWallExpandTimer = 0
@@ -235,30 +266,79 @@ LoadLevel = function(index, resetPlayerState)
 
     ClearEnemies()
 
-    local enemyCount = cfg.enemyCount or 1
     levelEnemyHealth = cfg.enemyHealth or levelEnemyHealth
     enemyShootIntervalSeconds = cfg.enemyShootIntervalSeconds or enemyShootIntervalSeconds
 
     local centerX = screenW / 2 - enemySize / 2
     local centerY = screenH / 2 - enemySize / 2
 
-    if enemyCount == 1 then
-        local e = CreateEnemy(centerX, centerY, levelEnemyHealth)
-        table.insert(enemies, e)
-    else
-        local radius = 120
-        local playerCenterX = screenW / 2
-        local playerCenterY = screenH / 2
-        for i = 1, enemyCount do
-            local angle = (2 * math.pi * (i - 1)) / enemyCount
-            local ex = playerCenterX + math.cos(angle) * radius - enemySize / 2
-            local ey = playerCenterY + math.sin(angle) * radius - enemySize / 2
-            local e = CreateEnemy(ex, ey, levelEnemyHealth)
+     --=====================================================================
+     --  [LOAD LEVEL] Spawn Enemies
+     --=====================================================================
+    if cfg.enemies then
+        for i, enemyCfg in ipairs(cfg.enemies) do
+            local spawnX = enemyCfg.x or centerX
+            local spawnY = enemyCfg.y or centerY
+            
+            if not enemyCfg.x and not enemyCfg.y and #cfg.enemies > 1 then
+                local radius = 120
+                local angle = (2 * math.pi * (i - 1)) / #cfg.enemies
+                spawnX = screenW / 2 + math.cos(angle) * radius - (enemyCfg.size or enemySize) / 2
+                spawnY = screenH / 2 + math.sin(angle) * radius - (enemyCfg.size or enemySize) / 2
+            end
+            
+            local config = {
+                health = enemyCfg.health or levelEnemyHealth,
+                healthScaling = enemyCfg.healthScaling,
+                size = enemyCfg.size or enemySize,
+                color = enemyCfg.color,
+                speed = enemyCfg.speed,
+                baseSpeed = enemyCfg.baseSpeed,
+                movementType = enemyCfg.movementType,
+                shootPattern = enemyCfg.shootPattern,
+                projectileCount = enemyCfg.projectileCount,
+                shootInterval = enemyCfg.shootInterval or enemyShootIntervalSeconds,
+                spinWhileShooting = enemyCfg.spinWhileShooting,
+                bounceSteer = enemyCfg.bounceSteer,
+                steerStrength = enemyCfg.steerStrength,
+                orbitCenter = enemyCfg.orbitCenter,
+                orbitRadius = enemyCfg.orbitRadius,
+                orbitSpeed = enemyCfg.orbitSpeed,
+            }
+            
+            local e = CreateEnemy(spawnX, spawnY, config)
             table.insert(enemies, e)
+        end
+    else
+        local enemyCount = cfg.enemyCount or 1
+        local defaultConfig = {
+            health = levelEnemyHealth,
+            shootInterval = enemyShootIntervalSeconds,
+            size = 32,
+        }
+        
+        if enemyCount == 1 then
+            local e = CreateEnemy(centerX, centerY, defaultConfig)
+            table.insert(enemies, e)
+        else
+            local radius = 120
+            local playerCenterX = screenW / 2
+            local playerCenterY = screenH / 2
+            for i = 1, enemyCount do
+                local angle = (2 * math.pi * (i - 1)) / enemyCount
+                local ex = playerCenterX + math.cos(angle) * radius - enemySize / 2
+                local ey = playerCenterY + math.sin(angle) * radius - enemySize / 2
+                local e = CreateEnemy(ex, ey, defaultConfig)
+                table.insert(enemies, e)
+            end
         end
     end
 
     playerHealth = 100
+
+     --=====================================================================
+     --  [LOAD LEVEL] Reset Player State
+     --=====================================================================
     if resetPlayerState then
         playerX = screenW / 2 - playerSize / 2
         playerY = screenH / 2 - playerSize / 2
@@ -299,6 +379,7 @@ end
 
 local function OnEnemyKilled()
     local nextIndex = currentLevel + 1
+    TriangleShooterLevels.regenerateLevel(nextIndex)
     if TriangleShooterLevels.getLevelConfig(nextIndex) then
         StartLevel(nextIndex, false)
     else
@@ -310,9 +391,9 @@ local function OnLevelTimeout()
     StartLevel(currentLevel, true)
 end
 
-----------------------------------------------------------
--- OnStart
-----------------------------------------------------------
+ --=====================================================================
+ --  [ENGINE CALLBACKS] OnStart
+ --=====================================================================
 function TriangleShooter:OnStart()
     -- Enable relative mouse mode (hides cursor, gives delta movement)
     Input.set_relative_mouse_mode(true)
@@ -364,10 +445,13 @@ function TriangleShooter:OnStart()
     AudioComponent.change_volume(impact3SfxEntity, 16)
 end
 
-----------------------------------------------------------
--- OnUpdate
-----------------------------------------------------------
+ --=====================================================================
+ --  [ENGINE CALLBACKS] OnUpdate (Main Loop)
+ --=====================================================================
 function TriangleShooter:OnUpdate()
+     --=====================================================================
+     --  [ONUPDATE] Frame Setup
+     --=====================================================================
     globalFrame = globalFrame + 1
     local dt = GetDt()
 
@@ -378,11 +462,37 @@ function TriangleShooter:OnUpdate()
         end
     end
 
+     --=====================================================================
+     --  [ONUPDATE] Transitions / Early Outs
+     --=====================================================================
     if windowTransitionActive then
         UpdateWindowTransition()
         return
     end
 
+     --=====================================================================
+     --  [ONUPDATE] Upgrade Menu (Freeze Game)
+     --=====================================================================
+    if TriangleShooterUI.isMenuOpen() then
+        screenW = Window.get_width()
+        screenH = Window.get_height()
+        TriangleShooterUI.draw(screenW, screenH)
+        local selectedUpgrade = TriangleShooterUI.handleInput()
+        if selectedUpgrade then
+            TriangleShooterPlayerProgress.applyUpgrade(selectedUpgrade.type)
+        end
+        return
+    end
+
+    if TriangleShooterPlayerProgress.hasPendingLevelUp() then
+        TriangleShooterPlayerProgress.consumePendingLevelUp()
+        TriangleShooterUI.showUpgradeMenu()
+        return
+    end
+
+     --=====================================================================
+     --  [ONUPDATE] World Bounds (Walls / Window)
+     --=====================================================================
     -- Update wall lerps
     UpdateWallLerps()
     
@@ -394,6 +504,9 @@ function TriangleShooter:OnUpdate()
         levelTimerSeconds = levelTimerSeconds - dt
     end
 
+     --=====================================================================
+     --  [ONUPDATE] Debug / Music Toggles
+     --=====================================================================
     if Input.get_key_down(Keys.ionix_space) then
         print(string.format("[BeatMarker] globalFrame=%d", globalFrame))
     end
@@ -406,6 +519,9 @@ function TriangleShooter:OnUpdate()
         end
     end
     
+     --=====================================================================
+     --  [ONUPDATE] Player Movement (Mouse + Knockback)
+     --=====================================================================
     -- Get mouse delta (relative movement)
     local delta = Input.get_mouse_delta()
     local deltaX = 0
@@ -436,7 +552,9 @@ function TriangleShooter:OnUpdate()
     playerX = math.max(0, math.min(screenW - playerSize, playerX))
     playerY = math.max(0, math.min(screenH - playerSize, playerY))
     
-    -- Rotate triangle to face the nearest enemy cube (if any)
+     --=====================================================================
+     --  [ONUPDATE] Aim (Nearest Enemy)
+     --=====================================================================
     local closestEnemy = nil
     local closestDistSq = nil
     local playerCenterX = playerX + playerSize/2
@@ -473,7 +591,9 @@ function TriangleShooter:OnUpdate()
     -- Apply visual recoil offset to player sprite based on aim direction
     UpdatePlayerRecoil()
     
-    -- Spawn projectile on LMB click
+     --=====================================================================
+     --  [ONUPDATE] Shooting
+     --=====================================================================
     if Input.get_mouse_button_down(1) then
         isFiring = true
         if fireCooldownTimer <= 0 then
@@ -505,6 +625,9 @@ function TriangleShooter:OnUpdate()
         fireCooldownTimer = interval
     end
     
+     --=====================================================================
+     --  [ONUPDATE] Systems Update
+     --=====================================================================
     -- Update all projectiles
     UpdateProjectiles()
     UpdateEnemyProjectiles()
@@ -517,15 +640,25 @@ function TriangleShooter:OnUpdate()
     -- Check enemy-player collision and apply damage
     UpdateEnemyCollision()
     
-    -- Update enemy dash behavior
-    UpdateEnemyDash()
+    -- Update enemy movement
+    UpdateEnemyMovement()
 
     UpdateBeatBop()
 
+     --=====================================================================
+     --  [ONUPDATE] UI
+     --=====================================================================
     local levelCfg = TriangleShooterLevels.getLevelConfig(currentLevel)
     if levelCfg ~= nil then
-        local enemyCount = levelCfg.enemyCount or 1
-        local maxEnemyHealthTotal = (levelCfg.enemyHealth or levelEnemyHealth) * enemyCount
+        local maxEnemyHealthTotal = 0
+        if levelCfg.enemies then
+            for _, enemyCfg in ipairs(levelCfg.enemies) do
+                maxEnemyHealthTotal = maxEnemyHealthTotal + (enemyCfg.health or levelEnemyHealth)
+            end
+        else
+            local enemyCount = levelCfg.enemyCount or 1
+            maxEnemyHealthTotal = (levelCfg.enemyHealth or levelEnemyHealth) * enemyCount
+        end
         local currentEnemyHealthTotal = 0
         for i = 1, #enemies do
             currentEnemyHealthTotal = currentEnemyHealthTotal + (enemies[i].health or 0)
@@ -548,11 +681,18 @@ function TriangleShooter:OnUpdate()
         UI.draw_progress_bar(20, 20, 200, 20, currentEnemyHealthTotal, currentEnemyHealthTotal, 1)
     end
 
-    UI.draw_label("Stage: " .. tostring(currentLevel), 140, 140, 400, 20, "")
+    UI.add_centered_label(screenW / 2, 10, "Stage: " .. tostring(currentLevel), "")
 
-    UI.draw_progress_bar(screenW - 220, 20, 200, 20, 100, playerHealth, 2)
+    local playerHpBarX = screenW - 220
+    local playerHpBarY = 20
+    local playerHpBarW = 200
+    local playerHpBarH = 20
+
+    UI.draw_progress_bar(playerHpBarX, playerHpBarY, playerHpBarW, playerHpBarH, 100, playerHealth, 2)
+
     local level, xp, xpToNextLevel = TriangleShooterPlayerProgress.getProgress()
-    UI.draw_label("Player Lv: " .. tostring(level) .. "  XP: " .. tostring(xp) .. " / " .. tostring(xpToNextLevel), 220, 45, 740, 60, "")
+    local playerInfoText = "Player Lv: " .. tostring(level) .. "  XP: " .. tostring(xp) .. " / " .. tostring(xpToNextLevel)
+    UI.add_centered_label(playerHpBarX + playerHpBarW / 2, playerHpBarY + playerHpBarH + 8, playerInfoText, "")
 
     -- Peace progress bar (only during inter-level peace)
     if #enemies == 0 and peaceTimerSeconds > 0 then
@@ -571,6 +711,9 @@ function TriangleShooter:OnUpdate()
         peaceTimerSeconds = 0
     end
 
+     --=====================================================================
+     --  [ONUPDATE] Level Flow (Win / Lose / Timeout)
+     --=====================================================================
     if playerHealth <= 0 then
         StartLevel(currentLevel, true)
     elseif not enemiesAlive then
@@ -587,10 +730,10 @@ function TriangleShooter:OnUpdate()
     end
 end
 
-----------------------------------------------------------
--- Spawn a projectile from the tip of the triangle
-----------------------------------------------------------
-local function SpawnSingleProjectile(spawnX, spawnY, dirX, dirY)
+ --=====================================================================
+ --  [PLAYER PROJECTILES] Spawn / Update
+ --=====================================================================
+local function SpawnPlayerSingleProjectile(spawnX, spawnY, dirX, dirY, pierceCount, bounceCount)
     local projData
 
     -- Try to reuse a pooled projectile
@@ -614,6 +757,10 @@ local function SpawnSingleProjectile(spawnX, spawnY, dirX, dirY)
     projData.vx = dirX * projectileSpeed
     projData.vy = dirY * projectileSpeed
     projData.age = 0
+    projData.pierceRemaining = pierceCount or 0
+    projData.bounceRemaining = bounceCount or 0
+    projData.maxLifetime = projectileLifetimeSeconds + (bounceCount * 2.5)
+    projData.hitEnemies = {}
 
     table.insert(projectiles, projData)
 end
@@ -624,8 +771,12 @@ function SpawnProjectile()
     local centerY = playerY + playerSize/2
     local tipX = centerX + aimDirX * (playerSize/2)
     local tipY = centerY + aimDirY * (playerSize/2)
-    local abilityName = TriangleShooterPlayerProgress.getCurrentShootAbility()
-    local shots = TriangleShooterAbilities.getShots(abilityName, tipX, tipY, aimDirX, aimDirY, projectileSize)
+
+    local bulletCount = TriangleShooterPlayerProgress.getBulletCount()
+    local pierceCount = TriangleShooterPlayerProgress.getPierceCount()
+    local bounceCount = TriangleShooterPlayerProgress.getBounceCount()
+
+    local shots = TriangleShooterAbilities.getShots(bulletCount, tipX, tipY, aimDirX, aimDirY, projectileSize)
     if not shots then
         return
     end
@@ -639,13 +790,39 @@ function SpawnProjectile()
 
         local spawnX = tipX + offsetX - projectileSize/2
         local spawnY = tipY + offsetY - projectileSize/2
-        SpawnSingleProjectile(spawnX, spawnY, dirX, dirY)
+        SpawnPlayerSingleProjectile(spawnX, spawnY, dirX, dirY, pierceCount, bounceCount)
     end
 end
 
 ----------------------------------------------------------
 -- Update all active projectiles
 ----------------------------------------------------------
+local function FindClosestEnemy(fromX, fromY)
+    local closestEnemy = nil
+    local closestDistSq = math.huge
+    for j = 1, #enemies do
+        local enemy = enemies[j]
+        if enemy.teleportVisible == nil or enemy.teleportVisible then
+            local eDisplaySize = enemy.displaySize or enemy.size or enemySize
+            local enemyCenterX = enemy.x + eDisplaySize/2
+            local enemyCenterY = enemy.y + eDisplaySize/2
+            local dx = enemyCenterX - fromX
+            local dy = enemyCenterY - fromY
+            local distSq = dx * dx + dy * dy
+            if distSq < closestDistSq then
+                closestDistSq = distSq
+                closestEnemy = enemy
+            end
+        end
+    end
+    return closestEnemy
+end
+
+local function ReturnProjectileToPool(proj, index)
+    Entity.set_global_pos(proj.entity, -1000, -1000)
+    table.insert(projectilePool, table.remove(projectiles, index))
+end
+
 function UpdateProjectiles()
     local dt = GetDt()
     for i = #projectiles, 1, -1 do
@@ -662,55 +839,135 @@ function UpdateProjectiles()
         local projCenterY = proj.y + projectileSize/2
         local hitRadius = collisionRadius + projectileSize/2
         local hitEnemyIndex = nil
+
         for j = #enemies, 1, -1 do
             local enemy = enemies[j]
-            local enemyCenterX = enemy.x + enemySize/2
-            local enemyCenterY = enemy.y + enemySize/2
-            local dx = projCenterX - enemyCenterX
-            local dy = projCenterY - enemyCenterY
-            local distSq = dx * dx + dy * dy
-            if distSq < hitRadius * hitRadius then
-                hitEnemyIndex = j
-                break
+            local isVisible = enemy.teleportVisible == nil or enemy.teleportVisible
+            if isVisible and not proj.hitEnemies[enemy] then
+                local eDisplaySize = enemy.displaySize or enemy.size or enemySize
+                local enemyCenterX = enemy.x + eDisplaySize/2
+                local enemyCenterY = enemy.y + eDisplaySize/2
+                local enemyHitRadius = eDisplaySize/2 + projectileSize/2
+                local dx = projCenterX - enemyCenterX
+                local dy = projCenterY - enemyCenterY
+                local distSq = dx * dx + dy * dy
+                if distSq < enemyHitRadius * enemyHitRadius then
+                    hitEnemyIndex = j
+                    break
+                end
             end
         end
+
+        local shouldRemove = false
 
         if hitEnemyIndex ~= nil then
             local enemy = enemies[hitEnemyIndex]
             enemy.health = (enemy.health or 0) - 1
             TriangleShooterPlayerProgress.addXp(1)
             FlashEnemy(enemy)
+            TriangleShooterEnemy.updateDisplaySize(enemy)
 
-            local enemyCenterX = enemy.x + enemySize / 2
-            local enemyCenterY = enemy.y + enemySize / 2
-            ParticleSystem.emitHitBurst(enemyCenterX, enemyCenterY)
+            local eSize = enemy.size or enemySize
+            local enemyCenterX = enemy.x + eSize / 2
+            local enemyCenterY = enemy.y + eSize / 2
+            local color = enemy.color or {255, 255, 255}
+            ParticleSystem.emitHitBurst(enemyCenterX, enemyCenterY, color[1], color[2], color[3])
 
             if impact3SfxEntity then
                 local v = math.random(12, 20)
                 AudioComponent.change_volume(impact3SfxEntity, v)
                 AudioComponent.play(impact3SfxEntity)
             end
+
             if enemy.health <= 0 then
                 Entity.set_global_pos(enemy.entity, -1000, -1000)
                 table.remove(enemies, hitEnemyIndex)
             end
-            Entity.set_global_pos(proj.entity, -1000, -1000)
-            table.insert(projectilePool, table.remove(projectiles, i))
-        else
-            -- Increment age and remove if expired or off screen
-            proj.age = proj.age + dt
-            if proj.age > projectileLifetimeSeconds or proj.y < -50 or proj.y > screenH + 50 or proj.x < -50 or proj.x > screenW + 50 then
-                -- Move entity off-screen and return to pool
-                Entity.set_global_pos(proj.entity, -1000, -1000)
-                table.insert(projectilePool, table.remove(projectiles, i))
+
+            if proj.pierceRemaining > 0 then
+                proj.pierceRemaining = proj.pierceRemaining - 1
+                proj.hitEnemies[enemy] = true
+            else
+                shouldRemove = true
             end
+        end
+
+        if not shouldRemove then
+            proj.age = proj.age + dt
+            local maxLife = proj.maxLifetime or projectileLifetimeSeconds
+
+            if proj.age > maxLife then
+                shouldRemove = true
+            else
+                local hitEdge = false
+                local edgeX, edgeY = nil, nil
+
+                if proj.x < 0 then
+                    hitEdge = true
+                    edgeX = "left"
+                    proj.x = 0
+                elseif proj.x + projectileSize > screenW then
+                    hitEdge = true
+                    edgeX = "right"
+                    proj.x = screenW - projectileSize
+                end
+
+                if proj.y < 0 then
+                    hitEdge = true
+                    edgeY = "top"
+                    proj.y = 0
+                elseif proj.y + projectileSize > screenH then
+                    hitEdge = true
+                    edgeY = "bottom"
+                    proj.y = screenH - projectileSize
+                end
+
+                if hitEdge then
+                    if proj.bounceRemaining > 0 then
+                        proj.bounceRemaining = proj.bounceRemaining - 1
+                        proj.hitEnemies = {}
+
+                        local newProjCenterX = proj.x + projectileSize/2
+                        local newProjCenterY = proj.y + projectileSize/2
+                        local closestEnemy = FindClosestEnemy(newProjCenterX, newProjCenterY)
+
+                        if closestEnemy then
+                            local ceDisplaySize = closestEnemy.displaySize or closestEnemy.size or enemySize
+                            local targetX = closestEnemy.x + ceDisplaySize/2
+                            local targetY = closestEnemy.y + ceDisplaySize/2
+                            local dx = targetX - newProjCenterX
+                            local dy = targetY - newProjCenterY
+                            local len = math.sqrt(dx*dx + dy*dy)
+                            if len > 0 then
+                                dx = dx / len
+                                dy = dy / len
+                            end
+                            proj.vx = dx * projectileSpeed
+                            proj.vy = dy * projectileSpeed
+                        else
+                            if edgeX then proj.vx = -proj.vx end
+                            if edgeY then proj.vy = -proj.vy end
+                        end
+
+                        local projAngle = math.deg(math.atan(proj.vy, proj.vx)) + 90
+                        Entity.set_global_rot(proj.entity, projAngle)
+                        Entity.set_global_pos(proj.entity, proj.x, proj.y)
+                    else
+                        shouldRemove = true
+                    end
+                end
+            end
+        end
+
+        if shouldRemove then
+            ReturnProjectileToPool(proj, i)
         end
     end
 end
 
-----------------------------------------------------------
--- Flash effect (frame-based, no coroutines)
-----------------------------------------------------------
+ --=====================================================================
+ --  [DAMAGE / FEEDBACK] Flash + Damage Cooldowns
+ --=====================================================================
 function FlashEnemy(enemy)
     if not enemy or not enemy.sprite then return end
     enemy.flashTimer = flashDuration
@@ -731,9 +988,10 @@ function UpdateFlash()
                 if t < 0 then t = 0 end
                 if t > 1 then t = 1 end
 
-                local r = 255
-                local g = math.floor(255 * (1.0 - t) + 0.5)
-                local b = math.floor(255 * (1.0 - t) + 0.5)
+                local baseColor = enemy.color or {255, 255, 255}
+                local r = math.floor(255 * t + baseColor[1] * (1.0 - t) + 0.5)
+                local g = math.floor(0 * t + baseColor[2] * (1.0 - t) + 0.5)
+                local b = math.floor(0 * t + baseColor[3] * (1.0 - t) + 0.5)
                 Sprite.set_color(enemy.sprite, r, g, b)
             end
         end
@@ -842,17 +1100,93 @@ function FlashPlayer()
     end
 end
 
-function UpdateEnemyDash()
-    TriangleShooterEnemy.updateEnemyDash(
+ --=====================================================================
+ --  [ENEMY SPECIAL] Beam + Teleport Particles
+ --=====================================================================
+local BEAM_RADIUS = 16
+local BEAM_DAMAGE = 15
+
+function SpawnBeam(enemy, fromX, fromY, toX, toY)
+    local dx = toX - fromX
+    local dy = toY - fromY
+    local dist = math.sqrt(dx * dx + dy * dy)
+    if dist < 1 then return end
+    
+    local dirX = dx / dist
+    local dirY = dy / dist
+    
+    local maxDist = math.sqrt(screenW * screenW + screenH * screenH)
+    local spacing = 8
+    local particleCount = math.floor(maxDist / spacing)
+    
+    for i = 0, particleCount - 1 do
+        local offset = i * spacing
+        local px = fromX + dirX * offset
+        local py = fromY + dirY * offset
+        if px >= -20 and px <= screenW + 20 and py >= -20 and py <= screenH + 20 then
+            ParticleSystem.emitBeamParticle(px, py, 255, 255, 50, dirX, dirY)
+        end
+    end
+    
+    if damageCooldown <= 0 then
+        local playerCenterX = playerX + playerSize / 2
+        local playerCenterY = playerY + playerSize / 2
+        local playerRadius = playerSize / 2
+        
+        local apx = playerCenterX - fromX
+        local apy = playerCenterY - fromY
+        local abx = dirX * maxDist
+        local aby = dirY * maxDist
+        
+        local abLenSq = abx * abx + aby * aby
+        local t = (apx * abx + apy * aby) / abLenSq
+        if t < 0 then t = 0 end
+        if t > 1 then t = 1 end
+        
+        local closestX = fromX + abx * t
+        local closestY = fromY + aby * t
+        
+        local distToPlayerX = playerCenterX - closestX
+        local distToPlayerY = playerCenterY - closestY
+        local distToPlayerSq = distToPlayerX * distToPlayerX + distToPlayerY * distToPlayerY
+        
+        local hitRadius = playerRadius + BEAM_RADIUS
+        if distToPlayerSq < hitRadius * hitRadius then
+            playerHealth = playerHealth - BEAM_DAMAGE
+            FlashPlayer()
+            damageCooldown = damageCooldownDuration
+        end
+    end
+end
+
+function EmitTeleportBurst(x, y, r, g, b, inward)
+    ParticleSystem.emitTeleportBurst(x, y, r, g, b, inward)
+end
+
+function EmitBeamCharge(fromX, fromY, toX, toY, r, g, b)
+    ParticleSystem.emitBeamCharge(fromX, fromY, toX, toY, r, g, b)
+end
+
+ --=====================================================================
+ --  [ENEMIES] Movement / Behavior (Wrapper)
+ --=====================================================================
+function UpdateEnemyMovement()
+    TriangleShooterEnemy.updateEnemyMovement(
         enemies,
         playerX, playerY, playerSize,
         screenW, screenH,
         enemyProjectilesEnabled, enemyShootIntervalSeconds,
         SpawnEnemyProjectile,
-        TriggerWallLerp
+        TriggerWallLerp,
+        SpawnBeam,
+        EmitTeleportBurst,
+        EmitBeamCharge
     )
 end
 
+ --=====================================================================
+ --  [PLAYER FEEL] Recoil
+ --=====================================================================
 function UpdatePlayerRecoil()
     local dt = GetDt()
 
@@ -901,6 +1235,9 @@ function UpdatePlayerRecoil()
     Entity.set_global_pos(player, playerX + rx, playerY + ry)
 end
 
+ --=====================================================================
+ --  [MUSIC / RHYTHM] Beat Bop
+ --=====================================================================
 function UpdateBeatBop()
     local dt = GetDt()
     if beatStartDelayCounter < beatStartDelaySeconds then
@@ -921,56 +1258,47 @@ function UpdateBeatBop()
 
         for i = 1, #enemies do
             local enemy = enemies[i]
-            if enemy and enemy.sprite then
-                Sprite.set_image_width(enemy.sprite, math.floor(enemyBaseImageSize * scale))
-                Sprite.set_image_height(enemy.sprite, math.floor(enemyBaseImageSize * scale))
+            local state = enemy.teleportState
+            local isTeleporting = state == "shrinking" or state == "growing" or state == "teleporting"
+            if enemy and enemy.sprite and not isTeleporting then
+                local currentSize = enemy.displaySize or enemy.baseSize or enemy.size or enemyBaseImageSize
+                Sprite.set_image_width(enemy.sprite, math.floor(currentSize * scale))
+                Sprite.set_image_height(enemy.sprite, math.floor(currentSize * scale))
             end
         end
     else
         for i = 1, #enemies do
             local enemy = enemies[i]
-            if enemy and enemy.sprite then
-                Sprite.set_image_width(enemy.sprite, enemyBaseImageSize)
-                Sprite.set_image_height(enemy.sprite, enemyBaseImageSize)
+            local state = enemy.teleportState
+            local isTeleporting = state == "shrinking" or state == "growing" or state == "teleporting"
+            if enemy and enemy.sprite and not isTeleporting then
+                local currentSize = enemy.displaySize or enemy.baseSize or enemy.size or enemyBaseImageSize
+                Sprite.set_image_width(enemy.sprite, math.floor(currentSize))
+                Sprite.set_image_height(enemy.sprite, math.floor(currentSize))
             end
         end
     end
 end
 
-----------------------------------------------------------
--- Enemy projectile spawning
-----------------------------------------------------------
-function SpawnEnemyProjectile(enemy)
+ --=====================================================================
+ --  [ENEMY PROJECTILES] Spawn / Update
+ --=====================================================================
+local function SpawnEnemySingleProjectile(enemy, dirX, dirY)
     local projData
     
-    -- Try to reuse a pooled projectile
     if #enemyProjectilePool > 0 then
         projData = table.remove(enemyProjectilePool)
-        Sprite.set_color(projData.sprite, 128, 0, 255)  -- Purple
+        Sprite.set_color(projData.sprite, 128, 0, 255)
     else
-        -- Create new entity
         local proj = Entity.create_entity()
         local sprite = Entity.add_sprite_component(proj, assets.textures.Ghast_Tear, enemyProjectileSize, enemyProjectileSize, 5)
-        Sprite.set_color(sprite, 128, 0, 255)  -- Purple
+        Sprite.set_color(sprite, 128, 0, 255) -- Purple
         projData = { entity = proj, sprite = sprite }
     end
     
-    -- Direction towards player
-    local enemyCenterX = enemy.x + enemySize/2
-    local enemyCenterY = enemy.y + enemySize/2
-    local playerCenterX = playerX + playerSize/2
-    local playerCenterY = playerY + playerSize/2
-    local dx = playerCenterX - enemyCenterX
-    local dy = playerCenterY - enemyCenterY
-    local dist = math.sqrt(dx * dx + dy * dy)
-    
-    local dirX, dirY = 0, 0
-    if dist > 0 then
-        dirX = dx / dist
-        dirY = dy / dist
-    end
-    
-    -- Spawn at enemy center
+    local eSize = enemy.size or enemySize
+    local enemyCenterX = enemy.x + eSize/2
+    local enemyCenterY = enemy.y + eSize/2
     local spawnX = enemyCenterX - enemyProjectileSize/2
     local spawnY = enemyCenterY - enemyProjectileSize/2
     
@@ -985,6 +1313,51 @@ function SpawnEnemyProjectile(enemy)
     projData.age = 0
     
     table.insert(enemyProjectiles, projData)
+end
+
+function SpawnEnemyProjectile(enemy)
+    local eSize = enemy.size or enemySize
+    local enemyCenterX = enemy.x + eSize/2
+    local enemyCenterY = enemy.y + eSize/2
+    local playerCenterX = playerX + playerSize/2
+    local playerCenterY = playerY + playerSize/2
+    local dx = playerCenterX - enemyCenterX
+    local dy = playerCenterY - enemyCenterY
+    local dist = math.sqrt(dx * dx + dy * dy)
+    
+    local baseDirX, baseDirY = 0, -1
+    if dist > 0 then
+        baseDirX = dx / dist
+        baseDirY = dy / dist
+    end
+    
+    local shootPattern = enemy.shootPattern or "single"
+    local projectileCount = enemy.projectileCount or 1
+    
+    if shootPattern == "single" or projectileCount <= 1 then
+        SpawnEnemySingleProjectile(enemy, baseDirX, baseDirY)
+        
+    elseif shootPattern == "cone" and projectileCount <= 4 then
+        local spreadAngle = math.rad(15)
+        local baseAngle = math.atan(baseDirY, baseDirX)
+        local startAngle = baseAngle - spreadAngle * (projectileCount - 1) / 2
+        
+        for i = 1, projectileCount do
+            local angle = startAngle + spreadAngle * (i - 1)
+            local dirX = math.cos(angle)
+            local dirY = math.sin(angle)
+            SpawnEnemySingleProjectile(enemy, dirX, dirY)
+        end
+        
+    else
+        local angleOffset = enemy.shootAngleOffset or 0
+        for i = 1, projectileCount do
+            local angle = angleOffset + (2 * math.pi * (i - 1)) / projectileCount
+            local dirX = math.cos(angle)
+            local dirY = math.sin(angle)
+            SpawnEnemySingleProjectile(enemy, dirX, dirY)
+        end
+    end
 end
 
 -- Update enemy projectiles
@@ -1028,9 +1401,9 @@ function UpdateEnemyProjectiles()
     end
 end
 
-----------------------------------------------------------
--- Trigger a wall to start expanding (resets timer to full duration)
-----------------------------------------------------------
+ --=====================================================================
+ --  [WALLS / WINDOW] Ping-Pong Shrink / Expand
+ --=====================================================================
 function TriggerWallLerp(wall)
     if not wallPingPongEnabled then return end
     
