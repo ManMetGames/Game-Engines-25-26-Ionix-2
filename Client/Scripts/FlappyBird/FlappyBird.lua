@@ -848,6 +848,7 @@ end
     for _, p in ipairs({pipe, pipeT, pipe2, pipeT2, pipe3, pipeT3}) do
         Fysics.set_linear_velocity(p, 0, 0)
     end
+
     for _, c in ipairs(coins) do
         Fysics.set_linear_velocity(c, 0, 0)
         local s = Entity.get_sprite_component(c)
@@ -877,19 +878,37 @@ end
 function ExampleScript:OnCollisionEnter(a, b)
     if gameOver then return end
 
-    --If player touches any pipe then game over
-    if (a == player1 and (b == pipe or b == pipeT or b == pipe2 or b == pipeT2 or b == pipe3 or b == pipeT3))
-    or (b == player1 and (a == pipe or a == pipeT or a == pipe2 or a == pipeT2 or a == pipe3 or a == pipeT3)) then
+    local other = nil
+    if a == player1 then other = b
+    elseif b == player1 then other = a end
+    if not other then return end
 
-        if hitSound then
-            AudioComponent.play(hitSound)
-            print("Hit sfx played")
+    
+    -- If player touches any pipe then game over
+    if other == pipe or other == pipeT or other == pipe2 or other == pipeT2 or other == pipe3 or other == pipeT3 then
+
+        if hitSound then 
+        AudioComponent.play(hitSound)
+        print("Hit sfx played")
+        end
+        
+        print("GAME OVER: Hit pipe! Try Again")
+        triggerGameOver()
+        return
+    end
+
+    -- Hit floor or anything that is not a coin then game over
+    for _, c in ipairs(coins) do
+        if other == c then
+            return 
         end
 
-        print("GAME OVER: Hit pipe! Try Again")
-
-        triggerGameOver()
+    if hitSound then 
+    AudioComponent.play(hitSound) 
     end
+
+    print("GAME OVER: Hit pipe! Try Again")
+    triggerGameOver()
 end
 
 return ExampleScript
