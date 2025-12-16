@@ -29,6 +29,9 @@ local showNamePrompt = false
 local pendingStartAfterName = false
 local namePromptError = ""
 
+-- Per-game saved settings
+local volumeSetting = Json.load_setting(GAME_ID, "audio.volume", 0.25) or 0.25
+
 -- Menu screens: "main" | "leaderboard"
 local menuScreen = "main"
 local topLeaderboard = nil
@@ -242,7 +245,7 @@ local knockbackDirY = 0
 
 -- MUSIC CONTROL
 local musicEntity
-local musicVolume = 32
+local musicVolume = math.floor(128 * volumeSetting + 0.5)  -- 0..128
 local musicMuted = false
 local bpm = 133 
 local secondsPerBeat = 60.0 / bpm
@@ -275,6 +278,29 @@ local inMainMenu = true
 local menuStarting = false
 local menuStartDelay = 0.75
 local menuStartTimer = 0
+
+local function Clamp01(v)
+    if v < 0 then return 0 end
+    if v > 1 then return 1 end
+    return v
+end
+
+ --=====================================================================
+ --  [SETTINGS] Audio Volume
+ --=====================================================================
+local function ApplyAudioVolumes()
+    volumeSetting = Clamp01(volumeSetting or 0.25)
+    musicVolume = math.floor(128 * volumeSetting + 0.5)
+
+    if musicEntity then
+        AudioComponent.change_volume(musicEntity, musicMuted and 0 or musicVolume)
+    end
+
+    -- Scale SFX too (using your existing “base” values)
+    if playerDamageSfxEntity then AudioComponent.change_volume(playerDamageSfxEntity, math.floor(48 * volumeSetting + 0.5)) end
+    if gunshot3SfxEntity     then AudioComponent.change_volume(gunshot3SfxEntity,     math.floor( 4 * volumeSetting + 0.5)) end
+    if impact3SfxEntity      then AudioComponent.change_volume(impact3SfxEntity,      math.floor(16 * volumeSetting + 0.5)) end
+end
 
  --=====================================================================
  --  [LEVEL FLOW] Load / Start Level
@@ -484,20 +510,19 @@ function TriangleShooter:OnStart()
     musicEntity = Entity.create_entity()
     Entity.add_audio_component(musicEntity, "technoSong", false)
     AudioComponent.play(musicEntity, 0, -1)
-    AudioComponent.change_volume(musicEntity, musicVolume)
 
     playerDamageSfxEntity = Entity.create_entity()
     Entity.add_audio_component(playerDamageSfxEntity, "playerDamage", false)
     -- Set player damage SFX volume to half (range is 0-128)
-    AudioComponent.change_volume(playerDamageSfxEntity, 48)
 
     gunshot3SfxEntity = Entity.create_entity()
     Entity.add_audio_component(gunshot3SfxEntity, "gunshot3", false)
-    AudioComponent.change_volume(gunshot3SfxEntity, 4)
 
     impact3SfxEntity = Entity.create_entity()
     Entity.add_audio_component(impact3SfxEntity, "impact3", false)
-    AudioComponent.change_volume(impact3SfxEntity, 16)
+
+    ApplyAudioVolumes()
+
 end
 
  --=====================================================================
@@ -664,6 +689,19 @@ local function DrawMainMenu(screenW, screenH, dt)
         0, 170, 110, 0.95
     )
 
+    -- Settings button
+    UI.add_button(bx, by + (bh + gap) * 2, bw, bh,
+        "SETTINGS", "menu_settings",
+        "ImGuiDefaultBold", 1.1,
+        12, true,
+        120, 120, 120, 0.95
+    )
+
+    if (not menuStarting) and (not showNamePrompt) and UI.was_button_pressed("menu_settings") then
+        menuScreen = "settings"
+    end
+
+
     if (not menuStarting) and (not showNamePrompt) and UI.was_button_pressed("menu_leaderboard") then
         menuScreen = "leaderboard"
         leaderboardFetched = false
@@ -739,6 +777,58 @@ local function DrawLeaderboardMenu(screenW, screenH, dt)
     UI.end_child()
 end
 
+local function DrawSettingsMenu(screenW, screenH, dt)
+    UI.add_panel(0, 0, screenW, screenH, 0.65, 0, 0, 0, 0)
+
+    local panelW = math.floor(math.max(520, math.min(screenW * 0.70, 860)))
+    local panelH = math.floor(math.max(420, math.min(screenH * 0.70, 600)))
+    local panelX = math.floor((screenW - panelW) / 2)
+    local panelY = math.floor((screenH - panelH) / 2)
+
+    UI.begin_child(panelX, panelY, panelW, panelH, "TS_Settings",
+        true, 0,
+        true, 0.92, 12, 25, 25, 25,
+        2.5, true, 0.85
+    )
+
+    local cx = panelW / 2
+    UI.add_centered_label(cx, math.floor(panelH * 0.14), "SETTINGS", "ImGuiDefaultBold", 2.6)
+    UI.add_centered_label(cx, math.floor(panelH * 0.22), "Audio", "", 1.2)
+
+    local sliderW = math.floor(panelW * 0.60)
+    local sliderX = math.floor((panelW - sliderW) / 2)
+    local sliderY = math.floor(panelH * 0.34)
+
+    UI.add_slider(sliderX, sliderY, sliderW, "Volume", "ts_volume", 0.0, 1.0, volumeSetting)
+
+    if UI.was_slider_changed("ts_volume") then
+        volumeSetting = UI.get_slider("ts_volume") or volumeSetting
+        Json.save_setting(GAME_ID, "audio.volume", volumeSetting)
+        ApplyAudioVolumes()
+    end
+
+    local percent = math.floor(((UI.get_slider("ts_volume") or volumeSetting) * 100) + 0.5)
+    UI.add_centered_label(cx, sliderY + 40, tostring(percent) .. "%", "", 1.1)
+
+    -- Back button
+    local bw, bh = math.min(320, math.floor(panelW * 0.55)), 50
+    local bx = math.floor((panelW - bw) / 2)
+    local by = panelH - bh - 32
+
+    UI.add_button(bx, by, bw, bh,
+        "BACK", "menu_back_settings",
+        "ImGuiDefaultBold", 1.0,
+        12, true,
+        74, 12, 255, 0.95
+    )
+
+    if UI.was_button_pressed("menu_back_settings") then
+        menuScreen = "main"
+    end
+
+    UI.end_child()
+end
+
 
  --=====================================================================
  --  [ENGINE CALLBACKS] OnUpdate (Main Loop)
@@ -753,11 +843,13 @@ function TriangleShooter:OnUpdate()
     if inMainMenu then
         screenW = Window.get_width()
         screenH = Window.get_height()
-        if menuScreen == "leaderboard" then
-            DrawLeaderboardMenu(screenW, screenH, dt)
-        else
-            DrawMainMenu(screenW, screenH, dt)
-        end
+    if menuScreen == "leaderboard" then
+        DrawLeaderboardMenu(screenW, screenH, dt)
+    elseif menuScreen == "settings" then
+        DrawSettingsMenu(screenW, screenH, dt)
+    else
+        DrawMainMenu(screenW, screenH, dt)
+    end
         return
     end
 
