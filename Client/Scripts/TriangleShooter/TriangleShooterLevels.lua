@@ -410,7 +410,7 @@ local levels = {
     [4] = {
         timeLimitSeconds = 20,
         enemyCount = 2,
-        enemyHealth = 40,
+        enemyHealth = 35,
         enemyProjectiles = false,
         enemyShootIntervalSeconds = 0.5,
         wallPingPong = false,
@@ -426,8 +426,8 @@ local levels = {
         windowWidth = 600,
         windowHeight = 800,
         enemies = {
-            { movementType = "stationary", x = 500, y = 300, health = 40, shootPattern = "cone", projectileCount = 1, shootInterval = 0.4 },
-            { movementType = "stationary", x = 350, y = 200, health = 40, shootPattern = "cone", projectileCount = 2,  shootInterval = 0.6 },
+            { movementType = "stationary", x = 500, y = 300, health = 45, shootPattern = "cone", projectileCount = 1, shootInterval = 0.4 },
+            { movementType = "stationary", x = 350, y = 200, health = 45, shootPattern = "cone", projectileCount = 2,  shootInterval = 0.6 },
         },
     },
 }
