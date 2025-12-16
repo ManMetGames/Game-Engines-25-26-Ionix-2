@@ -15,7 +15,7 @@ local TriangleShooterUI = require("Scripts.TriangleShooter.TriangleShooterUI")
  --=====================================================================
  --  [LEADERBOARD / SAVE DATA]
  --=====================================================================
-local GAME_ID = "TRIANGLE_SHOOTER"
+local GAME_ID = "SYSTEM_SHOOTER"
 
 -- Highest stage reached (persisted locally per-game)
 local bestStage = Json.load_high_score(GAME_ID) or 0
@@ -23,6 +23,11 @@ local bestStage = Json.load_high_score(GAME_ID) or 0
 -- Persistent player name (shared across games)
 local playerName = Json.load_player_name()
 if playerName == nil then playerName = "" end
+local needsPlayerName = (playerName == "")
+
+local showNamePrompt = false
+local pendingStartAfterName = false
+local namePromptError = ""
 
 -- Menu screens: "main" | "leaderboard"
 local menuScreen = "main"
@@ -42,7 +47,9 @@ local function TryUpdateBestStage(stage)
     if stage > (bestStage or 0) then
         bestStage = stage
         Json.save_high_score(GAME_ID, bestStage)
-        Firebase.submit_high_score(GAME_ID, GetPlayerNameForLeaderboard(), bestStage)
+        if not needsPlayerName then
+            Firebase.submit_high_score(GAME_ID, playerName, bestStage)
+        end
     end
 end
 
@@ -500,6 +507,78 @@ end
  --=====================================================================
  --  [DRAW] Main Menu / Leaderboard
  --=====================================================================
+
+local function DrawNamePrompt(screenW, screenH)
+    -- darken background
+    UI.add_panel(0, 0, screenW, screenH, 0.60, 0, 0, 0, 0)
+
+    local w, h = 520, 220
+    local x = math.floor((screenW - w) / 2)
+    local y = math.floor((screenH - h) / 2)
+
+    UI.begin_child(x, y, w, h, "TS_NamePrompt",
+        true, 0,
+        true, 0.96, 12, 28, 28, 28,
+        2.5, true, 0.85
+    )
+
+    local cx = w / 2
+    UI.add_centered_label(cx, 28, "ENTER YOUR NAME", "ImGuiDefaultBold", 1.6)
+    UI.add_centered_label(cx, 62, "Register yourself on the Leaderboard.", "", 1.0)
+    if namePromptError ~= "" then
+        UI.add_centered_label(cx, 82, namePromptError, "ImGuiDefaultBold", 1.0)
+    end
+
+
+    local inputW = 300
+    local inputX = math.floor((w - inputW) / 2)
+    UI.add_input_text(inputX, 98, inputW, "", "ts_player_name", 16)
+
+    local bw, bh = 160, 40
+    local bx = math.floor((w - bw) / 2)
+    UI.add_button(bx, 150, bw, bh,
+        "CONTINUE", "ts_name_ok",
+        "ImGuiDefaultBold", 1.0,
+        10, true,
+        74, 12, 255, 0.95
+    )
+
+    local committed =
+        UI.was_input_committed("ts_player_name") or
+        UI.was_button_pressed("ts_name_ok")
+
+    if committed then
+        local getName = UI.get_input_text_live or UI.get_input_text
+        local name = getName("ts_player_name") or ""
+        name = name:gsub("^%s+", ""):gsub("%s+$", "")
+
+        if name == "" then
+            namePromptError = "Please enter a name."
+        else
+            namePromptError = ""
+            playerName = name
+            needsPlayerName = false
+            showNamePrompt = false
+
+            Json.save_player_name(playerName)
+            UI.clear_input("ts_player_name")
+
+            if bestStage and bestStage > 0 then
+                Firebase.submit_high_score(GAME_ID, playerName, bestStage)
+            end
+
+            if pendingStartAfterName then
+                pendingStartAfterName = false
+                menuStarting = true
+                menuStartTimer = menuStartDelay
+            end
+        end
+    end
+
+
+    UI.end_child()
+end
+
 local function DrawMainMenu(screenW, screenH, dt)
     UI.add_panel(0, 0, screenW, screenH, 0.65, 0, 0, 0, 0)
 
@@ -518,9 +597,9 @@ local function DrawMainMenu(screenW, screenH, dt)
 
     -- Title / subtitle anchors (relative to panel height)
     local titleY = math.floor(panelH * 0.16)
-    local subY   = titleY + math.floor(panelH * 0.12)
+    local subY   = titleY + math.floor(panelH * 0.10)
 
-    UI.add_centered_label(cx, titleY, "TRIANGLE SHOOTER", "ImGuiDefaultBold", 3.0)
+    UI.add_centered_label(cx, titleY, "SYSTEM SHOOTER", "ImGuiDefaultBold", 3.0)
     UI.add_centered_label(cx, subY, "Mouse to move | Hold LMB to shoot", "", 1.2)
 
     -- Best stage
@@ -563,9 +642,17 @@ local function DrawMainMenu(screenW, screenH, dt)
     )
 
     if (not menuStarting) and UI.was_button_pressed("menu_start") then
-        menuStarting = true
-        menuStartTimer = menuStartDelay
+        if needsPlayerName then
+            showNamePrompt = true
+            namePromptError = ""
+            pendingStartAfterName = true
+            UI.clear_input("ts_player_name") -- ensures a clean box
+        else
+            menuStarting = true
+            menuStartTimer = menuStartDelay
+        end
     end
+
 
     -- Leaderboard button
     local gap = 16
@@ -576,12 +663,17 @@ local function DrawMainMenu(screenW, screenH, dt)
         0, 170, 110, 0.95
     )
 
-    if (not menuStarting) and UI.was_button_pressed("menu_leaderboard") then
+    if (not menuStarting) and (not showNamePrompt) and UI.was_button_pressed("menu_leaderboard") then
         menuScreen = "leaderboard"
         leaderboardFetched = false
     end
 
-    UI.end_child()
+        UI.end_child()
+
+        if showNamePrompt then
+        DrawNamePrompt(screenW, screenH)
+    end
+
 end
 
 local function DrawLeaderboardMenu(screenW, screenH, dt)

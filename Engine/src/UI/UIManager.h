@@ -222,6 +222,7 @@ namespace IonixEngine
 
 		std::string GetCommittedText(const std::string& id) const; // For InputText
 		bool WasInputCommitted(const std::string& id) const; // For InputText
+		std::string GetLiveText(const std::string& id) const; // For InputText (live buffer)
 		void ClearInput(const std::string& id); // For InputText
 
 		int  GetRadio(const std::string& groupId) const;

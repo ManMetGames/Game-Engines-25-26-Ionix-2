@@ -136,6 +136,10 @@ namespace IonixEngine {
             return Application::Get().layerUI->m_UIManager->WasInputCommitted(id);
             };
 
+        auto GetInputTextLive = [](const std::string& id) {
+            return Application::Get().layerUI->m_UIManager->GetLiveText(id);
+            };
+
         auto ClearInput = [](const std::string& id) {
             Application::Get().layerUI->m_UIManager->ClearInput(id);
             };
@@ -301,6 +305,7 @@ namespace IonixEngine {
             "set_slider", SetSlider,
             "get_input_text", GetInputText,
             "was_input_committed", WasInputCommitted,
+            "get_input_text_live", GetInputTextLive,
             "get_radio", GetRadio,
             "was_radio_changed", WasRadioChanged,
             "get_dropdown_index", GetDropdownIndex,

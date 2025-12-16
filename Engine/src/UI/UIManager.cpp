@@ -208,6 +208,16 @@ namespace IonixEngine
 		return it != m_inputCommittedThisFrame.end() && it->second;
 	}
 
+	std::string IonixEngine::UIManager::GetLiveText(const std::string& id) const
+	{
+		auto it = m_inputBuffers.find(id);
+		if (it == m_inputBuffers.end() || it->second.empty())
+			return "";
+
+		// buffer is kept null-terminated by ImGui
+		return std::string(it->second.data());
+	}
+
 	void UIManager::ClearInput(const std::string& id)
 	{
 		// clear committed text
