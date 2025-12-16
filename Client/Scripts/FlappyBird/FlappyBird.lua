@@ -51,7 +51,10 @@ local topScore = "Highscore: "
 -- Audio
 local birdJumpSound
 local coinSound
+local hitSound
+local gameOverSound
 
+-- Leaderboard
 local topLeaderboard = nil
 local leaderboardFetched = false
 
@@ -316,10 +319,20 @@ function ExampleScript:OnStart()
     Entity.add_audio_component(birdJumpSound, "Jump", false)
     AudioComponent.change_volume(birdJumpSound, 100)
 
+    -- Collision SFX
+    hitSound = Entity.create_entity()
+    Entity.add_audio_component(hitSound, "Hit", false)
+    AudioComponent.change_volume(hitSound, 50)
+
     -- Coin SFX
     coinSound = Entity.create_entity()
-    Entity.add_audio_component(coinSound, "coin", false)
+    Entity.add_audio_component(coinSound, "Coin", false)
     AudioComponent.change_volume(coinSound, 100)
+
+    -- Game over SFX
+    gameOverSound = Entity.create_entity()
+    Entity.add_audio_component(gameOverSound, "gameOver", false)
+    AudioComponent.change_volume(gameOverSound, 30)
 end
 
 ----------------------------------------------------------
@@ -678,26 +691,37 @@ function ExampleScript:OnUpdate()
     end
     Fysics.set_linear_velocity(player1, vx, vy)
 
-    -- Pipe & coin reset
+    -- Pipe reset
     for _, set in ipairs(pipeSets) do
         local pipeX = Mafs.get_vec_x(Fysics.get_pos(set.bottom))
+
         if pipeX < -0.6 then
 
             -- Reset pipes
             Fysics.set_pos(set.bottom, (windowW+60)/100, 4 + (math.random(2, 3) / 10 * (math.random(1, 2) == 1 and -1 or 1)))
             Fysics.set_pos(set.top, (windowW+60)/100, -0.5 + (math.random(2, 3) / 10 * (math.random(1, 2) == 1 and -1 or 1)))
 
-            -- Reset coin
-            if set.coin then
-                spawnCoins(set.coin, set, 140)
-                local s = Entity.get_sprite_component(set.coin)
-                if s then
-                    Sprite.set_width(s, 16)
-                    Sprite.set_height(s, 16)
-                end
-                coinHidden[set.coin] = false
-                Fysics.set_linear_velocity(set.coin, coinSpeed, 0)
+            set.passed = false
+        end
+    end
+
+    -- Coin reset
+    for i, c in ipairs(coins) do
+        local coinX = Mafs.get_vec_x(Fysics.get_pos(c))
+
+        if coinX < -0.6 then
+            local pipeSet = pipeSets[i]
+
+            spawnCoins(c, pipeSet, 140)
+
+            local s = Entity.get_sprite_component(c)
+            if s then
+                Sprite.set_width(s, 16)
+                Sprite.set_height(s, 16)
             end
+
+            coinHidden[c] = false
+            Fysics.set_linear_velocity(c, coinSpeed, 0)
         end
     end
 
@@ -763,6 +787,12 @@ end
 	------------------------------------------------------
     local function triggerGameOver()
     gameOver = true
+
+    if gameOverSound then
+    AudioComponent.play(gameOverSound)
+    print("GameOver sound played")
+    end
+
     for _, p in ipairs({pipe, pipeT, pipe2, pipeT2, pipe3, pipeT3}) do
         Fysics.set_linear_velocity(p, 0, 0)
     end
@@ -799,7 +829,14 @@ function ExampleScript:OnCollisionEnter(a, b)
     --If player touches any pipe then game over
     if (a == player1 and (b == pipe or b == pipeT or b == pipe2 or b == pipeT2 or b == pipe3 or b == pipeT3))
     or (b == player1 and (a == pipe or a == pipeT or a == pipe2 or a == pipeT2 or a == pipe3 or a == pipeT3)) then
+
+        if hitSound then
+            AudioComponent.play(hitSound)
+            print("Hit sfx played")
+        end
+
         print("GAME OVER: Hit pipe! Try Again")
+
         triggerGameOver()
     end
 end
