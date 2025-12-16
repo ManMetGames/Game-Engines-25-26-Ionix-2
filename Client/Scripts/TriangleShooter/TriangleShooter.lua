@@ -468,21 +468,18 @@ function TriangleShooter:OnStart()
     playerSprite = Entity.add_sprite_component(player, assets.textures.Triangle, playerSize, playerSize, 10)
     Sprite.set_columns(playerSprite, 1)
 
-    local cfg = TriangleShooterLevels.getLevelConfig(1)
-    if cfg and cfg.windowWidth and cfg.windowHeight then
-        local targetW = cfg.windowWidth
-        local targetH = cfg.windowHeight
-        local displayWidth = Window.get_display_width()
-        local displayHeight = Window.get_display_height()
-        local newX = math.floor((displayWidth - targetW) * 0.5)
-        local newY = math.floor((displayHeight - targetH) * 0.5)
-        Window.set_pos(newX, newY)
-        Window.set_size(targetW, targetH)
-        screenW = targetW
-        screenH = targetH
-    end
+    -- Main menu window size (target)
+    local targetW, targetH = 1280, 720
+    local displayWidth = Window.get_display_width()
+    local displayHeight = Window.get_display_height()
+    local newX = math.floor((displayWidth - targetW) * 0.5)
+    local newY = math.floor((displayHeight - targetH) * 0.5)
+    Window.set_pos(newX, newY)
+    Window.set_size(targetW, targetH)
+    screenW = targetW
+    screenH = targetH
 
-    --LoadLevel(1, true)
+    StartLevel(1, true)
 
     musicEntity = Entity.create_entity()
     Entity.add_audio_component(musicEntity, "technoSong", false)
@@ -582,8 +579,12 @@ end
 local function DrawMainMenu(screenW, screenH, dt)
     UI.add_panel(0, 0, screenW, screenH, 0.65, 0, 0, 0, 0)
 
-    local panelW = math.floor(math.max(520, math.min(screenW * 0.70, 860)))
-    local panelH = math.floor(math.max(420, math.min(screenH * 0.70, 600)))
+    -- Bigger, responsive menu panel
+    local panelW = math.floor(math.min(screenW - 120, 1000))
+    local panelH = math.floor(math.min(screenH - 120, 600))
+    panelW = math.max(panelW, 820)
+    panelH = math.max(panelH, 520)
+
     local panelX = math.floor((screenW - panelW) / 2)
     local panelY = math.floor((screenH - panelH) / 2)
 
@@ -606,7 +607,7 @@ local function DrawMainMenu(screenW, screenH, dt)
     UI.add_centered_label(cx, subY + math.floor(panelH * 0.08), "Best Stage: " .. tostring(bestStage or 0), "", 1.2)
 
     -- Buttons
-    local bw, bh = math.min(360, math.floor(panelW * 0.60)), 55
+    local bw, bh = math.floor(math.min(panelW * 0.62, 560)), 60
     local bx = math.floor((panelW - bw) / 2)
     local by = math.floor(panelH * 0.48)
 
