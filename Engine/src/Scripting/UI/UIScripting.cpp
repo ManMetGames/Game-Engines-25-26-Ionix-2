@@ -120,6 +120,7 @@ namespace IonixEngine {
         auto DrawProgressBar = [](int x, int y, float xSize, float ySize, float maxValue, float currentValue, int colorId) {
             Application::Get().layerUI->m_UI->DrawProgressBar(x, y, xSize, ySize, maxValue, currentValue, colorId);
             };
+
         auto AddInputText = [](int xPos, int yPos, float width, const char* label, const char* id, size_t maxLen, sol::optional<std::string> fontName,
             sol::optional<float> fontScale) {
             Application::Get().layerUI->m_UIManager->AddInputText(xPos, yPos, width, label, id, maxLen,
@@ -271,9 +272,8 @@ namespace IonixEngine {
                 Application::Get().layerUI->m_UIManager->EndChild();
             };
 
-
         lua["UI"] = lua.create_table_with(
-            "Add_label", AddLabel,
+            "add_label", AddLabel,
             "add_centered_label", AddCenteredLabel,
             "add_button", AddButton,
             "add_checkbox", AddCheckbox,

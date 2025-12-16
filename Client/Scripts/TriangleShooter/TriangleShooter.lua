@@ -660,11 +660,18 @@ function TriangleShooter:OnUpdate()
         UI.draw_progress_bar(20, 20, 200, 20, currentEnemyHealthTotal, currentEnemyHealthTotal, 1)
     end
 
-    UI.draw_label("Stage: " .. tostring(currentLevel), 140, 140, 400, 20, "")
+    UI.add_centered_label(screenW / 2, 10, "Stage: " .. tostring(currentLevel), "")
 
-    UI.draw_progress_bar(screenW - 220, 20, 200, 20, 100, playerHealth, 2)
+    local playerHpBarX = screenW - 220
+    local playerHpBarY = 20
+    local playerHpBarW = 200
+    local playerHpBarH = 20
+
+    UI.draw_progress_bar(playerHpBarX, playerHpBarY, playerHpBarW, playerHpBarH, 100, playerHealth, 2)
+
     local level, xp, xpToNextLevel = TriangleShooterPlayerProgress.getProgress()
-    UI.draw_label("Player Lv: " .. tostring(level) .. "  XP: " .. tostring(xp) .. " / " .. tostring(xpToNextLevel), 220, 45, 740, 60, "")
+    local playerInfoText = "Player Lv: " .. tostring(level) .. "  XP: " .. tostring(xp) .. " / " .. tostring(xpToNextLevel)
+    UI.add_centered_label(playerHpBarX + playerHpBarW / 2, playerHpBarY + playerHpBarH + 8, playerInfoText, "")
 
     -- Peace progress bar (only during inter-level peace)
     if #enemies == 0 and peaceTimerSeconds > 0 then
