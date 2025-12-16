@@ -1,4 +1,4 @@
-local TriangleShooter = {}
+﻿local TriangleShooter = {}
 
  --=====================================================================
  --  [MODULE] Imports / Dependencies
@@ -228,6 +228,12 @@ local impact3SfxEntity
 local currentLevel = 1
 local levelTimerSeconds = 0
 
+-- Main Menu
+local inMainMenu = true
+local menuStarting = false
+local menuStartDelay = 0.75
+local menuStartTimer = 0
+
  --=====================================================================
  --  [LEVEL FLOW] Load / Start Level
  --=====================================================================
@@ -396,7 +402,7 @@ end
  --=====================================================================
 function TriangleShooter:OnStart()
     -- Enable relative mouse mode (hides cursor, gives delta movement)
-    Input.set_relative_mouse_mode(true)
+    Input.set_relative_mouse_mode(false)
     
     -- Create player triangle
     player = Entity.create_entity()
@@ -424,7 +430,7 @@ function TriangleShooter:OnStart()
         screenH = targetH
     end
 
-    LoadLevel(1, true)
+    --LoadLevel(1, true)
 
     musicEntity = Entity.create_entity()
     Entity.add_audio_component(musicEntity, "technoSong", false)
@@ -446,6 +452,67 @@ function TriangleShooter:OnStart()
 end
 
  --=====================================================================
+ --  [DRAW] Main Menu
+ --=====================================================================
+local function DrawMainMenu(screenW, screenH, dt)
+    UI.add_panel(0, 0, screenW, screenH, 0.65, 0, 0, 0, 0)
+
+    local panelW = math.floor(math.max(420, math.min(screenW * 0.60, 760)))
+    local panelH = math.floor(math.max(320, math.min(screenH * 0.60, 520)))
+    local panelX = math.floor((screenW - panelW) / 2)
+    local panelY = math.floor((screenH - panelH) / 2)
+
+    UI.begin_child(panelX, panelY, panelW, panelH, "TS_MainMenu",
+        true, 0,
+        true, 0.92, 12, 25, 25, 25,
+        2.5, true, 0.85
+    )
+
+    local cx = panelW / 2
+
+    -- Title / subtitle anchors (relative to panel height)
+    local titleY = math.floor(panelH * 0.18)
+    local subY   = titleY + math.floor(panelH * 0.12)
+
+    UI.add_centered_label(cx, titleY, "TRIANGLE SHOOTER", "ImGuiDefaultBold", 3.0)
+    UI.add_centered_label(cx, subY, "Mouse to move | Hold LMB to shoot", "", 1.2)
+
+    -- Start button anchor (relative too)
+    local bw, bh = math.min(340, math.floor(panelW * 0.55)), 55
+    local bx = math.floor((panelW - bw) / 2)
+    local by = math.floor(panelH * 0.42)
+
+    local startLabel = menuStarting and "Starting..." or "START GAME"
+    UI.add_button(bx, by, bw, bh,
+        startLabel, "menu_start",
+        "ImGuiDefaultBold", 1.1,
+        12, true,
+        74, 12, 255, 0.95
+    )
+
+    if (not menuStarting) and UI.was_button_pressed("menu_start") then
+        menuStarting = true
+        menuStartTimer = menuStartDelay
+    end
+
+    if menuStarting then
+        menuStartTimer = menuStartTimer - dt
+        local elapsed = menuStartDelay - math.max(menuStartTimer, 0)
+        UI.draw_progress_bar(cx - 100, panelH - 40, 200, 10, menuStartDelay, elapsed, 4)
+
+        if menuStartTimer <= 0 then
+            menuStarting = false
+            inMainMenu = false
+            Input.set_relative_mouse_mode(true)
+            LoadLevel(1, true)
+        end
+    end
+
+    UI.end_child()
+end
+
+
+ --=====================================================================
  --  [ENGINE CALLBACKS] OnUpdate (Main Loop)
  --=====================================================================
 function TriangleShooter:OnUpdate()
@@ -454,6 +521,13 @@ function TriangleShooter:OnUpdate()
      --=====================================================================
     globalFrame = globalFrame + 1
     local dt = GetDt()
+
+    if inMainMenu then
+        screenW = Window.get_width()
+        screenH = Window.get_height()
+        DrawMainMenu(screenW, screenH, dt)
+        return
+    end
 
     if fireCooldownTimer > 0 then
         fireCooldownTimer = fireCooldownTimer - dt
