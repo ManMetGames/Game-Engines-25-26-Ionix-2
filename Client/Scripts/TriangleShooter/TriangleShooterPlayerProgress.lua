@@ -9,6 +9,7 @@ local playerStats = {
     pierceCount = 0,
     bounceCount = 0,
     fireInterval = 0.3,
+    fireRateUpgradeCount = 0,
     maxHealth = 100,
 }
 
@@ -32,6 +33,13 @@ local function OnLevelUp()
     pendingLevelUp = true
 end
 
+function TriangleShooterPlayerProgress.canTakeUpgrade(upgradeType)
+    if upgradeType == "fire_rate" then
+        return (playerStats.fireRateUpgradeCount or 0) < 3
+    end
+    return true
+end
+
 function TriangleShooterPlayerProgress.applyUpgrade(upgradeType)
     if upgradeType == "bullet" then
         playerStats.bulletCount = playerStats.bulletCount + 1
@@ -40,7 +48,17 @@ function TriangleShooterPlayerProgress.applyUpgrade(upgradeType)
     elseif upgradeType == "bounce" then
         playerStats.bounceCount = playerStats.bounceCount + 1
     elseif upgradeType == "fire_rate" then
-        playerStats.fireInterval = math.max(0.05, playerStats.fireInterval - 0.05)
+        local count = playerStats.fireRateUpgradeCount or 0
+        if count < 3 then
+            local delta = 0.1
+            if count == 1 then
+                delta = 0.05
+            elseif count == 2 then
+                delta = 0.025
+            end
+            playerStats.fireInterval = math.max(0.05, playerStats.fireInterval - delta)
+            playerStats.fireRateUpgradeCount = count + 1
+        end
     elseif upgradeType == "max_health" then
         playerStats.maxHealth = (playerStats.maxHealth or 100) + 20
     end

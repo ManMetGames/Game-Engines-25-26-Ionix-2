@@ -1,5 +1,7 @@
 local TriangleShooterUI = {}
 
+local TriangleShooterPlayerProgress = require("Scripts.TriangleShooter.TriangleShooterPlayerProgress")
+
 local isUpgradeMenuOpen = false
 local upgradeOptions = {}  -- Array of {type, label} for the current choices
 local selectedUpgradeIndex = 0  -- 0 = none selected yet
@@ -21,7 +23,7 @@ function TriangleShooterUI.getRandomUpgradeOptions(count, playerLevel)
     local available = {}
     for i, upgrade in ipairs(upgradePool) do
         local minLevel = upgrade.minLevel or 1
-        if playerLevel >= minLevel then
+        if playerLevel >= minLevel and TriangleShooterPlayerProgress.canTakeUpgrade(upgrade.type) then
             table.insert(available, { type = upgrade.type, label = upgrade.label })
         end
     end

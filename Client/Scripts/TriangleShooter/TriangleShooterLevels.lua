@@ -14,9 +14,9 @@ local HEALTH_BUDGET = {
 }
 
 local TIMER_CONFIG = {
-    min = 15,
-    max = 30,
-    standard = 17,
+    min = 20,
+    max = 35,
+    standard = 20,
     healthPerSecond = 12,
 }
 
