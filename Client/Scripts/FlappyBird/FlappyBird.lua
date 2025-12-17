@@ -88,6 +88,7 @@ Window.set_size_centered(960, 640)
 -- Main Menu
 ----------------------------------------------------------
 local inMainMenu = true
+local showMenuButton = true
 
 ----------------------------------------------------------
 -- Show point effect
@@ -440,6 +441,25 @@ function ExampleScript:OnUpdate()
         end
 
         return
+    end
+
+    -----------------------------------------
+    -- Open main menu button in play mode
+    -----------------------------------------
+    if not inMainMenu then
+        local windowW = Window.get_width()
+
+        local btnSize = 36
+        local margin = 10
+        local btnX = windowW - btnSize - margin
+        local btnY = margin
+
+        UI.add_button(btnX, btnY, btnSize, btnSize, "=", "menuButton")
+
+        -- Open main menu
+        if UI.was_button_pressed("menuButton") then
+            inMainMenu = true   
+        end
     end
 
     ------------------------
