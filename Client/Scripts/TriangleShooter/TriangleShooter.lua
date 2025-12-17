@@ -39,6 +39,12 @@ local sfxVol    = Json.load_setting(GAME_ID, "audio.sfx",    0.80) or 0.80
 
 -- Controls
 local sensitivitySetting = Json.load_setting(GAME_ID, "controls.sensitivity", 1.0) or 1.0
+local function Clamp(v, a, b)
+    if v < a then return a end
+    if v > b then return b end
+    return v
+end
+sensitivitySetting = Clamp(sensitivitySetting, 0.25, 2.50)
 
  --=====================================================================
  --  [STATE] Menu
@@ -767,15 +773,24 @@ local function DrawLeaderboardMenu(screenW, screenH, dt)
     local lineH = 26
 
     if topLeaderboard then
+        local stageX = math.floor(panelW * 0.78)  -- move this right/left as you like
+
         for i = 1, 10 do
             local e = topLeaderboard[i]
-            local line
+            local y = listY + (i - 1) * lineH
+
             if e then
-                line = string.format("%2d. %-16s  Stage %d", i, tostring(e.name), tonumber(e.score) or 0)
+                local name = tostring(e.name)
+                local stage = tonumber(e.score) or 0
+
+                -- Left column: "1. Name"
+                UI.add_label(listX, y, 0, 0, string.format("%2d. %s", i, name), "", 1.4)
+
+                -- Right column: "Stage X" (starts at a fixed X so it lines up)
+                UI.add_label(stageX, y, 0, 0, string.format("Stage %d", stage), "", 1.4)
             else
-                line = string.format("%2d. --", i)
+                UI.add_label(listX, y, 0, 0, string.format("%2d. --", i), "", 1.4)
             end
-            UI.add_label(listX, listY + (i - 1) * lineH, 0, 0, line, "", 1.4)
         end
     else
         UI.add_centered_label(cx, listY + 10, "(No scores yet)", "", 1.2)
@@ -815,14 +830,27 @@ local function DrawSettingsMenu(screenW, screenH, dt)
     )
 
     local cx = panelW / 2
-    UI.add_centered_label(cx, math.floor(panelH * 0.1), "SETTINGS", "ImGuiDefaultBold", 2.6)
-    UI.add_centered_label(cx, math.floor(panelH * 0.19), "Audio", "ImGuiDefaultBold", 1.5)
+    local footerH = 110 -- space reserved for the Back button area
+    local contentX = 26
+    local contentY = math.floor(panelH * 0.16)  
+    local contentW = panelW - 52
+    local contentH = panelH - contentY - footerH
 
-    local sliderW = math.floor(panelW * 0.60)
-    local sliderX = math.floor((panelW - sliderW) / 2)
+    UI.add_centered_label(cx, math.floor(panelH * 0.1), "SETTINGS", "ImGuiDefaultBold", 2.6)
+
+    -- Child for scrollable content 
+    local NO_BACKGROUND = 128
+    UI.begin_child(contentX, contentY, contentW, contentH, "TS_SettingsContent",
+    false, NO_BACKGROUND, false)
+
+    local innerCX = contentW / 2
+    local sliderW = math.floor(contentW * 0.70)
+    local sliderX = math.floor((contentW - sliderW) / 2)
+
+    UI.add_centered_label(innerCX, 16, "Audio", "ImGuiDefaultBold", 1.5)
 
     local function DrawVolRow(title, id, value, y)
-        UI.add_centered_label(cx, y - 34, title, "", 1.1)
+        UI.add_centered_label(innerCX, y - 34, title, "", 1.1)
 
         UI.add_slider(sliderX, y, sliderW, "##" .. id, id, 0.0, 1.0, value, nil, nil, " ")
 
@@ -830,9 +858,8 @@ local function DrawSettingsMenu(screenW, screenH, dt)
         UI.add_label(sliderX + sliderW + 18, y + 2, 0, 0, tostring(percent) .. "%", "ImGuiDefaultBold", 1.0)
     end
 
-    local y0 = math.floor(panelH * 0.34)
-    local gapY = 66
-
+    local y0 = 70        -- start near top of inner child
+    local gapY = 66      -- spacing between rows
 
     -- MASTER
     DrawVolRow("Master", "ts_master", masterVol, y0)
@@ -858,9 +885,29 @@ local function DrawSettingsMenu(screenW, screenH, dt)
         ApplyAudioVolumes()
     end
 
+    -- after SFX row
+    local controlsHeaderY = y0 + gapY * 3 + 10
+    UI.add_centered_label(innerCX, controlsHeaderY, "Controls", "ImGuiDefaultBold", 1.5)
 
+    local sensY = controlsHeaderY + 60
+    -- draw sensitivity slider at sensY
 
+    UI.add_centered_label(innerCX, sensY - 34, "Sensitivity", "", 1.1)
+    UI.add_slider(sliderX, sensY, sliderW, "##ts_sensitivity", "ts_sensitivity", 0.25, 2.50, sensitivitySetting, nil, nil, " ")
 
+    if UI.was_slider_changed("ts_sensitivity") then
+        sensitivitySetting = UI.get_slider("ts_sensitivity") or sensitivitySetting
+        sensitivitySetting = Clamp(sensitivitySetting, 0.25, 2.50)
+        Json.save_setting(GAME_ID, "controls.sensitivity", sensitivitySetting)
+    end
+
+    -- show “x” value on the right (2 decimals)
+    UI.add_label(sliderX + sliderW + 18, sensY + 2, 0, 0,
+        string.format("%.2fx", sensitivitySetting),
+        "ImGuiDefaultBold", 1.0
+    )
+
+    UI.end_child()
     -- Back button
     local bw, bh = math.min(320, math.floor(panelW * 0.55)), 50
     local bx = math.floor((panelW - bw) / 2)
@@ -987,8 +1034,9 @@ function TriangleShooter:OnUpdate()
     end
     
     -- Move player by delta (allows knockback since not snapping to cursor)
-    playerX = playerX + deltaX * playerSpeed
-    playerY = playerY + deltaY * playerSpeed
+    local sens = sensitivitySetting or 1.0
+    playerX = playerX + deltaX * playerSpeed * sens
+    playerY = playerY + deltaY * playerSpeed * sens
     
     if knockbackTimer > 0 then
         local tNorm = 1.0 - (knockbackTimer / knockbackDuration)
