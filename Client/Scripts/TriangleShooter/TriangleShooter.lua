@@ -63,6 +63,7 @@ sensitivitySetting = Clamp(sensitivitySetting, 0.25, 2.50)
  --  [STATE] Main/Pause Menus
  --=====================================================================
 -- Menu screens: "main" | "leaderboard" | "pause"
+local UI__COLOUR_THEME = { 44, 8, 160 }
 local menuScreen = "main"
 local topLeaderboard = nil
 local leaderboardFetched = false
@@ -696,7 +697,8 @@ local function DrawMainMenu(screenW, screenH, dt)
     UI.begin_child(panelX, panelY, panelW, panelH, "TS_MainMenu",
         true, 0,
         true, 0.92, 12, 25, 25, 25,
-        0.1, true, 2
+        0.01, false, 0.85,
+        UI__COLOUR_THEME[1], UI__COLOUR_THEME[2], UI__COLOUR_THEME[3], 1.0 -- RGBA border
     )
 
     local cx = panelW / 2
@@ -820,7 +822,8 @@ local function DrawLeaderboardMenu(screenW, screenH, dt)
     UI.begin_child(panelX, panelY, panelW, panelH, "TS_Leaderboard",
         true, 0,
         true, 0.92, 12, 25, 25, 25,
-        0.1, true, 2
+        0.01, false, 0.85,
+        UI__COLOUR_THEME[1], UI__COLOUR_THEME[2], UI__COLOUR_THEME[3], 1.0 -- RGBA border
     )
 
     local cx = panelW / 2
@@ -891,7 +894,8 @@ local function DrawSettingsMenu(screenW, screenH, dt)
     UI.begin_child(panelX, panelY, panelW, panelH, "TS_Settings",
         true, 0,
         true, 0.92, 12, 25, 25, 25,
-        0.1, true, 2
+        0.01, false, 0.85,
+        UI__COLOUR_THEME[1], UI__COLOUR_THEME[2], UI__COLOUR_THEME[3], 1.0 -- RGBA border
     )
 
     local cx = panelW / 2
@@ -1013,7 +1017,8 @@ local function DrawPauseMenu(screenW, screenH, dt)
     UI.begin_child(panelX, panelY, panelW, panelH, "TS_PauseMenu",
         true, 0,
         true, 0.92, 12, 25, 25, 25,
-        0.1, true, 2
+        0.01, false, 0.85,
+        UI__COLOUR_THEME[1], UI__COLOUR_THEME[2], UI__COLOUR_THEME[3], 1.0 -- RGBA border
     )
 
     local cx = panelW / 2
@@ -1078,7 +1083,8 @@ local function DrawPauseLeaderboard(screenW, screenH, dt)
     UI.begin_child(panelX, panelY, panelW, panelH, "TS_PauseLeaderboard",
         true, 0,
         true, 0.92, 12, 25, 25, 25,
-        0.1, true, 2
+        0.01, false, 0.85,
+        UI__COLOUR_THEME[1], UI__COLOUR_THEME[2], UI__COLOUR_THEME[3], 1.0 -- RGBA border
     )
 
     local cx = panelW / 2
@@ -1131,7 +1137,8 @@ local function DrawPauseSettingsMenu(screenW, screenH, dt)
     UI.begin_child(panelX, panelY, panelW, panelH, "TS_Settings",
         true, 0,
         true, 0.92, 12, 25, 25, 25,
-        0.1, true, 2
+        0.1, false, 0.85,
+        UI__COLOUR_THEME[1], UI__COLOUR_THEME[1], UI__COLOUR_THEME[1], 1.0
     )
 
     local cx = panelW / 2

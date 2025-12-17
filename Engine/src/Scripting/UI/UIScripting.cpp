@@ -322,8 +322,33 @@ namespace IonixEngine {
             sol::optional<int> b,
             sol::optional<float> borderSize,
             sol::optional<bool> autoBorder,
-            sol::optional<float> borderDarken)
+            sol::optional<float> borderDarken,
+            sol::optional<int> borderR,
+            sol::optional<int> borderG,
+            sol::optional<int> borderB,
+            sol::optional<float> borderA)
             {
+                auto norm255i = [](int v) -> float {
+                    if (v < 0) v = 0;
+                    if (v > 255) v = 255;
+                    return v / 255.0f;
+                    };
+
+                auto normA = [](float v) -> float {
+                    // allow 0..1 or 0..255
+                    if (v > 1.0f) v = v / 255.0f;
+                    if (v < 0.0f) v = 0.0f;
+                    if (v > 1.0f) v = 1.0f;
+                    return v;
+                    };
+
+                ImVec4 bc(
+                    norm255i(borderR.value_or(0)),
+                    norm255i(borderG.value_or(0)),
+                    norm255i(borderB.value_or(0)),
+                    normA(borderA.value_or(1.0f))
+                );
+
                 Application::Get().layerUI->m_UIManager->BeginChild(
                     x, y, w, h,
                     id.c_str(),
@@ -338,7 +363,7 @@ namespace IonixEngine {
                     borderSize.value_or(1.0f),
                     autoBorder.value_or(true),
                     borderDarken.value_or(0.85f),
-                    ImVec4(0, 0, 0, 1) // only used if autoBorder=false 
+                    bc
                 );
             };
 
