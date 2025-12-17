@@ -11,6 +11,7 @@ local TriangleShooterAbilities = require("Scripts.TriangleShooter.TriangleShoote
 local TriangleShooterPlayerProgress = require("Scripts.TriangleShooter.TriangleShooterPlayerProgress")
 local ParticleSystem = require("Scripts.TriangleShooter.ParticleSystem")
 local TriangleShooterUI = require("Scripts.TriangleShooter.TriangleShooterUI")
+local TriangleShooterPickups = require("Scripts.TriangleShooter.TriangleShooterPickups")
 
  --=====================================================================
  --  [LEADERBOARD / SAVE DATA]
@@ -1144,6 +1145,14 @@ function TriangleShooter:OnUpdate()
     UpdateEnemyProjectiles()
 
     ParticleSystem.update(dt)
+    TriangleShooterPickups.update(dt)
+    
+    -- Check pickup collision and heal player
+    local maxHealth = TriangleShooterPlayerProgress.getMaxHealth()
+    local healAmount = TriangleShooterPickups.checkPlayerCollision(playerX, playerY, playerSize, maxHealth)
+    if healAmount then
+        playerHealth = math.min(maxHealth, playerHealth + healAmount)
+    end
     
     -- Update flash effect
     UpdateFlash()
@@ -1242,6 +1251,8 @@ function TriangleShooter:OnUpdate()
         screenH = targetH
  
         ClearEnemies()
+        TriangleShooterPickups.clearAll()
+        TriangleShooterPlayerProgress.reset()
         currentLevel = 1
         StartLevel(1, true)
     elseif not enemiesAlive then
@@ -1408,6 +1419,11 @@ function UpdateProjectiles()
             end
 
             if enemy.health <= 0 then
+                local eSize = enemy.size or enemySize
+                local deathX = enemy.x + eSize / 2
+                local deathY = enemy.y + eSize / 2
+                TriangleShooterPickups.trySpawnHealingOrb(deathX, deathY)
+                
                 Entity.set_global_pos(enemy.entity, -1000, -1000)
                 table.remove(enemies, hitEnemyIndex)
             end
@@ -1797,6 +1813,8 @@ function UpdateBeatBop()
                 Entity.set_global_pos(enemy.entity, enemy.x - offset, enemy.y - offset)
             end
         end
+        
+        TriangleShooterPickups.applyBeatBop(t)
     else
         for i = 1, #enemies do
             local enemy = enemies[i]
@@ -1809,6 +1827,8 @@ function UpdateBeatBop()
                 Entity.set_global_pos(enemy.entity, enemy.x, enemy.y)
             end
         end
+        
+        TriangleShooterPickups.resetBop()
     end
 end
 
