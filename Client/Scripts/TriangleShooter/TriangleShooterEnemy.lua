@@ -11,7 +11,7 @@ local assets = require("Scripts.Assets")
 local DEFAULTS = {
     baseSpeed = 550,
     size = 30,
-    sizePerHp = 0.2,
+    sizePerHp = 0.125,
     health = 50,
     movementType = "bounce",
     shootPattern = "single",
@@ -34,6 +34,7 @@ local DEFAULTS = {
 local ENEMY_TYPE_COLORS = {
     bounce = {100, 255, 100},
     stationary = {100, 150, 255},
+    stationary_boss = {255, 100, 100},
     orbit = {200, 100, 255},
     teleporter = nil,
 }
@@ -58,7 +59,11 @@ function TriangleShooterEnemy.createEnemy(x, y, config, playerX, playerY, player
     local size = config.size or DEFAULTS.size
     local health = config.health or DEFAULTS.health
     local movementType = config.movementType or DEFAULTS.movementType
-    local color = config.color or ENEMY_TYPE_COLORS[movementType] or {255, 255, 255}
+    local colorKey = movementType
+    if colorKey == "stationary" and config.spinWhileShooting then
+        colorKey = "stationary_boss"
+    end
+    local color = config.color or ENEMY_TYPE_COLORS[colorKey] or {255, 255, 255}
     
     local entity = Entity.create_entity()
     Entity.set_global_pos(entity, x, y)
@@ -191,6 +196,8 @@ end
          elseif movementType == "orbit" then
              updateOrbitMovement(enemy, dt, screenW, screenH)
          elseif movementType == "stationary" then
+             -- No movement
+         elseif movementType == "stationary_boss" then
              -- No movement
          elseif movementType == "teleporter" then
              updateTeleporterMovement(enemy, dt, playerCenterX, playerCenterY, screenW, screenH, SpawnBeam, EmitTeleportBurst, EmitBeamCharge)
