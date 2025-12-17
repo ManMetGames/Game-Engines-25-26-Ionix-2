@@ -413,24 +413,36 @@ function ExampleScript:OnUpdate()
     ----------------------------------------------------------
     -- Main Menu 
     ----------------------------------------------------------
-    -- Play button
+
     if inMainMenu then
         local windowW = Window.get_width()
         local windowH = Window.get_height()
 
         -- Center button
         local buttonW, buttonH = 200, 50
-        local buttonX = (windowW - buttonW) / 2
-        local buttonY = (windowH - buttonH) / 2
+        local centerX = (windowW - buttonW) / 2
+        local centerY = (windowH - buttonH) / 2
+        local gap = 20
 
-        UI.add_button(buttonX, buttonY, buttonW, buttonH, "Play", "playButton")
+        -- Play button
+        UI.add_button(centerX, centerY - (buttonH / 2) - gap, buttonW, buttonH, "Play", "playButton")
 
-        -- start the game
+        -- Exit button
+        UI.add_button(centerX, centerY + (buttonH / 2) - gap + 20, buttonW, buttonH, "Exit", "exitButton")
+
+        -- Start game
         if UI.was_button_pressed("playButton") then
             inMainMenu = false
             resetGame()
-            print("Pressed Play: Started Game")
+            print("Pressed Play Button: Started Game")
         end
+
+        -- Exit game
+        if UI.was_button_pressed("exitButton") then
+            print("Pressed Exit Buttom: Quitting Game")
+            os.exit()
+        end
+
         return
     end
 
