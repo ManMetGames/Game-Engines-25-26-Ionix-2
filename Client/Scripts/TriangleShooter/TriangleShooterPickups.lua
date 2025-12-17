@@ -10,7 +10,7 @@ local CONFIG = {
     HEALING_ORB_DROP_CHANCE = 0.20,
     
     -- Healing amount (0.0 to 1.0, where 0.20 = 20% of max health)
-    HEALING_ORB_HEAL_PERCENT = 0.20,
+    HEALING_ORB_HEAL_PERCENT = 0.15,
     
     -- Visual settings
     ORB_SIZE = 16,
