@@ -445,18 +445,21 @@ LoadLevel = function(index, resetPlayerState)
         end
     end
 
-    playerHealth = TriangleShooterPlayerProgress.getMaxHealth()
-
      --=====================================================================
      --  [LOAD LEVEL] Reset Player State
      --=====================================================================
     if resetPlayerState then
+        playerHealth = TriangleShooterPlayerProgress.getMaxHealth()
         playerX = screenW / 2 - playerSize / 2
         playerY = screenH / 2 - playerSize / 2
         Entity.set_global_pos(player, playerX, playerY)
         Sprite.set_color(playerSprite, 255, 255, 255)
         playerFlashTimer = 0
         damageCooldown = 0
+    end
+
+    if playerHealth == nil or playerHealth <= 0 then
+        playerHealth = TriangleShooterPlayerProgress.getMaxHealth()
     end
 end
 
@@ -500,7 +503,7 @@ local function OnEnemyKilled()
 end
 
 local function OnLevelTimeout()
-    StartLevel(currentLevel, true)
+    StartLevel(currentLevel, false)
 end
 
  --=====================================================================
@@ -1224,7 +1227,12 @@ function TriangleShooter:OnUpdate()
      --  [ONUPDATE] Level Flow (Win / Lose / Timeout)
      --=====================================================================
     if playerHealth <= 0 then
-        StartLevel(currentLevel, true)
+        inMainMenu = true
+        menuScreen = "main"
+        Input.set_relative_mouse_mode(false)
+        ClearEnemies()
+        currentLevel = 1
+        StartLevel(1, true)
     elseif not enemiesAlive then
         if peaceTimerSeconds <= 0 then
             peaceTimerSeconds = peaceDurationSeconds
