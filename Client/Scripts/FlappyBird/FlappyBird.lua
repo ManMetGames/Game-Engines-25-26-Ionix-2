@@ -238,10 +238,6 @@ end
     finalScoreText = "Final Score: " .. tostring(Pscore)
     topScore = "Highscore: " .. tostring(highscore)
     coinsText = "Coins Collected: " .. tostring(score)
-    local finalScoreText = "Final Score: 0"
-    local coinsText = ""
-    local text2 = ""
-    local topScore = "Highscore: "   
 end
 
 ----------------------------------------------------------
@@ -904,7 +900,7 @@ function ExampleScript:OnUpdate()
     -- UI
     UI.add_label(10, 10, 1000, 1000, pipeScoreText, "", 1.5)
     UI.add_label(10, 40, 1000, 1000, scoreText, "", 1.5)
-
+    UI.add_label(350, 290, 1000, 1000, text1, "", 2)
 end
 
 ----------------------------------------------------------
