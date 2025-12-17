@@ -36,6 +36,8 @@ end
 function TriangleShooterPlayerProgress.canTakeUpgrade(upgradeType)
     if upgradeType == "fire_rate" then
         return (playerStats.fireRateUpgradeCount or 0) < 3
+    elseif upgradeType == "bounce" then
+        return (playerStats.bounceCount or 0) < 2
     end
     return true
 end
@@ -110,6 +112,20 @@ end
 
 function TriangleShooterPlayerProgress.getStats()
     return playerStats
+end
+
+function TriangleShooterPlayerProgress.reset()
+    playerLevel = 1
+    xp = 0
+    xpToNextLevel = 100
+    pendingLevelUp = false
+    
+    playerStats.bulletCount = 1
+    playerStats.pierceCount = 0
+    playerStats.bounceCount = 0
+    playerStats.fireInterval = 0.3
+    playerStats.fireRateUpgradeCount = 0
+    playerStats.maxHealth = 100
 end
 
 return TriangleShooterPlayerProgress

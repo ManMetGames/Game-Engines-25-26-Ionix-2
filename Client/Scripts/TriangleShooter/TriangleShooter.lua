@@ -11,6 +11,7 @@ local TriangleShooterAbilities = require("Scripts.TriangleShooter.TriangleShoote
 local TriangleShooterPlayerProgress = require("Scripts.TriangleShooter.TriangleShooterPlayerProgress")
 local ParticleSystem = require("Scripts.TriangleShooter.ParticleSystem")
 local TriangleShooterUI = require("Scripts.TriangleShooter.TriangleShooterUI")
+local TriangleShooterPickups = require("Scripts.TriangleShooter.TriangleShooterPickups")
 
  --=====================================================================
  --  [LEADERBOARD / SAVE DATA]
@@ -60,12 +61,19 @@ end
 sensitivitySetting = Clamp(sensitivitySetting, 0.25, 2.50)
 
  --=====================================================================
- --  [STATE] Menu
+ --  [STATE] Main/Pause Menus
  --=====================================================================
--- Menu screens: "main" | "leaderboard"
+-- Menu screens: "main" | "leaderboard" | "pause"
+local UI__COLOUR_THEME = { 44, 8, 160 }
 local menuScreen = "main"
 local topLeaderboard = nil
 local leaderboardFetched = false
+
+local isPaused = false
+local pauseScreen = "pause" -- "pause" | "settings" | "leaderboard"
+
+local pauseTopLeaderboard = nil
+local pauseLeaderboardFetched = false
 
 local function GetPlayerNameForLeaderboard()
     if playerName and playerName ~= "" then
@@ -85,6 +93,8 @@ local function TryUpdateBestStage(stage)
         end
     end
 end
+
+local pendingQuit = false
 
  --=====================================================================
  --  [HELPERS] Time
@@ -248,14 +258,55 @@ local function ClearEnemies()
     enemies = {}
 end
 
+local function ClearAllPlayerProjectiles()
+    for i = #projectiles, 1, -1 do
+        local proj = projectiles[i]
+        Entity.set_global_pos(proj.entity, -1000, -1000)
+        table.insert(projectilePool, table.remove(projectiles, i))
+    end
+end
+
+local enemyProjectiles = {}
+local enemyProjectilePool = {}
+
+local function ClearAllEnemyProjectiles()
+    for i = #enemyProjectiles, 1, -1 do
+        local proj = enemyProjectiles[i]
+        Entity.set_global_pos(proj.entity, -1000, -1000)
+        table.insert(enemyProjectilePool, table.remove(enemyProjectiles, i))
+    end
+end
+
+local function ResetRunStateForMenu()
+    -- cancel any pending window level loads just in case
+    windowTransitionActive = false
+    pendingLevelIndex = nil
+    pendingResetPlayerState = false
+
+    ClearEnemies()
+    ClearAllPlayerProjectiles()
+    ClearAllEnemyProjectiles()
+
+    fireCooldownTimer = 0
+    damageCooldown = 0
+    peaceTimerSeconds = 0
+
+    -- reset stage/run basics
+    currentLevel = 1
+    levelTimerSeconds = 0
+
+    isPaused = false
+    pauseScreen = "pause"
+end
+
  --=====================================================================
  --  [STATE] Enemy Projectiles
  --=====================================================================
 -- ENEMY PROJECTILE SETTINGS
-local enemyProjectiles = {}
-local enemyProjectilePool = {}
+enemyProjectiles = {}
+enemyProjectilePool = {}
 local enemyProjectileSize = 24
-local enemyProjectileSpeed = 720 -- PIXELS PER SECOND 
+local enemyProjectileSpeed = 420 -- PIXELS PER SECOND 
 local enemyShootIntervalSeconds = 0.5
 local enemyProjectilesEnabled = true
 
@@ -292,7 +343,7 @@ local levelTimerSeconds = 0
 -- Main Menu
 local inMainMenu = true
 local menuStarting = false
-local menuStartDelay = 0.75
+local menuStartDelay = 2
 local menuStartTimer = 0
 
 local function Clamp01(v)
@@ -503,6 +554,16 @@ local function OnEnemyKilled()
 end
 
 local function OnLevelTimeout()
+    -- Reduce level health by 20% on timeout
+    local cfg = TriangleShooterLevels.getLevelConfig(currentLevel)
+    if cfg and cfg.enemies then
+        for _, enemy in ipairs(cfg.enemies) do
+            if enemy.health then
+                enemy.health = math.floor(enemy.health * 0.8)
+                if enemy.health < 1 then enemy.health = 1 end
+            end
+        end
+    end
     StartLevel(currentLevel, false)
 end
 
@@ -558,7 +619,7 @@ end
 
  --=====================================================================
  --=====================================================================
- --  [DRAW] Main Menu / Leaderboard
+ --  [DRAW] Name Prompt / Main Menu / Leaderboard / Settings / Pause Menu
  --=====================================================================
 
 local function DrawNamePrompt(screenW, screenH)
@@ -572,7 +633,7 @@ local function DrawNamePrompt(screenW, screenH)
     UI.begin_child(x, y, w, h, "TS_NamePrompt",
         true, 0,
         true, 0.96, 12, 28, 28, 28,
-        2.5, true, 0.85
+        0.1, true, 2
     )
 
     local cx = w / 2
@@ -647,13 +708,13 @@ local function DrawMainMenu(screenW, screenH, dt)
     UI.begin_child(panelX, panelY, panelW, panelH, "TS_MainMenu",
         true, 0,
         true, 0.92, 12, 25, 25, 25,
-        2.5, true, 0.85
+        5, true, 1.35
     )
 
     local cx = panelW / 2
 
     -- Title / subtitle anchors (relative to panel height)
-    local titleY = math.floor(panelH * 0.16)
+    local titleY = math.floor(panelH * 0.08)
     local subY   = titleY + math.floor(panelH * 0.10)
 
     UI.add_centered_label(cx, titleY, "SYSTEM SHOOTER", "ImGuiDefaultBold", 3.0)
@@ -665,7 +726,7 @@ local function DrawMainMenu(screenW, screenH, dt)
     -- Buttons
     local bw, bh = math.floor(math.min(panelW * 0.62, 560)), 60
     local bx = math.floor((panelW - bw) / 2)
-    local by = math.floor(panelH * 0.48)
+    local by = math.floor(panelH * 0.38)
 
     -- Progress bar should sit just above the start button
     if menuStarting then
@@ -685,7 +746,7 @@ local function DrawMainMenu(screenW, screenH, dt)
             inMainMenu = false
             menuScreen = "main"
             Input.set_relative_mouse_mode(true)
-            LoadLevel(1, true)
+            StartLevel(1, true)
         end
     end
 
@@ -728,6 +789,16 @@ local function DrawMainMenu(screenW, screenH, dt)
         120, 120, 120, 0.95
     )
 
+    UI.add_button(bx, by + (bh + gap) * 3, bw, bh,
+    "EXIT GAME", "menu_exit",
+    "ImGuiDefaultBold", 1.1,
+    12, true,
+    120, 30, 30, 0.95
+    )
+
+    if (not menuStarting) and (not showNamePrompt) and UI.was_button_pressed("menu_exit") then
+        pendingQuit = true
+    end
     if (not menuStarting) and (not showNamePrompt) and UI.was_button_pressed("menu_settings") then
         menuScreen = "settings"
     end
@@ -738,9 +809,13 @@ local function DrawMainMenu(screenW, screenH, dt)
         leaderboardFetched = false
     end
 
-        UI.end_child()
+    UI.end_child()
 
-        if showNamePrompt then
+    if pendingQuit then
+        pendingQuit = false
+        Window.quit()
+    end
+    if showNamePrompt then
         DrawNamePrompt(screenW, screenH)
     end
 
@@ -757,13 +832,14 @@ local function DrawLeaderboardMenu(screenW, screenH, dt)
     UI.begin_child(panelX, panelY, panelW, panelH, "TS_Leaderboard",
         true, 0,
         true, 0.92, 12, 25, 25, 25,
-        2.5, true, 0.85
+        0.01, false, 0.85,
+        UI__COLOUR_THEME[1], UI__COLOUR_THEME[2], UI__COLOUR_THEME[3], 1.0 -- RGBA border
     )
 
     local cx = panelW / 2
 
-    UI.add_centered_label(cx, math.floor(panelH * 0.14), "LEADERBOARD", "ImGuiDefaultBold", 2.6)
-    UI.add_centered_label(cx, math.floor(panelH * 0.22), "Top 10 Highest Stages", "", 1.2)
+    UI.add_centered_label(cx, math.floor(panelH * 0.05), "LEADERBOARD", "ImGuiDefaultBold", 2.6)
+    UI.add_centered_label(cx, math.floor(panelH * 0.13), "Top 10 Highest Stages", "", 1.2)
 
     if not leaderboardFetched then
         topLeaderboard = Firebase.retrieve_high_score(GAME_ID, 10)
@@ -771,7 +847,7 @@ local function DrawLeaderboardMenu(screenW, screenH, dt)
     end
 
     local listX = math.floor(panelW * 0.20)
-    local listY = math.floor(panelH * 0.30)
+    local listY = math.floor(panelH * 0.21)
     local lineH = 26
 
     if topLeaderboard then
@@ -828,31 +904,31 @@ local function DrawSettingsMenu(screenW, screenH, dt)
     UI.begin_child(panelX, panelY, panelW, panelH, "TS_Settings",
         true, 0,
         true, 0.92, 12, 25, 25, 25,
-        2.5, true, 0.85
+        2.5, true, 1.35
     )
 
     local cx = panelW / 2
-    local footerH = 110 -- space reserved for the Back button area
+    local footerH = 100 -- space reserved for the Back button area
     local contentX = 26
-    local contentY = math.floor(panelH * 0.16)  
+    local contentY = math.floor(panelH * 0.13)  
     local contentW = panelW - 52
     local contentH = panelH - contentY - footerH
 
-    UI.add_centered_label(cx, math.floor(panelH * 0.1), "SETTINGS", "ImGuiDefaultBold", 2.6)
+    UI.add_centered_label(cx, math.floor(panelH * 0.05), "SETTINGS", "ImGuiDefaultBold", 2.6)
 
     -- Child for scrollable content 
     local NO_BACKGROUND = 128
     UI.begin_child(contentX, contentY, contentW, contentH, "TS_SettingsContent",
-    false, NO_BACKGROUND, false)
+    true, NO_BACKGROUND, false)
 
     local innerCX = contentW / 2
-    local sliderW = math.floor(contentW * 0.58)
+    local sliderW = math.floor(contentW * 0.5)
     local sliderX = math.floor((contentW - sliderW) / 2)
 
     UI.add_centered_label(innerCX, 12, "Audio", "ImGuiDefaultBold", 1.8)
 
     local sliderStyle = {
-    height = 18,        -- thickness
+    height = 21,        -- thickness
     rounding = 10,      -- track rounding
     grab_size = 16,     -- handle size (easier to grab)
     track = { 30, 30, 30, 220 },     -- RGBA (0-255)
@@ -936,6 +1012,283 @@ local function DrawSettingsMenu(screenW, screenH, dt)
     UI.end_child()
 end
 
+local SetPaused
+local GoToMainMenuFromPause
+
+local function DrawPauseMenu(screenW, screenH, dt)
+    UI.add_panel(0, 0, screenW, screenH, 0.55, 0, 0, 0, 0)
+
+    local panelW = math.floor(math.max(520, math.min(screenW * 0.55, 760)))
+    local panelH = math.floor(math.max(420, math.min(screenH * 0.60, 560)))
+    local panelX = math.floor((screenW - panelW) / 2)
+    local panelY = math.floor((screenH - panelH) / 2)
+
+    UI.begin_child(panelX, panelY, panelW, panelH, "TS_PauseMenu",
+        true, 0,
+        true, 0.92, 12, 25, 25, 25,
+        2.5, true, 1.35
+    )
+
+    local cx = panelW / 2
+    UI.add_centered_label(cx, math.floor(panelH * 0.12), "PAUSED", "ImGuiDefaultBold", 2.6)
+    UI.add_centered_label(cx, math.floor(panelH * 0.22), "Press ESC to resume", "", 1.1)
+
+    local bw, bh = math.min(340, math.floor(panelW * 0.60)), 50
+    local bx = math.floor((panelW - bw) / 2)
+    local y0 = math.floor(panelH * 0.34)
+    local gap = 14
+
+    UI.add_button(bx, y0 + (bh + gap) * 0, bw, bh, "RESUME", "pause_resume",
+        "ImGuiDefaultBold", 1.0, 12, true, 74, 12, 255, 0.95)
+
+    UI.add_button(bx, y0 + (bh + gap) * 1, bw, bh, "SETTINGS", "pause_settings",
+        "ImGuiDefaultBold", 1.0, 12, true, 74, 12, 255, 0.90)
+
+    UI.add_button(bx, y0 + (bh + gap) * 2, bw, bh, "LEADERBOARD", "pause_leaderboard",
+        "ImGuiDefaultBold", 1.0, 12, true, 74, 12, 255, 0.90)
+
+    UI.add_button(bx, y0 + (bh + gap) * 3, bw, bh, "BACK TO MAIN MENU", "pause_mainmenu",
+        "ImGuiDefaultBold", 1.0, 12, true, 120, 30, 30, 0.90)
+
+    if UI.was_button_pressed("pause_resume") then
+        SetPaused(false)
+    elseif UI.was_button_pressed("pause_settings") then
+        pauseScreen = "settings"
+    elseif UI.was_button_pressed("pause_leaderboard") then
+        pauseScreen = "leaderboard"
+        pauseLeaderboardFetched = false
+    elseif UI.was_button_pressed("pause_mainmenu") then
+        GoToMainMenuFromPause()
+    end
+
+    UI.end_child()
+end
+
+local function GetEscapeKey()
+    if Keys then
+        return Keys.ionix_escape or Keys.ionix_esc or Keys.escape or Keys.Escape
+    end
+    return nil
+end
+
+SetPaused = function(p)
+    if isPaused == p then return end
+    isPaused = p
+    pauseScreen = "pause"
+
+    -- show cursor in pause menus, lock cursor in gameplay
+    Input.set_relative_mouse_mode(not isPaused)
+end
+
+local function DrawPauseLeaderboard(screenW, screenH, dt)
+    UI.add_panel(0, 0, screenW, screenH, 0.65, 0, 0, 0, 0)
+
+    local panelW = math.floor(math.max(520, math.min(screenW * 0.70, 860)))
+    local panelH = math.floor(math.max(420, math.min(screenH * 0.70, 600)))
+    local panelX = math.floor((screenW - panelW) / 2)
+    local panelY = math.floor((screenH - panelH) / 2)
+
+    UI.begin_child(panelX, panelY, panelW, panelH, "TS_PauseLeaderboard",
+        true, 0,
+        true, 0.92, 12, 25, 25, 25,
+        0.01, false, 0.85,
+        UI__COLOUR_THEME[1], UI__COLOUR_THEME[2], UI__COLOUR_THEME[3], 1.0 -- RGBA border
+    )
+
+    local cx = panelW / 2
+    UI.add_centered_label(cx, math.floor(panelH * 0.05), "LEADERBOARD", "ImGuiDefaultBold", 2.6)
+    UI.add_centered_label(cx, math.floor(panelH * 0.13), "Top 10 Highest Stages", "", 1.2)
+
+    if not pauseLeaderboardFetched then
+        pauseTopLeaderboard = Firebase.retrieve_high_score(GAME_ID, 10)
+        pauseLeaderboardFetched = true
+    end
+
+    local listX = math.floor(panelW * 0.20)
+    local listY = math.floor(panelH * 0.21)
+    local lineH = 26
+
+    if pauseTopLeaderboard then
+        for i = 1, 10 do
+            local e = pauseTopLeaderboard[i]
+            local line = e
+                and string.format("%2d. %-16s  Stage %d", i, tostring(e.name), tonumber(e.score) or 0)
+                or  string.format("%2d. --", i)
+            UI.add_label(listX, listY + (i - 1) * lineH, 0, 0, line, "", 1.4)
+        end
+    else
+        UI.add_centered_label(cx, listY + 10, "(No scores yet)", "", 1.2)
+    end
+
+    local bw, bh = math.min(320, math.floor(panelW * 0.55)), 50
+    local bx = math.floor((panelW - bw) / 2)
+    local by = panelH - bh - 32
+
+    UI.add_button(bx, by, bw, bh, "BACK", "pause_back_lb",
+        "ImGuiDefaultBold", 1.0, 12, true, 74, 12, 255, 0.95)
+
+    if UI.was_button_pressed("pause_back_lb") then
+        pauseScreen = "pause"
+    end
+
+    UI.end_child()
+end
+
+local function DrawPauseSettingsMenu(screenW, screenH, dt)
+    UI.add_panel(0, 0, screenW, screenH, 0.65, 0, 0, 0, 0)
+
+    local panelW = math.floor(math.max(520, math.min(screenW * 0.70, 860)))
+    local panelH = math.floor(math.max(420, math.min(screenH * 0.70, 600)))
+    local panelX = math.floor((screenW - panelW) / 2)
+    local panelY = math.floor((screenH - panelH) / 2)
+
+    UI.begin_child(panelX, panelY, panelW, panelH, "TS_Settings",
+        true, 0,
+        true, 0.92, 12, 25, 25, 25,
+        2.5, true, 1.35
+    )
+
+    local cx = panelW / 2
+    local footerH = 100 -- space reserved for the Back button area
+    local contentX = 26
+    local contentY = math.floor(panelH * 0.13)  
+    local contentW = panelW - 52
+    local contentH = panelH - contentY - footerH
+
+    UI.add_centered_label(cx, math.floor(panelH * 0.05), "SETTINGS", "ImGuiDefaultBold", 2.6)
+
+    -- Child for scrollable content 
+    local NO_BACKGROUND = 128
+    UI.begin_child(contentX, contentY, contentW, contentH, "TS_SettingsContent",
+    false, NO_BACKGROUND, false)
+
+    local innerCX = contentW / 2
+    local sliderW = math.floor(contentW * 0.5)
+    local sliderX = math.floor((contentW - sliderW) / 2)
+
+    UI.add_centered_label(innerCX, 12, "Audio", "ImGuiDefaultBold", 1.8)
+
+    local sliderStyle = {
+    height = 21,        -- thickness
+    rounding = 10,      -- track rounding
+    grab_size = 16,     -- handle size (easier to grab)
+    track = { 30, 30, 30, 220 },     -- RGBA (0-255)
+    grab  = { 74, 12, 255, 255 },    -- RGBA (0-255) purple accent)
+    }
+
+    local function DrawVolRow(title, id, value, y)
+        UI.add_centered_label(innerCX, y - 24 , title, "", 1.1)
+
+        UI.add_slider_styled(sliderX, y, sliderW, "", id, 0.0, 1.0, value, nil, nil, " ", sliderStyle)
+
+        local percent = math.floor(((UI.get_slider(id) or value) * 100) + 0.5)
+        UI.add_label(sliderX + sliderW + 18, y + 2, 0, 0, tostring(percent) .. "%", "ImGuiDefaultBold", 1.0)
+    end
+
+    local y0 = 70        -- start near top of inner child
+    local gapY = 66      -- spacing between rows
+
+    -- MASTER
+    DrawVolRow("Master", "ts_master", masterVol, y0)
+    if UI.was_slider_changed("ts_master") then
+        masterVol = UI.get_slider("ts_master") or masterVol
+        Json.save_setting(GAME_ID, "audio.master", masterVol)
+        ApplyAudioVolumes()
+    end
+
+    -- MUSIC
+    DrawVolRow("Music", "ts_music", musicVol, y0 + gapY)
+    if UI.was_slider_changed("ts_music") then
+        musicVol = UI.get_slider("ts_music") or musicVol
+        Json.save_setting(GAME_ID, "audio.music", musicVol)
+        ApplyAudioVolumes()
+    end
+
+    -- SFX
+    DrawVolRow("SFX", "ts_sfx", sfxVol, y0 + gapY * 2)
+    if UI.was_slider_changed("ts_sfx") then
+        sfxVol = UI.get_slider("ts_sfx") or sfxVol
+        Json.save_setting(GAME_ID, "audio.sfx", sfxVol)
+        ApplyAudioVolumes()
+    end
+
+    local controlsHeaderY = y0 + gapY * 3 + 10
+    UI.add_centered_label(innerCX, controlsHeaderY, "Controls", "ImGuiDefaultBold", 1.8)
+
+    local sensY = controlsHeaderY + 60
+    -- draw sensitivity slider at sensY
+
+    UI.add_centered_label(innerCX, sensY - 24, "Sensitivity", "", 1.1)
+    UI.add_slider_styled(sliderX, sensY, sliderW, "", "ts_sensitivity", 0.25, 2.50, sensitivitySetting, nil, nil, " ", sliderStyle)
+
+    if UI.was_slider_changed("ts_sensitivity") then
+        sensitivitySetting = UI.get_slider("ts_sensitivity") or sensitivitySetting
+        sensitivitySetting = Clamp(sensitivitySetting, 0.25, 2.50)
+        Json.save_setting(GAME_ID, "controls.sensitivity", sensitivitySetting)
+    end
+
+    -- show “x” value on the right (2 decimals)
+    UI.add_label(sliderX + sliderW + 18, sensY + 2, 0, 0,
+        string.format("%.2fx", sensitivitySetting),
+        "ImGuiDefaultBold", 1.0
+    )
+
+    UI.end_child()
+    -- Back button
+    local bw, bh = math.min(320, math.floor(panelW * 0.55)), 50
+    local bx = math.floor((panelW - bw) / 2)
+    local by = panelH - bh - 32
+
+    UI.add_button(bx, by, bw, bh,
+        "BACK", "pause_back_settings",
+        "ImGuiDefaultBold", 1.0,
+        12, true,
+        74, 12, 255, 0.95
+    )
+
+    if UI.was_button_pressed("pause_back_settings") then
+        pauseScreen = "pause"
+    end
+
+    UI.end_child()
+end
+
+local function ResetWallWindowCapture()
+    -- makes wall/window system re-capture cleanly 
+    windowInitialX = nil
+    windowInitialY = nil
+    leftWallOffset, rightWallOffset, topWallOffset, bottomWallOffset = 0, 0, 0, 0
+    leftWallExpandTimer, rightWallExpandTimer, topWallExpandTimer, bottomWallExpandTimer = 0, 0, 0, 0
+end
+
+local function SetCenteredWindowSize(w, h)
+    local displayW = Window.get_display_width()
+    local displayH = Window.get_display_height()
+    local x = math.floor((displayW - w) * 0.5)
+    local y = math.floor((displayH - h) * 0.5)
+    Window.set_pos(x, y)
+    Window.set_size(w, h)
+end
+
+GoToMainMenuFromPause = function()
+    SetPaused(false)
+
+    ResetRunStateForMenu()
+
+    ResetWallWindowCapture()
+
+    -- go to main menu
+    inMainMenu = true
+    menuScreen = "main"
+    menuStarting = false
+    menuStartTimer = 0
+
+    -- main menu size you wanted
+    SetCenteredWindowSize(1280, 720)
+
+    -- keep cursor available in menus
+    Input.set_relative_mouse_mode(false)
+end
 
  --=====================================================================
  --  [ENGINE CALLBACKS] OnUpdate (Main Loop)
@@ -992,6 +1345,42 @@ function TriangleShooter:OnUpdate()
         end
         return
     end
+
+    -- =====================================================================
+    --  [PAUSE] ESC toggles pause (freezes gameplay)
+    -- =====================================================================
+    local esc = GetEscapeKey()
+    if esc and Input.get_key_down(esc) then
+        if not isPaused then
+            -- don’t pause over upgrade menus; they already freeze the game
+            if (not TriangleShooterUI.isMenuOpen()) and (not TriangleShooterPlayerProgress.hasPendingLevelUp()) and (not windowTransitionActive) then
+                SetPaused(true)
+            end
+        else
+            -- if you’re inside pause settings/leaderboard, ESC goes back one screen first
+            if pauseScreen ~= "pause" then
+                pauseScreen = "pause"
+            else
+                SetPaused(false)
+            end
+        end
+    end
+
+    if isPaused then
+        screenW = Window.get_width()
+        screenH = Window.get_height()
+
+        if pauseScreen == "settings" then
+            DrawPauseSettingsMenu(screenW, screenH, dt)
+        elseif pauseScreen == "leaderboard" then
+            DrawPauseLeaderboard(screenW, screenH, dt)
+        else
+            DrawPauseMenu(screenW, screenH, dt)
+        end
+
+        return -- <-- THIS is what freezes gameplay
+    end
+
 
     if TriangleShooterPlayerProgress.hasPendingLevelUp() then
         TriangleShooterPlayerProgress.consumePendingLevelUp()
@@ -1144,6 +1533,14 @@ function TriangleShooter:OnUpdate()
     UpdateEnemyProjectiles()
 
     ParticleSystem.update(dt)
+    TriangleShooterPickups.update(dt)
+    
+    -- Check pickup collision and heal player
+    local maxHealth = TriangleShooterPlayerProgress.getMaxHealth()
+    local healAmount = TriangleShooterPickups.checkPlayerCollision(playerX, playerY, playerSize, maxHealth)
+    if healAmount then
+        playerHealth = math.min(maxHealth, playerHealth + healAmount)
+    end
     
     -- Update flash effect
     UpdateFlash()
@@ -1230,7 +1627,20 @@ function TriangleShooter:OnUpdate()
         inMainMenu = true
         menuScreen = "main"
         Input.set_relative_mouse_mode(false)
+ 
+        local targetW, targetH = 1280, 720
+        local displayWidth = Window.get_display_width()
+        local displayHeight = Window.get_display_height()
+        local newX = math.floor((displayWidth - targetW) * 0.5)
+        local newY = math.floor((displayHeight - targetH) * 0.5)
+        Window.set_pos(newX, newY)
+        Window.set_size(targetW, targetH)
+        screenW = targetW
+        screenH = targetH
+ 
         ClearEnemies()
+        TriangleShooterPickups.clearAll()
+        TriangleShooterPlayerProgress.reset()
         currentLevel = 1
         StartLevel(1, true)
     elseif not enemiesAlive then
@@ -1397,6 +1807,11 @@ function UpdateProjectiles()
             end
 
             if enemy.health <= 0 then
+                local eSize = enemy.size or enemySize
+                local deathX = enemy.x + eSize / 2
+                local deathY = enemy.y + eSize / 2
+                TriangleShooterPickups.trySpawnHealingOrb(deathX, deathY)
+                
                 Entity.set_global_pos(enemy.entity, -1000, -1000)
                 table.remove(enemies, hitEnemyIndex)
             end
@@ -1786,6 +2201,8 @@ function UpdateBeatBop()
                 Entity.set_global_pos(enemy.entity, enemy.x - offset, enemy.y - offset)
             end
         end
+        
+        TriangleShooterPickups.applyBeatBop(t)
     else
         for i = 1, #enemies do
             local enemy = enemies[i]
@@ -1798,6 +2215,8 @@ function UpdateBeatBop()
                 Entity.set_global_pos(enemy.entity, enemy.x, enemy.y)
             end
         end
+        
+        TriangleShooterPickups.resetBop()
     end
 end
 

@@ -45,7 +45,7 @@ local ENEMY_TEMPLATES = {
                 movementType = "bounce",
                 health = health,
                 speed = speed,
-                shootInterval = 0.4 + math.random() * 0.3,
+                shootInterval = 1.5 + math.random() * 0.5,
             }
         end,
     },
@@ -68,7 +68,7 @@ local ENEMY_TEMPLATES = {
                 health = health,
                 shootPattern = "cone",
                 projectileCount = 2 + math.random(0, 2),
-                shootInterval = 0.5 + math.random() * 0.4,
+                shootInterval = 0.7 + math.random() * 0.3,
             }
         end,
     },
@@ -92,7 +92,7 @@ local ENEMY_TEMPLATES = {
                 orbitRadius = radius,
                 orbitSpeed = speed,
                 health = health,
-                shootInterval = 0.5 + math.random() * 0.4,
+                shootInterval = 1.0 + math.random() * 0.25,
             }
         end,
     },
@@ -114,7 +114,7 @@ local ENEMY_TEMPLATES = {
                 health = health,
                 shootPattern = "circle",
                 projectileCount = 6 + math.random(0, 4),
-                shootInterval = 0.3 + math.random() * 0.3,
+                shootInterval = 1.2 + math.random() * 0.3,
                 spinWhileShooting = true,
             }
         end,
@@ -390,7 +390,7 @@ local levels = {
         windowWidth = 640,
         windowHeight = 800,
         enemies = {
-            { movementType = "stationary", x = 400, y = 500, health = 45, shootPattern = "cone", projectileCount = 2, shootInterval = 0.3 },
+            { movementType = "stationary", x = 400, y = 500, health = 45, shootPattern = "cone", projectileCount = 2, shootInterval = 0.85 },
         },
     },
     [3] = {
@@ -401,7 +401,7 @@ local levels = {
         windowWidth = 1026,
         windowHeight = 640,
         enemies = {
-            { movementType = "stationary", x = 500, y = 300, health = 30, shootPattern = "cone", projectileCount = 2, shootInterval = 0.3 },
+            { movementType = "stationary", x = 500, y = 300, health = 30, shootPattern = "cone", projectileCount = 2, shootInterval = 0.8 },
             { movementType = "bounce", x = 900, y = 550, health = 30, shootPattern = "cone", projectileCount = 0, shootInterval = 0},
         },
     },
@@ -424,8 +424,8 @@ local levels = {
         windowWidth = 600,
         windowHeight = 800,
         enemies = {
-            { movementType = "stationary", x = 500, y = 300, health = 45, shootPattern = "cone", projectileCount = 1, shootInterval = 0.4 },
-            { movementType = "stationary", x = 350, y = 200, health = 45, shootPattern = "cone", projectileCount = 2,  shootInterval = 0.6 },
+            { movementType = "stationary", x = 500, y = 300, health = 45, shootPattern = "cone", projectileCount = 1, shootInterval = 0.75 },
+            { movementType = "stationary", x = 350, y = 200, health = 45, shootPattern = "cone", projectileCount = 2,  shootInterval = 0.95 },
         },
     },
 }
