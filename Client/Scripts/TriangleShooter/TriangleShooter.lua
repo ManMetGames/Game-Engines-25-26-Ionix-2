@@ -1,4 +1,4 @@
-local TriangleShooter = {}
+﻿local TriangleShooter = {}
 
  --=====================================================================
  --  [MODULE] Imports / Dependencies
@@ -11,6 +11,48 @@ local TriangleShooterAbilities = require("Scripts.TriangleShooter.TriangleShoote
 local TriangleShooterPlayerProgress = require("Scripts.TriangleShooter.TriangleShooterPlayerProgress")
 local ParticleSystem = require("Scripts.TriangleShooter.ParticleSystem")
 local TriangleShooterUI = require("Scripts.TriangleShooter.TriangleShooterUI")
+
+ --=====================================================================
+ --  [LEADERBOARD / SAVE DATA]
+ --=====================================================================
+local GAME_ID = "SYSTEM_SHOOTER"
+
+-- Highest stage reached (persisted locally per-game)
+local bestStage = Json.load_high_score(GAME_ID) or 0
+
+-- Persistent player name (shared across games)
+local playerName = Json.load_player_name()
+if playerName == nil then playerName = "" end
+local needsPlayerName = (playerName == "")
+
+local showNamePrompt = false
+local pendingStartAfterName = false
+local namePromptError = ""
+
+-- Menu screens: "main" | "leaderboard"
+local menuScreen = "main"
+local topLeaderboard = nil
+local leaderboardFetched = false
+
+local function GetPlayerNameForLeaderboard()
+    if playerName and playerName ~= "" then
+        return playerName
+    end
+    return "Anon"
+end
+
+local function TryUpdateBestStage(stage)
+    if stage == nil then return end
+    stage = math.floor(stage)
+    if stage > (bestStage or 0) then
+        bestStage = stage
+        Json.save_high_score(GAME_ID, bestStage)
+        if not needsPlayerName then
+            Firebase.submit_high_score(GAME_ID, playerName, bestStage)
+        end
+    end
+end
+
 
  --=====================================================================
  --  [HELPERS] Time
@@ -228,6 +270,12 @@ local impact3SfxEntity
 local currentLevel = 1
 local levelTimerSeconds = 0
 
+-- Main Menu
+local inMainMenu = true
+local menuStarting = false
+local menuStartDelay = 0.75
+local menuStartTimer = 0
+
  --=====================================================================
  --  [LEVEL FLOW] Load / Start Level
  --=====================================================================
@@ -242,6 +290,9 @@ LoadLevel = function(index, resetPlayerState)
      --=====================================================================
 
     currentLevel = index
+
+    -- Persist best stage + submit to leaderboard (only if improved)
+    TryUpdateBestStage(currentLevel)
     levelTimerSeconds = cfg.timeLimitSeconds or 0
 
     wallPingPongEnabled = cfg.wallPingPong and true or false
@@ -275,22 +326,28 @@ LoadLevel = function(index, resetPlayerState)
      --=====================================================================
      --  [LOAD LEVEL] Spawn Enemies
      --=====================================================================
+    local enemyTemplates = TriangleShooterLevels.getEnemyTemplates()
+    
     if cfg.enemies then
         for i, enemyCfg in ipairs(cfg.enemies) do
+            local movementType = enemyCfg.movementType or "bounce"
+            local template = enemyTemplates[movementType]
+            local templateSize = template and template.baseSize or 32
+            
             local spawnX = enemyCfg.x or centerX
             local spawnY = enemyCfg.y or centerY
             
             if not enemyCfg.x and not enemyCfg.y and #cfg.enemies > 1 then
                 local radius = 120
                 local angle = (2 * math.pi * (i - 1)) / #cfg.enemies
-                spawnX = screenW / 2 + math.cos(angle) * radius - (enemyCfg.size or enemySize) / 2
-                spawnY = screenH / 2 + math.sin(angle) * radius - (enemyCfg.size or enemySize) / 2
+                spawnX = screenW / 2 + math.cos(angle) * radius - templateSize / 2
+                spawnY = screenH / 2 + math.sin(angle) * radius - templateSize / 2
             end
             
             local config = {
                 health = enemyCfg.health or levelEnemyHealth,
                 healthScaling = enemyCfg.healthScaling,
-                size = enemyCfg.size or enemySize,
+                size = templateSize,
                 color = enemyCfg.color,
                 speed = enemyCfg.speed,
                 baseSpeed = enemyCfg.baseSpeed,
@@ -334,7 +391,7 @@ LoadLevel = function(index, resetPlayerState)
         end
     end
 
-    playerHealth = 100
+    playerHealth = TriangleShooterPlayerProgress.getMaxHealth()
 
      --=====================================================================
      --  [LOAD LEVEL] Reset Player State
@@ -379,6 +436,7 @@ end
 
 local function OnEnemyKilled()
     local nextIndex = currentLevel + 1
+    TryUpdateBestStage(nextIndex)
     TriangleShooterLevels.regenerateLevel(nextIndex)
     if TriangleShooterLevels.getLevelConfig(nextIndex) then
         StartLevel(nextIndex, false)
@@ -396,7 +454,7 @@ end
  --=====================================================================
 function TriangleShooter:OnStart()
     -- Enable relative mouse mode (hides cursor, gives delta movement)
-    Input.set_relative_mouse_mode(true)
+    Input.set_relative_mouse_mode(false)
     
     -- Create player triangle
     player = Entity.create_entity()
@@ -410,21 +468,18 @@ function TriangleShooter:OnStart()
     playerSprite = Entity.add_sprite_component(player, assets.textures.Triangle, playerSize, playerSize, 10)
     Sprite.set_columns(playerSprite, 1)
 
-    local cfg = TriangleShooterLevels.getLevelConfig(1)
-    if cfg and cfg.windowWidth and cfg.windowHeight then
-        local targetW = cfg.windowWidth
-        local targetH = cfg.windowHeight
-        local displayWidth = Window.get_display_width()
-        local displayHeight = Window.get_display_height()
-        local newX = math.floor((displayWidth - targetW) * 0.5)
-        local newY = math.floor((displayHeight - targetH) * 0.5)
-        Window.set_pos(newX, newY)
-        Window.set_size(targetW, targetH)
-        screenW = targetW
-        screenH = targetH
-    end
+    -- Main menu window size (target)
+    local targetW, targetH = 1280, 720
+    local displayWidth = Window.get_display_width()
+    local displayHeight = Window.get_display_height()
+    local newX = math.floor((displayWidth - targetW) * 0.5)
+    local newY = math.floor((displayHeight - targetH) * 0.5)
+    Window.set_pos(newX, newY)
+    Window.set_size(targetW, targetH)
+    screenW = targetW
+    screenH = targetH
 
-    LoadLevel(1, true)
+    StartLevel(1, true)
 
     musicEntity = Entity.create_entity()
     Entity.add_audio_component(musicEntity, "technoSong", false)
@@ -446,6 +501,246 @@ function TriangleShooter:OnStart()
 end
 
  --=====================================================================
+ --=====================================================================
+ --  [DRAW] Main Menu / Leaderboard
+ --=====================================================================
+
+local function DrawNamePrompt(screenW, screenH)
+    -- darken background
+    UI.add_panel(0, 0, screenW, screenH, 0.60, 0, 0, 0, 0)
+
+    local w, h = 520, 220
+    local x = math.floor((screenW - w) / 2)
+    local y = math.floor((screenH - h) / 2)
+
+    UI.begin_child(x, y, w, h, "TS_NamePrompt",
+        true, 0,
+        true, 0.96, 12, 28, 28, 28,
+        2.5, true, 0.85
+    )
+
+    local cx = w / 2
+    UI.add_centered_label(cx, 28, "ENTER YOUR NAME", "ImGuiDefaultBold", 1.6)
+    UI.add_centered_label(cx, 62, "Register yourself on the Leaderboard.", "", 1.0)
+    if namePromptError ~= "" then
+        UI.add_centered_label(cx, 82, namePromptError, "ImGuiDefaultBold", 1.0)
+    end
+
+
+    local inputW = 300
+    local inputX = math.floor((w - inputW) / 2)
+    UI.add_input_text(inputX, 98, inputW, "", "ts_player_name", 16)
+
+    local bw, bh = 160, 40
+    local bx = math.floor((w - bw) / 2)
+    UI.add_button(bx, 150, bw, bh,
+        "CONTINUE", "ts_name_ok",
+        "ImGuiDefaultBold", 1.0,
+        10, true,
+        74, 12, 255, 0.95
+    )
+
+    local committed =
+        UI.was_input_committed("ts_player_name") or
+        UI.was_button_pressed("ts_name_ok")
+
+    if committed then
+        local getName = UI.get_input_text_live or UI.get_input_text
+        local name = getName("ts_player_name") or ""
+        name = name:gsub("^%s+", ""):gsub("%s+$", "")
+
+        if name == "" then
+            namePromptError = "Please enter a name."
+        else
+            namePromptError = ""
+            playerName = name
+            needsPlayerName = false
+            showNamePrompt = false
+
+            Json.save_player_name(playerName)
+            UI.clear_input("ts_player_name")
+
+            if bestStage and bestStage > 0 then
+                Firebase.submit_high_score(GAME_ID, playerName, bestStage)
+            end
+
+            if pendingStartAfterName then
+                pendingStartAfterName = false
+                menuStarting = true
+                menuStartTimer = menuStartDelay
+            end
+        end
+    end
+
+
+    UI.end_child()
+end
+
+local function DrawMainMenu(screenW, screenH, dt)
+    UI.add_panel(0, 0, screenW, screenH, 0.65, 0, 0, 0, 0)
+
+    -- Bigger, responsive menu panel
+    local panelW = math.floor(math.min(screenW - 120, 1000))
+    local panelH = math.floor(math.min(screenH - 120, 600))
+    panelW = math.max(panelW, 820)
+    panelH = math.max(panelH, 520)
+
+    local panelX = math.floor((screenW - panelW) / 2)
+    local panelY = math.floor((screenH - panelH) / 2)
+
+    UI.begin_child(panelX, panelY, panelW, panelH, "TS_MainMenu",
+        true, 0,
+        true, 0.92, 12, 25, 25, 25,
+        2.5, true, 0.85
+    )
+
+    local cx = panelW / 2
+
+    -- Title / subtitle anchors (relative to panel height)
+    local titleY = math.floor(panelH * 0.16)
+    local subY   = titleY + math.floor(panelH * 0.10)
+
+    UI.add_centered_label(cx, titleY, "SYSTEM SHOOTER", "ImGuiDefaultBold", 3.0)
+    UI.add_centered_label(cx, subY, "Mouse to move | Hold LMB to shoot", "", 1.2)
+
+    -- Best stage
+    UI.add_centered_label(cx, subY + math.floor(panelH * 0.08), "Best Stage: " .. tostring(bestStage or 0), "", 1.2)
+
+    -- Buttons
+    local bw, bh = math.floor(math.min(panelW * 0.62, 560)), 60
+    local bx = math.floor((panelW - bw) / 2)
+    local by = math.floor(panelH * 0.48)
+
+    -- Progress bar should sit just above the start button
+    if menuStarting then
+        menuStartTimer = menuStartTimer - dt
+        local elapsed = menuStartDelay - math.max(menuStartTimer, 0)
+
+        -- UI.draw_progress_bar is screen-space, so convert child-space to absolute screen coords
+        local barW = math.floor(math.max(200, math.min(bw * 0.75, 320)))
+        local barH = 12
+        local barX = panelX + bx + math.floor((bw - barW) / 2)
+        local barY = panelY + by - barH - 14
+
+        UI.draw_progress_bar(barX, barY, barW, barH, menuStartDelay, elapsed, 4)
+
+        if menuStartTimer <= 0 then
+            menuStarting = false
+            inMainMenu = false
+            menuScreen = "main"
+            Input.set_relative_mouse_mode(true)
+            LoadLevel(1, true)
+        end
+    end
+
+
+    local startLabel = menuStarting and "Starting..." or "START GAME"
+    UI.add_button(bx, by, bw, bh,
+        startLabel, "menu_start",
+        "ImGuiDefaultBold", 1.1,
+        12, true,
+        74, 12, 255, 0.95
+    )
+
+    if (not menuStarting) and UI.was_button_pressed("menu_start") then
+        if needsPlayerName then
+            showNamePrompt = true
+            namePromptError = ""
+            pendingStartAfterName = true
+            UI.clear_input("ts_player_name") -- ensures a clean box
+        else
+            menuStarting = true
+            menuStartTimer = menuStartDelay
+        end
+    end
+
+
+    -- Leaderboard button
+    local gap = 16
+    UI.add_button(bx, by + bh + gap, bw, bh,
+        "LEADERBOARD", "menu_leaderboard",
+        "ImGuiDefaultBold", 1.1,
+        12, true,
+        0, 170, 110, 0.95
+    )
+
+    if (not menuStarting) and (not showNamePrompt) and UI.was_button_pressed("menu_leaderboard") then
+        menuScreen = "leaderboard"
+        leaderboardFetched = false
+    end
+
+        UI.end_child()
+
+        if showNamePrompt then
+        DrawNamePrompt(screenW, screenH)
+    end
+
+end
+
+local function DrawLeaderboardMenu(screenW, screenH, dt)
+    UI.add_panel(0, 0, screenW, screenH, 0.65, 0, 0, 0, 0)
+
+    local panelW = math.floor(math.max(520, math.min(screenW * 0.70, 860)))
+    local panelH = math.floor(math.max(420, math.min(screenH * 0.70, 600)))
+    local panelX = math.floor((screenW - panelW) / 2)
+    local panelY = math.floor((screenH - panelH) / 2)
+
+    UI.begin_child(panelX, panelY, panelW, panelH, "TS_Leaderboard",
+        true, 0,
+        true, 0.92, 12, 25, 25, 25,
+        2.5, true, 0.85
+    )
+
+    local cx = panelW / 2
+
+    UI.add_centered_label(cx, math.floor(panelH * 0.14), "LEADERBOARD", "ImGuiDefaultBold", 2.6)
+    UI.add_centered_label(cx, math.floor(panelH * 0.22), "Top 10 Highest Stages", "", 1.2)
+
+    if not leaderboardFetched then
+        topLeaderboard = Firebase.retrieve_high_score(GAME_ID, 10)
+        leaderboardFetched = true
+    end
+
+    local listX = math.floor(panelW * 0.20)
+    local listY = math.floor(panelH * 0.30)
+    local lineH = 26
+
+    if topLeaderboard then
+        for i = 1, 10 do
+            local e = topLeaderboard[i]
+            local line
+            if e then
+                line = string.format("%2d. %-16s  Stage %d", i, tostring(e.name), tonumber(e.score) or 0)
+            else
+                line = string.format("%2d. --", i)
+            end
+            UI.add_label(listX, listY + (i - 1) * lineH, 0, 0, line, "", 1.4)
+        end
+    else
+        UI.add_centered_label(cx, listY + 10, "(No scores yet)", "", 1.2)
+    end
+
+    -- Back button
+    local bw, bh = math.min(320, math.floor(panelW * 0.55)), 50
+    local bx = math.floor((panelW - bw) / 2)
+    local by = panelH - bh - 32
+
+    UI.add_button(bx, by, bw, bh,
+        "BACK", "menu_back",
+        "ImGuiDefaultBold", 1.0,
+        12, true,
+        74, 12, 255, 0.95
+    )
+
+    if UI.was_button_pressed("menu_back") then
+        menuScreen = "main"
+    end
+
+    UI.end_child()
+end
+
+
+ --=====================================================================
  --  [ENGINE CALLBACKS] OnUpdate (Main Loop)
  --=====================================================================
 function TriangleShooter:OnUpdate()
@@ -454,6 +749,17 @@ function TriangleShooter:OnUpdate()
      --=====================================================================
     globalFrame = globalFrame + 1
     local dt = GetDt()
+
+    if inMainMenu then
+        screenW = Window.get_width()
+        screenH = Window.get_height()
+        if menuScreen == "leaderboard" then
+            DrawLeaderboardMenu(screenW, screenH, dt)
+        else
+            DrawMainMenu(screenW, screenH, dt)
+        end
+        return
+    end
 
     if fireCooldownTimer > 0 then
         fireCooldownTimer = fireCooldownTimer - dt
@@ -480,13 +786,18 @@ function TriangleShooter:OnUpdate()
         local selectedUpgrade = TriangleShooterUI.handleInput()
         if selectedUpgrade then
             TriangleShooterPlayerProgress.applyUpgrade(selectedUpgrade.type)
+            if selectedUpgrade.type == "max_health" then
+                local maxH = TriangleShooterPlayerProgress.getMaxHealth()
+                playerHealth = math.min(maxH, playerHealth + 20)
+            end
         end
         return
     end
 
     if TriangleShooterPlayerProgress.hasPendingLevelUp() then
         TriangleShooterPlayerProgress.consumePendingLevelUp()
-        TriangleShooterUI.showUpgradeMenu()
+        local level = TriangleShooterPlayerProgress.getProgress()
+        TriangleShooterUI.showUpgradeMenu(nil, level)
         return
     end
 
@@ -688,7 +999,8 @@ function TriangleShooter:OnUpdate()
     local playerHpBarW = 200
     local playerHpBarH = 20
 
-    UI.draw_progress_bar(playerHpBarX, playerHpBarY, playerHpBarW, playerHpBarH, 100, playerHealth, 2)
+    local playerMaxHealth = TriangleShooterPlayerProgress.getMaxHealth()
+    UI.draw_progress_bar(playerHpBarX, playerHpBarY, playerHpBarW, playerHpBarH, playerMaxHealth, playerHealth, 2)
 
     local level, xp, xpToNextLevel = TriangleShooterPlayerProgress.getProgress()
     local playerInfoText = "Player Lv: " .. tostring(level) .. "  XP: " .. tostring(xp) .. " / " .. tostring(xpToNextLevel)

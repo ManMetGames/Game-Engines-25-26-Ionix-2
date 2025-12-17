@@ -15,9 +15,9 @@ namespace IonixEngine {
     {
         auto AddLabel = [](const int x, int y, float xSize, float ySize, const char* text, sol::optional<std::string> fontName,
             sol::optional<float> fontScale) {
-            Application::Get().layerUI->m_UIManager->AddLabel(x, y, xSize, ySize, text,
-                fontName.value_or(""),
-                fontScale.value_or(1.0f));
+                Application::Get().layerUI->m_UIManager->AddLabel(x, y, xSize, ySize, text,
+                    fontName.value_or(""),
+                    fontScale.value_or(1.0f));
             };
 
         auto AddCenteredLabel = [](float centerX, float y, const char* text, sol::optional<std::string> fontName,
@@ -114,19 +114,19 @@ namespace IonixEngine {
                 Application::Get().layerUI->m_UIManager->SetSlider(id, v);
             };
 
-		//auto AddColorPicker = [](int x, int y, float xSize, float ySize, const char* label, float* color) {
-		//	return Application::Get().layerUI->m_UI->DrawColorPicker(x, y, xSize, ySize, label, color);
-		//	};
         auto DrawProgressBar = [](int x, int y, float xSize, float ySize, float maxValue, float currentValue, int colorId) {
-            Application::Get().layerUI->m_UI->DrawProgressBar(x, y, xSize, ySize, maxValue, currentValue, colorId);
+            Application::Get().layerUI->m_UIManager->AddProgressBarValue(
+                x, y, xSize, ySize,
+                maxValue, currentValue, colorId
+            );
             };
 
         auto AddInputText = [](int xPos, int yPos, float width, const char* label, const char* id, size_t maxLen, sol::optional<std::string> fontName,
             sol::optional<float> fontScale) {
-            Application::Get().layerUI->m_UIManager->AddInputText(xPos, yPos, width, label, id, maxLen,
-                fontName.value_or(""),
-                fontScale.value_or(1.0f));
-			};
+                Application::Get().layerUI->m_UIManager->AddInputText(xPos, yPos, width, label, id, maxLen,
+                    fontName.value_or(""),
+                    fontScale.value_or(1.0f));
+            };
 
         auto GetInputText = [](const std::string& id) {
             return Application::Get().layerUI->m_UIManager->GetCommittedText(id);
@@ -134,6 +134,10 @@ namespace IonixEngine {
 
         auto WasInputCommitted = [](const std::string& id) {
             return Application::Get().layerUI->m_UIManager->WasInputCommitted(id);
+            };
+
+        auto GetInputTextLive = [](const std::string& id) {
+            return Application::Get().layerUI->m_UIManager->GetLiveText(id);
             };
 
         auto ClearInput = [](const std::string& id) {
@@ -251,7 +255,10 @@ namespace IonixEngine {
             sol::optional<float> rounding,
             sol::optional<int> r,
             sol::optional<int> g,
-            sol::optional<int> b)
+            sol::optional<int> b,
+            sol::optional<float> borderSize,
+            sol::optional<bool> autoBorder,
+            sol::optional<float> borderDarken)
             {
                 Application::Get().layerUI->m_UIManager->BeginChild(
                     x, y, w, h,
@@ -263,9 +270,14 @@ namespace IonixEngine {
                     rounding.value_or(6.0f),
                     r.value_or(0),
                     g.value_or(0),
-                    b.value_or(0)
+                    b.value_or(0),
+                    borderSize.value_or(1.0f),
+                    autoBorder.value_or(true),
+                    borderDarken.value_or(0.85f),
+                    ImVec4(0, 0, 0, 1) // only used if autoBorder=false 
                 );
             };
+
 
         auto EndChild = []()
             {
@@ -291,8 +303,9 @@ namespace IonixEngine {
             "get_slider", GetSlider,
             "was_slider_changed", WasSliderChanged,
             "set_slider", SetSlider,
-			"get_input_text", GetInputText,
+            "get_input_text", GetInputText,
             "was_input_committed", WasInputCommitted,
+            "get_input_text_live", GetInputTextLive,
             "get_radio", GetRadio,
             "was_radio_changed", WasRadioChanged,
             "get_dropdown_index", GetDropdownIndex,

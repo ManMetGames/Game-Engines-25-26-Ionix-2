@@ -15,7 +15,7 @@ namespace IonixEngine
 		Button,
 		Checkbox,
 		SliderFloat,
-	    InputText,
+		InputText,
 		Panel,
 		RadioButton,
 		Dropdown,
@@ -39,7 +39,7 @@ namespace IonixEngine
 		const char* text = nullptr;
 
 		bool sameline = false;
-		
+
 		std::string widgetId; // Shared ID for id-based widgets (button/checkbox/slider/input/toggle/dropdown/color)
 
 		// Button specific
@@ -50,25 +50,29 @@ namespace IonixEngine
 		bool defaultValue = false; // for checkbox default
 
 		// Slider specific
-		float* sliderValue = nullptr; 
+		float* sliderValue = nullptr;
 		float sliderMin = 0.0f;
 		float slidermax = 1.0f;
 
 		// InputText specific
-		char* inputBuffer = nullptr; 
-		size_t inputBufferSize = 0; 
-		float width = 100.0f; 
-		std::string inputId;   
+		char* inputBuffer = nullptr;
+		size_t inputBufferSize = 0;
+		float width = 100.0f;
+		std::string inputId;
 
 		// ProgressBar specific
-		float maxValue = 0.0f; 
-		float* currentValue = nullptr; 
-		float incrementAmount = 0.0f; 
+		float maxValue = 0.0f;
+		float* currentValue = nullptr;
+		float incrementAmount = 0.0f;
 
+
+		// Value-mode (non-mutating) progress bar (used by scripting)
+		float progressCurrentValue = 0.0f;
+		int   progressColorId = 0;
 		// Panel specific
 		float panelAlpha = 0.45f;
-		float panelRounding = 6.0f; 
-		int panelR = 0, panelG = 0, panelB = 0; 
+		float panelRounding = 6.0f;
+		int panelR = 0, panelG = 0, panelB = 0;
 
 		std::vector<UIElement> children;
 		bool isChildGroup = false;
@@ -76,9 +80,9 @@ namespace IonixEngine
 		// Centered label specific
 		bool centerAligned = false;
 		float centerX = 0.0f;
-	
+
 		// Radio button specific
-	    std::string groupId; 
+		std::string groupId;
 		int radioValue = 0;           // option value
 		int radioDefaultValue = 0; // default selected value
 
@@ -98,6 +102,10 @@ namespace IonixEngine
 		float childBgAlpha = 0.45f;
 		float childBgRounding = 6.0f;
 		int   childBgR = 0, childBgG = 0, childBgB = 0;
+		float childBorderSize = 1.0f;     // thickness
+		bool  childAutoBorderColor = true;
+		float childBorderDarken = 0.85f;  // 0.85 = slightly darker than bg
+		ImVec4 childBorderColor = ImVec4(0, 0, 0, 1); // only used if auto=false
 
 		// Font controls per element
 		std::string fontName = "";
@@ -192,6 +200,11 @@ namespace IonixEngine
 
 		void AddProgressBar(int x, int y, float xSize, float ySize, float maxvalue, float* currentvalue, float incrementamount, const std::string& fontName = "");
 
+
+		// Draw-only progress bar (does NOT mutate value) + supports colorId like UI::DrawProgressBar
+		void AddProgressBarValue(int x, int y, float xSize, float ySize,
+			float maxValue, float currentValue, int colorId = 0,
+			const std::string& fontName = "", float fontScale = 1.0f);
 		void AddPanel(int x, int y, float w, float h, float alpha = 0.45f, float rounding = 6.0f,
 			int r = 0, int g = 0, int b = 0);
 
@@ -209,6 +222,7 @@ namespace IonixEngine
 
 		std::string GetCommittedText(const std::string& id) const; // For InputText
 		bool WasInputCommitted(const std::string& id) const; // For InputText
+		std::string GetLiveText(const std::string& id) const; // For InputText (live buffer)
 		void ClearInput(const std::string& id); // For InputText
 
 		int  GetRadio(const std::string& groupId) const;
@@ -225,7 +239,9 @@ namespace IonixEngine
 		void BeginChild(int x, int y, float w, float h, const char* id,
 			bool border = false, ImGuiWindowFlags flags = 0,
 			bool hasBg = false, float alpha = 0.45f, float rounding = 6.0f,
-			int r = 0, int g = 0, int b = 0);
+			int r = 0, int g = 0, int b = 0, float borderSize = 1.0f,
+			bool autoBorder = true, float borderDarken = 0.85f,
+			ImVec4 borderColor = ImVec4(0, 0, 0, 1));
 
 		void EndChild();
 
