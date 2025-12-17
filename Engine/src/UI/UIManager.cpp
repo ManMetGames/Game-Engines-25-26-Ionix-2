@@ -128,7 +128,7 @@ namespace IonixEngine
 		float min, float max, float defaultValue, const std::string& fontName, float fontScale, const std::string& format)
 	{
 		UIElement* element = new UIElement{};
-		element->type = UIType::SliderFloat;
+		element->type = UIType::Slider;
 		element->xPos = x;
 		element->yPos = y;
 		element->xSize = width;          // use xSize as width
@@ -144,6 +144,47 @@ namespace IonixEngine
 		element->sliderMin = min;
 		element->slidermax = max;
 		element->sliderFormat = format;
+
+		// init only once
+		if (m_sliderValues.find(element->widgetId) == m_sliderValues.end())
+			m_sliderValues[element->widgetId] = defaultValue;
+
+		AddChildToPanel(element);
+	}
+
+	void UIManager::AddSliderStyled(int x, int y, float width,
+		const char* label, const char* id,
+		float min, float max, float defaultValue,
+		const std::string& fontName, float fontScale,
+		const std::string& format,
+		float heightPx, float rounding, float grabSize,
+		bool useColors, ImVec4 track, ImVec4 grab)
+	{
+		UIElement* element = new UIElement{};
+		element->type = UIType::Slider;
+		element->xPos = x;
+		element->yPos = y;
+		element->xSize = width;          // use xSize as width
+		element->ySize = 0.0f;
+
+		element->ownedText = (label ? label : "");
+		element->text = element->ownedText.c_str();
+
+		element->fontName = fontName;
+		element->fontScale = fontScale;
+
+		element->widgetId = (id && id[0]) ? id : element->ownedText;
+		element->sliderMin = min;
+		element->slidermax = max;
+		element->sliderFormat = format;
+
+		element->sliderCustomStyle = true;
+		element->sliderHeightPx = heightPx;
+		element->sliderRounding = rounding;
+		element->sliderGrabMinSize = grabSize;
+		element->sliderUseColors = useColors;
+		element->sliderTrack = track;
+		element->sliderGrab = grab;
 
 		// init only once
 		if (m_sliderValues.find(element->widgetId) == m_sliderValues.end())
@@ -537,29 +578,91 @@ namespace IonixEngine
 		}
 
 
-		case UIType::SliderFloat:
+		case UIType::Slider:
 		{
 			if (element->widgetId.empty())
 				break;
 
 			float& v = m_sliderValues[element->widgetId];
 
-			// "Visible label##id" trick (same as button/checkbox)
+			// "Visible label##id" trick
 			std::string imguiLabel = element->ownedText + "##" + element->widgetId;
+
+			// IMPORTANT: if format is empty, pass nullptr so ImGui uses default formatting
+			const char* fmt = nullptr;
+			if (!element->sliderFormat.empty())
+				fmt = element->sliderFormat.c_str();
+
+			int pushedVars = 0;
+			int pushedColors = 0;
+
+			// Only styled sliders push these overrides
+			if (element->sliderCustomStyle)
+			{
+				// Thickness/height via frame padding Y
+				if (element->sliderHeightPx > 0.0f)
+				{
+					// A simple approach: translate "heightPx" into extra padding.
+					// Feel free to tweak this formula to taste.
+					float padY = std::max(0.0f, (element->sliderHeightPx - ImGui::GetFontSize()) * 0.5f);
+					ImGuiStyle& st = ImGui::GetStyle();
+					ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(st.FramePadding.x, padY));
+					pushedVars++;
+				}
+
+				// Rounding (track + grab)
+				if (element->sliderRounding >= 0.0f)
+				{
+					ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, element->sliderRounding);
+					pushedVars++;
+
+					float grabRound = (element->sliderGrabRounding >= 0.0f)
+						? element->sliderGrabRounding
+						: element->sliderRounding;
+
+					ImGui::PushStyleVar(ImGuiStyleVar_GrabRounding, grabRound);
+					pushedVars++;
+				}
+
+				// Grab size
+				if (element->sliderGrabMinSize > 0.0f)
+				{
+					ImGui::PushStyleVar(ImGuiStyleVar_GrabMinSize, element->sliderGrabMinSize);
+					pushedVars++;
+				}
+
+				// Colors (track + grab)
+				if (element->sliderUseColors)
+				{
+					// If you stored colors as ImVec4 already, just push them.
+					// You can optionally derive hovered/active variants if you want.
+					ImGui::PushStyleColor(ImGuiCol_FrameBg, element->sliderTrack); pushedColors++;
+					ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, element->sliderTrack); pushedColors++;
+					ImGui::PushStyleColor(ImGuiCol_FrameBgActive, element->sliderTrack); pushedColors++;
+
+					ImGui::PushStyleColor(ImGuiCol_SliderGrab, element->sliderGrab); pushedColors++;
+					ImGui::PushStyleColor(ImGuiCol_SliderGrabActive, element->sliderGrab); pushedColors++;
+				}
+			}
 
 			bool changed = m_ui->DrawSlider(
 				imguiLabel.c_str(),
 				&v,
 				element->xSize,          // width
 				element->xPos, element->yPos,
-				element->sliderMin, element->slidermax, element->sliderFormat.c_str()
+				element->sliderMin, element->slidermax,
+				fmt
 			);
+
+			if (pushedColors) ImGui::PopStyleColor(pushedColors);
+			if (pushedVars)   ImGui::PopStyleVar(pushedVars);
 
 			if (changed)
 				m_sliderChanged[element->widgetId] = true;
 
 			break;
 		}
+
 
 
 		case UIType::InputText:

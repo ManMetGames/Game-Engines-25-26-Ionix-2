@@ -14,7 +14,7 @@ namespace IonixEngine
 		Label,
 		Button,
 		Checkbox,
-		SliderFloat,
+		Slider,
 		InputText,
 		Panel,
 		RadioButton,
@@ -54,6 +54,18 @@ namespace IonixEngine
 		float sliderMin = 0.0f;
 		float slidermax = 1.0f;
 		std::string sliderFormat;
+
+		// Slider style (optional)
+		bool  sliderCustomStyle = false;
+
+		float sliderHeightPx = 0.0f;      // thickness/height in pixels (0 = default)
+		float sliderRounding = -1.0f;     // -1 = default
+		float sliderGrabRounding = -1.0f; // -1 = use sliderRounding
+		float sliderGrabMinSize = 0.0f;   // 0 = default
+
+		bool  sliderUseColors = false;
+		ImVec4 sliderTrack = ImVec4(0, 0, 0, 0);
+		ImVec4 sliderGrab = ImVec4(0, 0, 0, 0);
 
 		// InputText specific
 		char* inputBuffer = nullptr;
@@ -179,6 +191,14 @@ namespace IonixEngine
 			const char* label, const char* id,
 			float min, float max, float defaultValue = 0.0f,
 			const std::string& fontName = "", float fontScale = 1.0f, const std::string& format = "");
+
+		void AddSliderStyled(int x, int y, float width,
+			const char* label, const char* id,
+			float min, float max, float defaultValue = 0.0f,
+			const std::string& fontName = "", float fontScale = 1.0f,
+			const std::string& format = "",
+			float heightPx = 0.0f, float rounding = -1.0f, float grabSize = 0.0f,
+			bool useColors = false, ImVec4 track = ImVec4(0, 0, 0, 0), ImVec4 grab = ImVec4(0, 0, 0, 0));
 
 
 		void AddInputText(int xPos, int yPos, float width, const char* label, const char* id, size_t maxLen = 16,

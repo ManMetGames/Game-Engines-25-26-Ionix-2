@@ -100,6 +100,69 @@ namespace IonixEngine {
                 );
             };
 
+        auto AddSliderStyled = [](int x, int y, float width,
+            const char* label, const std::string& id,
+            float min, float max,
+            sol::optional<float> defaultValue,
+            sol::optional<std::string> fontName,
+            sol::optional<float> fontScale,
+            sol::optional<std::string> format,
+            sol::optional<sol::table> style)
+            {
+                auto norm = [](float v) -> float { return (v > 1.0f) ? (v / 255.0f) : v; };
+
+                // Defaults = Ågno overrideÅh
+                float heightPx = 0.0f;
+                float rounding = -1.0f;
+                float grabSize = 0.0f;
+                bool useColors = false;
+
+                ImVec4 track(0, 0, 0, 0);
+                ImVec4 grab(0, 0, 0, 0);
+
+                if (style)
+                {
+                    sol::table t = style.value();
+
+                    if (sol::optional<float> v = t["height"])    heightPx = *v;
+                    if (sol::optional<float> v = t["rounding"])  rounding = *v;
+                    if (sol::optional<float> v = t["grab_size"]) grabSize = *v;
+
+                    // track = {r,g,b,a} and grab = {r,g,b,a} (0..1 or 0..255)
+                    auto readColor = [&](const char* key, ImVec4& out) -> bool {
+                        sol::object o = t[key];
+                        if (!o.valid() || !o.is<sol::table>()) return false;
+                        sol::table c = o.as<sol::table>();
+
+                        // support [1..4]
+                        float r = c.get_or(1, 0.0f);
+                        float g = c.get_or(2, 0.0f);
+                        float b = c.get_or(3, 0.0f);
+                        float a = c.get_or(4, 1.0f);
+
+                        out = ImVec4(norm(r), norm(g), norm(b), norm(a));
+                        return true;
+                        };
+
+                    bool hasTrack = readColor("track", track);
+                    bool hasGrab = readColor("grab", grab);
+                    useColors = hasTrack || hasGrab;
+                }
+
+                Application::Get().layerUI->m_UIManager->AddSliderStyled(
+                    x, y, width,
+                    label, id.c_str(),
+                    min, max,
+                    defaultValue.value_or(0.0f),
+                    fontName.value_or(""),
+                    fontScale.value_or(1.0f),
+                    format.value_or(""),
+                    heightPx, rounding, grabSize,
+                    useColors, track, grab
+                );
+            };
+
+
         auto GetSlider = [](const std::string& id)
             {
                 return Application::Get().layerUI->m_UIManager->GetSlider(id);
@@ -291,6 +354,7 @@ namespace IonixEngine {
             "add_button", AddButton,
             "add_checkbox", AddCheckbox,
             "add_slider", AddSlider,
+            "add_slider_styled", AddSliderStyled,
             "draw_progress_bar", DrawProgressBar,
             "add_input_text", AddInputText,
             "add_panel", AddPanel,

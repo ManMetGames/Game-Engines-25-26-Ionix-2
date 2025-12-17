@@ -773,7 +773,7 @@ local function DrawLeaderboardMenu(screenW, screenH, dt)
     local lineH = 26
 
     if topLeaderboard then
-        local stageX = math.floor(panelW * 0.78)  -- move this right/left as you like
+        local stageX = math.floor(panelW * 0.68) 
 
         for i = 1, 10 do
             local e = topLeaderboard[i]
@@ -786,7 +786,7 @@ local function DrawLeaderboardMenu(screenW, screenH, dt)
                 -- Left column: "1. Name"
                 UI.add_label(listX, y, 0, 0, string.format("%2d. %s", i, name), "", 1.4)
 
-                -- Right column: "Stage X" (starts at a fixed X so it lines up)
+                -- Right column: "Stage X"
                 UI.add_label(stageX, y, 0, 0, string.format("Stage %d", stage), "", 1.4)
             else
                 UI.add_label(listX, y, 0, 0, string.format("%2d. --", i), "", 1.4)
@@ -844,15 +844,23 @@ local function DrawSettingsMenu(screenW, screenH, dt)
     false, NO_BACKGROUND, false)
 
     local innerCX = contentW / 2
-    local sliderW = math.floor(contentW * 0.70)
+    local sliderW = math.floor(contentW * 0.58)
     local sliderX = math.floor((contentW - sliderW) / 2)
 
     UI.add_centered_label(innerCX, 16, "Audio", "ImGuiDefaultBold", 1.5)
 
+    local sliderStyle = {
+    height = 18,        -- thickness
+    rounding = 10,      -- track rounding
+    grab_size = 16,     -- handle size (easier to grab)
+    track = { 30, 30, 30, 220 },     -- RGBA (0-255)
+    grab  = { 74, 12, 255, 255 },    -- RGBA (0-255) (your purple accent)
+    }
+
     local function DrawVolRow(title, id, value, y)
         UI.add_centered_label(innerCX, y - 34, title, "", 1.1)
 
-        UI.add_slider(sliderX, y, sliderW, "##" .. id, id, 0.0, 1.0, value, nil, nil, " ")
+        UI.add_slider_styled(sliderX, y, sliderW, "", id, 0.0, 1.0, value, nil, nil, " ", sliderStyle)
 
         local percent = math.floor(((UI.get_slider(id) or value) * 100) + 0.5)
         UI.add_label(sliderX + sliderW + 18, y + 2, 0, 0, tostring(percent) .. "%", "ImGuiDefaultBold", 1.0)
@@ -893,7 +901,7 @@ local function DrawSettingsMenu(screenW, screenH, dt)
     -- draw sensitivity slider at sensY
 
     UI.add_centered_label(innerCX, sensY - 34, "Sensitivity", "", 1.1)
-    UI.add_slider(sliderX, sensY, sliderW, "##ts_sensitivity", "ts_sensitivity", 0.25, 2.50, sensitivitySetting, nil, nil, " ")
+    UI.add_slider_styled(sliderX, sensY, sliderW, "", "ts_sensitivity", 0.25, 2.50, sensitivitySetting, nil, nil, " ", sliderStyle)
 
     if UI.was_slider_changed("ts_sensitivity") then
         sensitivitySetting = UI.get_slider("ts_sensitivity") or sensitivitySetting
