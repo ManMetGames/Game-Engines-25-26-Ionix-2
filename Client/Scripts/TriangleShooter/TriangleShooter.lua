@@ -30,7 +30,9 @@ local pendingStartAfterName = false
 local namePromptError = ""
 
 -- Per-game saved settings
-local volumeSetting = Json.load_setting(GAME_ID, "audio.volume", 0.25) or 0.25
+local masterVol = Json.load_setting(GAME_ID, "audio.master", 0.80) or 0.80
+local musicVol  = Json.load_setting(GAME_ID, "audio.music",  0.80) or 0.80
+local sfxVol    = Json.load_setting(GAME_ID, "audio.sfx",    0.80) or 0.80
 
 -- Menu screens: "main" | "leaderboard"
 local menuScreen = "main"
@@ -245,7 +247,7 @@ local knockbackDirY = 0
 
 -- MUSIC CONTROL
 local musicEntity
-local musicVolume = math.floor(128 * volumeSetting + 0.5)  -- 0..128
+local musicVolume = 128
 local musicMuted = false
 local bpm = 133 
 local secondsPerBeat = 60.0 / bpm
@@ -288,19 +290,31 @@ end
  --=====================================================================
  --  [SETTINGS] Audio Volume
  --=====================================================================
-local function ApplyAudioVolumes()
-    volumeSetting = Clamp01(volumeSetting or 0.25)
-    musicVolume = math.floor(128 * volumeSetting + 0.5)
 
+local function Clamp01(v)
+    if v < 0 then return 0 end
+    if v > 1 then return 1 end
+    return v
+end
+
+local function ApplyAudioVolumes()
+    masterVol = Clamp01(masterVol or 0.8)
+    musicVol  = Clamp01(musicVol  or 0.8)
+    sfxVol    = Clamp01(sfxVol    or 0.8)
+
+    -- MUSIC (base 0..128)
+    local musicOut = math.floor(128 * masterVol * musicVol + 0.5)
     if musicEntity then
-        AudioComponent.change_volume(musicEntity, musicMuted and 0 or musicVolume)
+        AudioComponent.change_volume(musicEntity, musicMuted and 0 or musicOut)
     end
 
-    -- Scale SFX too (using your existing “base” values)
-    if playerDamageSfxEntity then AudioComponent.change_volume(playerDamageSfxEntity, math.floor(48 * volumeSetting + 0.5)) end
-    if gunshot3SfxEntity     then AudioComponent.change_volume(gunshot3SfxEntity,     math.floor( 4 * volumeSetting + 0.5)) end
-    if impact3SfxEntity      then AudioComponent.change_volume(impact3SfxEntity,      math.floor(16 * volumeSetting + 0.5)) end
+    -- SFX (scale your existing base volumes)
+    local sfxMul = masterVol * sfxVol
+    if playerDamageSfxEntity then AudioComponent.change_volume(playerDamageSfxEntity, math.floor(48 * sfxMul + 0.5)) end
+    if gunshot3SfxEntity     then AudioComponent.change_volume(gunshot3SfxEntity,     math.floor( 4 * sfxMul + 0.5)) end
+    if impact3SfxEntity      then AudioComponent.change_volume(impact3SfxEntity,      math.floor(16 * sfxMul + 0.5)) end
 end
+
 
  --=====================================================================
  --  [LEVEL FLOW] Load / Start Level
@@ -793,28 +807,48 @@ local function DrawSettingsMenu(screenW, screenH, dt)
 
     local cx = panelW / 2
     UI.add_centered_label(cx, math.floor(panelH * 0.1), "SETTINGS", "ImGuiDefaultBold", 2.6)
-    UI.add_centered_label(cx, math.floor(panelH * 0.2), "Audio", "ImGuiDefaultBold", 1.5)
+    UI.add_centered_label(cx, math.floor(panelH * 0.19), "Audio", "ImGuiDefaultBold", 1.5)
 
     local sliderW = math.floor(panelW * 0.60)
     local sliderX = math.floor((panelW - sliderW) / 2)
-    local sliderY = math.floor(panelH * 0.34)
 
-    UI.add_centered_label(cx, sliderY - 34, "Volume", "", 1.1)
+    local function DrawVolRow(title, id, value, y)
+        UI.add_centered_label(cx, y - 34, title, "", 1.1)
 
-    UI.add_slider(sliderX, sliderY, sliderW, "##ts_volume", "ts_volume", 0.0, 1.0, volumeSetting, nil, nil, " ")
+        UI.add_slider(sliderX, y, sliderW, "##" .. id, id, 0.0, 1.0, value, nil, nil, " ")
 
-    if UI.was_slider_changed("ts_volume") then
-        volumeSetting = UI.get_slider("ts_volume") or volumeSetting
-        Json.save_setting(GAME_ID, "audio.volume", volumeSetting)
+        local percent = math.floor(((UI.get_slider(id) or value) * 100) + 0.5)
+        UI.add_label(sliderX + sliderW + 18, y + 2, 0, 0, tostring(percent) .. "%", "ImGuiDefaultBold", 1.0)
+    end
+
+    local y0 = math.floor(panelH * 0.34)
+    local gapY = 66
+
+
+    -- MASTER
+    DrawVolRow("Master", "ts_master", masterVol, y0)
+    if UI.was_slider_changed("ts_master") then
+        masterVol = UI.get_slider("ts_master") or masterVol
+        Json.save_setting(GAME_ID, "audio.master", masterVol)
         ApplyAudioVolumes()
     end
 
-    -- Percent showing on the right side of the slider
-    local percentX = sliderX + sliderW + 18   
-    local percentY = sliderY + 2
-    local percent = math.floor((volumeSetting * 100) + 0.5)
+    -- MUSIC
+    DrawVolRow("Music", "ts_music", musicVol, y0 + gapY)
+    if UI.was_slider_changed("ts_music") then
+        musicVol = UI.get_slider("ts_music") or musicVol
+        Json.save_setting(GAME_ID, "audio.music", musicVol)
+        ApplyAudioVolumes()
+    end
 
-    UI.add_label(percentX, percentY, 0, 0, tostring(percent) .. "%", "ImGuiDefaultBold", 1.0)
+    -- SFX
+    DrawVolRow("SFX", "ts_sfx", sfxVol, y0 + gapY * 2)
+    if UI.was_slider_changed("ts_sfx") then
+        sfxVol = UI.get_slider("ts_sfx") or sfxVol
+        Json.save_setting(GAME_ID, "audio.sfx", sfxVol)
+        ApplyAudioVolumes()
+    end
+
 
 
 
