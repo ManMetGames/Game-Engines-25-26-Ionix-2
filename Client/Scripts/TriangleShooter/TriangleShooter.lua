@@ -254,12 +254,53 @@ local function ClearEnemies()
     enemies = {}
 end
 
+local function ClearAllPlayerProjectiles()
+    for i = #projectiles, 1, -1 do
+        local proj = projectiles[i]
+        Entity.set_global_pos(proj.entity, -1000, -1000)
+        table.insert(projectilePool, table.remove(projectiles, i))
+    end
+end
+
+local enemyProjectiles = {}
+local enemyProjectilePool = {}
+
+local function ClearAllEnemyProjectiles()
+    for i = #enemyProjectiles, 1, -1 do
+        local proj = enemyProjectiles[i]
+        Entity.set_global_pos(proj.entity, -1000, -1000)
+        table.insert(enemyProjectilePool, table.remove(enemyProjectiles, i))
+    end
+end
+
+local function ResetRunStateForMenu()
+    -- cancel any pending window level loads just in case
+    windowTransitionActive = false
+    pendingLevelIndex = nil
+    pendingResetPlayerState = false
+
+    ClearEnemies()
+    ClearAllPlayerProjectiles()
+    ClearAllEnemyProjectiles()
+
+    fireCooldownTimer = 0
+    damageCooldown = 0
+    peaceTimerSeconds = 0
+
+    -- reset stage/run basics
+    currentLevel = 1
+    levelTimerSeconds = 0
+
+    isPaused = false
+    pauseScreen = "pause"
+end
+
  --=====================================================================
  --  [STATE] Enemy Projectiles
  --=====================================================================
 -- ENEMY PROJECTILE SETTINGS
-local enemyProjectiles = {}
-local enemyProjectilePool = {}
+enemyProjectiles = {}
+enemyProjectilePool = {}
 local enemyProjectileSize = 24
 local enemyProjectileSpeed = 720 -- PIXELS PER SECOND 
 local enemyShootIntervalSeconds = 0.5
@@ -691,7 +732,7 @@ local function DrawMainMenu(screenW, screenH, dt)
             inMainMenu = false
             menuScreen = "main"
             Input.set_relative_mouse_mode(true)
-            LoadLevel(1, true)
+            StartLevel(1, true)
         end
     end
 
@@ -977,8 +1018,8 @@ local function DrawPauseMenu(screenW, screenH, dt)
     UI.add_button(bx, y0 + (bh + gap) * 2, bw, bh, "LEADERBOARD", "pause_leaderboard",
         "ImGuiDefaultBold", 1.0, 12, true, 74, 12, 255, 0.90)
 
-    UI.add_button(bx, y0 + (bh + gap) * 3, bw, bh, "MAIN MENU", "pause_mainmenu",
-        "ImGuiDefaultBold", 1.0, 12, true, 74, 12, 255, 0.90)
+    UI.add_button(bx, y0 + (bh + gap) * 3, bw, bh, "QUIT", "pause_mainmenu",
+        "ImGuiDefaultBold", 1.0, 12, true, 170, 25, 25, 0.90)
 
     if UI.was_button_pressed("pause_resume") then
         SetPaused(false)
@@ -1201,6 +1242,9 @@ end
 
 GoToMainMenuFromPause = function()
     SetPaused(false)
+
+    ResetRunStateForMenu()
+
     ResetWallWindowCapture()
 
     -- go to main menu
