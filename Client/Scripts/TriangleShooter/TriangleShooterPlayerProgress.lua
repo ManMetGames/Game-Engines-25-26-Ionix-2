@@ -36,6 +36,8 @@ end
 function TriangleShooterPlayerProgress.canTakeUpgrade(upgradeType)
     if upgradeType == "fire_rate" then
         return (playerStats.fireRateUpgradeCount or 0) < 3
+    elseif upgradeType == "bounce" then
+        return (playerStats.bounceCount or 0) < 2
     end
     return true
 end

@@ -554,6 +554,16 @@ local function OnEnemyKilled()
 end
 
 local function OnLevelTimeout()
+    -- Reduce level health by 20% on timeout
+    local cfg = TriangleShooterLevels.getLevelConfig(currentLevel)
+    if cfg and cfg.enemies then
+        for _, enemy in ipairs(cfg.enemies) do
+            if enemy.health then
+                enemy.health = math.floor(enemy.health * 0.8)
+                if enemy.health < 1 then enemy.health = 1 end
+            end
+        end
+    end
     StartLevel(currentLevel, false)
 end
 
