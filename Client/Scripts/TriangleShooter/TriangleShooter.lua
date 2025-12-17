@@ -1230,6 +1230,17 @@ function TriangleShooter:OnUpdate()
         inMainMenu = true
         menuScreen = "main"
         Input.set_relative_mouse_mode(false)
+ 
+        local targetW, targetH = 1280, 720
+        local displayWidth = Window.get_display_width()
+        local displayHeight = Window.get_display_height()
+        local newX = math.floor((displayWidth - targetW) * 0.5)
+        local newY = math.floor((displayHeight - targetH) * 0.5)
+        Window.set_pos(newX, newY)
+        Window.set_size(targetW, targetH)
+        screenW = targetW
+        screenH = targetH
+ 
         ClearEnemies()
         currentLevel = 1
         StartLevel(1, true)
