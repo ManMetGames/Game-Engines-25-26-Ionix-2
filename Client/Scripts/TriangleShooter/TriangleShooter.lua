@@ -1771,8 +1771,11 @@ function UpdateBeatBop()
             local isTeleporting = state == "shrinking" or state == "growing" or state == "teleporting"
             if enemy and enemy.sprite and not isTeleporting then
                 local currentSize = enemy.displaySize or enemy.baseSize or enemy.size or enemyBaseImageSize
-                Sprite.set_image_width(enemy.sprite, math.floor(currentSize * scale))
-                Sprite.set_image_height(enemy.sprite, math.floor(currentSize * scale))
+                local scaledSize = math.floor(currentSize * scale)
+                Sprite.set_image_width(enemy.sprite, scaledSize)
+                Sprite.set_image_height(enemy.sprite, scaledSize)
+                local offset = (scaledSize - currentSize) / 2
+                Entity.set_global_pos(enemy.entity, enemy.x - offset, enemy.y - offset)
             end
         end
     else
@@ -1784,6 +1787,7 @@ function UpdateBeatBop()
                 local currentSize = enemy.displaySize or enemy.baseSize or enemy.size or enemyBaseImageSize
                 Sprite.set_image_width(enemy.sprite, math.floor(currentSize))
                 Sprite.set_image_height(enemy.sprite, math.floor(currentSize))
+                Entity.set_global_pos(enemy.entity, enemy.x, enemy.y)
             end
         end
     end
@@ -1805,7 +1809,7 @@ local function SpawnEnemySingleProjectile(enemy, dirX, dirY)
         projData = { entity = proj, sprite = sprite }
     end
     
-    local eSize = enemy.size or enemySize
+    local eSize = enemy.displaySize or enemy.size or enemySize
     local enemyCenterX = enemy.x + eSize/2
     local enemyCenterY = enemy.y + eSize/2
     local spawnX = enemyCenterX - enemyProjectileSize/2
@@ -1825,7 +1829,7 @@ local function SpawnEnemySingleProjectile(enemy, dirX, dirY)
 end
 
 function SpawnEnemyProjectile(enemy)
-    local eSize = enemy.size or enemySize
+    local eSize = enemy.displaySize or enemy.size or enemySize
     local enemyCenterX = enemy.x + eSize/2
     local enemyCenterY = enemy.y + eSize/2
     local playerCenterX = playerX + playerSize/2

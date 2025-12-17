@@ -323,10 +323,11 @@ end
  updateOrbitMovement = function(enemy, dt, screenW, screenH)
     local centerX = enemy.orbitCenter and enemy.orbitCenter[1] or (screenW / 2)
     local centerY = enemy.orbitCenter and enemy.orbitCenter[2] or (screenH / 2)
+    local eDisplaySize = enemy.displaySize or enemy.size
     
     enemy.orbitAngle = enemy.orbitAngle + enemy.orbitSpeed * dt
-    enemy.x = centerX + math.cos(enemy.orbitAngle) * enemy.orbitRadius - enemy.size/2
-    enemy.y = centerY + math.sin(enemy.orbitAngle) * enemy.orbitRadius - enemy.size/2
+    enemy.x = centerX + math.cos(enemy.orbitAngle) * enemy.orbitRadius - eDisplaySize/2
+    enemy.y = centerY + math.sin(enemy.orbitAngle) * enemy.orbitRadius - eDisplaySize/2
 end
 
  --=====================================================================
@@ -367,8 +368,9 @@ local TELEPORT_GROW_DURATION = 0.25
     enemy.rotation = (enemy.rotation or 0) + dt * 120
     
     if enemy.teleportState == "charging" then
-        local enemyCenterX = enemy.x + enemy.size/2
-        local enemyCenterY = enemy.y + enemy.size/2
+        local eDisplaySize = enemy.displaySize or enemy.size
+        local enemyCenterX = enemy.x + eDisplaySize/2
+        local enemyCenterY = enemy.y + eDisplaySize/2
         
         local lockTime = enemy.teleportChargeTime - 0.2
         if lockTime < 0 then lockTime = 0 end
@@ -389,8 +391,8 @@ local TELEPORT_GROW_DURATION = 0.25
         if dist > 0 then
             local dirX = dx / dist
             local dirY = dy / dist
-            chargeX = enemyCenterX + dirX * (enemy.size / 2)
-            chargeY = enemyCenterY + dirY * (enemy.size / 2)
+            chargeX = enemyCenterX + dirX * (eDisplaySize / 2)
+            chargeY = enemyCenterY + dirY * (eDisplaySize / 2)
         end
         if EmitBeamCharge then
             EmitBeamCharge(chargeX, chargeY, targetX, targetY, enemy.color[1], enemy.color[2], enemy.color[3])
@@ -401,8 +403,9 @@ local TELEPORT_GROW_DURATION = 0.25
             enemy.beamLocked = false
         end
     elseif enemy.teleportState == "shooting" then
-        local enemyCenterX = enemy.x + enemy.size/2
-        local enemyCenterY = enemy.y + enemy.size/2
+        local eDisplaySize = enemy.displaySize or enemy.size
+        local enemyCenterX = enemy.x + eDisplaySize/2
+        local enemyCenterY = enemy.y + eDisplaySize/2
         local dx = enemy.beamTargetX - enemyCenterX
         local dy = enemy.beamTargetY - enemyCenterY
         local dist = math.sqrt(dx * dx + dy * dy)
@@ -411,8 +414,8 @@ local TELEPORT_GROW_DURATION = 0.25
         if dist > 0 then
             local dirX = dx / dist
             local dirY = dy / dist
-            beamStartX = enemyCenterX + dirX * (enemy.size / 2)
-            beamStartY = enemyCenterY + dirY * (enemy.size / 2)
+            beamStartX = enemyCenterX + dirX * (eDisplaySize / 2)
+            beamStartY = enemyCenterY + dirY * (eDisplaySize / 2)
         end
         if SpawnBeam then
             SpawnBeam(enemy, beamStartX, beamStartY, enemy.beamTargetX, enemy.beamTargetY)
