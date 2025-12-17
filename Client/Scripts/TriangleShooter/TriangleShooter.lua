@@ -697,8 +697,7 @@ local function DrawMainMenu(screenW, screenH, dt)
     UI.begin_child(panelX, panelY, panelW, panelH, "TS_MainMenu",
         true, 0,
         true, 0.92, 12, 25, 25, 25,
-        0.01, false, 0.85,
-        UI__COLOUR_THEME[1], UI__COLOUR_THEME[2], UI__COLOUR_THEME[3], 1.0 -- RGBA border
+        5, true, 1.35
     )
 
     local cx = panelW / 2
@@ -894,8 +893,7 @@ local function DrawSettingsMenu(screenW, screenH, dt)
     UI.begin_child(panelX, panelY, panelW, panelH, "TS_Settings",
         true, 0,
         true, 0.92, 12, 25, 25, 25,
-        0.01, false, 0.85,
-        UI__COLOUR_THEME[1], UI__COLOUR_THEME[2], UI__COLOUR_THEME[3], 1.0 -- RGBA border
+        2.5, true, 1.35
     )
 
     local cx = panelW / 2
@@ -1017,8 +1015,7 @@ local function DrawPauseMenu(screenW, screenH, dt)
     UI.begin_child(panelX, panelY, panelW, panelH, "TS_PauseMenu",
         true, 0,
         true, 0.92, 12, 25, 25, 25,
-        0.01, false, 0.85,
-        UI__COLOUR_THEME[1], UI__COLOUR_THEME[2], UI__COLOUR_THEME[3], 1.0 -- RGBA border
+        2.5, true, 1.35
     )
 
     local cx = panelW / 2
@@ -1137,8 +1134,7 @@ local function DrawPauseSettingsMenu(screenW, screenH, dt)
     UI.begin_child(panelX, panelY, panelW, panelH, "TS_Settings",
         true, 0,
         true, 0.92, 12, 25, 25, 25,
-        0.1, false, 0.85,
-        UI__COLOUR_THEME[1], UI__COLOUR_THEME[1], UI__COLOUR_THEME[1], 1.0
+        2.5, true, 1.35
     )
 
     local cx = panelW / 2
