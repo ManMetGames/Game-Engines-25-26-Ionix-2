@@ -303,7 +303,7 @@ end
 enemyProjectiles = {}
 enemyProjectilePool = {}
 local enemyProjectileSize = 24
-local enemyProjectileSpeed = 500 -- PIXELS PER SECOND 
+local enemyProjectileSpeed = 420 -- PIXELS PER SECOND 
 local enemyShootIntervalSeconds = 0.5
 local enemyProjectilesEnabled = true
 
