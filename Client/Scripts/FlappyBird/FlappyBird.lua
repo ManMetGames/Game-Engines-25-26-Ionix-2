@@ -88,7 +88,28 @@ Window.set_size_centered(960, 640)
 -- Main Menu
 ----------------------------------------------------------
 local inMainMenu = true
-local showMenuButton = true
+local menuContext = "main"
+
+----------------------------------
+-- Pause game when in main menu
+----------------------------------
+local function pauseGame(pause)
+    gamePaused = pause
+
+    if pause then
+        -- stop movement
+        Fysics.set_gravity_scale(player1, 0)
+        Fysics.set_linear_velocity(player1, 0, 0)
+
+        for _, p in ipairs({pipe, pipeT, pipe2, pipeT2, pipe3, pipeT3}) do
+            Fysics.set_linear_velocity(p, 0, 0)
+        end
+
+        for _, c in ipairs(coins) do
+            Fysics.set_linear_velocity(c, 0, 0)
+        end
+    end
+end
 
 ----------------------------------------------------------
 -- Show point effect
@@ -421,23 +442,41 @@ function ExampleScript:OnUpdate()
         local centerY = (windowH - buttonH) / 2
         local gap = 20
 
-        -- Play button
-        UI.add_button(centerX, centerY - (buttonH / 2) - gap, buttonW, buttonH, "Play", "playButton")
+        ------------
+        -- Main
+        ------------
 
-        -- Exit button
-        UI.add_button(centerX, centerY + (buttonH / 2) - gap + 20, buttonW, buttonH, "Exit", "exitButton")
+        if menuContext == "main" then
+            -- Play button
+            UI.add_button(centerX, centerY - (buttonH / 2) - gap, buttonW, buttonH, "Play", "playButton")
 
-        -- Start game
-        if UI.was_button_pressed("playButton") then
-            inMainMenu = false
-            resetGame()
-            print("Pressed Play Button: Started Game")
+            -- Start game
+            if UI.was_button_pressed("playButton") then
+                inMainMenu = false
+                resetGame()
+                print("Pressed Play Button: Started Game")
+            end
+        end
+        
+        ------------
+        -- In game
+        ------------
+        if menuContext == "ingame" then
+        UI.add_button(centerX, centerY - (buttonH / 2) - gap, buttonW, buttonH, "Resume", "resumeButton")
+
+            if UI.was_button_pressed("resumeButton") then
+                inMainMenu = false
+                menuContext = "main"
+                print("Resumed Game")
+            end
         end
 
-        -- Exit game
+        -- Exit always visible
+        UI.add_button(centerX, centerY + (buttonH / 2) - gap + 20, buttonW, buttonH, "Exit", "exitButton")
+
         if UI.was_button_pressed("exitButton") then
-            print("Pressed Exit Buttom: Quitting Game")
             os.exit()
+            print("Quitting Game")
         end
 
         return
@@ -458,8 +497,11 @@ function ExampleScript:OnUpdate()
 
         -- Open main menu
         if UI.was_button_pressed("menuButton") then
+            pauseGame(true)
             inMainMenu = true   
+            menuContext = "ingame"
         end
+
     end
 
     ------------------------
