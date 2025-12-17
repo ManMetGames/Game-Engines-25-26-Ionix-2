@@ -16,7 +16,7 @@ local showSettings = showSettings or false
 -- Pipes
 local pipe, pipeT, pipe2, pipeT2, pipe3, pipeT3
 local pipeSets = {}
-local pipeSpeed = 0
+local pipeSpeed = -3
 local pipeOffScreenLeft = -100 
 
 -- Pipe randomness
@@ -83,6 +83,11 @@ local s_volume = 0.75
 
 -- Window
 Window.set_size_centered(960, 640)
+
+----------------------------------------------------------
+-- Main Menu
+----------------------------------------------------------
+local inMainMenu = true
 
 ----------------------------------------------------------
 -- Show point effect
@@ -386,6 +391,18 @@ function ExampleScript:OnStart()
     gameOverSound = Entity.create_entity()
     Entity.add_audio_component(gameOverSound, "gameOver", false)
     AudioComponent.change_volume(gameOverSound, 30)
+
+    -- Freeze everything on main menu
+    Fysics.set_gravity_scale(player1, 0)
+    Fysics.set_linear_velocity(player1, 0, 0)
+
+    for _, p in ipairs({pipe, pipeT, pipe2, pipeT2, pipe3, pipeT3}) do
+        Fysics.set_linear_velocity(p, 0, 0)
+    end
+
+    for _, c in ipairs(coins) do
+        Fysics.set_linear_velocity(c, 0, 0)
+    end
 end
 
 ----------------------------------------------------------
@@ -393,9 +410,33 @@ end
 ----------------------------------------------------------
 function ExampleScript:OnUpdate()
 
-    ------------------
+    ----------------------------------------------------------
+    -- Main Menu 
+    ----------------------------------------------------------
+    -- Play button
+    if inMainMenu then
+        local windowW = Window.get_width()
+        local windowH = Window.get_height()
+
+        -- Center button
+        local buttonW, buttonH = 200, 50
+        local buttonX = (windowW - buttonW) / 2
+        local buttonY = (windowH - buttonH) / 2
+
+        UI.add_button(buttonX, buttonY, buttonW, buttonH, "Play", "playButton")
+
+        -- start the game
+        if UI.was_button_pressed("playButton") then
+            inMainMenu = false
+            resetGame()
+            print("Pressed Play: Started Game")
+        end
+        return
+    end
+
+    ------------------------
 	-- Settings test load
-	------------------
+	------------------------
 
     if not settings_loaded then
       s_difficulty = Json.load_setting(GAME_ID, "ui.difficulty", 1)
@@ -752,7 +793,7 @@ function ExampleScript:OnUpdate()
     local vel = Fysics.get_linear_velocity(player1)
     local vx, vy = 0, Mafs.get_vec_y(vel)
 
-    if Input.get_key_down(Keys.ionix_space) then
+    if not inMainMenu and Input.get_key_down(Keys.ionix_space) then
         Fysics.set_gravity_scale(player1, 0.75)
         vy = -3
 
