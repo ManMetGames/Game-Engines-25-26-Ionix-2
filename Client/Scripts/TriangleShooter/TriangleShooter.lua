@@ -11,6 +11,7 @@ local TriangleShooterAbilities = require("Scripts.TriangleShooter.TriangleShoote
 local TriangleShooterPlayerProgress = require("Scripts.TriangleShooter.TriangleShooterPlayerProgress")
 local ParticleSystem = require("Scripts.TriangleShooter.ParticleSystem")
 local TriangleShooterUI = require("Scripts.TriangleShooter.TriangleShooterUI")
+local TriangleShooterPickups = require("Scripts.TriangleShooter.TriangleShooterPickups")
 
  --=====================================================================
  --  [LEADERBOARD / SAVE DATA]
@@ -305,7 +306,7 @@ end
 enemyProjectiles = {}
 enemyProjectilePool = {}
 local enemyProjectileSize = 24
-local enemyProjectileSpeed = 720 -- PIXELS PER SECOND 
+local enemyProjectileSpeed = 420 -- PIXELS PER SECOND 
 local enemyShootIntervalSeconds = 0.5
 local enemyProjectilesEnabled = true
 
@@ -553,6 +554,16 @@ local function OnEnemyKilled()
 end
 
 local function OnLevelTimeout()
+    -- Reduce level health by 20% on timeout
+    local cfg = TriangleShooterLevels.getLevelConfig(currentLevel)
+    if cfg and cfg.enemies then
+        for _, enemy in ipairs(cfg.enemies) do
+            if enemy.health then
+                enemy.health = math.floor(enemy.health * 0.8)
+                if enemy.health < 1 then enemy.health = 1 end
+            end
+        end
+    end
     StartLevel(currentLevel, false)
 end
 
@@ -1522,6 +1533,14 @@ function TriangleShooter:OnUpdate()
     UpdateEnemyProjectiles()
 
     ParticleSystem.update(dt)
+    TriangleShooterPickups.update(dt)
+    
+    -- Check pickup collision and heal player
+    local maxHealth = TriangleShooterPlayerProgress.getMaxHealth()
+    local healAmount = TriangleShooterPickups.checkPlayerCollision(playerX, playerY, playerSize, maxHealth)
+    if healAmount then
+        playerHealth = math.min(maxHealth, playerHealth + healAmount)
+    end
     
     -- Update flash effect
     UpdateFlash()
@@ -1608,7 +1627,20 @@ function TriangleShooter:OnUpdate()
         inMainMenu = true
         menuScreen = "main"
         Input.set_relative_mouse_mode(false)
+ 
+        local targetW, targetH = 1280, 720
+        local displayWidth = Window.get_display_width()
+        local displayHeight = Window.get_display_height()
+        local newX = math.floor((displayWidth - targetW) * 0.5)
+        local newY = math.floor((displayHeight - targetH) * 0.5)
+        Window.set_pos(newX, newY)
+        Window.set_size(targetW, targetH)
+        screenW = targetW
+        screenH = targetH
+ 
         ClearEnemies()
+        TriangleShooterPickups.clearAll()
+        TriangleShooterPlayerProgress.reset()
         currentLevel = 1
         StartLevel(1, true)
     elseif not enemiesAlive then
@@ -1775,6 +1807,11 @@ function UpdateProjectiles()
             end
 
             if enemy.health <= 0 then
+                local eSize = enemy.size or enemySize
+                local deathX = enemy.x + eSize / 2
+                local deathY = enemy.y + eSize / 2
+                TriangleShooterPickups.trySpawnHealingOrb(deathX, deathY)
+                
                 Entity.set_global_pos(enemy.entity, -1000, -1000)
                 table.remove(enemies, hitEnemyIndex)
             end
@@ -2164,6 +2201,8 @@ function UpdateBeatBop()
                 Entity.set_global_pos(enemy.entity, enemy.x - offset, enemy.y - offset)
             end
         end
+        
+        TriangleShooterPickups.applyBeatBop(t)
     else
         for i = 1, #enemies do
             local enemy = enemies[i]
@@ -2176,6 +2215,8 @@ function UpdateBeatBop()
                 Entity.set_global_pos(enemy.entity, enemy.x, enemy.y)
             end
         end
+        
+        TriangleShooterPickups.resetBop()
     end
 end
 
