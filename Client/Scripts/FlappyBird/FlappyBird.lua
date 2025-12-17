@@ -88,6 +88,28 @@ Window.set_size_centered(960, 640)
 -- Main Menu
 ----------------------------------------------------------
 local inMainMenu = true
+local menuContext = "main"
+
+----------------------------------
+-- Pause game when in main menu
+----------------------------------
+local function pauseGame(pause)
+    gamePaused = pause
+
+    if pause then
+        -- stop movement
+        Fysics.set_gravity_scale(player1, 0)
+        Fysics.set_linear_velocity(player1, 0, 0)
+
+        for _, p in ipairs({pipe, pipeT, pipe2, pipeT2, pipe3, pipeT3}) do
+            Fysics.set_linear_velocity(p, 0, 0)
+        end
+
+        for _, c in ipairs(coins) do
+            Fysics.set_linear_velocity(c, 0, 0)
+        end
+    end
+end
 
 ----------------------------------------------------------
 -- Show point effect
@@ -418,28 +440,96 @@ function ExampleScript:OnUpdate()
         local buttonW, buttonH = 200, 50
         local centerX = (windowW - buttonW) / 2
         local centerY = (windowH - buttonH) / 2
-        local gap = 20
+        local gap = 0
 
-        -- Play button
-        UI.add_button(centerX, centerY - (buttonH / 2) - gap, buttonW, buttonH, "Play", "playButton")
+        ------------
+        -- Main
+        ------------
+        if menuContext == "main" then
+            UI.add_button(centerX, centerY - 50 - (buttonH / 2) - gap - 20, buttonW, buttonH, "Play", "playButton")
 
-        -- Exit button
+            UI.add_button(centerX, centerY + 70 + (buttonH / 2) - gap + 20, buttonW, buttonH, "Exit", "exitButton")
+
+            UI.add_button(centerX, centerY - (buttonH / 2) - gap, buttonW, buttonH, "Customise", "customiseButton")
+
+            UI.add_button(centerX, centerY + 50 - (buttonH / 2) - gap + 20, buttonW, buttonH, "Settings", "settingsButton")
+
+            -- Play button
+            if UI.was_button_pressed("playButton") then
+                inMainMenu = false
+                resetGame()
+                print("Clicked Play Button: Started Game")
+            end
+
+            -- Exit button
+            if UI.was_button_pressed("exitButton") then
+                os.exit()
+                print("Quitting Game")
+            end
+
+            -- Customise button
+            if UI.was_button_pressed("customiseButton") then
+                print("Clicked Customise Button")
+            end
+
+            -- Settings button
+            if UI.was_button_pressed("settingsButton") then
+                print("Clicked Settings Button")
+            end
+        end
+        
+        ------------
+        -- In game
+        ------------
+        if menuContext == "ingame" then
+        UI.add_button(centerX, centerY - 50 - (buttonH / 2) - gap - 20, buttonW, buttonH, "Resume", "resumeButton")
+
+        UI.add_button(centerX, centerY - (buttonH / 2) - gap, buttonW, buttonH, "Main Menu", "mainMenuButton")
+
         UI.add_button(centerX, centerY + (buttonH / 2) - gap + 20, buttonW, buttonH, "Exit", "exitButton")
 
-        -- Start game
-        if UI.was_button_pressed("playButton") then
-            inMainMenu = false
-            resetGame()
-            print("Pressed Play Button: Started Game")
-        end
+            if UI.was_button_pressed("resumeButton") then
+                inMainMenu = false
+                menuContext = "main"
+                print("Resumed Game")
+            end
 
-        -- Exit game
-        if UI.was_button_pressed("exitButton") then
-            print("Pressed Exit Buttom: Quitting Game")
-            os.exit()
+            if UI.was_button_pressed("mainMenuButton") then
+                resetGame()
+                inMainMenu = true
+                menuContext = "main"
+                print("Switched to main menu")
+            end
+
+            if UI.was_button_pressed("exitButton") then
+                os.exit()
+                print("Quitting Game")
+            end
         end
 
         return
+    end
+
+    -----------------------------------------
+    -- Open main menu button in play mode
+    -----------------------------------------
+    if not inMainMenu then
+        local windowW = Window.get_width()
+
+        local btnSize = 36
+        local margin = 10
+        local btnX = windowW - btnSize - margin
+        local btnY = margin
+
+        UI.add_button(btnX, btnY, btnSize, btnSize, "=", "menuButton")
+
+        -- Open main menu
+        if UI.was_button_pressed("menuButton") then
+            pauseGame(true)
+            inMainMenu = true   
+            menuContext = "ingame"
+        end
+
     end
 
     ------------------------
