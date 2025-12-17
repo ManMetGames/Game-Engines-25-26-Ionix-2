@@ -85,6 +85,11 @@ local s_volume = 0.75
 Window.set_size_centered(960, 640)
 
 ----------------------------------------------------------
+-- Main Menu
+----------------------------------------------------------
+local inMainMenu = true
+
+----------------------------------------------------------
 -- Show point effect
 ----------------------------------------------------------
 local function showPointEffect()
@@ -198,6 +203,41 @@ local function resetGame()
     topLeaderboard = nil
     leaderboardFetched = false
     UI.clear_input("player_name")
+end
+
+------------------------------------------------------
+-- Game Over
+------------------------------------------------------
+    local function triggerGameOver()
+    gameOver = true
+    restartDelayFrames = RESTART_DELAY_FRAMES
+
+    if gameOverSound then
+    AudioComponent.play(gameOverSound)
+    print("GameOver sound played")
+    end
+
+    for _, p in ipairs({pipe, pipeT, pipe2, pipeT2, pipe3, pipeT3}) do
+        Fysics.set_linear_velocity(p, 0, 0)
+    end
+
+    for _, c in ipairs(coins) do
+        Fysics.set_linear_velocity(c, 0, 0)
+        local s = Entity.get_sprite_component(c)
+        if s then Sprite.set_width(s, 0); Sprite.set_height(s, 0) end
+    end
+    
+    newHighScore = (Pscore > highscore)
+
+    if newHighScore then
+        highscore = Pscore
+        Json.save_high_score(GAME_ID, highscore)
+    end
+
+    text1 = "GAME OVER!! TRY AGAIN"
+    finalScoreText = "Final Score: " .. tostring(Pscore)
+    topScore = "Highscore: " .. tostring(highscore)
+    coinsText = "Coins Collected: " .. tostring(score)
 end
 
 ----------------------------------------------------------
@@ -347,6 +387,18 @@ function ExampleScript:OnStart()
     gameOverSound = Entity.create_entity()
     Entity.add_audio_component(gameOverSound, "gameOver", false)
     AudioComponent.change_volume(gameOverSound, 30)
+
+    -- Freeze everything on main menu
+    Fysics.set_gravity_scale(player1, 0)
+    Fysics.set_linear_velocity(player1, 0, 0)
+
+    for _, p in ipairs({pipe, pipeT, pipe2, pipeT2, pipe3, pipeT3}) do
+        Fysics.set_linear_velocity(p, 0, 0)
+    end
+
+    for _, c in ipairs(coins) do
+        Fysics.set_linear_velocity(c, 0, 0)
+    end
 end
 
 ----------------------------------------------------------
@@ -354,9 +406,45 @@ end
 ----------------------------------------------------------
 function ExampleScript:OnUpdate()
 
-    ------------------
+    ----------------------------------------------------------
+    -- Main Menu 
+    ----------------------------------------------------------
+
+    if inMainMenu then
+        local windowW = Window.get_width()
+        local windowH = Window.get_height()
+
+        -- Center button
+        local buttonW, buttonH = 200, 50
+        local centerX = (windowW - buttonW) / 2
+        local centerY = (windowH - buttonH) / 2
+        local gap = 20
+
+        -- Play button
+        UI.add_button(centerX, centerY - (buttonH / 2) - gap, buttonW, buttonH, "Play", "playButton")
+
+        -- Exit button
+        UI.add_button(centerX, centerY + (buttonH / 2) - gap + 20, buttonW, buttonH, "Exit", "exitButton")
+
+        -- Start game
+        if UI.was_button_pressed("playButton") then
+            inMainMenu = false
+            resetGame()
+            print("Pressed Play Button: Started Game")
+        end
+
+        -- Exit game
+        if UI.was_button_pressed("exitButton") then
+            print("Pressed Exit Buttom: Quitting Game")
+            os.exit()
+        end
+
+        return
+    end
+
+    ------------------------
 	-- Settings test load
-	------------------
+	------------------------
 
     if not settings_loaded then
       s_difficulty = Json.load_setting(GAME_ID, "ui.difficulty", 1)
@@ -373,6 +461,22 @@ function ExampleScript:OnUpdate()
     Window.set_size_centered(960, 640)
     local windowW = Window.get_width()
     local windowH = Window.get_height()
+
+    -----------------------------------
+    -- Out of bounds check (Game Over)
+    -----------------------------------
+    if not gameOver then
+        local pos = Entity.get_global_pos(player1)
+        local birdY = Mafs.get_vec_y(pos)
+
+        local topLimit = -23
+
+        -- Game Over if flappybird is outside of window size
+        if birdY < topLimit then
+            triggerGameOver()
+            return
+        end
+    end
 
     -- ===================================================================================================== 
 	-- User Interface - button/checkbox/sliderFloat/radio button/dropdown/colour picker/child panel examples
@@ -697,7 +801,7 @@ function ExampleScript:OnUpdate()
     local vel = Fysics.get_linear_velocity(player1)
     local vx, vy = 0, Mafs.get_vec_y(vel)
 
-    if Input.get_key_down(Keys.ionix_space) then
+    if not inMainMenu and Input.get_key_down(Keys.ionix_space) then
         Fysics.set_gravity_scale(player1, 0.75)
         vy = -3
 
@@ -796,7 +900,7 @@ function ExampleScript:OnUpdate()
     -- UI
     UI.add_label(10, 10, 1000, 1000, pipeScoreText, "", 1.5)
     UI.add_label(10, 40, 1000, 1000, scoreText, "", 1.5)
-
+    UI.add_label(350, 290, 1000, 1000, text1, "", 2)
 end
 
 ----------------------------------------------------------
@@ -833,48 +937,9 @@ function ExampleScript:OnTriggerEnter(a, b)
     end
 end
 
-    ------------------------------------------------------
-	-- Game Over
-	------------------------------------------------------
-    local function triggerGameOver()
-    gameOver = true
-    restartDelayFrames = RESTART_DELAY_FRAMES
-
-    if gameOverSound then
-    AudioComponent.play(gameOverSound)
-    print("GameOver sound played")
-    end
-
-    for _, p in ipairs({pipe, pipeT, pipe2, pipeT2, pipe3, pipeT3}) do
-        Fysics.set_linear_velocity(p, 0, 0)
-    end
-
-    for _, c in ipairs(coins) do
-        Fysics.set_linear_velocity(c, 0, 0)
-        local s = Entity.get_sprite_component(c)
-        if s then Sprite.set_width(s, 0); Sprite.set_height(s, 0) end
-    end
-    
-    newHighScore = (Pscore > highscore)
-
-    if newHighScore then
-        highscore = Pscore
-        Json.save_high_score(GAME_ID, highscore)
-    end
-
-    text1 = "GAME OVER!! TRY AGAIN"
-    finalScoreText = "Final Score: " .. tostring(Pscore)
-    topScore = "Highscore: " .. tostring(highscore)
-    coinsText = "Coins Collected: " .. tostring(score)
-    local finalScoreText = "Final Score: 0"
-    local coinsText = ""
-    local text2 = ""
-    local topScore = "Highscore: "   
-end
-
-    ------------------------------------------------------
-	-- Collision
-	------------------------------------------------------
+------------------------------------------------------
+-- Collision
+------------------------------------------------------
 function ExampleScript:OnCollisionEnter(a, b)
     if gameOver then return end
 
