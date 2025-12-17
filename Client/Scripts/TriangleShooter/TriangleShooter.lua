@@ -37,6 +37,19 @@ local masterVol = Json.load_setting(GAME_ID, "audio.master", 0.80) or 0.80
 local musicVol  = Json.load_setting(GAME_ID, "audio.music",  0.80) or 0.80
 local sfxVol    = Json.load_setting(GAME_ID, "audio.sfx",    0.80) or 0.80
 
+-- WIP
+local musicEntity
+local musicVolume = 128
+local musicMuted = false
+local bpm = 133 
+local secondsPerBeat = 60.0 / bpm
+local beatTimer = 0
+local bopDurationSeconds = 8 / 60.0
+local bopTimer = 0
+local bopScale = 0.25
+local beatStartDelaySeconds = (8 * 4) * secondsPerBeat
+local beatStartDelayCounter = 0
+
 -- Controls
 local sensitivitySetting = Json.load_setting(GAME_ID, "controls.sensitivity", 1.0) or 1.0
 local function Clamp(v, a, b)
@@ -72,7 +85,6 @@ local function TryUpdateBestStage(stage)
         end
     end
 end
-
 
  --=====================================================================
  --  [HELPERS] Time
@@ -260,19 +272,6 @@ local knockbackBaseSpeed = 1200
 local knockbackDirX = 0
 local knockbackDirY = 0
 
--- MUSIC CONTROL
-local musicEntity
-local musicVolume = 128
-local musicMuted = false
-local bpm = 133 
-local secondsPerBeat = 60.0 / bpm
-local beatTimer = 0
-local bopDurationSeconds = 8 / 60.0
-local bopTimer = 0
-local bopScale = 0.25
-local beatStartDelaySeconds = (8 * 4) * secondsPerBeat
-local beatStartDelayCounter = 0
-
 local playerBaseImageWidth = playerSize
 local playerBaseImageHeight = playerSize
 local enemyBaseImageSize = enemySize
@@ -346,7 +345,7 @@ LoadLevel = function(index, resetPlayerState)
 
     currentLevel = index
 
-    -- Persist best stage + submit to leaderboard (only if improved)
+    -- Persist best stage + submit to leaderboard (only if higher stage than last time)
     TryUpdateBestStage(currentLevel)
     levelTimerSeconds = cfg.timeLimitSeconds or 0
 
@@ -847,18 +846,18 @@ local function DrawSettingsMenu(screenW, screenH, dt)
     local sliderW = math.floor(contentW * 0.58)
     local sliderX = math.floor((contentW - sliderW) / 2)
 
-    UI.add_centered_label(innerCX, 16, "Audio", "ImGuiDefaultBold", 1.5)
+    UI.add_centered_label(innerCX, 12, "Audio", "ImGuiDefaultBold", 1.8)
 
     local sliderStyle = {
     height = 18,        -- thickness
     rounding = 10,      -- track rounding
     grab_size = 16,     -- handle size (easier to grab)
     track = { 30, 30, 30, 220 },     -- RGBA (0-255)
-    grab  = { 74, 12, 255, 255 },    -- RGBA (0-255) (your purple accent)
+    grab  = { 74, 12, 255, 255 },    -- RGBA (0-255) purple accent)
     }
 
     local function DrawVolRow(title, id, value, y)
-        UI.add_centered_label(innerCX, y - 34, title, "", 1.1)
+        UI.add_centered_label(innerCX, y - 24 , title, "", 1.1)
 
         UI.add_slider_styled(sliderX, y, sliderW, "", id, 0.0, 1.0, value, nil, nil, " ", sliderStyle)
 
@@ -893,14 +892,13 @@ local function DrawSettingsMenu(screenW, screenH, dt)
         ApplyAudioVolumes()
     end
 
-    -- after SFX row
     local controlsHeaderY = y0 + gapY * 3 + 10
-    UI.add_centered_label(innerCX, controlsHeaderY, "Controls", "ImGuiDefaultBold", 1.5)
+    UI.add_centered_label(innerCX, controlsHeaderY, "Controls", "ImGuiDefaultBold", 1.8)
 
     local sensY = controlsHeaderY + 60
     -- draw sensitivity slider at sensY
 
-    UI.add_centered_label(innerCX, sensY - 34, "Sensitivity", "", 1.1)
+    UI.add_centered_label(innerCX, sensY - 24, "Sensitivity", "", 1.1)
     UI.add_slider_styled(sliderX, sensY, sliderW, "", "ts_sensitivity", 0.25, 2.50, sensitivitySetting, nil, nil, " ", sliderStyle)
 
     if UI.was_slider_changed("ts_sensitivity") then
