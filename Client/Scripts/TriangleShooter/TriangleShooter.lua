@@ -29,11 +29,20 @@ local showNamePrompt = false
 local pendingStartAfterName = false
 local namePromptError = ""
 
--- Per-game saved settings
+ --=====================================================================
+ --  [Settings] per-game saved settings
+ --=====================================================================
+ -- Audio
 local masterVol = Json.load_setting(GAME_ID, "audio.master", 0.80) or 0.80
 local musicVol  = Json.load_setting(GAME_ID, "audio.music",  0.80) or 0.80
 local sfxVol    = Json.load_setting(GAME_ID, "audio.sfx",    0.80) or 0.80
 
+-- Controls
+local sensitivitySetting = Json.load_setting(GAME_ID, "controls.sensitivity", 1.0) or 1.0
+
+ --=====================================================================
+ --  [STATE] Menu
+ --=====================================================================
 -- Menu screens: "main" | "leaderboard"
 local menuScreen = "main"
 local topLeaderboard = nil
