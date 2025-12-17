@@ -440,28 +440,34 @@ function ExampleScript:OnUpdate()
         local buttonW, buttonH = 200, 50
         local centerX = (windowW - buttonW) / 2
         local centerY = (windowH - buttonH) / 2
-        local gap = 20
+        local gap = 0
 
         ------------
         -- Main
         ------------
         if menuContext == "main" then
-            -- Play button
-            UI.add_button(centerX, centerY - (buttonH / 2) - gap, buttonW, buttonH, "Play", "playButton")
+            UI.add_button(centerX, centerY - 50 - (buttonH / 2) - gap - 20, buttonW, buttonH, "Play", "playButton")
 
-            -- Start game
+            UI.add_button(centerX, centerY + (buttonH / 2) - gap + 20, buttonW, buttonH, "Exit", "exitButton")
+
+            UI.add_button(centerX, centerY - (buttonH / 2) - gap, buttonW, buttonH, "Customise", "customiseButton")
+
+            -- Play button
             if UI.was_button_pressed("playButton") then
                 inMainMenu = false
                 resetGame()
-                print("Pressed Play Button: Started Game")
+                print("Clicked Play Button: Started Game")
             end
 
-            -- Exit
-            UI.add_button(centerX, centerY + (buttonH / 2) - gap + 20, buttonW, buttonH, "Exit", "exitButton")
-
+            -- Exit button
             if UI.was_button_pressed("exitButton") then
                 os.exit()
                 print("Quitting Game")
+            end
+
+            -- Customise button
+            if UI.was_button_pressed("customiseButton") then
+                print("Clicked Customise Button")
             end
         end
         
