@@ -922,13 +922,13 @@ local function DrawSettingsMenu(screenW, screenH, dt)
     true, NO_BACKGROUND, false)
 
     local innerCX = contentW / 2
-    local sliderW = math.floor(contentW * 0.58)
+    local sliderW = math.floor(contentW * 0.5)
     local sliderX = math.floor((contentW - sliderW) / 2)
 
     UI.add_centered_label(innerCX, 12, "Audio", "ImGuiDefaultBold", 1.8)
 
     local sliderStyle = {
-    height = 18,        -- thickness
+    height = 21,        -- thickness
     rounding = 10,      -- track rounding
     grab_size = 16,     -- handle size (easier to grab)
     track = { 30, 30, 30, 220 },     -- RGBA (0-255)
@@ -1163,13 +1163,13 @@ local function DrawPauseSettingsMenu(screenW, screenH, dt)
     false, NO_BACKGROUND, false)
 
     local innerCX = contentW / 2
-    local sliderW = math.floor(contentW * 0.58)
+    local sliderW = math.floor(contentW * 0.5)
     local sliderX = math.floor((contentW - sliderW) / 2)
 
     UI.add_centered_label(innerCX, 12, "Audio", "ImGuiDefaultBold", 1.8)
 
     local sliderStyle = {
-    height = 18,        -- thickness
+    height = 21,        -- thickness
     rounding = 10,      -- track rounding
     grab_size = 16,     -- handle size (easier to grab)
     track = { 30, 30, 30, 220 },     -- RGBA (0-255)
