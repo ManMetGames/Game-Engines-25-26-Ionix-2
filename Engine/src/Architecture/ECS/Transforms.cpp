@@ -12,7 +12,7 @@
 namespace IonixEngine
 {
     //TEMPORARY STAND-IN UNTIL ACTUAL NULL ID IS CREATED
-    EntityID nullID = 69420;
+    EntityID nullID = 500500;
 
     Transform::Transform(Entity* localEntity) :
         //position(Vec2{ 0.0f,0.0f }),
@@ -340,6 +340,11 @@ namespace IonixEngine
             SetGlobalPosition(oldPos);
             SetGlobalRotation(oldRot);
         }
+
+        Entity* rootEntityPointer = LayerScene::CurrentScene()->GetEntityFromID(rootEntityId);
+        rootEntityPointer->transform = *this;
+
+        //RecalculatePointers();
         //std::cout << "blahblah" << std::endl;
     }
 
@@ -373,6 +378,7 @@ namespace IonixEngine
         Entity* rootEntityPointer = LayerScene::CurrentScene()->GetEntityFromID(rootEntityId);
         rootEntityPointer->transform = *this;
 
+        //RecalculatePointers();
         //std::cout << "blahblah" << std::endl;
     }
 
