@@ -445,7 +445,6 @@ function ExampleScript:OnUpdate()
         ------------
         -- Main
         ------------
-
         if menuContext == "main" then
             -- Play button
             UI.add_button(centerX, centerY - (buttonH / 2) - gap, buttonW, buttonH, "Play", "playButton")
@@ -456,27 +455,43 @@ function ExampleScript:OnUpdate()
                 resetGame()
                 print("Pressed Play Button: Started Game")
             end
+
+            -- Exit
+            UI.add_button(centerX, centerY + (buttonH / 2) - gap + 20, buttonW, buttonH, "Exit", "exitButton")
+
+            if UI.was_button_pressed("exitButton") then
+                os.exit()
+                print("Quitting Game")
+            end
         end
         
         ------------
         -- In game
         ------------
         if menuContext == "ingame" then
-        UI.add_button(centerX, centerY - (buttonH / 2) - gap, buttonW, buttonH, "Resume", "resumeButton")
+        UI.add_button(centerX, centerY - 50 - (buttonH / 2) - gap - 20, buttonW, buttonH, "Resume", "resumeButton")
+
+        UI.add_button(centerX, centerY - (buttonH / 2) - gap, buttonW, buttonH, "Main Menu", "mainMenuButton")
+
+        UI.add_button(centerX, centerY + (buttonH / 2) - gap + 20, buttonW, buttonH, "Exit", "exitButton")
 
             if UI.was_button_pressed("resumeButton") then
                 inMainMenu = false
                 menuContext = "main"
                 print("Resumed Game")
             end
-        end
 
-        -- Exit always visible
-        UI.add_button(centerX, centerY + (buttonH / 2) - gap + 20, buttonW, buttonH, "Exit", "exitButton")
+            if UI.was_button_pressed("mainMenuButton") then
+                resetGame()
+                inMainMenu = true
+                menuContext = "main"
+                print("Switched to main menu")
+            end
 
-        if UI.was_button_pressed("exitButton") then
-            os.exit()
-            print("Quitting Game")
+            if UI.was_button_pressed("exitButton") then
+                os.exit()
+                print("Quitting Game")
+            end
         end
 
         return
