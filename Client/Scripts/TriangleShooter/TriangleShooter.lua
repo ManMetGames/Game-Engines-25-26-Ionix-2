@@ -445,18 +445,21 @@ LoadLevel = function(index, resetPlayerState)
         end
     end
 
-    playerHealth = TriangleShooterPlayerProgress.getMaxHealth()
-
      --=====================================================================
      --  [LOAD LEVEL] Reset Player State
      --=====================================================================
     if resetPlayerState then
+        playerHealth = TriangleShooterPlayerProgress.getMaxHealth()
         playerX = screenW / 2 - playerSize / 2
         playerY = screenH / 2 - playerSize / 2
         Entity.set_global_pos(player, playerX, playerY)
         Sprite.set_color(playerSprite, 255, 255, 255)
         playerFlashTimer = 0
         damageCooldown = 0
+    end
+
+    if playerHealth == nil or playerHealth <= 0 then
+        playerHealth = TriangleShooterPlayerProgress.getMaxHealth()
     end
 end
 
@@ -500,7 +503,7 @@ local function OnEnemyKilled()
 end
 
 local function OnLevelTimeout()
-    StartLevel(currentLevel, true)
+    StartLevel(currentLevel, false)
 end
 
  --=====================================================================
@@ -1224,7 +1227,12 @@ function TriangleShooter:OnUpdate()
      --  [ONUPDATE] Level Flow (Win / Lose / Timeout)
      --=====================================================================
     if playerHealth <= 0 then
-        StartLevel(currentLevel, true)
+        inMainMenu = true
+        menuScreen = "main"
+        Input.set_relative_mouse_mode(false)
+        ClearEnemies()
+        currentLevel = 1
+        StartLevel(1, true)
     elseif not enemiesAlive then
         if peaceTimerSeconds <= 0 then
             peaceTimerSeconds = peaceDurationSeconds
@@ -1771,8 +1779,11 @@ function UpdateBeatBop()
             local isTeleporting = state == "shrinking" or state == "growing" or state == "teleporting"
             if enemy and enemy.sprite and not isTeleporting then
                 local currentSize = enemy.displaySize or enemy.baseSize or enemy.size or enemyBaseImageSize
-                Sprite.set_image_width(enemy.sprite, math.floor(currentSize * scale))
-                Sprite.set_image_height(enemy.sprite, math.floor(currentSize * scale))
+                local scaledSize = math.floor(currentSize * scale)
+                Sprite.set_image_width(enemy.sprite, scaledSize)
+                Sprite.set_image_height(enemy.sprite, scaledSize)
+                local offset = (scaledSize - currentSize) / 2
+                Entity.set_global_pos(enemy.entity, enemy.x - offset, enemy.y - offset)
             end
         end
     else
@@ -1784,6 +1795,7 @@ function UpdateBeatBop()
                 local currentSize = enemy.displaySize or enemy.baseSize or enemy.size or enemyBaseImageSize
                 Sprite.set_image_width(enemy.sprite, math.floor(currentSize))
                 Sprite.set_image_height(enemy.sprite, math.floor(currentSize))
+                Entity.set_global_pos(enemy.entity, enemy.x, enemy.y)
             end
         end
     end
@@ -1805,7 +1817,7 @@ local function SpawnEnemySingleProjectile(enemy, dirX, dirY)
         projData = { entity = proj, sprite = sprite }
     end
     
-    local eSize = enemy.size or enemySize
+    local eSize = enemy.displaySize or enemy.size or enemySize
     local enemyCenterX = enemy.x + eSize/2
     local enemyCenterY = enemy.y + eSize/2
     local spawnX = enemyCenterX - enemyProjectileSize/2
@@ -1825,7 +1837,7 @@ local function SpawnEnemySingleProjectile(enemy, dirX, dirY)
 end
 
 function SpawnEnemyProjectile(enemy)
-    local eSize = enemy.size or enemySize
+    local eSize = enemy.displaySize or enemy.size or enemySize
     local enemyCenterX = enemy.x + eSize/2
     local enemyCenterY = enemy.y + eSize/2
     local playerCenterX = playerX + playerSize/2

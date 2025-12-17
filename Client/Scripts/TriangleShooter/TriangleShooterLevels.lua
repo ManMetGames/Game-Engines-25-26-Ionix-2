@@ -92,7 +92,6 @@ local ENEMY_TEMPLATES = {
                 orbitRadius = radius,
                 orbitSpeed = speed,
                 health = health,
-                color = {200, 100, 255},
                 shootInterval = 0.5 + math.random() * 0.4,
             }
         end,
@@ -113,7 +112,6 @@ local ENEMY_TEMPLATES = {
                 x = x,
                 y = y,
                 health = health,
-                color = {255, 100, 100},
                 shootPattern = "circle",
                 projectileCount = 6 + math.random(0, 4),
                 shootInterval = 0.3 + math.random() * 0.3,
