@@ -18,8 +18,8 @@ namespace IonixEngine
         //position(Vec2{ 0.0f,0.0f }),
         localRotation(0.0f),
         parentTransform(nullptr),
-        rootEntity(localEntity),
-        rootEntityId(localEntity->id)
+        rootEntityId(localEntity->id),
+        rootEntity(localEntity)
     {
         parentEntityId = nullID;
         localPosition = Vec2{ 0.0f,0.0f };
@@ -340,7 +340,7 @@ namespace IonixEngine
             SetGlobalPosition(oldPos);
             SetGlobalRotation(oldRot);
         }
-        std::cout << "blahblah" << std::endl;
+        //std::cout << "blahblah" << std::endl;
     }
 
     //maintainLocation = true will attempt to keep the transforms in the same place
@@ -373,7 +373,7 @@ namespace IonixEngine
         Entity* rootEntityPointer = LayerScene::CurrentScene()->GetEntityFromID(rootEntityId);
         rootEntityPointer->transform = *this;
 
-        std::cout << "blahblah" << std::endl;
+        //std::cout << "blahblah" << std::endl;
     }
 
     bool Transform::RemoveChild(Transform* removalChild)
@@ -427,21 +427,26 @@ namespace IonixEngine
 
     void Transform::RecalculatePointers()
     {
-        std::cout << "Recalculating pointers..." << std::endl;
+        //SDL_Log("Recalculating pointers...");
+        //std::cout << "Recalculating pointers..." << std::endl;
 
         Entity* rootEntityPointer = LayerScene::CurrentScene()->GetEntityFromID(rootEntityId);
-        std::cout << "Got root entity pointer..." << std::endl;
+        //SDL_Log("Got root entity pointer...");
+        //std::cout << "Got root entity pointer..." << std::endl;
 
         rootEntity = rootEntityPointer;
-        std::cout << "set rootentity to new pointer..." << std::endl;
+        //SDL_Log("set rootentity to new pointer...");
+        //std::cout << "set rootentity to new pointer..." << std::endl;
 
         rootEntityPointer->transform = *this;
-        std::cout << "set rootentity transform to this..." << std::endl;
+        //SDL_Log("set rootentity's transform to this...");
+        //std::cout << "set rootentity's transform to this..." << std::endl;
 
         //attempt 2, reset own pointers, do not consider pointers to self
         if (parentEntityId != nullID)
         {
-            std::cout << "Recalculating parent pointer..." << std::endl;
+            //std::cout << "Recalculating parent pointer..." << std::endl;
+            //SDL_Log("Recalculating parent pointer...");
             Entity* parentEntityPointer = LayerScene::CurrentScene()->GetEntityFromID(parentEntityId);
             parentTransform = &parentEntityPointer->transform;
             parentEntityPointer->transform = *parentTransform;
@@ -449,70 +454,39 @@ namespace IonixEngine
 
         for (size_t i = 0; i < childTransforms.size(); i++)
         {
-            std::cout << "Recalculating child pointer "<< i << "..." << std::endl;
+            //std::cout << "Recalculating child pointer "<< i << "..." << std::endl;
+            //SDL_Log("Recalculating child pointer %zu...", i);
             Entity* childEntityPointer = LayerScene::CurrentScene()->GetEntityFromID(childEntityIds[i]);
             childTransforms[i] = &childEntityPointer->transform;
             childEntityPointer->transform = *childTransforms[i];
         }
-        
-        //branch for re-setting parent's pointers
-        //go to parent transform, identify pointer to this transform, then perform reassignment
-        //if (parentEntityId != nullID)
-        //{
-        //    //need pointers to the real data, or edits will be ineffective
-        //    Entity* parentEntityPointer = LayerScene::CurrentScene()->GetEntityFromID(parentEntityId);
-        //    std::vector<Transform*>* parentChildPtrs = &parentEntityPointer->transform.childTransforms;
-        //    std::vector<EntityID> parentChildIds = parentEntityPointer->transform.childEntityIds;
-        //    for (size_t i = 0; i < parentChildIds.size(); i++)
-        //    {
-        //        EntityID id = parentChildIds.at(i);
-        //        if (id == parentEntityId)
-        //        {
-        //            parentChildPtrs->at(i) = this;
-        //        }
-        //    }
-        //}
-        //
-        //for (size_t i = 0; i < childEntityIds.size(); i++)
-        //{
-        //    EntityID childEntityId = childEntityIds.at(i);
-        //    Entity* childEntityPtr = LayerScene::CurrentScene()->GetEntityFromID(childEntityId);
-        //    childEntityPtr->transform.parentTransform = this;
-        //}
-        
-        //rootEntity->transform = *this;
-        //parentTransform = &rootEntity->transform;
 
-        //if (parentEntityId != 69420)
-        //{
-        //    Entity* parentEntity = LayerScene::CurrentScene()->GetEntityFromID(parentEntityId);
-        //    //parentEntity->transform = *this;
-        //    parentTransform = &parentEntity->transform;
-        //    for (int i = 0; i < parentTransform->childTransforms.size(); i++)
-        //    {
-        //        if (parentTransform->childEntityIds[i]== rootEntityId)
-        //        {
-        //            parentTransform->childTransforms[i] = this;
-        //        }
+        //if current transform has a parent, go to parent and assign pointer to this
+        if (parentEntityId != nullID)
+        {
+            Entity* parentEntityPointer = LayerScene::CurrentScene()->GetEntityFromID(parentEntityId);
+            Transform* parentTransform = &parentEntityPointer->transform;
+            for (size_t i = 0; i < parentTransform->childEntityIds.size(); i++)
+            {
+                EntityID* id = &parentTransform->childEntityIds[i];
+                if (*id == this->rootEntityId)
+                {
+                    *parentTransform->childTransforms[i] = *this;
+                }
+                else
+                {
+                    continue;
+                }
+            }
+        }
 
-        //    }
-        //}
-        //else
-        //{
-        //    parentTransform = nullptr;
-        //    
-        //}
-
-        //std::cout << "Reassigning transforms of child entities..." << std::endl;
-        //for (int i = 0; i < childTransforms.size(); i++)
-        //{
-        //    std::cout << i << std::endl;
-        //    Entity* childEntity = LayerScene::CurrentScene()->GetEntityFromID(childEntityIds[i]);
-        //    //childEntity->transform = *this;
-        //    childTransforms[i] = &childEntity->transform;
-        //    childTransforms[i]->parentTransform = this;
-        //}
-        std::cout << "Transform pointers recalculated..." << std::endl;
+        //for each child transform, navigate to them and reset pointers to self
+        for (size_t i = 0; i < childEntityIds.size(); i++)
+        {
+            Transform* childTransform = &LayerScene::CurrentScene()->GetEntityFromID(childEntityIds[i])->transform;
+            *childTransform->parentTransform = *this;
+        }        
+        //std::cout << "Transform pointers recalculated..." << std::endl;
     }
 
 }

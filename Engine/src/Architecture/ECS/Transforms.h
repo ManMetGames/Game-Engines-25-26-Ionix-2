@@ -13,14 +13,14 @@ namespace IonixEngine
 	class Transform
 	{
 	private:
-		std::vector<Transform*> childTransforms;
 		std::vector<EntityID> childEntityIds;
+		std::vector<Transform*> childTransforms;
 
-		Transform* parentTransform;
 		EntityID parentEntityId;
+		Transform* parentTransform;
 
-		Entity* rootEntity;
 		EntityID rootEntityId;
+		Entity* rootEntity;
 
 		Vec2 localPosition;
 		Vec2 localScale;
