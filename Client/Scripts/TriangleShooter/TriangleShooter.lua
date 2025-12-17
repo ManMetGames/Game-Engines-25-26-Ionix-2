@@ -838,8 +838,8 @@ local function DrawLeaderboardMenu(screenW, screenH, dt)
 
     local cx = panelW / 2
 
-    UI.add_centered_label(cx, math.floor(panelH * 0.14), "LEADERBOARD", "ImGuiDefaultBold", 2.6)
-    UI.add_centered_label(cx, math.floor(panelH * 0.22), "Top 10 Highest Stages", "", 1.2)
+    UI.add_centered_label(cx, math.floor(panelH * 0.05), "LEADERBOARD", "ImGuiDefaultBold", 2.6)
+    UI.add_centered_label(cx, math.floor(panelH * 0.13), "Top 10 Highest Stages", "", 1.2)
 
     if not leaderboardFetched then
         topLeaderboard = Firebase.retrieve_high_score(GAME_ID, 10)
@@ -847,7 +847,7 @@ local function DrawLeaderboardMenu(screenW, screenH, dt)
     end
 
     local listX = math.floor(panelW * 0.20)
-    local listY = math.floor(panelH * 0.30)
+    local listY = math.floor(panelH * 0.21)
     local lineH = 26
 
     if topLeaderboard then
@@ -908,18 +908,18 @@ local function DrawSettingsMenu(screenW, screenH, dt)
     )
 
     local cx = panelW / 2
-    local footerH = 110 -- space reserved for the Back button area
+    local footerH = 100 -- space reserved for the Back button area
     local contentX = 26
-    local contentY = math.floor(panelH * 0.16)  
+    local contentY = math.floor(panelH * 0.13)  
     local contentW = panelW - 52
     local contentH = panelH - contentY - footerH
 
-    UI.add_centered_label(cx, math.floor(panelH * 0.1), "SETTINGS", "ImGuiDefaultBold", 2.6)
+    UI.add_centered_label(cx, math.floor(panelH * 0.05), "SETTINGS", "ImGuiDefaultBold", 2.6)
 
     -- Child for scrollable content 
     local NO_BACKGROUND = 128
     UI.begin_child(contentX, contentY, contentW, contentH, "TS_SettingsContent",
-    false, NO_BACKGROUND, false)
+    true, NO_BACKGROUND, false)
 
     local innerCX = contentW / 2
     local sliderW = math.floor(contentW * 0.58)
@@ -1096,8 +1096,8 @@ local function DrawPauseLeaderboard(screenW, screenH, dt)
     )
 
     local cx = panelW / 2
-    UI.add_centered_label(cx, math.floor(panelH * 0.14), "LEADERBOARD", "ImGuiDefaultBold", 2.6)
-    UI.add_centered_label(cx, math.floor(panelH * 0.22), "Top 10 Highest Stages", "", 1.2)
+    UI.add_centered_label(cx, math.floor(panelH * 0.05), "LEADERBOARD", "ImGuiDefaultBold", 2.6)
+    UI.add_centered_label(cx, math.floor(panelH * 0.13), "Top 10 Highest Stages", "", 1.2)
 
     if not pauseLeaderboardFetched then
         pauseTopLeaderboard = Firebase.retrieve_high_score(GAME_ID, 10)
@@ -1105,7 +1105,7 @@ local function DrawPauseLeaderboard(screenW, screenH, dt)
     end
 
     local listX = math.floor(panelW * 0.20)
-    local listY = math.floor(panelH * 0.30)
+    local listY = math.floor(panelH * 0.21)
     local lineH = 26
 
     if pauseTopLeaderboard then
@@ -1149,13 +1149,13 @@ local function DrawPauseSettingsMenu(screenW, screenH, dt)
     )
 
     local cx = panelW / 2
-    local footerH = 110 -- space reserved for the Back button area
+    local footerH = 100 -- space reserved for the Back button area
     local contentX = 26
-    local contentY = math.floor(panelH * 0.16)  
+    local contentY = math.floor(panelH * 0.13)  
     local contentW = panelW - 52
     local contentH = panelH - contentY - footerH
 
-    UI.add_centered_label(cx, math.floor(panelH * 0.1), "SETTINGS", "ImGuiDefaultBold", 2.6)
+    UI.add_centered_label(cx, math.floor(panelH * 0.05), "SETTINGS", "ImGuiDefaultBold", 2.6)
 
     -- Child for scrollable content 
     local NO_BACKGROUND = 128
