@@ -64,6 +64,7 @@ sensitivitySetting = Clamp(sensitivitySetting, 0.25, 2.50)
  --  [STATE] Main/Pause Menus
  --=====================================================================
 -- Menu screens: "main" | "leaderboard" | "pause"
+local UI__COLOUR_THEME = { 44, 8, 160 }
 local menuScreen = "main"
 local topLeaderboard = nil
 local leaderboardFetched = false
@@ -92,6 +93,8 @@ local function TryUpdateBestStage(stage)
         end
     end
 end
+
+local pendingQuit = false
 
  --=====================================================================
  --  [HELPERS] Time
@@ -620,7 +623,7 @@ local function DrawNamePrompt(screenW, screenH)
     UI.begin_child(x, y, w, h, "TS_NamePrompt",
         true, 0,
         true, 0.96, 12, 28, 28, 28,
-        2.5, true, 0.85
+        0.1, true, 2
     )
 
     local cx = w / 2
@@ -695,13 +698,14 @@ local function DrawMainMenu(screenW, screenH, dt)
     UI.begin_child(panelX, panelY, panelW, panelH, "TS_MainMenu",
         true, 0,
         true, 0.92, 12, 25, 25, 25,
-        2.5, true, 0.85
+        0.01, false, 0.85,
+        UI__COLOUR_THEME[1], UI__COLOUR_THEME[2], UI__COLOUR_THEME[3], 1.0 -- RGBA border
     )
 
     local cx = panelW / 2
 
     -- Title / subtitle anchors (relative to panel height)
-    local titleY = math.floor(panelH * 0.16)
+    local titleY = math.floor(panelH * 0.08)
     local subY   = titleY + math.floor(panelH * 0.10)
 
     UI.add_centered_label(cx, titleY, "SYSTEM SHOOTER", "ImGuiDefaultBold", 3.0)
@@ -713,7 +717,7 @@ local function DrawMainMenu(screenW, screenH, dt)
     -- Buttons
     local bw, bh = math.floor(math.min(panelW * 0.62, 560)), 60
     local bx = math.floor((panelW - bw) / 2)
-    local by = math.floor(panelH * 0.48)
+    local by = math.floor(panelH * 0.38)
 
     -- Progress bar should sit just above the start button
     if menuStarting then
@@ -776,6 +780,16 @@ local function DrawMainMenu(screenW, screenH, dt)
         120, 120, 120, 0.95
     )
 
+    UI.add_button(bx, by + (bh + gap) * 3, bw, bh,
+    "EXIT GAME", "menu_exit",
+    "ImGuiDefaultBold", 1.1,
+    12, true,
+    120, 30, 30, 0.95
+    )
+
+    if (not menuStarting) and (not showNamePrompt) and UI.was_button_pressed("menu_exit") then
+        pendingQuit = true
+    end
     if (not menuStarting) and (not showNamePrompt) and UI.was_button_pressed("menu_settings") then
         menuScreen = "settings"
     end
@@ -786,9 +800,13 @@ local function DrawMainMenu(screenW, screenH, dt)
         leaderboardFetched = false
     end
 
-        UI.end_child()
+    UI.end_child()
 
-        if showNamePrompt then
+    if pendingQuit then
+        pendingQuit = false
+        Window.quit()
+    end
+    if showNamePrompt then
         DrawNamePrompt(screenW, screenH)
     end
 
@@ -805,7 +823,8 @@ local function DrawLeaderboardMenu(screenW, screenH, dt)
     UI.begin_child(panelX, panelY, panelW, panelH, "TS_Leaderboard",
         true, 0,
         true, 0.92, 12, 25, 25, 25,
-        2.5, true, 0.85
+        0.01, false, 0.85,
+        UI__COLOUR_THEME[1], UI__COLOUR_THEME[2], UI__COLOUR_THEME[3], 1.0 -- RGBA border
     )
 
     local cx = panelW / 2
@@ -876,7 +895,8 @@ local function DrawSettingsMenu(screenW, screenH, dt)
     UI.begin_child(panelX, panelY, panelW, panelH, "TS_Settings",
         true, 0,
         true, 0.92, 12, 25, 25, 25,
-        2.5, true, 0.85
+        0.01, false, 0.85,
+        UI__COLOUR_THEME[1], UI__COLOUR_THEME[2], UI__COLOUR_THEME[3], 1.0 -- RGBA border
     )
 
     local cx = panelW / 2
@@ -998,7 +1018,8 @@ local function DrawPauseMenu(screenW, screenH, dt)
     UI.begin_child(panelX, panelY, panelW, panelH, "TS_PauseMenu",
         true, 0,
         true, 0.92, 12, 25, 25, 25,
-        2.5, true, 0.85
+        0.01, false, 0.85,
+        UI__COLOUR_THEME[1], UI__COLOUR_THEME[2], UI__COLOUR_THEME[3], 1.0 -- RGBA border
     )
 
     local cx = panelW / 2
@@ -1019,8 +1040,8 @@ local function DrawPauseMenu(screenW, screenH, dt)
     UI.add_button(bx, y0 + (bh + gap) * 2, bw, bh, "LEADERBOARD", "pause_leaderboard",
         "ImGuiDefaultBold", 1.0, 12, true, 74, 12, 255, 0.90)
 
-    UI.add_button(bx, y0 + (bh + gap) * 3, bw, bh, "QUIT", "pause_mainmenu",
-        "ImGuiDefaultBold", 1.0, 12, true, 170, 25, 25, 0.90)
+    UI.add_button(bx, y0 + (bh + gap) * 3, bw, bh, "BACK TO MAIN MENU", "pause_mainmenu",
+        "ImGuiDefaultBold", 1.0, 12, true, 120, 30, 30, 0.90)
 
     if UI.was_button_pressed("pause_resume") then
         SetPaused(false)
@@ -1063,7 +1084,8 @@ local function DrawPauseLeaderboard(screenW, screenH, dt)
     UI.begin_child(panelX, panelY, panelW, panelH, "TS_PauseLeaderboard",
         true, 0,
         true, 0.92, 12, 25, 25, 25,
-        2.5, true, 0.85
+        0.01, false, 0.85,
+        UI__COLOUR_THEME[1], UI__COLOUR_THEME[2], UI__COLOUR_THEME[3], 1.0 -- RGBA border
     )
 
     local cx = panelW / 2
@@ -1116,7 +1138,8 @@ local function DrawPauseSettingsMenu(screenW, screenH, dt)
     UI.begin_child(panelX, panelY, panelW, panelH, "TS_Settings",
         true, 0,
         true, 0.92, 12, 25, 25, 25,
-        2.5, true, 0.85
+        0.1, false, 0.85,
+        UI__COLOUR_THEME[1], UI__COLOUR_THEME[1], UI__COLOUR_THEME[1], 1.0
     )
 
     local cx = panelW / 2
