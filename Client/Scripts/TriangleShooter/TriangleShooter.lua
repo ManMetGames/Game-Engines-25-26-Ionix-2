@@ -340,11 +340,87 @@ local impact3SfxEntity
 local currentLevel = 1
 local levelTimerSeconds = 0
 
+-- Run stats (per attempt; used for Game Over summary)
+local runTimeSeconds = 0
+local runEnemiesKilled = 0
+local runShotsFired = 0
+local runShotsHit = 0 -- fired projectiles that hit at least once
+local runDamageDealt = 0
+local runDamageTaken = 0
+local runHealingCollected = 0
+
+-- Game Over state + snapshot
+local isGameOver = false
+local endRunSummary = nil
+
 -- Main Menu
 local inMainMenu = true
 local menuStarting = false
 local menuStartDelay = 2
 local menuStartTimer = 0
+
+--=====================================================================
+--  [RUN STATS] Helpers
+--=====================================================================
+local function ResetRunStats()
+    runTimeSeconds = 0
+    runEnemiesKilled = 0
+    runShotsFired = 0
+    runShotsHit = 0
+    runDamageDealt = 0
+    runDamageTaken = 0
+    runHealingCollected = 0
+    endRunSummary = nil
+end
+
+local function FormatTimeMMSS(seconds)
+    seconds = seconds or 0
+    if seconds < 0 then seconds = 0 end
+    local total = math.floor(seconds + 0.5)
+    local mm = math.floor(total / 60)
+    local ss = total % 60
+    return string.format("%02d:%02d", mm, ss)
+end
+
+local function CaptureEndRunSummary()
+    local bullets = TriangleShooterPlayerProgress.getBulletCount()
+    local pierce  = TriangleShooterPlayerProgress.getPierceCount()
+    local bounce  = TriangleShooterPlayerProgress.getBounceCount()
+    local fireI   = TriangleShooterPlayerProgress.getCurrentFireInterval()
+    local maxHP   = TriangleShooterPlayerProgress.getMaxHealth()
+
+    local pLevel, pXp, pXpToNext = TriangleShooterPlayerProgress.getProgress()
+
+    return {
+        stageReached = currentLevel or 1,
+        playerLevel = pLevel or 1,
+        xp = pXp or 0,
+        timeSurvived = runTimeSeconds or 0,
+        enemiesKilled = runEnemiesKilled or 0,
+        shotsFired = runShotsFired or 0,
+        shotsHit = runShotsHit or 0,
+        damageDealt = runDamageDealt or 0,
+        damageTaken = runDamageTaken or 0,
+        healingCollected = runHealingCollected or 0,
+        build = {
+            bullets = bullets or 1,
+            pierce = pierce or 0,
+            bounce = bounce or 0,
+            fireInterval = fireI or 0.5,
+            maxHealth = maxHP or 100,
+        }
+    }
+end
+
+local function TriggerGameOver()
+    if isGameOver then return end
+    isGameOver = true
+    endRunSummary = CaptureEndRunSummary()
+    -- show cursor for menu
+    Input.set_relative_mouse_mode(false)
+    -- stop firing immediately
+    isFiring = false
+end
 
 local function Clamp01(v)
     if v < 0 then return 0 end
@@ -746,6 +822,10 @@ local function DrawMainMenu(screenW, screenH, dt)
             inMainMenu = false
             menuScreen = "main"
             Input.set_relative_mouse_mode(true)
+            ResetRunStats()
+            TriangleShooterPickups.clearAll()
+            TriangleShooterPlayerProgress.reset()
+            isGameOver = false
             StartLevel(1, true)
         end
     end
@@ -919,7 +999,7 @@ local function DrawSettingsMenu(screenW, screenH, dt)
     -- Child for scrollable content 
     local NO_BACKGROUND = 128
     UI.begin_child(contentX, contentY, contentW, contentH, "TS_SettingsContent",
-    true, NO_BACKGROUND, false)
+    false, NO_BACKGROUND, false)
 
     local innerCX = contentW / 2
     local sliderW = math.floor(contentW * 0.5)
@@ -1063,6 +1143,134 @@ local function DrawPauseMenu(screenW, screenH, dt)
 
     UI.end_child()
 end
+
+
+local function DrawGameOverMenu(screenW, screenH, dt)
+    UI.add_panel(0, 0, screenW, screenH, 0.65, 0, 0, 0, 0)
+
+    local panelW = math.floor(math.max(720, math.min(screenW * 0.72, 980)))
+    local panelH = math.floor(math.max(560, math.min(screenH * 0.78, 760)))
+    local panelX = math.floor((screenW - panelW) / 2)
+    local panelY = math.floor((screenH - panelH) / 2)
+
+    UI.begin_child(panelX, panelY, panelW, panelH, "TS_GameOver",
+        true, 0,
+        true, 0.92, 12, 25, 25, 25,
+        2.5, true, 1.35
+    )
+
+    local cx = panelW / 2
+    UI.add_centered_label(cx, math.floor(panelH * 0.08), "GAME OVER", "ImGuiDefaultBold", 2.8)
+    UI.add_centered_label(cx, math.floor(panelH * 0.16), "End of Run Summary", "", 1.1)
+
+    local summary = endRunSummary or CaptureEndRunSummary()
+    local shotsFired = tonumber(summary.shotsFired or 0) or 0
+    local shotsHit = tonumber(summary.shotsHit or 0) or 0
+
+    local accuracyText = "—"
+    if shotsFired > 0 then
+        local pct = (shotsHit / shotsFired) * 100.0
+        accuracyText = string.format("%.0f%%", pct)
+    end
+
+    -- Summary panel
+    local sumW = math.floor(panelW * 0.90)
+    local sumH = math.floor(panelH * 0.54)
+    local sumX = math.floor((panelW - sumW) / 2)
+    local sumY = math.floor(panelH * 0.22)
+
+    UI.begin_child(sumX, sumY, sumW, sumH, "TS_EndRunSummary",
+        true, 0,
+        true, 0.55, 10, 15, 15, 15,
+        1.0, true, 1.25
+    )
+
+    local scx = sumW / 2
+    UI.add_centered_label(scx, 10, "RUN SUMMARY", "ImGuiDefaultBold", 1.6)
+
+    local leftX = 20
+    local rightX = math.floor(sumW * 0.56)
+    local lineH = 26
+
+    local y = 46
+    local function AddKV(x, yy, k, v, isBold)
+        UI.add_label(x, yy, 0, 0, tostring(k), isBold and "ImGuiDefaultBold" or "", 1.05)
+        UI.add_label(x + math.floor(sumW * 0.28), yy, 0, 0, tostring(v), "", 1.05)
+    end
+
+    -- Left column: results + combat
+    AddKV(leftX, y, "Final score", summary.stageReached or 1, true); y = y + lineH
+    AddKV(leftX, y, "Level reached", summary.playerLevel or 1, true); y = y + lineH
+    AddKV(leftX, y, "Time survived", FormatTimeMMSS(summary.timeSurvived or 0), true); y = y + lineH
+    AddKV(leftX, y, "Enemies killed", summary.enemiesKilled or 0, true); y = y + lineH
+
+    y = y + 10
+    UI.add_label(leftX, y, 0, 0, "COMBAT", "ImGuiDefaultBold", 1.2); y = y + lineH
+    AddKV(leftX, y, "Accuracy", accuracyText, false); y = y + lineH
+    AddKV(leftX, y, "Damage dealt", summary.damageDealt or 0, false); y = y + lineH
+    AddKV(leftX, y, "Damage taken", summary.damageTaken or 0, false); y = y + lineH
+    AddKV(leftX, y, "Healing collected", summary.healingCollected or 0, false); y = y + lineH
+
+    -- Right column: build recap
+    local b = summary.build or {}
+    local ry = 46
+    UI.add_label(rightX, ry, 0, 0, "BUILD RECAP", "ImGuiDefaultBold", 1.2); ry = ry + lineH
+
+    UI.add_label(rightX, ry, 0, 0, "Bullets: " .. tostring(b.bullets or 1), "", 1.05); ry = ry + lineH
+    UI.add_label(rightX, ry, 0, 0, "Pierce: " .. tostring(b.pierce or 0), "", 1.05); ry = ry + lineH
+    UI.add_label(rightX, ry, 0, 0, "Bounce: " .. tostring(b.bounce or 0), "", 1.05); ry = ry + lineH
+    UI.add_label(rightX, ry, 0, 0, string.format("Fire interval: %.2fs", tonumber(b.fireInterval or 0.5) or 0.5), "", 1.05); ry = ry + lineH
+    UI.add_label(rightX, ry, 0, 0, "Max HP: " .. tostring(b.maxHealth or 100), "", 1.05)
+
+    UI.end_child()
+
+    -- Buttons
+    local totalW = math.floor(panelW * 0.90)
+    local gap = 16
+    local bw = math.floor((totalW - gap) / 2)
+    local bh = 56
+    local bx = math.floor((panelW - totalW) / 2)
+    local by = math.floor(panelH * 0.80)
+
+    UI.add_button(bx, by, bw, bh,
+        "RETRY", "gameover_retry",
+        "ImGuiDefaultBold", 1.1,
+        12, true,
+        74, 12, 255, 0.95
+    )
+
+    UI.add_button(bx + bw + gap, by, bw, bh,
+        "BACK TO MAIN MENU", "gameover_mainmenu",
+        "ImGuiDefaultBold", 1.1,
+        12, true,
+        120, 30, 30, 0.95
+    )
+
+    if UI.was_button_pressed("gameover_retry") then
+        isGameOver = false
+        ResetRunStats()
+        TriangleShooterPickups.clearAll()
+        TriangleShooterPlayerProgress.reset()
+        ClearEnemies()
+        ClearAllPlayerProjectiles()
+        ClearAllEnemyProjectiles()
+        Input.set_relative_mouse_mode(true)
+        StartLevel(1, true)
+
+    elseif UI.was_button_pressed("gameover_mainmenu") then
+        isGameOver = false
+        ResetRunStats()
+        TriangleShooterPickups.clearAll()
+        TriangleShooterPlayerProgress.reset()
+        ClearEnemies()
+        ClearAllPlayerProjectiles()
+        ClearAllEnemyProjectiles()
+        GoToMainMenuFromPause()
+    end
+
+    UI.end_child()
+end
+
 
 local function GetEscapeKey()
     if Keys then
@@ -1313,6 +1521,13 @@ function TriangleShooter:OnUpdate()
         return
     end
 
+    if isGameOver then
+        screenW = Window.get_width()
+        screenH = Window.get_height()
+        DrawGameOverMenu(screenW, screenH, dt)
+        return
+    end
+
     if fireCooldownTimer > 0 then
         fireCooldownTimer = fireCooldownTimer - dt
         if fireCooldownTimer < 0 then
@@ -1389,7 +1604,11 @@ function TriangleShooter:OnUpdate()
         return
     end
 
-     --=====================================================================
+    
+
+    -- Track run time (excludes menus, pause, transitions, and upgrade screens)
+    runTimeSeconds = runTimeSeconds + dt
+ --=====================================================================
      --  [ONUPDATE] World Bounds (Walls / Window)
      --=====================================================================
     -- Update wall lerps
@@ -1539,7 +1758,12 @@ function TriangleShooter:OnUpdate()
     local maxHealth = TriangleShooterPlayerProgress.getMaxHealth()
     local healAmount = TriangleShooterPickups.checkPlayerCollision(playerX, playerY, playerSize, maxHealth)
     if healAmount then
+        local before = playerHealth
         playerHealth = math.min(maxHealth, playerHealth + healAmount)
+        local actual = playerHealth - before
+        if actual > 0 then
+            runHealingCollected = runHealingCollected + actual
+        end
     end
     
     -- Update flash effect
@@ -1624,25 +1848,9 @@ function TriangleShooter:OnUpdate()
      --  [ONUPDATE] Level Flow (Win / Lose / Timeout)
      --=====================================================================
     if playerHealth <= 0 then
-        inMainMenu = true
-        menuScreen = "main"
-        Input.set_relative_mouse_mode(false)
- 
-        local targetW, targetH = 1280, 720
-        local displayWidth = Window.get_display_width()
-        local displayHeight = Window.get_display_height()
-        local newX = math.floor((displayWidth - targetW) * 0.5)
-        local newY = math.floor((displayHeight - targetH) * 0.5)
-        Window.set_pos(newX, newY)
-        Window.set_size(targetW, targetH)
-        screenW = targetW
-        screenH = targetH
- 
-        ClearEnemies()
-        TriangleShooterPickups.clearAll()
-        TriangleShooterPlayerProgress.reset()
-        currentLevel = 1
-        StartLevel(1, true)
+        TriggerGameOver()
+        return
+    
     elseif not enemiesAlive then
         if peaceTimerSeconds <= 0 then
             peaceTimerSeconds = peaceDurationSeconds
@@ -1688,6 +1896,7 @@ local function SpawnPlayerSingleProjectile(spawnX, spawnY, dirX, dirY, pierceCou
     projData.bounceRemaining = bounceCount or 0
     projData.maxLifetime = projectileLifetimeSeconds + (bounceCount * 2.5)
     projData.hitEnemies = {}
+    projData.hasHit = false
 
     table.insert(projectiles, projData)
 end
@@ -1707,6 +1916,7 @@ function SpawnProjectile()
     if not shots then
         return
     end
+    runShotsFired = runShotsFired + #shots
 
     for i = 1, #shots do
         local s = shots[i]
@@ -1789,6 +1999,11 @@ function UpdateProjectiles()
 
         if hitEnemyIndex ~= nil then
             local enemy = enemies[hitEnemyIndex]
+            if not proj.hasHit then
+                proj.hasHit = true
+                runShotsHit = runShotsHit + 1
+            end
+            runDamageDealt = runDamageDealt + 1
             enemy.health = (enemy.health or 0) - 1
             TriangleShooterPlayerProgress.addXp(1)
             FlashEnemy(enemy)
@@ -1811,6 +2026,7 @@ function UpdateProjectiles()
                 local deathX = enemy.x + eSize / 2
                 local deathY = enemy.y + eSize / 2
                 TriangleShooterPickups.trySpawnHealingOrb(deathX, deathY)
+                runEnemiesKilled = runEnemiesKilled + 1
                 
                 Entity.set_global_pos(enemy.entity, -1000, -1000)
                 table.remove(enemies, hitEnemyIndex)
@@ -2014,6 +2230,7 @@ function UpdateEnemyCollision()
             knockbackTimer = knockbackDuration
 
             playerHealth = playerHealth - 10
+            runDamageTaken = runDamageTaken + 10
             FlashPlayer()
             damageCooldown = damageCooldownDuration
             if playerDamageSfxEntity then
@@ -2085,6 +2302,7 @@ function SpawnBeam(enemy, fromX, fromY, toX, toY)
         local hitRadius = playerRadius + BEAM_RADIUS
         if distToPlayerSq < hitRadius * hitRadius then
             playerHealth = playerHealth - BEAM_DAMAGE
+            runDamageTaken = runDamageTaken + (BEAM_DAMAGE or 0)
             FlashPlayer()
             damageCooldown = damageCooldownDuration
         end
@@ -2326,6 +2544,7 @@ function UpdateEnemyProjectiles()
         if distSq < hitRadius * hitRadius and damageCooldown <= 0 then
             -- Hit player
             playerHealth = playerHealth - 5
+            runDamageTaken = runDamageTaken + 5
             FlashPlayer()
             damageCooldown = damageCooldownDuration
             Entity.set_global_pos(proj.entity, -1000, -1000)
