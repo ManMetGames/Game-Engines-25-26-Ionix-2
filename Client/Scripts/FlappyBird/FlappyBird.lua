@@ -448,9 +448,11 @@ function ExampleScript:OnUpdate()
         if menuContext == "main" then
             UI.add_button(centerX, centerY - 50 - (buttonH / 2) - gap - 20, buttonW, buttonH, "Play", "playButton")
 
-            UI.add_button(centerX, centerY + (buttonH / 2) - gap + 20, buttonW, buttonH, "Exit", "exitButton")
+            UI.add_button(centerX, centerY + 70 + (buttonH / 2) - gap + 20, buttonW, buttonH, "Exit", "exitButton")
 
             UI.add_button(centerX, centerY - (buttonH / 2) - gap, buttonW, buttonH, "Customise", "customiseButton")
+
+            UI.add_button(centerX, centerY + 50 - (buttonH / 2) - gap + 20, buttonW, buttonH, "Settings", "settingsButton")
 
             -- Play button
             if UI.was_button_pressed("playButton") then
@@ -468,6 +470,11 @@ function ExampleScript:OnUpdate()
             -- Customise button
             if UI.was_button_pressed("customiseButton") then
                 print("Clicked Customise Button")
+            end
+
+            -- Settings button
+            if UI.was_button_pressed("settingsButton") then
+                print("Clicked Settings Button")
             end
         end
         
