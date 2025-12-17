@@ -8,53 +8,63 @@ namespace IonixEngine {
     void Scene::OnEnter() {
         SDL_Log("[Scene] Started Scene");
         //m_Entities.reserve(50);
-        Reserve(50);
+        Reserve(1);
         renderData.renderer = Application::Get().GetWindow().GetSdlRenderer();
         renderData.queue = Application::Get().layerGraphics->GetQueue();
 
-        //EntityID first = CreateEntity();
-        //Entity* firstEntity = GetEntityFromID(first);
+        EntityID first = CreateEntity();
+        std::cout << "something" << std::endl;
+        Entity* firstEntity = GetEntityFromID(first);
+        std::cout << "something" << std::endl;
         //if (!firstEntity)
         //{
         //    SDL_Log("[DEBUG TEST] First entity failed, returning...");
         //    return;
         //}
-        //firstEntity->transform.SetLocalPosition(Vec2 { 500, 300 });
-        //firstEntity->AddComponent(new SpriteRenderer(firstEntity));
-        //firstEntity->AddComponent(new EntityMover(firstEntity, 60));
-        //// firstEntity->transform.SetLocalScale(Vec2{ 0.5,1.5 });
+        firstEntity->transform.SetLocalPosition(Vec2 { 500, 300 });
+        firstEntity->transform.SetLocalScale(Vec2{ 2,2 });
+        firstEntity->AddComponent(new SpriteRenderer(firstEntity));
+        firstEntity->AddComponent(new EntityMover(firstEntity, 60));
 
-        //EntityID second = CreateEntity();
-        //Entity* secondEntity = GetEntityFromID(second);
-        //if (!secondEntity)
-        //{
-        //    SDL_Log("[DEBUG TEST] Second entity failed, returning...");
-        //    return;
-        //}
-        //secondEntity->transform.SetLocalPosition(Vec2{ 0, 100 });
-        //secondEntity->transform.SetParent(&firstEntity->transform, false);
+        EntityID second = CreateEntity();
+        Entity* secondEntity = GetEntityFromID(second);
+        if (!secondEntity)
+        {
+            SDL_Log("[DEBUG TEST] Second entity failed, returning...");
+            return;
+        }
+        secondEntity->transform.SetLocalPosition(Vec2{ 0, 100 });
+        secondEntity->transform.SetParent(&firstEntity->transform, false);
         //secondEntity->transform.SetLocalScale(Vec2{ 1.3,1.25 });
-        //secondEntity->AddComponent(new SpriteRenderer(secondEntity));
-        //secondEntity->AddComponent(new EntityMover(secondEntity, -60));
+        secondEntity->AddComponent(new SpriteRenderer(secondEntity));
+        secondEntity->AddComponent(new EntityMover(secondEntity, -60));
 
-        //EntityID third = CreateEntity();
-        //Entity* thirdEntity = GetEntityFromID(third);
-        //if (!thirdEntity)
+        EntityID third = CreateEntity();
+        Entity* thirdEntity = GetEntityFromID(third);
+        if (!thirdEntity)
+        {
+            SDL_Log("[DEBUG TEST] Third entity failed, returning...");
+            return;
+        }
+        thirdEntity->transform.SetLocalPosition(Vec2{ 0, -100 });
+        thirdEntity->transform.SetParent(&secondEntity->transform, false);
+        thirdEntity->AddComponent(new SpriteRenderer(thirdEntity));
+
+        SDL_Log("Entities created...");
+        //Reserve(5000);
+
+        //for (size_t i = 0; i < m_Entities.size(); i++)
         //{
-        //    SDL_Log("[DEBUG TEST] Third entity failed, returning...");
-        //    return;
+        //    Entity* entity = &m_Entities[i];
+        //    entity->transform.RecalculatePointers();
         //}
-        //thirdEntity->transform.SetLocalPosition(Vec2{ 0, -100 });
-        //thirdEntity->transform.SetParent(&secondEntity->transform, false);
-        //thirdEntity->AddComponent(new SpriteComponent(thirdEntity, "ball",100,100, 0));
-        
     }
 
     void Scene::OnUpdate(float dt) {
         // SDL_Log("[DEBUG TEST] Scene OnUpdate running...");
         for (size_t i = 0; i < m_Entities.size(); i++) {
             Entity* entity = &m_Entities[i];
-            // SDL_Log("[DEBUG TEST] Updating entity %zu",i);
+            SDL_Log("[DEBUG TEST] Updating entity %zu",i);
             entity->Update(dt);
             // SDL_Log("[DEBUG TEST] Rendering entity %zu", i);
             //SDL_Log("[DEBUG] entity #%zu pos at: X: %f, Y: %f", i, entity->transform.GetGlobalPosition().x, entity->transform.GetGlobalPosition().y);
@@ -74,13 +84,28 @@ namespace IonixEngine {
     void Scene::Reserve(std::size_t count) {
         m_Entities.reserve(count);
         m_IdToIndex.reserve(count * 2);
+        //for (Entity entity : m_Entities)
+        //{
+        //    std::cout << "[DEBUG] Recalculating Transform Pointers..." << std::endl;
+        //    entity.transform.RecalculatePointers();
+        //}
     }
 
     EntityID Scene::CreateEntity() {
         const EntityID entityId = m_NextId++;
         const std::size_t index = m_Entities.size();
+        bool resize = m_Entities.size() == m_Entities.capacity();
         m_Entities.push_back(Entity{ entityId });
         m_IdToIndex[entityId] = index;
+        if (resize)
+        {
+            for (size_t i = 0; i < m_Entities.size(); i++)
+            {
+                Entity* entity = &m_Entities[i];
+                std::cout << "[DEBUG] Recalculating Transform Pointers..." << std::endl;
+                entity->transform.RecalculatePointers();
+            }
+        }
         return entityId;
     }
 

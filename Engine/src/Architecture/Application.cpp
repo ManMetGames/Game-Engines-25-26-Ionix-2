@@ -59,30 +59,30 @@ namespace IonixEngine
         //layerNavigation = new LayerNavigation();  
         //AddLayer(layerNavigation);
 
-        Scripting::Get().Init();
-        // Safely load the Lua settings file
-        auto& lua = Scripting::Get().GetLuaState();
-        try
-        {
-            lua.script_file("Scripts/Settings.lua");
-        }
-        catch (const sol::error& e)
-        {
-            // Prefer your own logging system if you have one
-            std::cerr << "Lua error while loading Scripts/Settings.lua: "
-                      << e.what() << std::endl;
-            // Optionally: set a flag or fall back to default settings here.
-        }
-        catch (const std::exception& e)
-        {
-            std::cerr << "Std exception while loading Scripts/Settings.lua: "
-                      << e.what() << std::endl;
-        }
-        catch (...)
-        {
-            std::cerr << "Unknown exception while loading Scripts/Settings.lua"
-                      << std::endl;
-        }
+        //Scripting::Get().Init();
+        //// Safely load the Lua settings file
+        //auto& lua = Scripting::Get().GetLuaState();
+        //try
+        //{
+        //    lua.script_file("Scripts/Settings.lua");
+        //}
+        //catch (const sol::error& e)
+        //{
+        //    // Prefer your own logging system if you have one
+        //    std::cerr << "Lua error while loading Scripts/Settings.lua: "
+        //              << e.what() << std::endl;
+        //    // Optionally: set a flag or fall back to default settings here.
+        //}
+        //catch (const std::exception& e)
+        //{
+        //    std::cerr << "Std exception while loading Scripts/Settings.lua: "
+        //              << e.what() << std::endl;
+        //}
+        //catch (...)
+        //{
+        //    std::cerr << "Unknown exception while loading Scripts/Settings.lua"
+        //              << std::endl;
+        //}
     }
         
     Application::~Application() 
@@ -112,6 +112,9 @@ namespace IonixEngine
         m_LastFrameTime = SDL_GetTicks64();
         m_FixedTimeAccumulator = 0.0f;
         m_FixedTimeStep = 1.0f / 60.0f; // 60 Hz
+
+        //m_FixedTimeAccumulator = 5.0f;
+        //m_FixedTimeStep = 0.1f;
         
         while (m_Running)
         {
@@ -141,12 +144,44 @@ namespace IonixEngine
             }
             
             // variable update loop
-            for (auto layer : m_LayerStack.GetLayers())
+            for (size_t i = 0; i < m_LayerStack.GetLayers().size(); i++)
+                //for (auto layer : m_LayerStack.GetLayers())
             {
-                if(layer)
+                SDL_Log("Evaluating layer at index: %zu", i);
+                switch (i)
+                {
+                case 2:
+                    SDL_Log("'Fysics' Layer");
+                    break;
+                case 3:
+                    SDL_Log("Sound Layer");
+                    break;
+                case 4:
+                    SDL_Log("UI Layer");
+                    break;
+                case 5:
+                    SDL_Log("Texture Layer");
+                    break;
+                case 6:
+                    SDL_Log("Graphics Layer");
+                    break;
+                case 7:
+                    SDL_Log("Scene Layer");
+                    break;
+                default:
+                    break;
+                }
+                auto layer = m_LayerStack.GetLayers()[i];
+                if (layer)
+                {
                     layer->OnUpdate();
+
+                    SDL_Log("Updated layer...");
+                }
+
             }
-            
+            SDL_Log("Completed layer update cycle");
+
             Scripting::Get().CallHook("OnUpdate");
             ImGui::Render();
             
