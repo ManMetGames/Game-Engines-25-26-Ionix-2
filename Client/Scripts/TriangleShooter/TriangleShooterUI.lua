@@ -9,7 +9,7 @@ local selectedIndex = 0        -- 0 = none
 -- Confirm countdown (keeps menu open briefly so game doesn't resume instantly)
 local confirmPending = false
 local confirmTimer = 0
-local confirmDuration = 0.6    -- tweak: 0.5-0.8 feels good
+local confirmDuration = 1.0    -- tweak: 0.5-0.8 feels good
 
 -- Theme
 local OVERLAY_ALPHA = 0.55
@@ -106,6 +106,13 @@ if not isUpgradeMenuOpen then return end
   -- Dim background
   UI.add_panel(0, 0, screenW, screenH, OVERLAY_ALPHA, 0, 0, 0, 0)
 
+  if confirmPending then
+    local elapsed = confirmDuration - confirmTimer
+    if elapsed < 0 then elapsed = 0 end
+    UI.draw_progress_bar(screenW/2 - 100, 80, 200, 10, confirmDuration, elapsed, 4)
+    return
+  end
+
   -- Responsive layout based on window size
   local marginX = math.max(20, math.floor(screenW * 0.05))
   local marginY = math.max(20, math.floor(screenH * 0.08))
@@ -199,13 +206,6 @@ if not isUpgradeMenuOpen then return end
     BTN_ROUND, true,
     cr, cg, cb, 0.90
   )
-
-  -- Countdown bar (same look/placement as between-level bar)
-  if confirmPending then
-    local elapsed = confirmDuration - confirmTimer
-    if elapsed < 0 then elapsed = 0 end
-    UI.draw_progress_bar(screenW/2 - 100, 80, 200, 10, confirmDuration, elapsed, 4)
-  end
 end
 
 function TriangleShooterUI.handleInput()
