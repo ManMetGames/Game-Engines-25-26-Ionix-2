@@ -54,43 +54,6 @@ namespace IonixEngine
     };
 }
 
-// Class for Battleship input handling.
-// Class uses the existing Input API to detect mouse clicks
-// Keyboard shortcuts, translating them into game actions.
-
-namespace IonixEngine
-{
-    class BattleshipInputAdapter
-    {
-    public:
-        // requires pointer to Input, board origin (pixels), cell size, and board dimensions
-        BattleshipInputAdapter(Input* input, int boardOriginX, int boardOriginY, int cellSize, int boardWidth, int boardHeight);
-
-        // Call once per frame
-        void Update();
-
-        // Returns the last clicked cell (or {-1,-1} if none)
-        std::pair<int, int> GetLastCellClick() const;
-
-        // Returns true if the "R" key was pressed (used to rotate ship placement)
-        bool RotateRequested() const;
-
-        // Returns true if the "Escape" key was pressed (used to reset game)
-        bool ResetRequested() const;
-
-    private:
-        Input* m_input;                       // Pointer to engine Input system
-        int m_originX;                        // Board origin X in pixels
-        int m_originY;                        // Board origin Y in pixels
-        int m_cellSize;                       // Size of each cell in pixels
-        int m_boardW;                         // Board width in cells
-        int m_boardH;                         // Board height in cells
-        std::pair<int, int> m_lastClick;       // Stores last valid cell clicked
-        bool m_rotate;                        // Flag for rotate request
-        bool m_reset;                         // Flag for reset request
-    };
-}
-
 //Console Logs For Testing
 
 // Keyboard
