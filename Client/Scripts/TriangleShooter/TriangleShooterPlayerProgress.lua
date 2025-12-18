@@ -1,5 +1,55 @@
 local TriangleShooterPlayerProgress = {}
 
+--=====================================================================
+--  UPGRADE CONFIGURATION
+--  Central definition for all upgrades: caps, labels, descriptions,
+--  minimum level requirements, and apply behavior.
+--=====================================================================
+local UPGRADE_CONFIG = {
+    firepower = {
+        statKey      = "firepower",
+        label        = "+1 Firepower",
+        desc         = "Increase your firepower.",
+        minLevel     = 1,
+        maxValue     = 8,
+        defaultValue = 1,
+    },
+    pierce = {
+        statKey      = "pierceCount",
+        label        = "+1 Pierce",
+        desc         = "Bullets pierce +1 enemy.",
+        minLevel     = 6,
+        maxValue     = 2,
+        defaultValue = 0,
+    },
+    bounce = {
+        statKey      = "bounceCount",
+        label        = "+ Window Bounce",
+        desc         = "Bullets bounce off the window edges.",
+        minLevel     = 3,
+        maxValue     = 1,
+        defaultValue = 0,
+    },
+    fire_rate = {
+        statKey      = "fireRateUpgradeCount",
+        label        = "+ Fire Rate",
+        desc         = "Shoot faster (lower cooldown).",
+        minLevel     = 1,
+        maxValue     = 3,
+        defaultValue = 0,
+        customApply  = true,
+    },
+    max_health = {
+        statKey      = "maxHealth",
+        label        = "+ Max Health",
+        desc         = "Increase your max health.",
+        minLevel     = 4,
+        maxValue     = nil,
+        defaultValue = 100,
+        increment    = 30,
+    },
+}
+
 local playerLevel = 1
 local xp = 0
 local xpToNextLevel = 100
@@ -33,39 +83,44 @@ local function OnLevelUp()
     pendingLevelUp = true
 end
 
+--=====================================================================
+--  UPGRADE LOGIC (driven by UPGRADE_CONFIG)
+--=====================================================================
 function TriangleShooterPlayerProgress.canTakeUpgrade(upgradeType)
-    if upgradeType == "fire_rate" then
-        return (playerStats.fireRateUpgradeCount or 0) < 3
-    elseif upgradeType == "bounce" then
-        return (playerStats.bounceCount or 0) < 1
-    elseif upgradeType == "firepower" then
-        return (playerStats.firepower or 1) < 5
-    end
-    return true
+    local cfg = UPGRADE_CONFIG[upgradeType]
+    if not cfg then return true end
+    if cfg.maxValue == nil then return true end
+    
+    local currentValue = playerStats[cfg.statKey] or cfg.defaultValue
+    return currentValue < cfg.maxValue
 end
 
 function TriangleShooterPlayerProgress.applyUpgrade(upgradeType)
-    if upgradeType == "firepower" then
-        playerStats.firepower = playerStats.firepower + 1
-    elseif upgradeType == "pierce" then
-        playerStats.pierceCount = playerStats.pierceCount + 1
-    elseif upgradeType == "bounce" then
-        playerStats.bounceCount = playerStats.bounceCount + 1
-    elseif upgradeType == "fire_rate" then
-        local count = playerStats.fireRateUpgradeCount or 0
-        if count < 3 then
-            local delta = 0.1
-            if count == 1 then
-                delta = 0.05
-            elseif count == 2 then
-                delta = 0.025
+    local cfg = UPGRADE_CONFIG[upgradeType]
+    if not cfg then return end
+    
+    if cfg.customApply then
+        if upgradeType == "fire_rate" then
+            local count = playerStats.fireRateUpgradeCount or 0
+            if count < cfg.maxValue then
+                local delta = 0.1
+                if count == 1 then
+                    delta = 0.05
+                elseif count == 2 then
+                    delta = 0.025
+                end
+                playerStats.fireInterval = math.max(0.05, playerStats.fireInterval - delta)
+                playerStats.fireRateUpgradeCount = count + 1
             end
-            playerStats.fireInterval = math.max(0.05, playerStats.fireInterval - delta)
-            playerStats.fireRateUpgradeCount = count + 1
         end
-    elseif upgradeType == "max_health" then
-        playerStats.maxHealth = (playerStats.maxHealth or 100) + 20
+    else
+        local increment = cfg.increment or 1
+        playerStats[cfg.statKey] = (playerStats[cfg.statKey] or cfg.defaultValue) + increment
     end
+end
+
+function TriangleShooterPlayerProgress.getUpgradeConfig()
+    return UPGRADE_CONFIG
 end
 
 function TriangleShooterPlayerProgress.addXp(amount)

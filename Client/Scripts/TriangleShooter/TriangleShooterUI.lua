@@ -28,14 +28,6 @@ local BORDER_GREEN = {0, 170, 110, 1.0}
 
 local BTN_ROUND = 12
 
-local upgradePool = {
-  { type = "pierce",     label = "+1 Pierce",       desc = "Bullets pierce +1 enemy.",               minLevel = 6 },
-  { type = "firepower",  label = "+1 Firepower",    desc = "Increase your firepower.",               minLevel = 1 },
-  { type = "fire_rate",  label = "+ Fire Rate",     desc = "Shoot faster (lower cooldown).",         minLevel = 1 },
-  { type = "bounce",     label = "+ Window Bounce", desc = "Bullets bounce off the window edges.",   minLevel = 3 },
-  { type = "max_health", label = "+ Max Health",    desc = "Increase your max health.",              minLevel = 4 },
-}
-
 local function splitLines(s)
   local t = {}
   if not s or s == "" then return t end
@@ -49,11 +41,12 @@ function TriangleShooterUI.getRandomUpgradeOptions(count, playerLevel)
   count = count or 2
   playerLevel = playerLevel or 1
 
+  local upgradeConfig = TriangleShooterPlayerProgress.getUpgradeConfig()
   local available = {}
-  for _, upgrade in ipairs(upgradePool) do
-    local minLevel = upgrade.minLevel or 1
-    if playerLevel >= minLevel and TriangleShooterPlayerProgress.canTakeUpgrade(upgrade.type) then
-      table.insert(available, { type = upgrade.type, label = upgrade.label, desc = upgrade.desc })
+  for upgradeType, cfg in pairs(upgradeConfig) do
+    local minLevel = cfg.minLevel or 1
+    if playerLevel >= minLevel and TriangleShooterPlayerProgress.canTakeUpgrade(upgradeType) then
+      table.insert(available, { type = upgradeType, label = cfg.label, desc = cfg.desc })
     end
   end
 

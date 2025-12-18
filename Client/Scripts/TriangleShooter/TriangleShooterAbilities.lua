@@ -9,17 +9,65 @@ local function generateShotPattern(firepower, aimX, aimY, projectileSize)
     local shots = {}
     local baseAngle = math.atan(aimY, aimX)
 
-    -- At firepower 5, fire a single golden 5x damage bullet
+    -- Firepower 5+: golden bullet progression
     if firepower >= 5 then
-        shots[1] = { 
-            offsetX = 0, 
-            offsetY = 0, 
-            dirX = aimX, 
-            dirY = aimY,
-            isGolden = true,
-            damage = 5,
-            sizeMultiplier = 2.5,
-        }
+        if firepower == 5 then
+            -- Single golden bullet, 5 damage, 2.5x size
+            shots[1] = { 
+                offsetX = 0, 
+                offsetY = 0, 
+                dirX = aimX, 
+                dirY = aimY,
+                isGolden = true,
+                damage = 5,
+                sizeMultiplier = 2.5,
+            }
+        elseif firepower == 6 then
+            -- Single golden bullet, 7 damage, 2.75x size (10% bigger)
+            shots[1] = { 
+                offsetX = 0, 
+                offsetY = 0, 
+                dirX = aimX, 
+                dirY = aimY,
+                isGolden = true,
+                damage = 7,
+                sizeMultiplier = 2.75,
+            }
+        elseif firepower == 7 then
+            -- Single golden bullet, 9 damage, 3.025x size (another 10% bigger)
+            shots[1] = { 
+                offsetX = 0, 
+                offsetY = 0, 
+                dirX = aimX, 
+                dirY = aimY,
+                isGolden = true,
+                damage = 9,
+                sizeMultiplier = 3.025,
+            }
+        else
+            -- Firepower 8+: Two golden bullets at original size (2.5x), 6 damage each
+            local sideX = -aimY
+            local sideY = aimX
+            local offset = projectileSize * 0.8
+            shots[1] = { 
+                offsetX = sideX * offset, 
+                offsetY = sideY * offset, 
+                dirX = aimX, 
+                dirY = aimY,
+                isGolden = true,
+                damage = 6,
+                sizeMultiplier = 2.5,
+            }
+            shots[2] = { 
+                offsetX = -sideX * offset, 
+                offsetY = -sideY * offset, 
+                dirX = aimX, 
+                dirY = aimY,
+                isGolden = true,
+                damage = 6,
+                sizeMultiplier = 2.5,
+            }
+        end
         return shots
     end
 
