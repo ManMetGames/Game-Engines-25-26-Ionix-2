@@ -1661,7 +1661,7 @@ function TriangleShooter:OnUpdate()
     screenW = Window.get_width()
     screenH = Window.get_height()
     
-    if levelTimerSeconds > 0 and #enemies > 0 and not isStartLevelPeace then
+    if levelTimerSeconds > 0 and #enemies > 0 and not isStartLevelPeace and not isLevelupPeace then
         levelTimerSeconds = levelTimerSeconds - dt
     end
 
