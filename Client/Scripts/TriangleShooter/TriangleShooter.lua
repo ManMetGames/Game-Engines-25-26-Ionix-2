@@ -290,6 +290,8 @@ local function ResetRunStateForMenu()
     fireCooldownTimer = 0
     damageCooldown = 0
     peaceTimerSeconds = 0
+    isStartLevelPeace = false
+    isLevelupPeace = false
 
     -- reset stage/run basics
     currentLevel = 1
@@ -331,7 +333,9 @@ local globalFrame = 0
 local peaceTimerSeconds = 0
 local startLevelPeaceDuration = 3
 local endLevelPeaceDuration = 2.5
+local levelupPeaceDuration = 2.0
 local isStartLevelPeace = false  -- true = waiting before enemies spawn, false = end-of-level peace
+local isLevelupPeace = false     -- true = peace period after selecting a levelup upgrade
 
 -- SFX
 local playerDamageSfxEntity
@@ -1579,6 +1583,11 @@ function TriangleShooter:OnUpdate()
                 local maxH = TriangleShooterPlayerProgress.getMaxHealth()
                 playerHealth = math.min(maxH, playerHealth + 20)
             end
+            -- Start levelup peace timer and disable enemies
+            peaceTimerSeconds = levelupPeaceDuration
+            isLevelupPeace = true
+            isStartLevelPeace = false
+            TriangleShooterEnemy.disableAllEnemies(enemies, screenW, screenH)
         end
         return
     end
@@ -1851,7 +1860,12 @@ function TriangleShooter:OnUpdate()
 
     -- Peace progress bar (during start-level or end-level peace)
     if peaceTimerSeconds > 0 then
-        local phaseDuration = isStartLevelPeace and startLevelPeaceDuration or endLevelPeaceDuration
+        local phaseDuration = startLevelPeaceDuration
+        if isLevelupPeace then
+            phaseDuration = levelupPeaceDuration
+        elseif not isStartLevelPeace then
+            phaseDuration = endLevelPeaceDuration
+        end
         local elapsed = phaseDuration - peaceTimerSeconds
         if elapsed < 0 then
             elapsed = 0
@@ -1872,8 +1886,23 @@ function TriangleShooter:OnUpdate()
     end
     
     -- Reset peace timer if active enemies exist (safety check)
-    if enemiesAlive and peaceTimerSeconds > 0 and not isStartLevelPeace then
+    -- But not during start-level peace or levelup peace (enemies are intentionally disabled)
+    if enemiesAlive and peaceTimerSeconds > 0 and not isStartLevelPeace and not isLevelupPeace then
         peaceTimerSeconds = 0
+    end
+
+    -- Handle levelup peace timer separately (enemies exist but are disabled)
+    if isLevelupPeace and peaceTimerSeconds > 0 then
+        peaceTimerSeconds = peaceTimerSeconds - dt
+        if peaceTimerSeconds <= 0 then
+            isLevelupPeace = false
+            TriangleShooterEnemy.enableAllEnemies(enemies)
+        end
+        -- Don't process normal level flow during levelup peace
+        if playerHealth <= 0 then
+            TriggerGameOver()
+        end
+        return
     end
 
      --=====================================================================
@@ -2186,6 +2215,14 @@ function UpdateFlash()
                 local r = math.floor(255 * t + baseColor[1] * (1.0 - t) + 0.5)
                 local g = math.floor(0 * t + baseColor[2] * (1.0 - t) + 0.5)
                 local b = math.floor(0 * t + baseColor[3] * (1.0 - t) + 0.5)
+                
+                -- Respect disabled state (darken colors)
+                if enemy.disabled then
+                    r = math.floor(r * 0.5)
+                    g = math.floor(g * 0.5)
+                    b = math.floor(b * 0.5)
+                end
+                
                 Sprite.set_color(enemy.sprite, r, g, b)
             end
         end

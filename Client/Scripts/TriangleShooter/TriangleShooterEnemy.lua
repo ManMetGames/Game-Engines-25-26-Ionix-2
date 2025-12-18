@@ -169,13 +169,24 @@ function TriangleShooterEnemy.clearEnemies(enemies)
     end
 end
 
-function TriangleShooterEnemy.setEnemyDisabled(enemy, disabled)
+function TriangleShooterEnemy.setEnemyDisabled(enemy, disabled, screenW, screenH)
     enemy.disabled = disabled
     if enemy.sprite then
         local r, g, b = enemy.color[1], enemy.color[2], enemy.color[3]
         if disabled then
             -- Half alpha by darkening the color (since we may not have alpha control)
             Sprite.set_color(enemy.sprite, math.floor(r * 0.5), math.floor(g * 0.5), math.floor(b * 0.5))
+            
+            -- For orbit enemies: calculate and store the orbitAngle that matches current position
+            -- This prevents warping when re-enabled
+            if enemy.movementType == "orbit" then
+                local centerX = enemy.orbitCenter and enemy.orbitCenter[1] or ((screenW or 1920) / 2)
+                local centerY = enemy.orbitCenter and enemy.orbitCenter[2] or ((screenH or 1080) / 2)
+                local eDisplaySize = enemy.displaySize or enemy.size
+                local enemyCenterX = enemy.x + eDisplaySize / 2
+                local enemyCenterY = enemy.y + eDisplaySize / 2
+                enemy.orbitAngle = math.atan(enemyCenterY - centerY, enemyCenterX - centerX)
+            end
         else
             Sprite.set_color(enemy.sprite, r, g, b)
         end
@@ -185,6 +196,12 @@ end
 function TriangleShooterEnemy.enableAllEnemies(enemies)
     for i = 1, #enemies do
         TriangleShooterEnemy.setEnemyDisabled(enemies[i], false)
+    end
+end
+
+function TriangleShooterEnemy.disableAllEnemies(enemies, screenW, screenH)
+    for i = 1, #enemies do
+        TriangleShooterEnemy.setEnemyDisabled(enemies[i], true, screenW, screenH)
     end
 end
 
@@ -389,7 +406,14 @@ local TELEPORT_GROW_DURATION = 0.25
     local r, g, b = hsvToRgb(enemy.rainbowHue, 1, 1)
     enemy.color = {math.floor(r * 255), math.floor(g * 255), math.floor(b * 255)}
     if enemy.teleportVisible and enemy.sprite then
-        Sprite.set_color(enemy.sprite, enemy.color[1], enemy.color[2], enemy.color[3])
+        local cr, cg, cb = enemy.color[1], enemy.color[2], enemy.color[3]
+        -- Respect disabled state (darken colors)
+        if enemy.disabled then
+            cr = math.floor(cr * 0.5)
+            cg = math.floor(cg * 0.5)
+            cb = math.floor(cb * 0.5)
+        end
+        Sprite.set_color(enemy.sprite, cr, cg, cb)
     end
     
     enemy.rotation = (enemy.rotation or 0) + dt * 120

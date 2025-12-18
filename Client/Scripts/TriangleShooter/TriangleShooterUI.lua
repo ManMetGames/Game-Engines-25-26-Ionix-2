@@ -106,12 +106,6 @@ if not isUpgradeMenuOpen then return end
   -- Dim background
   UI.add_panel(0, 0, screenW, screenH, OVERLAY_ALPHA, 0, 0, 0, 0)
 
-  if confirmPending then
-    local elapsed = confirmDuration - confirmTimer
-    if elapsed < 0 then elapsed = 0 end
-    UI.draw_progress_bar(screenW/2 - 100, 80, 200, 10, confirmDuration, elapsed, 4)
-    return
-  end
 
   -- Responsive layout based on window size
   local marginX = math.max(20, math.floor(screenW * 0.05))
@@ -211,19 +205,6 @@ end
 function TriangleShooterUI.handleInput()
   if not isUpgradeMenuOpen then return nil end
 
-  local dt = Mafs.delta_time()
-
-  -- During countdown: keep menu open, freeze game, then return choice
-  if confirmPending then
-    confirmTimer = confirmTimer - dt
-    if confirmTimer <= 0 then
-      confirmPending = false
-      local selected = TriangleShooterUI.getSelectedUpgrade()
-      TriangleShooterUI.hideUpgradeMenu()
-      return selected
-    end
-    return nil
-  end
 
   -- Choose buttons
   for i=1,#upgradeOptions do
@@ -232,10 +213,11 @@ function TriangleShooterUI.handleInput()
     end
   end
 
-  -- Confirm
+  -- Confirm - immediately close menu and return selection
   if selectedIndex > 0 and UI.was_button_pressed("upgrade_confirm") then
-    confirmPending = true
-    confirmTimer = confirmDuration
+    local selected = TriangleShooterUI.getSelectedUpgrade()
+    TriangleShooterUI.hideUpgradeMenu()
+    return selected
   end
 
   return nil
