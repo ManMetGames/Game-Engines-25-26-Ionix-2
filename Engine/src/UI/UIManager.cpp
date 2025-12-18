@@ -29,7 +29,7 @@ void UIManager::AddLabel(int x, int y, float xSize, float ySize, const char* tex
 	element->ownedText = (text ? text : "");
 	element->text = const_cast<char*>(element->ownedText.c_str());
 	element->fontName = fontName;
-	elements.push_back(element);
+	//elements.push_back(element); // - the method below is doing this already - rendering twice per frame because of this
 	AddChildToPanel(element);
 }
 
@@ -270,15 +270,17 @@ void UIManager::RenderElement(UIElement* element)
 			m_ui->DrawDropdown(element->xPos, element->yPos, element->ySize, element->xSize, element->text, element->dropdownOptions, element->dropdownCurrentIndex);
 		}
 		break;
-		// --- FONT POP ---
-		if (font)
-		{
-			ImGui::PopFont();
-		}
-
-		if (element->sameline)
-			ImGui::SameLine();
 	}
+	// Moved outside switch - unlikely to be hit where it was last time (inside the switch, outside of all cases - and at the bottom)
+	// --- FONT POP ---
+	if (font)
+	{
+		ImGui::PopFont();
+	}
+
+	if (element->sameline)
+		ImGui::SameLine();
+
 }
 
 void UIManager::RenderUI()
@@ -288,7 +290,9 @@ void UIManager::RenderUI()
 	{
 		RenderElement(element);
 	}
+
 	//for (auto* e : elements) delete e;
+
 	elements.clear();
 }
 
