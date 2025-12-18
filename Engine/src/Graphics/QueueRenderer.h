@@ -20,7 +20,6 @@ namespace IonixEngine {
 		Uint8 r = 255;  // Color tint (default white = no tint)
 		Uint8 g = 255;
 		Uint8 b = 255;
-		Uint8 a = 255;
 		float rotation;
 		int renderLayer;
 	};
@@ -44,7 +43,6 @@ namespace IonixEngine {
 		void OrderQueueByZ(queue<RenderCall>& sprites);
 		void RenderFromQueue();
 		void ClearQueue(queue<RenderCall>& sprites);
-		void DrawLine(int x1, int y1, int x2, int y2, bool hitColor);
 		static QueueRenderer& Get()
 		{
 			static QueueRenderer instance;

@@ -13,7 +13,7 @@ function EntityPlayer:OnStart()
 	entity1 = Entity.create_entity()
 	print(Entity.has_sprite_component(entity1))
 	print(assets.textures.ball)
-	Entity.add_sprite_component(entity1, assets.textures.PacMan, 100, 100, 0)   
+	Entity.add_sprite_component(entity1, assets.textures.FlappyBird, 100, 100, 0)   
 	--Entity.add_fysics_component(entity1, 0, false)
 
 	Entity.set_global_pos(entity1, x, y)

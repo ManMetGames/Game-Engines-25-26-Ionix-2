@@ -20,9 +20,7 @@ namespace IonixEngine {
             sol::lib::math,
             sol::lib::table,
             sol::lib::io,
-            sol::lib::package,
-            sol::lib::coroutine,
-            sol::lib::os
+            sol::lib::package
         );
 
 
@@ -39,9 +37,7 @@ namespace IonixEngine {
         AudioScripting::Get().Init(m_LuaState);
         GraphicsScripting::Get().Init(m_LuaState);
         EntityScripting::Get().Init(m_LuaState);
-        UIScripting::Get().Init(m_LuaState); 
-        JsonScripting::Get().Init(m_LuaState);
-		FirebaseScripting::Get().Init(m_LuaState);
+        UIScripting::Get().Init(m_LuaState);       
     }
 
     void Scripting::ExecuteScript(const std::string& scriptName) {

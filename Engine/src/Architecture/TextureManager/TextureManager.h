@@ -15,7 +15,7 @@ namespace IonixEngine
 		SDL_Renderer* renderer;
 	public:
 		TextureManager();
-		void AddTexture(std::string filepath, std::string alias);
+		void AddTexture(std::string filepath,std::string alias);
 		TextureData& GetTexture(std::string alias);
 		TextureData& GetTexture(uint32_t hash);
 

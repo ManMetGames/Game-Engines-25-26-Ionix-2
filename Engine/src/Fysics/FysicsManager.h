@@ -3,7 +3,6 @@
 #include "Fysics/Shapes.h"
 #include "Fysics/Force.h"
 #include "Fysics/Joints.h"
-#include "Raycast.h"
 #include "Fysics/RigidBodyTransform.h"
 #include "Fysics/CollisionListener.h"
 #include "Architecture/ECS/Entity.hpp"
@@ -28,7 +27,6 @@ namespace IonixEngine
         RevoluteJoints* revoluteJoint;
         DistanceJoints* distanceJoint;
         FysicsMaterialComponent* material;
-        Raycast* raycast;
         std::unordered_map<b2Body*, Entity*> bodyEntityMap;
         std::unordered_map<b2Body*, RigidBodyTransform> transformMap; //used for interpolation
 
@@ -47,7 +45,6 @@ namespace IonixEngine
         DistanceJoints* GetDistanceJoint() { return distanceJoint;}
         FysicsMaterialComponent* GetMaterial() { return material;}
         CollisionListener* GetCollisionListener() {return collisionListener;}
-        Raycast* GetRaycast() { return raycast;}
 
 
         b2World* GetWorld() { return world; }
@@ -56,7 +53,7 @@ namespace IonixEngine
         
         b2Body* GetBodyFromEntity(Entity* entity);
         Entity* GetEntityFromBody(b2Body* body);
-
+        b2Fixture* GetFixtureFromEntity(Entity* entity);
         void AddEntityBodyPair(Entity* entity, b2Body* body);
     };
 }

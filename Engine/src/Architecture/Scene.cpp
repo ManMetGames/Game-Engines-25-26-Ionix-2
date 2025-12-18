@@ -12,8 +12,6 @@ namespace IonixEngine {
         renderData.renderer = Application::Get().GetWindow().GetSdlRenderer();
         renderData.queue = Application::Get().layerGraphics->GetQueue();
 
-        m_ParticleSystem.Init();
-
         //EntityID first = CreateEntity();
         //Entity* firstEntity = GetEntityFromID(first);
         //if (!firstEntity)
@@ -62,9 +60,6 @@ namespace IonixEngine {
             //SDL_Log("[DEBUG] entity #%zu pos at: X: %f, Y: %f", i, entity->transform.GetGlobalPosition().x, entity->transform.GetGlobalPosition().y);
             entity->Render(&renderData);
         }
-
-        m_ParticleSystem.Update(dt);
-        m_ParticleSystem.Render(&renderData);
     }
 
     void Scene::OnEvent(IonixEvent& event) {}
@@ -74,8 +69,6 @@ namespace IonixEngine {
             entity.Destroy(this);
         }
         m_Entities.clear();
-
-        m_ParticleSystem.Shutdown();
     }
 
     void Scene::Reserve(std::size_t count) {

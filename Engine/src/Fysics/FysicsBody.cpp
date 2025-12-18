@@ -75,8 +75,7 @@ namespace IonixEngine
     b2Vec2 FysicsBody::GetPosition(Entity* entity) const
     {
         b2Body* body = Application::Get().layerFysics->GetFysicsManager()->GetBodyFromEntity(entity);
-        b2Vec2 scaledPos = b2Vec2(body->GetPosition().x * 100, body->GetPosition().y * 100);
-        return body ? scaledPos : b2Vec2(0.0f, 0.0f);
+        return body ? body->GetPosition() : b2Vec2(0.0f, 0.0f);
     }
 
     void FysicsBody::SetPosition(Entity* entity, float x, float y)

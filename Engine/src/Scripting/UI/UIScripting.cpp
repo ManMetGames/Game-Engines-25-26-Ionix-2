@@ -16,41 +16,31 @@ namespace IonixEngine {
         auto AddLabel = [](const int x, int y, float xSize, float ySize, const char* text) {
             Application::Get().layerUI->m_UIManager->AddLabel(x, y, xSize, ySize, text);
             };
-        auto AddButton = [](int x, int y, float xSize, float ySize, const char* text) {
-            return Application::Get().layerUI->m_UIManager->AddButton(x, y, xSize, ySize, text);
+        auto drawLabel = [](const char* text, int xsize, int ysize, int xpos, int ypos, const char* font) {
+            Application::Get().layerUI->m_UI->DrawLabel((char*)text, xsize, ysize, xpos, ypos, "");
+            };
+        auto DrawButton = [](const char* text, int xsize, int ysize, int xpos, int ypos) -> bool {
+            return Application::Get().layerUI->m_UI->DrawButton((char*)text, xsize, ysize, xpos, ypos);
+            };
+        auto AddButton = [](int x, int y, float xSize, float ySize, const char* text, std::function<void()> onClick) {
+            return Application::Get().layerUI->m_UIManager->AddButton(x, y, xSize, ySize, text, onClick);
+            };
+
+        auto AddSlider = [](const char* label, float value, int xsize, int ysize, int xpos, int ypos, float minval, float maxval) -> float {
+            return Application::Get().layerUI->m_UI->AddSlider((char*)label, value, xsize, ysize, xpos, ypos, minval, maxval);
             };
 		auto AddColorPicker = [](int x, int y, float xSize, float ySize, const char* label, float* color) {
 			return Application::Get().layerUI->m_UI->DrawColorPicker(x, y, xSize, ySize, label, color);
 			};
-        auto DrawProgressBar = [](int x, int y, float xSize, float ySize, float maxValue, float currentValue, int colorId) {
-            Application::Get().layerUI->m_UI->DrawProgressBar(x, y, xSize, ySize, maxValue, currentValue, colorId);
-            };
-        auto AddInputText = [](int xPos, int yPos, float width, const char* label, const char* id, size_t maxLen) {
-            Application::Get().layerUI->m_UIManager->AddInputText(xPos, yPos, width, label, id, maxLen);
-			};
-
-        auto GetInputText = [](const std::string& id) {
-            return Application::Get().layerUI->m_UIManager->GetCommittedText(id);
-            };
-
-        auto WasInputCommitted = [](const std::string& id) {
-            return Application::Get().layerUI->m_UIManager->WasInputCommitted(id);
-            };
-
-        auto ClearInput = [](const std::string& id) {
-            Application::Get().layerUI->m_UIManager->ClearInput(id);
-            };
-
+ 
         lua["UI"] = lua.create_table_with(
-            "Add_label", AddLabel,
-            "add_button", AddButton,
-            "add_color_picker", AddColorPicker,
-            "draw_progress_bar", DrawProgressBar,
-            "add_input_text", AddInputText,
-            
-			"get_input_text", GetInputText,
-            "was_input_committed", WasInputCommitted,
-            "clear_input", ClearInput
+          "Add_label", AddLabel,
+			    "draw_label", drawLabel,
+          "draw_button", DrawButton,
+			    "add_button", AddButton,
+			    "add_slider", AddSlider,
+			"add_color_picker", AddColorPicker
+			
         );
     }
 

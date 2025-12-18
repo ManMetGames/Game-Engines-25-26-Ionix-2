@@ -1,15 +1,15 @@
-local CoroutineTest = {}
-local Coroute = GetModule("CoModusOperandi")
+local Test = {}
+local Coroutines = GetModule("Coroutines")
 
-function CoroutineTest:OnStart()
+function Test:OnStart()
 	local co1 = coroutine.create(function()
 		while true do
 			print("Coroutine Test")
-			Coroute:Yield()
+			Coroutines.Yield()
 		end
 	end)
 
-	Coroute:AddCoroutine(co1, 3)
+	Coroutines.AddCoroutine(co1, 3)
 end
 
-return CoroutineTest
+return Test
