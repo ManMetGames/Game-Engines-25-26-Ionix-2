@@ -169,6 +169,25 @@ function TriangleShooterEnemy.clearEnemies(enemies)
     end
 end
 
+function TriangleShooterEnemy.setEnemyDisabled(enemy, disabled)
+    enemy.disabled = disabled
+    if enemy.sprite then
+        local r, g, b = enemy.color[1], enemy.color[2], enemy.color[3]
+        if disabled then
+            -- Half alpha by darkening the color (since we may not have alpha control)
+            Sprite.set_color(enemy.sprite, math.floor(r * 0.5), math.floor(g * 0.5), math.floor(b * 0.5))
+        else
+            Sprite.set_color(enemy.sprite, r, g, b)
+        end
+    end
+end
+
+function TriangleShooterEnemy.enableAllEnemies(enemies)
+    for i = 1, #enemies do
+        TriangleShooterEnemy.setEnemyDisabled(enemies[i], false)
+    end
+end
+
  --=====================================================================
  --  [PUBLIC API] Per-Frame Update
  --=====================================================================
@@ -189,6 +208,12 @@ end
 
      for i = 1, #enemies do
          local enemy = enemies[i]
+         
+         -- Skip all behavior for disabled enemies (preview state)
+         if enemy.disabled then
+             goto continue
+         end
+         
          local movementType = enemy.movementType or "bounce"
 
          if movementType == "bounce" then
@@ -221,8 +246,10 @@ end
          if enemy.teleportVisible ~= false then
              Entity.set_global_pos(enemy.entity, enemy.x, enemy.y)
          end
-     end
- end
+        
+        ::continue::
+    end
+end
 
  --=====================================================================
  --  [MOVEMENT] Bounce

@@ -379,7 +379,7 @@ local levels = {
         windowWidth = 800,
         windowHeight = 400,
         enemies = {
-            { movementType = "bounce", x = 900, y = 400, health = 35},
+            { movementType = "bounce", x = 400, y = 200, health = 35},
         },
     },
     [2] = {

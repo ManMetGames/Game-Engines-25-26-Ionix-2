@@ -329,7 +329,9 @@ local enemyBaseImageSize = enemySize
 
 local globalFrame = 0
 local peaceTimerSeconds = 0
-local peaceDurationSeconds = 4
+local startLevelPeaceDuration = 3
+local endLevelPeaceDuration = 2.5
+local isStartLevelPeace = false  -- true = waiting before enemies spawn, false = end-of-level peace
 
 -- SFX
 local playerDamageSfxEntity
@@ -461,6 +463,90 @@ end
  --=====================================================================
  --  [LEVEL FLOW] Load / Start Level
  --=====================================================================
+local function SpawnEnemiesForLevel(spawnDisabled)
+    local cfg = TriangleShooterLevels.getLevelConfig(currentLevel)
+    if not cfg then
+        return
+    end
+
+    local centerX = screenW / 2 - enemySize / 2
+    local centerY = screenH / 2 - enemySize / 2
+
+    local enemyTemplates = TriangleShooterLevels.getEnemyTemplates()
+    
+    if cfg.enemies then
+        for i, enemyCfg in ipairs(cfg.enemies) do
+            local movementType = enemyCfg.movementType or "bounce"
+            local template = enemyTemplates[movementType]
+            local templateSize = template and template.baseSize or 32
+            
+            local spawnX = enemyCfg.x or centerX
+            local spawnY = enemyCfg.y or centerY
+            
+            if not enemyCfg.x and not enemyCfg.y and #cfg.enemies > 1 then
+                local radius = 120
+                local angle = (2 * math.pi * (i - 1)) / #cfg.enemies
+                spawnX = screenW / 2 + math.cos(angle) * radius - templateSize / 2
+                spawnY = screenH / 2 + math.sin(angle) * radius - templateSize / 2
+            end
+            
+            local config = {
+                health = enemyCfg.health or levelEnemyHealth,
+                healthScaling = enemyCfg.healthScaling,
+                size = templateSize,
+                color = enemyCfg.color,
+                speed = enemyCfg.speed,
+                baseSpeed = enemyCfg.baseSpeed,
+                movementType = enemyCfg.movementType,
+                shootPattern = enemyCfg.shootPattern,
+                projectileCount = enemyCfg.projectileCount,
+                shootInterval = enemyCfg.shootInterval or enemyShootIntervalSeconds,
+                spinWhileShooting = enemyCfg.spinWhileShooting,
+                bounceSteer = enemyCfg.bounceSteer,
+                steerStrength = enemyCfg.steerStrength,
+                orbitCenter = enemyCfg.orbitCenter,
+                orbitRadius = enemyCfg.orbitRadius,
+                orbitSpeed = enemyCfg.orbitSpeed,
+            }
+            
+            local e = CreateEnemy(spawnX, spawnY, config)
+            if spawnDisabled then
+                TriangleShooterEnemy.setEnemyDisabled(e, true)
+            end
+            table.insert(enemies, e)
+        end
+    else
+        local enemyCount = cfg.enemyCount or 1
+        local defaultConfig = {
+            health = levelEnemyHealth,
+            shootInterval = enemyShootIntervalSeconds,
+            size = 32,
+        }
+        
+        if enemyCount == 1 then
+            local e = CreateEnemy(centerX, centerY, defaultConfig)
+            if spawnDisabled then
+                TriangleShooterEnemy.setEnemyDisabled(e, true)
+            end
+            table.insert(enemies, e)
+        else
+            local radius = 120
+            local playerCenterX = screenW / 2
+            local playerCenterY = screenH / 2
+            for i = 1, enemyCount do
+                local angle = (2 * math.pi * (i - 1)) / enemyCount
+                local ex = playerCenterX + math.cos(angle) * radius - enemySize / 2
+                local ey = playerCenterY + math.sin(angle) * radius - enemySize / 2
+                local e = CreateEnemy(ex, ey, defaultConfig)
+                if spawnDisabled then
+                    TriangleShooterEnemy.setEnemyDisabled(e, true)
+                end
+                table.insert(enemies, e)
+            end
+        end
+    end
+end
+
 LoadLevel = function(index, resetPlayerState)
     local cfg = TriangleShooterLevels.getLevelConfig(index)
     if not cfg then
@@ -502,76 +588,12 @@ LoadLevel = function(index, resetPlayerState)
     levelEnemyHealth = cfg.enemyHealth or levelEnemyHealth
     enemyShootIntervalSeconds = cfg.enemyShootIntervalSeconds or enemyShootIntervalSeconds
 
-    local centerX = screenW / 2 - enemySize / 2
-    local centerY = screenH / 2 - enemySize / 2
-
-     --=====================================================================
-     --  [LOAD LEVEL] Spawn Enemies
-     --=====================================================================
-    local enemyTemplates = TriangleShooterLevels.getEnemyTemplates()
+    -- Spawn enemies as disabled (preview state) during start-level peace
+    SpawnEnemiesForLevel(true)
     
-    if cfg.enemies then
-        for i, enemyCfg in ipairs(cfg.enemies) do
-            local movementType = enemyCfg.movementType or "bounce"
-            local template = enemyTemplates[movementType]
-            local templateSize = template and template.baseSize or 32
-            
-            local spawnX = enemyCfg.x or centerX
-            local spawnY = enemyCfg.y or centerY
-            
-            if not enemyCfg.x and not enemyCfg.y and #cfg.enemies > 1 then
-                local radius = 120
-                local angle = (2 * math.pi * (i - 1)) / #cfg.enemies
-                spawnX = screenW / 2 + math.cos(angle) * radius - templateSize / 2
-                spawnY = screenH / 2 + math.sin(angle) * radius - templateSize / 2
-            end
-            
-            local config = {
-                health = enemyCfg.health or levelEnemyHealth,
-                healthScaling = enemyCfg.healthScaling,
-                size = templateSize,
-                color = enemyCfg.color,
-                speed = enemyCfg.speed,
-                baseSpeed = enemyCfg.baseSpeed,
-                movementType = enemyCfg.movementType,
-                shootPattern = enemyCfg.shootPattern,
-                projectileCount = enemyCfg.projectileCount,
-                shootInterval = enemyCfg.shootInterval or enemyShootIntervalSeconds,
-                spinWhileShooting = enemyCfg.spinWhileShooting,
-                bounceSteer = enemyCfg.bounceSteer,
-                steerStrength = enemyCfg.steerStrength,
-                orbitCenter = enemyCfg.orbitCenter,
-                orbitRadius = enemyCfg.orbitRadius,
-                orbitSpeed = enemyCfg.orbitSpeed,
-            }
-            
-            local e = CreateEnemy(spawnX, spawnY, config)
-            table.insert(enemies, e)
-        end
-    else
-        local enemyCount = cfg.enemyCount or 1
-        local defaultConfig = {
-            health = levelEnemyHealth,
-            shootInterval = enemyShootIntervalSeconds,
-            size = 32,
-        }
-        
-        if enemyCount == 1 then
-            local e = CreateEnemy(centerX, centerY, defaultConfig)
-            table.insert(enemies, e)
-        else
-            local radius = 120
-            local playerCenterX = screenW / 2
-            local playerCenterY = screenH / 2
-            for i = 1, enemyCount do
-                local angle = (2 * math.pi * (i - 1)) / enemyCount
-                local ex = playerCenterX + math.cos(angle) * radius - enemySize / 2
-                local ey = playerCenterY + math.sin(angle) * radius - enemySize / 2
-                local e = CreateEnemy(ex, ey, defaultConfig)
-                table.insert(enemies, e)
-            end
-        end
-    end
+    -- Start the start-level peace timer (enemies will be enabled when it expires)
+    peaceTimerSeconds = startLevelPeaceDuration
+    isStartLevelPeace = true
 
      --=====================================================================
      --  [LOAD LEVEL] Reset Player State
@@ -1630,7 +1652,7 @@ function TriangleShooter:OnUpdate()
     screenW = Window.get_width()
     screenH = Window.get_height()
     
-    if levelTimerSeconds > 0 and #enemies > 0 then
+    if levelTimerSeconds > 0 and #enemies > 0 and not isStartLevelPeace then
         levelTimerSeconds = levelTimerSeconds - dt
     end
 
@@ -1839,20 +1861,30 @@ function TriangleShooter:OnUpdate()
     local playerInfoText = "Player Lv: " .. tostring(level) .. "  XP: " .. tostring(xp) .. " / " .. tostring(xpToNextLevel)
     UI.add_centered_label(playerHpBarX + playerHpBarW / 2, playerHpBarY + playerHpBarH + 8, playerInfoText, "")
 
-    -- Peace progress bar (only during inter-level peace)
-    if #enemies == 0 and peaceTimerSeconds > 0 then
-        local elapsed = peaceDurationSeconds - peaceTimerSeconds
+    -- Peace progress bar (during start-level or end-level peace)
+    if peaceTimerSeconds > 0 then
+        local phaseDuration = isStartLevelPeace and startLevelPeaceDuration or endLevelPeaceDuration
+        local elapsed = phaseDuration - peaceTimerSeconds
         if elapsed < 0 then
             elapsed = 0
         end
         UI.draw_progress_bar(
             screenW / 2 - 100, 80, 200, 10,
-            peaceDurationSeconds, elapsed, 4
+            phaseDuration, elapsed, 4
         )
     end
 
-    local enemiesAlive = #enemies > 0
-    if enemiesAlive and peaceTimerSeconds > 0 then
+    -- Count only enabled (non-disabled) enemies as "alive"
+    local enemiesAlive = false
+    for i = 1, #enemies do
+        if not enemies[i].disabled then
+            enemiesAlive = true
+            break
+        end
+    end
+    
+    -- Reset peace timer if active enemies exist (safety check)
+    if enemiesAlive and peaceTimerSeconds > 0 and not isStartLevelPeace then
         peaceTimerSeconds = 0
     end
 
@@ -1862,15 +1894,18 @@ function TriangleShooter:OnUpdate()
     if playerHealth <= 0 then
         TriggerGameOver()
         return
-    
     elseif not enemiesAlive then
         if peaceTimerSeconds <= 0 then
-            peaceTimerSeconds = peaceDurationSeconds
-        else
-            peaceTimerSeconds = peaceTimerSeconds - dt
-            if peaceTimerSeconds <= 0 then
+            if isStartLevelPeace then
+                -- Start-level peace ended, enable the preview enemies
+                isStartLevelPeace = false
+                TriangleShooterEnemy.enableAllEnemies(enemies)
+            else
+                -- End-level peace finished, trigger level transition
                 OnEnemyKilled()
             end
+        else
+            peaceTimerSeconds = peaceTimerSeconds - dt
         end
     elseif levelTimerSeconds <= 0 and enemiesAlive then
         OnLevelTimeout()
@@ -1991,6 +2026,10 @@ function UpdateProjectiles()
 
         for j = #enemies, 1, -1 do
             local enemy = enemies[j]
+            -- Skip disabled enemies (preview state)
+            if enemy.disabled then
+                goto continue_proj_collision
+            end
             local isVisible = enemy.teleportVisible == nil or enemy.teleportVisible
             if isVisible and not proj.hitEnemies[enemy] then
                 local eDisplaySize = enemy.displaySize or enemy.size or enemySize
@@ -2005,6 +2044,7 @@ function UpdateProjectiles()
                     break
                 end
             end
+            ::continue_proj_collision::
         end
 
         local shouldRemove = false
@@ -2042,6 +2082,12 @@ function UpdateProjectiles()
                 
                 Entity.set_global_pos(enemy.entity, -1000, -1000)
                 table.remove(enemies, hitEnemyIndex)
+                
+                -- Start end-level peace timer when last enemy is killed
+                if #enemies == 0 then
+                    peaceTimerSeconds = endLevelPeaceDuration
+                    isStartLevelPeace = false
+                end
             end
 
             if proj.pierceRemaining > 0 then
@@ -2191,6 +2237,10 @@ function UpdateEnemyCollision()
     local playerCenterY = playerY + playerSize/2
     for i = 1, #enemies do
         local enemy = enemies[i]
+        -- Skip collision for disabled enemies (preview state)
+        if enemy.disabled then
+            goto continue_collision
+        end
         local enemyCenterX = enemy.x + enemySize/2
         local enemyCenterY = enemy.y + enemySize/2
         local dx = playerCenterX - enemyCenterX
@@ -2250,6 +2300,7 @@ function UpdateEnemyCollision()
             end
             break
         end
+        ::continue_collision::
     end
 end
 
