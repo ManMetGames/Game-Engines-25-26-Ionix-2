@@ -32,7 +32,7 @@ local DEFAULTS = {
 }
 
 local ENEMY_TYPE_COLORS = {
-    bounce = {100, 255, 100},
+    bounce = {255, 165, 0},
     stationary = {100, 150, 255},
     stationary_boss = {255, 100, 100},
     orbit = {200, 100, 255},
@@ -245,7 +245,7 @@ end
              updateTeleporterMovement(enemy, dt, playerCenterX, playerCenterY, screenW, screenH, SpawnBeam, EmitTeleportBurst, EmitBeamCharge)
          end
 
-         if movementType ~= "teleporter" then
+         if movementType ~= "teleporter" and movementType ~= "bounce" then
              local shootInterval = enemy.shootInterval
              if enemyProjectilesEnabled and shootInterval and shootInterval > 0 then
                  enemy.shootTimer = (enemy.shootTimer or 0) + dt
@@ -263,9 +263,9 @@ end
          if enemy.teleportVisible ~= false then
              Entity.set_global_pos(enemy.entity, enemy.x, enemy.y)
          end
-        
-        ::continue::
-    end
+         
+         ::continue::
+     end
 end
 
  --=====================================================================

@@ -45,7 +45,6 @@ local ENEMY_TEMPLATES = {
                 movementType = "bounce",
                 health = health,
                 speed = speed,
-                shootInterval = 1.5 + math.random() * 0.5,
             }
         end,
     },
