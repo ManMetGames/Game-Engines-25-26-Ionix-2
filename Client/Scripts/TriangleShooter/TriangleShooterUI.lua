@@ -30,7 +30,7 @@ local BTN_ROUND = 12
 
 local upgradePool = {
   { type = "pierce",     label = "+1 Pierce",       desc = "Bullets pierce +1 enemy.",               minLevel = 6 },
-  { type = "bullet",     label = "+1 Bullet",       desc = "Shoot one extra bullet.",                minLevel = 1 },
+  { type = "firepower",  label = "+1 Firepower",    desc = "Increase your firepower.",               minLevel = 1 },
   { type = "fire_rate",  label = "+ Fire Rate",     desc = "Shoot faster (lower cooldown).",         minLevel = 1 },
   { type = "bounce",     label = "+ Window Bounce", desc = "Bullets bounce off the window edges.",   minLevel = 3 },
   { type = "max_health", label = "+ Max Health",    desc = "Increase your max health.",              minLevel = 4 },
