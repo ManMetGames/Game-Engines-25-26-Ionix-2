@@ -938,21 +938,30 @@ local function DrawLeaderboardMenu(screenW, screenH, dt)
     )
 
     local cx = panelW / 2
+    local footerH = 100 -- space reserved for the Back button area
+    local contentX = 26
+    local contentY = math.floor(panelH * 0.13)  
+    local contentW = panelW - 52
+    local contentH = panelH - contentY - footerH
 
     UI.add_centered_label(cx, math.floor(panelH * 0.05), "LEADERBOARD", "ImGuiDefaultBold", 2.6)
     UI.add_centered_label(cx, math.floor(panelH * 0.13), "Top 10 Highest Stages", "", 1.2)
+
+    local NO_BACKGROUND = 128
+    UI.begin_child(contentX, contentY, contentW, contentH, "TS_LeaderboardContent",
+    false, NO_BACKGROUND, false)
 
     if not leaderboardFetched then
         topLeaderboard = Firebase.retrieve_high_score(GAME_ID, 10)
         leaderboardFetched = true
     end
 
-    local listX = math.floor(panelW * 0.20)
-    local listY = math.floor(panelH * 0.21)
+    local listX = math.floor(contentW * 0.20)
+    local listY = math.floor(contentH * 0.15)
     local lineH = 26
 
     if topLeaderboard then
-        local stageX = math.floor(panelW * 0.68) 
+        local stageX = math.floor(contentW * 0.68) 
 
         for i = 1, 10 do
             local e = topLeaderboard[i]
@@ -975,6 +984,7 @@ local function DrawLeaderboardMenu(screenW, screenH, dt)
         UI.add_centered_label(cx, listY + 10, "(No scores yet)", "", 1.2)
     end
 
+    UI.end_child()
     -- Back button
     local bw, bh = math.min(320, math.floor(panelW * 0.55)), 50
     local bx = math.floor((panelW - bw) / 2)
@@ -1334,31 +1344,54 @@ local function DrawPauseLeaderboard(screenW, screenH, dt)
         0.01, false, 0.85,
         UI__COLOUR_THEME[1], UI__COLOUR_THEME[2], UI__COLOUR_THEME[3], 1.0 -- RGBA border
     )
-
     local cx = panelW / 2
+    local footerH = 100 -- space reserved for the Back button area
+    local contentX = 26
+    local contentY = math.floor(panelH * 0.13)  
+    local contentW = panelW - 52
+    local contentH = panelH - contentY - footerH
+
     UI.add_centered_label(cx, math.floor(panelH * 0.05), "LEADERBOARD", "ImGuiDefaultBold", 2.6)
     UI.add_centered_label(cx, math.floor(panelH * 0.13), "Top 10 Highest Stages", "", 1.2)
 
-    if not pauseLeaderboardFetched then
-        pauseTopLeaderboard = Firebase.retrieve_high_score(GAME_ID, 10)
-        pauseLeaderboardFetched = true
+    local NO_BACKGROUND = 128
+    UI.begin_child(contentX, contentY, contentW, contentH, "TS_PauseLeaderboardContent",
+    false, NO_BACKGROUND, false)
+
+    if not leaderboardFetched then
+        topLeaderboard = Firebase.retrieve_high_score(GAME_ID, 10)
+        leaderboardFetched = true
     end
 
-    local listX = math.floor(panelW * 0.20)
-    local listY = math.floor(panelH * 0.21)
+    local listX = math.floor(contentW * 0.20)
+    local listY = math.floor(contentH * 0.15)
     local lineH = 26
 
-    if pauseTopLeaderboard then
+    if topLeaderboard then
+        local stageX = math.floor(contentW * 0.68) 
+
         for i = 1, 10 do
-            local e = pauseTopLeaderboard[i]
-            local line = e
-                and string.format("%2d. %-16s  Stage %d", i, tostring(e.name), tonumber(e.score) or 0)
-                or  string.format("%2d. --", i)
-            UI.add_label(listX, listY + (i - 1) * lineH, 0, 0, line, "", 1.4)
+            local e = topLeaderboard[i]
+            local y = listY + (i - 1) * lineH
+
+            if e then
+                local name = tostring(e.name)
+                local stage = tonumber(e.score) or 0
+
+                -- Left column: "1. Name"
+                UI.add_label(listX, y, 0, 0, string.format("%2d. %s", i, name), "", 1.4)
+
+                -- Right column: "Stage X"
+                UI.add_label(stageX, y, 0, 0, string.format("Stage %d", stage), "", 1.4)
+            else
+                UI.add_label(listX, y, 0, 0, string.format("%2d. --", i), "", 1.4)
+            end
         end
     else
         UI.add_centered_label(cx, listY + 10, "(No scores yet)", "", 1.2)
     end
+
+    UI.end_child()
 
     local bw, bh = math.min(320, math.floor(panelW * 0.55)), 50
     local bx = math.floor((panelW - bw) / 2)
