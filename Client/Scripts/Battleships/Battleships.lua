@@ -14,12 +14,12 @@ function Battleships:OnStart()
     Board:init()
     Board:placeShip(2, 3, 4, true) -- example ship
 
-    -- Create ocean background
+    -- Ocean background
     local bg = Entity.create_entity()
     Entity.set_global_pos(bg, 0, 0)
     Entity.add_sprite_component(bg, assets.textures.Ocean, Window.get_width(), Window.get_height(), 0)
 
-    -- Create grid entities (using Debug texture as placeholder squares)
+    -- Grid entities
     for y=1,Board.height do
         gridEntities[y] = {}
         for x=1,Board.width do
@@ -37,7 +37,9 @@ end
 function Battleships:OnUpdate()
     -- Handle mouse click
     if Input.get_mouse_button_down(1) then
-        local mx, my = Input.get_mouse_position()
+        local mx = Input.get_mouse_x()
+        local my = Input.get_mouse_y()
+
         local cellX = math.floor((mx - originX) / cellSize) + 1
         local cellY = math.floor((my - originY) / cellSize) + 1
 
