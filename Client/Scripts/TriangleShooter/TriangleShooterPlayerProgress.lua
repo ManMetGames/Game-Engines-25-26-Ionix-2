@@ -66,12 +66,7 @@ local playerStats = {
 local function GetXpForNextLevel(level)
     local n = level - 1
     local base = 100 + 85 * n + 20 * n * math.max(n - 1, 0)
-    
-    if level > 10 then
-        local lateN = level - 10
-        base = base + (lateN * lateN * lateN * 15)
-    end
-    
+
     return math.floor(base)
 end
 
