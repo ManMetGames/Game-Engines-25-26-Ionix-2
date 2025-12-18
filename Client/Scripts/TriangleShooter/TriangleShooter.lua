@@ -1160,8 +1160,8 @@ local function DrawGameOverMenu(screenW, screenH, dt)
     )
 
     local cx = panelW / 2
-    UI.add_centered_label(cx, math.floor(panelH * 0.08), "GAME OVER", "ImGuiDefaultBold", 2.8)
-    UI.add_centered_label(cx, math.floor(panelH * 0.16), "End of Run Summary", "", 1.1)
+    UI.add_centered_label(cx, math.floor(panelH * 0.05), "GAME OVER", "ImGuiDefaultBold", 2.8)
+    UI.add_centered_label(cx, math.floor(panelH * 0.13), "End of Run Summary", "", 1.1)
 
     local summary = endRunSummary or CaptureEndRunSummary()
     local shotsFired = tonumber(summary.shotsFired or 0) or 0
@@ -1177,7 +1177,7 @@ local function DrawGameOverMenu(screenW, screenH, dt)
     local sumW = math.floor(panelW * 0.90)
     local sumH = math.floor(panelH * 0.54)
     local sumX = math.floor((panelW - sumW) / 2)
-    local sumY = math.floor(panelH * 0.22)
+    local sumY = math.floor(panelH * 0.18)
 
     UI.begin_child(sumX, sumY, sumW, sumH, "TS_EndRunSummary",
         true, 0,
@@ -1189,7 +1189,7 @@ local function DrawGameOverMenu(screenW, screenH, dt)
     UI.add_centered_label(scx, 10, "RUN SUMMARY", "ImGuiDefaultBold", 1.6)
 
     local leftX = 20
-    local rightX = math.floor(sumW * 0.56)
+    local rightX = math.floor(sumW * 0.75)
     local lineH = 26
 
     local y = 46
