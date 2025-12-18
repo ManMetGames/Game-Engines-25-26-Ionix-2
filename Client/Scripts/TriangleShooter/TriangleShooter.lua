@@ -364,6 +364,7 @@ local inMainMenu = true
 local menuStarting = false
 local menuStartDelay = 2
 local menuStartTimer = 0
+local musicStartedThisLaunch = false
 local MAIN_MENU_W, MAIN_MENU_H = 1280, 720
 
 --=====================================================================
@@ -390,7 +391,7 @@ local function FormatTimeMMSS(seconds)
 end
 
 local function CaptureEndRunSummary()
-    local bullets = TriangleShooterPlayerProgress.getBulletCount()
+    local firepower = TriangleShooterPlayerProgress.getFirepower()
     local pierce  = TriangleShooterPlayerProgress.getPierceCount()
     local bounce  = TriangleShooterPlayerProgress.getBounceCount()
     local fireI   = TriangleShooterPlayerProgress.getCurrentFireInterval()
@@ -410,7 +411,7 @@ local function CaptureEndRunSummary()
         damageTaken = runDamageTaken or 0,
         healingCollected = runHealingCollected or 0,
         build = {
-            bullets = bullets or 1,
+            firepower = firepower or 1,
             pierce = pierce or 0,
             bounce = bounce or 0,
             fireInterval = fireI or 0.5,
@@ -697,7 +698,7 @@ function TriangleShooter:OnStart()
 
     musicEntity = Entity.create_entity()
     Entity.add_audio_component(musicEntity, "technoSong", false)
-    AudioComponent.play(musicEntity, 0, -1)
+    -- Music will start when player presses START GAME
 
     playerDamageSfxEntity = Entity.create_entity()
     Entity.add_audio_component(playerDamageSfxEntity, "playerDamage", false)
@@ -848,6 +849,11 @@ local function DrawMainMenu(screenW, screenH, dt)
             TriangleShooterPlayerProgress.reset()
             isGameOver = false
             StartLevel(1, true)
+            -- Start music from beginning (synced with gameplay)
+            if musicEntity and not musicStartedThisLaunch then
+                AudioComponent.play(musicEntity, 0, -1)
+                musicStartedThisLaunch = true
+            end
         end
     end
 
@@ -1298,6 +1304,11 @@ local function DrawGameOverMenu(screenW, screenH, dt)
         ClearAllEnemyProjectiles()
         Input.set_relative_mouse_mode(true)
         StartLevel(1, true)
+        -- Restart music from beginning to sync with gameplay
+        if musicEntity then
+            AudioComponent.terminate(musicEntity)
+            AudioComponent.play(musicEntity, 0, -1)
+        end
 
     elseif UI.was_button_pressed("gameover_mainmenu") then
         isGameOver = false
@@ -1328,6 +1339,15 @@ SetPaused = function(p)
 
     -- show cursor in pause menus, lock cursor in gameplay
     Input.set_relative_mouse_mode(not isPaused)
+
+    -- Stop/resume music to prevent desync
+    if musicEntity then
+        if isPaused then
+            AudioComponent.pause(musicEntity)
+        else
+            AudioComponent.resume(musicEntity)
+        end
+    end
 end
 
 local function DrawPauseLeaderboard(screenW, screenH, dt)
@@ -1550,6 +1570,12 @@ GoToMainMenuFromPause = function()
 
     ResetWallWindowCapture()
 
+    -- Stop music when returning to main menu
+    if musicEntity then
+        AudioComponent.terminate(musicEntity)
+        musicStartedThisLaunch = false
+    end
+
     -- go to main menu
     inMainMenu = true
     menuScreen = "main"
@@ -1688,7 +1714,7 @@ function TriangleShooter:OnUpdate()
     screenW = Window.get_width()
     screenH = Window.get_height()
     
-    if levelTimerSeconds > 0 and #enemies > 0 and not isStartLevelPeace then
+    if levelTimerSeconds > 0 and #enemies > 0 and not isStartLevelPeace and not isLevelupPeace then
         levelTimerSeconds = levelTimerSeconds - dt
     end
 
@@ -1971,27 +1997,51 @@ end
  --=====================================================================
  --  [PLAYER PROJECTILES] Spawn / Update
  --=====================================================================
-local function SpawnPlayerSingleProjectile(spawnX, spawnY, dirX, dirY, pierceCount, bounceCount)
+local function SpawnPlayerSingleProjectile(spawnX, spawnY, dirX, dirY, pierceCount, bounceCount, shotData)
     local projData
+    shotData = shotData or {}
+    
+    local isGolden = shotData.isGolden or false
+    local damage = shotData.damage or 1
+    local sizeMultiplier = shotData.sizeMultiplier or 1
+    local actualSize = projectileSize * sizeMultiplier
 
     -- Try to reuse a pooled projectile
     if #projectilePool > 0 then
         projData = table.remove(projectilePool)
+        -- Update sprite size for reused projectile
+        local sprite = Entity.get_sprite_component(projData.entity)
+        if sprite then
+            Sprite.set_image_width(sprite, math.floor(actualSize))
+            Sprite.set_image_height(sprite, math.floor(actualSize))
+            if isGolden then
+                Sprite.set_color(sprite, 255, 215, 0)  -- Gold color
+            else
+                Sprite.set_color(sprite, 255, 255, 255)  -- Default white
+            end
+        end
     else
         -- Create new entity only if pool is empty
         local proj = Entity.create_entity()
-        Entity.add_sprite_component(proj, assets.textures.Ghast_Tear, projectileSize, projectileSize, 5)
+        local sprite = Entity.add_sprite_component(proj, assets.textures.Ghast_Tear, math.floor(actualSize), math.floor(actualSize), 5)
+        if isGolden and sprite then
+            Sprite.set_color(sprite, 255, 215, 0)  -- Gold color
+        end
         projData = { entity = proj }
     end
 
+    -- Adjust spawn position for larger projectiles
+    local adjustedSpawnX = spawnX - (actualSize - projectileSize) / 2
+    local adjustedSpawnY = spawnY - (actualSize - projectileSize) / 2
+
     -- Set position and rotation
-    Entity.set_global_pos(projData.entity, spawnX, spawnY)
+    Entity.set_global_pos(projData.entity, adjustedSpawnX, adjustedSpawnY)
     local projAngle = math.deg(math.atan(dirY, dirX)) + 90
     Entity.set_global_rot(projData.entity, projAngle)
 
     -- Initialize projectile data
-    projData.x = spawnX
-    projData.y = spawnY
+    projData.x = adjustedSpawnX
+    projData.y = adjustedSpawnY
     projData.vx = dirX * projectileSpeed
     projData.vy = dirY * projectileSpeed
     projData.age = 0
@@ -2000,6 +2050,9 @@ local function SpawnPlayerSingleProjectile(spawnX, spawnY, dirX, dirY, pierceCou
     projData.maxLifetime = projectileLifetimeSeconds + (bounceCount * 2.5)
     projData.hitEnemies = {}
     projData.hasHit = false
+    projData.damage = damage
+    projData.isGolden = isGolden
+    projData.size = actualSize
 
     table.insert(projectiles, projData)
 end
@@ -2011,11 +2064,11 @@ function SpawnProjectile()
     local tipX = centerX + aimDirX * (playerSize/2)
     local tipY = centerY + aimDirY * (playerSize/2)
 
-    local bulletCount = TriangleShooterPlayerProgress.getBulletCount()
+    local firepower = TriangleShooterPlayerProgress.getFirepower()
     local pierceCount = TriangleShooterPlayerProgress.getPierceCount()
     local bounceCount = TriangleShooterPlayerProgress.getBounceCount()
 
-    local shots = TriangleShooterAbilities.getShots(bulletCount, tipX, tipY, aimDirX, aimDirY, projectileSize)
+    local shots = TriangleShooterAbilities.getShots(firepower, tipX, tipY, aimDirX, aimDirY, projectileSize)
     if not shots then
         return
     end
@@ -2030,7 +2083,7 @@ function SpawnProjectile()
 
         local spawnX = tipX + offsetX - projectileSize/2
         local spawnY = tipY + offsetY - projectileSize/2
-        SpawnPlayerSingleProjectile(spawnX, spawnY, dirX, dirY, pierceCount, bounceCount)
+        SpawnPlayerSingleProjectile(spawnX, spawnY, dirX, dirY, pierceCount, bounceCount, s)
     end
 end
 
@@ -2075,9 +2128,9 @@ function UpdateProjectiles()
         Entity.set_global_pos(proj.entity, proj.x, proj.y)
         
         -- Check collisionRadius with enemies
-        local projCenterX = proj.x + projectileSize/2
-        local projCenterY = proj.y + projectileSize/2
-        local hitRadius = collisionRadius + projectileSize/2
+        local projSize = proj.size or projectileSize
+        local projCenterX = proj.x + projSize/2
+        local projCenterY = proj.y + projSize/2
         local hitEnemyIndex = nil
 
         for j = #enemies, 1, -1 do
@@ -2091,7 +2144,7 @@ function UpdateProjectiles()
                 local eDisplaySize = enemy.displaySize or enemy.size or enemySize
                 local enemyCenterX = enemy.x + eDisplaySize/2
                 local enemyCenterY = enemy.y + eDisplaySize/2
-                local enemyHitRadius = eDisplaySize/2 + projectileSize/2
+                local enemyHitRadius = eDisplaySize/2 + projSize/2
                 local dx = projCenterX - enemyCenterX
                 local dy = projCenterY - enemyCenterY
                 local distSq = dx * dx + dy * dy
@@ -2107,13 +2160,14 @@ function UpdateProjectiles()
 
         if hitEnemyIndex ~= nil then
             local enemy = enemies[hitEnemyIndex]
+            local damage = proj.damage or 1
             if not proj.hasHit then
                 proj.hasHit = true
                 runShotsHit = runShotsHit + 1
             end
-            runDamageDealt = runDamageDealt + 1
-            enemy.health = (enemy.health or 0) - 1
-            TriangleShooterPlayerProgress.addXp(1)
+            runDamageDealt = runDamageDealt + damage
+            enemy.health = (enemy.health or 0) - damage
+            TriangleShooterPlayerProgress.addXp(damage)
             FlashEnemy(enemy)
             TriangleShooterEnemy.updateDisplaySize(enemy)
 
@@ -2164,24 +2218,26 @@ function UpdateProjectiles()
                 local hitEdge = false
                 local edgeX, edgeY = nil, nil
 
+                local projSize = proj.size or projectileSize
+
                 if proj.x < 0 then
                     hitEdge = true
                     edgeX = "left"
                     proj.x = 0
-                elseif proj.x + projectileSize > screenW then
+                elseif proj.x + projSize > screenW then
                     hitEdge = true
                     edgeX = "right"
-                    proj.x = screenW - projectileSize
+                    proj.x = screenW - projSize
                 end
 
                 if proj.y < 0 then
                     hitEdge = true
                     edgeY = "top"
                     proj.y = 0
-                elseif proj.y + projectileSize > screenH then
+                elseif proj.y + projSize > screenH then
                     hitEdge = true
                     edgeY = "bottom"
-                    proj.y = screenH - projectileSize
+                    proj.y = screenH - projSize
                 end
 
                 if hitEdge then
@@ -2189,8 +2245,8 @@ function UpdateProjectiles()
                         proj.bounceRemaining = proj.bounceRemaining - 1
                         proj.hitEnemies = {}
 
-                        local newProjCenterX = proj.x + projectileSize/2
-                        local newProjCenterY = proj.y + projectileSize/2
+                        local newProjCenterX = proj.x + projSize/2
+                        local newProjCenterY = proj.y + projSize/2
                         local closestEnemy = FindClosestEnemy(newProjCenterX, newProjCenterY)
 
                         if closestEnemy then

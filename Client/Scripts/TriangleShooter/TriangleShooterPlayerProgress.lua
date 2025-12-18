@@ -5,7 +5,7 @@ local xp = 0
 local xpToNextLevel = 100
 
 local playerStats = {
-    bulletCount = 1,
+    firepower = 1,
     pierceCount = 0,
     bounceCount = 0,
     fireInterval = 0.3,
@@ -37,14 +37,16 @@ function TriangleShooterPlayerProgress.canTakeUpgrade(upgradeType)
     if upgradeType == "fire_rate" then
         return (playerStats.fireRateUpgradeCount or 0) < 3
     elseif upgradeType == "bounce" then
-        return (playerStats.bounceCount or 0) < 2
+        return (playerStats.bounceCount or 0) < 1
+    elseif upgradeType == "firepower" then
+        return (playerStats.firepower or 1) < 5
     end
     return true
 end
 
 function TriangleShooterPlayerProgress.applyUpgrade(upgradeType)
-    if upgradeType == "bullet" then
-        playerStats.bulletCount = playerStats.bulletCount + 1
+    if upgradeType == "firepower" then
+        playerStats.firepower = playerStats.firepower + 1
     elseif upgradeType == "pierce" then
         playerStats.pierceCount = playerStats.pierceCount + 1
     elseif upgradeType == "bounce" then
@@ -90,8 +92,8 @@ function TriangleShooterPlayerProgress.getProgress()
     return playerLevel, xp, xpToNextLevel
 end
 
-function TriangleShooterPlayerProgress.getBulletCount()
-    return playerStats.bulletCount
+function TriangleShooterPlayerProgress.getFirepower()
+    return playerStats.firepower
 end
 
 function TriangleShooterPlayerProgress.getPierceCount()
@@ -120,7 +122,7 @@ function TriangleShooterPlayerProgress.reset()
     xpToNextLevel = 100
     pendingLevelUp = false
     
-    playerStats.bulletCount = 1
+    playerStats.firepower = 1
     playerStats.pierceCount = 0
     playerStats.bounceCount = 0
     playerStats.fireInterval = 0.3

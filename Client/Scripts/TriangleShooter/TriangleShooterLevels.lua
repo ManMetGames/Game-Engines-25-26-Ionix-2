@@ -2,6 +2,45 @@ local TriangleShooterLevels = {}
 
 local PROCEDURAL_START_LEVEL = 6
 
+--=====================================================================
+--  [MUSIC] BPM & Beat-Synced Fire Rates
+--=====================================================================
+local BPM = 133
+local BEAT_DURATION = 60 / BPM
+
+local function beatsToSeconds(beats)
+    return beats * BEAT_DURATION
+end
+
+local FIRE_RATE_WEIGHTS = {
+    standard = {
+        [2]   = 3,
+        [2.5] = 2,
+        [3]   = 1,
+    },
+    boss = {
+        [3]   = 2,
+        [4]   = 1,
+    },
+}
+
+local function weightedBeatPick(weights)
+    local total = 0
+    for _, w in pairs(weights) do total = total + w end
+    local roll = math.random() * total
+    local cumulative = 0
+    for beats, w in pairs(weights) do
+        cumulative = cumulative + w
+        if roll <= cumulative then
+            return beatsToSeconds(beats)
+        end
+    end
+    -- Fallback (shouldn't happen)
+    for beats, _ in pairs(weights) do
+        return beatsToSeconds(beats)
+    end
+end
+
 local generatedLevelCache = {}
 
 local HEALTH_BUDGET = {
@@ -9,8 +48,8 @@ local HEALTH_BUDGET = {
     perLevel = 18,
     levelSquaredFactor = 0.5,
     lateLevelThreshold = 12,
-    lateSquaredFactor = 2.5,
-    lateCubedFactor = 0.3,
+    lateSquaredFactor = 1.75,
+    lateCubedFactor = 0.25,
 }
 
 local TIMER_CONFIG = {
@@ -45,7 +84,6 @@ local ENEMY_TEMPLATES = {
                 movementType = "bounce",
                 health = health,
                 speed = speed,
-                shootInterval = 1.5 + math.random() * 0.5,
             }
         end,
     },
@@ -68,7 +106,7 @@ local ENEMY_TEMPLATES = {
                 health = health,
                 shootPattern = "cone",
                 projectileCount = 2 + math.random(0, 2),
-                shootInterval = 0.7 + math.random() * 0.3,
+                shootInterval = weightedBeatPick(FIRE_RATE_WEIGHTS.standard),
             }
         end,
     },
@@ -92,7 +130,7 @@ local ENEMY_TEMPLATES = {
                 orbitRadius = radius,
                 orbitSpeed = speed,
                 health = health,
-                shootInterval = 1.0 + math.random() * 0.25,
+                shootInterval = weightedBeatPick(FIRE_RATE_WEIGHTS.standard),
             }
         end,
     },
@@ -114,7 +152,7 @@ local ENEMY_TEMPLATES = {
                 health = health,
                 shootPattern = "circle",
                 projectileCount = 6 + math.random(0, 4),
-                shootInterval = 1.2 + math.random() * 0.3,
+                shootInterval = weightedBeatPick(FIRE_RATE_WEIGHTS.boss),
                 spinWhileShooting = true,
             }
         end,
@@ -390,7 +428,7 @@ local levels = {
         windowWidth = 640,
         windowHeight = 800,
         enemies = {
-            { movementType = "stationary", x = 400, y = 500, health = 45, shootPattern = "cone", projectileCount = 2, shootInterval = 0.85 },
+            { movementType = "stationary", x = 400, y = 500, health = 45, shootPattern = "cone", projectileCount = 2, shootInterval = beatsToSeconds(2) },
         },
     },
     [3] = {
@@ -401,7 +439,7 @@ local levels = {
         windowWidth = 1026,
         windowHeight = 640,
         enemies = {
-            { movementType = "stationary", x = 500, y = 300, health = 30, shootPattern = "cone", projectileCount = 2, shootInterval = 0.8 },
+            { movementType = "stationary", x = 500, y = 300, health = 30, shootPattern = "cone", projectileCount = 2, shootInterval = beatsToSeconds(2) },
             { movementType = "bounce", x = 900, y = 550, health = 30, shootPattern = "cone", projectileCount = 0, shootInterval = 0},
         },
     },
@@ -424,8 +462,8 @@ local levels = {
         windowWidth = 600,
         windowHeight = 800,
         enemies = {
-            { movementType = "stationary", x = 500, y = 300, health = 45, shootPattern = "cone", projectileCount = 1, shootInterval = 0.75 },
-            { movementType = "stationary", x = 350, y = 200, health = 45, shootPattern = "cone", projectileCount = 2,  shootInterval = 0.95 },
+            { movementType = "stationary", x = 500, y = 300, health = 45, shootPattern = "cone", projectileCount = 1, shootInterval = beatsToSeconds(2) },
+            { movementType = "stationary", x = 350, y = 200, health = 45, shootPattern = "cone", projectileCount = 2, shootInterval = beatsToSeconds(2.5) },
         },
     },
 }
@@ -469,6 +507,18 @@ end
 
 function TriangleShooterLevels.getEnemyTemplates()
     return ENEMY_TEMPLATES
+end
+
+function TriangleShooterLevels.getBPM()
+    return BPM
+end
+
+function TriangleShooterLevels.getBeatDuration()
+    return BEAT_DURATION
+end
+
+function TriangleShooterLevels.getFireRateWeights()
+    return FIRE_RATE_WEIGHTS
 end
 
 return TriangleShooterLevels
