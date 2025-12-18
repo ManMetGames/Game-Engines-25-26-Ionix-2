@@ -1247,7 +1247,7 @@ local function DrawGameOverMenu(screenW, screenH, dt)
     AddKV(leftX, y, "Accuracy", accuracyText, false); y = y + lineH
     AddKV(leftX, y, "Damage dealt", summary.damageDealt or 0, false); y = y + lineH
     AddKV(leftX, y, "Damage taken", summary.damageTaken or 0, false); y = y + lineH
-    AddKV(leftX, y, "Healing collected", summary.healingCollected or 0, false); y = y + lineH
+    AddKV(leftX, y, "Health Healed", summary.healingCollected or 0, false); y = y + lineH
 
     -- Right column: build recap
     local b = summary.build or {}
