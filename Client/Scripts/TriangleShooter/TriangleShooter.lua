@@ -40,11 +40,13 @@ local UI_FONT_REG  = "ImGuiDefault"
 
 local function ApplyLanguageFonts()
     if language == "ja" then
-        UI_FONT_BOLD = "ImGuiDefaultBoldJP"
-        UI_FONT_REG  = "ImGuiDefaultJP"
+      UI_FONT_REG   = "ImGuiDefaultJP"
+      UI_FONT_BOLD  = "ImGuiDefaultBoldJP"
+      UI_FONT_TITLE = "ImGuiTitleJP"
     else
-        UI_FONT_BOLD = "ImGuiDefaultBold"
-        UI_FONT_REG  = "ImGuiDefault"
+      UI_FONT_REG   = "ImGuiDefault"
+      UI_FONT_BOLD  = "ImGuiDefaultBold"
+      UI_FONT_TITLE = "ImGuiTitle"
     end
 end
 
@@ -828,7 +830,7 @@ local function DrawMainMenu(screenW, screenH, dt)
     local titleY = math.floor(panelH * 0.08)
     local subY   = titleY + math.floor(panelH * 0.10)
 
-    UI.add_centered_label(cx, titleY, "SYSTEM SHOOTER", "ImGuiDefaultBold", 3.0)
+    UI.add_centered_label(cx, titleY, "SYSTEM SHOOTER", UI_FONT_TITLE, 1.2)
     UI.add_centered_label(cx, subY, "Mouse to move | Hold LMB to shoot", "", 1.2)
     UI.add_centered_label(panelW*0.9, titleY + math.floor(panelH * 0.0), playerName, "", 1.2)
 
@@ -1046,7 +1048,7 @@ local function DrawSettingsMenu(screenW, screenH, dt)
     local contentW = panelW - 52
     local contentH = panelH - contentY - footerH
 
-    UI.add_centered_label(cx, math.floor(panelH * 0.05), T("settings.title"), UI_FONT_BOLD, 2.6)
+    UI.add_centered_label(cx, math.floor(panelH * 0.05), T("settings.title"), UI_FONT_TITLE, 1)
 
     -- Child for scrollable content 
     local NO_BACKGROUND = 128
