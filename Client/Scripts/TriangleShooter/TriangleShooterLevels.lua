@@ -63,7 +63,7 @@ local WINDOW_CONFIG = {
     minWidth = 400,
     minHeight = 400,
     maxWidth = 1400,
-    maxHeight = 900,
+    maxHeight = 850,
     maxArea = 950000,
 }
 
@@ -72,6 +72,8 @@ local ENEMY_TEMPLATES = {
         minLevel = 1,
         healthMin = 25,
         healthMax = 70,
+        budgetPercentCap = 0.25,
+        budgetCapMinLevel = 20,
         maxPerLevel = 4,
         spaceRequirement = 0,
         weight = 10,
@@ -198,11 +200,25 @@ local function calculateHealthBudget(level)
     return budget
 end
 
-local function getScaledHealthRange(template, level)
+local function getScaledHealthRange(template, level, healthBudget)
     local n = level - PROCEDURAL_START_LEVEL
     local scaleFactor = 1 + (n * 0.08)
     local scaledMin = math.floor(template.healthMin * scaleFactor)
     local scaledMax = math.floor(template.healthMax * scaleFactor)
+    
+    if template.budgetPercentCap and template.budgetCapMinLevel and healthBudget then
+        if level >= template.budgetCapMinLevel then
+            local percentCap = math.floor(healthBudget * template.budgetPercentCap)
+            if scaledMax > percentCap then
+                scaledMax = percentCap
+            end
+        end
+    end
+    
+    if scaledMax < scaledMin then
+        scaledMax = scaledMin
+    end
+    
     return scaledMin, scaledMax
 end
 
@@ -320,7 +336,7 @@ local function generateProceduralLevel(levelIndex)
     
     local minHealth = 999999
     for _, entry in ipairs(available) do
-        local scaledMin, _ = getScaledHealthRange(entry.template, levelIndex)
+        local scaledMin, _ = getScaledHealthRange(entry.template, levelIndex, healthBudget)
         if scaledMin < minHealth then
             minHealth = scaledMin
         end
@@ -341,7 +357,7 @@ local function generateProceduralLevel(levelIndex)
         local template = picked.template
         local name = picked.name
         
-        local scaledMin, scaledMax = getScaledHealthRange(template, levelIndex)
+        local scaledMin, scaledMax = getScaledHealthRange(template, levelIndex, healthBudget)
         
         if #enemies < minEnemies then
             local maxHealthForMinEnemies = remainingBudget - (minEnemies - #enemies - 1) * minHealth
@@ -385,8 +401,22 @@ local function generateProceduralLevel(levelIndex)
     end
     
     if remainingBudget > 0 and #enemies > 0 then
-        enemies[#enemies].health = enemies[#enemies].health + remainingBudget
-        remainingBudget = 0
+        for i = #enemies, 1, -1 do
+            if remainingBudget <= 0 then break end
+            
+            local enemy = enemies[i]
+            local templateName = enemy.movementType
+            local template = ENEMY_TEMPLATES[templateName]
+            if template then
+                local _, scaledMax = getScaledHealthRange(template, levelIndex, healthBudget)
+                local headroom = scaledMax - enemy.health
+                if headroom > 0 then
+                    local toAdd = math.min(headroom, remainingBudget)
+                    enemy.health = enemy.health + toAdd
+                    remainingBudget = remainingBudget - toAdd
+                end
+            end
+        end
     end
     
     local windowW, windowH = calculateWindowSize(enemies)
