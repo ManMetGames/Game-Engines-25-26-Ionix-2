@@ -18,7 +18,7 @@ local function generateShotPattern(firepower, aimX, aimY, projectileSize)
             dirY = aimY,
             isGolden = true,
             damage = 5,
-            sizeMultiplier = 5,
+            sizeMultiplier = 2.5,
         }
         return shots
     end

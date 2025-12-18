@@ -2165,24 +2165,26 @@ function UpdateProjectiles()
                 local hitEdge = false
                 local edgeX, edgeY = nil, nil
 
+                local projSize = proj.size or projectileSize
+
                 if proj.x < 0 then
                     hitEdge = true
                     edgeX = "left"
                     proj.x = 0
-                elseif proj.x + projectileSize > screenW then
+                elseif proj.x + projSize > screenW then
                     hitEdge = true
                     edgeX = "right"
-                    proj.x = screenW - projectileSize
+                    proj.x = screenW - projSize
                 end
 
                 if proj.y < 0 then
                     hitEdge = true
                     edgeY = "top"
                     proj.y = 0
-                elseif proj.y + projectileSize > screenH then
+                elseif proj.y + projSize > screenH then
                     hitEdge = true
                     edgeY = "bottom"
-                    proj.y = screenH - projectileSize
+                    proj.y = screenH - projSize
                 end
 
                 if hitEdge then
@@ -2190,8 +2192,8 @@ function UpdateProjectiles()
                         proj.bounceRemaining = proj.bounceRemaining - 1
                         proj.hitEnemies = {}
 
-                        local newProjCenterX = proj.x + projectileSize/2
-                        local newProjCenterY = proj.y + projectileSize/2
+                        local newProjCenterX = proj.x + projSize/2
+                        local newProjCenterY = proj.y + projSize/2
                         local closestEnemy = FindClosestEnemy(newProjCenterX, newProjCenterY)
 
                         if closestEnemy then
