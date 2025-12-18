@@ -11,6 +11,7 @@ struct Textures {
     uint32_t FlappyPipe = 1290161702u;
     uint32_t FlappyPipe2 = 2484853856u;
     uint32_t Ghast_Tear = 3650266058u;
+    uint32_t Ocean = 3904562398u;
     uint32_t PimBall = 3518613816u;
     uint32_t Sand = 2995081222u;
     uint32_t Test = 510180426u;
@@ -31,6 +32,7 @@ struct Textures {
         map["FlappyPipe"] = "./Assets/FlappyPipe.png";
         map["FlappyPipe2"] = "./Assets/FlappyPipe2.png";
         map["Ghast_Tear"] = "./Assets/Ghast_Tear.png";
+        map["Ocean"] = "./Assets/Ocean.png";
         map["PimBall"] = "./Assets/PimBall.png";
         map["Sand"] = "./Assets/Sand.png";
         map["Test"] = "./Assets/Test.png";
