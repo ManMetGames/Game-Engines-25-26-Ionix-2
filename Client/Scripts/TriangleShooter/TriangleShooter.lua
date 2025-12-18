@@ -358,6 +358,7 @@ local inMainMenu = true
 local menuStarting = false
 local menuStartDelay = 2
 local menuStartTimer = 0
+local MAIN_MENU_W, MAIN_MENU_H = 1280, 720
 
 --=====================================================================
 --  [RUN STATS] Helpers
@@ -663,15 +664,14 @@ function TriangleShooter:OnStart()
     Sprite.set_columns(playerSprite, 1)
 
     -- Main menu window size (target)
-    local targetW, targetH = 1280, 720
     local displayWidth = Window.get_display_width()
     local displayHeight = Window.get_display_height()
-    local newX = math.floor((displayWidth - targetW) * 0.5)
-    local newY = math.floor((displayHeight - targetH) * 0.5)
+    local newX = math.floor((displayWidth - MAIN_MENU_W) * 0.5)
+    local newY = math.floor((displayHeight - MAIN_MENU_H) * 0.5)
     Window.set_pos(newX, newY)
-    Window.set_size(targetW, targetH)
-    screenW = targetW
-    screenH = targetH
+    Window.set_size(MAIN_MENU_W, MAIN_MENU_H)
+    screenW = MAIN_MENU_W
+    screenH = MAIN_MENU_H
 
     StartLevel(1, true)
 
@@ -795,6 +795,7 @@ local function DrawMainMenu(screenW, screenH, dt)
 
     UI.add_centered_label(cx, titleY, "SYSTEM SHOOTER", "ImGuiDefaultBold", 3.0)
     UI.add_centered_label(cx, subY, "Mouse to move | Hold LMB to shoot", "", 1.2)
+    UI.add_centered_label(panelW*0.9, titleY + math.floor(panelH * 0.0), playerName, "", 1.2)
 
     -- Best stage
     UI.add_centered_label(cx, subY + math.floor(panelH * 0.08), "Best Stage: " .. tostring(bestStage or 0), "", 1.2)
@@ -1146,6 +1147,18 @@ end
 
 
 local function DrawGameOverMenu(screenW, screenH, dt)
+    Input.set_relative_mouse_mode(false)
+
+    -- Main menu window size (target)
+    local displayWidth = Window.get_display_width()
+    local displayHeight = Window.get_display_height()
+    local newX = math.floor((displayWidth - MAIN_MENU_W) * 0.5)
+    local newY = math.floor((displayHeight - MAIN_MENU_H) * 0.5)
+    Window.set_pos(newX, newY)
+    Window.set_size(MAIN_MENU_W, MAIN_MENU_H)
+    screenW = MAIN_MENU_W
+    screenH = MAIN_MENU_H
+
     UI.add_panel(0, 0, screenW, screenH, 0.65, 0, 0, 0, 0)
 
     local panelW = math.floor(math.max(720, math.min(screenW * 0.72, 980)))
@@ -1161,7 +1174,6 @@ local function DrawGameOverMenu(screenW, screenH, dt)
 
     local cx = panelW / 2
     UI.add_centered_label(cx, math.floor(panelH * 0.05), "GAME OVER", "ImGuiDefaultBold", 2.8)
-    UI.add_centered_label(cx, math.floor(panelH * 0.13), "End of Run Summary", "", 1.1)
 
     local summary = endRunSummary or CaptureEndRunSummary()
     local shotsFired = tonumber(summary.shotsFired or 0) or 0
@@ -1177,7 +1189,7 @@ local function DrawGameOverMenu(screenW, screenH, dt)
     local sumW = math.floor(panelW * 0.90)
     local sumH = math.floor(panelH * 0.54)
     local sumX = math.floor((panelW - sumW) / 2)
-    local sumY = math.floor(panelH * 0.18)
+    local sumY = math.floor(panelH * 0.13)
 
     UI.begin_child(sumX, sumY, sumW, sumH, "TS_EndRunSummary",
         true, 0,
