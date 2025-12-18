@@ -1247,8 +1247,8 @@ local function DrawGameOverMenu(screenW, screenH, dt)
     end
 
     -- Left column: results + combat
-    AddKV(leftX, y, "Final score", summary.stageReached or 1, true); y = y + lineH
-    AddKV(leftX, y, "Stage reached", summary.playerLevel or 1, true); y = y + lineH
+    AddKV(leftX, y, "Stage reached", summary.stageReached or 1, true); y = y + lineH
+    AddKV(leftX, y, "Player level", summary.playerLevel or 1, true); y = y + lineH
     AddKV(leftX, y, "Time survived", FormatTimeMMSS(summary.timeSurvived or 0), true); y = y + lineH
     AddKV(leftX, y, "Enemies killed", summary.enemiesKilled or 0, true); y = y + lineH
 
@@ -1264,7 +1264,7 @@ local function DrawGameOverMenu(screenW, screenH, dt)
     local ry = 46
     UI.add_label(rightX, ry, 0, 0, "BUILD RECAP", "ImGuiDefaultBold", 1.2); ry = ry + lineH
 
-    UI.add_label(rightX, ry, 0, 0, "Bullets: " .. tostring(b.bullets or 1), "", 1.05); ry = ry + lineH
+    UI.add_label(rightX, ry, 0, 0, "Firepower: " .. tostring(b.bullets or 1), "", 1.05); ry = ry + lineH
     UI.add_label(rightX, ry, 0, 0, "Pierce: " .. tostring(b.pierce or 0), "", 1.05); ry = ry + lineH
     UI.add_label(rightX, ry, 0, 0, "Bounce: " .. tostring(b.bounce or 0), "", 1.05); ry = ry + lineH
     UI.add_label(rightX, ry, 0, 0, string.format("Fire interval: %.2fs", tonumber(b.fireInterval or 0.5) or 0.5), "", 1.05); ry = ry + lineH
