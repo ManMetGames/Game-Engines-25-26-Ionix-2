@@ -12,9 +12,11 @@ local TriangleShooterPlayerProgress = require("Scripts.TriangleShooter.TriangleS
 local ParticleSystem = require("Scripts.TriangleShooter.ParticleSystem")
 local TriangleShooterUI = require("Scripts.TriangleShooter.TriangleShooterUI")
 local TriangleShooterPickups = require("Scripts.TriangleShooter.TriangleShooterPickups")
+local Localisation = require("Scripts.TriangleShooter.Localisation")
+local function T(key) return Localisation.t(key) end
 
  --=====================================================================
- --  [LEADERBOARD / SAVE DATA]
+ --  [LEADERBOARD / SAVE DATA / LANGUAGE]
  --=====================================================================
 local GAME_ID = "SYSTEM_SHOOTER"
 
@@ -29,6 +31,24 @@ local needsPlayerName = (playerName == "")
 local showNamePrompt = false
 local pendingStartAfterName = false
 local namePromptError = ""
+
+local language = Json.load_setting(GAME_ID, "ui.language", "en") or "en"
+Localisation.set_language(language)
+
+local UI_FONT_BOLD = "ImGuiDefaultBold"
+local UI_FONT_REG  = "ImGuiDefault"
+
+local function ApplyLanguageFonts()
+    if language == "ja" then
+        UI_FONT_BOLD = "ImGuiDefaultBoldJP"
+        UI_FONT_REG  = "ImGuiDefaultJP"
+    else
+        UI_FONT_BOLD = "ImGuiDefaultBold"
+        UI_FONT_REG  = "ImGuiDefault"
+    end
+end
+
+ApplyLanguageFonts()
 
  --=====================================================================
  --  [Settings] per-game saved settings
@@ -733,10 +753,10 @@ local function DrawNamePrompt(screenW, screenH)
     )
 
     local cx = w / 2
-    UI.add_centered_label(cx, 28, "ENTER YOUR NAME", "ImGuiDefaultBold", 1.6)
+    UI.add_centered_label(cx, 28, "ENTER YOUR NAME", UI_FONT_BOLD, 1.6)
     UI.add_centered_label(cx, 62, "Register yourself on the Leaderboard.", "", 1.0)
     if namePromptError ~= "" then
-        UI.add_centered_label(cx, 82, namePromptError, "ImGuiDefaultBold", 1.0)
+        UI.add_centered_label(cx, 82, namePromptError, UI_FONT_BOLD, 1.0)
     end
 
 
@@ -748,7 +768,7 @@ local function DrawNamePrompt(screenW, screenH)
     local bx = math.floor((w - bw) / 2)
     UI.add_button(bx, 150, bw, bh,
         "CONTINUE", "ts_name_ok",
-        "ImGuiDefaultBold", 1.0,
+        UI_FONT_BOLD, 1.0,
         10, true,
         74, 12, 255, 0.95
     )
@@ -856,7 +876,7 @@ local function DrawMainMenu(screenW, screenH, dt)
     local startLabel = menuStarting and "Starting..." or "START GAME"
     UI.add_button(bx, by, bw, bh,
         startLabel, "menu_start",
-        "ImGuiDefaultBold", 1.1,
+        UI_FONT_BOLD, 1.1,
         12, true,
         74, 12, 255, 0.95
     )
@@ -878,22 +898,22 @@ local function DrawMainMenu(screenW, screenH, dt)
     local gap = 16
     UI.add_button(bx, by + bh + gap, bw, bh,
         "LEADERBOARD", "menu_leaderboard",
-        "ImGuiDefaultBold", 1.1,
+        UI_FONT_BOLD, 1.1,
         12, true,
         0, 170, 110, 0.95
     )
 
     -- Settings button
     UI.add_button(bx, by + (bh + gap) * 2, bw, bh,
-        "SETTINGS", "menu_settings",
-        "ImGuiDefaultBold", 1.1,
+        T("menu.settings"), "menu_settings",
+        UI_FONT_BOLD, 1.1,
         12, true,
         120, 120, 120, 0.95
     )
 
     UI.add_button(bx, by + (bh + gap) * 3, bw, bh,
     "EXIT GAME", "menu_exit",
-    "ImGuiDefaultBold", 1.1,
+    UI_FONT_BOLD, 1.1,
     12, true,
     120, 30, 30, 0.95
     )
@@ -1104,6 +1124,27 @@ local function DrawSettingsMenu(screenW, screenH, dt)
         "ImGuiDefaultBold", 1.0
     )
 
+    local langY = sensY + 100
+
+    UI.add_centered_label(innerCX, langY - 42, "Language", "", 1.8)
+
+    local opts = { "English", "日本語" }
+    local defaultIndex = (language == "ja") and 1 or 0  
+
+    local dropdownW = sliderW
+    local dropdownX = sliderX
+
+    local langDropdownFont = "ImGuiDefaultJP" 
+    UI.add_dropdown(dropdownX, langY, dropdownW, 32, "", "ts_lang", opts, defaultIndex, langDropdownFont, 1.0)
+
+    if UI.was_dropdown_changed("ts_lang") then
+        local idx = UI.get_dropdown_index("ts_lang") or 0
+        language = (idx == 1) and "ja" or "en"
+        Json.save_setting(GAME_ID, "ui.language", language)
+        Localisation.set_language(language)
+        ApplyLanguageFonts()
+    end
+    
     UI.end_child()
     -- Back button
     local bw, bh = math.min(320, math.floor(panelW * 0.55)), 50
