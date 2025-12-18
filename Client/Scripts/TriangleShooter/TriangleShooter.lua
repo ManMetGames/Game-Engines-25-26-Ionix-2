@@ -88,9 +88,6 @@ local function TryUpdateBestStage(stage)
     if stage > (bestStage or 0) then
         bestStage = stage
         Json.save_high_score(GAME_ID, bestStage)
-        if not needsPlayerName then
-            Firebase.submit_high_score(GAME_ID, playerName, bestStage)
-        end
     end
 end
 
@@ -355,10 +352,12 @@ local runDamageDealt = 0
 local runDamageTaken = 0
 local runHealingCollected = 0
 
+
+-- Leaderboard sync (submit once per run, on Game Over)
+local runLeaderboardSubmitted = false
 -- Game Over state + snapshot
 local isGameOver = false
 local endRunSummary = nil
-
 -- Main Menu
 local inMainMenu = true
 local menuStarting = false
@@ -428,12 +427,6 @@ local function TriggerGameOver()
     Input.set_relative_mouse_mode(false)
     -- stop firing immediately
     isFiring = false
-end
-
-local function Clamp01(v)
-    if v < 0 then return 0 end
-    if v > 1 then return 1 end
-    return v
 end
 
  --=====================================================================
@@ -779,11 +772,6 @@ local function DrawNamePrompt(screenW, screenH)
 
             Json.save_player_name(playerName)
             UI.clear_input("ts_player_name")
-
-            if bestStage and bestStage > 0 then
-                Firebase.submit_high_score(GAME_ID, playerName, bestStage)
-            end
-
             if pendingStartAfterName then
                 pendingStartAfterName = false
                 menuStarting = true
@@ -854,6 +842,7 @@ local function DrawMainMenu(screenW, screenH, dt)
             TriangleShooterPickups.clearAll()
             TriangleShooterPlayerProgress.reset()
             isGameOver = false
+            runLeaderboardSubmitted = false
             StartLevel(1, true)
             -- Start music from beginning (synced with gameplay)
             if musicEntity and not musicStartedThisLaunch then
@@ -950,21 +939,30 @@ local function DrawLeaderboardMenu(screenW, screenH, dt)
     )
 
     local cx = panelW / 2
+    local footerH = 100 -- space reserved for the Back button area
+    local contentX = 26
+    local contentY = math.floor(panelH * 0.13)  
+    local contentW = panelW - 52
+    local contentH = panelH - contentY - footerH
 
     UI.add_centered_label(cx, math.floor(panelH * 0.05), "LEADERBOARD", "ImGuiDefaultBold", 2.6)
     UI.add_centered_label(cx, math.floor(panelH * 0.13), "Top 10 Highest Stages", "", 1.2)
+
+    local NO_BACKGROUND = 128
+    UI.begin_child(contentX, contentY, contentW, contentH, "TS_LeaderboardContent",
+    false, NO_BACKGROUND, false)
 
     if not leaderboardFetched then
         topLeaderboard = Firebase.retrieve_high_score(GAME_ID, 10)
         leaderboardFetched = true
     end
 
-    local listX = math.floor(panelW * 0.20)
-    local listY = math.floor(panelH * 0.21)
+    local listX = math.floor(contentW * 0.20)
+    local listY = math.floor(contentH * 0.15)
     local lineH = 26
 
     if topLeaderboard then
-        local stageX = math.floor(panelW * 0.68) 
+        local stageX = math.floor(contentW * 0.68) 
 
         for i = 1, 10 do
             local e = topLeaderboard[i]
@@ -987,6 +985,7 @@ local function DrawLeaderboardMenu(screenW, screenH, dt)
         UI.add_centered_label(cx, listY + 10, "(No scores yet)", "", 1.2)
     end
 
+    UI.end_child()
     -- Back button
     local bw, bh = math.min(320, math.floor(panelW * 0.55)), 50
     local bx = math.floor((panelW - bw) / 2)
@@ -1177,6 +1176,17 @@ local function DrawPauseMenu(screenW, screenH, dt)
     UI.end_child()
 end
 
+local function SubmitLeaderboardScoreOnce(score)
+    if runLeaderboardSubmitted then return end
+    if needsPlayerName then return end
+    if playerName == nil or playerName == "" then return end
+
+    score = math.floor(tonumber(score) or 0)
+    if score <= 0 then return end
+
+    Firebase.submit_high_score(GAME_ID, playerName, score)
+    runLeaderboardSubmitted = true
+end
 
 local function DrawGameOverMenu(screenW, screenH, dt)
     Input.set_relative_mouse_mode(false)
@@ -1208,6 +1218,7 @@ local function DrawGameOverMenu(screenW, screenH, dt)
     UI.add_centered_label(cx, math.floor(panelH * 0.05), "GAME OVER", "ImGuiDefaultBold", 2.8)
 
     local summary = endRunSummary or CaptureEndRunSummary()
+    SubmitLeaderboardScoreOnce(summary.stageReached or 1)
     local shotsFired = tonumber(summary.shotsFired or 0) or 0
     local shotsHit = tonumber(summary.shotsHit or 0) or 0
 
@@ -1243,24 +1254,25 @@ local function DrawGameOverMenu(screenW, screenH, dt)
     end
 
     -- Left column: results + combat
-    AddKV(leftX, y, "Final score", summary.stageReached or 1, true); y = y + lineH
-    AddKV(leftX, y, "Level reached", summary.playerLevel or 1, true); y = y + lineH
+    AddKV(leftX, y, "Stage reached", summary.stageReached or 1, true); y = y + lineH
+    AddKV(leftX, y, "Player level", summary.playerLevel or 1, true); y = y + lineH
     AddKV(leftX, y, "Time survived", FormatTimeMMSS(summary.timeSurvived or 0), true); y = y + lineH
     AddKV(leftX, y, "Enemies killed", summary.enemiesKilled or 0, true); y = y + lineH
 
     y = y + 10
     UI.add_label(leftX, y, 0, 0, "COMBAT", "ImGuiDefaultBold", 1.2); y = y + lineH
+    AddKV(leftX, y, "Shots fired", shotsFired, false); y = y + lineH
     AddKV(leftX, y, "Accuracy", accuracyText, false); y = y + lineH
     AddKV(leftX, y, "Damage dealt", summary.damageDealt or 0, false); y = y + lineH
     AddKV(leftX, y, "Damage taken", summary.damageTaken or 0, false); y = y + lineH
-    AddKV(leftX, y, "Healing collected", summary.healingCollected or 0, false); y = y + lineH
+    AddKV(leftX, y, "Health Healed", summary.healingCollected or 0, false); y = y + lineH
 
     -- Right column: build recap
     local b = summary.build or {}
     local ry = 46
     UI.add_label(rightX, ry, 0, 0, "BUILD RECAP", "ImGuiDefaultBold", 1.2); ry = ry + lineH
 
-    UI.add_label(rightX, ry, 0, 0, "Bullets: " .. tostring(b.bullets or 1), "", 1.05); ry = ry + lineH
+    UI.add_label(rightX, ry, 0, 0, "Firepower: " .. tostring(b.bullets or 1), "", 1.05); ry = ry + lineH
     UI.add_label(rightX, ry, 0, 0, "Pierce: " .. tostring(b.pierce or 0), "", 1.05); ry = ry + lineH
     UI.add_label(rightX, ry, 0, 0, "Bounce: " .. tostring(b.bounce or 0), "", 1.05); ry = ry + lineH
     UI.add_label(rightX, ry, 0, 0, string.format("Fire interval: %.2fs", tonumber(b.fireInterval or 0.5) or 0.5), "", 1.05); ry = ry + lineH
@@ -1299,6 +1311,7 @@ local function DrawGameOverMenu(screenW, screenH, dt)
         ClearAllPlayerProjectiles()
         ClearAllEnemyProjectiles()
         Input.set_relative_mouse_mode(true)
+        runLeaderboardSubmitted = false
         StartLevel(1, true)
         -- Restart music from beginning to sync with gameplay
         if musicEntity then
@@ -1360,31 +1373,54 @@ local function DrawPauseLeaderboard(screenW, screenH, dt)
         0.01, false, 0.85,
         UI__COLOUR_THEME[1], UI__COLOUR_THEME[2], UI__COLOUR_THEME[3], 1.0 -- RGBA border
     )
-
     local cx = panelW / 2
+    local footerH = 100 -- space reserved for the Back button area
+    local contentX = 26
+    local contentY = math.floor(panelH * 0.13)  
+    local contentW = panelW - 52
+    local contentH = panelH - contentY - footerH
+
     UI.add_centered_label(cx, math.floor(panelH * 0.05), "LEADERBOARD", "ImGuiDefaultBold", 2.6)
     UI.add_centered_label(cx, math.floor(panelH * 0.13), "Top 10 Highest Stages", "", 1.2)
 
-    if not pauseLeaderboardFetched then
-        pauseTopLeaderboard = Firebase.retrieve_high_score(GAME_ID, 10)
-        pauseLeaderboardFetched = true
+    local NO_BACKGROUND = 128
+    UI.begin_child(contentX, contentY, contentW, contentH, "TS_PauseLeaderboardContent",
+    false, NO_BACKGROUND, false)
+
+    if not leaderboardFetched then
+        topLeaderboard = Firebase.retrieve_high_score(GAME_ID, 10)
+        leaderboardFetched = true
     end
 
-    local listX = math.floor(panelW * 0.20)
-    local listY = math.floor(panelH * 0.21)
+    local listX = math.floor(contentW * 0.20)
+    local listY = math.floor(contentH * 0.15)
     local lineH = 26
 
-    if pauseTopLeaderboard then
+    if topLeaderboard then
+        local stageX = math.floor(contentW * 0.68) 
+
         for i = 1, 10 do
-            local e = pauseTopLeaderboard[i]
-            local line = e
-                and string.format("%2d. %-16s  Stage %d", i, tostring(e.name), tonumber(e.score) or 0)
-                or  string.format("%2d. --", i)
-            UI.add_label(listX, listY + (i - 1) * lineH, 0, 0, line, "", 1.4)
+            local e = topLeaderboard[i]
+            local y = listY + (i - 1) * lineH
+
+            if e then
+                local name = tostring(e.name)
+                local stage = tonumber(e.score) or 0
+
+                -- Left column: "1. Name"
+                UI.add_label(listX, y, 0, 0, string.format("%2d. %s", i, name), "", 1.4)
+
+                -- Right column: "Stage X"
+                UI.add_label(stageX, y, 0, 0, string.format("Stage %d", stage), "", 1.4)
+            else
+                UI.add_label(listX, y, 0, 0, string.format("%2d. --", i), "", 1.4)
+            end
         end
     else
         UI.add_centered_label(cx, listY + 10, "(No scores yet)", "", 1.2)
     end
+
+    UI.end_child()
 
     local bw, bh = math.min(320, math.floor(panelW * 0.55)), 50
     local bx = math.floor((panelW - bw) / 2)
@@ -1538,6 +1574,8 @@ end
 
 GoToMainMenuFromPause = function()
     SetPaused(false)
+
+    SubmitLeaderboardScoreOnce(currentLevel or 1)
 
     ResetRunStateForMenu()
 
