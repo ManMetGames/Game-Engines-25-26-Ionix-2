@@ -429,12 +429,6 @@ local function TriggerGameOver()
     isFiring = false
 end
 
-local function Clamp01(v)
-    if v < 0 then return 0 end
-    if v > 1 then return 1 end
-    return v
-end
-
  --=====================================================================
  --  [SETTINGS] Audio Volume
  --=====================================================================
@@ -1238,7 +1232,7 @@ local function DrawGameOverMenu(screenW, screenH, dt)
 
     -- Left column: results + combat
     AddKV(leftX, y, "Final score", summary.stageReached or 1, true); y = y + lineH
-    AddKV(leftX, y, "Level reached", summary.playerLevel or 1, true); y = y + lineH
+    AddKV(leftX, y, "Stage reached", summary.playerLevel or 1, true); y = y + lineH
     AddKV(leftX, y, "Time survived", FormatTimeMMSS(summary.timeSurvived or 0), true); y = y + lineH
     AddKV(leftX, y, "Enemies killed", summary.enemiesKilled or 0, true); y = y + lineH
 
