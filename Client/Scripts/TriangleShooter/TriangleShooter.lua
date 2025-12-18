@@ -88,9 +88,6 @@ local function TryUpdateBestStage(stage)
     if stage > (bestStage or 0) then
         bestStage = stage
         Json.save_high_score(GAME_ID, bestStage)
-        if not needsPlayerName then
-            Firebase.submit_high_score(GAME_ID, playerName, bestStage)
-        end
     end
 end
 
@@ -355,10 +352,12 @@ local runDamageDealt = 0
 local runDamageTaken = 0
 local runHealingCollected = 0
 
+
+-- Leaderboard sync (submit once per run, on Game Over)
+local runLeaderboardSubmitted = false
 -- Game Over state + snapshot
 local isGameOver = false
 local endRunSummary = nil
-
 -- Main Menu
 local inMainMenu = true
 local menuStarting = false
@@ -773,11 +772,6 @@ local function DrawNamePrompt(screenW, screenH)
 
             Json.save_player_name(playerName)
             UI.clear_input("ts_player_name")
-
-            if bestStage and bestStage > 0 then
-                Firebase.submit_high_score(GAME_ID, playerName, bestStage)
-            end
-
             if pendingStartAfterName then
                 pendingStartAfterName = false
                 menuStarting = true
@@ -848,6 +842,7 @@ local function DrawMainMenu(screenW, screenH, dt)
             TriangleShooterPickups.clearAll()
             TriangleShooterPlayerProgress.reset()
             isGameOver = false
+            runLeaderboardSubmitted = false
             StartLevel(1, true)
             -- Start music from beginning (synced with gameplay)
             if musicEntity and not musicStartedThisLaunch then
@@ -1181,6 +1176,17 @@ local function DrawPauseMenu(screenW, screenH, dt)
     UI.end_child()
 end
 
+local function SubmitLeaderboardScoreOnce(score)
+    if runLeaderboardSubmitted then return end
+    if needsPlayerName then return end
+    if playerName == nil or playerName == "" then return end
+
+    score = math.floor(tonumber(score) or 0)
+    if score <= 0 then return end
+
+    Firebase.submit_high_score(GAME_ID, playerName, score)
+    runLeaderboardSubmitted = true
+end
 
 local function DrawGameOverMenu(screenW, screenH, dt)
     Input.set_relative_mouse_mode(false)
@@ -1212,6 +1218,7 @@ local function DrawGameOverMenu(screenW, screenH, dt)
     UI.add_centered_label(cx, math.floor(panelH * 0.05), "GAME OVER", "ImGuiDefaultBold", 2.8)
 
     local summary = endRunSummary or CaptureEndRunSummary()
+    SubmitLeaderboardScoreOnce(summary.stageReached or 1)
     local shotsFired = tonumber(summary.shotsFired or 0) or 0
     local shotsHit = tonumber(summary.shotsHit or 0) or 0
 
@@ -1254,6 +1261,7 @@ local function DrawGameOverMenu(screenW, screenH, dt)
 
     y = y + 10
     UI.add_label(leftX, y, 0, 0, "COMBAT", "ImGuiDefaultBold", 1.2); y = y + lineH
+    AddKV(leftX, y, "Shots fired", shotsFired, false); y = y + lineH
     AddKV(leftX, y, "Accuracy", accuracyText, false); y = y + lineH
     AddKV(leftX, y, "Damage dealt", summary.damageDealt or 0, false); y = y + lineH
     AddKV(leftX, y, "Damage taken", summary.damageTaken or 0, false); y = y + lineH
@@ -1303,6 +1311,7 @@ local function DrawGameOverMenu(screenW, screenH, dt)
         ClearAllPlayerProjectiles()
         ClearAllEnemyProjectiles()
         Input.set_relative_mouse_mode(true)
+        runLeaderboardSubmitted = false
         StartLevel(1, true)
         -- Restart music from beginning to sync with gameplay
         if musicEntity then
@@ -1565,6 +1574,8 @@ end
 
 GoToMainMenuFromPause = function()
     SetPaused(false)
+
+    SubmitLeaderboardScoreOnce(currentLevel or 1)
 
     ResetRunStateForMenu()
 
