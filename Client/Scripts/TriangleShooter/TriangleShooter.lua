@@ -873,7 +873,7 @@ local function DrawMainMenu(screenW, screenH, dt)
     end
 
 
-    local startLabel = menuStarting and "Starting..." or "START GAME"
+    local startLabel = menuStarting and T("menu.starting") or T("menu.play")
     UI.add_button(bx, by, bw, bh,
         startLabel, "menu_start",
         UI_FONT_BOLD, 1.1,
@@ -897,7 +897,7 @@ local function DrawMainMenu(screenW, screenH, dt)
     -- Leaderboard button
     local gap = 16
     UI.add_button(bx, by + bh + gap, bw, bh,
-        "LEADERBOARD", "menu_leaderboard",
+        T("menu.leaderboard"), "menu_leaderboard",
         UI_FONT_BOLD, 1.1,
         12, true,
         0, 170, 110, 0.95
@@ -912,7 +912,7 @@ local function DrawMainMenu(screenW, screenH, dt)
     )
 
     UI.add_button(bx, by + (bh + gap) * 3, bw, bh,
-    "EXIT GAME", "menu_exit",
+    T("menu.quit"), "menu_exit",
     UI_FONT_BOLD, 1.1,
     12, true,
     120, 30, 30, 0.95
@@ -965,7 +965,7 @@ local function DrawLeaderboardMenu(screenW, screenH, dt)
     local contentW = panelW - 52
     local contentH = panelH - contentY - footerH
 
-    UI.add_centered_label(cx, math.floor(panelH * 0.05), "LEADERBOARD", "ImGuiDefaultBold", 2.6)
+    UI.add_centered_label(cx, math.floor(panelH * 0.05), T("menu.leaderboard"), UI_FONT_BOLD, 2.6)
     UI.add_centered_label(cx, math.floor(panelH * 0.13), "Top 10 Highest Stages", "", 1.2)
 
     local NO_BACKGROUND = 128
@@ -1012,8 +1012,8 @@ local function DrawLeaderboardMenu(screenW, screenH, dt)
     local by = panelH - bh - 32
 
     UI.add_button(bx, by, bw, bh,
-        "BACK", "menu_back",
-        "ImGuiDefaultBold", 1.0,
+        T("menu.back"), "menu_back",
+        UI_FONT_BOLD, 1.0,
         12, true,
         74, 12, 255, 0.95
     )
@@ -1046,7 +1046,7 @@ local function DrawSettingsMenu(screenW, screenH, dt)
     local contentW = panelW - 52
     local contentH = panelH - contentY - footerH
 
-    UI.add_centered_label(cx, math.floor(panelH * 0.05), "SETTINGS", "ImGuiDefaultBold", 2.6)
+    UI.add_centered_label(cx, math.floor(panelH * 0.05), T("settings.title"), UI_FONT_BOLD, 2.6)
 
     -- Child for scrollable content 
     local NO_BACKGROUND = 128
@@ -1057,7 +1057,7 @@ local function DrawSettingsMenu(screenW, screenH, dt)
     local sliderW = math.floor(contentW * 0.5)
     local sliderX = math.floor((contentW - sliderW) / 2)
 
-    UI.add_centered_label(innerCX, 12, "Audio", "ImGuiDefaultBold", 1.8)
+    UI.add_centered_label(innerCX, 12, T("settings.audio"), UI_FONT_BOLD, 1.8)
 
     local sliderStyle = {
     height = 21,        -- thickness
@@ -1104,7 +1104,7 @@ local function DrawSettingsMenu(screenW, screenH, dt)
     end
 
     local controlsHeaderY = y0 + gapY * 3 + 10
-    UI.add_centered_label(innerCX, controlsHeaderY, "Controls", "ImGuiDefaultBold", 1.8)
+    UI.add_centered_label(innerCX, controlsHeaderY, T("settings.controls"), UI_FONT_BOLD, 1.8)
 
     local sensY = controlsHeaderY + 60
     -- draw sensitivity slider at sensY
@@ -1126,7 +1126,7 @@ local function DrawSettingsMenu(screenW, screenH, dt)
 
     local langY = sensY + 100
 
-    UI.add_centered_label(innerCX, langY - 42, "Language", "", 1.8)
+    UI.add_centered_label(innerCX, langY - 42, T("settings.language"), UI_FONT_BOLD, 1.8)
 
     local opts = { "English", "日本語" }
     local defaultIndex = (language == "ja") and 1 or 0  
@@ -1152,8 +1152,8 @@ local function DrawSettingsMenu(screenW, screenH, dt)
     local by = panelH - bh - 32
 
     UI.add_button(bx, by, bw, bh,
-        "BACK", "menu_back_settings",
-        "ImGuiDefaultBold", 1.0,
+        T("menu.back"), "menu_back_settings",
+        UI_FONT_BOLD, 1.0,
         12, true,
         74, 12, 255, 0.95
     )
@@ -1183,7 +1183,7 @@ local function DrawPauseMenu(screenW, screenH, dt)
     )
 
     local cx = panelW / 2
-    UI.add_centered_label(cx, math.floor(panelH * 0.12), "PAUSED", "ImGuiDefaultBold", 2.6)
+    UI.add_centered_label(cx, math.floor(panelH * 0.12), T("pause.title"), UI_FONT_BOLD, 2.6)
     UI.add_centered_label(cx, math.floor(panelH * 0.22), "Press ESC to resume", "", 1.1)
 
     local bw, bh = math.min(340, math.floor(panelW * 0.60)), 50
@@ -1191,17 +1191,17 @@ local function DrawPauseMenu(screenW, screenH, dt)
     local y0 = math.floor(panelH * 0.34)
     local gap = 14
 
-    UI.add_button(bx, y0 + (bh + gap) * 0, bw, bh, "RESUME", "pause_resume",
-        "ImGuiDefaultBold", 1.0, 12, true, 74, 12, 255, 0.95)
+    UI.add_button(bx, y0 + (bh + gap) * 0, bw, bh, T("pause.resume"), "pause_resume",
+        UI_FONT_BOLD, 1.0, 12, true, 74, 12, 255, 0.95)
 
-    UI.add_button(bx, y0 + (bh + gap) * 1, bw, bh, "SETTINGS", "pause_settings",
-        "ImGuiDefaultBold", 1.0, 12, true, 74, 12, 255, 0.90)
+    UI.add_button(bx, y0 + (bh + gap) * 1, bw, bh, T("menu.settings"), "pause_settings",
+        UI_FONT_BOLD, 1.0, 12, true, 74, 12, 255, 0.90)
 
-    UI.add_button(bx, y0 + (bh + gap) * 2, bw, bh, "LEADERBOARD", "pause_leaderboard",
-        "ImGuiDefaultBold", 1.0, 12, true, 74, 12, 255, 0.90)
+    UI.add_button(bx, y0 + (bh + gap) * 2, bw, bh, T("menu.leaderboard"), "pause_leaderboard",
+        UI_FONT_BOLD, 1.0, 12, true, 74, 12, 255, 0.90)
 
-    UI.add_button(bx, y0 + (bh + gap) * 3, bw, bh, "BACK TO MAIN MENU", "pause_mainmenu",
-        "ImGuiDefaultBold", 1.0, 12, true, 120, 30, 30, 0.90)
+    UI.add_button(bx, y0 + (bh + gap) * 3, bw, bh, T("pause.quit"), "pause_mainmenu",
+        UI_FONT_BOLD, 1.0, 12, true, 120, 30, 30, 0.90)
 
     if UI.was_button_pressed("pause_resume") then
         SetPaused(false)
@@ -1256,7 +1256,7 @@ local function DrawGameOverMenu(screenW, screenH, dt)
     )
 
     local cx = panelW / 2
-    UI.add_centered_label(cx, math.floor(panelH * 0.05), "GAME OVER", "ImGuiDefaultBold", 2.8)
+    UI.add_centered_label(cx, math.floor(panelH * 0.05), T("gameover.title"), UI_FONT_BOLD, 2.8)
 
     local summary = endRunSummary or CaptureEndRunSummary()
     SubmitLeaderboardScoreOnce(summary.stageReached or 1)
@@ -1282,7 +1282,7 @@ local function DrawGameOverMenu(screenW, screenH, dt)
     )
 
     local scx = sumW / 2
-    UI.add_centered_label(scx, 10, "RUN SUMMARY", "ImGuiDefaultBold", 1.6)
+    UI.add_centered_label(scx, 10, T("gameover.summary"), UI_FONT_BOLD, 1.6)
 
     local leftX = 20
     local rightX = math.floor(sumW * 0.75)
@@ -1330,14 +1330,14 @@ local function DrawGameOverMenu(screenW, screenH, dt)
     local by = math.floor(panelH * 0.80)
 
     UI.add_button(bx, by, bw, bh,
-        "RETRY", "gameover_retry",
+        T("gameover.retry"), "gameover_retry",
         "ImGuiDefaultBold", 1.1,
         12, true,
         74, 12, 255, 0.95
     )
 
     UI.add_button(bx + bw + gap, by, bw, bh,
-        "BACK TO MAIN MENU", "gameover_mainmenu",
+        T("gameover.back"), "gameover_mainmenu",
         "ImGuiDefaultBold", 1.1,
         12, true,
         120, 30, 30, 0.95
@@ -1421,7 +1421,7 @@ local function DrawPauseLeaderboard(screenW, screenH, dt)
     local contentW = panelW - 52
     local contentH = panelH - contentY - footerH
 
-    UI.add_centered_label(cx, math.floor(panelH * 0.05), "LEADERBOARD", "ImGuiDefaultBold", 2.6)
+    UI.add_centered_label(cx, math.floor(panelH * 0.05), T("menu.leaderboard"), UI_FONT_BOLD, 2.6)
     UI.add_centered_label(cx, math.floor(panelH * 0.13), "Top 10 Highest Stages", "", 1.2)
 
     local NO_BACKGROUND = 128
@@ -1467,8 +1467,8 @@ local function DrawPauseLeaderboard(screenW, screenH, dt)
     local bx = math.floor((panelW - bw) / 2)
     local by = panelH - bh - 32
 
-    UI.add_button(bx, by, bw, bh, "BACK", "pause_back_lb",
-        "ImGuiDefaultBold", 1.0, 12, true, 74, 12, 255, 0.95)
+    UI.add_button(bx, by, bw, bh, T("menu.back"), "pause_back_lb",
+        UI_FONT_BOLD, 1.0, 12, true, 74, 12, 255, 0.95)
 
     if UI.was_button_pressed("pause_back_lb") then
         pauseScreen = "pause"
@@ -1498,10 +1498,10 @@ local function DrawPauseSettingsMenu(screenW, screenH, dt)
     local contentW = panelW - 52
     local contentH = panelH - contentY - footerH
 
-    UI.add_centered_label(cx, math.floor(panelH * 0.05), "SETTINGS", "ImGuiDefaultBold", 2.6)
+    UI.add_centered_label(cx, math.floor(panelH * 0.05), T("settings.title"), UI_FONT_BOLD, 2.6)
 
     -- Child for scrollable content 
-    local NO_BACKGROUND = 128
+local NO_BACKGROUND = 128
     UI.begin_child(contentX, contentY, contentW, contentH, "TS_SettingsContent",
     false, NO_BACKGROUND, false)
 
@@ -1509,7 +1509,7 @@ local function DrawPauseSettingsMenu(screenW, screenH, dt)
     local sliderW = math.floor(contentW * 0.5)
     local sliderX = math.floor((contentW - sliderW) / 2)
 
-    UI.add_centered_label(innerCX, 12, "Audio", "ImGuiDefaultBold", 1.8)
+    UI.add_centered_label(innerCX, 12, T("settings.audio"), UI_FONT_BOLD, 1.8)
 
     local sliderStyle = {
     height = 21,        -- thickness
@@ -1556,7 +1556,7 @@ local function DrawPauseSettingsMenu(screenW, screenH, dt)
     end
 
     local controlsHeaderY = y0 + gapY * 3 + 10
-    UI.add_centered_label(innerCX, controlsHeaderY, "Controls", "ImGuiDefaultBold", 1.8)
+    UI.add_centered_label(innerCX, controlsHeaderY, T("settings.controls"), UI_FONT_BOLD, 1.8)
 
     local sensY = controlsHeaderY + 60
     -- draw sensitivity slider at sensY
@@ -1576,6 +1576,27 @@ local function DrawPauseSettingsMenu(screenW, screenH, dt)
         "ImGuiDefaultBold", 1.0
     )
 
+    local langY = sensY + 100
+
+    UI.add_centered_label(innerCX, langY - 42, T("settings.language"), "", 1.8)
+
+    local opts = { "English", "日本語" }
+    local defaultIndex = (language == "ja") and 1 or 0  
+
+    local dropdownW = sliderW
+    local dropdownX = sliderX
+
+    local langDropdownFont = "ImGuiDefaultJP" 
+    UI.add_dropdown(dropdownX, langY, dropdownW, 32, "", "ts_lang", opts, defaultIndex, langDropdownFont, 1.0)
+
+    if UI.was_dropdown_changed("ts_lang") then
+        local idx = UI.get_dropdown_index("ts_lang") or 0
+        language = (idx == 1) and "ja" or "en"
+        Json.save_setting(GAME_ID, "ui.language", language)
+        Localisation.set_language(language)
+        ApplyLanguageFonts()
+    end
+    
     UI.end_child()
     -- Back button
     local bw, bh = math.min(320, math.floor(panelW * 0.55)), 50
@@ -1583,8 +1604,8 @@ local function DrawPauseSettingsMenu(screenW, screenH, dt)
     local by = panelH - bh - 32
 
     UI.add_button(bx, by, bw, bh,
-        "BACK", "pause_back_settings",
-        "ImGuiDefaultBold", 1.0,
+        T("menu.back"), "pause_back_settings",
+        UI_FONT_BOLD, 1.0,
         12, true,
         74, 12, 255, 0.95
     )

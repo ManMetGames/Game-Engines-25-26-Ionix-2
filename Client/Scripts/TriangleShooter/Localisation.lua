@@ -1,4 +1,4 @@
-﻿local Localisation = {}
+local Localisation = {}
 
 local current = "en"
 
