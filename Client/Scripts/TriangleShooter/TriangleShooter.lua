@@ -364,6 +364,7 @@ local inMainMenu = true
 local menuStarting = false
 local menuStartDelay = 2
 local menuStartTimer = 0
+local musicStartedThisLaunch = false
 local MAIN_MENU_W, MAIN_MENU_H = 1280, 720
 
 --=====================================================================
@@ -703,7 +704,7 @@ function TriangleShooter:OnStart()
 
     musicEntity = Entity.create_entity()
     Entity.add_audio_component(musicEntity, "technoSong", false)
-    AudioComponent.play(musicEntity, 0, -1)
+    -- Music will start when player presses START GAME
 
     playerDamageSfxEntity = Entity.create_entity()
     Entity.add_audio_component(playerDamageSfxEntity, "playerDamage", false)
@@ -854,6 +855,11 @@ local function DrawMainMenu(screenW, screenH, dt)
             TriangleShooterPlayerProgress.reset()
             isGameOver = false
             StartLevel(1, true)
+            -- Start music from beginning (synced with gameplay)
+            if musicEntity and not musicStartedThisLaunch then
+                AudioComponent.play(musicEntity, 0, -1)
+                musicStartedThisLaunch = true
+            end
         end
     end
 
@@ -1294,6 +1300,11 @@ local function DrawGameOverMenu(screenW, screenH, dt)
         ClearAllEnemyProjectiles()
         Input.set_relative_mouse_mode(true)
         StartLevel(1, true)
+        -- Restart music from beginning to sync with gameplay
+        if musicEntity then
+            AudioComponent.terminate(musicEntity)
+            AudioComponent.play(musicEntity, 0, -1)
+        end
 
     elseif UI.was_button_pressed("gameover_mainmenu") then
         isGameOver = false
@@ -1324,6 +1335,15 @@ SetPaused = function(p)
 
     -- show cursor in pause menus, lock cursor in gameplay
     Input.set_relative_mouse_mode(not isPaused)
+
+    -- Stop/resume music to prevent desync
+    if musicEntity then
+        if isPaused then
+            AudioComponent.pause(musicEntity)
+        else
+            AudioComponent.resume(musicEntity)
+        end
+    end
 end
 
 local function DrawPauseLeaderboard(screenW, screenH, dt)
@@ -1522,6 +1542,12 @@ GoToMainMenuFromPause = function()
     ResetRunStateForMenu()
 
     ResetWallWindowCapture()
+
+    -- Stop music when returning to main menu
+    if musicEntity then
+        AudioComponent.terminate(musicEntity)
+        musicStartedThisLaunch = false
+    end
 
     -- go to main menu
     inMainMenu = true
