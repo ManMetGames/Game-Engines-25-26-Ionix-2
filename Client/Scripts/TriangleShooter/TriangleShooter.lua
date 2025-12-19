@@ -812,7 +812,7 @@ local function DrawNamePrompt(screenW, screenH)
     UI.add_centered_label(cx, 18, T("play.prompttxt"), UI_FONT_HEADER, 1)
     UI.add_centered_label(cx, 48, T("play.promptdesc"), UI_FONT_REG, 1.2)
     if namePromptError ~= "" then
-        UI.add_centered_label(cx, 82, T("play.error"), UI_FONT_BOLD, 1.0)
+        UI.add_centered_label(cx, 82, namePromptError, UI_FONT_BOLD, 1.0)
     end
 
 
@@ -839,7 +839,7 @@ local function DrawNamePrompt(screenW, screenH)
         name = name:gsub("^%s+", ""):gsub("%s+$", "")
 
         if name == "" then
-            namePromptError = "Please enter a name."
+            namePromptError = T("play.error")
         else
             namePromptError = ""
             playerName = name
@@ -2052,7 +2052,7 @@ function TriangleShooter:OnUpdate()
         UI.draw_progress_bar(20, 20, 200, 20, currentEnemyHealthTotal, currentEnemyHealthTotal, 1)
     end
 
-    UI.add_centered_label(screenW / 2, 10, "Stage: " .. tostring(currentLevel), "")
+    UI.add_centered_label(screenW / 2, 10, T("gameplay.stage") .. tostring(currentLevel), UI_FONT_REG)
 
     local playerHpBarX = screenW - 220
     local playerHpBarY = 20
@@ -2063,7 +2063,7 @@ function TriangleShooter:OnUpdate()
     UI.draw_progress_bar(playerHpBarX, playerHpBarY, playerHpBarW, playerHpBarH, playerMaxHealth, playerHealth, 2)
 
     local level, xp, xpToNextLevel = TriangleShooterPlayerProgress.getProgress()
-    local playerInfoText = "Lv " .. tostring(level) .. "  XP " .. tostring(xp) .. "/" .. tostring(xpToNextLevel)
+    local playerInfoText = T("gameplay.level") .. tostring(level) .. T("gameplay.exp") .. tostring(xp) .. "/" .. tostring(xpToNextLevel)
     UI.add_centered_label(playerHpBarX + playerHpBarW / 2, playerHpBarY + playerHpBarH + 8, playerInfoText, UI_FONT_REG, 0.85)
 
     -- Peace progress bar (during start-level or end-level peace)
