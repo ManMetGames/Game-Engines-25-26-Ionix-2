@@ -56,6 +56,15 @@ end
 
 ApplyLanguageFonts()
 
+-- For other modules to access localisation and fonts
+TS_UI = TS_UI or {}
+TS_UI.T = function(key) return Localisation.t(key) end
+TS_UI.FONT_REG = UI_FONT_REG
+TS_UI.FONT_BOLD = UI_FONT_BOLD
+TS_UI.FONT_SUB = UI_FONT_SUB
+TS_UI.FONT_HEADER = UI_FONT_HEADER
+TS_UI.FONT_TITLE = UI_FONT_TITLE
+
  --=====================================================================
  --  [Settings] per-game saved settings
  --=====================================================================

@@ -28,6 +28,9 @@ local BORDER_GREEN = {0, 170, 110, 1.0}
 
 local BTN_ROUND = 12
 
+-- For language translation
+local function T(key) return TS_UI.T(key) end
+
 local function splitLines(s)
   local t = {}
   if not s or s == "" then return t end
@@ -125,8 +128,8 @@ if not isUpgradeMenuOpen then return end
     startY = minStartY
   end
 
-  UI.add_centered_label(screenW/2, 30, "LEVEL UP!", "ImGuiDefaultBold", 2.0)
-  UI.add_centered_label(screenW/2, 55, "Choose an upgrade", "", 1.4)
+  UI.add_centered_label(screenW/2, 15, T("gameplay.leveluptxt"), TS_UI.FONT_TITLE, 1)
+  UI.add_centered_label(screenW/2, 50, T("gameplay.upgradetxt"), TS_UI.FONT_SUB, 1)
 
 
   for i, opt in ipairs(upgradeOptions) do
