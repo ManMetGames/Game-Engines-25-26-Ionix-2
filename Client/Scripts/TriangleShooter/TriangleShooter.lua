@@ -2203,7 +2203,8 @@ local function SpawnPlayerSingleProjectile(spawnX, spawnY, dirX, dirY, pierceCou
     else
         -- Create new entity only if pool is empty
         local proj = Entity.create_entity()
-        local sprite = Entity.add_sprite_component(proj, assets.textures.Ghast_Tear, math.floor(actualSize), math.floor(actualSize), 5)
+        -- Layer 4: render under enemies (layer 5)
+        local sprite = Entity.add_sprite_component(proj, assets.textures.Ghast_Tear, math.floor(actualSize), math.floor(actualSize), 4)
         if isGolden and sprite then
             Sprite.set_color(sprite, 255, 215, 0)  -- Gold color
         end
@@ -2817,7 +2818,8 @@ local function SpawnEnemySingleProjectile(enemy, dirX, dirY)
         Sprite.set_color(projData.sprite, 128, 0, 255)
     else
         local proj = Entity.create_entity()
-        local sprite = Entity.add_sprite_component(proj, assets.textures.Ghast_Tear, enemyProjectileSize, enemyProjectileSize, 5)
+        -- Layer 4: render under enemies (layer 5)
+        local sprite = Entity.add_sprite_component(proj, assets.textures.Ghast_Tear, enemyProjectileSize, enemyProjectileSize, 4)
         Sprite.set_color(sprite, 128, 0, 255) -- Purple
         projData = { entity = proj, sprite = sprite }
     end
