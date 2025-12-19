@@ -1049,12 +1049,12 @@ local function DrawLeaderboardMenu(screenW, screenH, dt)
                 local stage = tonumber(e.score) or 0
 
                 -- Left column: "1. Name"
-                UI.add_label(listX, y, 0, 0, string.format("%2d. %s", i, name), UI_FONT_REG, 1.1)
+                UI.add_label(listX, y, 0, 0, string.format("%2d. %s", i, name), "ImGuiDefault", 1.1)
 
                 -- Right column: "Stage X"
-                UI.add_label(stageX, y, 0, 0, string.format("Stage %d", stage), UI_FONT_REG, 1.1)
+                UI.add_label(stageX, y, 0, 0, string.format(T("leaderboard.stage"), stage), UI_FONT_REG, 1.1)
             else
-                UI.add_label(listX, y, 0, 0, string.format("%2d. --", i), UI_FONT_REG, 1.1)
+                UI.add_label(listX, y, 0, 0, string.format("%2d. --", i), "ImGuiDefault", 1.1)
             end
         end
     else
@@ -1158,7 +1158,7 @@ local function DrawSettingsMenu(screenW, screenH, dt)
     local controlsHeaderY = y0 + gapY * 3 + 10
     UI.add_centered_label(innerCX, controlsHeaderY, T("settings.controls"), UI_FONT_HEADER, 1.2)
 
-    local sensY = controlsHeaderY + 60
+    local sensY = controlsHeaderY + 76
     -- draw sensitivity slider at sensY
 
     UI.add_centered_label(innerCX, sensY - 16, T("controls.sensitivity"), UI_FONT_REG, 1.05)
@@ -1176,9 +1176,9 @@ local function DrawSettingsMenu(screenW, screenH, dt)
         "ImGuiDefaultBold", 1.0
     )
 
-    local langY = sensY + 100
+    local langY = sensY + 84
 
-    UI.add_centered_label(innerCX, langY - 42, T("settings.language"), UI_FONT_HEADER, 1.2)
+    UI.add_centered_label(innerCX, langY - 16, T("settings.language"), UI_FONT_HEADER, 1.2)
 
     local opts = { "English", "日本語" }
     local defaultIndex = (language == "ja") and 1 or 0  
@@ -1186,8 +1186,27 @@ local function DrawSettingsMenu(screenW, screenH, dt)
     local dropdownW = sliderW
     local dropdownX = sliderX
 
+    local ddStyle = {
+      height = 32,
+      rounding = 10,
+      popup_rounding = 10,
+      border_size = 1,
+
+      frame        = { 30, 30, 30, 220 },
+      frame_hover  = { 40, 40, 40, 230 },
+      frame_active = { 50, 50, 50, 240 },
+
+      popup_bg = { 20, 20, 20, 240 },
+      border   = { 0, 0, 0,  80 },
+
+      item        = { 74, 12, 255, 120 },
+      item_hover  = { 74, 12, 255, 180 },
+      item_active = { 74, 12, 255, 220 },
+
+      text = { 255, 255, 255, 255 },
+    }
     local langDropdownFont = "ImGuiDefaultJP" 
-    UI.add_dropdown(dropdownX, langY, dropdownW, 32, "", "ts_lang", opts, defaultIndex, langDropdownFont, 1.0)
+    UI.add_dropdown_styled(dropdownX, langY + 24, dropdownW, 32, "", "ts_lang", opts, defaultIndex, langDropdownFont, 1.0, ddStyle)
 
     if UI.was_dropdown_changed("ts_lang") then
         local idx = UI.get_dropdown_index("ts_lang") or 0
@@ -1503,12 +1522,12 @@ local function DrawPauseLeaderboard(screenW, screenH, dt)
                 local stage = tonumber(e.score) or 0
 
                 -- Left column: "1. Name"
-                UI.add_label(listX, y, 0, 0, string.format("%2d. %s", i, name), UI_FONT_REG, 1.1)
+                UI.add_label(listX, y, 0, 0, string.format("%2d. %s", i, name), "ImGuiDefault", 1.1)
 
                 -- Right column: "Stage X"
-                UI.add_label(stageX, y, 0, 0, string.format("Stage %d", stage), UI_FONT_REG, 1.1)
+                UI.add_label(stageX, y, 0, 0, string.format(T("leaderboard.stage"), stage), UI_FONT_REG, 1.1)
             else
-                UI.add_label(listX, y, 0, 0, string.format("%2d. --", i), UI_FONT_REG, 1.1)
+                UI.add_label(listX, y, 0, 0, string.format("%2d. --", i), "ImGuiDefault", 1.1)
             end
         end
     else
@@ -1612,7 +1631,7 @@ local function DrawPauseSettingsMenu(screenW, screenH, dt)
     local controlsHeaderY = y0 + gapY * 3 + 10
     UI.add_centered_label(innerCX, controlsHeaderY, T("settings.controls"), UI_FONT_HEADER, 1.2)
 
-    local sensY = controlsHeaderY + 60
+        local sensY = controlsHeaderY + 76
     -- draw sensitivity slider at sensY
 
     UI.add_centered_label(innerCX, sensY - 16, T("controls.sensitivity"), UI_FONT_REG, 1.05)
@@ -1630,9 +1649,9 @@ local function DrawPauseSettingsMenu(screenW, screenH, dt)
         "ImGuiDefaultBold", 1.0
     )
 
-    local langY = sensY + 100
+    local langY = sensY + 84
 
-    UI.add_centered_label(innerCX, langY - 42, T("settings.language"), UI_FONT_HEADER, 1.2)
+    UI.add_centered_label(innerCX, langY - 16, T("settings.language"), UI_FONT_HEADER, 1.2)
 
     local opts = { "English", "日本語" }
     local defaultIndex = (language == "ja") and 1 or 0  
@@ -1640,8 +1659,27 @@ local function DrawPauseSettingsMenu(screenW, screenH, dt)
     local dropdownW = sliderW
     local dropdownX = sliderX
 
+    local ddStyle = {
+      height = 32,
+      rounding = 10,
+      popup_rounding = 10,
+      border_size = 1,
+
+      frame        = { 30, 30, 30, 220 },
+      frame_hover  = { 40, 40, 40, 230 },
+      frame_active = { 50, 50, 50, 240 },
+
+      popup_bg = { 20, 20, 20, 240 },
+      border   = { 0, 0, 0,  80 },
+
+      item        = { 74, 12, 255, 120 },
+      item_hover  = { 74, 12, 255, 180 },
+      item_active = { 74, 12, 255, 220 },
+
+      text = { 255, 255, 255, 255 },
+    }
     local langDropdownFont = "ImGuiDefaultJP" 
-    UI.add_dropdown(dropdownX, langY, dropdownW, 32, "", "ts_lang", opts, defaultIndex, langDropdownFont, 1.0)
+    UI.add_dropdown_styled(dropdownX, langY + 24, dropdownW, 32, "", "ts_lang", opts, defaultIndex, langDropdownFont, 1.0, ddStyle)
 
     if UI.was_dropdown_changed("ts_lang") then
         local idx = UI.get_dropdown_index("ts_lang") or 0

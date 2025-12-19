@@ -344,6 +344,73 @@ namespace IonixEngine
 		AddChildToPanel(element);
 	}
 
+
+	void UIManager::AddDropdownStyled(int x, int y, float xSize, float ySize, const char* label,
+		const char* id, const std::vector<std::string>& options, int defaultIndex,
+		const std::string& fontName, float fontScale,
+		float heightPx,
+		float rounding, float popupRounding, float borderSize,
+		bool hasFrame, ImVec4 frame,
+		bool hasFrameHovered, ImVec4 frameHovered,
+		bool hasFrameActive, ImVec4 frameActive,
+		bool hasPopupBg, ImVec4 popupBg,
+		bool hasBorder, ImVec4 borderCol,
+		bool hasItem, ImVec4 item,
+		bool hasItemHovered, ImVec4 itemHovered,
+		bool hasItemActive, ImVec4 itemActive,
+		bool hasText, ImVec4 textCol)
+	{
+		UIElement* element = new UIElement{};
+		element->type = UIType::Dropdown;
+		element->xPos = x; element->yPos = y;
+		element->xSize = xSize; element->ySize = (heightPx > 0.0f) ? heightPx : ySize;
+
+		element->ownedText = (label ? label : "");
+		element->text = element->ownedText.c_str();
+
+		element->widgetId = (id && id[0]) ? id : element->ownedText;
+		element->dropdownOptions = options;
+
+		element->fontName = fontName;
+		element->fontScale = fontScale;
+
+		// Init dropdown state once
+		if (m_dropdownIndex.find(element->widgetId) == m_dropdownIndex.end())
+			m_dropdownIndex[element->widgetId] = defaultIndex;
+
+		// Style
+		element->dropdownCustomStyle = true;
+		element->dropdownRounding = rounding;
+		element->dropdownPopupRounding = popupRounding;
+		element->dropdownBorderSize = borderSize;
+
+		element->ddHasFrame = hasFrame;
+		element->ddFrame = frame;
+		element->ddHasFrameHovered = hasFrameHovered;
+		element->ddFrameHovered = frameHovered;
+		element->ddHasFrameActive = hasFrameActive;
+		element->ddFrameActive = frameActive;
+
+		element->ddHasPopupBg = hasPopupBg;
+		element->ddPopupBg = popupBg;
+
+		element->ddHasBorder = hasBorder;
+		element->ddBorder = borderCol;
+
+		element->ddHasItem = hasItem;
+		element->ddItem = item;
+		element->ddHasItemHovered = hasItemHovered;
+		element->ddItemHovered = itemHovered;
+		element->ddHasItemActive = hasItemActive;
+		element->ddItemActive = itemActive;
+
+		element->ddHasText = hasText;
+		element->ddText = textCol;
+
+		AddChildToPanel(element);
+	}
+
+
 	void UIManager::AddProgressBar(int x, int y, float xSize, float ySize, float maxvalue, float* currentvalue, float incrementamount, const std::string& fontName)
 	{
 		UIElement* element = new UIElement;
@@ -761,10 +828,50 @@ namespace IonixEngine
 
 			std::string imguiLabel = element->ownedText + "##" + element->widgetId;
 
+			int pushedColors = 0;
+			int pushedVars = 0;
+			if (element->dropdownCustomStyle)
+			{
+				if (element->dropdownRounding >= 0.0f)
+				{
+					ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, element->dropdownRounding);
+					pushedVars++;
+				}
+				if (element->dropdownPopupRounding >= 0.0f)
+				{
+					ImGui::PushStyleVar(ImGuiStyleVar_PopupRounding, element->dropdownPopupRounding);
+					pushedVars++;
+				}
+				if (element->dropdownBorderSize >= 0.0f)
+				{
+					ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, element->dropdownBorderSize);
+					ImGui::PushStyleVar(ImGuiStyleVar_PopupBorderSize, element->dropdownBorderSize);
+					pushedVars += 2;
+				}
+
+				if (element->ddHasFrame) { ImGui::PushStyleColor(ImGuiCol_FrameBg, element->ddFrame); pushedColors++; }
+				if (element->ddHasFrameHovered) { ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, element->ddFrameHovered); pushedColors++; }
+				if (element->ddHasFrameActive) { ImGui::PushStyleColor(ImGuiCol_FrameBgActive, element->ddFrameActive); pushedColors++; }
+
+				if (element->ddHasPopupBg) { ImGui::PushStyleColor(ImGuiCol_PopupBg, element->ddPopupBg); pushedColors++; }
+				if (element->ddHasBorder) { ImGui::PushStyleColor(ImGuiCol_Border, element->ddBorder); pushedColors++; }
+
+				// Selectable colors inside combo popup
+				if (element->ddHasItem) { ImGui::PushStyleColor(ImGuiCol_Header, element->ddItem); pushedColors++; }
+				if (element->ddHasItemHovered) { ImGui::PushStyleColor(ImGuiCol_HeaderHovered, element->ddItemHovered); pushedColors++; }
+				if (element->ddHasItemActive) { ImGui::PushStyleColor(ImGuiCol_HeaderActive, element->ddItemActive); pushedColors++; }
+
+				if (element->ddHasText) { ImGui::PushStyleColor(ImGuiCol_Text, element->ddText); pushedColors++; }
+			}
+
 			bool changed = m_ui->DrawDropdown(element->xPos, element->yPos,
-				element->xSize, element->ySize,   
+				element->xSize, element->ySize,
 				imguiLabel.c_str(),
 				element->dropdownOptions, &idx);
+
+			if (pushedColors) ImGui::PopStyleColor(pushedColors);
+			if (pushedVars) ImGui::PopStyleVar(pushedVars);
+
 			if (changed)
 				m_dropdownChanged[element->widgetId] = true;
 

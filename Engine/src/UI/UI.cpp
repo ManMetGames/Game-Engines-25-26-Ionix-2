@@ -48,7 +48,7 @@ namespace IonixEngine
 		return ImGui::ColorEdit4(label, color4,
 			ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_PickerHueWheel);
 	}
-	
+
 	void UI::DrawProgressBar(int xPos, int yPos, float xSize, float ySize, float maxValue, float currentValue, int colorId)
 	{
 		float clampedMax = maxValue <= 0.0f ? 1.0f : maxValue;
@@ -94,7 +94,7 @@ namespace IonixEngine
 		}
 		ImGui::End();
 	}
-	
+
 	float UI::ProgressBar(int xPos, int yPos, float xSize, float ySize, float maxValue, float& currentValue, float incrementAmount)
 	{
 		ImGui::SetCursorPos(ImVec2(xPos, yPos));
@@ -123,12 +123,29 @@ namespace IonixEngine
 	{
 		ImGui::SetCursorPos(ImVec2((float)xPos, (float)yPos));
 		if (xSize > 0.0f) ImGui::SetNextItemWidth(xSize);
-		if (!currentIndex) return false;
+
+		// Use ySize as a desired control height (by adjusting FramePadding.y)
+		bool pushedPadding = false;
+		if (ySize > 0.0f)
+		{
+			ImGuiStyle& style = ImGui::GetStyle();
+			float padY = (ySize - ImGui::GetFontSize()) * 0.5f;
+			if (padY < 0.0f) padY = 0.0f;
+			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(style.FramePadding.x, padY));
+			pushedPadding = true;
+		}
+
+		if (!currentIndex)
+		{
+			if (pushedPadding) ImGui::PopStyleVar();
+			return false;
+		}
 
 		if (options.empty())
 		{
 			bool opened = ImGui::BeginCombo(text, "(empty)");
 			if (opened) ImGui::EndCombo();
+			if (pushedPadding) ImGui::PopStyleVar();
 			return false;
 		}
 
@@ -152,6 +169,7 @@ namespace IonixEngine
 			}
 			ImGui::EndCombo();
 		}
+		if (pushedPadding) ImGui::PopStyleVar();
 		return changed;
 	}
 

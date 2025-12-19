@@ -1,4 +1,4 @@
-#include "Scripting/UI/UIScripting.h"
+Ôªø#include "Scripting/UI/UIScripting.h"
 #include "UI/UIManager.h"
 #include "Architecture/Application.h"
 
@@ -111,7 +111,7 @@ namespace IonixEngine {
             {
                 auto norm = [](float v) -> float { return (v > 1.0f) ? (v / 255.0f) : v; };
 
-                // Defaults = Ågno overrideÅh
+                // Defaults = ÔøΩgno overrideÔøΩh
                 float heightPx = 0.0f;
                 float rounding = -1.0f;
                 float grabSize = 0.0f;
@@ -269,6 +269,99 @@ namespace IonixEngine {
                     fontName.value_or(""),
                     fontScale.value_or(1.0f)
                 );
+
+            };
+
+        auto AddDropdownStyled = [](int x, int y, float w, float h, const char* label,
+            const std::string& id, sol::table options,
+            sol::optional<int> defaultIndex,
+            sol::optional<std::string> fontName,
+            sol::optional<float> fontScale,
+            sol::optional<sol::table> style)
+            {
+                std::vector<std::string> opts;
+                for (auto& kv : options)
+                {
+                    sol::object v = kv.second;
+                    if (v.is<std::string>()) opts.push_back(v.as<std::string>());
+                }
+
+                auto norm = [](float v) -> float { return (v > 1.0f) ? (v / 255.0f) : v; };
+
+                float heightPx = 0.0f;
+                float rounding = -1.0f;
+                float popupRounding = -1.0f;
+                float borderSize = -1.0f;
+
+                bool hasFrame = false;         ImVec4 frame(0, 0, 0, 0);
+                bool hasFrameHovered = false;  ImVec4 frameHovered(0, 0, 0, 0);
+                bool hasFrameActive = false;   ImVec4 frameActive(0, 0, 0, 0);
+
+                bool hasPopupBg = false;       ImVec4 popupBg(0, 0, 0, 0);
+                bool hasBorder = false;        ImVec4 borderCol(0, 0, 0, 0);
+
+                bool hasItem = false;          ImVec4 item(0, 0, 0, 0);
+                bool hasItemHovered = false;   ImVec4 itemHovered(0, 0, 0, 0);
+                bool hasItemActive = false;    ImVec4 itemActive(0, 0, 0, 0);
+
+                bool hasText = false;          ImVec4 textCol(0, 0, 0, 0);
+
+                if (style)
+                {
+                    sol::table t = style.value();
+
+                    if (t["height"].valid())          heightPx = t["height"];
+                    if (t["rounding"].valid())        rounding = t["rounding"];
+                    if (t["popup_rounding"].valid())  popupRounding = t["popup_rounding"];
+                    if (t["border_size"].valid())     borderSize = t["border_size"];
+
+                    auto readColor = [&](const char* key, bool& has, ImVec4& out)
+                        {
+                            sol::object obj = t[key];
+                            if (!obj.valid() || !obj.is<sol::table>()) return;
+                            sol::table c = obj.as<sol::table>();
+                            out = ImVec4(
+                                norm(c.get_or(1, 0.0f)),
+                                norm(c.get_or(2, 0.0f)),
+                                norm(c.get_or(3, 0.0f)),
+                                norm(c.get_or(4, 1.0f))
+                            );
+                            has = true;
+                        };
+
+                    readColor("frame", hasFrame, frame);
+                    readColor("frame_hover", hasFrameHovered, frameHovered);
+                    readColor("frame_active", hasFrameActive, frameActive);
+
+                    readColor("popup_bg", hasPopupBg, popupBg);
+                    readColor("border", hasBorder, borderCol);
+
+                    // Selectable colors inside the dropdown list
+                    readColor("item", hasItem, item);
+                    readColor("item_hover", hasItemHovered, itemHovered);
+                    readColor("item_active", hasItemActive, itemActive);
+
+                    readColor("text", hasText, textCol);
+                }
+
+                Application::Get().layerUI->m_UIManager->AddDropdownStyled(
+                    x, y, w, h, label,
+                    id.c_str(), opts,
+                    defaultIndex.value_or(0),
+                    fontName.value_or(""),
+                    fontScale.value_or(1.0f),
+                    heightPx,
+                    rounding, popupRounding, borderSize,
+                    hasFrame, frame,
+                    hasFrameHovered, frameHovered,
+                    hasFrameActive, frameActive,
+                    hasPopupBg, popupBg,
+                    hasBorder, borderCol,
+                    hasItem, item,
+                    hasItemHovered, itemHovered,
+                    hasItemActive, itemActive,
+                    hasText, textCol
+                );
             };
 
         auto GetDropdownIndex = [](const std::string& id)
@@ -385,6 +478,7 @@ namespace IonixEngine {
             "add_panel", AddPanel,
             "add_radio", AddRadio,
             "add_dropdown", AddDropdown,
+            "add_dropdown_styled", AddDropdownStyled,
             "add_color_picker", AddColorPicker,
 
             "was_button_pressed", WasButtonPressed,
