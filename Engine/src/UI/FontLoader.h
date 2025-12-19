@@ -100,25 +100,25 @@ namespace IonixEngine
             };
 
             AddFontFromFileIfExists(
-                "NotoSansJP-Regular.ttf", 23.0f, &cfg, jpRanges, imguiDefault, "ImGuiDefaultJP");
+                "Fonts/NotoSansJP-Regular.ttf", 23.0f, &cfg, jpRanges, imguiDefault, "ImGuiDefaultJP");
 
             AddFontFromFileIfExists(
-                "NotoSansJP-Bold.ttf", 23.0f, &cfg, jpRanges, imguiDefaultBold, "ImGuiDefaultBoldJP");
+                "Fonts/NotoSansJP-Bold.ttf", 23.0f, &cfg, jpRanges, imguiDefaultBold, "ImGuiDefaultBoldJP");
 
             ImFontConfig jpSubCfg = cfg;
             jpSubCfg.SizePixels = 29.0f;
             AddFontFromFileIfExists(
-                "NotoSansJP-Regular.ttf", 29.0f, &jpSubCfg, jpRanges, imguiSub, "ImGuiSubJP");
+                "Fonts/NotoSansJP-Regular.ttf", 29.0f, &jpSubCfg, jpRanges, imguiSub, "ImGuiSubJP");
 
             ImFontConfig jpHeaderCfg = cfg;
             jpHeaderCfg.SizePixels = 33.0f;
             AddFontFromFileIfExists(
-                "NotoSansJP-Bold.ttf", 33.0f, &jpHeaderCfg, jpRanges, imguiHeader, "ImGuiHeaderJP");
+                "Fonts/NotoSansJP-Bold.ttf", 33.0f, &jpHeaderCfg, jpRanges, imguiHeader, "ImGuiHeaderJP");
 
             ImFontConfig jpTitleCfg = cfg;
             jpTitleCfg.SizePixels = 47.0f;
             AddFontFromFileIfExists(
-                "NotoSansJP-Bold.ttf", 47.0f, &jpTitleCfg, jpRanges, imguiTitle, "ImGuiTitleJP");
+                "Fonts/NotoSansJP-Bold.ttf", 47.0f, &jpTitleCfg, jpRanges, imguiTitle, "ImGuiTitleJP");
 
             // Build font atlas
             io.Fonts->Build();
