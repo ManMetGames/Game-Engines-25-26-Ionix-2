@@ -119,7 +119,7 @@ function TriangleShooterPlayerProgress.getUpgradeConfig()
 end
 
 function TriangleShooterPlayerProgress.addXp(amount)
-    xp = xp + 100
+    xp = xp + amount
     while xp >= xpToNextLevel do
         xp = xp - xpToNextLevel
         OnLevelUp()
