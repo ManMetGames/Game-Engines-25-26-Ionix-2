@@ -322,6 +322,9 @@ local function ResetRunStateForMenu()
     rewind.timeScale = 1.0
     rewind.enemySpawnPositions = {}
     rewind.enemyStartPositions = {}
+    rewind.enemyStartRotations = {}
+    rewind.enemyOriginalSpeedMults = {}
+    rewind.enemyOriginalSpinVelocities = {}
 
     -- reset stage/run basics
     currentLevel = 1
@@ -378,11 +381,12 @@ local rewind = {
     enemySpawnPositions = {},    -- stores {enemyIndex -> {x, y}} for rewind targets
     enemyStartPositions = {},    -- stores {enemyIndex -> {x, y}} for lerp start
     enemyStartRotations = {},    -- stores {enemyIndex -> rotation} for spin slowdown
+    enemyOriginalSpeedMults = {},-- stores {enemyIndex -> speedMultiplier} for restoring after rewind
+    enemyOriginalSpinVelocities = {}, -- stores {enemyIndex -> spinVelocity} for spin slowdown
     levelTimerStart = 0,         -- timer value at start of rewind phase
     levelTimerTarget = 0,        -- timer value to rewind to (full level time)
     healthStart = 0,             -- health at start of rewind
     healthTarget = 0,            -- health to rewind to (80% of max)
-    reverseSpinSpeed = 180,      -- degrees per second for reverse spin during rewind
 }
 
 -- SFX
@@ -714,12 +718,16 @@ local function StartRewindSequence()
     rewind.timer = rewind.slowdownDuration
     rewind.timeScale = 1.0
     
-    -- Capture current enemy positions and rotations for lerp start
+    -- Capture current enemy positions, rotations, speed multipliers, and spin velocities
     rewind.enemyStartPositions = {}
     rewind.enemyStartRotations = {}
+    rewind.enemyOriginalSpeedMults = {}
+    rewind.enemyOriginalSpinVelocities = {}
     for i, enemy in ipairs(enemies) do
         rewind.enemyStartPositions[i] = { x = enemy.x, y = enemy.y }
         rewind.enemyStartRotations[i] = enemy.rotation or 0
+        rewind.enemyOriginalSpeedMults[i] = enemy.speedMultiplier or 1.0
+        rewind.enemyOriginalSpinVelocities[i] = enemy.spinVelocity or 0
     end
     
     -- Capture level timer target (full level time)
@@ -732,8 +740,8 @@ local function StartRewindSequence()
     rewind.healthStart = playerHealth
     rewind.healthTarget = math.floor(maxHealth * 0.8)  -- 80% of max (leaving 20% gap)
     
-    -- Disable all enemies immediately (stops their AI/shooting)
-    TriangleShooterEnemy.disableAllEnemies(enemies)
+    -- Don't disable enemies yet - let them slow down visually
+    -- Collision damage is disabled by checking rewind.phase in UpdateEnemyCollision
     
     -- Pause music
     if musicEntity then
@@ -1879,39 +1887,37 @@ function TriangleShooter:OnUpdate()
      --=====================================================================
      --  [ONUPDATE] Player Movement (Mouse + Knockback)
      --=====================================================================
-    -- Disable movement during rewind
-    if not rewind.phase then
-        -- Get mouse delta (relative movement)
-        local delta = Input.get_mouse_delta()
-        local deltaX = 0
-        local deltaY = 0
-        
-        if knockbackTimer <= 0 then
-            deltaX = delta.x
-            deltaY = delta.y
-        end
-        
-        -- Move player by delta (allows knockback since not snapping to cursor)
-        local sens = sensitivitySetting or 1.0
-        playerX = playerX + deltaX * playerSpeed * sens
-        playerY = playerY + deltaY * playerSpeed * sens
-        
-        if knockbackTimer > 0 then
-            local tNorm = 1.0 - (knockbackTimer / knockbackDuration)
-            if tNorm < 0 then tNorm = 0 end
-            if tNorm > 1 then tNorm = 1 end
-            local factor = 1.0 - (tNorm * tNorm)
-            local speed = knockbackBaseSpeed * factor * dt
-            playerX = playerX + knockbackDirX * speed
-            playerY = playerY + knockbackDirY * speed
-            
-            knockbackTimer = knockbackTimer - dt
-        end
-        
-        -- Clamp to screen bounds
-        playerX = math.max(0, math.min(screenW - playerSize, playerX))
-        playerY = math.max(0, math.min(screenH - playerSize, playerY))
+    -- Player can still move during rewind
+    -- Get mouse delta (relative movement)
+    local delta = Input.get_mouse_delta()
+    local deltaX = 0
+    local deltaY = 0
+    
+    if knockbackTimer <= 0 then
+        deltaX = delta.x
+        deltaY = delta.y
     end
+    
+    -- Move player by delta (allows knockback since not snapping to cursor)
+    local sens = sensitivitySetting or 1.0
+    playerX = playerX + deltaX * playerSpeed * sens
+    playerY = playerY + deltaY * playerSpeed * sens
+    
+    if knockbackTimer > 0 then
+        local tNorm = 1.0 - (knockbackTimer / knockbackDuration)
+        if tNorm < 0 then tNorm = 0 end
+        if tNorm > 1 then tNorm = 1 end
+        local factor = 1.0 - (tNorm * tNorm)
+        local speed = knockbackBaseSpeed * factor * dt
+        playerX = playerX + knockbackDirX * speed
+        playerY = playerY + knockbackDirY * speed
+        
+        knockbackTimer = knockbackTimer - dt
+    end
+    
+    -- Clamp to screen bounds
+    playerX = math.max(0, math.min(screenW - playerSize, playerX))
+    playerY = math.max(0, math.min(screenH - playerSize, playerY))
     
      --=====================================================================
      --  [ONUPDATE] Aim (Nearest Enemy)
@@ -2121,12 +2127,19 @@ function TriangleShooter:OnUpdate()
         if playerHealth <= 0 then
             rewind.phase = nil
             rewind.timeScale = 1.0
+            -- Restore enemy colors before game over
+            for i, enemy in ipairs(enemies) do
+                if enemy.sprite then
+                    local c = enemy.color or {255, 255, 255}
+                    Sprite.set_color(enemy.sprite, c[1], c[2], c[3])
+                end
+            end
             TriggerGameOver()
             return
         end
         
         if rewind.phase == "slowing" then
-            -- Gradually slow down enemies with accelerating deceleration (ease-in)
+            -- Gradually slow down everything with accelerating deceleration (ease-in)
             rewind.timer = rewind.timer - dt
             local progress = 1.0 - (rewind.timer / rewind.slowdownDuration)
             if progress > 1.0 then progress = 1.0 end
@@ -2135,31 +2148,53 @@ function TriangleShooter:OnUpdate()
             local easedProgress = progress * progress
             rewind.timeScale = 1.0 - easedProgress  -- Goes from 1.0 to 0.0 with ease-in
             
-            -- Player projectiles continue at normal speed (no slowdown)
+            local scaledDt = dt * rewind.timeScale
+            
+            -- Player projectiles slow down with same easing
             for _, proj in ipairs(projectiles) do
-                proj.x = proj.x + proj.vx * dt
-                proj.y = proj.y + proj.vy * dt
+                proj.x = proj.x + proj.vx * scaledDt
+                proj.y = proj.y + proj.vy * scaledDt
                 Entity.set_global_pos(proj.entity, proj.x, proj.y)
             end
             
             -- Enemy projectiles slow down with enemies
-            local scaledDt = dt * rewind.timeScale
             for _, proj in ipairs(enemyProjectiles) do
                 proj.x = proj.x + proj.vx * scaledDt
                 proj.y = proj.y + proj.vy * scaledDt
                 Entity.set_global_pos(proj.entity, proj.x, proj.y)
             end
             
-            -- Slow down enemy rotation (spin) with same easing
+            -- Scale enemy speed multipliers AND spin velocities for gradual slowdown
             for i, enemy in ipairs(enemies) do
-                local startRot = rewind.enemyStartRotations[i] or 0
-                -- Rotation velocity decreases to 0 over time
-                -- We interpolate from current rotation speed to 0
-                enemy.spinVelocity = (enemy.spinVelocity or 0) * rewind.timeScale
-                Entity.set_global_rot(enemy.entity, enemy.rotation or 0)
+                local originalMult = rewind.enemyOriginalSpeedMults[i] or 1.0
+                local originalSpin = rewind.enemyOriginalSpinVelocities[i] or 0
+                enemy.speedMultiplier = originalMult * rewind.timeScale
+                enemy.spinVelocity = originalSpin * rewind.timeScale
+                
+                -- Apply transparency during slowdown (lerp to 50% brightness)
+                if enemy.sprite then
+                    local c = enemy.color or {255, 255, 255}
+                    local alpha = 1.0 - (easedProgress * 0.5)  -- Goes from 1.0 to 0.5
+                    Sprite.set_color(enemy.sprite, 
+                        math.floor(c[1] * alpha), 
+                        math.floor(c[2] * alpha), 
+                        math.floor(c[3] * alpha))
+                end
             end
             
+            -- Run normal enemy movement (will use scaled speedMultiplier and spinVelocity)
+            UpdateEnemyMovement()
+            
             if rewind.timer <= 0 then
+                -- Capture final positions/rotations after slowdown for rewind lerp
+                for i, enemy in ipairs(enemies) do
+                    rewind.enemyStartPositions[i] = { x = enemy.x, y = enemy.y }
+                    rewind.enemyStartRotations[i] = enemy.rotation or 0
+                    -- Restore original speed multiplier (spin stays at 0)
+                    enemy.speedMultiplier = rewind.enemyOriginalSpeedMults[i] or 1.0
+                    enemy.spinVelocity = 0
+                end
+                
                 rewind.phase = "stopped"
                 rewind.timer = rewind.stopPauseDuration
                 rewind.timeScale = 0.0
@@ -2181,7 +2216,7 @@ function TriangleShooter:OnUpdate()
             return
             
         elseif rewind.phase == "rewinding" then
-            -- Lerp enemies back to spawn positions
+            -- Lerp enemies back to spawn positions with reverse spin
             rewind.timer = rewind.timer - dt
             local progress = 1.0 - (rewind.timer / rewind.duration)
             if progress > 1.0 then progress = 1.0 end
@@ -2191,7 +2226,12 @@ function TriangleShooter:OnUpdate()
                 and 2 * progress * progress 
                 or 1 - math.pow(-2 * progress + 2, 2) / 2
             
-            -- Lerp enemy positions and apply reverse spin
+            -- Calculate reverse spin speed (peaks in middle, slows at ends)
+            -- Use a bell curve: sin(progress * pi) peaks at 0.5
+            local spinCurve = math.sin(progress * math.pi)
+            local reverseSpinSpeed = -120 * spinCurve  -- Negative = reverse direction
+            
+            -- Lerp enemy positions and apply reverse spin toward rotation 0
             for i, enemy in ipairs(enemies) do
                 local startPos = rewind.enemyStartPositions[i]
                 local targetPos = rewind.enemySpawnPositions[i]
@@ -2203,9 +2243,27 @@ function TriangleShooter:OnUpdate()
                     Entity.set_global_pos(enemy.entity, newX, newY)
                 end
                 
-                -- Reverse spin during rewind (negative direction)
-                enemy.rotation = (enemy.rotation or 0) - rewind.reverseSpinSpeed * dt
+                -- Apply reverse spin during rewind, lerping toward rotation 0
+                -- Normalize start rotation to [-180, 180] range
+                local startRot = rewind.enemyStartRotations[i] or 0
+                startRot = ((startRot + 180) % 360) - 180
+                
+                -- Base lerp toward 0
+                local baseRotation = startRot + (0 - startRot) * easedProgress
+                -- Add reverse spin overlay (diminishes as we approach the end)
+                local spinOverlay = reverseSpinSpeed * dt * (1.0 - easedProgress)
+                enemy.rotation = baseRotation + spinOverlay
                 Entity.set_global_rot(enemy.entity, enemy.rotation)
+                
+                -- Lerp transparency back to full (from 50% to 100%)
+                if enemy.sprite then
+                    local c = enemy.color or {255, 255, 255}
+                    local alpha = 0.5 + (easedProgress * 0.5)  -- Goes from 0.5 to 1.0
+                    Sprite.set_color(enemy.sprite, 
+                        math.floor(c[1] * alpha), 
+                        math.floor(c[2] * alpha), 
+                        math.floor(c[3] * alpha))
+                end
             end
             
             -- Lerp level timer bar (refill)
@@ -2224,6 +2282,14 @@ function TriangleShooter:OnUpdate()
             -- Rewind complete, restart level properly
             rewind.phase = nil
             rewind.timeScale = 1.0
+            
+            -- Restore full enemy colors before clearing
+            for i, enemy in ipairs(enemies) do
+                if enemy.sprite then
+                    local c = enemy.color or {255, 255, 255}
+                    Sprite.set_color(enemy.sprite, c[1], c[2], c[3])
+                end
+            end
             
             -- Set final values
             playerHealth = rewind.healthTarget
@@ -2638,6 +2704,11 @@ end
 ----------------------------------------------------------
 function UpdateEnemyCollision()
     if damageCooldown > 0 then
+        return
+    end
+    
+    -- Skip collision damage during rewind
+    if rewind.phase then
         return
     end
     
