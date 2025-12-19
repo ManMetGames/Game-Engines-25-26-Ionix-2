@@ -17,6 +17,8 @@ local state = {
     enemyStartRotations = {},    -- stores {enemyIndex -> rotation} for spin slowdown
     enemyOriginalSpeedMults = {},-- stores {enemyIndex -> speedMultiplier} for restoring
     enemyOriginalSpinVelocities = {}, -- stores {enemyIndex -> spinVelocity} for spin slowdown
+    enemyStartHealth = {},       -- stores {enemyIndex -> health} at rewind start for HP lerp
+    enemyTargetHealth = {},      -- stores {enemyIndex -> health} target HP (from level config)
     enemyProjStartPositions = {},-- stores {projIndex -> {x, y}} for enemy projectile rewind
     levelTimerStart = 0,         -- timer value at start of rewind phase
     levelTimerTarget = 0,        -- timer value to rewind to (full level time)
@@ -62,27 +64,33 @@ function TriangleShooterRewind.reset()
     state.enemyStartRotations = {}
     state.enemyOriginalSpeedMults = {}
     state.enemyOriginalSpinVelocities = {}
+    state.enemyStartHealth = {}
+    state.enemyTargetHealth = {}
     state.enemyProjStartPositions = {}
 end
 
 --=====================================================================
 --  [PUBLIC API] Start Rewind Sequence
 --=====================================================================
-function TriangleShooterRewind.start(enemies, playerHealth, maxHealth, levelTimeLimitSeconds)
+function TriangleShooterRewind.start(enemies, playerHealth, maxHealth, levelTimeLimitSeconds, enemyTargetHealthList)
     state.phase = "slowing"
     state.timer = state.slowdownDuration
     state.timeScale = 1.0
     
-    -- Capture current enemy positions, rotations, speed multipliers, and spin velocities
+    -- Capture current enemy positions, rotations, speed multipliers, spin velocities, and health
     state.enemyStartPositions = {}
     state.enemyStartRotations = {}
     state.enemyOriginalSpeedMults = {}
     state.enemyOriginalSpinVelocities = {}
+    state.enemyStartHealth = {}
+    state.enemyTargetHealth = {}
     for i, enemy in ipairs(enemies) do
         state.enemyStartPositions[i] = { x = enemy.x, y = enemy.y }
         state.enemyStartRotations[i] = enemy.rotation or 0
         state.enemyOriginalSpeedMults[i] = enemy.speedMultiplier or 1.0
         state.enemyOriginalSpinVelocities[i] = enemy.spinVelocity or 0
+        state.enemyStartHealth[i] = enemy.health or 0
+        state.enemyTargetHealth[i] = enemyTargetHealthList and enemyTargetHealthList[i] or enemy.health or 0
     end
     
     -- Capture level timer target (full level time)
@@ -242,6 +250,16 @@ function TriangleShooterRewind.update(dt, enemies, projectiles, enemyProjectiles
             
             -- Keep enemies at 50% transparency during rewind (peace timer will handle them)
             -- No lerp needed here
+            
+            -- Lerp enemy health back to target (for size scaling)
+            local startHp = state.enemyStartHealth[i] or 0
+            local targetHp = state.enemyTargetHealth[i] or startHp
+            enemy.health = math.floor(startHp + (targetHp - startHp) * easedProgress)
+            
+            -- Update display size based on new health
+            if enemy.healthScaling then
+                enemy.displaySize = enemy.size + (enemy.health * (enemy.sizePerHp or 0.125))
+            end
         end
         
         -- Lerp enemy projectiles back to their source enemies

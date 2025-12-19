@@ -687,13 +687,26 @@ local function OnEnemyKilled()
 end
 
 local function StartRewindSequence()
-    -- Get level config for time limit
+    -- Get level config for time limit and enemy target health
     local cfg = TriangleShooterLevels.getLevelConfig(currentLevel)
     local maxHealth = TriangleShooterPlayerProgress.getMaxHealth()
     local levelTimeLimit = cfg and cfg.timeLimitSeconds or 0
     
+    -- Build target health list from level config (these are the reduced values after timeout)
+    local enemyTargetHealthList = {}
+    if cfg and cfg.enemies then
+        for i, enemyCfg in ipairs(cfg.enemies) do
+            enemyTargetHealthList[i] = enemyCfg.health or levelEnemyHealth
+        end
+    else
+        -- Fallback: use current enemy health as target
+        for i, enemy in ipairs(enemies) do
+            enemyTargetHealthList[i] = enemy.health or 0
+        end
+    end
+    
     -- Start the rewind sequence via the module
-    TriangleShooterRewind.start(enemies, playerHealth, maxHealth, levelTimeLimit)
+    TriangleShooterRewind.start(enemies, playerHealth, maxHealth, levelTimeLimit, enemyTargetHealthList)
     
     -- Pause music
     if musicEntity then
