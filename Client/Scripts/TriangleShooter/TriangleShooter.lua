@@ -316,6 +316,13 @@ local function ResetRunStateForMenu()
     isStartLevelPeace = false
     isLevelupPeace = false
 
+    -- Reset rewind state
+    rewind.phase = nil
+    rewind.timer = 0
+    rewind.timeScale = 1.0
+    rewind.enemySpawnPositions = {}
+    rewind.enemyStartPositions = {}
+
     -- reset stage/run basics
     currentLevel = 1
     levelTimerSeconds = 0
@@ -358,6 +365,23 @@ local endLevelPeaceDuration = 2.5
 local levelupPeaceDuration = 2.0
 local isStartLevelPeace = false  -- true = waiting before enemies spawn, false = end-of-level peace
 local isLevelupPeace = false     -- true = peace period after selecting a levelup upgrade
+
+-- REWIND SYSTEM (level timeout) - consolidated into single table to save local variable slots
+-- Phases: nil (inactive), "slowing", "stopped", "rewinding", "done"
+local rewind = {
+    phase = nil,
+    slowdownDuration = 1.0,      -- seconds to slow everything to a stop
+    stopPauseDuration = 0.3,     -- brief pause at full stop before rewinding
+    duration = 4.5,              -- seconds for enemies to rewind to spawn positions
+    timer = 0,                   -- current phase timer
+    timeScale = 1.0,             -- current time scale (1.0 = normal, 0.0 = stopped)
+    enemySpawnPositions = {},    -- stores {enemyIndex -> {x, y}} for rewind targets
+    enemyStartPositions = {},    -- stores {enemyIndex -> {x, y}} for lerp start
+    levelTimerStart = 0,         -- timer value at start of rewind phase
+    levelTimerTarget = 0,        -- timer value to rewind to (full level time)
+    healthStart = 0,             -- health at start of rewind
+    healthTarget = 0,            -- health to rewind to (80% of max)
+}
 
 -- SFX
 local playerDamageSfxEntity
@@ -492,6 +516,9 @@ local function SpawnEnemiesForLevel(spawnDisabled)
         return
     end
 
+    -- Clear spawn positions for rewind system
+    rewind.enemySpawnPositions = {}
+
     local centerX = screenW / 2 - enemySize / 2
     local centerY = screenH / 2 - enemySize / 2
 
@@ -537,6 +564,8 @@ local function SpawnEnemiesForLevel(spawnDisabled)
                 TriangleShooterEnemy.setEnemyDisabled(e, true)
             end
             table.insert(enemies, e)
+            -- Store spawn position for rewind system
+            rewind.enemySpawnPositions[#enemies] = { x = spawnX, y = spawnY }
         end
     else
         local enemyCount = cfg.enemyCount or 1
@@ -552,6 +581,8 @@ local function SpawnEnemiesForLevel(spawnDisabled)
                 TriangleShooterEnemy.setEnemyDisabled(e, true)
             end
             table.insert(enemies, e)
+            -- Store spawn position for rewind system
+            rewind.enemySpawnPositions[#enemies] = { x = centerX, y = centerY }
         else
             local radius = 120
             local playerCenterX = screenW / 2
@@ -565,6 +596,8 @@ local function SpawnEnemiesForLevel(spawnDisabled)
                     TriangleShooterEnemy.setEnemyDisabled(e, true)
                 end
                 table.insert(enemies, e)
+                -- Store spawn position for rewind system
+                rewind.enemySpawnPositions[#enemies] = { x = ex, y = ey }
             end
         end
     end
@@ -673,8 +706,39 @@ local function OnEnemyKilled()
     end
 end
 
+local function StartRewindSequence()
+    -- Begin the rewind sequence instead of instant restart
+    rewind.phase = "slowing"
+    rewind.timer = rewind.slowdownDuration
+    rewind.timeScale = 1.0
+    
+    -- Capture current enemy positions for lerp start
+    rewind.enemyStartPositions = {}
+    for i, enemy in ipairs(enemies) do
+        rewind.enemyStartPositions[i] = { x = enemy.x, y = enemy.y }
+    end
+    
+    -- Capture level timer target (full level time)
+    local cfg = TriangleShooterLevels.getLevelConfig(currentLevel)
+    rewind.levelTimerStart = 0  -- timer is at 0 when timeout happens
+    rewind.levelTimerTarget = cfg and cfg.timeLimitSeconds or 0
+    
+    -- Capture health values for animation
+    local maxHealth = TriangleShooterPlayerProgress.getMaxHealth()
+    rewind.healthStart = playerHealth
+    rewind.healthTarget = math.floor(maxHealth * 0.8)  -- 80% of max (leaving 20% gap)
+    
+    -- Disable all enemies immediately
+    TriangleShooterEnemy.disableAllEnemies(enemies)
+    
+    -- Pause music
+    if musicEntity then
+        AudioComponent.pause(musicEntity)
+    end
+end
+
 local function OnLevelTimeout()
-    -- Reduce level health by 20% on timeout
+    -- Reduce level health by 20% on timeout (applied to config for next spawn)
     local cfg = TriangleShooterLevels.getLevelConfig(currentLevel)
     if cfg and cfg.enemies then
         for _, enemy in ipairs(cfg.enemies) do
@@ -684,7 +748,9 @@ local function OnLevelTimeout()
             end
         end
     end
-    StartLevel(currentLevel, false)
+    
+    -- Start rewind sequence instead of instant restart
+    StartRewindSequence()
 end
 
  --=====================================================================
@@ -1809,36 +1875,39 @@ function TriangleShooter:OnUpdate()
      --=====================================================================
      --  [ONUPDATE] Player Movement (Mouse + Knockback)
      --=====================================================================
-    -- Get mouse delta (relative movement)
-    local delta = Input.get_mouse_delta()
-    local deltaX = 0
-    local deltaY = 0
-    
-    if knockbackTimer <= 0 then
-        deltaX = delta.x
-        deltaY = delta.y
-    end
-    
-    -- Move player by delta (allows knockback since not snapping to cursor)
-    local sens = sensitivitySetting or 1.0
-    playerX = playerX + deltaX * playerSpeed * sens
-    playerY = playerY + deltaY * playerSpeed * sens
-    
-    if knockbackTimer > 0 then
-        local tNorm = 1.0 - (knockbackTimer / knockbackDuration)
-        if tNorm < 0 then tNorm = 0 end
-        if tNorm > 1 then tNorm = 1 end
-        local factor = 1.0 - (tNorm * tNorm)
-        local speed = knockbackBaseSpeed * factor * dt
-        playerX = playerX + knockbackDirX * speed
-        playerY = playerY + knockbackDirY * speed
+    -- Disable movement during rewind
+    if not rewind.phase then
+        -- Get mouse delta (relative movement)
+        local delta = Input.get_mouse_delta()
+        local deltaX = 0
+        local deltaY = 0
         
-        knockbackTimer = knockbackTimer - dt
+        if knockbackTimer <= 0 then
+            deltaX = delta.x
+            deltaY = delta.y
+        end
+        
+        -- Move player by delta (allows knockback since not snapping to cursor)
+        local sens = sensitivitySetting or 1.0
+        playerX = playerX + deltaX * playerSpeed * sens
+        playerY = playerY + deltaY * playerSpeed * sens
+        
+        if knockbackTimer > 0 then
+            local tNorm = 1.0 - (knockbackTimer / knockbackDuration)
+            if tNorm < 0 then tNorm = 0 end
+            if tNorm > 1 then tNorm = 1 end
+            local factor = 1.0 - (tNorm * tNorm)
+            local speed = knockbackBaseSpeed * factor * dt
+            playerX = playerX + knockbackDirX * speed
+            playerY = playerY + knockbackDirY * speed
+            
+            knockbackTimer = knockbackTimer - dt
+        end
+        
+        -- Clamp to screen bounds
+        playerX = math.max(0, math.min(screenW - playerSize, playerX))
+        playerY = math.max(0, math.min(screenH - playerSize, playerY))
     end
-    
-    -- Clamp to screen bounds
-    playerX = math.max(0, math.min(screenW - playerSize, playerX))
-    playerY = math.max(0, math.min(screenH - playerSize, playerY))
     
      --=====================================================================
      --  [ONUPDATE] Aim (Nearest Enemy)
@@ -1882,10 +1951,31 @@ function TriangleShooter:OnUpdate()
      --=====================================================================
      --  [ONUPDATE] Shooting
      --=====================================================================
-    if Input.get_mouse_button_down(1) then
-        isFiring = true
-        if fireCooldownTimer <= 0 then
+    -- Disable shooting during rewind
+    if not rewind.phase then
+        if Input.get_mouse_button_down(1) then
+            isFiring = true
+            if fireCooldownTimer <= 0 then
+                SpawnProjectile()
+                local interval = TriangleShooterPlayerProgress.getCurrentFireInterval()
+                if not interval or interval <= 0 then
+                    interval = 0.5
+                end
+                currentFireInterval = interval
+                fireCooldownTimer = interval
+            end
+        end
+
+        if Input.get_mouse_button_up(1) then
+            isFiring = false
+        end
+
+        if isFiring and fireCooldownTimer <= 0 then
             SpawnProjectile()
+            if gunshot3SfxEntity then
+                AudioComponent.change_volume(gunshot3SfxEntity, 4)
+                AudioComponent.play(gunshot3SfxEntity)
+            end
             local interval = TriangleShooterPlayerProgress.getCurrentFireInterval()
             if not interval or interval <= 0 then
                 interval = 0.5
@@ -1893,56 +1983,46 @@ function TriangleShooter:OnUpdate()
             currentFireInterval = interval
             fireCooldownTimer = interval
         end
-    end
-
-    if Input.get_mouse_button_up(1) then
+    else
+        -- Force stop firing during rewind
         isFiring = false
-    end
-
-    if isFiring and fireCooldownTimer <= 0 then
-        SpawnProjectile()
-        if gunshot3SfxEntity then
-            AudioComponent.change_volume(gunshot3SfxEntity, 4)
-            AudioComponent.play(gunshot3SfxEntity)
-        end
-        local interval = TriangleShooterPlayerProgress.getCurrentFireInterval()
-        if not interval or interval <= 0 then
-            interval = 0.5
-        end
-        currentFireInterval = interval
-        fireCooldownTimer = interval
     end
     
      --=====================================================================
      --  [ONUPDATE] Systems Update
      --=====================================================================
-    -- Update all projectiles
-    UpdateProjectiles()
-    UpdateEnemyProjectiles()
+    -- Skip normal updates during rewind (handled in rewind logic)
+    if not rewind.phase then
+        -- Update all projectiles
+        UpdateProjectiles()
+        UpdateEnemyProjectiles()
+
+        -- Check enemy-player collision and apply damage
+        UpdateEnemyCollision()
+        
+        -- Update enemy movement
+        UpdateEnemyMovement()
+    end
 
     ParticleSystem.update(dt)
     TriangleShooterPickups.update(dt)
     
-    -- Check pickup collision and heal player
-    local maxHealth = TriangleShooterPlayerProgress.getMaxHealth()
-    local healAmount = TriangleShooterPickups.checkPlayerCollision(playerX, playerY, playerSize, maxHealth)
-    if healAmount then
-        local before = playerHealth
-        playerHealth = math.min(maxHealth, playerHealth + healAmount)
-        local actual = playerHealth - before
-        if actual > 0 then
-            runHealingCollected = runHealingCollected + actual
+    -- Check pickup collision and heal player (skip during rewind)
+    if not rewind.phase then
+        local maxHealth = TriangleShooterPlayerProgress.getMaxHealth()
+        local healAmount = TriangleShooterPickups.checkPlayerCollision(playerX, playerY, playerSize, maxHealth)
+        if healAmount then
+            local before = playerHealth
+            playerHealth = math.min(maxHealth, playerHealth + healAmount)
+            local actual = playerHealth - before
+            if actual > 0 then
+                runHealingCollected = runHealingCollected + actual
+            end
         end
     end
     
     -- Update flash effect
     UpdateFlash()
-    
-    -- Check enemy-player collision and apply damage
-    UpdateEnemyCollision()
-    
-    -- Update enemy movement
-    UpdateEnemyMovement()
 
     UpdateBeatBop()
 
@@ -1993,8 +2073,8 @@ function TriangleShooter:OnUpdate()
     UI.draw_progress_bar(playerHpBarX, playerHpBarY, playerHpBarW, playerHpBarH, playerMaxHealth, playerHealth, 2)
 
     local level, xp, xpToNextLevel = TriangleShooterPlayerProgress.getProgress()
-    local playerInfoText = "Player Lv: " .. tostring(level) .. "  XP: " .. tostring(xp) .. " / " .. tostring(xpToNextLevel)
-    UI.add_centered_label(playerHpBarX + playerHpBarW / 2, playerHpBarY + playerHpBarH + 8, playerInfoText, "")
+    local playerInfoText = "Lv " .. tostring(level) .. "  XP " .. tostring(xp) .. "/" .. tostring(xpToNextLevel)
+    UI.add_centered_label(playerHpBarX + playerHpBarW / 2, playerHpBarY + playerHpBarH + 8, playerInfoText, UI_FONT_REG, 0.85)
 
     -- Peace progress bar (during start-level or end-level peace)
     if peaceTimerSeconds > 0 then
@@ -2027,6 +2107,120 @@ function TriangleShooter:OnUpdate()
     -- But not during start-level peace or levelup peace (enemies are intentionally disabled)
     if enemiesAlive and peaceTimerSeconds > 0 and not isStartLevelPeace and not isLevelupPeace then
         peaceTimerSeconds = 0
+    end
+
+    --=====================================================================
+    --  [ONUPDATE] Rewind System
+    --=====================================================================
+    if rewind.phase then
+        -- During rewind, check for game over
+        if playerHealth <= 0 then
+            rewind.phase = nil
+            rewind.timeScale = 1.0
+            TriggerGameOver()
+            return
+        end
+        
+        if rewind.phase == "slowing" then
+            -- Gradually slow down time scale
+            rewind.timer = rewind.timer - dt
+            local progress = 1.0 - (rewind.timer / rewind.slowdownDuration)
+            if progress > 1.0 then progress = 1.0 end
+            rewind.timeScale = 1.0 - progress  -- Goes from 1.0 to 0.0
+            
+            -- Apply slowdown to projectiles (move them slower)
+            local scaledDt = dt * rewind.timeScale
+            for _, proj in ipairs(projectiles) do
+                proj.x = proj.x + proj.vx * scaledDt
+                proj.y = proj.y + proj.vy * scaledDt
+                Entity.set_global_pos(proj.entity, proj.x, proj.y)
+            end
+            for _, proj in ipairs(enemyProjectiles) do
+                proj.x = proj.x + proj.vx * scaledDt
+                proj.y = proj.y + proj.vy * scaledDt
+                Entity.set_global_pos(proj.entity, proj.x, proj.y)
+            end
+            
+            if rewind.timer <= 0 then
+                rewind.phase = "stopped"
+                rewind.timer = rewind.stopPauseDuration
+                rewind.timeScale = 0.0
+            end
+            return
+            
+        elseif rewind.phase == "stopped" then
+            -- Brief pause at full stop, then destroy projectiles
+            rewind.timer = rewind.timer - dt
+            if rewind.timer <= 0 then
+                -- Destroy all projectiles
+                ClearAllPlayerProjectiles()
+                ClearAllEnemyProjectiles()
+                
+                -- Transition to rewinding phase
+                rewind.phase = "rewinding"
+                rewind.timer = rewind.duration
+            end
+            return
+            
+        elseif rewind.phase == "rewinding" then
+            -- Lerp enemies back to spawn positions
+            rewind.timer = rewind.timer - dt
+            local progress = 1.0 - (rewind.timer / rewind.duration)
+            if progress > 1.0 then progress = 1.0 end
+            
+            -- Smooth easing (ease-in-out)
+            local easedProgress = progress < 0.5 
+                and 2 * progress * progress 
+                or 1 - math.pow(-2 * progress + 2, 2) / 2
+            
+            -- Lerp enemy positions
+            for i, enemy in ipairs(enemies) do
+                local startPos = rewind.enemyStartPositions[i]
+                local targetPos = rewind.enemySpawnPositions[i]
+                if startPos and targetPos then
+                    local newX = startPos.x + (targetPos.x - startPos.x) * easedProgress
+                    local newY = startPos.y + (targetPos.y - startPos.y) * easedProgress
+                    enemy.x = newX
+                    enemy.y = newY
+                    Entity.set_global_pos(enemy.entity, newX, newY)
+                end
+            end
+            
+            -- Lerp level timer bar (refill)
+            levelTimerSeconds = rewind.levelTimerStart + (rewind.levelTimerTarget - rewind.levelTimerStart) * easedProgress
+            
+            -- Lerp health bar (refill to 80%)
+            playerHealth = rewind.healthStart + (rewind.healthTarget - rewind.healthStart) * easedProgress
+            
+            if rewind.timer <= 0 then
+                rewind.phase = "done"
+                rewind.timer = 0
+            end
+            return
+            
+        elseif rewind.phase == "done" then
+            -- Rewind complete, restart level properly
+            rewind.phase = nil
+            rewind.timeScale = 1.0
+            
+            -- Set final values
+            playerHealth = rewind.healthTarget
+            local cfg = TriangleShooterLevels.getLevelConfig(currentLevel)
+            levelTimerSeconds = cfg and cfg.timeLimitSeconds or 0
+            
+            -- Clear and respawn enemies with reduced health
+            ClearEnemies()
+            SpawnEnemiesForLevel(true)  -- Spawn disabled (peace state)
+            
+            -- Start peace timer and resume music
+            peaceTimerSeconds = startLevelPeaceDuration
+            isStartLevelPeace = true
+            
+            if musicEntity then
+                AudioComponent.resume(musicEntity)
+            end
+            return
+        end
     end
 
     -- Handle levelup peace timer separately (enemies exist but are disabled)
@@ -2062,7 +2256,7 @@ function TriangleShooter:OnUpdate()
         else
             peaceTimerSeconds = peaceTimerSeconds - dt
         end
-    elseif levelTimerSeconds <= 0 and enemiesAlive then
+    elseif levelTimerSeconds <= 0 and enemiesAlive and not rewind.phase then
         OnLevelTimeout()
     end
 end
