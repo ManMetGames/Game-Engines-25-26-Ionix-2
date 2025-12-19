@@ -194,7 +194,8 @@ local levels = {
         windowWidth = 800,
         windowHeight = 400,
         enemies = {
-            { movementType = "bounce", x = 400, y = 200, health = 35},
+            { movementType = "stationary", x = 400, y = 500, health = 45, shootPattern = "cone", projectileCount = 2, shootInterval = beatsToSeconds(2) },
+           
         },
     },
     [2] = {
@@ -205,7 +206,7 @@ local levels = {
         windowWidth = 640,
         windowHeight = 800,
         enemies = {
-            { movementType = "stationary", x = 400, y = 500, health = 45, shootPattern = "cone", projectileCount = 2, shootInterval = beatsToSeconds(2) },
+            { movementType = "bounce", x = 400, y = 200, health = 35},
         },
     },
     [3] = {
