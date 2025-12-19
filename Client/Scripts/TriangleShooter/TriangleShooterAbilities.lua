@@ -23,7 +23,7 @@ local function generateShotPattern(firepower, aimX, aimY, projectileSize)
                 sizeMultiplier = 2.5,
             }
         elseif firepower == 6 then
-            -- Single golden bullet, 7 damage, 2.75x size (10% bigger)
+            -- Single golden bullet
             shots[1] = { 
                 offsetX = 0, 
                 offsetY = 0, 
@@ -31,10 +31,10 @@ local function generateShotPattern(firepower, aimX, aimY, projectileSize)
                 dirY = aimY,
                 isGolden = true,
                 damage = 7,
-                sizeMultiplier = 2.75,
+                sizeMultiplier = 3,
             }
         elseif firepower == 7 then
-            -- Single golden bullet, 9 damage, 3.025x size (another 10% bigger)
+            -- Single golden bullet
             shots[1] = { 
                 offsetX = 0, 
                 offsetY = 0, 
@@ -42,7 +42,7 @@ local function generateShotPattern(firepower, aimX, aimY, projectileSize)
                 dirY = aimY,
                 isGolden = true,
                 damage = 9,
-                sizeMultiplier = 3.025,
+                sizeMultiplier = 3.5,
             }
         else
             -- Firepower 8+: Two golden bullets at original size (2.5x), 6 damage each
@@ -55,7 +55,7 @@ local function generateShotPattern(firepower, aimX, aimY, projectileSize)
                 dirX = aimX, 
                 dirY = aimY,
                 isGolden = true,
-                damage = 6,
+                damage = 5,
                 sizeMultiplier = 2.5,
             }
             shots[2] = { 
@@ -64,7 +64,7 @@ local function generateShotPattern(firepower, aimX, aimY, projectileSize)
                 dirX = aimX, 
                 dirY = aimY,
                 isGolden = true,
-                damage = 6,
+                damage = 5,
                 sizeMultiplier = 2.5,
             }
         end
