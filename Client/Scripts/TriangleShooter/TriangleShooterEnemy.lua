@@ -212,7 +212,7 @@ end
      enemies,
      playerX, playerY, playerSize,
      screenW, screenH,
-     enemyProjectilesEnabled, enemyShootIntervalSeconds,
+     enemyShootIntervalSeconds,
      SpawnEnemyProjectile,
      TriggerWallLerp,
      SpawnBeam,
@@ -247,7 +247,7 @@ end
 
          if movementType ~= "teleporter" and movementType ~= "bounce" then
              local shootInterval = enemy.shootInterval
-             if enemyProjectilesEnabled and shootInterval and shootInterval > 0 then
+             if shootInterval and shootInterval > 0 then
                  enemy.shootTimer = (enemy.shootTimer or 0) + dt
                  if enemy.shootTimer >= shootInterval then
                      SpawnEnemyProjectile(enemy)

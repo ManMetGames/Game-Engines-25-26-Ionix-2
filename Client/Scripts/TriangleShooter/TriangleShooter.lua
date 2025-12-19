@@ -307,7 +307,6 @@ enemyProjectilePool = {}
 local enemyProjectileSize = 24
 local enemyProjectileSpeed = 420 -- PIXELS PER SECOND 
 local enemyShootIntervalSeconds = 0.5
-local enemyProjectilesEnabled = true
 
 -- COLLISION SETTINGS
 local collisionRadius = 24  -- Half of enemy size for circle collision
@@ -562,8 +561,6 @@ LoadLevel = function(index, resetPlayerState)
     levelTimerSeconds = cfg.timeLimitSeconds or 0
 
     wallPingPongEnabled = cfg.wallPingPong and true or false
-
-    enemyProjectilesEnabled = cfg.enemyProjectiles and true or false
 
      --=====================================================================
      --  [LOAD LEVEL] Reset Walls / Clear Enemies
@@ -991,12 +988,8 @@ local function DrawLeaderboardMenu(screenW, screenH, dt)
     local bx = math.floor((panelW - bw) / 2)
     local by = panelH - bh - 32
 
-    UI.add_button(bx, by, bw, bh,
-        "BACK", "menu_back",
-        "ImGuiDefaultBold", 1.0,
-        12, true,
-        74, 12, 255, 0.95
-    )
+    UI.add_button(bx, by, bw, bh, "BACK", "menu_back",
+        "ImGuiDefaultBold", 1.0, 12, true, 74, 12, 255, 0.95)
 
     if UI.was_button_pressed("menu_back") then
         menuScreen = "main"
@@ -2519,7 +2512,7 @@ function UpdateEnemyMovement()
         enemies,
         playerX, playerY, playerSize,
         screenW, screenH,
-        enemyProjectilesEnabled, enemyShootIntervalSeconds,
+        enemyShootIntervalSeconds,
         SpawnEnemyProjectile,
         TriggerWallLerp,
         SpawnBeam,

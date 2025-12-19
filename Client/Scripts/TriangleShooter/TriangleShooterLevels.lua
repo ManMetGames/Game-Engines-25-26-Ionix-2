@@ -190,7 +190,6 @@ local levels = {
     [1] = {
         timeLimitSeconds = 20,
         wallPingPong = false,
-        coinPerHit = 1,
         windowWidth = 640,
         windowHeight = 800,
         enemies = {
@@ -200,9 +199,7 @@ local levels = {
     },
     [2] = {
         timeLimitSeconds = 20,
-        enemyProjectiles = true,
         wallPingPong = false,
-        coinPerHit = 1,
         windowWidth = 800,
         windowHeight = 400,
         enemies = {
@@ -211,9 +208,7 @@ local levels = {
     },
     [3] = {
         timeLimitSeconds = 20,
-        enemyProjectiles = true,
         wallPingPong = false,
-        coinPerHit = 1,
         windowWidth = 1026,
         windowHeight = 640,
         enemies = {
@@ -225,17 +220,13 @@ local levels = {
         timeLimitSeconds = 25,
         enemyCount = 2,
         enemyHealth = 30,
-        enemyProjectiles = false,
         wallPingPong = false,
-        coinPerHit = 1,
         windowWidth = 800,
         windowHeight = 800,
     },
     [5] = {
         timeLimitSeconds = 20,
-        enemyProjectiles = true,
         wallPingPong = false,
-        coinPerHit = 1,
         windowWidth = 600,
         windowHeight = 800,
         enemies = {
@@ -484,9 +475,7 @@ local function generateProceduralLevel(levelIndex)
     
     return {
         timeLimitSeconds = timer,
-        enemyProjectiles = true,
         wallPingPong = false,
-        coinPerHit = 1,
         windowWidth = windowW,
         windowHeight = windowH,
         enemies = enemies,
