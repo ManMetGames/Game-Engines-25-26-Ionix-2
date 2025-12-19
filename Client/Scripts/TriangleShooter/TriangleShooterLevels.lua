@@ -44,12 +44,12 @@ end
 local generatedLevelCache = {}
 
 local HEALTH_BUDGET = {
-    base = 70,
-    perLevel = 18,
+    base = 60,
+    perLevel = 15,
     levelSquaredFactor = 0.5,
     lateLevelThreshold = 12,
     lateSquaredFactor = 1.75,
-    lateCubedFactor = 0.25,
+    lateCubedFactor = 0.3,
 }
 
 local TIMER_CONFIG = {
@@ -186,7 +186,55 @@ local ENEMY_TEMPLATES = {
         end,
     },
 }
-
+local levels = {
+    [1] = {
+        timeLimitSeconds = 20,
+        wallPingPong = false,
+        windowWidth = 640,
+        windowHeight = 800,
+        enemies = {
+            { movementType = "stationary", x = 400, y = 500, health = 45, shootPattern = "cone", projectileCount = 2, shootInterval = beatsToSeconds(2) },
+           
+        },
+    },
+    [2] = {
+        timeLimitSeconds = 20,
+        wallPingPong = false,
+        windowWidth = 800,
+        windowHeight = 400,
+        enemies = {
+            { movementType = "bounce", x = 400, y = 200, health = 35},
+        },
+    },
+    [3] = {
+        timeLimitSeconds = 20,
+        wallPingPong = false,
+        windowWidth = 1026,
+        windowHeight = 640,
+        enemies = {
+            { movementType = "stationary", x = 500, y = 300, health = 30, shootPattern = "cone", projectileCount = 2, shootInterval = beatsToSeconds(2) },
+            { movementType = "bounce", x = 900, y = 550, health = 30, shootPattern = "cone", projectileCount = 0, shootInterval = 0},
+        },
+    },
+    [4] = {
+        timeLimitSeconds = 25,
+        enemyCount = 2,
+        enemyHealth = 30,
+        wallPingPong = false,
+        windowWidth = 800,
+        windowHeight = 800,
+    },
+    [5] = {
+        timeLimitSeconds = 20,
+        wallPingPong = false,
+        windowWidth = 600,
+        windowHeight = 800,
+        enemies = {
+            { movementType = "stationary", x = 500, y = 300, health = 45, shootPattern = "cone", projectileCount = 1, shootInterval = beatsToSeconds(2) },
+            { movementType = "stationary", x = 350, y = 200, health = 45, shootPattern = "cone", projectileCount = 2, shootInterval = beatsToSeconds(2.5) },
+        },
+    },
+}
 local function calculateHealthBudget(level)
     local n = level - PROCEDURAL_START_LEVEL
     local budget = HEALTH_BUDGET.base + (n * HEALTH_BUDGET.perLevel) + (n * n * HEALTH_BUDGET.levelSquaredFactor)
@@ -427,9 +475,7 @@ local function generateProceduralLevel(levelIndex)
     
     return {
         timeLimitSeconds = timer,
-        enemyProjectiles = true,
         wallPingPong = false,
-        coinPerHit = 1,
         windowWidth = windowW,
         windowHeight = windowH,
         enemies = enemies,
@@ -438,64 +484,6 @@ local function generateProceduralLevel(levelIndex)
         _actualHealth = totalHealth,
     }
 end
-
-local levels = {
-    [1] = {
-        timeLimitSeconds = 20,
-        wallPingPong = false,
-        coinPerHit = 1,
-        windowWidth = 800,
-        windowHeight = 400,
-        enemies = {
-            { movementType = "bounce", x = 400, y = 200, health = 35},
-        },
-    },
-    [2] = {
-        timeLimitSeconds = 20,
-        enemyProjectiles = true,
-        wallPingPong = false,
-        coinPerHit = 1,
-        windowWidth = 640,
-        windowHeight = 800,
-        enemies = {
-            { movementType = "stationary", x = 400, y = 500, health = 45, shootPattern = "cone", projectileCount = 2, shootInterval = beatsToSeconds(2) },
-        },
-    },
-    [3] = {
-        timeLimitSeconds = 20,
-        enemyProjectiles = true,
-        wallPingPong = false,
-        coinPerHit = 1,
-        windowWidth = 1026,
-        windowHeight = 640,
-        enemies = {
-            { movementType = "stationary", x = 500, y = 300, health = 30, shootPattern = "cone", projectileCount = 2, shootInterval = beatsToSeconds(2) },
-            { movementType = "bounce", x = 900, y = 550, health = 30, shootPattern = "cone", projectileCount = 0, shootInterval = 0},
-        },
-    },
-    [4] = {
-        timeLimitSeconds = 20,
-        enemyCount = 2,
-        enemyHealth = 30,
-        enemyProjectiles = false,
-        wallPingPong = false,
-        coinPerHit = 1,
-        windowWidth = 800,
-        windowHeight = 800,
-    },
-    [5] = {
-        timeLimitSeconds = 20,
-        enemyProjectiles = true,
-        wallPingPong = false,
-        coinPerHit = 1,
-        windowWidth = 600,
-        windowHeight = 800,
-        enemies = {
-            { movementType = "stationary", x = 500, y = 300, health = 45, shootPattern = "cone", projectileCount = 1, shootInterval = beatsToSeconds(2) },
-            { movementType = "stationary", x = 350, y = 200, health = 45, shootPattern = "cone", projectileCount = 2, shootInterval = beatsToSeconds(2.5) },
-        },
-    },
-}
 
 function TriangleShooterLevels.getLevelConfig(index)
     if index < PROCEDURAL_START_LEVEL then

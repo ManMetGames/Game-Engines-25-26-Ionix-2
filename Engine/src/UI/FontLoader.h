@@ -3,6 +3,7 @@
 #include <string>
 #include <unordered_map>
 #include <utility>
+ #include <filesystem>
 
 namespace IonixEngine
 {
@@ -78,36 +79,46 @@ namespace IonixEngine
             // -------------------------
             const ImWchar* jpRanges = io.Fonts->GetGlyphRangesJapanese();
 
-            ImFont* jp18 = io.Fonts->AddFontFromFileTTF(
-                "NotoSansJP-Regular.ttf", 23.0f, &cfg, jpRanges);
-            IM_ASSERT(jp18 != nullptr);
-            AddMap({ "ImGuiDefaultJP", jp18 });
+            auto AddFontFromFileIfExists = [&](
+                const char* filename,
+                float sizePixels,
+                const ImFontConfig* fontCfg,
+                const ImWchar* ranges,
+                ImFont* fallback,
+                const char* mapName
+            )
+            {
+                ImFont* font = fallback;
+                if (std::filesystem::exists(filename))
+                {
+                    font = io.Fonts->AddFontFromFileTTF(filename, sizePixels, fontCfg, ranges);
+                    if (!font)
+                        font = fallback;
+                }
+                AddMap({ mapName, font });
+                return font;
+            };
 
-            ImFont* jp18b = io.Fonts->AddFontFromFileTTF(
-                "NotoSansJP-Bold.ttf", 23.0f, &cfg, jpRanges);
-            IM_ASSERT(jp18b != nullptr);
-            AddMap({ "ImGuiDefaultBoldJP", jp18b });
+            AddFontFromFileIfExists(
+                "NotoSansJP-Regular.ttf", 23.0f, &cfg, jpRanges, imguiDefault, "ImGuiDefaultJP");
+
+            AddFontFromFileIfExists(
+                "NotoSansJP-Bold.ttf", 23.0f, &cfg, jpRanges, imguiDefaultBold, "ImGuiDefaultBoldJP");
 
             ImFontConfig jpSubCfg = cfg;
             jpSubCfg.SizePixels = 29.0f;
-            ImFont* jpSub = io.Fonts->AddFontFromFileTTF(
-                "NotoSansJP-Regular.ttf", 29.0f, &jpSubCfg, jpRanges);
-            IM_ASSERT(jpSub != nullptr);
-            AddMap({ "ImGuiSubJP", jpSub });
+            AddFontFromFileIfExists(
+                "NotoSansJP-Regular.ttf", 29.0f, &jpSubCfg, jpRanges, imguiSub, "ImGuiSubJP");
 
             ImFontConfig jpHeaderCfg = cfg;
             jpHeaderCfg.SizePixels = 33.0f;
-            ImFont* jpHeader = io.Fonts->AddFontFromFileTTF(
-                "NotoSansJP-Bold.ttf", 33.0f, &jpHeaderCfg, jpRanges);
-            IM_ASSERT(jpHeader != nullptr);
-            AddMap({ "ImGuiHeaderJP", jpHeader });
+            AddFontFromFileIfExists(
+                "NotoSansJP-Bold.ttf", 33.0f, &jpHeaderCfg, jpRanges, imguiHeader, "ImGuiHeaderJP");
 
             ImFontConfig jpTitleCfg = cfg;
             jpTitleCfg.SizePixels = 47.0f;
-            ImFont* jpTitle = io.Fonts->AddFontFromFileTTF(
-                "NotoSansJP-Bold.ttf", 47.0f, &jpTitleCfg, jpRanges);
-            IM_ASSERT(jpTitle != nullptr);
-            AddMap({ "ImGuiTitleJP", jpTitle });
+            AddFontFromFileIfExists(
+                "NotoSansJP-Bold.ttf", 47.0f, &jpTitleCfg, jpRanges, imguiTitle, "ImGuiTitleJP");
 
             // Build font atlas
             io.Fonts->Build();
