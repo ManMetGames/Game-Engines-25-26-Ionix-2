@@ -10,11 +10,10 @@ local TriangleShooterEnemy = require("Scripts.TriangleShooter.TriangleShooterEne
 local TriangleShooterAbilities = require("Scripts.TriangleShooter.TriangleShooterAbilities")
 local TriangleShooterPlayerProgress = require("Scripts.TriangleShooter.TriangleShooterPlayerProgress")
 local ParticleSystem = require("Scripts.TriangleShooter.ParticleSystem")
-local TriangleShooterUI = require("Scripts.TriangleShooter.TriangleShooterUI")
 local TriangleShooterPickups = require("Scripts.TriangleShooter.TriangleShooterPickups")
 local TriangleShooterRewind = require("Scripts.TriangleShooter.TriangleShooterRewind")
 local Localisation = require("Scripts.TriangleShooter.Localisation")
-local function T(key) return Localisation.t(key) end
+
 
  --=====================================================================
  --  [LEADERBOARD / SAVE DATA / LANGUAGE]
@@ -32,10 +31,10 @@ local needsPlayerName = (playerName == "")
 local showNamePrompt = false
 local pendingStartAfterName = false
 local namePromptError = ""
-
+local function T(key) return Localisation.t(key) end
 local language = Json.load_setting(GAME_ID, "ui.language", "en") or "en"
 Localisation.set_language(language)
-
+local TriangleShooterUI = require("Scripts.TriangleShooter.TriangleShooterUI")
 local UI_FONT_BOLD = "ImGuiDefaultBold"
 local UI_FONT_REG  = "ImGuiDefault"
 
@@ -808,10 +807,10 @@ local function DrawNamePrompt(screenW, screenH)
     )
 
     local cx = w / 2
-    UI.add_centered_label(cx, 28, "ENTER YOUR NAME", UI_FONT_BOLD, 1.6)
-    UI.add_centered_label(cx, 62, "Register yourself on the Leaderboard.", "", 1.0)
+    UI.add_centered_label(cx, 18, T("play.prompttxt"), UI_FONT_HEADER, 1)
+    UI.add_centered_label(cx, 48, T("play.promptdesc"), UI_FONT_REG, 1.2)
     if namePromptError ~= "" then
-        UI.add_centered_label(cx, 82, namePromptError, UI_FONT_BOLD, 1.0)
+        UI.add_centered_label(cx, 82, T("play.error"), UI_FONT_BOLD, 1.0)
     end
 
 
@@ -1194,6 +1193,9 @@ local function DrawSettingsMenu(screenW, screenH, dt)
         Json.save_setting(GAME_ID, "ui.language", language)
         Localisation.set_language(language)
         ApplyLanguageFonts()
+        if TS_UI then
+          TS_UI.T = function(key) return Localisation.t(key) end
+        end
     end
     
     UI.end_child()
@@ -1552,7 +1554,7 @@ local function DrawPauseSettingsMenu(screenW, screenH, dt)
 
    UI.add_centered_label(cx, math.floor(panelH * 0.05), T("settings.title"), UI_FONT_TITLE, 1)
 
-    -- Child for scrollable content 
+     -- Child for scrollable content 
     local NO_BACKGROUND = 128
     UI.begin_child(contentX, contentY, contentW, contentH, "TS_SettingsContent",
     false, NO_BACKGROUND, false)
@@ -1647,6 +1649,10 @@ local function DrawPauseSettingsMenu(screenW, screenH, dt)
         Json.save_setting(GAME_ID, "ui.language", language)
         Localisation.set_language(language)
         ApplyLanguageFonts()
+        if TS_UI then
+          TS_UI.T = function(key) return Localisation.t(key) end
+        end
+
     end
     
     UI.end_child()

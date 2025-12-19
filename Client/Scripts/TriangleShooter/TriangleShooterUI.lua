@@ -29,7 +29,8 @@ local BORDER_GREEN = {0, 170, 110, 1.0}
 local BTN_ROUND = 12
 
 -- For language translation
-local function T(key) return TS_UI.T(key) end
+local Localisation = require("Scripts.TriangleShooter.Localisation")
+local function T(key) return Localisation.t(key) end
 
 local function splitLines(s)
   local t = {}
