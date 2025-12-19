@@ -152,24 +152,24 @@ if not isUpgradeMenuOpen then return end
 
       local cx = cardW / 2
 
-      UI.add_centered_label(cx, 40, opt.label, "ImGuiDefaultBold", 1.7)
+      UI.add_centered_label(cx, 30, opt.label, TS_UI.FONT_TITLE, 0.8)
 
       local lines = splitLines(opt.desc or "")
       local baseY = 95
       local lineGap = 22
       for li, txt in ipairs(lines) do
-        UI.add_centered_label(cx, baseY + (li-1)*lineGap, txt, "", 1.3)
+        UI.add_centered_label(cx, baseY + (li-1)*lineGap, txt, TS_UI.FONT_SUB, 1)
       end
 
       local chooseW, chooseH = math.min(180, math.floor(cardW * 0.55)), 44
       local chooseX = (cardW - chooseW) / 2
       local chooseY = cardH - chooseH - 25
 
-      local chooseText = selected and "Selected" or "Choose"
+      local chooseText = selected and T("gameplay.upgradeselected") or T("gameplay.upgradechoose")
       UI.add_button(
         chooseX, chooseY, chooseW, chooseH,
         chooseText, "upgrade_choose_"..tostring(i),
-        "ImGuiDefaultBold", 1.0,
+        TS_UI.FONT_SUB, 1.0,
         BTN_ROUND, true,
         br, bg, bb, 1.0
       )
@@ -188,11 +188,11 @@ if not isUpgradeMenuOpen then return end
   local cr, cg, cb = 74, 12, 255
   if not enabled then cr, cg, cb = 80, 80, 80 end
 
-  local confirmLabel = confirmPending and "Starting..." or "CONFIRM CHOICE"
+  local confirmLabel = confirmPending and T("gameplay.resuming") or T("gameplay.upgradeconfirm")
   UI.add_button(
     confirmX, confirmY, confirmW, confirmH,
     confirmLabel, "upgrade_confirm",
-    "ImGuiDefaultBold", 1.1,
+    TS_UI.FONT_SUB, 1.2,
     BTN_ROUND, true,
     cr, cg, cb, 0.90
   )

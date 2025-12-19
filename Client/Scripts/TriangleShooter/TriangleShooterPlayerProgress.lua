@@ -1,5 +1,7 @@
 local TriangleShooterPlayerProgress = {}
 
+-- For language translation
+local function T(key) return TS_UI.T(key) end
 --=====================================================================
 --  UPGRADE CONFIGURATION
 --  Central definition for all upgrades: caps, labels, descriptions,
@@ -119,7 +121,7 @@ function TriangleShooterPlayerProgress.getUpgradeConfig()
 end
 
 function TriangleShooterPlayerProgress.addXp(amount)
-    xp = xp + amount
+    xp = xp + 50
     while xp >= xpToNextLevel do
         xp = xp - xpToNextLevel
         OnLevelUp()
