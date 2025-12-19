@@ -79,33 +79,33 @@ namespace IonixEngine
             const ImWchar* jpRanges = io.Fonts->GetGlyphRangesJapanese();
 
             ImFont* jp18 = io.Fonts->AddFontFromFileTTF(
-                "NotoSansJP-Regular.ttf", 18.0f, &cfg, jpRanges);
+                "NotoSansJP-Regular.ttf", 23.0f, &cfg, jpRanges);
             IM_ASSERT(jp18 != nullptr);
             AddMap({ "ImGuiDefaultJP", jp18 });
 
             ImFont* jp18b = io.Fonts->AddFontFromFileTTF(
-                "NotoSansJP-Bold.ttf", 18.0f, &cfg, jpRanges);
+                "NotoSansJP-Bold.ttf", 23.0f, &cfg, jpRanges);
             IM_ASSERT(jp18b != nullptr);
             AddMap({ "ImGuiDefaultBoldJP", jp18b });
 
             ImFontConfig jpSubCfg = cfg;
-            jpSubCfg.SizePixels = 24.0f;
+            jpSubCfg.SizePixels = 29.0f;
             ImFont* jpSub = io.Fonts->AddFontFromFileTTF(
-                "NotoSansJP-Regular.ttf", 24.0f, &jpSubCfg, jpRanges);
+                "NotoSansJP-Regular.ttf", 29.0f, &jpSubCfg, jpRanges);
             IM_ASSERT(jpSub != nullptr);
             AddMap({ "ImGuiSubJP", jpSub });
 
             ImFontConfig jpHeaderCfg = cfg;
-            jpHeaderCfg.SizePixels = 28.0f;
+            jpHeaderCfg.SizePixels = 33.0f;
             ImFont* jpHeader = io.Fonts->AddFontFromFileTTF(
-                "NotoSansJP-Bold.ttf", 28.0f, &jpHeaderCfg, jpRanges);
+                "NotoSansJP-Bold.ttf", 33.0f, &jpHeaderCfg, jpRanges);
             IM_ASSERT(jpHeader != nullptr);
             AddMap({ "ImGuiHeaderJP", jpHeader });
 
             ImFontConfig jpTitleCfg = cfg;
-            jpTitleCfg.SizePixels = 42.0f;
+            jpTitleCfg.SizePixels = 47.0f;
             ImFont* jpTitle = io.Fonts->AddFontFromFileTTF(
-                "NotoSansJP-Bold.ttf", 42.0f, &jpTitleCfg, jpRanges);
+                "NotoSansJP-Bold.ttf", 47.0f, &jpTitleCfg, jpRanges);
             IM_ASSERT(jpTitle != nullptr);
             AddMap({ "ImGuiTitleJP", jpTitle });
 
