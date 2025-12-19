@@ -10,32 +10,32 @@ local function T(key) return TS_UI.T(key) end
 local UPGRADE_CONFIG = {
     firepower = {
         statKey      = "firepower",
-        label        = "+1 Firepower",
-        desc         = "Increase your firepower.",
+        label        = "upgradetype.firepower",
+        desc         = "upgradedesc.firepower",
         minLevel     = 1,
         maxValue     = 8,
         defaultValue = 1,
     },
     pierce = {
         statKey      = "pierceCount",
-        label        = "+1 Pierce",
-        desc         = "Bullets pierce +1 enemy.",
+        label        = "upgradetype.pierce",
+        desc         = "upgradedesc.pierce",
         minLevel     = 6,
         maxValue     = 2,
         defaultValue = 0,
     },
     bounce = {
         statKey      = "bounceCount",
-        label        = "+ Window Bounce",
-        desc         = "Bullets bounce off the window edges.",
+        label        = "upgradetype.bounce",
+        desc         = "upgradedesc.bounce",
         minLevel     = 3,
         maxValue     = 1,
         defaultValue = 0,
     },
     fire_rate = {
         statKey      = "fireRateUpgradeCount",
-        label        = "+ Fire Rate",
-        desc         = "Shoot faster (lower cooldown).",
+        label        = "upgradetype.fireinterval",
+        desc         = "upgradedesc.fireinterval",
         minLevel     = 1,
         maxValue     = 3,
         defaultValue = 0,
@@ -43,8 +43,8 @@ local UPGRADE_CONFIG = {
     },
     max_health = {
         statKey      = "maxHealth",
-        label        = "+ Max Health",
-        desc         = "Increase your max health.",
+        label        = "upgradetype.maxhp",
+        desc         = "upgradedesc.maxhp",
         minLevel     = 4,
         maxValue     = nil,
         defaultValue = 100,
@@ -121,7 +121,7 @@ function TriangleShooterPlayerProgress.getUpgradeConfig()
 end
 
 function TriangleShooterPlayerProgress.addXp(amount)
-    xp = xp + 50
+    xp = xp + amount
     while xp >= xpToNextLevel do
         xp = xp - xpToNextLevel
         OnLevelUp()

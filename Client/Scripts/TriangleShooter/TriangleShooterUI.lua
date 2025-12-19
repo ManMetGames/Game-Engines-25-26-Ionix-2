@@ -152,9 +152,9 @@ if not isUpgradeMenuOpen then return end
 
       local cx = cardW / 2
 
-      UI.add_centered_label(cx, 30, opt.label, TS_UI.FONT_TITLE, 0.8)
+      UI.add_centered_label(cx, 30, T(opt.label), TS_UI.FONT_TITLE, 0.8)
 
-      local lines = splitLines(opt.desc or "")
+      local lines = splitLines(T(opt.desc) or "")
       local baseY = 95
       local lineGap = 22
       for li, txt in ipairs(lines) do
