@@ -82,6 +82,17 @@ namespace IonixEngine
 		// Value-mode (non-mutating) progress bar (used by scripting)
 		float progressCurrentValue = 0.0f;
 		int   progressColorId = 0;
+
+		// Progress bar style (optional)
+		bool  progressCustomStyle = false;
+		float progressRounding = -1.0f;      // -1 = default
+		float progressBorderSize = -1.0f;    // -1 = default
+		bool  progressUseColors = false;
+		ImVec4 progressBg = ImVec4(0, 0, 0, 0);
+		ImVec4 progressFill = ImVec4(0, 0, 0, 0);
+		ImVec4 progressBorder = ImVec4(0, 0, 0, 0);
+		std::string progressOverlayText;
+
 		// Panel specific
 		float panelAlpha = 0.45f;
 		float panelRounding = 6.0f;
@@ -273,6 +284,15 @@ namespace IonixEngine
 		void AddProgressBarValue(int x, int y, float xSize, float ySize,
 			float maxValue, float currentValue, int colorId = 0,
 			const std::string& fontName = "", float fontScale = 1.0f);
+
+		// Styled draw-only progress bar (rounded, custom colors)
+		void AddProgressBarValueStyled(int x, int y, float xSize, float ySize,
+			float maxValue, float currentValue, int colorId,
+			float rounding, float borderSize,
+			bool useColors, ImVec4 bg, ImVec4 fill, ImVec4 border,
+			const std::string& overlayText = "",
+			const std::string& fontName = "", float fontScale = 1.0f);
+
 		void AddPanel(int x, int y, float w, float h, float alpha = 0.45f, float rounding = 6.0f,
 			int r = 0, int g = 0, int b = 0);
 

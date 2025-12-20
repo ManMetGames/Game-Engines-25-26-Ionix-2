@@ -21,6 +21,10 @@ namespace IonixEngine
         bool DrawColorPicker(int x, int y, float xSize, float ySize, const char* label, float* color4);
         void DrawProgressBar(int xpos, int ypos, float xsize, float ysize, float maxvalue, float currentvalue, int colorId = 0);
         float ProgressBar(int xpos, int ypos, float xsize, float ysize, float maxvalue, float& currentvalue, float incrementamount);
+        void DrawProgressBarStyled(int xpos, int ypos, float xsize, float ysize, float maxvalue, float currentvalue, int colorId,
+            float rounding, float borderSize,
+            bool useColors, ImVec4 bg, ImVec4 fill, ImVec4 border,
+            const char* overlayText = "");
         bool DrawDropdown(int xPos, int yPos, float xSize, float ySize, const char* text,
             const std::vector<std::string>& options, int* currentIndex);
 

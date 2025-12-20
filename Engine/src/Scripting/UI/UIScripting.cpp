@@ -185,6 +185,57 @@ namespace IonixEngine {
             );
             };
 
+        auto DrawProgressBarStyled = [](int x, int y, float xSize, float ySize,
+            float maxValue, float currentValue, int colorId,
+            sol::optional<sol::table> style,
+            sol::optional<std::string> overlayText)
+            {
+                auto norm = [](float v) -> float { return (v > 1.0f) ? (v / 255.0f) : v; };
+
+                float rounding = -1.0f;
+                float borderSize = -1.0f;
+                bool useColors = false;
+                ImVec4 bg = ImVec4(0, 0, 0, 0);
+                ImVec4 fill = ImVec4(0, 0, 0, 0);
+                ImVec4 border = ImVec4(0, 0, 0, 0);
+
+                if (style)
+                {
+                    sol::table t = style.value();
+
+                    if (sol::optional<float> v = t["rounding"]) rounding = *v;
+                    if (sol::optional<float> v = t["border_size"]) borderSize = *v;
+
+                    auto readColor = [&](const char* key, ImVec4& out) -> bool
+                        {
+                            sol::object o = t[key];
+                            if (!o.valid() || !o.is<sol::table>()) return false;
+                            sol::table c = o.as<sol::table>();
+                            float r = norm(c.get_or(1, 0.0f));
+                            float g = norm(c.get_or(2, 0.0f));
+                            float b = norm(c.get_or(3, 0.0f));
+                            float a = norm(c.get_or(4, 1.0f));
+                            out = ImVec4(r, g, b, a);
+                            return true;
+                        };
+
+                    bool any = false;
+                    any = readColor("bg", bg) || any;
+                    any = readColor("fill", fill) || any;
+                    any = readColor("border", border) || any;
+                    useColors = any;
+                }
+
+                Application::Get().layerUI->m_UIManager->AddProgressBarValueStyled(
+                    x, y, xSize, ySize,
+                    maxValue, currentValue, colorId,
+                    rounding, borderSize,
+                    useColors, bg, fill, border,
+                    overlayText.value_or(""),
+                    "", 1.0f
+                );
+            };
+
         auto AddInputText = [](int xPos, int yPos, float width, const char* label, const char* id, size_t maxLen, sol::optional<std::string> fontName,
             sol::optional<float> fontScale) {
                 Application::Get().layerUI->m_UIManager->AddInputText(xPos, yPos, width, label, id, maxLen,
@@ -474,6 +525,7 @@ namespace IonixEngine {
             "add_slider", AddSlider,
             "add_slider_styled", AddSliderStyled,
             "draw_progress_bar", DrawProgressBar,
+            "draw_progress_bar_styled", DrawProgressBarStyled,
             "add_input_text", AddInputText,
             "add_panel", AddPanel,
             "add_radio", AddRadio,

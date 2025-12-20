@@ -130,6 +130,14 @@ end
 
 local pendingQuit = false
 
+-- Orange timer customisation
+local startTimerStyle = {
+    rounding = 10,
+    border_size = 0,
+
+    bg     = { 255, 153, 0, 35 },    
+    fill   = { 255, 153, 0, 255 },
+}
  --=====================================================================
  --  [HELPERS] Time
  --=====================================================================
@@ -905,9 +913,9 @@ local function DrawMainMenu(screenW, screenH, dt)
         local barW = math.floor(math.max(200, math.min(bw * 0.75, 320)))
         local barH = 12
         local barX = panelX + bx + math.floor((bw - barW) / 2)
-        local barY = panelY + by - barH - 14
+        local barY = panelY + by - barH - 26
 
-        UI.draw_progress_bar(barX, barY, barW, barH, menuStartDelay, elapsed, 4)
+        UI.draw_progress_bar_styled(barX, barY, barW, barH, menuStartDelay, elapsed, 4, startTimerStyle, "")
 
         if menuStartTimer <= 0 then
             menuStarting = false
@@ -2075,9 +2083,36 @@ function TriangleShooter:OnUpdate()
         if maxEnemyHealthTotal < 1 then
             maxEnemyHealthTotal = 1
         end
-        UI.draw_progress_bar(20, 20, 200, 20, maxEnemyHealthTotal, currentEnemyHealthTotal, 1)
+            local enemyHpStyle = {
+              rounding = 10,
+              border_size = 0,
+              bg   = {30,30,30,220},
+              fill = {255,0,0,255},
+            }
+        UI.draw_progress_bar_styled(20, 20, 200, 20, maxEnemyHealthTotal, currentEnemyHealthTotal, 1, enemyHpStyle, "")
         if levelCfg.timeLimitSeconds ~= nil and levelCfg.timeLimitSeconds > 0 then
-            UI.draw_progress_bar(20, 50, 200, 10, levelCfg.timeLimitSeconds, levelTimerSeconds, 3)
+            local barW, barH = 200, 10
+            local x, y = 20, 50
+
+            local maxT = levelCfg.timeLimitSeconds
+            local tLeft = math.max(0, math.min(maxT, levelTimerSeconds)) -- assumes levelTimerSeconds = remaining
+
+            -- Pulse only near the end (last 15%)
+            local frac = (maxT > 0) and (tLeft / maxT) or 0
+            local pulse = 1.0
+            if frac < 0.15 then
+                pulse = 0.6 + 0.4 * (0.5 + 0.5 * math.sin(Mafs.time() * 10.0))
+            end
+
+            local timerStyle = {
+                rounding = barH / 2,
+                border_size = 1,
+                bg     = {255, 255, 255, 35},
+                fill   = {255, 255, 255, math.floor(220 * pulse)},
+                border = {0, 0, 0, 120},
+            }
+
+            UI.draw_progress_bar_styled(x, y, barW, barH, maxT, tLeft, 3, timerStyle, "")
         end
     else
         local currentEnemyHealthTotal = 0
@@ -2097,8 +2132,15 @@ function TriangleShooter:OnUpdate()
     local playerHpBarW = 200
     local playerHpBarH = 20
 
+    local hpStyle = {
+      rounding = 10,
+      border_size = 0,
+      bg   = {30,30,30,220},
+      fill = {0,255,0,255},
+    }
+
     local playerMaxHealth = TriangleShooterPlayerProgress.getMaxHealth()
-    UI.draw_progress_bar(playerHpBarX, playerHpBarY, playerHpBarW, playerHpBarH, playerMaxHealth, playerHealth, 2)
+    UI.draw_progress_bar_styled(playerHpBarX, playerHpBarY, playerHpBarW, playerHpBarH, playerMaxHealth, playerHealth, 2, hpStyle, "")
 
     local level, xp, xpToNextLevel = TriangleShooterPlayerProgress.getProgress()
     local playerInfoText = T("gameplay.level") .. tostring(level) .. T("gameplay.exp") .. tostring(xp) .. "/" .. tostring(xpToNextLevel)
@@ -2116,9 +2158,11 @@ function TriangleShooter:OnUpdate()
         if elapsed < 0 then
             elapsed = 0
         end
-        UI.draw_progress_bar(
+        
+
+        UI.draw_progress_bar_styled(
             screenW / 2 - 100, 80, 200, 10,
-            phaseDuration, elapsed, 4
+            phaseDuration, elapsed, 4, startTimerStyle, ""
         )
     end
 

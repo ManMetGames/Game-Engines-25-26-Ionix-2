@@ -451,6 +451,41 @@ namespace IonixEngine
 		AddChildToPanel(element);
 	}
 
+	void UIManager::AddProgressBarValueStyled(int x, int y, float xSize, float ySize,
+		float maxValue, float currentValue, int colorId,
+		float rounding, float borderSize,
+		bool useColors, ImVec4 bg, ImVec4 fill, ImVec4 border,
+		const std::string& overlayText,
+		const std::string& fontName, float fontScale)
+	{
+		UIElement* element = new UIElement{};
+		element->type = UIType::ProgressBar;
+		element->xPos = x;
+		element->yPos = y;
+		element->xSize = xSize;
+		element->ySize = ySize;
+
+		element->maxValue = maxValue;
+		element->currentValue = nullptr;          // value-mode
+		element->incrementAmount = 0.0f;
+
+		element->progressCurrentValue = currentValue;
+		element->progressColorId = colorId;
+
+		element->progressCustomStyle = true;
+		element->progressRounding = rounding;
+		element->progressBorderSize = borderSize;
+		element->progressUseColors = useColors;
+		element->progressBg = bg;
+		element->progressFill = fill;
+		element->progressBorder = border;
+		element->progressOverlayText = overlayText;
+
+		element->fontName = fontName;
+		element->fontScale = fontScale;
+
+		AddChildToPanel(element);
+	}
 
 	void IonixEngine::UIManager::AddPanel(int x, int y, float w, float h,
 		float alpha, float rounding,
@@ -801,13 +836,33 @@ namespace IonixEngine
 			}
 			else
 			{
-				m_ui->DrawProgressBar(
-					element->xPos, element->yPos,
-					element->xSize, element->ySize,
-					element->maxValue,
-					element->progressCurrentValue,
-					element->progressColorId
-				);
+				if (element->progressCustomStyle)
+				{
+					m_ui->DrawProgressBarStyled(
+						element->xPos, element->yPos,
+						element->xSize, element->ySize,
+						element->maxValue,
+						element->progressCurrentValue,
+						element->progressColorId,
+						element->progressRounding,
+						element->progressBorderSize,
+						element->progressUseColors,
+						element->progressBg,
+						element->progressFill,
+						element->progressBorder,
+						element->progressOverlayText.c_str()
+					);
+				}
+				else
+				{
+					m_ui->DrawProgressBar(
+						element->xPos, element->yPos,
+						element->xSize, element->ySize,
+						element->maxValue,
+						element->progressCurrentValue,
+						element->progressColorId
+					);
+				}
 			}
 			break;
 		}
