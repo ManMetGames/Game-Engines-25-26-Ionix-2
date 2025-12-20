@@ -1,4 +1,4 @@
-﻿local ExampleScript = {}
+local ExampleScript = {}
 local assets = require("Scripts.Assets")
 local enums = require("Scripts.Enums")
 local Background
@@ -14,6 +14,27 @@ local submitted = false -- For Highscore submission
 local playerName = Json.load_player_name()
 if playerName == "" then playerName = "Anon" end
 local showSettings = showSettings or false
+
+-- UI fonts (baked sizes; avoid scaling blur)
+local UI_FONT_REG    = "ImGuiDefault"
+local UI_FONT_SUB    = "ImGuiSub"
+local UI_FONT_HEADER = "ImGuiHeader"
+local UI_FONT_TITLE  = "ImGuiTitle"
+
+-- String table scaffold (EN for now; ready for localisation later)
+local STR = {
+    ["fb.leaderboard"]           = "Leaderboard",
+    ["fb.press_space_start"]     = "Press SPACE to start!",
+    ["fb.press_space_restart"]   = "Press SPACE to restart",
+    ["fb.game_over_try_again"]   = "GAME OVER!! TRY AGAIN",
+    ["fb.new_highscore_line1"]   = "New Highscore! Enter your name",
+    ["fb.new_highscore_line2"]   = "to be added to the leaderboard:",
+}
+local function T(key)
+    return STR[key] or key
+end
+
+
 
 -- --------------------------------------------------------------------------------
 -- Saved settings / economy (stored via Json settings)
@@ -128,8 +149,8 @@ local pipeEffectDuration = 40
 -- Text
 local pipeScoreText = "Score: 0"
 local scoreText = "Coins: 0"
-local text1 = "Press SPACE to start!"
-local text2 = "Press SPACE to restart"
+local text1 = T("fb.press_space_start")
+local text2 = T("fb.press_space_restart")
 local finalScoreText = "Final Score: 0"
 local coinsText = "Coins Collected: "
 local topScore = "Highscore: "
@@ -281,7 +302,7 @@ local function resetGame()
     Pscore = 0
     pipeScoreText = "Score: 0"
     scoreText = "Coins: 0"
-    text1 = "Press SPACE to start!"
+    text1 = T("fb.press_space_start")
     finalScoreText = "Final Score: 0"
     coinsText = "Coins Collected: "
     topScore = "Highscore: "
@@ -356,7 +377,7 @@ end
         Json.save_high_score(GAME_ID, highscore)
     end
 
-    text1 = "GAME OVER!! TRY AGAIN"
+    text1 = T("fb.game_over_try_again")
     finalScoreText = "Final Score: " .. tostring(Pscore)
     topScore = "Highscore: " .. tostring(highscore)
     coinsText = "Coins Collected: " .. tostring(score)
@@ -1175,33 +1196,47 @@ end
         -- Leaderboard (top-left) --
         local lbX, lbY = 5, 5
         local lbW, lbH = 260, 170
-        UI.add_panel(lbX, lbY, lbW, lbH, 0.75, 10, 70, 160, 115)
 
-        UI.add_label(lbX + 10, lbY + 10, 0, 0, "Leaderboard Ranking", "ImGuiDefaultBold", 1.8)
+        UI.begin_child(lbX, lbY, lbW, lbH, "FB_Leaderboard",
+            true, 0,
+            true, 0.75, 10, 70, 160, 115
+        )
+
+        local lcx = lbW / 2
+        UI.add_centered_label(lcx, 12, T("fb.leaderboard"), UI_FONT_HEADER, 1.0)
 
         if topLeaderboard then
-          for i, e in ipairs(topLeaderboard) do
-            local line = string.format("%d. %s - %d", i, e.name, e.score)
-            UI.add_label(lbX + 10, lbY + 40 + (i-1)*22, 0, 0, line,  "", 1.5)
-          end
+            for i, e in ipairs(topLeaderboard) do
+                local line = string.format("%d. %s - %d", i, e.name, e.score)
+                UI.add_label(10, 42 + (i-1)*20, 0, 0, line, UI_FONT_REG, 1.0)
+            end
         end
+
+        UI.end_child()
+
 
         -- Center Game Over panel
         local panelW, panelH = 460, 205
         local panelX = (windowW - panelW) / 2
         local panelY = 200
 
-        UI.add_panel(panelX, panelY, panelW, panelH, 0.75, 12, 95, 150, 165)
+       UI.begin_child(panelX, panelY, panelW, panelH, "FB_GameOver",
+           true, 0,
+           true, 0.75, 12, 95, 150, 165
+       )
 
-        local y0 = panelY + 20
-        local gap = 26
-        local centerX = panelX + (panelW / 2)
+       local cx = panelW / 2
+       local y0 = 14
+       local gap = 22
 
-        UI.add_centered_label(centerX, y0 + gap*-0.25, text1,  "ImGuiDefaultBold", 1.8) 
-        UI.add_centered_label(centerX, y0 + gap*1.5, topScore, "", 1.5)
-        UI.add_centered_label(centerX, y0 + gap*2.5, finalScoreText, "", 1.5)
-        UI.add_centered_label(centerX, y0 + gap*3.5, coinsText, "", 1.5)
-        UI.add_centered_label(centerX, y0 + gap*5.5, text2, "ImGuiDefaultBold", 1.8)
+       UI.add_centered_label(cx, y0, text1, UI_FONT_HEADER, 1.0)
+       UI.add_centered_label(cx, y0 + gap*2, topScore, UI_FONT_SUB, 1.0)
+       UI.add_centered_label(cx, y0 + gap*3, finalScoreText, UI_FONT_SUB, 1.0)
+       UI.add_centered_label(cx, y0 + gap*4, coinsText, UI_FONT_SUB, 1.0)
+       UI.add_centered_label(cx, panelH - 34, text2, UI_FONT_SUB, 1.0)
+
+       UI.end_child()
+
 
 
         -- Show TextInput only if new high score
@@ -1210,20 +1245,25 @@ end
             local nhX = (windowW - nhW) / 2
             local nhY = panelY + panelH + 12   -- 12px gap under the main panel
 
-            UI.add_panel(nhX, nhY, nhW, nhH+15, 0.75, 10, 70, 160, 115)
+           UI.begin_child(nhX, nhY, nhW, nhH+15, "FB_NewHighscore",
+            true, 0,
+            true, 0.75, 10, 70, 160, 115
+        )
 
-            local centerX = nhX + (nhW / 2)
+        local cx = nhW / 2
+        UI.add_centered_label(cx, 12, T("fb.new_highscore_line1"), UI_FONT_SUB, 1.0)
+        UI.add_centered_label(cx, 34, T("fb.new_highscore_line2"), UI_FONT_REG, 1.0)
 
-            -- Title centered (uses centered label function)
-            UI.add_centered_label(centerX, nhY + 10, "New Highscore! Enter your name", "", 1.5)
-            UI.add_centered_label(centerX, nhY + 35, "to be added to the leaderboard:", "", 1.5)
+        local inputW = 260
+        local inputX = (nhW - inputW) / 2
+        local inputY = 52
+        UI.add_input_text(inputX, inputY, inputW, "", "player_name", 16)
 
-            -- Input box (put it centered-ish under the title)
-            local inputW = 260
-            local inputX = nhX + (nhW - inputW) / 2
-            local inputY = nhY + 45
+        -- (submit logic unchanged)
 
-            UI.add_input_text(inputX, inputY, inputW, "", "player_name", 16)
+        UI.end_child()
+
+
 
             if UI.was_input_committed("player_name") then
                 local name = UI.get_input_text("player_name")
@@ -1247,7 +1287,7 @@ end
         -- Only allow restart when delay is done AND name entry isn't active
         local canRestart = (restartDelayFrames == 0) and not (newHighScore and not submitted)
 
-        text2 = canRestart and "Press SPACE to restart" or ""
+        text2 = canRestart and T("fb.press_space_restart") or ""
 
 
         if canRestart and Input.get_key_down(Keys.ionix_space) then
