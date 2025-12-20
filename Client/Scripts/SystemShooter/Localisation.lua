@@ -37,7 +37,7 @@ local STRINGS = {
         ["upgradetype.fireinterval"] = "+ Fire Rate",
             ["upgradedesc.fireinterval"] = "Shoot faster (lower cooldown).",
         ["upgradetype.no_witnesses"] = "No Witnesses",
-            ["upgradedesc.no_witnesses"] = "+50% damage when ≤1 enemy (rank 1) or ≤2 enemies (rank 2).",
+            ["upgradedesc.no_witnesses"] = "Deal +50% damage when there are 1 (Rank 1) or 2 or less (Rank 2) enemies left.",
         ["upgradetype.maxhp"] = "+ Max Health",
             ["upgradedesc.maxhp"] = "Increase your max health.",
 
@@ -112,8 +112,8 @@ local STRINGS = {
             ["upgradedesc.bounce"] = "画面端での跳弾回数が上がる。",
         ["upgradetype.fireinterval"] = "発射速度＋",
             ["upgradedesc.fireinterval"] = "発射速度が上がる。",
-        ["upgradetype.no_witnesses"] = "ノーウィットネス",
-            ["upgradedesc.no_witnesses"] = "ランク1: 敵が1体以下でダメージ＋50%。ランク2: 敵が2体以下でダメージ＋50%。",
+        ["upgradetype.no_witnesses"] = "口封じ",
+            ["upgradedesc.no_witnesses"] = "敵が（ランク1：1体以下／ランク2：2体以下）のとき、ダメージが50%増加する。",
         ["upgradetype.maxhp"] = "最大HP＋",
             ["upgradedesc.maxhp"] = "最大HPが増える。",
 
