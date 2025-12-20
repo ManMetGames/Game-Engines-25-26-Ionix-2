@@ -1,4 +1,4 @@
-local TriangleShooterRewind = {}
+local SystemShooterRewind = {}
 
 --=====================================================================
 --  [REWIND SYSTEM] Level Timeout Rewind Mechanic
@@ -29,33 +29,33 @@ local state = {
 --=====================================================================
 --  [PUBLIC API] State Queries
 --=====================================================================
-function TriangleShooterRewind.isActive()
+function SystemShooterRewind.isActive()
     return state.phase ~= nil
 end
 
-function TriangleShooterRewind.getPhase()
+function SystemShooterRewind.getPhase()
     return state.phase
 end
 
-function TriangleShooterRewind.getTimeScale()
+function SystemShooterRewind.getTimeScale()
     return state.timeScale
 end
 
 --=====================================================================
 --  [PUBLIC API] Store Spawn Positions (called when level loads)
 --=====================================================================
-function TriangleShooterRewind.setSpawnPosition(enemyIndex, x, y)
+function SystemShooterRewind.setSpawnPosition(enemyIndex, x, y)
     state.enemySpawnPositions[enemyIndex] = { x = x, y = y }
 end
 
-function TriangleShooterRewind.clearSpawnPositions()
+function SystemShooterRewind.clearSpawnPositions()
     state.enemySpawnPositions = {}
 end
 
 --=====================================================================
 --  [PUBLIC API] Reset State (for menu/game over)
 --=====================================================================
-function TriangleShooterRewind.reset()
+function SystemShooterRewind.reset()
     state.phase = nil
     state.timer = 0
     state.timeScale = 1.0
@@ -72,7 +72,7 @@ end
 --=====================================================================
 --  [PUBLIC API] Start Rewind Sequence
 --=====================================================================
-function TriangleShooterRewind.start(enemies, playerHealth, maxHealth, levelTimeLimitSeconds, enemyTargetHealthList)
+function SystemShooterRewind.start(enemies, playerHealth, maxHealth, levelTimeLimitSeconds, enemyTargetHealthList)
     state.phase = "slowing"
     state.timer = state.slowdownDuration
     state.timeScale = 1.0
@@ -112,7 +112,7 @@ end
 --      playerHealth = current player health value,
 --  }
 --=====================================================================
-function TriangleShooterRewind.update(dt, enemies, projectiles, enemyProjectiles, updateEnemyMovementFn, clearProjectilesFn)
+function SystemShooterRewind.update(dt, enemies, projectiles, enemyProjectiles, updateEnemyMovementFn, clearProjectilesFn)
     if not state.phase then
         return nil
     end
@@ -310,7 +310,7 @@ end
 --=====================================================================
 --  [PUBLIC API] Restore Enemy Colors (for game over during rewind)
 --=====================================================================
-function TriangleShooterRewind.restoreEnemyColors(enemies)
+function SystemShooterRewind.restoreEnemyColors(enemies)
     for _, enemy in ipairs(enemies) do
         if enemy.sprite then
             local c = enemy.color or {255, 255, 255}
@@ -319,4 +319,4 @@ function TriangleShooterRewind.restoreEnemyColors(enemies)
     end
 end
 
-return TriangleShooterRewind
+return SystemShooterRewind

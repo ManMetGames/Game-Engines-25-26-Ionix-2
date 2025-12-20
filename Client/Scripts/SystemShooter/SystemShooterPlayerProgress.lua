@@ -1,4 +1,4 @@
-local TriangleShooterPlayerProgress = {}
+local SystemShooterPlayerProgress = {}
 
 local SPREAD_ANGLE_DEG = 10
 
@@ -169,7 +169,7 @@ local function generateShotPattern(firepower, aimX, aimY, projectileSize)
     return shots
 end
 
-function TriangleShooterPlayerProgress.getShots(firepower, tipX, tipY, aimX, aimY, projectileSize)
+function SystemShooterPlayerProgress.getShots(firepower, tipX, tipY, aimX, aimY, projectileSize)
     return generateShotPattern(firepower, aimX, aimY, projectileSize)
 end
 
@@ -199,7 +199,7 @@ end
 --=====================================================================
 --  UPGRADE LOGIC (driven by UPGRADE_CONFIG)
 --=====================================================================
-function TriangleShooterPlayerProgress.canTakeUpgrade(upgradeType)
+function SystemShooterPlayerProgress.canTakeUpgrade(upgradeType)
     local cfg = UPGRADE_CONFIG[upgradeType]
     if not cfg then return true end
     if cfg.maxValue == nil then return true end
@@ -208,7 +208,7 @@ function TriangleShooterPlayerProgress.canTakeUpgrade(upgradeType)
     return currentValue < cfg.maxValue
 end
 
-function TriangleShooterPlayerProgress.applyUpgrade(upgradeType)
+function SystemShooterPlayerProgress.applyUpgrade(upgradeType)
     local cfg = UPGRADE_CONFIG[upgradeType]
     if not cfg then return end
     
@@ -232,11 +232,11 @@ function TriangleShooterPlayerProgress.applyUpgrade(upgradeType)
     end
 end
 
-function TriangleShooterPlayerProgress.getUpgradeConfig()
+function SystemShooterPlayerProgress.getUpgradeConfig()
     return UPGRADE_CONFIG
 end
 
-function TriangleShooterPlayerProgress.addXp(amount)
+function SystemShooterPlayerProgress.addXp(amount)
     xp = xp + amount
     while xp >= xpToNextLevel do
         xp = xp - xpToNextLevel
@@ -244,11 +244,11 @@ function TriangleShooterPlayerProgress.addXp(amount)
     end
 end
 
-function TriangleShooterPlayerProgress.hasPendingLevelUp()
+function SystemShooterPlayerProgress.hasPendingLevelUp()
     return pendingLevelUp
 end
 
-function TriangleShooterPlayerProgress.consumePendingLevelUp()
+function SystemShooterPlayerProgress.consumePendingLevelUp()
     if pendingLevelUp then
         pendingLevelUp = false
         return true
@@ -256,39 +256,39 @@ function TriangleShooterPlayerProgress.consumePendingLevelUp()
     return false
 end
 
-function TriangleShooterPlayerProgress.getProgress()
+function SystemShooterPlayerProgress.getProgress()
     return playerLevel, xp, xpToNextLevel
 end
 
-function TriangleShooterPlayerProgress.getFirepower()
+function SystemShooterPlayerProgress.getFirepower()
     return playerStats.firepower
 end
 
-function TriangleShooterPlayerProgress.getPierceCount()
+function SystemShooterPlayerProgress.getPierceCount()
     return playerStats.pierceCount
 end
 
-function TriangleShooterPlayerProgress.getBounceCount()
+function SystemShooterPlayerProgress.getBounceCount()
     return playerStats.bounceCount
 end
 
-function TriangleShooterPlayerProgress.getLowEnemyDamageStacks()
+function SystemShooterPlayerProgress.getLowEnemyDamageStacks()
     return playerStats.lowEnemyDamageStacks or 0
 end
 
-function TriangleShooterPlayerProgress.getCurrentFireInterval()
+function SystemShooterPlayerProgress.getCurrentFireInterval()
     return playerStats.fireInterval
 end
 
-function TriangleShooterPlayerProgress.getMaxHealth()
+function SystemShooterPlayerProgress.getMaxHealth()
     return playerStats.maxHealth or 100
 end
 
-function TriangleShooterPlayerProgress.getStats()
+function SystemShooterPlayerProgress.getStats()
     return playerStats
 end
 
-function TriangleShooterPlayerProgress.reset()
+function SystemShooterPlayerProgress.reset()
     playerLevel = 1
     xp = 0
     xpToNextLevel = 100
@@ -303,4 +303,4 @@ function TriangleShooterPlayerProgress.reset()
     playerStats.maxHealth = 100
 end
 
-return TriangleShooterPlayerProgress
+return SystemShooterPlayerProgress

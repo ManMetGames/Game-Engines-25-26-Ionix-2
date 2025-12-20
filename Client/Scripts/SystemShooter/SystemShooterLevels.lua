@@ -1,4 +1,4 @@
-local TriangleShooterLevels = {}
+local SystemShooterLevels = {}
 
 local PROCEDURAL_START_LEVEL = 6
 
@@ -486,7 +486,7 @@ local function generateProceduralLevel(levelIndex)
     }
 end
 
-function TriangleShooterLevels.getLevelConfig(index)
+function SystemShooterLevels.getLevelConfig(index)
     if index < PROCEDURAL_START_LEVEL then
         return levels[index]
     end
@@ -496,7 +496,7 @@ function TriangleShooterLevels.getLevelConfig(index)
     return generatedLevelCache[index]
 end
 
-function TriangleShooterLevels.clearLevelCache(index)
+function SystemShooterLevels.clearLevelCache(index)
     if index then
         generatedLevelCache[index] = nil
     else
@@ -504,39 +504,39 @@ function TriangleShooterLevels.clearLevelCache(index)
     end
 end
 
-function TriangleShooterLevels.regenerateLevel(index)
+function SystemShooterLevels.regenerateLevel(index)
     if index >= PROCEDURAL_START_LEVEL then
         generatedLevelCache[index] = generateProceduralLevel(index)
     end
-    return TriangleShooterLevels.getLevelConfig(index)
+    return SystemShooterLevels.getLevelConfig(index)
 end
 
-function TriangleShooterLevels.getHealthBudgetConfig()
+function SystemShooterLevels.getHealthBudgetConfig()
     return HEALTH_BUDGET
 end
 
-function TriangleShooterLevels.getTimerConfig()
+function SystemShooterLevels.getTimerConfig()
     return TIMER_CONFIG
 end
 
-function TriangleShooterLevels.getWindowConfig()
+function SystemShooterLevels.getWindowConfig()
     return WINDOW_CONFIG
 end
 
-function TriangleShooterLevels.getEnemyTemplates()
+function SystemShooterLevels.getEnemyTemplates()
     return ENEMY_TEMPLATES
 end
 
-function TriangleShooterLevels.getBPM()
+function SystemShooterLevels.getBPM()
     return BPM
 end
 
-function TriangleShooterLevels.getBeatDuration()
+function SystemShooterLevels.getBeatDuration()
     return BEAT_DURATION
 end
 
-function TriangleShooterLevels.getFireRateWeights()
+function SystemShooterLevels.getFireRateWeights()
     return FIRE_RATE_WEIGHTS
 end
 
-return TriangleShooterLevels
+return SystemShooterLevels

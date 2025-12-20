@@ -1,4 +1,4 @@
-local TriangleShooterEnemy = {}
+local SystemShooterEnemy = {}
 
  --=====================================================================
  --  [MODULE] Dependencies
@@ -39,7 +39,7 @@ local ENEMY_TYPE_COLORS = {
     teleporter = nil,
 }
 
-TriangleShooterEnemy.DEFAULTS = DEFAULTS
+SystemShooterEnemy.DEFAULTS = DEFAULTS
 
  --=====================================================================
  --  [INTERNAL] Forward Declarations
@@ -53,7 +53,7 @@ TriangleShooterEnemy.DEFAULTS = DEFAULTS
  --=====================================================================
  --  [PUBLIC API] Enemy Lifecycle (Create / Clear)
  --=====================================================================
-function TriangleShooterEnemy.createEnemy(x, y, config, playerX, playerY, playerSize)
+function SystemShooterEnemy.createEnemy(x, y, config, playerX, playerY, playerSize)
     config = config or {}
     
     local size = config.size or DEFAULTS.size
@@ -151,7 +151,7 @@ function TriangleShooterEnemy.createEnemy(x, y, config, playerX, playerY, player
     return enemy
 end
 
-function TriangleShooterEnemy.updateDisplaySize(enemy)
+function SystemShooterEnemy.updateDisplaySize(enemy)
     if not enemy.healthScaling then return end
     
     local hp = enemy.health
@@ -160,7 +160,7 @@ function TriangleShooterEnemy.updateDisplaySize(enemy)
     enemy.displaySize = enemy.size + (hp * enemy.sizePerHp)
 end
 
-function TriangleShooterEnemy.clearEnemies(enemies)
+function SystemShooterEnemy.clearEnemies(enemies)
     for i = 1, #enemies do
         local enemy = enemies[i]
         if enemy.entity then
@@ -169,7 +169,7 @@ function TriangleShooterEnemy.clearEnemies(enemies)
     end
 end
 
-function TriangleShooterEnemy.setEnemyDisabled(enemy, disabled, screenW, screenH)
+function SystemShooterEnemy.setEnemyDisabled(enemy, disabled, screenW, screenH)
     enemy.disabled = disabled
     if enemy.sprite then
         local r, g, b = enemy.color[1], enemy.color[2], enemy.color[3]
@@ -193,22 +193,22 @@ function TriangleShooterEnemy.setEnemyDisabled(enemy, disabled, screenW, screenH
     end
 end
 
-function TriangleShooterEnemy.enableAllEnemies(enemies)
+function SystemShooterEnemy.enableAllEnemies(enemies)
     for i = 1, #enemies do
-        TriangleShooterEnemy.setEnemyDisabled(enemies[i], false)
+        SystemShooterEnemy.setEnemyDisabled(enemies[i], false)
     end
 end
 
-function TriangleShooterEnemy.disableAllEnemies(enemies, screenW, screenH)
+function SystemShooterEnemy.disableAllEnemies(enemies, screenW, screenH)
     for i = 1, #enemies do
-        TriangleShooterEnemy.setEnemyDisabled(enemies[i], true, screenW, screenH)
+        SystemShooterEnemy.setEnemyDisabled(enemies[i], true, screenW, screenH)
     end
 end
 
  --=====================================================================
  --  [PUBLIC API] Per-Frame Update
  --=====================================================================
- function TriangleShooterEnemy.updateEnemyMovement(
+ function SystemShooterEnemy.updateEnemyMovement(
      enemies,
      playerX, playerY, playerSize,
      screenW, screenH,
@@ -556,4 +556,4 @@ end
     end
 end
 
-return TriangleShooterEnemy
+return SystemShooterEnemy

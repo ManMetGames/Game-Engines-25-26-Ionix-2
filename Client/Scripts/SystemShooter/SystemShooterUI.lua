@@ -1,6 +1,6 @@
-local TriangleShooterUI = {}
+local SystemShooterUI = {}
 
-local TriangleShooterPlayerProgress = require("Scripts.TriangleShooter.TriangleShooterPlayerProgress")
+local SystemShooterPlayerProgress = require("Scripts.SystemShooter.SystemShooterPlayerProgress")
 
 local isUpgradeMenuOpen = false
 local upgradeOptions = {}      -- { type, label, desc }
@@ -29,7 +29,7 @@ local BORDER_GREEN = {0, 170, 110, 1.0}
 local BTN_ROUND = 12
 
 -- For language translation
-local Localisation = require("Scripts.TriangleShooter.Localisation")
+local Localisation = require("Scripts.SystemShooter.Localisation")
 local function T(key) return Localisation.t(key) end
 
 local function splitLines(s)
@@ -41,16 +41,16 @@ local function splitLines(s)
   return t
 end
 
-function TriangleShooterUI.getRandomUpgradeOptions(count, playerLevel)
+function SystemShooterUI.getRandomUpgradeOptions(count, playerLevel)
   count = count or 2
   playerLevel = playerLevel or 1
 
-  local upgradeConfig = TriangleShooterPlayerProgress.getUpgradeConfig()
-  local stats = TriangleShooterPlayerProgress.getStats()
+  local upgradeConfig = SystemShooterPlayerProgress.getUpgradeConfig()
+  local stats = SystemShooterPlayerProgress.getStats()
   local available = {}
   for upgradeType, cfg in pairs(upgradeConfig) do
     local minLevel = cfg.minLevel or 1
-    if playerLevel >= minLevel and TriangleShooterPlayerProgress.canTakeUpgrade(upgradeType) then
+    if playerLevel >= minLevel and SystemShooterPlayerProgress.canTakeUpgrade(upgradeType) then
       local currentValue = stats[cfg.statKey] or cfg.defaultValue or 0
       table.insert(available, { type = upgradeType, label = cfg.label, desc = cfg.desc, cfg = cfg, currentValue = currentValue })
     end
@@ -65,9 +65,9 @@ function TriangleShooterUI.getRandomUpgradeOptions(count, playerLevel)
   return chosen
 end
 
-function TriangleShooterUI.showUpgradeMenu(options, playerLevel)
+function SystemShooterUI.showUpgradeMenu(options, playerLevel)
   isUpgradeMenuOpen = true
-  upgradeOptions = options or TriangleShooterUI.getRandomUpgradeOptions(2, playerLevel)
+  upgradeOptions = options or SystemShooterUI.getRandomUpgradeOptions(2, playerLevel)
   selectedIndex = 0
 
   confirmPending = false
@@ -76,7 +76,7 @@ function TriangleShooterUI.showUpgradeMenu(options, playerLevel)
   Input.set_relative_mouse_mode(false)
 end
 
-function TriangleShooterUI.hideUpgradeMenu()
+function SystemShooterUI.hideUpgradeMenu()
   isUpgradeMenuOpen = false
   upgradeOptions = {}
   selectedIndex = 0
@@ -87,18 +87,18 @@ function TriangleShooterUI.hideUpgradeMenu()
   Input.set_relative_mouse_mode(true)
 end
 
-function TriangleShooterUI.isMenuOpen()
+function SystemShooterUI.isMenuOpen()
   return isUpgradeMenuOpen
 end
 
-function TriangleShooterUI.getSelectedUpgrade()
+function SystemShooterUI.getSelectedUpgrade()
   if selectedIndex > 0 and selectedIndex <= #upgradeOptions then
     return upgradeOptions[selectedIndex]
   end
   return nil
 end
 
-function TriangleShooterUI.draw(screenW, screenH)
+function SystemShooterUI.draw(screenW, screenH)
 if not isUpgradeMenuOpen then return end
 
 
@@ -213,7 +213,7 @@ if not isUpgradeMenuOpen then return end
   )
 end
 
-function TriangleShooterUI.handleInput()
+function SystemShooterUI.handleInput()
   if not isUpgradeMenuOpen then return nil end
 
 
@@ -226,12 +226,12 @@ function TriangleShooterUI.handleInput()
 
   -- Confirm - immediately close menu and return selection
   if selectedIndex > 0 and UI.was_button_pressed("upgrade_confirm") then
-    local selected = TriangleShooterUI.getSelectedUpgrade()
-    TriangleShooterUI.hideUpgradeMenu()
+    local selected = SystemShooterUI.getSelectedUpgrade()
+    SystemShooterUI.hideUpgradeMenu()
     return selected
   end
 
   return nil
 end
 
-return TriangleShooterUI
+return SystemShooterUI

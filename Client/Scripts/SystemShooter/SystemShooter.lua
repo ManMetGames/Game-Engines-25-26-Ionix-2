@@ -1,17 +1,17 @@
-﻿local TriangleShooter = {}
+﻿local SystemShooter = {}
 
  --=====================================================================
  --  [MODULE] Imports / Dependencies
  --=====================================================================
 local assets = require("Scripts.Assets")
 local enums = require("Scripts.Enums")
-local TriangleShooterLevels = require("Scripts.TriangleShooter.TriangleShooterLevels")
-local TriangleShooterEnemy = require("Scripts.TriangleShooter.TriangleShooterEnemy")
-local TriangleShooterPlayerProgress = require("Scripts.TriangleShooter.TriangleShooterPlayerProgress")
-local ParticleSystem = require("Scripts.TriangleShooter.ParticleSystem")
-local TriangleShooterPickups = require("Scripts.TriangleShooter.TriangleShooterPickups")
-local TriangleShooterRewind = require("Scripts.TriangleShooter.TriangleShooterRewind")
-local Localisation = require("Scripts.TriangleShooter.Localisation")
+local SystemShooterLevels = require("Scripts.SystemShooter.SystemShooterLevels")
+local SystemShooterEnemy = require("Scripts.SystemShooter.SystemShooterEnemy")
+local SystemShooterPlayerProgress = require("Scripts.SystemShooter.SystemShooterPlayerProgress")
+local ParticleSystem = require("Scripts.SystemShooter.ParticleSystem")
+local SystemShooterPickups = require("Scripts.SystemShooter.SystemShooterPickups")
+local SystemShooterRewind = require("Scripts.SystemShooter.SystemShooterRewind")
+local Localisation = require("Scripts.SystemShooter.Localisation")
 
 
  --=====================================================================
@@ -33,7 +33,7 @@ local namePromptError = ""
 local function T(key) return Localisation.t(key) end
 local language = Json.load_setting(GAME_ID, "ui.language", "en") or "en"
 Localisation.set_language(language)
-local TriangleShooterUI = require("Scripts.TriangleShooter.TriangleShooterUI")
+local SystemShooterUI = require("Scripts.SystemShooter.SystemShooterUI")
 local UI_FONT_BOLD = "ImGuiDefaultBold"
 local UI_FONT_REG  = "ImGuiDefault"
 
@@ -251,7 +251,7 @@ local LoadLevel
 
 local function CreateEnemy(x, y, config)
     config = config or {}
-    return TriangleShooterEnemy.createEnemy(x, y, config, playerX, playerY, playerSize)
+    return SystemShooterEnemy.createEnemy(x, y, config, playerX, playerY, playerSize)
 end
 
  --=====================================================================
@@ -305,7 +305,7 @@ function UpdateWindowTransition()
 end
 
 local function ClearEnemies()
-    TriangleShooterEnemy.clearEnemies(enemies)
+    SystemShooterEnemy.clearEnemies(enemies)
     enemies = {}
 end
 
@@ -345,7 +345,7 @@ local function ResetRunStateForMenu()
     isLevelupPeace = false
 
     -- Reset rewind state
-    TriangleShooterRewind.reset()
+    SystemShooterRewind.reset()
 
     -- reset stage/run basics
     currentLevel = 1
@@ -446,13 +446,13 @@ local function FormatTimeMMSS(seconds)
 end
 
 local function CaptureEndRunSummary()
-    local firepower = TriangleShooterPlayerProgress.getFirepower()
-    local pierce  = TriangleShooterPlayerProgress.getPierceCount()
-    local bounce  = TriangleShooterPlayerProgress.getBounceCount()
-    local fireI   = TriangleShooterPlayerProgress.getCurrentFireInterval()
-    local maxHP   = TriangleShooterPlayerProgress.getMaxHealth()
+    local firepower = SystemShooterPlayerProgress.getFirepower()
+    local pierce  = SystemShooterPlayerProgress.getPierceCount()
+    local bounce  = SystemShooterPlayerProgress.getBounceCount()
+    local fireI   = SystemShooterPlayerProgress.getCurrentFireInterval()
+    local maxHP   = SystemShooterPlayerProgress.getMaxHealth()
 
-    local pLevel, pXp, pXpToNext = TriangleShooterPlayerProgress.getProgress()
+    local pLevel, pXp, pXpToNext = SystemShooterPlayerProgress.getProgress()
 
     return {
         stageReached = currentLevel or 1,
@@ -518,18 +518,18 @@ end
  --  [LEVEL FLOW] Load / Start Level
  --=====================================================================
 local function SpawnEnemiesForLevel(spawnDisabled)
-    local cfg = TriangleShooterLevels.getLevelConfig(currentLevel)
+    local cfg = SystemShooterLevels.getLevelConfig(currentLevel)
     if not cfg then
         return
     end
 
     -- Clear spawn positions for rewind system
-    TriangleShooterRewind.clearSpawnPositions()
+    SystemShooterRewind.clearSpawnPositions()
 
     local centerX = screenW / 2 - enemySize / 2
     local centerY = screenH / 2 - enemySize / 2
 
-    local enemyTemplates = TriangleShooterLevels.getEnemyTemplates()
+    local enemyTemplates = SystemShooterLevels.getEnemyTemplates()
     
     if cfg.enemies then
         for i, enemyCfg in ipairs(cfg.enemies) do
@@ -568,11 +568,11 @@ local function SpawnEnemiesForLevel(spawnDisabled)
             
             local e = CreateEnemy(spawnX, spawnY, config)
             if spawnDisabled then
-                TriangleShooterEnemy.setEnemyDisabled(e, true)
+                SystemShooterEnemy.setEnemyDisabled(e, true)
             end
             table.insert(enemies, e)
             -- Store spawn position for rewind system
-            TriangleShooterRewind.setSpawnPosition(#enemies, spawnX, spawnY)
+            SystemShooterRewind.setSpawnPosition(#enemies, spawnX, spawnY)
         end
     else
         local enemyCount = cfg.enemyCount or 1
@@ -585,11 +585,11 @@ local function SpawnEnemiesForLevel(spawnDisabled)
         if enemyCount == 1 then
             local e = CreateEnemy(centerX, centerY, defaultConfig)
             if spawnDisabled then
-                TriangleShooterEnemy.setEnemyDisabled(e, true)
+                SystemShooterEnemy.setEnemyDisabled(e, true)
             end
             table.insert(enemies, e)
             -- Store spawn position for rewind system
-            TriangleShooterRewind.setSpawnPosition(#enemies, centerX, centerY)
+            SystemShooterRewind.setSpawnPosition(#enemies, centerX, centerY)
         else
             local radius = 120
             local playerCenterX = screenW / 2
@@ -600,18 +600,18 @@ local function SpawnEnemiesForLevel(spawnDisabled)
                 local ey = playerCenterY + math.sin(angle) * radius - enemySize / 2
                 local e = CreateEnemy(ex, ey, defaultConfig)
                 if spawnDisabled then
-                    TriangleShooterEnemy.setEnemyDisabled(e, true)
+                    SystemShooterEnemy.setEnemyDisabled(e, true)
                 end
                 table.insert(enemies, e)
                 -- Store spawn position for rewind system
-                TriangleShooterRewind.setSpawnPosition(#enemies, ex, ey)
+                SystemShooterRewind.setSpawnPosition(#enemies, ex, ey)
             end
         end
     end
 end
 
 LoadLevel = function(index, resetPlayerState)
-    local cfg = TriangleShooterLevels.getLevelConfig(index)
+    local cfg = SystemShooterLevels.getLevelConfig(index)
     if not cfg then
         return
     end
@@ -660,7 +660,7 @@ LoadLevel = function(index, resetPlayerState)
      --  [LOAD LEVEL] Reset Player State
      --=====================================================================
     if resetPlayerState then
-        playerHealth = TriangleShooterPlayerProgress.getMaxHealth()
+        playerHealth = SystemShooterPlayerProgress.getMaxHealth()
         playerX = screenW / 2 - playerSize / 2
         playerY = screenH / 2 - playerSize / 2
         Entity.set_global_pos(player, playerX, playerY)
@@ -670,12 +670,12 @@ LoadLevel = function(index, resetPlayerState)
     end
 
     if playerHealth == nil or playerHealth <= 0 then
-        playerHealth = TriangleShooterPlayerProgress.getMaxHealth()
+        playerHealth = SystemShooterPlayerProgress.getMaxHealth()
     end
 end
 
 StartLevel = function(index, resetPlayerState)
-    local cfg = TriangleShooterLevels.getLevelConfig(index)
+    local cfg = SystemShooterLevels.getLevelConfig(index)
     if not cfg then
         return
     end
@@ -705,8 +705,8 @@ end
 local function OnEnemyKilled()
     local nextIndex = currentLevel + 1
     TryUpdateBestStage(nextIndex)
-    TriangleShooterLevels.regenerateLevel(nextIndex)
-    if TriangleShooterLevels.getLevelConfig(nextIndex) then
+    SystemShooterLevels.regenerateLevel(nextIndex)
+    if SystemShooterLevels.getLevelConfig(nextIndex) then
         StartLevel(nextIndex, false)
     else
         StartLevel(currentLevel, false)
@@ -715,8 +715,8 @@ end
 
 local function StartRewindSequence()
     -- Get level config for time limit and enemy target health
-    local cfg = TriangleShooterLevels.getLevelConfig(currentLevel)
-    local maxHealth = TriangleShooterPlayerProgress.getMaxHealth()
+    local cfg = SystemShooterLevels.getLevelConfig(currentLevel)
+    local maxHealth = SystemShooterPlayerProgress.getMaxHealth()
     local levelTimeLimit = cfg and cfg.timeLimitSeconds or 0
     
     -- Build target health list from level config (these are the reduced values after timeout)
@@ -733,7 +733,7 @@ local function StartRewindSequence()
     end
     
     -- Start the rewind sequence via the module
-    TriangleShooterRewind.start(enemies, playerHealth, maxHealth, levelTimeLimit, enemyTargetHealthList)
+    SystemShooterRewind.start(enemies, playerHealth, maxHealth, levelTimeLimit, enemyTargetHealthList)
     
     -- Pause music
     if musicEntity then
@@ -743,7 +743,7 @@ end
 
 local function OnLevelTimeout()
     -- Reduce level health by 20% on timeout (applied to config for next spawn)
-    local cfg = TriangleShooterLevels.getLevelConfig(currentLevel)
+    local cfg = SystemShooterLevels.getLevelConfig(currentLevel)
     if cfg and cfg.enemies then
         for _, enemy in ipairs(cfg.enemies) do
             if enemy.health then
@@ -760,7 +760,7 @@ end
  --=====================================================================
  --  [ENGINE CALLBACKS] OnStart
  --=====================================================================
-function TriangleShooter:OnStart()
+function SystemShooter:OnStart()
     -- Enable relative mouse mode (hides cursor, gives delta movement)
     Input.set_relative_mouse_mode(false)
     
@@ -932,8 +932,8 @@ local function DrawMainMenu(screenW, screenH, dt)
             menuScreen = "main"
             Input.set_relative_mouse_mode(true)
             ResetRunStats()
-            TriangleShooterPickups.clearAll()
-            TriangleShooterPlayerProgress.reset()
+            SystemShooterPickups.clearAll()
+            SystemShooterPlayerProgress.reset()
             isGameOver = false
             runLeaderboardSubmitted = false
             StartLevel(1, true)
@@ -1085,7 +1085,10 @@ local function DrawLeaderboardMenu(screenW, screenH, dt)
     local by = panelH - bh - 32
 
     UI.add_button(bx, by, bw, bh, "BACK", "menu_back",
-        "ImGuiDefaultBold", 1.0, 12, true, 74, 12, 255, 0.95)
+        UI_FONT_SUB, 1.0,
+        12, true,
+        74, 12, 255, 0.95
+    )
 
     if UI.was_button_pressed("menu_back") then
         menuScreen = "main"
@@ -1432,8 +1435,8 @@ local function DrawGameOverMenu(screenW, screenH, dt)
     if UI.was_button_pressed("gameover_retry") then
         isGameOver = false
         ResetRunStats()
-        TriangleShooterPickups.clearAll()
-        TriangleShooterPlayerProgress.reset()
+        SystemShooterPickups.clearAll()
+        SystemShooterPlayerProgress.reset()
         ClearEnemies()
         ClearAllPlayerProjectiles()
         ClearAllEnemyProjectiles()
@@ -1449,8 +1452,8 @@ local function DrawGameOverMenu(screenW, screenH, dt)
     elseif UI.was_button_pressed("gameover_mainmenu") then
         isGameOver = false
         ResetRunStats()
-        TriangleShooterPickups.clearAll()
-        TriangleShooterPlayerProgress.reset()
+        SystemShooterPickups.clearAll()
+        SystemShooterPlayerProgress.reset()
         ClearEnemies()
         ClearAllPlayerProjectiles()
         ClearAllEnemyProjectiles()
@@ -1772,7 +1775,7 @@ end
  --=====================================================================
  --  [ENGINE CALLBACKS] OnUpdate (Main Loop)
  --=====================================================================
-function TriangleShooter:OnUpdate()
+function SystemShooter:OnUpdate()
      --=====================================================================
      --  [ONUPDATE] Frame Setup
      --=====================================================================
@@ -1817,22 +1820,22 @@ function TriangleShooter:OnUpdate()
      --=====================================================================
      --  [ONUPDATE] Upgrade Menu (Freeze Game)
      --=====================================================================
-    if TriangleShooterUI.isMenuOpen() then
+    if SystemShooterUI.isMenuOpen() then
         screenW = Window.get_width()
         screenH = Window.get_height()
-        TriangleShooterUI.draw(screenW, screenH)
-        local selectedUpgrade = TriangleShooterUI.handleInput()
+        SystemShooterUI.draw(screenW, screenH)
+        local selectedUpgrade = SystemShooterUI.handleInput()
         if selectedUpgrade then
-            TriangleShooterPlayerProgress.applyUpgrade(selectedUpgrade.type)
+            SystemShooterPlayerProgress.applyUpgrade(selectedUpgrade.type)
             if selectedUpgrade.type == "max_health" then
-                local maxH = TriangleShooterPlayerProgress.getMaxHealth()
+                local maxH = SystemShooterPlayerProgress.getMaxHealth()
                 playerHealth = math.min(maxH, playerHealth + 20)
             end
             -- Start levelup peace timer and disable enemies
             peaceTimerSeconds = levelupPeaceDuration
             isLevelupPeace = true
             isStartLevelPeace = false
-            TriangleShooterEnemy.disableAllEnemies(enemies, screenW, screenH)
+            SystemShooterEnemy.disableAllEnemies(enemies, screenW, screenH)
         end
         return
     end
@@ -1844,7 +1847,7 @@ function TriangleShooter:OnUpdate()
     if esc and Input.get_key_down(esc) then
         if not isPaused then
             -- don’t pause over upgrade menus; they already freeze the game
-            if (not TriangleShooterUI.isMenuOpen()) and (not TriangleShooterPlayerProgress.hasPendingLevelUp()) and (not windowTransitionActive) then
+            if (not SystemShooterUI.isMenuOpen()) and (not SystemShooterPlayerProgress.hasPendingLevelUp()) and (not windowTransitionActive) then
                 SetPaused(true)
             end
         else
@@ -1873,10 +1876,10 @@ function TriangleShooter:OnUpdate()
     end
 
 
-    if TriangleShooterPlayerProgress.hasPendingLevelUp() then
-        TriangleShooterPlayerProgress.consumePendingLevelUp()
-        local level = TriangleShooterPlayerProgress.getProgress()
-        TriangleShooterUI.showUpgradeMenu(nil, level)
+    if SystemShooterPlayerProgress.hasPendingLevelUp() then
+        SystemShooterPlayerProgress.consumePendingLevelUp()
+        local level = SystemShooterPlayerProgress.getProgress()
+        SystemShooterUI.showUpgradeMenu(nil, level)
         return
     end
 
@@ -1991,12 +1994,12 @@ function TriangleShooter:OnUpdate()
      --  [ONUPDATE] Shooting
      --=====================================================================
     -- Disable shooting during rewind
-    if not TriangleShooterRewind.isActive() then
+    if not SystemShooterRewind.isActive() then
         if Input.get_mouse_button_down(1) then
             isFiring = true
             if fireCooldownTimer <= 0 then
                 SpawnProjectile()
-                local interval = TriangleShooterPlayerProgress.getCurrentFireInterval()
+                local interval = SystemShooterPlayerProgress.getCurrentFireInterval()
                 if not interval or interval <= 0 then
                     interval = 0.5
                 end
@@ -2015,7 +2018,7 @@ function TriangleShooter:OnUpdate()
                 AudioComponent.change_volume(gunshot3SfxEntity, 4)
                 AudioComponent.play(gunshot3SfxEntity)
             end
-            local interval = TriangleShooterPlayerProgress.getCurrentFireInterval()
+            local interval = SystemShooterPlayerProgress.getCurrentFireInterval()
             if not interval or interval <= 0 then
                 interval = 0.5
             end
@@ -2031,7 +2034,7 @@ function TriangleShooter:OnUpdate()
      --  [ONUPDATE] Systems Update
      --=====================================================================
     -- Skip normal updates during rewind (handled in rewind logic)
-    if not TriangleShooterRewind.isActive() then
+    if not SystemShooterRewind.isActive() then
         -- Update all projectiles
         UpdateProjectiles()
         UpdateEnemyProjectiles()
@@ -2044,12 +2047,12 @@ function TriangleShooter:OnUpdate()
     end
 
     ParticleSystem.update(dt)
-    TriangleShooterPickups.update(dt)
+    SystemShooterPickups.update(dt)
     
     -- Check pickup collision and heal player (skip during rewind)
-    if not TriangleShooterRewind.isActive() then
-        local maxHealth = TriangleShooterPlayerProgress.getMaxHealth()
-        local healAmount = TriangleShooterPickups.checkPlayerCollision(playerX, playerY, playerSize, maxHealth)
+    if not SystemShooterRewind.isActive() then
+        local maxHealth = SystemShooterPlayerProgress.getMaxHealth()
+        local healAmount = SystemShooterPickups.checkPlayerCollision(playerX, playerY, playerSize, maxHealth)
         if healAmount then
             local before = playerHealth
             playerHealth = math.min(maxHealth, playerHealth + healAmount)
@@ -2064,14 +2067,14 @@ function TriangleShooter:OnUpdate()
     UpdateFlash()
 
     -- Skip beat bop during rewind
-    if not TriangleShooterRewind.isActive() then
+    if not SystemShooterRewind.isActive() then
         UpdateBeatBop()
     end
 
      --=====================================================================
      --  [ONUPDATE] UI
      --=====================================================================
-    local levelCfg = TriangleShooterLevels.getLevelConfig(currentLevel)
+    local levelCfg = SystemShooterLevels.getLevelConfig(currentLevel)
     if levelCfg ~= nil then
         local maxEnemyHealthTotal = 0
         if levelCfg.enemies then
@@ -2145,10 +2148,10 @@ function TriangleShooter:OnUpdate()
       fill = {0,255,0,255},
     }
 
-    local playerMaxHealth = TriangleShooterPlayerProgress.getMaxHealth()
+    local playerMaxHealth = SystemShooterPlayerProgress.getMaxHealth()
     UI.draw_progress_bar_styled(playerHpBarX, playerHpBarY, playerHpBarW, playerHpBarH, playerMaxHealth, playerHealth, 2, hpStyle, "")
 
-    local level, xp, xpToNextLevel = TriangleShooterPlayerProgress.getProgress()
+    local level, xp, xpToNextLevel = SystemShooterPlayerProgress.getProgress()
     local playerInfoText = T("gameplay.level") .. tostring(level) .. T("gameplay.exp") .. tostring(xp) .. "/" .. tostring(xpToNextLevel)
     UI.add_centered_label(playerHpBarX + playerHpBarW / 2, playerHpBarY + playerHpBarH + 8, playerInfoText, UI_FONT_REG, 0.85)
 
@@ -2190,11 +2193,11 @@ function TriangleShooter:OnUpdate()
     --=====================================================================
     --  [ONUPDATE] Rewind System (delegated to module)
     --=====================================================================
-    if TriangleShooterRewind.isActive() then
+    if SystemShooterRewind.isActive() then
         -- During rewind, check for game over
         if playerHealth <= 0 then
-            TriangleShooterRewind.reset()
-            TriangleShooterRewind.restoreEnemyColors(enemies)
+            SystemShooterRewind.reset()
+            SystemShooterRewind.restoreEnemyColors(enemies)
             TriggerGameOver()
             return
         end
@@ -2208,7 +2211,7 @@ function TriangleShooter:OnUpdate()
         end
         
         -- Update rewind system
-        local result = TriangleShooterRewind.update(
+        local result = SystemShooterRewind.update(
             dt, enemies, projectiles, enemyProjectiles,
             UpdateEnemyMovement, clearProjectiles
         )
@@ -2230,7 +2233,7 @@ function TriangleShooter:OnUpdate()
             -- Handle rewind completion
             if result.done then
                 -- Set final values
-                local cfg = TriangleShooterLevels.getLevelConfig(currentLevel)
+                local cfg = SystemShooterLevels.getLevelConfig(currentLevel)
                 levelTimerSeconds = cfg and cfg.timeLimitSeconds or 0
                 
                 -- Clear and respawn enemies with reduced health
@@ -2254,7 +2257,7 @@ function TriangleShooter:OnUpdate()
         peaceTimerSeconds = peaceTimerSeconds - dt
         if peaceTimerSeconds <= 0 then
             isLevelupPeace = false
-            TriangleShooterEnemy.enableAllEnemies(enemies)
+            SystemShooterEnemy.enableAllEnemies(enemies)
         end
         -- Don't process normal level flow during levelup peace
         if playerHealth <= 0 then
@@ -2274,7 +2277,7 @@ function TriangleShooter:OnUpdate()
             if isStartLevelPeace then
                 -- Start-level peace ended, enable the preview enemies
                 isStartLevelPeace = false
-                TriangleShooterEnemy.enableAllEnemies(enemies)
+                SystemShooterEnemy.enableAllEnemies(enemies)
             else
                 -- End-level peace finished, trigger level transition
                 OnEnemyKilled()
@@ -2282,7 +2285,7 @@ function TriangleShooter:OnUpdate()
         else
             peaceTimerSeconds = peaceTimerSeconds - dt
         end
-    elseif levelTimerSeconds <= 0 and enemiesAlive and not TriangleShooterRewind.isActive() then
+    elseif levelTimerSeconds <= 0 and enemiesAlive and not SystemShooterRewind.isActive() then
         OnLevelTimeout()
     end
 end
@@ -2358,11 +2361,11 @@ function SpawnProjectile()
     local tipX = centerX + aimDirX * (playerSize/2)
     local tipY = centerY + aimDirY * (playerSize/2)
 
-    local firepower = TriangleShooterPlayerProgress.getFirepower()
-    local pierceCount = TriangleShooterPlayerProgress.getPierceCount()
-    local bounceCount = TriangleShooterPlayerProgress.getBounceCount()
+    local firepower = SystemShooterPlayerProgress.getFirepower()
+    local pierceCount = SystemShooterPlayerProgress.getPierceCount()
+    local bounceCount = SystemShooterPlayerProgress.getBounceCount()
 
-    local shots = TriangleShooterPlayerProgress.getShots(firepower, tipX, tipY, aimDirX, aimDirY, projectileSize)
+    local shots = SystemShooterPlayerProgress.getShots(firepower, tipX, tipY, aimDirX, aimDirY, projectileSize)
     if not shots then
         return
     end
@@ -2455,7 +2458,7 @@ function UpdateProjectiles()
         if hitEnemyIndex ~= nil then
             local enemy = enemies[hitEnemyIndex]
             local damage = proj.damage or 1
-            local clutchStacks = TriangleShooterPlayerProgress.getLowEnemyDamageStacks()
+            local clutchStacks = SystemShooterPlayerProgress.getLowEnemyDamageStacks()
             if clutchStacks and clutchStacks > 0 then
                 local activeCount = GetActiveEnemyCount()
                 local threshold = clutchStacks >= 2 and 2 or 1
@@ -2469,9 +2472,9 @@ function UpdateProjectiles()
             end
             runDamageDealt = runDamageDealt + damage
             enemy.health = (enemy.health or 0) - damage
-            TriangleShooterPlayerProgress.addXp(damage)
+            SystemShooterPlayerProgress.addXp(damage)
             FlashEnemy(enemy)
-            TriangleShooterEnemy.updateDisplaySize(enemy)
+            SystemShooterEnemy.updateDisplaySize(enemy)
 
             local eSize = enemy.size or enemySize
             local enemyCenterX = enemy.x + eSize / 2
@@ -2489,7 +2492,7 @@ function UpdateProjectiles()
                 local eSize = enemy.size or enemySize
                 local deathX = enemy.x + eSize / 2
                 local deathY = enemy.y + eSize / 2
-                TriangleShooterPickups.trySpawnHealingOrb(deathX, deathY)
+                SystemShooterPickups.trySpawnHealingOrb(deathX, deathY)
                 runEnemiesKilled = runEnemiesKilled + 1
                 
                 Entity.set_global_pos(enemy.entity, -1000, -1000)
@@ -2655,7 +2658,7 @@ function UpdateEnemyCollision()
     end
     
     -- Skip collision damage during rewind
-    if TriangleShooterRewind.isActive() then
+    if SystemShooterRewind.isActive() then
         return
     end
     
@@ -2811,7 +2814,7 @@ end
  --  [ENEMIES] Movement / Behavior (Wrapper)
  --=====================================================================
 function UpdateEnemyMovement()
-    TriangleShooterEnemy.updateEnemyMovement(
+    SystemShooterEnemy.updateEnemyMovement(
         enemies,
         playerX, playerY, playerSize,
         screenW, screenH,
@@ -2910,7 +2913,7 @@ function UpdateBeatBop()
             end
         end
         
-        TriangleShooterPickups.applyBeatBop(t)
+        SystemShooterPickups.applyBeatBop(t)
     else
         for i = 1, #enemies do
             local enemy = enemies[i]
@@ -2924,7 +2927,7 @@ function UpdateBeatBop()
             end
         end
         
-        TriangleShooterPickups.resetBop()
+        SystemShooterPickups.resetBop()
     end
 end
 
@@ -3169,4 +3172,4 @@ function UpdateWallLerps()
     Window.set_size(newWidth, newHeight)
 end
 
-return TriangleShooter
+return SystemShooter
