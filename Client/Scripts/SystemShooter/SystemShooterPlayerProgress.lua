@@ -278,10 +278,6 @@ function SystemShooterPlayerProgress.getLowEnemyDamageStacks()
     return playerStats.lowEnemyDamageStacks or 0
 end
 
-function SystemShooterPlayerProgress.hasNoWitnesses()
-    return (playerStats.lowEnemyDamageStacks or 0) > 0
-end
-
 function SystemShooterPlayerProgress.getNoWitnessesDamageMultiplier()
     local cfg = UPGRADE_CONFIG.no_witnesses
     return (cfg and cfg.damageMultiplier) or 1

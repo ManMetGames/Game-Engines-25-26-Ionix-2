@@ -212,20 +212,11 @@ local playerFlashDuration = 0.2  -- seconds
 local damageCooldown = 0
 local damageCooldownDuration = 0.5  -- seconds
 
--- NO-WITNESSES ABILITY
-local function UpdatePlayerSpriteColor()
-    if SystemShooterPlayerProgress.hasNoWitnesses() then
-        Sprite.set_color(playerSprite, 255, 0, 0)
-    else
-        Sprite.set_color(playerSprite, 255, 255, 255)
-    end
-end
-
 -- PROJECTILE SETTINGS
 local projectiles = {}      -- Active projectiles
 local projectilePool = {}   -- Inactive projectiles (reusable)
 local projectileSize = 24
-local projectileSpeed = 960 --PIXELS PER SECOND
+local projectileSpeed = 1120 --PIXELS PER SECOND
 local projectileLifetimeSeconds = 2  -- seconds projectile can live before auto-despawn
 local fireCooldownTimer = 0
 local isFiring = false
@@ -256,6 +247,15 @@ local function GetActiveEnemyCount()
     end
     return count
 end
+
+local function IsNoWitnessesActive()
+    local stacks = SystemShooterPlayerProgress.getLowEnemyDamageStacks()
+    if stacks <= 0 then return false end
+    local activeCount = GetActiveEnemyCount()
+    local threshold = stacks >= 2 and 2 or 1
+    return activeCount <= threshold
+end
+
 local LoadLevel
 
 local function CreateEnemy(x, y, config)
@@ -362,9 +362,6 @@ local function ResetRunStateForMenu()
 
     isPaused = false
     pauseScreen = "pause"
-
-    -- Reset player sprite color
-    UpdatePlayerSpriteColor()
 end
 
  --=====================================================================
@@ -676,7 +673,7 @@ LoadLevel = function(index, resetPlayerState)
         playerX = screenW / 2 - playerSize / 2
         playerY = screenH / 2 - playerSize / 2
         Entity.set_global_pos(player, playerX, playerY)
-        UpdatePlayerSpriteColor()
+        Sprite.set_color(playerSprite, 255, 255, 255)
         playerFlashTimer = 0
         damageCooldown = 0
     end
@@ -1842,8 +1839,6 @@ function SystemShooter:OnUpdate()
             if selectedUpgrade.type == "max_health" then
                 local maxH = SystemShooterPlayerProgress.getMaxHealth()
                 playerHealth = math.min(maxH, playerHealth + 20)
-            elseif selectedUpgrade.type == "no_witnesses" then
-                UpdatePlayerSpriteColor()
             end
             -- Start levelup peace timer and disable enemies
             peaceTimerSeconds = levelupPeaceDuration
@@ -2334,6 +2329,15 @@ local function SpawnPlayerSingleProjectile(spawnX, spawnY, dirX, dirY, pierceCou
     local sizeMultiplier = shotData.sizeMultiplier or 1
     local actualSize = projectileSize * sizeMultiplier
 
+    -- Determine projectile color based on golden status and no-witnesses buff
+    local noWitnessesActive = IsNoWitnessesActive()
+    local r, g, b = 255, 255, 255  -- Default white
+    if isGolden then
+        r, g, b = 255, 215, 0  -- Gold color (priority)
+    elseif noWitnessesActive then
+        r, g, b = 255, 0, 0  -- Red when no-witnesses buff is active
+    end
+
     -- Try to reuse a pooled projectile
     if #projectilePool > 0 then
         projData = table.remove(projectilePool)
@@ -2342,19 +2346,15 @@ local function SpawnPlayerSingleProjectile(spawnX, spawnY, dirX, dirY, pierceCou
         if sprite then
             Sprite.set_image_width(sprite, math.floor(actualSize))
             Sprite.set_image_height(sprite, math.floor(actualSize))
-            if isGolden then
-                Sprite.set_color(sprite, 255, 215, 0)  -- Gold color
-            else
-                Sprite.set_color(sprite, 255, 255, 255)  -- Default white
-            end
+            Sprite.set_color(sprite, r, g, b)
         end
     else
         -- Create new entity only if pool is empty
         local proj = Entity.create_entity()
         -- Layer 4: render under enemies (layer 5)
         local sprite = Entity.add_sprite_component(proj, assets.textures.Ghast_Tear, math.floor(actualSize), math.floor(actualSize), 4)
-        if isGolden and sprite then
-            Sprite.set_color(sprite, 255, 215, 0)  -- Gold color
+        if sprite then
+            Sprite.set_color(sprite, r, g, b)
         end
         projData = { entity = proj }
     end
@@ -2447,8 +2447,22 @@ end
 
 function UpdateProjectiles()
     local dt = GetDt()
+    local noWitnessesActive = IsNoWitnessesActive()
+    
     for i = #projectiles, 1, -1 do
         local proj = projectiles[i]
+        
+        -- Update projectile color based on no-witnesses state
+        local sprite = Entity.get_sprite_component(proj.entity)
+        if sprite then
+            if noWitnessesActive then
+                Sprite.set_color(sprite, 255, 0, 0)  -- Red when buff active
+            elseif proj.isGolden then
+                Sprite.set_color(sprite, 255, 215, 0)  -- Gold for golden bullets
+            else
+                Sprite.set_color(sprite, 255, 255, 255)  -- Default white
+            end
+        end
         
         -- Move projectile
         proj.x = proj.x + proj.vx * dt
