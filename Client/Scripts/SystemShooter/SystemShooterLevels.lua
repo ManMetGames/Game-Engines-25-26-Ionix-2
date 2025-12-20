@@ -1,16 +1,56 @@
-local TriangleShooterLevels = {}
+local SystemShooterLevels = {}
 
 local PROCEDURAL_START_LEVEL = 6
+
+--=====================================================================
+--  [MUSIC] BPM & Beat-Synced Fire Rates
+--=====================================================================
+local BPM = 133
+local BEAT_DURATION = 60 / BPM
+
+local function beatsToSeconds(beats)
+    return beats * BEAT_DURATION
+end
+
+local FIRE_RATE_WEIGHTS = {
+    standard = {
+        [1.5] = 1,
+        [2]   = 3,
+        [2.5] = 2,
+        [3]   = 1,
+    },
+    boss = {
+        [2.5]   = 2,
+        [3.5]   = 1,
+    },
+}
+
+local function weightedBeatPick(weights)
+    local total = 0
+    for _, w in pairs(weights) do total = total + w end
+    local roll = math.random() * total
+    local cumulative = 0
+    for beats, w in pairs(weights) do
+        cumulative = cumulative + w
+        if roll <= cumulative then
+            return beatsToSeconds(beats)
+        end
+    end
+    -- Fallback (shouldn't happen)
+    for beats, _ in pairs(weights) do
+        return beatsToSeconds(beats)
+    end
+end
 
 local generatedLevelCache = {}
 
 local HEALTH_BUDGET = {
-    base = 70,
-    perLevel = 18,
+    base = 60,
+    perLevel = 15,
     levelSquaredFactor = 0.5,
     lateLevelThreshold = 12,
-    lateSquaredFactor = 2.5,
-    lateCubedFactor = 0.3,
+    lateSquaredFactor = 1.75,
+    lateCubedFactor = 0.35,
 }
 
 local TIMER_CONFIG = {
@@ -24,7 +64,7 @@ local WINDOW_CONFIG = {
     minWidth = 400,
     minHeight = 400,
     maxWidth = 1400,
-    maxHeight = 900,
+    maxHeight = 850,
     maxArea = 950000,
 }
 
@@ -33,6 +73,8 @@ local ENEMY_TEMPLATES = {
         minLevel = 1,
         healthMin = 25,
         healthMax = 70,
+        budgetPercentCap = 0.25,
+        budgetCapMinLevel = 20,
         maxPerLevel = 4,
         spaceRequirement = 0,
         weight = 10,
@@ -45,7 +87,6 @@ local ENEMY_TEMPLATES = {
                 movementType = "bounce",
                 health = health,
                 speed = speed,
-                shootInterval = 1.5 + math.random() * 0.5,
             }
         end,
     },
@@ -68,7 +109,7 @@ local ENEMY_TEMPLATES = {
                 health = health,
                 shootPattern = "cone",
                 projectileCount = 2 + math.random(0, 2),
-                shootInterval = 0.7 + math.random() * 0.3,
+                shootInterval = weightedBeatPick(FIRE_RATE_WEIGHTS.standard),
             }
         end,
     },
@@ -92,7 +133,7 @@ local ENEMY_TEMPLATES = {
                 orbitRadius = radius,
                 orbitSpeed = speed,
                 health = health,
-                shootInterval = 1.0 + math.random() * 0.25,
+                shootInterval = weightedBeatPick(FIRE_RATE_WEIGHTS.standard),
             }
         end,
     },
@@ -114,7 +155,7 @@ local ENEMY_TEMPLATES = {
                 health = health,
                 shootPattern = "circle",
                 projectileCount = 6 + math.random(0, 4),
-                shootInterval = 1.2 + math.random() * 0.3,
+                shootInterval = weightedBeatPick(FIRE_RATE_WEIGHTS.boss),
                 spinWhileShooting = true,
             }
         end,
@@ -146,7 +187,55 @@ local ENEMY_TEMPLATES = {
         end,
     },
 }
-
+local levels = {
+    [1] = {
+        timeLimitSeconds = 20,
+        wallPingPong = false,
+        windowWidth = 640,
+        windowHeight = 800,
+        enemies = {
+            { movementType = "stationary", x = 400, y = 500, health = 45, shootPattern = "cone", projectileCount = 2, shootInterval = beatsToSeconds(2) },
+           
+        },
+    },
+    [2] = {
+        timeLimitSeconds = 20,
+        wallPingPong = false,
+        windowWidth = 800,
+        windowHeight = 400,
+        enemies = {
+            { movementType = "bounce", x = 400, y = 200, health = 35},
+        },
+    },
+    [3] = {
+        timeLimitSeconds = 20,
+        wallPingPong = false,
+        windowWidth = 1026,
+        windowHeight = 640,
+        enemies = {
+            { movementType = "stationary", x = 500, y = 300, health = 30, shootPattern = "cone", projectileCount = 2, shootInterval = beatsToSeconds(2) },
+            { movementType = "bounce", x = 900, y = 550, health = 30, shootPattern = "cone", projectileCount = 0, shootInterval = 0},
+        },
+    },
+    [4] = {
+        timeLimitSeconds = 25,
+        enemyCount = 2,
+        enemyHealth = 30,
+        wallPingPong = false,
+        windowWidth = 800,
+        windowHeight = 800,
+    },
+    [5] = {
+        timeLimitSeconds = 20,
+        wallPingPong = false,
+        windowWidth = 600,
+        windowHeight = 800,
+        enemies = {
+            { movementType = "stationary", x = 500, y = 300, health = 45, shootPattern = "cone", projectileCount = 1, shootInterval = beatsToSeconds(2) },
+            { movementType = "stationary", x = 350, y = 200, health = 45, shootPattern = "cone", projectileCount = 2, shootInterval = beatsToSeconds(2.5) },
+        },
+    },
+}
 local function calculateHealthBudget(level)
     local n = level - PROCEDURAL_START_LEVEL
     local budget = HEALTH_BUDGET.base + (n * HEALTH_BUDGET.perLevel) + (n * n * HEALTH_BUDGET.levelSquaredFactor)
@@ -160,11 +249,25 @@ local function calculateHealthBudget(level)
     return budget
 end
 
-local function getScaledHealthRange(template, level)
+local function getScaledHealthRange(template, level, healthBudget)
     local n = level - PROCEDURAL_START_LEVEL
     local scaleFactor = 1 + (n * 0.08)
     local scaledMin = math.floor(template.healthMin * scaleFactor)
     local scaledMax = math.floor(template.healthMax * scaleFactor)
+    
+    if template.budgetPercentCap and template.budgetCapMinLevel and healthBudget then
+        if level >= template.budgetCapMinLevel then
+            local percentCap = math.floor(healthBudget * template.budgetPercentCap)
+            if scaledMax > percentCap then
+                scaledMax = percentCap
+            end
+        end
+    end
+    
+    if scaledMax < scaledMin then
+        scaledMax = scaledMin
+    end
+    
     return scaledMin, scaledMax
 end
 
@@ -282,7 +385,7 @@ local function generateProceduralLevel(levelIndex)
     
     local minHealth = 999999
     for _, entry in ipairs(available) do
-        local scaledMin, _ = getScaledHealthRange(entry.template, levelIndex)
+        local scaledMin, _ = getScaledHealthRange(entry.template, levelIndex, healthBudget)
         if scaledMin < minHealth then
             minHealth = scaledMin
         end
@@ -303,7 +406,7 @@ local function generateProceduralLevel(levelIndex)
         local template = picked.template
         local name = picked.name
         
-        local scaledMin, scaledMax = getScaledHealthRange(template, levelIndex)
+        local scaledMin, scaledMax = getScaledHealthRange(template, levelIndex, healthBudget)
         
         if #enemies < minEnemies then
             local maxHealthForMinEnemies = remainingBudget - (minEnemies - #enemies - 1) * minHealth
@@ -347,8 +450,22 @@ local function generateProceduralLevel(levelIndex)
     end
     
     if remainingBudget > 0 and #enemies > 0 then
-        enemies[#enemies].health = enemies[#enemies].health + remainingBudget
-        remainingBudget = 0
+        for i = #enemies, 1, -1 do
+            if remainingBudget <= 0 then break end
+            
+            local enemy = enemies[i]
+            local templateName = enemy.movementType
+            local template = ENEMY_TEMPLATES[templateName]
+            if template then
+                local _, scaledMax = getScaledHealthRange(template, levelIndex, healthBudget)
+                local headroom = scaledMax - enemy.health
+                if headroom > 0 then
+                    local toAdd = math.min(headroom, remainingBudget)
+                    enemy.health = enemy.health + toAdd
+                    remainingBudget = remainingBudget - toAdd
+                end
+            end
+        end
     end
     
     local windowW, windowH = calculateWindowSize(enemies)
@@ -359,9 +476,7 @@ local function generateProceduralLevel(levelIndex)
     
     return {
         timeLimitSeconds = timer,
-        enemyProjectiles = true,
         wallPingPong = false,
-        coinPerHit = 1,
         windowWidth = windowW,
         windowHeight = windowH,
         enemies = enemies,
@@ -371,66 +486,7 @@ local function generateProceduralLevel(levelIndex)
     }
 end
 
-local levels = {
-    [1] = {
-        timeLimitSeconds = 20,
-        wallPingPong = false,
-        coinPerHit = 1,
-        windowWidth = 800,
-        windowHeight = 400,
-        enemies = {
-            { movementType = "bounce", x = 900, y = 400, health = 35},
-        },
-    },
-    [2] = {
-        timeLimitSeconds = 20,
-        enemyProjectiles = true,
-        wallPingPong = false,
-        coinPerHit = 1,
-        windowWidth = 640,
-        windowHeight = 800,
-        enemies = {
-            { movementType = "stationary", x = 400, y = 500, health = 45, shootPattern = "cone", projectileCount = 2, shootInterval = 0.85 },
-        },
-    },
-    [3] = {
-        timeLimitSeconds = 20,
-        enemyProjectiles = true,
-        wallPingPong = false,
-        coinPerHit = 1,
-        windowWidth = 1026,
-        windowHeight = 640,
-        enemies = {
-            { movementType = "stationary", x = 500, y = 300, health = 30, shootPattern = "cone", projectileCount = 2, shootInterval = 0.8 },
-            { movementType = "bounce", x = 900, y = 550, health = 30, shootPattern = "cone", projectileCount = 0, shootInterval = 0},
-        },
-    },
-    [4] = {
-        timeLimitSeconds = 20,
-        enemyCount = 2,
-        enemyHealth = 35,
-        enemyProjectiles = false,
-        enemyShootIntervalSeconds = 0.5,
-        wallPingPong = false,
-        coinPerHit = 1,
-        windowWidth = 800,
-        windowHeight = 800,
-    },
-    [5] = {
-        timeLimitSeconds = 20,
-        enemyProjectiles = true,
-        wallPingPong = false,
-        coinPerHit = 1,
-        windowWidth = 600,
-        windowHeight = 800,
-        enemies = {
-            { movementType = "stationary", x = 500, y = 300, health = 45, shootPattern = "cone", projectileCount = 1, shootInterval = 0.75 },
-            { movementType = "stationary", x = 350, y = 200, health = 45, shootPattern = "cone", projectileCount = 2,  shootInterval = 0.95 },
-        },
-    },
-}
-
-function TriangleShooterLevels.getLevelConfig(index)
+function SystemShooterLevels.getLevelConfig(index)
     if index < PROCEDURAL_START_LEVEL then
         return levels[index]
     end
@@ -440,7 +496,7 @@ function TriangleShooterLevels.getLevelConfig(index)
     return generatedLevelCache[index]
 end
 
-function TriangleShooterLevels.clearLevelCache(index)
+function SystemShooterLevels.clearLevelCache(index)
     if index then
         generatedLevelCache[index] = nil
     else
@@ -448,27 +504,39 @@ function TriangleShooterLevels.clearLevelCache(index)
     end
 end
 
-function TriangleShooterLevels.regenerateLevel(index)
+function SystemShooterLevels.regenerateLevel(index)
     if index >= PROCEDURAL_START_LEVEL then
         generatedLevelCache[index] = generateProceduralLevel(index)
     end
-    return TriangleShooterLevels.getLevelConfig(index)
+    return SystemShooterLevels.getLevelConfig(index)
 end
 
-function TriangleShooterLevels.getHealthBudgetConfig()
+function SystemShooterLevels.getHealthBudgetConfig()
     return HEALTH_BUDGET
 end
 
-function TriangleShooterLevels.getTimerConfig()
+function SystemShooterLevels.getTimerConfig()
     return TIMER_CONFIG
 end
 
-function TriangleShooterLevels.getWindowConfig()
+function SystemShooterLevels.getWindowConfig()
     return WINDOW_CONFIG
 end
 
-function TriangleShooterLevels.getEnemyTemplates()
+function SystemShooterLevels.getEnemyTemplates()
     return ENEMY_TEMPLATES
 end
 
-return TriangleShooterLevels
+function SystemShooterLevels.getBPM()
+    return BPM
+end
+
+function SystemShooterLevels.getBeatDuration()
+    return BEAT_DURATION
+end
+
+function SystemShooterLevels.getFireRateWeights()
+    return FIRE_RATE_WEIGHTS
+end
+
+return SystemShooterLevels

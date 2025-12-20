@@ -1,4 +1,4 @@
-local TriangleShooterPickups = {}
+local SystemShooterPickups = {}
 
 local assets = require("Scripts.Assets")
 
@@ -10,7 +10,7 @@ local CONFIG = {
     HEALING_ORB_DROP_CHANCE = 0.20,
     
     -- Healing amount (0.0 to 1.0, where 0.20 = 20% of max health)
-    HEALING_ORB_HEAL_PERCENT = 0.15,
+    HEALING_ORB_HEAL_PERCENT = 0.25,
     
     -- Visual settings
     ORB_SIZE = 16,
@@ -29,7 +29,7 @@ local CONFIG = {
     RENDER_LAYER = 5,
 }
 
-TriangleShooterPickups.CONFIG = CONFIG
+SystemShooterPickups.CONFIG = CONFIG
 
 --=====================================================================
 --  [STATE] Active pickups
@@ -40,7 +40,7 @@ local pickupPool = {}
 --=====================================================================
 --  [PUBLIC API] Spawn healing orb at position
 --=====================================================================
-function TriangleShooterPickups.trySpawnHealingOrb(x, y)
+function SystemShooterPickups.trySpawnHealingOrb(x, y)
     local roll = math.random()
     if roll > CONFIG.HEALING_ORB_DROP_CHANCE then
         return false
@@ -82,7 +82,7 @@ end
 --=====================================================================
 --  [PUBLIC API] Update all pickups (call each frame)
 --=====================================================================
-function TriangleShooterPickups.update(dt)
+function SystemShooterPickups.update(dt)
     for i = #activePickups, 1, -1 do
         local pickup = activePickups[i]
         pickup.age = pickup.age + dt
@@ -97,7 +97,7 @@ end
 --=====================================================================
 --  [PUBLIC API] Apply beat/bop animation to all pickups
 --=====================================================================
-function TriangleShooterPickups.applyBeatBop(bopT)
+function SystemShooterPickups.applyBeatBop(bopT)
     local scale = 1.0 + CONFIG.BOP_SCALE * bopT
     
     for i = 1, #activePickups do
@@ -117,7 +117,7 @@ end
 --=====================================================================
 --  [PUBLIC API] Reset bop (when bop timer ends)
 --=====================================================================
-function TriangleShooterPickups.resetBop()
+function SystemShooterPickups.resetBop()
     for i = 1, #activePickups do
         local pickup = activePickups[i]
         if pickup.sprite then
@@ -132,7 +132,7 @@ end
 --=====================================================================
 --  [PUBLIC API] Check collision with player, returns heal amount or nil
 --=====================================================================
-function TriangleShooterPickups.checkPlayerCollision(playerX, playerY, playerSize, maxHealth)
+function SystemShooterPickups.checkPlayerCollision(playerX, playerY, playerSize, maxHealth)
     local playerCenterX = playerX + playerSize / 2
     local playerCenterY = playerY + playerSize / 2
     local playerRadius = playerSize / 2
@@ -164,7 +164,7 @@ end
 --=====================================================================
 --  [PUBLIC API] Clear all pickups (on level reset, game over, etc.)
 --=====================================================================
-function TriangleShooterPickups.clearAll()
+function SystemShooterPickups.clearAll()
     for i = #activePickups, 1, -1 do
         local pickup = activePickups[i]
         Entity.set_global_pos(pickup.entity, -1000, -1000)
@@ -175,8 +175,8 @@ end
 --=====================================================================
 --  [PUBLIC API] Get active pickup count (for debugging)
 --=====================================================================
-function TriangleShooterPickups.getActiveCount()
+function SystemShooterPickups.getActiveCount()
     return #activePickups
 end
 
-return TriangleShooterPickups
+return SystemShooterPickups

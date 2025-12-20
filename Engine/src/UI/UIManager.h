@@ -37,7 +37,8 @@ namespace IonixEngine
 
 		std::string ownedText;
 		const char* text = nullptr;
-
+		bool  hasTextColor = false;
+		ImVec4 textColor = ImVec4(1, 1, 1, 1);
 		bool sameline = false;
 
 		std::string widgetId; // Shared ID for id-based widgets (button/checkbox/slider/input/toggle/dropdown/color)
@@ -82,6 +83,17 @@ namespace IonixEngine
 		// Value-mode (non-mutating) progress bar (used by scripting)
 		float progressCurrentValue = 0.0f;
 		int   progressColorId = 0;
+
+		// Progress bar style (optional)
+		bool  progressCustomStyle = false;
+		float progressRounding = -1.0f;      // -1 = default
+		float progressBorderSize = -1.0f;    // -1 = default
+		bool  progressUseColors = false;
+		ImVec4 progressBg = ImVec4(0, 0, 0, 0);
+		ImVec4 progressFill = ImVec4(0, 0, 0, 0);
+		ImVec4 progressBorder = ImVec4(0, 0, 0, 0);
+		std::string progressOverlayText;
+
 		// Panel specific
 		float panelAlpha = 0.45f;
 		float panelRounding = 6.0f;
@@ -102,6 +114,37 @@ namespace IonixEngine
 		// Dropdown specific
 		std::vector<std::string> dropdownOptions;
 		std::string dropdownId;
+
+		// Dropdown style (optional)
+		bool  dropdownCustomStyle = false;
+
+		float dropdownRounding = -1.0f;       // -1 = default
+		float dropdownPopupRounding = -1.0f;  // -1 = default
+		float dropdownBorderSize = -1.0f;     // -1 = default
+
+		bool  ddHasFrame = false;
+		ImVec4 ddFrame = ImVec4(0, 0, 0, 0);
+		bool  ddHasFrameHovered = false;
+		ImVec4 ddFrameHovered = ImVec4(0, 0, 0, 0);
+		bool  ddHasFrameActive = false;
+		ImVec4 ddFrameActive = ImVec4(0, 0, 0, 0);
+
+		bool  ddHasPopupBg = false;
+		ImVec4 ddPopupBg = ImVec4(0, 0, 0, 0);
+
+		bool  ddHasBorder = false;
+		ImVec4 ddBorder = ImVec4(0, 0, 0, 0);
+
+		// Selectable colors inside the dropdown list
+		bool  ddHasItem = false;
+		ImVec4 ddItem = ImVec4(0, 0, 0, 0);
+		bool  ddHasItemHovered = false;
+		ImVec4 ddItemHovered = ImVec4(0, 0, 0, 0);
+		bool  ddHasItemActive = false;
+		ImVec4 ddItemActive = ImVec4(0, 0, 0, 0);
+
+		bool  ddHasText = false;
+		ImVec4 ddText = ImVec4(0, 0, 0, 0);
 
 		// ColorPicker specific
 		ImVec4 colorDefault = ImVec4(1, 1, 1, 1);
@@ -177,6 +220,14 @@ namespace IonixEngine
 
 		void AddCenteredLabel(float centerX, float y, const char* text, const std::string& fontName = "", float fontScale = 1.0f);
 
+		void AddLabelColored(int x, int y, float xSize, float ySize, const char* text,
+			float r, float g, float b, float a,
+			const std::string& fontName = "", float fontScale = 1.0f);
+
+		void AddCenteredLabelColored(float centerX, float y, const char* text,
+			float r, float g, float b, float a,
+			const std::string& fontName = "", float fontScale = 1.0f);
+
 		void AddButton(int x, int y, float w, float h, const char* text, const char* id = nullptr,
 			const std::string& fontName = "", float fontScale = 1.0f,
 			float rounding = 0.0f, bool useColor = false,
@@ -214,6 +265,22 @@ namespace IonixEngine
 			const std::string& fontName = "", float fontScale = 1.0f);
 
 
+		void AddDropdownStyled(int x, int y, float xSize, float ySize, const char* label,
+			const char* id, const std::vector<std::string>& options, int defaultIndex = 0,
+			const std::string& fontName = "", float fontScale = 1.0f,
+			float heightPx = 0.0f,
+			float rounding = -1.0f, float popupRounding = -1.0f, float borderSize = -1.0f,
+			bool hasFrame = false, ImVec4 frame = ImVec4(0, 0, 0, 0),
+			bool hasFrameHovered = false, ImVec4 frameHovered = ImVec4(0, 0, 0, 0),
+			bool hasFrameActive = false, ImVec4 frameActive = ImVec4(0, 0, 0, 0),
+			bool hasPopupBg = false, ImVec4 popupBg = ImVec4(0, 0, 0, 0),
+			bool hasBorder = false, ImVec4 borderCol = ImVec4(0, 0, 0, 0),
+			bool hasItem = false, ImVec4 item = ImVec4(0, 0, 0, 0),
+			bool hasItemHovered = false, ImVec4 itemHovered = ImVec4(0, 0, 0, 0),
+			bool hasItemActive = false, ImVec4 itemActive = ImVec4(0, 0, 0, 0),
+			bool hasText = false, ImVec4 textCol = ImVec4(0, 0, 0, 0));
+
+
 		void AddColorPicker(int x, int y, float xSize, float ySize, const char* label,
 			const char* id, ImVec4 defaultColor = ImVec4(1, 1, 1, 1),
 			const std::string& fontName = "", float fontScale = 1.0f);
@@ -226,6 +293,15 @@ namespace IonixEngine
 		void AddProgressBarValue(int x, int y, float xSize, float ySize,
 			float maxValue, float currentValue, int colorId = 0,
 			const std::string& fontName = "", float fontScale = 1.0f);
+
+		// Styled draw-only progress bar (rounded, custom colors)
+		void AddProgressBarValueStyled(int x, int y, float xSize, float ySize,
+			float maxValue, float currentValue, int colorId,
+			float rounding, float borderSize,
+			bool useColors, ImVec4 bg, ImVec4 fill, ImVec4 border,
+			const std::string& overlayText = "",
+			const std::string& fontName = "", float fontScale = 1.0f);
+
 		void AddPanel(int x, int y, float w, float h, float alpha = 0.45f, float rounding = 6.0f,
 			int r = 0, int g = 0, int b = 0);
 

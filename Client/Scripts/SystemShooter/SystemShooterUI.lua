@@ -1,6 +1,6 @@
-local TriangleShooterUI = {}
+local SystemShooterUI = {}
 
-local TriangleShooterPlayerProgress = require("Scripts.TriangleShooter.TriangleShooterPlayerProgress")
+local SystemShooterPlayerProgress = require("Scripts.SystemShooter.SystemShooterPlayerProgress")
 
 local isUpgradeMenuOpen = false
 local upgradeOptions = {}      -- { type, label, desc }
@@ -28,13 +28,9 @@ local BORDER_GREEN = {0, 170, 110, 1.0}
 
 local BTN_ROUND = 12
 
-local upgradePool = {
-  { type = "pierce",     label = "+1 Pierce",       desc = "Bullets pierce +1 enemy.",               minLevel = 6 },
-  { type = "bullet",     label = "+1 Bullet",       desc = "Shoot one extra bullet.",                minLevel = 1 },
-  { type = "fire_rate",  label = "+ Fire Rate",     desc = "Shoot faster (lower cooldown).",         minLevel = 1 },
-  { type = "bounce",     label = "+ Window Bounce", desc = "Bullets bounce off the window edges.",   minLevel = 3 },
-  { type = "max_health", label = "+ Max Health",    desc = "Increase your max health.",              minLevel = 4 },
-}
+-- For language translation
+local Localisation = require("Scripts.SystemShooter.Localisation")
+local function T(key) return Localisation.t(key) end
 
 local function splitLines(s)
   local t = {}
@@ -45,15 +41,18 @@ local function splitLines(s)
   return t
 end
 
-function TriangleShooterUI.getRandomUpgradeOptions(count, playerLevel)
+function SystemShooterUI.getRandomUpgradeOptions(count, playerLevel)
   count = count or 2
   playerLevel = playerLevel or 1
 
+  local upgradeConfig = SystemShooterPlayerProgress.getUpgradeConfig()
+  local stats = SystemShooterPlayerProgress.getStats()
   local available = {}
-  for _, upgrade in ipairs(upgradePool) do
-    local minLevel = upgrade.minLevel or 1
-    if playerLevel >= minLevel and TriangleShooterPlayerProgress.canTakeUpgrade(upgrade.type) then
-      table.insert(available, { type = upgrade.type, label = upgrade.label, desc = upgrade.desc })
+  for upgradeType, cfg in pairs(upgradeConfig) do
+    local minLevel = cfg.minLevel or 1
+    if playerLevel >= minLevel and SystemShooterPlayerProgress.canTakeUpgrade(upgradeType) then
+      local currentValue = stats[cfg.statKey] or cfg.defaultValue or 0
+      table.insert(available, { type = upgradeType, label = cfg.label, desc = cfg.desc, cfg = cfg, currentValue = currentValue })
     end
   end
 
@@ -66,9 +65,9 @@ function TriangleShooterUI.getRandomUpgradeOptions(count, playerLevel)
   return chosen
 end
 
-function TriangleShooterUI.showUpgradeMenu(options, playerLevel)
+function SystemShooterUI.showUpgradeMenu(options, playerLevel)
   isUpgradeMenuOpen = true
-  upgradeOptions = options or TriangleShooterUI.getRandomUpgradeOptions(2, playerLevel)
+  upgradeOptions = options or SystemShooterUI.getRandomUpgradeOptions(2, playerLevel)
   selectedIndex = 0
 
   confirmPending = false
@@ -77,7 +76,7 @@ function TriangleShooterUI.showUpgradeMenu(options, playerLevel)
   Input.set_relative_mouse_mode(false)
 end
 
-function TriangleShooterUI.hideUpgradeMenu()
+function SystemShooterUI.hideUpgradeMenu()
   isUpgradeMenuOpen = false
   upgradeOptions = {}
   selectedIndex = 0
@@ -88,30 +87,24 @@ function TriangleShooterUI.hideUpgradeMenu()
   Input.set_relative_mouse_mode(true)
 end
 
-function TriangleShooterUI.isMenuOpen()
+function SystemShooterUI.isMenuOpen()
   return isUpgradeMenuOpen
 end
 
-function TriangleShooterUI.getSelectedUpgrade()
+function SystemShooterUI.getSelectedUpgrade()
   if selectedIndex > 0 and selectedIndex <= #upgradeOptions then
     return upgradeOptions[selectedIndex]
   end
   return nil
 end
 
-function TriangleShooterUI.draw(screenW, screenH)
+function SystemShooterUI.draw(screenW, screenH)
 if not isUpgradeMenuOpen then return end
 
 
   -- Dim background
   UI.add_panel(0, 0, screenW, screenH, OVERLAY_ALPHA, 0, 0, 0, 0)
 
-  if confirmPending then
-    local elapsed = confirmDuration - confirmTimer
-    if elapsed < 0 then elapsed = 0 end
-    UI.draw_progress_bar(screenW/2 - 100, 80, 200, 10, confirmDuration, elapsed, 4)
-    return
-  end
 
   -- Responsive layout based on window size
   local marginX = math.max(20, math.floor(screenW * 0.05))
@@ -138,8 +131,8 @@ if not isUpgradeMenuOpen then return end
     startY = minStartY
   end
 
-  UI.add_centered_label(screenW/2, 30, "LEVEL UP!", "ImGuiDefaultBold", 2.0)
-  UI.add_centered_label(screenW/2, 55, "Choose an upgrade", "", 1.4)
+  UI.add_centered_label(screenW/2, 15, T("gameplay.leveluptxt"), TS_UI.FONT_TITLE, 1)
+  UI.add_centered_label(screenW/2, 50, T("gameplay.upgradetxt"), TS_UI.FONT_SUB, 1)
 
 
   for i, opt in ipairs(upgradeOptions) do
@@ -162,24 +155,45 @@ if not isUpgradeMenuOpen then return end
 
       local cx = cardW / 2
 
-      UI.add_centered_label(cx, 40, opt.label, "ImGuiDefaultBold", 1.7)
+      local function getDisplayLabel(option)
+        if option.cfg then
+          local base = T(option.cfg.label) or option.cfg.label or ""
+          if option.cfg.maxValue then
+            local currentVal = option.currentValue or 0
+            return string.format("%s %d/%d", base, currentVal, option.cfg.maxValue)
+          end
+          return base
+        end
+        return T(option.label) or option.label
+      end
 
-      local lines = splitLines(opt.desc or "")
+      UI.add_centered_label(cx, 30, getDisplayLabel(opt), TS_UI.FONT_TITLE, 0.8)
+
+      local descText = T(opt.desc) or ""
+      if opt.type == "no_witnesses" then
+        local mult = 1
+        if opt.cfg and opt.cfg.damageMultiplier then
+          mult = opt.cfg.damageMultiplier
+        end
+        descText = descText .. "\n" .. string.format("Damage x%s", tostring(mult))
+      end
+
+      local lines = splitLines(descText)
       local baseY = 95
       local lineGap = 22
       for li, txt in ipairs(lines) do
-        UI.add_centered_label(cx, baseY + (li-1)*lineGap, txt, "", 1.3)
+        UI.add_centered_label(cx, baseY + (li-1)*lineGap, txt, TS_UI.FONT_SUB, 1)
       end
 
       local chooseW, chooseH = math.min(180, math.floor(cardW * 0.55)), 44
       local chooseX = (cardW - chooseW) / 2
       local chooseY = cardH - chooseH - 25
 
-      local chooseText = selected and "Selected" or "Choose"
+      local chooseText = selected and T("gameplay.upgradeselected") or T("gameplay.upgradechoose")
       UI.add_button(
         chooseX, chooseY, chooseW, chooseH,
         chooseText, "upgrade_choose_"..tostring(i),
-        "ImGuiDefaultBold", 1.0,
+        TS_UI.FONT_SUB, 1.0,
         BTN_ROUND, true,
         br, bg, bb, 1.0
       )
@@ -198,32 +212,19 @@ if not isUpgradeMenuOpen then return end
   local cr, cg, cb = 74, 12, 255
   if not enabled then cr, cg, cb = 80, 80, 80 end
 
-  local confirmLabel = confirmPending and "Starting..." or "CONFIRM CHOICE"
+  local confirmLabel = confirmPending and T("gameplay.resuming") or T("gameplay.upgradeconfirm")
   UI.add_button(
     confirmX, confirmY, confirmW, confirmH,
     confirmLabel, "upgrade_confirm",
-    "ImGuiDefaultBold", 1.1,
+    TS_UI.FONT_SUB, 1.2,
     BTN_ROUND, true,
     cr, cg, cb, 0.90
   )
 end
 
-function TriangleShooterUI.handleInput()
+function SystemShooterUI.handleInput()
   if not isUpgradeMenuOpen then return nil end
 
-  local dt = Mafs.delta_time()
-
-  -- During countdown: keep menu open, freeze game, then return choice
-  if confirmPending then
-    confirmTimer = confirmTimer - dt
-    if confirmTimer <= 0 then
-      confirmPending = false
-      local selected = TriangleShooterUI.getSelectedUpgrade()
-      TriangleShooterUI.hideUpgradeMenu()
-      return selected
-    end
-    return nil
-  end
 
   -- Choose buttons
   for i=1,#upgradeOptions do
@@ -232,13 +233,14 @@ function TriangleShooterUI.handleInput()
     end
   end
 
-  -- Confirm
+  -- Confirm - immediately close menu and return selection
   if selectedIndex > 0 and UI.was_button_pressed("upgrade_confirm") then
-    confirmPending = true
-    confirmTimer = confirmDuration
+    local selected = SystemShooterUI.getSelectedUpgrade()
+    SystemShooterUI.hideUpgradeMenu()
+    return selected
   end
 
   return nil
 end
 
-return TriangleShooterUI
+return SystemShooterUI

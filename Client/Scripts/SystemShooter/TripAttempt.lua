@@ -1,9 +1,9 @@
-local TriangleShooterTrip = {}
+local SystemShooterTrip = {}
 
 local assets = require("Scripts.Assets")
 local enums = require("Scripts.Enums")
-local ParticleSystem = require("Scripts.TriangleShooter.ParticleSystem")
-local PsychedelicTripDemo = require("Scripts.TriangleShooter.PsychedelicTripDemo")
+local ParticleSystem = require("Scripts.SystemShooter.ParticleSystem")
+local PsychedelicTripDemo = require("Scripts.SystemShooter.PsychedelicTripDemo")
 
 local screenW = 1920
 local screenH = 1080
@@ -16,7 +16,7 @@ local function GetDt()
     return Mafs.delta_time()
 end
 
-function TriangleShooterTrip:OnStart()
+function SystemShooterTrip:OnStart()
     local targetW = 1920
     local targetH = 1080
 
@@ -37,7 +37,7 @@ function TriangleShooterTrip:OnStart()
     AudioComponent.change_volume(musicEntity, musicVolume)
 end
 
-function TriangleShooterTrip:OnUpdate()
+function SystemShooterTrip:OnUpdate()
     local dt = GetDt()
 
     screenW = Window.get_width()
@@ -56,4 +56,4 @@ function TriangleShooterTrip:OnUpdate()
     ParticleSystem.update(dt)
 end
 
-return TriangleShooterTrip
+return SystemShooterTrip

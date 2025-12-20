@@ -1,4 +1,4 @@
-local TriangleShooterEnemy = {}
+local SystemShooterEnemy = {}
 
  --=====================================================================
  --  [MODULE] Dependencies
@@ -32,14 +32,14 @@ local DEFAULTS = {
 }
 
 local ENEMY_TYPE_COLORS = {
-    bounce = {100, 255, 100},
+    bounce = {255, 165, 0},
     stationary = {100, 150, 255},
     stationary_boss = {255, 100, 100},
     orbit = {200, 100, 255},
     teleporter = nil,
 }
 
-TriangleShooterEnemy.DEFAULTS = DEFAULTS
+SystemShooterEnemy.DEFAULTS = DEFAULTS
 
  --=====================================================================
  --  [INTERNAL] Forward Declarations
@@ -53,7 +53,7 @@ TriangleShooterEnemy.DEFAULTS = DEFAULTS
  --=====================================================================
  --  [PUBLIC API] Enemy Lifecycle (Create / Clear)
  --=====================================================================
-function TriangleShooterEnemy.createEnemy(x, y, config, playerX, playerY, playerSize)
+function SystemShooterEnemy.createEnemy(x, y, config, playerX, playerY, playerSize)
     config = config or {}
     
     local size = config.size or DEFAULTS.size
@@ -151,7 +151,7 @@ function TriangleShooterEnemy.createEnemy(x, y, config, playerX, playerY, player
     return enemy
 end
 
-function TriangleShooterEnemy.updateDisplaySize(enemy)
+function SystemShooterEnemy.updateDisplaySize(enemy)
     if not enemy.healthScaling then return end
     
     local hp = enemy.health
@@ -160,7 +160,7 @@ function TriangleShooterEnemy.updateDisplaySize(enemy)
     enemy.displaySize = enemy.size + (hp * enemy.sizePerHp)
 end
 
-function TriangleShooterEnemy.clearEnemies(enemies)
+function SystemShooterEnemy.clearEnemies(enemies)
     for i = 1, #enemies do
         local enemy = enemies[i]
         if enemy.entity then
@@ -169,14 +169,50 @@ function TriangleShooterEnemy.clearEnemies(enemies)
     end
 end
 
+function SystemShooterEnemy.setEnemyDisabled(enemy, disabled, screenW, screenH)
+    enemy.disabled = disabled
+    if enemy.sprite then
+        local r, g, b = enemy.color[1], enemy.color[2], enemy.color[3]
+        if disabled then
+            -- Half alpha by darkening the color (since we may not have alpha control)
+            Sprite.set_color(enemy.sprite, math.floor(r * 0.5), math.floor(g * 0.5), math.floor(b * 0.5))
+            
+            -- For orbit enemies: calculate and store the orbitAngle that matches current position
+            -- This prevents warping when re-enabled
+            if enemy.movementType == "orbit" then
+                local centerX = enemy.orbitCenter and enemy.orbitCenter[1] or ((screenW or 1920) / 2)
+                local centerY = enemy.orbitCenter and enemy.orbitCenter[2] or ((screenH or 1080) / 2)
+                local eDisplaySize = enemy.displaySize or enemy.size
+                local enemyCenterX = enemy.x + eDisplaySize / 2
+                local enemyCenterY = enemy.y + eDisplaySize / 2
+                enemy.orbitAngle = math.atan(enemyCenterY - centerY, enemyCenterX - centerX)
+            end
+        else
+            Sprite.set_color(enemy.sprite, r, g, b)
+        end
+    end
+end
+
+function SystemShooterEnemy.enableAllEnemies(enemies)
+    for i = 1, #enemies do
+        SystemShooterEnemy.setEnemyDisabled(enemies[i], false)
+    end
+end
+
+function SystemShooterEnemy.disableAllEnemies(enemies, screenW, screenH)
+    for i = 1, #enemies do
+        SystemShooterEnemy.setEnemyDisabled(enemies[i], true, screenW, screenH)
+    end
+end
+
  --=====================================================================
  --  [PUBLIC API] Per-Frame Update
  --=====================================================================
- function TriangleShooterEnemy.updateEnemyMovement(
+ function SystemShooterEnemy.updateEnemyMovement(
      enemies,
      playerX, playerY, playerSize,
      screenW, screenH,
-     enemyProjectilesEnabled, enemyShootIntervalSeconds,
+     enemyShootIntervalSeconds,
      SpawnEnemyProjectile,
      TriggerWallLerp,
      SpawnBeam,
@@ -189,6 +225,12 @@ end
 
      for i = 1, #enemies do
          local enemy = enemies[i]
+         
+         -- Skip all behavior for disabled enemies (preview state)
+         if enemy.disabled then
+             goto continue
+         end
+         
          local movementType = enemy.movementType or "bounce"
 
          if movementType == "bounce" then
@@ -203,9 +245,9 @@ end
              updateTeleporterMovement(enemy, dt, playerCenterX, playerCenterY, screenW, screenH, SpawnBeam, EmitTeleportBurst, EmitBeamCharge)
          end
 
-         if movementType ~= "teleporter" then
+         if movementType ~= "teleporter" and movementType ~= "bounce" then
              local shootInterval = enemy.shootInterval
-             if enemyProjectilesEnabled and shootInterval and shootInterval > 0 then
+             if shootInterval and shootInterval > 0 then
                  enemy.shootTimer = (enemy.shootTimer or 0) + dt
                  if enemy.shootTimer >= shootInterval then
                      SpawnEnemyProjectile(enemy)
@@ -221,8 +263,10 @@ end
          if enemy.teleportVisible ~= false then
              Entity.set_global_pos(enemy.entity, enemy.x, enemy.y)
          end
+         
+         ::continue::
      end
- end
+end
 
  --=====================================================================
  --  [MOVEMENT] Bounce
@@ -362,7 +406,14 @@ local TELEPORT_GROW_DURATION = 0.25
     local r, g, b = hsvToRgb(enemy.rainbowHue, 1, 1)
     enemy.color = {math.floor(r * 255), math.floor(g * 255), math.floor(b * 255)}
     if enemy.teleportVisible and enemy.sprite then
-        Sprite.set_color(enemy.sprite, enemy.color[1], enemy.color[2], enemy.color[3])
+        local cr, cg, cb = enemy.color[1], enemy.color[2], enemy.color[3]
+        -- Respect disabled state (darken colors)
+        if enemy.disabled then
+            cr = math.floor(cr * 0.5)
+            cg = math.floor(cg * 0.5)
+            cb = math.floor(cb * 0.5)
+        end
+        Sprite.set_color(enemy.sprite, cr, cg, cb)
     end
     
     enemy.rotation = (enemy.rotation or 0) + dt * 120
@@ -505,4 +556,4 @@ end
     end
 end
 
-return TriangleShooterEnemy
+return SystemShooterEnemy

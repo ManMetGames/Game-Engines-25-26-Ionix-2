@@ -1,20 +1,21 @@
-﻿local TriangleShooter = {}
+﻿local SystemShooter = {}
 
  --=====================================================================
  --  [MODULE] Imports / Dependencies
  --=====================================================================
 local assets = require("Scripts.Assets")
 local enums = require("Scripts.Enums")
-local TriangleShooterLevels = require("Scripts.TriangleShooter.TriangleShooterLevels")
-local TriangleShooterEnemy = require("Scripts.TriangleShooter.TriangleShooterEnemy")
-local TriangleShooterAbilities = require("Scripts.TriangleShooter.TriangleShooterAbilities")
-local TriangleShooterPlayerProgress = require("Scripts.TriangleShooter.TriangleShooterPlayerProgress")
-local ParticleSystem = require("Scripts.TriangleShooter.ParticleSystem")
-local TriangleShooterUI = require("Scripts.TriangleShooter.TriangleShooterUI")
-local TriangleShooterPickups = require("Scripts.TriangleShooter.TriangleShooterPickups")
+local SystemShooterLevels = require("Scripts.SystemShooter.SystemShooterLevels")
+local SystemShooterEnemy = require("Scripts.SystemShooter.SystemShooterEnemy")
+local SystemShooterPlayerProgress = require("Scripts.SystemShooter.SystemShooterPlayerProgress")
+local ParticleSystem = require("Scripts.SystemShooter.ParticleSystem")
+local SystemShooterPickups = require("Scripts.SystemShooter.SystemShooterPickups")
+local SystemShooterRewind = require("Scripts.SystemShooter.SystemShooterRewind")
+local Localisation = require("Scripts.SystemShooter.Localisation")
+
 
  --=====================================================================
- --  [LEADERBOARD / SAVE DATA]
+ --  [LEADERBOARD / SAVE DATA / LANGUAGE]
  --=====================================================================
 local GAME_ID = "SYSTEM_SHOOTER"
 
@@ -29,7 +30,42 @@ local needsPlayerName = (playerName == "")
 local showNamePrompt = false
 local pendingStartAfterName = false
 local namePromptError = ""
+local function T(key) return Localisation.t(key) end
+local language = Json.load_setting(GAME_ID, "ui.language", "en") or "en"
+Localisation.set_language(language)
+local SystemShooterUI = require("Scripts.SystemShooter.SystemShooterUI")
+local UI_FONT_BOLD = "ImGuiDefaultBold"
+local UI_FONT_REG  = "ImGuiDefault"
 
+TS_UI = TS_UI or {}
+local function SyncTSUI()
+    TS_UI.T = function(key) return Localisation.t(key) end
+    TS_UI.FONT_REG = UI_FONT_REG
+    TS_UI.FONT_BOLD = UI_FONT_BOLD
+    TS_UI.FONT_SUB = UI_FONT_SUB
+    TS_UI.FONT_HEADER = UI_FONT_HEADER
+    TS_UI.FONT_TITLE = UI_FONT_TITLE
+end
+
+local function ApplyLanguageFonts()
+    if language == "ja" then
+      UI_FONT_REG   = "ImGuiDefaultJP"
+      UI_FONT_BOLD  = "ImGuiDefaultBoldJP"
+      UI_FONT_SUB = "ImGuiSubJP"
+      UI_FONT_HEADER = "ImGuiHeaderJP"
+      UI_FONT_TITLE = "ImGuiTitleJP"
+    else
+      UI_FONT_REG   = "ImGuiDefault"
+      UI_FONT_BOLD  = "ImGuiDefaultBold"
+      UI_FONT_SUB = "ImGuiSub"
+      UI_FONT_HEADER = "ImGuiHeader"
+      UI_FONT_TITLE = "ImGuiTitle"
+    end
+end
+
+ApplyLanguageFonts()
+SyncTSUI()
+-- For other modules to access localisation and fonts
  --=====================================================================
  --  [Settings] per-game saved settings
  --=====================================================================
@@ -72,8 +108,7 @@ local leaderboardFetched = false
 local isPaused = false
 local pauseScreen = "pause" -- "pause" | "settings" | "leaderboard"
 
-local pauseTopLeaderboard = nil
-local pauseLeaderboardFetched = false
+
 
 local function GetPlayerNameForLeaderboard()
     if playerName and playerName ~= "" then
@@ -88,14 +123,19 @@ local function TryUpdateBestStage(stage)
     if stage > (bestStage or 0) then
         bestStage = stage
         Json.save_high_score(GAME_ID, bestStage)
-        if not needsPlayerName then
-            Firebase.submit_high_score(GAME_ID, playerName, bestStage)
-        end
     end
 end
 
 local pendingQuit = false
 
+-- Orange timer customisation
+local startTimerStyle = {
+    rounding = 10,
+    border_size = 0,
+
+    bg     = { 255, 153, 0, 35 },    
+    fill   = { 255, 153, 0, 255 },
+}
  --=====================================================================
  --  [HELPERS] Time
  --=====================================================================
@@ -196,11 +236,21 @@ local enemySize = 48
 local enemies = {}
 local levelEnemyHealth = 50
 local StartLevel    
+
+local function GetActiveEnemyCount()
+    local count = 0
+    for i = 1, #enemies do
+        if not enemies[i].disabled then
+            count = count + 1
+        end
+    end
+    return count
+end
 local LoadLevel
 
 local function CreateEnemy(x, y, config)
     config = config or {}
-    return TriangleShooterEnemy.createEnemy(x, y, config, playerX, playerY, playerSize)
+    return SystemShooterEnemy.createEnemy(x, y, config, playerX, playerY, playerSize)
 end
 
  --=====================================================================
@@ -254,7 +304,7 @@ function UpdateWindowTransition()
 end
 
 local function ClearEnemies()
-    TriangleShooterEnemy.clearEnemies(enemies)
+    SystemShooterEnemy.clearEnemies(enemies)
     enemies = {}
 end
 
@@ -290,6 +340,11 @@ local function ResetRunStateForMenu()
     fireCooldownTimer = 0
     damageCooldown = 0
     peaceTimerSeconds = 0
+    isStartLevelPeace = false
+    isLevelupPeace = false
+
+    -- Reset rewind state
+    SystemShooterRewind.reset()
 
     -- reset stage/run basics
     currentLevel = 1
@@ -308,7 +363,6 @@ enemyProjectilePool = {}
 local enemyProjectileSize = 24
 local enemyProjectileSpeed = 420 -- PIXELS PER SECOND 
 local enemyShootIntervalSeconds = 0.5
-local enemyProjectilesEnabled = true
 
 -- COLLISION SETTINGS
 local collisionRadius = 24  -- Half of enemy size for circle collision
@@ -329,7 +383,11 @@ local enemyBaseImageSize = enemySize
 
 local globalFrame = 0
 local peaceTimerSeconds = 0
-local peaceDurationSeconds = 4
+local startLevelPeaceDuration = 3
+local endLevelPeaceDuration = 2.5
+local levelupPeaceDuration = 2.0
+local isStartLevelPeace = false  -- true = waiting before enemies spawn, false = end-of-level peace
+local isLevelupPeace = false     -- true = peace period after selecting a levelup upgrade
 
 -- SFX
 local playerDamageSfxEntity
@@ -340,16 +398,90 @@ local impact3SfxEntity
 local currentLevel = 1
 local levelTimerSeconds = 0
 
+-- Run stats (per attempt; used for Game Over summary)
+local runTimeSeconds = 0
+local runEnemiesKilled = 0
+local runShotsFired = 0
+local runShotsHit = 0 -- fired projectiles that hit at least once
+local runDamageDealt = 0
+local runDamageTaken = 0
+local runHealingCollected = 0
+
+
+-- Leaderboard sync (submit once per run, on Game Over)
+local runLeaderboardSubmitted = false
+-- Game Over state + snapshot
+local isGameOver = false
+local endRunSummary = nil
 -- Main Menu
 local inMainMenu = true
 local menuStarting = false
 local menuStartDelay = 2
 local menuStartTimer = 0
+local musicStartedThisLaunch = false
+local MAIN_MENU_W, MAIN_MENU_H = 1280, 720
 
-local function Clamp01(v)
-    if v < 0 then return 0 end
-    if v > 1 then return 1 end
-    return v
+--=====================================================================
+--  [RUN STATS] Helpers
+--=====================================================================
+local function ResetRunStats()
+    runTimeSeconds = 0
+    runEnemiesKilled = 0
+    runShotsFired = 0
+    runShotsHit = 0
+    runDamageDealt = 0
+    runDamageTaken = 0
+    runHealingCollected = 0
+    endRunSummary = nil
+end
+
+local function FormatTimeMMSS(seconds)
+    seconds = seconds or 0
+    if seconds < 0 then seconds = 0 end
+    local total = math.floor(seconds + 0.5)
+    local mm = math.floor(total / 60)
+    local ss = total % 60
+    return string.format("%02d:%02d", mm, ss)
+end
+
+local function CaptureEndRunSummary()
+    local firepower = SystemShooterPlayerProgress.getFirepower()
+    local pierce  = SystemShooterPlayerProgress.getPierceCount()
+    local bounce  = SystemShooterPlayerProgress.getBounceCount()
+    local fireI   = SystemShooterPlayerProgress.getCurrentFireInterval()
+    local maxHP   = SystemShooterPlayerProgress.getMaxHealth()
+
+    local pLevel, pXp, pXpToNext = SystemShooterPlayerProgress.getProgress()
+
+    return {
+        stageReached = currentLevel or 1,
+        playerLevel = pLevel or 1,
+        xp = pXp or 0,
+        timeSurvived = runTimeSeconds or 0,
+        enemiesKilled = runEnemiesKilled or 0,
+        shotsFired = runShotsFired or 0,
+        shotsHit = runShotsHit or 0,
+        damageDealt = runDamageDealt or 0,
+        damageTaken = runDamageTaken or 0,
+        healingCollected = runHealingCollected or 0,
+        build = {
+            firepower = firepower or 1,
+            pierce = pierce or 0,
+            bounce = bounce or 0,
+            fireInterval = fireI or 0.5,
+            maxHealth = maxHP or 100,
+        }
+    }
+end
+
+local function TriggerGameOver()
+    if isGameOver then return end
+    isGameOver = true
+    endRunSummary = CaptureEndRunSummary()
+    -- show cursor for menu
+    Input.set_relative_mouse_mode(false)
+    -- stop firing immediately
+    isFiring = false
 end
 
  --=====================================================================
@@ -384,54 +516,19 @@ end
  --=====================================================================
  --  [LEVEL FLOW] Load / Start Level
  --=====================================================================
-LoadLevel = function(index, resetPlayerState)
-    local cfg = TriangleShooterLevels.getLevelConfig(index)
+local function SpawnEnemiesForLevel(spawnDisabled)
+    local cfg = SystemShooterLevels.getLevelConfig(currentLevel)
     if not cfg then
         return
     end
 
-     --=====================================================================
-     --  [LOAD LEVEL] Apply Config / Global Toggles
-     --=====================================================================
-
-    currentLevel = index
-
-    -- Persist best stage + submit to leaderboard (only if higher stage than last time)
-    TryUpdateBestStage(currentLevel)
-    levelTimerSeconds = cfg.timeLimitSeconds or 0
-
-    wallPingPongEnabled = cfg.wallPingPong and true or false
-
-    enemyProjectilesEnabled = cfg.enemyProjectiles and true or false
-
-     --=====================================================================
-     --  [LOAD LEVEL] Reset Walls / Clear Enemies
-     --=====================================================================
-    if wallPingPongEnabled then
-        leftWallOffset = 0
-        leftWallExpandTimer = 0
-        rightWallOffset = 0
-        rightWallExpandTimer = 0
-        topWallOffset = 0
-        topWallExpandTimer = 0
-        bottomWallOffset = 0
-        bottomWallExpandTimer = 0
-        windowInitialX = nil
-        windowInitialY = nil
-    end
-
-    ClearEnemies()
-
-    levelEnemyHealth = cfg.enemyHealth or levelEnemyHealth
-    enemyShootIntervalSeconds = cfg.enemyShootIntervalSeconds or enemyShootIntervalSeconds
+    -- Clear spawn positions for rewind system
+    SystemShooterRewind.clearSpawnPositions()
 
     local centerX = screenW / 2 - enemySize / 2
     local centerY = screenH / 2 - enemySize / 2
 
-     --=====================================================================
-     --  [LOAD LEVEL] Spawn Enemies
-     --=====================================================================
-    local enemyTemplates = TriangleShooterLevels.getEnemyTemplates()
+    local enemyTemplates = SystemShooterLevels.getEnemyTemplates()
     
     if cfg.enemies then
         for i, enemyCfg in ipairs(cfg.enemies) do
@@ -469,7 +566,12 @@ LoadLevel = function(index, resetPlayerState)
             }
             
             local e = CreateEnemy(spawnX, spawnY, config)
+            if spawnDisabled then
+                SystemShooterEnemy.setEnemyDisabled(e, true)
+            end
             table.insert(enemies, e)
+            -- Store spawn position for rewind system
+            SystemShooterRewind.setSpawnPosition(#enemies, spawnX, spawnY)
         end
     else
         local enemyCount = cfg.enemyCount or 1
@@ -481,7 +583,12 @@ LoadLevel = function(index, resetPlayerState)
         
         if enemyCount == 1 then
             local e = CreateEnemy(centerX, centerY, defaultConfig)
+            if spawnDisabled then
+                SystemShooterEnemy.setEnemyDisabled(e, true)
+            end
             table.insert(enemies, e)
+            -- Store spawn position for rewind system
+            SystemShooterRewind.setSpawnPosition(#enemies, centerX, centerY)
         else
             local radius = 120
             local playerCenterX = screenW / 2
@@ -491,16 +598,68 @@ LoadLevel = function(index, resetPlayerState)
                 local ex = playerCenterX + math.cos(angle) * radius - enemySize / 2
                 local ey = playerCenterY + math.sin(angle) * radius - enemySize / 2
                 local e = CreateEnemy(ex, ey, defaultConfig)
+                if spawnDisabled then
+                    SystemShooterEnemy.setEnemyDisabled(e, true)
+                end
                 table.insert(enemies, e)
+                -- Store spawn position for rewind system
+                SystemShooterRewind.setSpawnPosition(#enemies, ex, ey)
             end
         end
     end
+end
+
+LoadLevel = function(index, resetPlayerState)
+    local cfg = SystemShooterLevels.getLevelConfig(index)
+    if not cfg then
+        return
+    end
+
+     --=====================================================================
+     --  [LOAD LEVEL] Apply Config / Global Toggles
+     --=====================================================================
+
+    currentLevel = index
+
+    -- Persist best stage + submit to leaderboard (only if higher stage than last time)
+    TryUpdateBestStage(currentLevel)
+    levelTimerSeconds = cfg.timeLimitSeconds or 0
+
+    wallPingPongEnabled = cfg.wallPingPong and true or false
+
+     --=====================================================================
+     --  [LOAD LEVEL] Reset Walls / Clear Enemies
+     --=====================================================================
+    if wallPingPongEnabled then
+        leftWallOffset = 0
+        leftWallExpandTimer = 0
+        rightWallOffset = 0
+        rightWallExpandTimer = 0
+        topWallOffset = 0
+        topWallExpandTimer = 0
+        bottomWallOffset = 0
+        bottomWallExpandTimer = 0
+        windowInitialX = nil
+        windowInitialY = nil
+    end
+
+    ClearEnemies()
+
+    levelEnemyHealth = cfg.enemyHealth or levelEnemyHealth
+    enemyShootIntervalSeconds = cfg.enemyShootIntervalSeconds or enemyShootIntervalSeconds
+
+    -- Spawn enemies as disabled (preview state) during start-level peace
+    SpawnEnemiesForLevel(true)
+    
+    -- Start the start-level peace timer (enemies will be enabled when it expires)
+    peaceTimerSeconds = startLevelPeaceDuration
+    isStartLevelPeace = true
 
      --=====================================================================
      --  [LOAD LEVEL] Reset Player State
      --=====================================================================
     if resetPlayerState then
-        playerHealth = TriangleShooterPlayerProgress.getMaxHealth()
+        playerHealth = SystemShooterPlayerProgress.getMaxHealth()
         playerX = screenW / 2 - playerSize / 2
         playerY = screenH / 2 - playerSize / 2
         Entity.set_global_pos(player, playerX, playerY)
@@ -510,12 +669,12 @@ LoadLevel = function(index, resetPlayerState)
     end
 
     if playerHealth == nil or playerHealth <= 0 then
-        playerHealth = TriangleShooterPlayerProgress.getMaxHealth()
+        playerHealth = SystemShooterPlayerProgress.getMaxHealth()
     end
 end
 
 StartLevel = function(index, resetPlayerState)
-    local cfg = TriangleShooterLevels.getLevelConfig(index)
+    local cfg = SystemShooterLevels.getLevelConfig(index)
     if not cfg then
         return
     end
@@ -545,17 +704,45 @@ end
 local function OnEnemyKilled()
     local nextIndex = currentLevel + 1
     TryUpdateBestStage(nextIndex)
-    TriangleShooterLevels.regenerateLevel(nextIndex)
-    if TriangleShooterLevels.getLevelConfig(nextIndex) then
+    SystemShooterLevels.regenerateLevel(nextIndex)
+    if SystemShooterLevels.getLevelConfig(nextIndex) then
         StartLevel(nextIndex, false)
     else
         StartLevel(currentLevel, false)
     end
 end
 
+local function StartRewindSequence()
+    -- Get level config for time limit and enemy target health
+    local cfg = SystemShooterLevels.getLevelConfig(currentLevel)
+    local maxHealth = SystemShooterPlayerProgress.getMaxHealth()
+    local levelTimeLimit = cfg and cfg.timeLimitSeconds or 0
+    
+    -- Build target health list from level config (these are the reduced values after timeout)
+    local enemyTargetHealthList = {}
+    if cfg and cfg.enemies then
+        for i, enemyCfg in ipairs(cfg.enemies) do
+            enemyTargetHealthList[i] = enemyCfg.health or levelEnemyHealth
+        end
+    else
+        -- Fallback: use current enemy health as target
+        for i, enemy in ipairs(enemies) do
+            enemyTargetHealthList[i] = enemy.health or 0
+        end
+    end
+    
+    -- Start the rewind sequence via the module
+    SystemShooterRewind.start(enemies, playerHealth, maxHealth, levelTimeLimit, enemyTargetHealthList)
+    
+    -- Pause music
+    if musicEntity then
+        AudioComponent.pause(musicEntity)
+    end
+end
+
 local function OnLevelTimeout()
-    -- Reduce level health by 20% on timeout
-    local cfg = TriangleShooterLevels.getLevelConfig(currentLevel)
+    -- Reduce level health by 20% on timeout (applied to config for next spawn)
+    local cfg = SystemShooterLevels.getLevelConfig(currentLevel)
     if cfg and cfg.enemies then
         for _, enemy in ipairs(cfg.enemies) do
             if enemy.health then
@@ -564,13 +751,15 @@ local function OnLevelTimeout()
             end
         end
     end
-    StartLevel(currentLevel, false)
+    
+    -- Start rewind sequence instead of instant restart
+    StartRewindSequence()
 end
 
  --=====================================================================
  --  [ENGINE CALLBACKS] OnStart
  --=====================================================================
-function TriangleShooter:OnStart()
+function SystemShooter:OnStart()
     -- Enable relative mouse mode (hides cursor, gives delta movement)
     Input.set_relative_mouse_mode(false)
     
@@ -587,21 +776,20 @@ function TriangleShooter:OnStart()
     Sprite.set_columns(playerSprite, 1)
 
     -- Main menu window size (target)
-    local targetW, targetH = 1280, 720
     local displayWidth = Window.get_display_width()
     local displayHeight = Window.get_display_height()
-    local newX = math.floor((displayWidth - targetW) * 0.5)
-    local newY = math.floor((displayHeight - targetH) * 0.5)
+    local newX = math.floor((displayWidth - MAIN_MENU_W) * 0.5)
+    local newY = math.floor((displayHeight - MAIN_MENU_H) * 0.5)
     Window.set_pos(newX, newY)
-    Window.set_size(targetW, targetH)
-    screenW = targetW
-    screenH = targetH
+    Window.set_size(MAIN_MENU_W, MAIN_MENU_H)
+    screenW = MAIN_MENU_W
+    screenH = MAIN_MENU_H
 
     StartLevel(1, true)
 
     musicEntity = Entity.create_entity()
     Entity.add_audio_component(musicEntity, "technoSong", false)
-    AudioComponent.play(musicEntity, 0, -1)
+    -- Music will start when player presses START GAME
 
     playerDamageSfxEntity = Entity.create_entity()
     Entity.add_audio_component(playerDamageSfxEntity, "playerDamage", false)
@@ -637,10 +825,15 @@ local function DrawNamePrompt(screenW, screenH)
     )
 
     local cx = w / 2
-    UI.add_centered_label(cx, 28, "ENTER YOUR NAME", "ImGuiDefaultBold", 1.6)
-    UI.add_centered_label(cx, 62, "Register yourself on the Leaderboard.", "", 1.0)
+    UI.add_centered_label(cx, 18, T("play.prompttxt"), UI_FONT_HEADER, 1)
+    UI.add_centered_label(cx, 48, T("play.promptdesc"), UI_FONT_REG, 1.2)
     if namePromptError ~= "" then
-        UI.add_centered_label(cx, 82, namePromptError, "ImGuiDefaultBold", 1.0)
+        UI.add_centered_label_colored(
+            cx, 82,
+            namePromptError,
+            {255, 80, 80, 255},   -- RGBA (0–255)
+            UI_FONT_BOLD, 1.0
+        )
     end
 
 
@@ -652,7 +845,7 @@ local function DrawNamePrompt(screenW, screenH)
     local bx = math.floor((w - bw) / 2)
     UI.add_button(bx, 150, bw, bh,
         "CONTINUE", "ts_name_ok",
-        "ImGuiDefaultBold", 1.0,
+        UI_FONT_BOLD, 1.0,
         10, true,
         74, 12, 255, 0.95
     )
@@ -667,7 +860,7 @@ local function DrawNamePrompt(screenW, screenH)
         name = name:gsub("^%s+", ""):gsub("%s+$", "")
 
         if name == "" then
-            namePromptError = "Please enter a name."
+            namePromptError = T("play.error")
         else
             namePromptError = ""
             playerName = name
@@ -676,11 +869,6 @@ local function DrawNamePrompt(screenW, screenH)
 
             Json.save_player_name(playerName)
             UI.clear_input("ts_player_name")
-
-            if bestStage and bestStage > 0 then
-                Firebase.submit_high_score(GAME_ID, playerName, bestStage)
-            end
-
             if pendingStartAfterName then
                 pendingStartAfterName = false
                 menuStarting = true
@@ -717,11 +905,12 @@ local function DrawMainMenu(screenW, screenH, dt)
     local titleY = math.floor(panelH * 0.08)
     local subY   = titleY + math.floor(panelH * 0.10)
 
-    UI.add_centered_label(cx, titleY, "SYSTEM SHOOTER", "ImGuiDefaultBold", 3.0)
-    UI.add_centered_label(cx, subY, "Mouse to move | Hold LMB to shoot", "", 1.2)
+    UI.add_centered_label(cx, titleY, "SYSTEM SHOOTER", "ImGuiTitle", 1.2)
+    UI.add_centered_label(cx, subY, T("menu.basiccontrols"), UI_FONT_REG, 1)
+    UI.add_centered_label(panelW*0.9, titleY + math.floor(panelH * 0.0), playerName, "ImGuiDefault", 1.2)
 
     -- Best stage
-    UI.add_centered_label(cx, subY + math.floor(panelH * 0.08), "Best Stage: " .. tostring(bestStage or 0), "", 1.2)
+    UI.add_centered_label(cx, subY + math.floor(panelH * 0.08), T("menu.beststage") .. tostring(bestStage or 0), UI_FONT_SUB, 1)
 
     -- Buttons
     local bw, bh = math.floor(math.min(panelW * 0.62, 560)), 60
@@ -737,24 +926,34 @@ local function DrawMainMenu(screenW, screenH, dt)
         local barW = math.floor(math.max(200, math.min(bw * 0.75, 320)))
         local barH = 12
         local barX = panelX + bx + math.floor((bw - barW) / 2)
-        local barY = panelY + by - barH - 14
+        local barY = panelY + by - barH - 24
 
-        UI.draw_progress_bar(barX, barY, barW, barH, menuStartDelay, elapsed, 4)
+        UI.draw_progress_bar_styled(barX, barY, barW, barH, menuStartDelay, elapsed, 4, startTimerStyle, "")
 
         if menuStartTimer <= 0 then
             menuStarting = false
             inMainMenu = false
             menuScreen = "main"
             Input.set_relative_mouse_mode(true)
+            ResetRunStats()
+            SystemShooterPickups.clearAll()
+            SystemShooterPlayerProgress.reset()
+            isGameOver = false
+            runLeaderboardSubmitted = false
             StartLevel(1, true)
+            -- Start music from beginning (synced with gameplay)
+            if musicEntity and not musicStartedThisLaunch then
+                AudioComponent.play(musicEntity, 0, -1)
+                musicStartedThisLaunch = true
+            end
         end
     end
 
 
-    local startLabel = menuStarting and "Starting..." or "START GAME"
+    local startLabel = menuStarting and T("menu.starting") or T("menu.play")
     UI.add_button(bx, by, bw, bh,
         startLabel, "menu_start",
-        "ImGuiDefaultBold", 1.1,
+        UI_FONT_HEADER, 1,
         12, true,
         74, 12, 255, 0.95
     )
@@ -775,23 +974,23 @@ local function DrawMainMenu(screenW, screenH, dt)
     -- Leaderboard button
     local gap = 16
     UI.add_button(bx, by + bh + gap, bw, bh,
-        "LEADERBOARD", "menu_leaderboard",
-        "ImGuiDefaultBold", 1.1,
+        T("menu.leaderboard"), "menu_leaderboard",
+        UI_FONT_HEADER, 1,
         12, true,
         0, 170, 110, 0.95
     )
 
     -- Settings button
     UI.add_button(bx, by + (bh + gap) * 2, bw, bh,
-        "SETTINGS", "menu_settings",
-        "ImGuiDefaultBold", 1.1,
+        T("menu.settings"), "menu_settings",
+        UI_FONT_HEADER, 1,
         12, true,
         120, 120, 120, 0.95
     )
 
     UI.add_button(bx, by + (bh + gap) * 3, bw, bh,
-    "EXIT GAME", "menu_exit",
-    "ImGuiDefaultBold", 1.1,
+    T("menu.quit"), "menu_exit",
+    UI_FONT_HEADER, 1,
     12, true,
     120, 30, 30, 0.95
     )
@@ -821,7 +1020,9 @@ local function DrawMainMenu(screenW, screenH, dt)
 
 end
 
-local function DrawLeaderboardMenu(screenW, screenH, dt)
+local function DrawLeaderboardMenu(screenW, screenH, dt, context)
+    context = context or "main"
+
     UI.add_panel(0, 0, screenW, screenH, 0.65, 0, 0, 0, 0)
 
     local panelW = math.floor(math.max(520, math.min(screenW * 0.70, 860)))
@@ -833,25 +1034,35 @@ local function DrawLeaderboardMenu(screenW, screenH, dt)
         true, 0,
         true, 0.92, 12, 25, 25, 25,
         0.01, false, 0.85,
-        UI__COLOUR_THEME[1], UI__COLOUR_THEME[2], UI__COLOUR_THEME[3], 1.0 -- RGBA border
+        UI__COLOUR_THEME[1], UI__COLOUR_THEME[2], UI__COLOUR_THEME[3], 1.0
     )
 
     local cx = panelW / 2
+    local footerH = 100
+    local contentX = 26
+    local contentY = math.floor(panelH * 0.13)
+    local contentW = panelW - 52
+    local contentH = panelH - contentY - footerH
 
-    UI.add_centered_label(cx, math.floor(panelH * 0.05), "LEADERBOARD", "ImGuiDefaultBold", 2.6)
-    UI.add_centered_label(cx, math.floor(panelH * 0.13), "Top 10 Highest Stages", "", 1.2)
+    UI.add_centered_label(cx, math.floor(panelH * 0.05), T("menu.leaderboard"), UI_FONT_TITLE, 1)
+    UI.add_centered_label(cx, math.floor(panelH * 0.13), T("leaderboard.description"), UI_FONT_REG, 1)
 
+    local NO_BACKGROUND = 128
+    UI.begin_child(contentX, contentY, contentW, contentH, "TS_LeaderboardContent",
+        false, NO_BACKGROUND, false)
+
+    -- Use shared topLeaderboard / leaderboardFetched to avoid duplicated network calls and data
     if not leaderboardFetched then
         topLeaderboard = Firebase.retrieve_high_score(GAME_ID, 10)
         leaderboardFetched = true
     end
 
-    local listX = math.floor(panelW * 0.20)
-    local listY = math.floor(panelH * 0.21)
+    local listX = math.floor(contentW * 0.20)
+    local listY = math.floor(contentH * 0.15)
     local lineH = 26
 
     if topLeaderboard then
-        local stageX = math.floor(panelW * 0.68) 
+        local stageX = math.floor(contentW * 0.68)
 
         for i = 1, 10 do
             local e = topLeaderboard[i]
@@ -860,40 +1071,40 @@ local function DrawLeaderboardMenu(screenW, screenH, dt)
             if e then
                 local name = tostring(e.name)
                 local stage = tonumber(e.score) or 0
-
-                -- Left column: "1. Name"
-                UI.add_label(listX, y, 0, 0, string.format("%2d. %s", i, name), "", 1.4)
-
-                -- Right column: "Stage X"
-                UI.add_label(stageX, y, 0, 0, string.format("Stage %d", stage), "", 1.4)
+                UI.add_label(listX, y, 0, 0, string.format("%2d. %s", i, name), "ImGuiDefault", 1.1)
+                UI.add_label(stageX, y, 0, 0, string.format(T("leaderboard.stage"), stage), UI_FONT_REG, 1.1)
             else
-                UI.add_label(listX, y, 0, 0, string.format("%2d. --", i), "", 1.4)
+                UI.add_label(listX, y, 0, 0, string.format("%2d. --", i), "ImGuiDefault", 1.1)
             end
         end
     else
-        UI.add_centered_label(cx, listY + 10, "(No scores yet)", "", 1.2)
+        UI.add_centered_label(cx, listY + 10, "(No scores yet)", UI_FONT_REG, 1.1)
     end
 
-    -- Back button
+    UI.end_child()
+
+    -- Back button (same visual but behaviour differs by context)
     local bw, bh = math.min(320, math.floor(panelW * 0.55)), 50
     local bx = math.floor((panelW - bw) / 2)
     local by = panelH - bh - 32
 
-    UI.add_button(bx, by, bw, bh,
-        "BACK", "menu_back",
-        "ImGuiDefaultBold", 1.0,
-        12, true,
-        74, 12, 255, 0.95
-    )
+    UI.add_button(bx, by, bw, bh, T("menu.back"), "menu_back",
+        UI_FONT_SUB, 1.0, 12, true, 74, 12, 255, 0.95)
 
     if UI.was_button_pressed("menu_back") then
-        menuScreen = "main"
+        if context == "pause" then
+            pauseScreen = "pause"
+        else
+            menuScreen = "main"
+        end
     end
 
     UI.end_child()
 end
 
-local function DrawSettingsMenu(screenW, screenH, dt)
+local function DrawSettingsMenu(screenW, screenH, dt, context)
+    context = context or "main"
+
     UI.add_panel(0, 0, screenW, screenH, 0.65, 0, 0, 0, 0)
 
     local panelW = math.floor(math.max(520, math.min(screenW * 0.70, 860)))
@@ -908,63 +1119,57 @@ local function DrawSettingsMenu(screenW, screenH, dt)
     )
 
     local cx = panelW / 2
-    local footerH = 100 -- space reserved for the Back button area
+    local footerH = 100
     local contentX = 26
-    local contentY = math.floor(panelH * 0.13)  
+    local contentY = math.floor(panelH * 0.13)
     local contentW = panelW - 52
     local contentH = panelH - contentY - footerH
 
-    UI.add_centered_label(cx, math.floor(panelH * 0.05), "SETTINGS", "ImGuiDefaultBold", 2.6)
+    UI.add_centered_label(cx, math.floor(panelH * 0.05), T("settings.title"), UI_FONT_TITLE, 1)
 
-    -- Child for scrollable content 
     local NO_BACKGROUND = 128
     UI.begin_child(contentX, contentY, contentW, contentH, "TS_SettingsContent",
-    true, NO_BACKGROUND, false)
+        false, NO_BACKGROUND, false)
 
     local innerCX = contentW / 2
     local sliderW = math.floor(contentW * 0.5)
     local sliderX = math.floor((contentW - sliderW) / 2)
 
-    UI.add_centered_label(innerCX, 12, "Audio", "ImGuiDefaultBold", 1.8)
+    UI.add_centered_label(innerCX, 12, T("settings.audio"), UI_FONT_HEADER, 1.2)
 
     local sliderStyle = {
-    height = 21,        -- thickness
-    rounding = 10,      -- track rounding
-    grab_size = 16,     -- handle size (easier to grab)
-    track = { 30, 30, 30, 220 },     -- RGBA (0-255)
-    grab  = { 74, 12, 255, 255 },    -- RGBA (0-255) purple accent)
+        height = 21,
+        rounding = 10,
+        grab_size = 16,
+        track = { 30, 30, 30, 220 },
+        grab  = { 74, 12, 255, 255 },
     }
 
     local function DrawVolRow(title, id, value, y)
-        UI.add_centered_label(innerCX, y - 24 , title, "", 1.1)
-
-        UI.add_slider_styled(sliderX, y, sliderW, "", id, 0.0, 1.0, value, nil, nil, " ", sliderStyle)
-
+        UI.add_centered_label(innerCX, y - 16 , title, UI_FONT_REG, 1.05)
+        UI.add_slider_styled(sliderX, y + 8, sliderW, "", id, 0.0, 1.0, value, nil, nil, " ", sliderStyle)
         local percent = math.floor(((UI.get_slider(id) or value) * 100) + 0.5)
         UI.add_label(sliderX + sliderW + 18, y + 2, 0, 0, tostring(percent) .. "%", "ImGuiDefaultBold", 1.0)
     end
 
-    local y0 = 70        -- start near top of inner child
-    local gapY = 66      -- spacing between rows
+    local y0 = 70
+    local gapY = 66
 
-    -- MASTER
-    DrawVolRow("Master", "ts_master", masterVol, y0)
+    DrawVolRow(T("audio.master"), "ts_master", masterVol, y0)
     if UI.was_slider_changed("ts_master") then
         masterVol = UI.get_slider("ts_master") or masterVol
         Json.save_setting(GAME_ID, "audio.master", masterVol)
         ApplyAudioVolumes()
     end
 
-    -- MUSIC
-    DrawVolRow("Music", "ts_music", musicVol, y0 + gapY)
+    DrawVolRow(T("audio.music"), "ts_music", musicVol, y0 + gapY)
     if UI.was_slider_changed("ts_music") then
         musicVol = UI.get_slider("ts_music") or musicVol
         Json.save_setting(GAME_ID, "audio.music", musicVol)
         ApplyAudioVolumes()
     end
 
-    -- SFX
-    DrawVolRow("SFX", "ts_sfx", sfxVol, y0 + gapY * 2)
+    DrawVolRow(T("audio.sfx"), "ts_sfx", sfxVol, y0 + gapY * 2)
     if UI.was_slider_changed("ts_sfx") then
         sfxVol = UI.get_slider("ts_sfx") or sfxVol
         Json.save_setting(GAME_ID, "audio.sfx", sfxVol)
@@ -972,13 +1177,11 @@ local function DrawSettingsMenu(screenW, screenH, dt)
     end
 
     local controlsHeaderY = y0 + gapY * 3 + 10
-    UI.add_centered_label(innerCX, controlsHeaderY, "Controls", "ImGuiDefaultBold", 1.8)
+    UI.add_centered_label(innerCX, controlsHeaderY, T("settings.controls"), UI_FONT_HEADER, 1.2)
 
-    local sensY = controlsHeaderY + 60
-    -- draw sensitivity slider at sensY
-
-    UI.add_centered_label(innerCX, sensY - 24, "Sensitivity", "", 1.1)
-    UI.add_slider_styled(sliderX, sensY, sliderW, "", "ts_sensitivity", 0.25, 2.50, sensitivitySetting, nil, nil, " ", sliderStyle)
+    local sensY = controlsHeaderY + 76
+    UI.add_centered_label(innerCX, sensY - 16, T("controls.sensitivity"), UI_FONT_REG, 1.05)
+    UI.add_slider_styled(sliderX, sensY + 8, sliderW, "", "ts_sensitivity", 0.25, 2.50, sensitivitySetting, nil, nil, " ", sliderStyle)
 
     if UI.was_slider_changed("ts_sensitivity") then
         sensitivitySetting = UI.get_slider("ts_sensitivity") or sensitivitySetting
@@ -986,27 +1189,67 @@ local function DrawSettingsMenu(screenW, screenH, dt)
         Json.save_setting(GAME_ID, "controls.sensitivity", sensitivitySetting)
     end
 
-    -- show “x” value on the right (2 decimals)
     UI.add_label(sliderX + sliderW + 18, sensY + 2, 0, 0,
         string.format("%.2fx", sensitivitySetting),
         "ImGuiDefaultBold", 1.0
     )
 
+    local langY = sensY + 84
+
+    UI.add_centered_label(innerCX, langY - 16, T("settings.language"), UI_FONT_HEADER, 1.2)
+
+    local opts = { "English", "日本語" }
+    local defaultIndex = (language == "ja") and 1 or 0
+
+    local dropdownW = sliderW
+    local dropdownX = sliderX
+
+    local ddStyle = {
+      height = 32,
+      rounding = 10,
+      popup_rounding = 10,
+      border_size = 1,
+      frame        = { 30, 30, 30, 220 },
+      frame_hover  = { 40, 40, 40, 230 },
+      frame_active = { 50, 50, 50, 240 },
+      popup_bg = { 20, 20, 20, 240 },
+      border   = { 0, 0, 0,  80 },
+      item        = { 74, 12, 255, 120 },
+      item_hover  = { 74, 12, 255, 180 },
+      item_active = { 74, 12, 255, 220 },
+      text = { 255, 255, 255, 255 },
+    }
+    local langDropdownFont = "ImGuiDefaultJP"
+    UI.add_dropdown_styled(dropdownX, langY + 24, dropdownW, 32, "", "ts_lang", opts, defaultIndex, langDropdownFont, 1.0, ddStyle)
+
+    if UI.was_dropdown_changed("ts_lang") then
+        local idx = UI.get_dropdown_index("ts_lang") or 0
+        language = (idx == 1) and "ja" or "en"
+        Json.save_setting(GAME_ID, "ui.language", language)
+        Localisation.set_language(language)
+        ApplyLanguageFonts()
+        SyncTSUI()
+    end
+
     UI.end_child()
-    -- Back button
+
     local bw, bh = math.min(320, math.floor(panelW * 0.55)), 50
     local bx = math.floor((panelW - bw) / 2)
     local by = panelH - bh - 32
 
     UI.add_button(bx, by, bw, bh,
-        "BACK", "menu_back_settings",
-        "ImGuiDefaultBold", 1.0,
+        T("menu.back"), "menu_back_settings",
+        UI_FONT_SUB, 1.0,
         12, true,
         74, 12, 255, 0.95
     )
 
     if UI.was_button_pressed("menu_back_settings") then
-        menuScreen = "main"
+        if context == "pause" then
+            pauseScreen = "pause"
+        else
+            menuScreen = "main"
+        end
     end
 
     UI.end_child()
@@ -1030,39 +1273,194 @@ local function DrawPauseMenu(screenW, screenH, dt)
     )
 
     local cx = panelW / 2
-    UI.add_centered_label(cx, math.floor(panelH * 0.12), "PAUSED", "ImGuiDefaultBold", 2.6)
-    UI.add_centered_label(cx, math.floor(panelH * 0.22), "Press ESC to resume", "", 1.1)
+    UI.add_centered_label(cx, math.floor(panelH * 0.05), T("pause.title"), UI_FONT_TITLE, 1)
+    UI.add_centered_label(cx, math.floor(panelH * 0.15), "Press ESC to resume", UI_FONT_REG, 1)
 
     local bw, bh = math.min(340, math.floor(panelW * 0.60)), 50
     local bx = math.floor((panelW - bw) / 2)
     local y0 = math.floor(panelH * 0.34)
     local gap = 14
 
-    UI.add_button(bx, y0 + (bh + gap) * 0, bw, bh, "RESUME", "pause_resume",
-        "ImGuiDefaultBold", 1.0, 12, true, 74, 12, 255, 0.95)
+    UI.add_button(bx, y0 + (bh + gap) * 0, bw, bh, T("pause.resume"), "pause_resume",
+        UI_FONT_SUB, 1.0, 12, true, 74, 12, 255, 0.95)
 
-    UI.add_button(bx, y0 + (bh + gap) * 1, bw, bh, "SETTINGS", "pause_settings",
-        "ImGuiDefaultBold", 1.0, 12, true, 74, 12, 255, 0.90)
+    UI.add_button(bx, y0 + (bh + gap) * 1, bw, bh, T("menu.settings"), "pause_settings",
+        UI_FONT_SUB, 1.0, 12, true, 74, 12, 255, 0.90)
 
-    UI.add_button(bx, y0 + (bh + gap) * 2, bw, bh, "LEADERBOARD", "pause_leaderboard",
-        "ImGuiDefaultBold", 1.0, 12, true, 74, 12, 255, 0.90)
+    UI.add_button(bx, y0 + (bh + gap) * 2, bw, bh, T("menu.leaderboard"), "pause_leaderboard",
+        UI_FONT_SUB, 1.0, 12, true, 74, 12, 255, 0.90)
 
-    UI.add_button(bx, y0 + (bh + gap) * 3, bw, bh, "BACK TO MAIN MENU", "pause_mainmenu",
-        "ImGuiDefaultBold", 1.0, 12, true, 120, 30, 30, 0.90)
+    UI.add_button(bx, y0 + (bh + gap) * 3, bw, bh, T("pause.quit"), "pause_mainmenu",
+        UI_FONT_SUB, 1.0, 12, true, 120, 30, 30, 0.90)
 
     if UI.was_button_pressed("pause_resume") then
         SetPaused(false)
     elseif UI.was_button_pressed("pause_settings") then
         pauseScreen = "settings"
     elseif UI.was_button_pressed("pause_leaderboard") then
-        pauseScreen = "leaderboard"
-        pauseLeaderboardFetched = false
+           pauseScreen = "leaderboard"
+           leaderboardFetched = false  -- reuse shared fetch flag
     elseif UI.was_button_pressed("pause_mainmenu") then
         GoToMainMenuFromPause()
     end
 
     UI.end_child()
 end
+
+local function SubmitLeaderboardScoreOnce(score)
+    if runLeaderboardSubmitted then return end
+    if needsPlayerName then return end
+    if playerName == nil or playerName == "" then return end
+
+    score = math.floor(tonumber(score) or 0)
+    if score <= 0 then return end
+
+    Firebase.submit_high_score(GAME_ID, playerName, score)
+    runLeaderboardSubmitted = true
+end
+
+local function DrawGameOverMenu(screenW, screenH, dt)
+    Input.set_relative_mouse_mode(false)
+
+    -- Main menu window size (target)
+    local displayWidth = Window.get_display_width()
+    local displayHeight = Window.get_display_height()
+    Window.set_size(MAIN_MENU_W, MAIN_MENU_H)
+    screenW = MAIN_MENU_W
+    screenH = MAIN_MENU_H
+
+    UI.add_panel(0, 0, screenW, screenH, 0.65, 0, 0, 0, 0)
+
+    local panelW = math.floor(math.max(720, math.min(screenW * 0.72, 980)))
+    local panelH = math.floor(math.max(560, math.min(screenH * 0.78, 760)))
+    local panelX = math.floor((screenW - panelW) / 2)
+    local panelY = math.floor((screenH - panelH) / 2)
+
+    UI.begin_child(panelX, panelY, panelW, panelH, "TS_GameOver",
+        true, 0,
+        true, 0.92, 12, 25, 25, 25,
+        2.5, true, 1.35
+    )
+
+    local cx = panelW / 2
+    UI.add_centered_label(cx, math.floor(panelH * 0.05), T("gameover.title"), UI_FONT_TITLE, 1)
+
+    local summary = endRunSummary or CaptureEndRunSummary()
+    SubmitLeaderboardScoreOnce(summary.stageReached or 1)
+    local shotsFired = tonumber(summary.shotsFired or 0) or 0
+    local shotsHit = tonumber(summary.shotsHit or 0) or 0
+
+    local accuracyText = "—"
+    if shotsFired > 0 then
+        local pct = (shotsHit / shotsFired) * 100.0
+        accuracyText = string.format("%.0f%%", pct)
+    end
+
+    -- Summary panel
+    local sumW = math.floor(panelW * 0.90)
+    local sumH = math.floor(panelH * 0.64)
+    local sumX = math.floor((panelW - sumW) / 2)
+    local sumY = math.floor(panelH * 0.13)
+
+    UI.begin_child(sumX, sumY, sumW, sumH, "TS_EndRunSummary",
+        true, 0,
+        true, 0.55, 10, 15, 15, 15,
+        1.0, true, 1.25
+    )
+
+    local scx = sumW / 2
+    UI.add_centered_label(scx, 10, T("gameover.summary"), UI_FONT_HEADER, 1)
+
+    local leftX = 20
+    local rightX = math.floor(sumW * 0.75)
+    local lineH = 26
+
+    local y = 46
+    local function AddKV(x, yy, k, v, isBold)
+        UI.add_label(x, yy, 0, 0, tostring(k), UI_FONT_REG, 1)
+        UI.add_label(x + math.floor(sumW * 0.28), yy, 0, 0, tostring(v), UI_FONT_REG, 1)
+    end
+
+    -- Left column: results + combat
+    UI.add_label(leftX, 10, 0, 0, T("summary.overall"), UI_FONT_HEADER, 0.8)
+    AddKV(leftX, y, T("summary.stage"), summary.stageReached or 1, true); y = y + lineH
+    AddKV(leftX, y, T("summary.level"), summary.playerLevel or 1, true); y = y + lineH
+    AddKV(leftX, y, T("summary.duration"), FormatTimeMMSS(summary.timeSurvived or 0), true); y = y + lineH
+    AddKV(leftX, y, T("summary.totalkilled"), summary.enemiesKilled or 0, true); y = y + (lineH*2)
+
+    y = y + 10
+    UI.add_label(leftX, y - 5, 0, 0, T("summary.combat"), UI_FONT_HEADER, 0.8); y = y + lineH
+    AddKV(leftX, y, T("summary.shotsfired"), shotsFired, false); y = y + lineH
+    AddKV(leftX, y, T("summary.accuracy"), accuracyText, false); y = y + lineH
+    AddKV(leftX, y, T("summary.dmgdealt"), summary.damageDealt or 0, false); y = y + lineH
+    AddKV(leftX, y, T("summary.dmgtaken"), summary.damageTaken or 0, false); y = y + lineH
+    AddKV(leftX, y, T("summary.hphealed"), summary.healingCollected or 0, false); y = y + lineH
+
+    -- Right column: build recap
+    local b = summary.build or {}
+    local ry = 46
+    UI.add_label(rightX, 10, 0, 0, T("summary.recap"), UI_FONT_HEADER, 0.8);
+    UI.add_label(rightX, ry, 0, 0, T("summary.firepower") .. tostring(b.firepower or 1), UI_FONT_REG, 1); ry = ry + lineH
+    UI.add_label(rightX, ry, 0, 0, T("summary.pierce") .. tostring(b.pierce or 0), UI_FONT_REG, 1); ry = ry + lineH
+    UI.add_label(rightX, ry, 0, 0, T("summary.bounce") .. tostring(b.bounce or 0), UI_FONT_REG, 1); ry = ry + lineH
+    UI.add_label(rightX, ry, 0, 0, string.format(T("summary.fireinterval"), tonumber(b.fireInterval or 0.5) or 0.5), UI_FONT_REG, 1); ry = ry + lineH
+    UI.add_label(rightX, ry, 0, 0, T("summary.maxhp") .. tostring(b.maxHealth or 100), UI_FONT_REG, 1)
+
+    UI.end_child()
+
+    -- Buttons
+    local totalW = math.floor(panelW * 0.90)
+    local gap = 16
+    local bw = math.floor((totalW - gap) / 2)
+    local bh = 56
+    local bx = math.floor((panelW - totalW) / 2)
+    local by = math.floor(panelH * 0.80)
+
+    UI.add_button(bx, by, bw, bh,
+        T("gameover.retry"), "gameover_retry",
+        UI_FONT_SUB, 1,
+        12, true,
+        74, 12, 255, 0.95
+    )
+
+    UI.add_button(bx + bw + gap, by, bw, bh,
+        T("gameover.back"), "gameover_mainmenu",
+        UI_FONT_SUB, 1,
+        12, true,
+        120, 30, 30, 0.95
+    )
+
+    if UI.was_button_pressed("gameover_retry") then
+        isGameOver = false
+        ResetRunStats()
+        SystemShooterPickups.clearAll()
+        SystemShooterPlayerProgress.reset()
+        ClearEnemies()
+        ClearAllPlayerProjectiles()
+        ClearAllEnemyProjectiles()
+        Input.set_relative_mouse_mode(true)
+        runLeaderboardSubmitted = false
+        StartLevel(1, true)
+        -- Restart music from beginning to sync with gameplay
+        if musicEntity then
+            AudioComponent.terminate(musicEntity)
+            AudioComponent.play(musicEntity, 0, -1)
+        end
+
+    elseif UI.was_button_pressed("gameover_mainmenu") then
+        isGameOver = false
+        ResetRunStats()
+        SystemShooterPickups.clearAll()
+        SystemShooterPlayerProgress.reset()
+        ClearEnemies()
+        ClearAllPlayerProjectiles()
+        ClearAllEnemyProjectiles()
+        GoToMainMenuFromPause()
+    end
+
+    UI.end_child()
+end
+
 
 local function GetEscapeKey()
     if Keys then
@@ -1078,179 +1476,15 @@ SetPaused = function(p)
 
     -- show cursor in pause menus, lock cursor in gameplay
     Input.set_relative_mouse_mode(not isPaused)
-end
 
-local function DrawPauseLeaderboard(screenW, screenH, dt)
-    UI.add_panel(0, 0, screenW, screenH, 0.65, 0, 0, 0, 0)
-
-    local panelW = math.floor(math.max(520, math.min(screenW * 0.70, 860)))
-    local panelH = math.floor(math.max(420, math.min(screenH * 0.70, 600)))
-    local panelX = math.floor((screenW - panelW) / 2)
-    local panelY = math.floor((screenH - panelH) / 2)
-
-    UI.begin_child(panelX, panelY, panelW, panelH, "TS_PauseLeaderboard",
-        true, 0,
-        true, 0.92, 12, 25, 25, 25,
-        0.01, false, 0.85,
-        UI__COLOUR_THEME[1], UI__COLOUR_THEME[2], UI__COLOUR_THEME[3], 1.0 -- RGBA border
-    )
-
-    local cx = panelW / 2
-    UI.add_centered_label(cx, math.floor(panelH * 0.05), "LEADERBOARD", "ImGuiDefaultBold", 2.6)
-    UI.add_centered_label(cx, math.floor(panelH * 0.13), "Top 10 Highest Stages", "", 1.2)
-
-    if not pauseLeaderboardFetched then
-        pauseTopLeaderboard = Firebase.retrieve_high_score(GAME_ID, 10)
-        pauseLeaderboardFetched = true
-    end
-
-    local listX = math.floor(panelW * 0.20)
-    local listY = math.floor(panelH * 0.21)
-    local lineH = 26
-
-    if pauseTopLeaderboard then
-        for i = 1, 10 do
-            local e = pauseTopLeaderboard[i]
-            local line = e
-                and string.format("%2d. %-16s  Stage %d", i, tostring(e.name), tonumber(e.score) or 0)
-                or  string.format("%2d. --", i)
-            UI.add_label(listX, listY + (i - 1) * lineH, 0, 0, line, "", 1.4)
+    -- Stop/resume music to prevent desync
+    if musicEntity then
+        if isPaused then
+            AudioComponent.pause(musicEntity)
+        else
+            AudioComponent.resume(musicEntity)
         end
-    else
-        UI.add_centered_label(cx, listY + 10, "(No scores yet)", "", 1.2)
     end
-
-    local bw, bh = math.min(320, math.floor(panelW * 0.55)), 50
-    local bx = math.floor((panelW - bw) / 2)
-    local by = panelH - bh - 32
-
-    UI.add_button(bx, by, bw, bh, "BACK", "pause_back_lb",
-        "ImGuiDefaultBold", 1.0, 12, true, 74, 12, 255, 0.95)
-
-    if UI.was_button_pressed("pause_back_lb") then
-        pauseScreen = "pause"
-    end
-
-    UI.end_child()
-end
-
-local function DrawPauseSettingsMenu(screenW, screenH, dt)
-    UI.add_panel(0, 0, screenW, screenH, 0.65, 0, 0, 0, 0)
-
-    local panelW = math.floor(math.max(520, math.min(screenW * 0.70, 860)))
-    local panelH = math.floor(math.max(420, math.min(screenH * 0.70, 600)))
-    local panelX = math.floor((screenW - panelW) / 2)
-    local panelY = math.floor((screenH - panelH) / 2)
-
-    UI.begin_child(panelX, panelY, panelW, panelH, "TS_Settings",
-        true, 0,
-        true, 0.92, 12, 25, 25, 25,
-        2.5, true, 1.35
-    )
-
-    local cx = panelW / 2
-    local footerH = 100 -- space reserved for the Back button area
-    local contentX = 26
-    local contentY = math.floor(panelH * 0.13)  
-    local contentW = panelW - 52
-    local contentH = panelH - contentY - footerH
-
-    UI.add_centered_label(cx, math.floor(panelH * 0.05), "SETTINGS", "ImGuiDefaultBold", 2.6)
-
-    -- Child for scrollable content 
-    local NO_BACKGROUND = 128
-    UI.begin_child(contentX, contentY, contentW, contentH, "TS_SettingsContent",
-    false, NO_BACKGROUND, false)
-
-    local innerCX = contentW / 2
-    local sliderW = math.floor(contentW * 0.5)
-    local sliderX = math.floor((contentW - sliderW) / 2)
-
-    UI.add_centered_label(innerCX, 12, "Audio", "ImGuiDefaultBold", 1.8)
-
-    local sliderStyle = {
-    height = 21,        -- thickness
-    rounding = 10,      -- track rounding
-    grab_size = 16,     -- handle size (easier to grab)
-    track = { 30, 30, 30, 220 },     -- RGBA (0-255)
-    grab  = { 74, 12, 255, 255 },    -- RGBA (0-255) purple accent)
-    }
-
-    local function DrawVolRow(title, id, value, y)
-        UI.add_centered_label(innerCX, y - 24 , title, "", 1.1)
-
-        UI.add_slider_styled(sliderX, y, sliderW, "", id, 0.0, 1.0, value, nil, nil, " ", sliderStyle)
-
-        local percent = math.floor(((UI.get_slider(id) or value) * 100) + 0.5)
-        UI.add_label(sliderX + sliderW + 18, y + 2, 0, 0, tostring(percent) .. "%", "ImGuiDefaultBold", 1.0)
-    end
-
-    local y0 = 70        -- start near top of inner child
-    local gapY = 66      -- spacing between rows
-
-    -- MASTER
-    DrawVolRow("Master", "ts_master", masterVol, y0)
-    if UI.was_slider_changed("ts_master") then
-        masterVol = UI.get_slider("ts_master") or masterVol
-        Json.save_setting(GAME_ID, "audio.master", masterVol)
-        ApplyAudioVolumes()
-    end
-
-    -- MUSIC
-    DrawVolRow("Music", "ts_music", musicVol, y0 + gapY)
-    if UI.was_slider_changed("ts_music") then
-        musicVol = UI.get_slider("ts_music") or musicVol
-        Json.save_setting(GAME_ID, "audio.music", musicVol)
-        ApplyAudioVolumes()
-    end
-
-    -- SFX
-    DrawVolRow("SFX", "ts_sfx", sfxVol, y0 + gapY * 2)
-    if UI.was_slider_changed("ts_sfx") then
-        sfxVol = UI.get_slider("ts_sfx") or sfxVol
-        Json.save_setting(GAME_ID, "audio.sfx", sfxVol)
-        ApplyAudioVolumes()
-    end
-
-    local controlsHeaderY = y0 + gapY * 3 + 10
-    UI.add_centered_label(innerCX, controlsHeaderY, "Controls", "ImGuiDefaultBold", 1.8)
-
-    local sensY = controlsHeaderY + 60
-    -- draw sensitivity slider at sensY
-
-    UI.add_centered_label(innerCX, sensY - 24, "Sensitivity", "", 1.1)
-    UI.add_slider_styled(sliderX, sensY, sliderW, "", "ts_sensitivity", 0.25, 2.50, sensitivitySetting, nil, nil, " ", sliderStyle)
-
-    if UI.was_slider_changed("ts_sensitivity") then
-        sensitivitySetting = UI.get_slider("ts_sensitivity") or sensitivitySetting
-        sensitivitySetting = Clamp(sensitivitySetting, 0.25, 2.50)
-        Json.save_setting(GAME_ID, "controls.sensitivity", sensitivitySetting)
-    end
-
-    -- show “x” value on the right (2 decimals)
-    UI.add_label(sliderX + sliderW + 18, sensY + 2, 0, 0,
-        string.format("%.2fx", sensitivitySetting),
-        "ImGuiDefaultBold", 1.0
-    )
-
-    UI.end_child()
-    -- Back button
-    local bw, bh = math.min(320, math.floor(panelW * 0.55)), 50
-    local bx = math.floor((panelW - bw) / 2)
-    local by = panelH - bh - 32
-
-    UI.add_button(bx, by, bw, bh,
-        "BACK", "pause_back_settings",
-        "ImGuiDefaultBold", 1.0,
-        12, true,
-        74, 12, 255, 0.95
-    )
-
-    if UI.was_button_pressed("pause_back_settings") then
-        pauseScreen = "pause"
-    end
-
-    UI.end_child()
 end
 
 local function ResetWallWindowCapture()
@@ -1273,9 +1507,17 @@ end
 GoToMainMenuFromPause = function()
     SetPaused(false)
 
+    SubmitLeaderboardScoreOnce(currentLevel or 1)
+
     ResetRunStateForMenu()
 
     ResetWallWindowCapture()
+
+    -- Stop music when returning to main menu
+    if musicEntity then
+        AudioComponent.terminate(musicEntity)
+        musicStartedThisLaunch = false
+    end
 
     -- go to main menu
     inMainMenu = true
@@ -1293,7 +1535,7 @@ end
  --=====================================================================
  --  [ENGINE CALLBACKS] OnUpdate (Main Loop)
  --=====================================================================
-function TriangleShooter:OnUpdate()
+function SystemShooter:OnUpdate()
      --=====================================================================
      --  [ONUPDATE] Frame Setup
      --=====================================================================
@@ -1303,13 +1545,21 @@ function TriangleShooter:OnUpdate()
     if inMainMenu then
         screenW = Window.get_width()
         screenH = Window.get_height()
-    if menuScreen == "leaderboard" then
-        DrawLeaderboardMenu(screenW, screenH, dt)
-    elseif menuScreen == "settings" then
-        DrawSettingsMenu(screenW, screenH, dt)
-    else
-        DrawMainMenu(screenW, screenH, dt)
+
+        if menuScreen == "leaderboard" then
+            DrawLeaderboardMenu(screenW, screenH, dt, "main")
+        elseif menuScreen == "settings" then
+            DrawSettingsMenu(screenW, screenH, dt, "main")
+        else
+            DrawMainMenu(screenW, screenH, dt)
+        end
+        return
     end
+
+    if isGameOver then
+        screenW = Window.get_width()
+        screenH = Window.get_height()
+        DrawGameOverMenu(screenW, screenH, dt)
         return
     end
 
@@ -1331,17 +1581,22 @@ function TriangleShooter:OnUpdate()
      --=====================================================================
      --  [ONUPDATE] Upgrade Menu (Freeze Game)
      --=====================================================================
-    if TriangleShooterUI.isMenuOpen() then
+    if SystemShooterUI.isMenuOpen() then
         screenW = Window.get_width()
         screenH = Window.get_height()
-        TriangleShooterUI.draw(screenW, screenH)
-        local selectedUpgrade = TriangleShooterUI.handleInput()
+        SystemShooterUI.draw(screenW, screenH)
+        local selectedUpgrade = SystemShooterUI.handleInput()
         if selectedUpgrade then
-            TriangleShooterPlayerProgress.applyUpgrade(selectedUpgrade.type)
+            SystemShooterPlayerProgress.applyUpgrade(selectedUpgrade.type)
             if selectedUpgrade.type == "max_health" then
-                local maxH = TriangleShooterPlayerProgress.getMaxHealth()
+                local maxH = SystemShooterPlayerProgress.getMaxHealth()
                 playerHealth = math.min(maxH, playerHealth + 20)
             end
+            -- Start levelup peace timer and disable enemies
+            peaceTimerSeconds = levelupPeaceDuration
+            isLevelupPeace = true
+            isStartLevelPeace = false
+            SystemShooterEnemy.disableAllEnemies(enemies, screenW, screenH)
         end
         return
     end
@@ -1353,7 +1608,7 @@ function TriangleShooter:OnUpdate()
     if esc and Input.get_key_down(esc) then
         if not isPaused then
             -- don’t pause over upgrade menus; they already freeze the game
-            if (not TriangleShooterUI.isMenuOpen()) and (not TriangleShooterPlayerProgress.hasPendingLevelUp()) and (not windowTransitionActive) then
+            if (not SystemShooterUI.isMenuOpen()) and (not SystemShooterPlayerProgress.hasPendingLevelUp()) and (not windowTransitionActive) then
                 SetPaused(true)
             end
         else
@@ -1371,9 +1626,9 @@ function TriangleShooter:OnUpdate()
         screenH = Window.get_height()
 
         if pauseScreen == "settings" then
-            DrawPauseSettingsMenu(screenW, screenH, dt)
+            DrawSettingsMenu(screenW, screenH, dt, "pause")
         elseif pauseScreen == "leaderboard" then
-            DrawPauseLeaderboard(screenW, screenH, dt)
+            DrawLeaderboardMenu(screenW, screenH, dt, "pause")
         else
             DrawPauseMenu(screenW, screenH, dt)
         end
@@ -1382,14 +1637,18 @@ function TriangleShooter:OnUpdate()
     end
 
 
-    if TriangleShooterPlayerProgress.hasPendingLevelUp() then
-        TriangleShooterPlayerProgress.consumePendingLevelUp()
-        local level = TriangleShooterPlayerProgress.getProgress()
-        TriangleShooterUI.showUpgradeMenu(nil, level)
+    if SystemShooterPlayerProgress.hasPendingLevelUp() then
+        SystemShooterPlayerProgress.consumePendingLevelUp()
+        local level = SystemShooterPlayerProgress.getProgress()
+        SystemShooterUI.showUpgradeMenu(nil, level)
         return
     end
 
-     --=====================================================================
+    
+
+    -- Track run time (excludes menus, pause, transitions, and upgrade screens)
+    runTimeSeconds = runTimeSeconds + dt
+ --=====================================================================
      --  [ONUPDATE] World Bounds (Walls / Window)
      --=====================================================================
     -- Update wall lerps
@@ -1399,7 +1658,7 @@ function TriangleShooter:OnUpdate()
     screenW = Window.get_width()
     screenH = Window.get_height()
     
-    if levelTimerSeconds > 0 and #enemies > 0 then
+    if levelTimerSeconds > 0 and #enemies > 0 and not isStartLevelPeace and not isLevelupPeace then
         levelTimerSeconds = levelTimerSeconds - dt
     end
 
@@ -1421,6 +1680,7 @@ function TriangleShooter:OnUpdate()
      --=====================================================================
      --  [ONUPDATE] Player Movement (Mouse + Knockback)
      --=====================================================================
+    -- Player can still move during rewind
     -- Get mouse delta (relative movement)
     local delta = Input.get_mouse_delta()
     local deltaX = 0
@@ -1494,69 +1754,88 @@ function TriangleShooter:OnUpdate()
      --=====================================================================
      --  [ONUPDATE] Shooting
      --=====================================================================
-    if Input.get_mouse_button_down(1) then
-        isFiring = true
-        if fireCooldownTimer <= 0 then
+    -- Disable shooting during rewind
+    if not SystemShooterRewind.isActive() then
+        if Input.get_mouse_button_down(1) then
+            isFiring = true
+            if fireCooldownTimer <= 0 then
+                SpawnProjectile()
+                local interval = SystemShooterPlayerProgress.getCurrentFireInterval()
+                if not interval or interval <= 0 then
+                    interval = 0.5
+                end
+                currentFireInterval = interval
+                fireCooldownTimer = interval
+            end
+        end
+
+        if Input.get_mouse_button_up(1) then
+            isFiring = false
+        end
+
+        if isFiring and fireCooldownTimer <= 0 then
             SpawnProjectile()
-            local interval = TriangleShooterPlayerProgress.getCurrentFireInterval()
+            if gunshot3SfxEntity then
+                AudioComponent.change_volume(gunshot3SfxEntity, 4)
+                AudioComponent.play(gunshot3SfxEntity)
+            end
+            local interval = SystemShooterPlayerProgress.getCurrentFireInterval()
             if not interval or interval <= 0 then
                 interval = 0.5
             end
             currentFireInterval = interval
             fireCooldownTimer = interval
         end
-    end
-
-    if Input.get_mouse_button_up(1) then
+    else
+        -- Force stop firing during rewind
         isFiring = false
-    end
-
-    if isFiring and fireCooldownTimer <= 0 then
-        SpawnProjectile()
-        if gunshot3SfxEntity then
-            AudioComponent.change_volume(gunshot3SfxEntity, 4)
-            AudioComponent.play(gunshot3SfxEntity)
-        end
-        local interval = TriangleShooterPlayerProgress.getCurrentFireInterval()
-        if not interval or interval <= 0 then
-            interval = 0.5
-        end
-        currentFireInterval = interval
-        fireCooldownTimer = interval
     end
     
      --=====================================================================
      --  [ONUPDATE] Systems Update
      --=====================================================================
-    -- Update all projectiles
-    UpdateProjectiles()
-    UpdateEnemyProjectiles()
+    -- Skip normal updates during rewind (handled in rewind logic)
+    if not SystemShooterRewind.isActive() then
+        -- Update all projectiles
+        UpdateProjectiles()
+        UpdateEnemyProjectiles()
+
+        -- Check enemy-player collision and apply damage
+        UpdateEnemyCollision()
+        
+        -- Update enemy movement
+        UpdateEnemyMovement()
+    end
 
     ParticleSystem.update(dt)
-    TriangleShooterPickups.update(dt)
+    SystemShooterPickups.update(dt)
     
-    -- Check pickup collision and heal player
-    local maxHealth = TriangleShooterPlayerProgress.getMaxHealth()
-    local healAmount = TriangleShooterPickups.checkPlayerCollision(playerX, playerY, playerSize, maxHealth)
-    if healAmount then
-        playerHealth = math.min(maxHealth, playerHealth + healAmount)
+    -- Check pickup collision and heal player (skip during rewind)
+    if not SystemShooterRewind.isActive() then
+        local maxHealth = SystemShooterPlayerProgress.getMaxHealth()
+        local healAmount = SystemShooterPickups.checkPlayerCollision(playerX, playerY, playerSize, maxHealth)
+        if healAmount then
+            local before = playerHealth
+            playerHealth = math.min(maxHealth, playerHealth + healAmount)
+            local actual = playerHealth - before
+            if actual > 0 then
+                runHealingCollected = runHealingCollected + actual
+            end
+        end
     end
     
     -- Update flash effect
     UpdateFlash()
-    
-    -- Check enemy-player collision and apply damage
-    UpdateEnemyCollision()
-    
-    -- Update enemy movement
-    UpdateEnemyMovement()
 
-    UpdateBeatBop()
+    -- Skip beat bop during rewind
+    if not SystemShooterRewind.isActive() then
+        UpdateBeatBop()
+    end
 
      --=====================================================================
      --  [ONUPDATE] UI
      --=====================================================================
-    local levelCfg = TriangleShooterLevels.getLevelConfig(currentLevel)
+    local levelCfg = SystemShooterLevels.getLevelConfig(currentLevel)
     if levelCfg ~= nil then
         local maxEnemyHealthTotal = 0
         if levelCfg.enemies then
@@ -1574,10 +1853,37 @@ function TriangleShooter:OnUpdate()
         if maxEnemyHealthTotal < 1 then
             maxEnemyHealthTotal = 1
         end
-        UI.draw_progress_bar(20, 20, 200, 20, maxEnemyHealthTotal, currentEnemyHealthTotal, 1)
-        if levelCfg.timeLimitSeconds ~= nil and levelCfg.timeLimitSeconds > 0 then
-            UI.draw_progress_bar(20, 50, 200, 10, levelCfg.timeLimitSeconds, levelTimerSeconds, 3)
+            local enemyHpStyle = {
+              rounding = 10,
+              border_size = 0,
+              bg   = {30,30,30,220},
+              fill = {255,0,0,255},
+            }
+        UI.draw_progress_bar_styled(20, 20, 200, 20, maxEnemyHealthTotal, currentEnemyHealthTotal, 1, enemyHpStyle, "")
+    if levelCfg.timeLimitSeconds ~= nil and levelCfg.timeLimitSeconds > 0 then
+        local barW, barH = 200, 10
+        local x, y = 20, 50
+
+        local maxT = levelCfg.timeLimitSeconds
+        local tLeft = math.max(0, math.min(maxT, levelTimerSeconds)) -- assumes levelTimerSeconds = remaining
+
+        -- Pulse only near the end (last 15%)
+        local frac = (maxT > 0) and (tLeft / maxT) or 0
+        local pulse = 1.0
+        if frac < 0.15 then
+            pulse = 0.6 + 0.4 * (0.5 + 0.5 * math.sin(Mafs.time() * 10.0))
         end
+
+        local timerStyle = {
+            rounding = barH / 2,
+            border_size = 1,
+            bg     = {255, 255, 255, 35},
+            fill   = {255, 255, 255, math.floor(220 * pulse)},
+            border = {0, 0, 0, 120},
+        }
+
+        UI.draw_progress_bar_styled(x, y, barW, barH, maxT, tLeft, 3, timerStyle, "")
+    end
     else
         local currentEnemyHealthTotal = 0
         for i = 1, #enemies do
@@ -1589,70 +1895,158 @@ function TriangleShooter:OnUpdate()
         UI.draw_progress_bar(20, 20, 200, 20, currentEnemyHealthTotal, currentEnemyHealthTotal, 1)
     end
 
-    UI.add_centered_label(screenW / 2, 10, "Stage: " .. tostring(currentLevel), "")
+    UI.add_centered_label(screenW / 2, 10, T("gameplay.stage") .. tostring(currentLevel), UI_FONT_REG)
 
     local playerHpBarX = screenW - 220
     local playerHpBarY = 20
     local playerHpBarW = 200
     local playerHpBarH = 20
 
-    local playerMaxHealth = TriangleShooterPlayerProgress.getMaxHealth()
-    UI.draw_progress_bar(playerHpBarX, playerHpBarY, playerHpBarW, playerHpBarH, playerMaxHealth, playerHealth, 2)
+    local hpStyle = {
+      rounding = 10,
+      border_size = 0,
+      bg   = {30,30,30,220},
+      fill = {0,255,0,255},
+    }
 
-    local level, xp, xpToNextLevel = TriangleShooterPlayerProgress.getProgress()
-    local playerInfoText = "Player Lv: " .. tostring(level) .. "  XP: " .. tostring(xp) .. " / " .. tostring(xpToNextLevel)
-    UI.add_centered_label(playerHpBarX + playerHpBarW / 2, playerHpBarY + playerHpBarH + 8, playerInfoText, "")
+    local playerMaxHealth = SystemShooterPlayerProgress.getMaxHealth()
+    UI.draw_progress_bar_styled(playerHpBarX, playerHpBarY, playerHpBarW, playerHpBarH, playerMaxHealth, playerHealth, 2, hpStyle, "")
 
-    -- Peace progress bar (only during inter-level peace)
-    if #enemies == 0 and peaceTimerSeconds > 0 then
-        local elapsed = peaceDurationSeconds - peaceTimerSeconds
+    local level, xp, xpToNextLevel = SystemShooterPlayerProgress.getProgress()
+    local playerInfoText = T("gameplay.level") .. tostring(level) .. T("gameplay.exp") .. tostring(xp) .. "/" .. tostring(xpToNextLevel)
+    UI.add_centered_label(playerHpBarX + playerHpBarW / 2, playerHpBarY + playerHpBarH + 8, playerInfoText, UI_FONT_REG, 0.85)
+
+    -- Peace progress bar (during start-level or end-level peace)
+    if peaceTimerSeconds > 0 then
+        local phaseDuration = startLevelPeaceDuration
+        if isLevelupPeace then
+            phaseDuration = levelupPeaceDuration
+        elseif not isStartLevelPeace then
+            phaseDuration = endLevelPeaceDuration
+        end
+        local elapsed = phaseDuration - peaceTimerSeconds
         if elapsed < 0 then
             elapsed = 0
         end
-        UI.draw_progress_bar(
+        
+
+        UI.draw_progress_bar_styled(
             screenW / 2 - 100, 80, 200, 10,
-            peaceDurationSeconds, elapsed, 4
+            phaseDuration, elapsed, 4, startTimerStyle, ""
         )
     end
 
-    local enemiesAlive = #enemies > 0
-    if enemiesAlive and peaceTimerSeconds > 0 then
+    -- Count only enabled (non-disabled) enemies as "alive"
+    local enemiesAlive = false
+    for i = 1, #enemies do
+        if not enemies[i].disabled then
+            enemiesAlive = true
+            break
+        end
+    end
+    
+    -- Reset peace timer if active enemies exist (safety check)
+    -- But not during start-level peace or levelup peace (enemies are intentionally disabled)
+    if enemiesAlive and peaceTimerSeconds > 0 and not isStartLevelPeace and not isLevelupPeace then
         peaceTimerSeconds = 0
+    end
+
+    --=====================================================================
+    --  [ONUPDATE] Rewind System (delegated to module)
+    --=====================================================================
+    if SystemShooterRewind.isActive() then
+        -- During rewind, check for game over
+        if playerHealth <= 0 then
+            SystemShooterRewind.reset()
+            SystemShooterRewind.restoreEnemyColors(enemies)
+            TriggerGameOver()
+            return
+        end
+        
+        -- Helper functions for the rewind module
+        local function clearProjectiles(playerOnly)
+            ClearAllPlayerProjectiles()
+            if not playerOnly then
+                ClearAllEnemyProjectiles()
+            end
+        end
+        
+        -- Update rewind system
+        local result = SystemShooterRewind.update(
+            dt, enemies, projectiles, enemyProjectiles,
+            UpdateEnemyMovement, clearProjectiles
+        )
+        
+        if result then
+            -- Apply returned values
+            if result.levelTimer then
+                levelTimerSeconds = result.levelTimer
+            end
+            if result.playerHealth then
+                playerHealth = result.playerHealth
+            end
+            
+            -- Clear enemy projectiles when signaled (after they've been rewound)
+            if result.clearEnemyProjectiles then
+                ClearAllEnemyProjectiles()
+            end
+            
+            -- Handle rewind completion
+            if result.done then
+                -- Set final values
+                local cfg = SystemShooterLevels.getLevelConfig(currentLevel)
+                levelTimerSeconds = cfg and cfg.timeLimitSeconds or 0
+                
+                -- Clear and respawn enemies with reduced health
+                ClearEnemies()
+                SpawnEnemiesForLevel(true)  -- Spawn disabled (peace state)
+                
+                -- Start peace timer and resume music
+                peaceTimerSeconds = startLevelPeaceDuration
+                isStartLevelPeace = true
+                
+                if musicEntity then
+                    AudioComponent.resume(musicEntity)
+                end
+            end
+        end
+        return
+    end
+
+    -- Handle levelup peace timer separately (enemies exist but are disabled)
+    if isLevelupPeace and peaceTimerSeconds > 0 then
+        peaceTimerSeconds = peaceTimerSeconds - dt
+        if peaceTimerSeconds <= 0 then
+            isLevelupPeace = false
+            SystemShooterEnemy.enableAllEnemies(enemies)
+        end
+        -- Don't process normal level flow during levelup peace
+        if playerHealth <= 0 then
+            TriggerGameOver()
+        end
+        return
     end
 
      --=====================================================================
      --  [ONUPDATE] Level Flow (Win / Lose / Timeout)
      --=====================================================================
     if playerHealth <= 0 then
-        inMainMenu = true
-        menuScreen = "main"
-        Input.set_relative_mouse_mode(false)
- 
-        local targetW, targetH = 1280, 720
-        local displayWidth = Window.get_display_width()
-        local displayHeight = Window.get_display_height()
-        local newX = math.floor((displayWidth - targetW) * 0.5)
-        local newY = math.floor((displayHeight - targetH) * 0.5)
-        Window.set_pos(newX, newY)
-        Window.set_size(targetW, targetH)
-        screenW = targetW
-        screenH = targetH
- 
-        ClearEnemies()
-        TriangleShooterPickups.clearAll()
-        TriangleShooterPlayerProgress.reset()
-        currentLevel = 1
-        StartLevel(1, true)
+        TriggerGameOver()
+        return
     elseif not enemiesAlive then
         if peaceTimerSeconds <= 0 then
-            peaceTimerSeconds = peaceDurationSeconds
-        else
-            peaceTimerSeconds = peaceTimerSeconds - dt
-            if peaceTimerSeconds <= 0 then
+            if isStartLevelPeace then
+                -- Start-level peace ended, enable the preview enemies
+                isStartLevelPeace = false
+                SystemShooterEnemy.enableAllEnemies(enemies)
+            else
+                -- End-level peace finished, trigger level transition
                 OnEnemyKilled()
             end
+        else
+            peaceTimerSeconds = peaceTimerSeconds - dt
         end
-    elseif levelTimerSeconds <= 0 and enemiesAlive then
+    elseif levelTimerSeconds <= 0 and enemiesAlive and not SystemShooterRewind.isActive() then
         OnLevelTimeout()
     end
 end
@@ -1660,27 +2054,52 @@ end
  --=====================================================================
  --  [PLAYER PROJECTILES] Spawn / Update
  --=====================================================================
-local function SpawnPlayerSingleProjectile(spawnX, spawnY, dirX, dirY, pierceCount, bounceCount)
+local function SpawnPlayerSingleProjectile(spawnX, spawnY, dirX, dirY, pierceCount, bounceCount, shotData)
     local projData
+    shotData = shotData or {}
+    
+    local isGolden = shotData.isGolden or false
+    local damage = shotData.damage or 1
+    local sizeMultiplier = shotData.sizeMultiplier or 1
+    local actualSize = projectileSize * sizeMultiplier
 
     -- Try to reuse a pooled projectile
     if #projectilePool > 0 then
         projData = table.remove(projectilePool)
+        -- Update sprite size for reused projectile
+        local sprite = Entity.get_sprite_component(projData.entity)
+        if sprite then
+            Sprite.set_image_width(sprite, math.floor(actualSize))
+            Sprite.set_image_height(sprite, math.floor(actualSize))
+            if isGolden then
+                Sprite.set_color(sprite, 255, 215, 0)  -- Gold color
+            else
+                Sprite.set_color(sprite, 255, 255, 255)  -- Default white
+            end
+        end
     else
         -- Create new entity only if pool is empty
         local proj = Entity.create_entity()
-        Entity.add_sprite_component(proj, assets.textures.Ghast_Tear, projectileSize, projectileSize, 5)
+        -- Layer 4: render under enemies (layer 5)
+        local sprite = Entity.add_sprite_component(proj, assets.textures.Ghast_Tear, math.floor(actualSize), math.floor(actualSize), 4)
+        if isGolden and sprite then
+            Sprite.set_color(sprite, 255, 215, 0)  -- Gold color
+        end
         projData = { entity = proj }
     end
 
+    -- Adjust spawn position for larger projectiles
+    local adjustedSpawnX = spawnX - (actualSize - projectileSize) / 2
+    local adjustedSpawnY = spawnY - (actualSize - projectileSize) / 2
+
     -- Set position and rotation
-    Entity.set_global_pos(projData.entity, spawnX, spawnY)
+    Entity.set_global_pos(projData.entity, adjustedSpawnX, adjustedSpawnY)
     local projAngle = math.deg(math.atan(dirY, dirX)) + 90
     Entity.set_global_rot(projData.entity, projAngle)
 
     -- Initialize projectile data
-    projData.x = spawnX
-    projData.y = spawnY
+    projData.x = adjustedSpawnX
+    projData.y = adjustedSpawnY
     projData.vx = dirX * projectileSpeed
     projData.vy = dirY * projectileSpeed
     projData.age = 0
@@ -1688,6 +2107,10 @@ local function SpawnPlayerSingleProjectile(spawnX, spawnY, dirX, dirY, pierceCou
     projData.bounceRemaining = bounceCount or 0
     projData.maxLifetime = projectileLifetimeSeconds + (bounceCount * 2.5)
     projData.hitEnemies = {}
+    projData.hasHit = false
+    projData.damage = damage
+    projData.isGolden = isGolden
+    projData.size = actualSize
 
     table.insert(projectiles, projData)
 end
@@ -1699,14 +2122,15 @@ function SpawnProjectile()
     local tipX = centerX + aimDirX * (playerSize/2)
     local tipY = centerY + aimDirY * (playerSize/2)
 
-    local bulletCount = TriangleShooterPlayerProgress.getBulletCount()
-    local pierceCount = TriangleShooterPlayerProgress.getPierceCount()
-    local bounceCount = TriangleShooterPlayerProgress.getBounceCount()
+    local firepower = SystemShooterPlayerProgress.getFirepower()
+    local pierceCount = SystemShooterPlayerProgress.getPierceCount()
+    local bounceCount = SystemShooterPlayerProgress.getBounceCount()
 
-    local shots = TriangleShooterAbilities.getShots(bulletCount, tipX, tipY, aimDirX, aimDirY, projectileSize)
+    local shots = SystemShooterPlayerProgress.getShots(firepower, tipX, tipY, aimDirX, aimDirY, projectileSize)
     if not shots then
         return
     end
+    runShotsFired = runShotsFired + #shots
 
     for i = 1, #shots do
         local s = shots[i]
@@ -1717,7 +2141,7 @@ function SpawnProjectile()
 
         local spawnX = tipX + offsetX - projectileSize/2
         local spawnY = tipY + offsetY - projectileSize/2
-        SpawnPlayerSingleProjectile(spawnX, spawnY, dirX, dirY, pierceCount, bounceCount)
+        SpawnPlayerSingleProjectile(spawnX, spawnY, dirX, dirY, pierceCount, bounceCount, s)
     end
 end
 
@@ -1762,19 +2186,23 @@ function UpdateProjectiles()
         Entity.set_global_pos(proj.entity, proj.x, proj.y)
         
         -- Check collisionRadius with enemies
-        local projCenterX = proj.x + projectileSize/2
-        local projCenterY = proj.y + projectileSize/2
-        local hitRadius = collisionRadius + projectileSize/2
+        local projSize = proj.size or projectileSize
+        local projCenterX = proj.x + projSize/2
+        local projCenterY = proj.y + projSize/2
         local hitEnemyIndex = nil
 
         for j = #enemies, 1, -1 do
             local enemy = enemies[j]
+            -- Skip disabled enemies (preview state)
+            if enemy.disabled then
+                goto continue_proj_collision
+            end
             local isVisible = enemy.teleportVisible == nil or enemy.teleportVisible
             if isVisible and not proj.hitEnemies[enemy] then
                 local eDisplaySize = enemy.displaySize or enemy.size or enemySize
                 local enemyCenterX = enemy.x + eDisplaySize/2
                 local enemyCenterY = enemy.y + eDisplaySize/2
-                local enemyHitRadius = eDisplaySize/2 + projectileSize/2
+                local enemyHitRadius = eDisplaySize/2 + projSize/2
                 local dx = projCenterX - enemyCenterX
                 local dy = projCenterY - enemyCenterY
                 local distSq = dx * dx + dy * dy
@@ -1783,16 +2211,31 @@ function UpdateProjectiles()
                     break
                 end
             end
+            ::continue_proj_collision::
         end
 
         local shouldRemove = false
 
         if hitEnemyIndex ~= nil then
             local enemy = enemies[hitEnemyIndex]
-            enemy.health = (enemy.health or 0) - 1
-            TriangleShooterPlayerProgress.addXp(1)
+            local damage = proj.damage or 1
+            local clutchStacks = SystemShooterPlayerProgress.getLowEnemyDamageStacks()
+            if clutchStacks and clutchStacks > 0 then
+                local activeCount = GetActiveEnemyCount()
+                local threshold = clutchStacks >= 2 and 2 or 1
+                if activeCount <= threshold then
+                    damage = damage * SystemShooterPlayerProgress.getNoWitnessesDamageMultiplier()
+                end
+            end
+            if not proj.hasHit then
+                proj.hasHit = true
+                runShotsHit = runShotsHit + 1
+            end
+            runDamageDealt = runDamageDealt + damage
+            enemy.health = (enemy.health or 0) - damage
+            SystemShooterPlayerProgress.addXp(damage)
             FlashEnemy(enemy)
-            TriangleShooterEnemy.updateDisplaySize(enemy)
+            SystemShooterEnemy.updateDisplaySize(enemy)
 
             local eSize = enemy.size or enemySize
             local enemyCenterX = enemy.x + eSize / 2
@@ -1810,10 +2253,17 @@ function UpdateProjectiles()
                 local eSize = enemy.size or enemySize
                 local deathX = enemy.x + eSize / 2
                 local deathY = enemy.y + eSize / 2
-                TriangleShooterPickups.trySpawnHealingOrb(deathX, deathY)
+                SystemShooterPickups.trySpawnHealingOrb(deathX, deathY)
+                runEnemiesKilled = runEnemiesKilled + 1
                 
                 Entity.set_global_pos(enemy.entity, -1000, -1000)
                 table.remove(enemies, hitEnemyIndex)
+                
+                -- Start end-level peace timer when last enemy is killed
+                if #enemies == 0 then
+                    peaceTimerSeconds = endLevelPeaceDuration
+                    isStartLevelPeace = false
+                end
             end
 
             if proj.pierceRemaining > 0 then
@@ -1834,24 +2284,26 @@ function UpdateProjectiles()
                 local hitEdge = false
                 local edgeX, edgeY = nil, nil
 
+                local projSize = proj.size or projectileSize
+
                 if proj.x < 0 then
                     hitEdge = true
                     edgeX = "left"
                     proj.x = 0
-                elseif proj.x + projectileSize > screenW then
+                elseif proj.x + projSize > screenW then
                     hitEdge = true
                     edgeX = "right"
-                    proj.x = screenW - projectileSize
+                    proj.x = screenW - projSize
                 end
 
                 if proj.y < 0 then
                     hitEdge = true
                     edgeY = "top"
                     proj.y = 0
-                elseif proj.y + projectileSize > screenH then
+                elseif proj.y + projSize > screenH then
                     hitEdge = true
                     edgeY = "bottom"
-                    proj.y = screenH - projectileSize
+                    proj.y = screenH - projSize
                 end
 
                 if hitEdge then
@@ -1859,8 +2311,8 @@ function UpdateProjectiles()
                         proj.bounceRemaining = proj.bounceRemaining - 1
                         proj.hitEnemies = {}
 
-                        local newProjCenterX = proj.x + projectileSize/2
-                        local newProjCenterY = proj.y + projectileSize/2
+                        local newProjCenterX = proj.x + projSize/2
+                        local newProjCenterY = proj.y + projSize/2
                         local closestEnemy = FindClosestEnemy(newProjCenterX, newProjCenterY)
 
                         if closestEnemy then
@@ -1924,6 +2376,14 @@ function UpdateFlash()
                 local r = math.floor(255 * t + baseColor[1] * (1.0 - t) + 0.5)
                 local g = math.floor(0 * t + baseColor[2] * (1.0 - t) + 0.5)
                 local b = math.floor(0 * t + baseColor[3] * (1.0 - t) + 0.5)
+                
+                -- Respect disabled state (darken colors)
+                if enemy.disabled then
+                    r = math.floor(r * 0.5)
+                    g = math.floor(g * 0.5)
+                    b = math.floor(b * 0.5)
+                end
+                
                 Sprite.set_color(enemy.sprite, r, g, b)
             end
         end
@@ -1958,11 +2418,20 @@ function UpdateEnemyCollision()
         return
     end
     
+    -- Skip collision damage during rewind
+    if SystemShooterRewind.isActive() then
+        return
+    end
+    
     -- Check collision between enemies and player
     local playerCenterX = playerX + playerSize/2
     local playerCenterY = playerY + playerSize/2
     for i = 1, #enemies do
         local enemy = enemies[i]
+        -- Skip collision for disabled enemies (preview state)
+        if enemy.disabled then
+            goto continue_collision
+        end
         local enemyCenterX = enemy.x + enemySize/2
         local enemyCenterY = enemy.y + enemySize/2
         local dx = playerCenterX - enemyCenterX
@@ -2014,6 +2483,7 @@ function UpdateEnemyCollision()
             knockbackTimer = knockbackDuration
 
             playerHealth = playerHealth - 10
+            runDamageTaken = runDamageTaken + 10
             FlashPlayer()
             damageCooldown = damageCooldownDuration
             if playerDamageSfxEntity then
@@ -2021,6 +2491,7 @@ function UpdateEnemyCollision()
             end
             break
         end
+        ::continue_collision::
     end
 end
 
@@ -2085,6 +2556,7 @@ function SpawnBeam(enemy, fromX, fromY, toX, toY)
         local hitRadius = playerRadius + BEAM_RADIUS
         if distToPlayerSq < hitRadius * hitRadius then
             playerHealth = playerHealth - BEAM_DAMAGE
+            runDamageTaken = runDamageTaken + (BEAM_DAMAGE or 0)
             FlashPlayer()
             damageCooldown = damageCooldownDuration
         end
@@ -2103,11 +2575,11 @@ end
  --  [ENEMIES] Movement / Behavior (Wrapper)
  --=====================================================================
 function UpdateEnemyMovement()
-    TriangleShooterEnemy.updateEnemyMovement(
+    SystemShooterEnemy.updateEnemyMovement(
         enemies,
         playerX, playerY, playerSize,
         screenW, screenH,
-        enemyProjectilesEnabled, enemyShootIntervalSeconds,
+        enemyShootIntervalSeconds,
         SpawnEnemyProjectile,
         TriggerWallLerp,
         SpawnBeam,
@@ -2202,7 +2674,7 @@ function UpdateBeatBop()
             end
         end
         
-        TriangleShooterPickups.applyBeatBop(t)
+        SystemShooterPickups.applyBeatBop(t)
     else
         for i = 1, #enemies do
             local enemy = enemies[i]
@@ -2216,7 +2688,7 @@ function UpdateBeatBop()
             end
         end
         
-        TriangleShooterPickups.resetBop()
+        SystemShooterPickups.resetBop()
     end
 end
 
@@ -2231,7 +2703,8 @@ local function SpawnEnemySingleProjectile(enemy, dirX, dirY)
         Sprite.set_color(projData.sprite, 128, 0, 255)
     else
         local proj = Entity.create_entity()
-        local sprite = Entity.add_sprite_component(proj, assets.textures.Ghast_Tear, enemyProjectileSize, enemyProjectileSize, 5)
+        -- Layer 4: render under enemies (layer 5)
+        local sprite = Entity.add_sprite_component(proj, assets.textures.Ghast_Tear, enemyProjectileSize, enemyProjectileSize, 4)
         Sprite.set_color(sprite, 128, 0, 255) -- Purple
         projData = { entity = proj, sprite = sprite }
     end
@@ -2251,6 +2724,7 @@ local function SpawnEnemySingleProjectile(enemy, dirX, dirY)
     projData.vx = dirX * enemyProjectileSpeed
     projData.vy = dirY * enemyProjectileSpeed
     projData.age = 0
+    projData.sourceEnemy = enemy  -- Track which enemy spawned this projectile
     
     table.insert(enemyProjectiles, projData)
 end
@@ -2326,6 +2800,7 @@ function UpdateEnemyProjectiles()
         if distSq < hitRadius * hitRadius and damageCooldown <= 0 then
             -- Hit player
             playerHealth = playerHealth - 5
+            runDamageTaken = runDamageTaken + 5
             FlashPlayer()
             damageCooldown = damageCooldownDuration
             Entity.set_global_pos(proj.entity, -1000, -1000)
@@ -2458,4 +2933,4 @@ function UpdateWallLerps()
     Window.set_size(newWidth, newHeight)
 end
 
-return TriangleShooter
+return SystemShooter

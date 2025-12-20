@@ -403,9 +403,9 @@ struct Textures {
 };
 
 struct Sounds {
-    uint32_t Coin = 2929616156u;
     uint32_t Hit = 2134794416u;
     uint32_t Jump = 3884640712u;
+    uint32_t coin = 1941127746u;
     uint32_t gameOver = 3624654154u;
     uint32_t gunshot1 = 1107995564u;
     uint32_t gunshot2 = 1286261536u;
@@ -418,9 +418,9 @@ struct Sounds {
 
     inline std::map<std::string, std::string> GetSounds() {
         std::map<std::string, std::string> map;
-        map["Coin"] = "./Assets/FlappyBird Audio/Coin.mp3";
         map["Hit"] = "./Assets/FlappyBird Audio/Hit.wav";
         map["Jump"] = "./Assets/FlappyBird Audio/Jump.mp3";
+        map["coin"] = "./Assets/FlappyBird Audio/coin.mp3";
         map["gameOver"] = "./Assets/FlappyBird Audio/gameOver.wav";
         map["gunshot1"] = "./Assets/Audio/gunshot1.mp3";
         map["gunshot2"] = "./Assets/Audio/gunshot2.mp3";
@@ -428,8 +428,8 @@ struct Sounds {
         map["impact3"] = "./Assets/Audio/impact3.mp3";
         map["playerDamage"] = "./Assets/Audio/playerDamage.mp3";
         map["technoSong"] = "./Assets/technoSong.mp3";
-        map["test"] = "./Assets/test.mp3";
-        map["test_1"] = "./Assets/test.wav";
+        map["test"] = "./Assets/test.wav";
+        map["test_1"] = "./Assets/test.mp3";
         return map;
     };
 };

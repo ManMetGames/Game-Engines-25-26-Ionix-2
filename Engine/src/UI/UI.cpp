@@ -48,7 +48,7 @@ namespace IonixEngine
 		return ImGui::ColorEdit4(label, color4,
 			ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_PickerHueWheel);
 	}
-	
+
 	void UI::DrawProgressBar(int xPos, int yPos, float xSize, float ySize, float maxValue, float currentValue, int colorId)
 	{
 		float clampedMax = maxValue <= 0.0f ? 1.0f : maxValue;
@@ -94,7 +94,7 @@ namespace IonixEngine
 		}
 		ImGui::End();
 	}
-	
+
 	float UI::ProgressBar(int xPos, int yPos, float xSize, float ySize, float maxValue, float& currentValue, float incrementAmount)
 	{
 		ImGui::SetCursorPos(ImVec2(xPos, yPos));
@@ -118,17 +118,119 @@ namespace IonixEngine
 		return currentValue;
 	}
 
+	void UI::DrawProgressBarStyled(int xPos, int yPos, float xSize, float ySize,
+		float maxValue, float currentValue, int colorId,
+		float rounding, float borderSize,
+		bool useColors, ImVec4 bg, ImVec4 fill, ImVec4 border,
+		const char* overlayText)
+	{
+		float clampedMax = (maxValue <= 0.0f) ? 1.0f : maxValue;
+		float clampedCurrent = currentValue;
+		if (clampedCurrent < 0.0f) clampedCurrent = 0.0f;
+		if (clampedCurrent > clampedMax) clampedCurrent = clampedMax;
+
+		float progress = clampedCurrent / clampedMax;
+		progress = IM_CLAMP(progress, 0.0f, 1.0f);
+
+		ImVec4 fgColor;
+		ImVec4 bgColor;
+		ImVec4 borderColor = ImVec4(0, 0, 0, 0);
+
+		if (useColors)
+		{
+			fgColor = fill;
+			bgColor = bg;
+			borderColor = border;
+		}
+		else
+		{
+			switch (colorId)
+			{
+			case 1: // red
+				fgColor = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
+				bgColor = ImVec4(0.2f, 0.0f, 0.0f, 0.6f);
+				break;
+			case 2: // green
+				fgColor = ImVec4(0.0f, 1.0f, 0.0f, 1.0f);
+				bgColor = ImVec4(0.0f, 0.2f, 0.0f, 0.6f);
+				break;
+			case 3: // white
+				fgColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+				bgColor = ImVec4(0.2f, 0.2f, 0.2f, 0.6f);
+				break;
+			default: // 0 = default/orange
+				fgColor = ImVec4(1.0f, 0.6f, 0.0f, 1.0f);
+				bgColor = ImVec4(0.2f, 0.12f, 0.0f, 0.6f);
+				break;
+			}
+		}
+
+		ImGui::SetNextWindowPos(ImVec2((float)xPos, (float)yPos));
+		ImGui::SetNextWindowSize(ImVec2(xSize, ySize));
+		ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
+			ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar |
+			ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoBackground;
+
+		char windowName[64];
+		std::snprintf(windowName, sizeof(windowName), "BarStyled_%d_%d_%d_%d", xPos, yPos, (int)xSize, (int)ySize);
+
+		// Make the bar fill the whole window (no padding/spacing)
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
+		int pushedVars = 2;
+
+		if (rounding >= 0.0f) { ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, rounding); pushedVars++; }
+		if (borderSize >= 0.0f) { ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, borderSize); pushedVars++; }
+
+		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, fgColor);
+		ImGui::PushStyleColor(ImGuiCol_FrameBg, bgColor);
+		int pushedColors = 2;
+
+		if (borderSize > 0.0f)
+		{
+			ImGui::PushStyleColor(ImGuiCol_Border, borderColor);
+			pushedColors++;
+		}
+
+		if (ImGui::Begin(windowName, nullptr, flags))
+		{
+			const char* overlay = (overlayText && overlayText[0]) ? overlayText : "";
+			ImGui::ProgressBar(progress, ImVec2(xSize, ySize), overlay);
+		}
+		ImGui::End();
+
+		ImGui::PopStyleColor(pushedColors);
+		ImGui::PopStyleVar(pushedVars);
+	}
+
 	bool UI::DrawDropdown(int xPos, int yPos, float xSize, float ySize, const char* text,
 		const std::vector<std::string>& options, int* currentIndex)
 	{
 		ImGui::SetCursorPos(ImVec2((float)xPos, (float)yPos));
 		if (xSize > 0.0f) ImGui::SetNextItemWidth(xSize);
-		if (!currentIndex) return false;
+
+		// Use ySize as a desired control height (by adjusting FramePadding.y)
+		bool pushedPadding = false;
+		if (ySize > 0.0f)
+		{
+			ImGuiStyle& style = ImGui::GetStyle();
+			float padY = (ySize - ImGui::GetFontSize()) * 0.5f;
+			if (padY < 0.0f) padY = 0.0f;
+			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(style.FramePadding.x, padY));
+			pushedPadding = true;
+		}
+
+		if (!currentIndex)
+		{
+			if (pushedPadding) ImGui::PopStyleVar();
+			return false;
+		}
 
 		if (options.empty())
 		{
 			bool opened = ImGui::BeginCombo(text, "(empty)");
 			if (opened) ImGui::EndCombo();
+			if (pushedPadding) ImGui::PopStyleVar();
 			return false;
 		}
 
@@ -152,6 +254,7 @@ namespace IonixEngine
 			}
 			ImGui::EndCombo();
 		}
+		if (pushedPadding) ImGui::PopStyleVar();
 		return changed;
 	}
 
