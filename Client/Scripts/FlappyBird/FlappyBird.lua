@@ -11,8 +11,13 @@ local GAME_ID = "flappy_bird"
 local highscore = Json.load_high_score(GAME_ID)
 local newHighScore = false
 local submitted = false -- For Highscore submission
-local playerName = Json.load_player_name()
-if playerName == "" then playerName = "Anon" end
+local function SanitiseName(name)
+    name = tostring(name or "")
+    name = name:gsub("^%s+", ""):gsub("%s+$", "")
+    return name
+end
+
+local playerName = SanitiseName(Json.load_player_name())
 local showSettings = showSettings or false
 
 -- UI fonts (baked sizes; avoid scaling blur)
@@ -60,6 +65,9 @@ local s_sfxVol    = LoadSetting("audio.sfxVol", 100)
 local s_musicVol  = LoadSetting("audio.musicVol", 70)
 local s_musicOn   = LoadSetting("audio.musicOn", true)
 local s_sfxOn     = LoadSetting("audio.sfxOn", true)
+local musicEntity
+local musicStarted = false
+local BASE_VOL_MUSIC = 80
 
 -- Currency (total coins owned across runs)
 local bankCoins = LoadSetting("coins.total", 0)
@@ -120,8 +128,8 @@ local pipeOffScreenLeft = -100
 
 -- Pipe randomness
 local pipeHeight = 3.0      
-local pipeStartGap = 2.2
-local pipeMinGap = 3.3 
+local pipeStartGap = 3.3   -- start easier
+local pipeMinGap   = 2.1   -- end harder
 local pipeShrinkGap = 0.03
 
 local pipesetMinGap = 1
@@ -190,6 +198,31 @@ local BASE_VOL_JUMP    = 100
 local BASE_VOL_HIT     = 50
 local BASE_VOL_COIN    = 100
 local BASE_VOL_GAMEOVER= 30
+
+local function ApplyMusicVolume()
+    if not musicEntity or not AudioComponent or not AudioComponent.change_volume then return end
+    local master = (s_masterVol or 100) / 100.0
+    local musicMul = (s_musicOn and (s_musicVol or 100) or 0) / 100.0
+    local v = math.floor((BASE_VOL_MUSIC * master * musicMul) + 0.5)
+    AudioComponent.change_volume(musicEntity, v)
+end
+
+local function UpdateMusicPlayback()
+    if not musicEntity or not AudioComponent then return end
+
+    if s_musicOn then
+        if not musicStarted then
+            AudioComponent.play(musicEntity, 0, -1) -- loop forever (like SystemShooter)
+            musicStarted = true
+        elseif AudioComponent.resume then
+            AudioComponent.resume(musicEntity)
+        end
+    else
+        if musicStarted and AudioComponent.pause then
+            AudioComponent.pause(musicEntity)
+        end
+    end
+end
 
 local function ApplySfxVolumes()
     local master = (s_masterVol or 100) / 100.0
@@ -343,8 +376,7 @@ local function resetGame()
 
     newHighScore = false
     submitted = false
-    playerName = Json.load_player_name()
-    if playerName == "" then playerName = "Anon" end
+    playerName = SanitiseName(Json.load_player_name())
     topLeaderboard = nil
     leaderboardFetched = false
     UI.clear_input("player_name")
@@ -541,7 +573,7 @@ function ExampleScript:OnStart()
 
     -- Coin SFX
     coinSound = Entity.create_entity()
-    Entity.add_audio_component(coinSound, "Coin", false)
+    Entity.add_audio_component(coinSound, "coin", false)
     AudioComponent.change_volume(coinSound, 100)
 
     -- Game over SFX
@@ -549,7 +581,12 @@ function ExampleScript:OnStart()
     Entity.add_audio_component(gameOverSound, "gameOver", false)
     AudioComponent.change_volume(gameOverSound, 30)
 
+    --    musicEntity = Entity.create_entity()
+    --Entity.add_audio_component(musicEntity, "technoSong", false)
+    
     -- Apply saved audio settings
+    ApplyMusicVolume()
+    UpdateMusicPlayback()
     ApplySfxVolumes()
 
     -- Freeze everything on main menu
@@ -679,30 +716,21 @@ local function DrawSettingsMenu_C(windowW, windowH)
     if UI.was_checkbox_changed("fb_music_on") then
         s_musicOn = UI.get_checkbox("fb_music_on") or s_musicOn
         SaveSetting("audio.musicOn", s_musicOn)
-    end
-
-    if UI.was_checkbox_changed("fb_sfx_on") then
-        s_sfxOn = UI.get_checkbox("fb_sfx_on") or s_sfxOn
-        SaveSetting("audio.sfxOn", s_sfxOn)
-        ApplySfxVolumes()
+        ApplyMusicVolume()
+        UpdateMusicPlayback()
     end
 
     if UI.was_slider_changed("fb_music_vol") then
         s_musicVol = UI.get_slider("fb_music_vol") or s_musicVol
         SaveSetting("audio.musicVol", s_musicVol)
-        -- Hook up to your BGM entity once you add it
-    end
-
-    if UI.was_slider_changed("fb_sfx_vol") then
-        s_sfxVol = UI.get_slider("fb_sfx_vol") or s_sfxVol
-        SaveSetting("audio.sfxVol", s_sfxVol)
-        ApplySfxVolumes()
+        ApplyMusicVolume()
     end
 
     if UI.was_slider_changed("fb_master_vol") then
         s_masterVol = UI.get_slider("fb_master_vol") or s_masterVol
         SaveSetting("audio.masterVol", s_masterVol)
         ApplySfxVolumes()
+        ApplyMusicVolume()
     end
 
     -- Back button
@@ -1234,47 +1262,53 @@ end
 
        UI.end_child()
 
-        -- Show TextInput only if new high score
-        if newHighScore and not submitted then
+    -- Show TextInput only if new high score
+    if newHighScore and not submitted then
+
+        -- If we already have a saved name, submit immediately once
+        if playerName ~= nil and playerName ~= "" then
+            Firebase.submit_high_score(GAME_ID, playerName, highscore)
+            submitted = true
+            leaderboardFetched = false
+        else
+            -- Otherwise prompt for name
             local nhW, nhH = 520, 85
             local nhX = (windowW - nhW) / 2
-            local nhY = panelY + panelH + 12   -- 12px gap under the main panel
+            local nhY = panelY + panelH + 12
 
-           UI.begin_child(nhX, nhY, nhW, nhH+15, "FB_NewHighscore",
-            true, 0,
-            true, 0.75, 10, 70, 160, 115
-        )
+            UI.begin_child(nhX, nhY, nhW, nhH+15, "FB_NewHighscore",
+                true, 0,
+                true, 0.75, 10, 70, 160, 115
+            )
 
-        local cx = nhW / 2
-        UI.add_centered_label(cx, 12, T("fb.new_highscore_line1"), UI_FONT_SUB, 1.0)
-        UI.add_centered_label(cx, 34, T("fb.new_highscore_line2"), UI_FONT_REG, 1.0)
+            local cx = nhW / 2
+            UI.add_centered_label(cx, 12, T("fb.new_highscore_line1"), UI_FONT_SUB, 1.0)
+            UI.add_centered_label(cx, 34, T("fb.new_highscore_line2"), UI_FONT_REG, 1.0)
 
-        local inputW = 260
-        local inputX = (nhW - inputW) / 2
-        local inputY = 52
-        UI.add_input_text(inputX, inputY, inputW, "", "player_name", 16)
+            local inputW = 260
+            local inputX = (nhW - inputW) / 2
+            local inputY = 52
+            UI.add_input_text(inputX, inputY, inputW, "", "player_name", 16)
 
-        -- (submit logic unchanged)
-
-        UI.end_child()
+            UI.end_child()
 
             if UI.was_input_committed("player_name") then
-                local name = UI.get_input_text("player_name")
+                local getName = UI.get_input_text_live or UI.get_input_text
+                local name = SanitiseName(getName("player_name"))
                 if name == "" then name = "Anon" end
 
-                -- persist name locally
                 playerName = name
                 Json.save_player_name(playerName)
 
-                -- submit to the correct game's leaderboard
                 Firebase.submit_high_score(GAME_ID, playerName, highscore)
-
                 submitted = true
                 leaderboardFetched = false
             end
         end
+    end
 
-        -- Count down once per frame (never below 0)
+
+-- Count down once per frame (never below 0)
         restartDelayFrames = math.max(0, restartDelayFrames - 1)
 
         -- Only allow restart when delay is done AND name entry isn't active
