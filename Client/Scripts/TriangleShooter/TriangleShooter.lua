@@ -913,7 +913,7 @@ local function DrawMainMenu(screenW, screenH, dt)
         local barW = math.floor(math.max(200, math.min(bw * 0.75, 320)))
         local barH = 12
         local barX = panelX + bx + math.floor((bw - barW) / 2)
-        local barY = panelY + by - barH - 26
+        local barY = panelY + by - barH - 24
 
         UI.draw_progress_bar_styled(barX, barY, barW, barH, menuStartDelay, elapsed, 4, startTimerStyle, "")
 
@@ -1315,9 +1315,6 @@ local function DrawGameOverMenu(screenW, screenH, dt)
     -- Main menu window size (target)
     local displayWidth = Window.get_display_width()
     local displayHeight = Window.get_display_height()
-    local newX = math.floor((displayWidth - MAIN_MENU_W) * 0.5)
-    local newY = math.floor((displayHeight - MAIN_MENU_H) * 0.5)
-    Window.set_pos(newX, newY)
     Window.set_size(MAIN_MENU_W, MAIN_MENU_H)
     screenW = MAIN_MENU_W
     screenH = MAIN_MENU_H
@@ -1351,7 +1348,7 @@ local function DrawGameOverMenu(screenW, screenH, dt)
 
     -- Summary panel
     local sumW = math.floor(panelW * 0.90)
-    local sumH = math.floor(panelH * 0.54)
+    local sumH = math.floor(panelH * 0.64)
     local sumX = math.floor((panelW - sumW) / 2)
     local sumY = math.floor(panelH * 0.13)
 
@@ -2090,30 +2087,30 @@ function TriangleShooter:OnUpdate()
               fill = {255,0,0,255},
             }
         UI.draw_progress_bar_styled(20, 20, 200, 20, maxEnemyHealthTotal, currentEnemyHealthTotal, 1, enemyHpStyle, "")
-        if levelCfg.timeLimitSeconds ~= nil and levelCfg.timeLimitSeconds > 0 then
-            local barW, barH = 200, 10
-            local x, y = 20, 50
+    if levelCfg.timeLimitSeconds ~= nil and levelCfg.timeLimitSeconds > 0 then
+        local barW, barH = 200, 10
+        local x, y = 20, 50
 
-            local maxT = levelCfg.timeLimitSeconds
-            local tLeft = math.max(0, math.min(maxT, levelTimerSeconds)) -- assumes levelTimerSeconds = remaining
+        local maxT = levelCfg.timeLimitSeconds
+        local tLeft = math.max(0, math.min(maxT, levelTimerSeconds)) -- assumes levelTimerSeconds = remaining
 
-            -- Pulse only near the end (last 15%)
-            local frac = (maxT > 0) and (tLeft / maxT) or 0
-            local pulse = 1.0
-            if frac < 0.15 then
-                pulse = 0.6 + 0.4 * (0.5 + 0.5 * math.sin(Mafs.time() * 10.0))
-            end
-
-            local timerStyle = {
-                rounding = barH / 2,
-                border_size = 1,
-                bg     = {255, 255, 255, 35},
-                fill   = {255, 255, 255, math.floor(220 * pulse)},
-                border = {0, 0, 0, 120},
-            }
-
-            UI.draw_progress_bar_styled(x, y, barW, barH, maxT, tLeft, 3, timerStyle, "")
+        -- Pulse only near the end (last 15%)
+        local frac = (maxT > 0) and (tLeft / maxT) or 0
+        local pulse = 1.0
+        if frac < 0.15 then
+            pulse = 0.6 + 0.4 * (0.5 + 0.5 * math.sin(Mafs.time() * 10.0))
         end
+
+        local timerStyle = {
+            rounding = barH / 2,
+            border_size = 1,
+            bg     = {255, 255, 255, 35},
+            fill   = {255, 255, 255, math.floor(220 * pulse)},
+            border = {0, 0, 0, 120},
+        }
+
+        UI.draw_progress_bar_styled(x, y, barW, barH, maxT, tLeft, 3, timerStyle, "")
+    end
     else
         local currentEnemyHealthTotal = 0
         for i = 1, #enemies do
