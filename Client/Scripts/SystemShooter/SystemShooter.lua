@@ -248,6 +248,9 @@ local function GetActiveEnemyCount()
 end
 
 local function IsNoWitnessesActive()
+    -- NoWitnesses is disabled during peace timers
+    if peaceTimerSeconds > 0 then return false end
+    
     local stacks = SystemShooterPlayerProgress.getLowEnemyDamageStacks()
     if stacks <= 0 then return false end
     local activeCount = GetActiveEnemyCount()
@@ -1623,6 +1626,7 @@ function SystemShooter:OnUpdate()
             isLevelupPeace = true
             isStartLevelPeace = false
             SystemShooterEnemy.disableAllEnemies(enemies, screenW, screenH)
+            ClearAllEnemyProjectiles()
         end
         return
     end
@@ -2788,6 +2792,7 @@ local function SpawnEnemySingleProjectile(enemy, dirX, dirY)
     if #enemyProjectilePool > 0 then
         projData = table.remove(enemyProjectilePool)
         Sprite.set_color(projData.sprite, 128, 0, 255)
+        Sprite.set_zed_order(projData.sprite, 4)  -- Ensure layer 4 (under enemies at layer 5)
     else
         local proj = Entity.create_entity()
         -- Layer 4: render under enemies (layer 5)
