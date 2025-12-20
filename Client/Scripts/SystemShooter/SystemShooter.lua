@@ -212,6 +212,15 @@ local playerFlashDuration = 0.2  -- seconds
 local damageCooldown = 0
 local damageCooldownDuration = 0.5  -- seconds
 
+-- NO-WITNESSES ABILITY
+local function UpdatePlayerSpriteColor()
+    if SystemShooterPlayerProgress.hasNoWitnesses() then
+        Sprite.set_color(playerSprite, 255, 0, 0)
+    else
+        Sprite.set_color(playerSprite, 255, 255, 255)
+    end
+end
+
 -- PROJECTILE SETTINGS
 local projectiles = {}      -- Active projectiles
 local projectilePool = {}   -- Inactive projectiles (reusable)
@@ -353,6 +362,9 @@ local function ResetRunStateForMenu()
 
     isPaused = false
     pauseScreen = "pause"
+
+    -- Reset player sprite color
+    UpdatePlayerSpriteColor()
 end
 
  --=====================================================================
@@ -664,7 +676,7 @@ LoadLevel = function(index, resetPlayerState)
         playerX = screenW / 2 - playerSize / 2
         playerY = screenH / 2 - playerSize / 2
         Entity.set_global_pos(player, playerX, playerY)
-        Sprite.set_color(playerSprite, 255, 255, 255)
+        UpdatePlayerSpriteColor()
         playerFlashTimer = 0
         damageCooldown = 0
     end
@@ -1830,6 +1842,8 @@ function SystemShooter:OnUpdate()
             if selectedUpgrade.type == "max_health" then
                 local maxH = SystemShooterPlayerProgress.getMaxHealth()
                 playerHealth = math.min(maxH, playerHealth + 20)
+            elseif selectedUpgrade.type == "no_witnesses" then
+                UpdatePlayerSpriteColor()
             end
             -- Start levelup peace timer and disable enemies
             peaceTimerSeconds = levelupPeaceDuration
