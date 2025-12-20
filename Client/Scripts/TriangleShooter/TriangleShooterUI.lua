@@ -46,11 +46,13 @@ function TriangleShooterUI.getRandomUpgradeOptions(count, playerLevel)
   playerLevel = playerLevel or 1
 
   local upgradeConfig = TriangleShooterPlayerProgress.getUpgradeConfig()
+  local stats = TriangleShooterPlayerProgress.getStats()
   local available = {}
   for upgradeType, cfg in pairs(upgradeConfig) do
     local minLevel = cfg.minLevel or 1
     if playerLevel >= minLevel and TriangleShooterPlayerProgress.canTakeUpgrade(upgradeType) then
-      table.insert(available, { type = upgradeType, label = cfg.label, desc = cfg.desc })
+      local currentValue = stats[cfg.statKey] or cfg.defaultValue or 0
+      table.insert(available, { type = upgradeType, label = cfg.label, desc = cfg.desc, cfg = cfg, currentValue = currentValue })
     end
   end
 
@@ -153,7 +155,19 @@ if not isUpgradeMenuOpen then return end
 
       local cx = cardW / 2
 
-      UI.add_centered_label(cx, 30, T(opt.label), TS_UI.FONT_TITLE, 0.8)
+      local function getDisplayLabel(option)
+        if option.cfg then
+          local base = T(option.cfg.label) or option.cfg.label or ""
+          if option.cfg.maxValue then
+            local currentVal = option.currentValue or 0
+            return string.format("%s %d/%d", base, currentVal, option.cfg.maxValue)
+          end
+          return base
+        end
+        return T(option.label) or option.label
+      end
+
+      UI.add_centered_label(cx, 30, getDisplayLabel(opt), TS_UI.FONT_TITLE, 0.8)
 
       local lines = splitLines(T(opt.desc) or "")
       local baseY = 95

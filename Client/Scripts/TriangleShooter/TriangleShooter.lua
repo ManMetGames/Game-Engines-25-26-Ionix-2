@@ -2459,15 +2459,9 @@ function UpdateProjectiles()
             local clutchStacks = TriangleShooterPlayerProgress.getLowEnemyDamageStacks()
             if clutchStacks and clutchStacks > 0 then
                 local activeCount = GetActiveEnemyCount()
-                local thresholds = {1, 2}
-                local stacksTriggered = 0
-                for s = 1, math.min(clutchStacks, #thresholds) do
-                    if activeCount <= thresholds[s] then
-                        stacksTriggered = stacksTriggered + 1
-                    end
-                end
-                if stacksTriggered > 0 then
-                    damage = damage * (1 + 0.5 * stacksTriggered)
+                local threshold = clutchStacks >= 2 and 2 or 1
+                if activeCount <= threshold then
+                    damage = damage * 1.5
                 end
             end
             if not proj.hasHit then

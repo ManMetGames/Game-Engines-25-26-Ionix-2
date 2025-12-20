@@ -36,6 +36,8 @@ local STRINGS = {
             ["upgradedesc.bounce"] = "Bullets bounce off the window edges.",
         ["upgradetype.fireinterval"] = "+ Fire Rate",
             ["upgradedesc.fireinterval"] = "Shoot faster (lower cooldown).",
+        ["upgradetype.no_witnesses"] = "No Witnesses",
+            ["upgradedesc.no_witnesses"] = "+50% damage when ≤1 enemy (rank 1) or ≤2 enemies (rank 2).",
         ["upgradetype.maxhp"] = "+ Max Health",
             ["upgradedesc.maxhp"] = "Increase your max health.",
 
@@ -110,6 +112,8 @@ local STRINGS = {
             ["upgradedesc.bounce"] = "画面端での跳弾回数が上がる。",
         ["upgradetype.fireinterval"] = "発射速度＋",
             ["upgradedesc.fireinterval"] = "発射速度が上がる。",
+        ["upgradetype.no_witnesses"] = "ノーウィットネス",
+            ["upgradedesc.no_witnesses"] = "ランク1: 敵が1体以下でダメージ＋50%。ランク2: 敵が2体以下でダメージ＋50%。",
         ["upgradetype.maxhp"] = "最大HP＋",
             ["upgradedesc.maxhp"] = "最大HPが増える。",
 

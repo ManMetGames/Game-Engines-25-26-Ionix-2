@@ -39,10 +39,10 @@ local UPGRADE_CONFIG = {
         defaultValue = 0,
         customApply  = true,
     },
-    clutch_damage = {
+    no_witnesses = {
         statKey      = "lowEnemyDamageStacks",
-        label        = "Clutch Damage",
-        desc         = "Gain +50% damage when few enemies remain (stacks twice).",
+        label        = "upgradetype.no_witnesses",
+        desc         = "upgradedesc.no_witnesses",
         minLevel     = 1,
         maxValue     = 2,
         defaultValue = 0,
