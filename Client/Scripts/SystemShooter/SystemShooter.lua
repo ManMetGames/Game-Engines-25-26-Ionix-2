@@ -216,7 +216,7 @@ local projectiles = {}      -- Active projectiles
 local projectilePool = {}   -- Inactive projectiles (reusable)
 local projectileSize = 24
 local projectileSpeed = 1120 --PIXELS PER SECOND
-local projectileLifetimeSeconds = 2  -- seconds projectile can live before auto-despawn
+local projectileLifetimeSeconds = 4  -- seconds projectile can live before auto-despawn (all projectiles in game)
 local fireCooldownTimer = 0
 local isFiring = false
 
