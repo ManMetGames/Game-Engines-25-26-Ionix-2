@@ -238,6 +238,16 @@ local enemySize = 48
 local enemies = {}
 local levelEnemyHealth = 50
 local StartLevel    
+
+local function GetActiveEnemyCount()
+    local count = 0
+    for i = 1, #enemies do
+        if not enemies[i].disabled then
+            count = count + 1
+        end
+    end
+    return count
+end
 local LoadLevel
 
 local function CreateEnemy(x, y, config)
@@ -2446,6 +2456,20 @@ function UpdateProjectiles()
         if hitEnemyIndex ~= nil then
             local enemy = enemies[hitEnemyIndex]
             local damage = proj.damage or 1
+            local clutchStacks = TriangleShooterPlayerProgress.getLowEnemyDamageStacks()
+            if clutchStacks and clutchStacks > 0 then
+                local activeCount = GetActiveEnemyCount()
+                local thresholds = {1, 2}
+                local stacksTriggered = 0
+                for s = 1, math.min(clutchStacks, #thresholds) do
+                    if activeCount <= thresholds[s] then
+                        stacksTriggered = stacksTriggered + 1
+                    end
+                end
+                if stacksTriggered > 0 then
+                    damage = damage * (1 + 0.5 * stacksTriggered)
+                end
+            end
             if not proj.hasHit then
                 proj.hasHit = true
                 runShotsHit = runShotsHit + 1

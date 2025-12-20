@@ -39,6 +39,14 @@ local UPGRADE_CONFIG = {
         defaultValue = 0,
         customApply  = true,
     },
+    clutch_damage = {
+        statKey      = "lowEnemyDamageStacks",
+        label        = "Clutch Damage",
+        desc         = "Gain +50% damage when few enemies remain (stacks twice).",
+        minLevel     = 1,
+        maxValue     = 2,
+        defaultValue = 0,
+    },
     max_health = {
         statKey      = "maxHealth",
         label        = "upgradetype.maxhp",
@@ -60,6 +68,7 @@ local playerStats = {
     bounceCount = 0,
     fireInterval = 0.3,
     fireRateUpgradeCount = 0,
+    lowEnemyDamageStacks = 0,
     maxHealth = 100,
 }
 
@@ -154,6 +163,10 @@ function TriangleShooterPlayerProgress.getBounceCount()
     return playerStats.bounceCount
 end
 
+function TriangleShooterPlayerProgress.getLowEnemyDamageStacks()
+    return playerStats.lowEnemyDamageStacks or 0
+end
+
 function TriangleShooterPlayerProgress.getCurrentFireInterval()
     return playerStats.fireInterval
 end
@@ -177,6 +190,7 @@ function TriangleShooterPlayerProgress.reset()
     playerStats.bounceCount = 0
     playerStats.fireInterval = 0.3
     playerStats.fireRateUpgradeCount = 0
+    playerStats.lowEnemyDamageStacks = 0
     playerStats.maxHealth = 100
 end
 
