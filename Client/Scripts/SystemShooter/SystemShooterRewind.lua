@@ -12,13 +12,13 @@ local state = {
     duration = 4.5,              -- seconds for enemies to rewind to spawn positions
     timer = 0,                   -- current phase timer
     timeScale = 1.0,             -- current time scale (1.0 = normal, 0.0 = stopped)
-    enemySpawnPositions = {},    -- stores {enemyIndex -> {x, y}} for rewind targets
-    enemyStartPositions = {},    -- stores {enemyIndex -> {x, y}} for lerp start
-    enemyStartRotations = {},    -- stores {enemyIndex -> rotation} for spin slowdown
-    enemyOriginalSpeedMults = {},-- stores {enemyIndex -> speedMultiplier} for restoring
-    enemyOriginalSpinVelocities = {}, -- stores {enemyIndex -> spinVelocity} for spin slowdown
-    enemyStartHealth = {},       -- stores {enemyIndex -> health} at rewind start for HP lerp
-    enemyTargetHealth = {},      -- stores {enemyIndex -> health} target HP (from level config)
+    enemyStartPositions = {},    -- stores {enemy -> {x, y}} for lerp start (keyed by enemy ref)
+    enemyStartRotations = {},    -- stores {enemy -> rotation} for spin slowdown
+    enemyOriginalSpeedMults = {},-- stores {enemy -> speedMultiplier} for restoring
+    enemyOriginalSpinVelocities = {}, -- stores {enemy -> spinVelocity} for spin slowdown
+    enemyStartHealth = {},       -- stores {enemy -> health} at rewind start for HP lerp
+    enemyTargetHealth = {},      -- stores {enemy -> health} target HP (from level config)
+    enemyWasDead = {},           -- stores {enemy -> bool} whether enemy was dead at rewind start
     enemyProjStartPositions = {},-- stores {projIndex -> {x, y}} for enemy projectile rewind
     levelTimerStart = 0,         -- timer value at start of rewind phase
     levelTimerTarget = 0,        -- timer value to rewind to (full level time)
@@ -42,14 +42,14 @@ function SystemShooterRewind.getTimeScale()
 end
 
 --=====================================================================
---  [PUBLIC API] Store Spawn Positions (called when level loads)
+--  [PUBLIC API] Store Spawn Positions (called when level loads)    
 --=====================================================================
 function SystemShooterRewind.setSpawnPosition(enemyIndex, x, y)
-    state.enemySpawnPositions[enemyIndex] = { x = x, y = y }
+    -- No-op: spawn positions now stored on enemy objects directly
 end
 
 function SystemShooterRewind.clearSpawnPositions()
-    state.enemySpawnPositions = {}
+    -- No-op: spawn positions now stored on enemy objects directly
 end
 
 --=====================================================================
@@ -59,13 +59,13 @@ function SystemShooterRewind.reset()
     state.phase = nil
     state.timer = 0
     state.timeScale = 1.0
-    state.enemySpawnPositions = {}
     state.enemyStartPositions = {}
     state.enemyStartRotations = {}
     state.enemyOriginalSpeedMults = {}
     state.enemyOriginalSpinVelocities = {}
     state.enemyStartHealth = {}
     state.enemyTargetHealth = {}
+    state.enemyWasDead = {}
     state.enemyProjStartPositions = {}
 end
 
@@ -77,20 +77,28 @@ function SystemShooterRewind.start(enemies, playerHealth, maxHealth, levelTimeLi
     state.timer = state.slowdownDuration
     state.timeScale = 1.0
     
-    -- Capture current enemy positions, rotations, speed multipliers, spin velocities, and health
+    -- Capture current enemy positions, rotations, speed multipliers, spin velocities, health, and dead state
     state.enemyStartPositions = {}
     state.enemyStartRotations = {}
     state.enemyOriginalSpeedMults = {}
     state.enemyOriginalSpinVelocities = {}
     state.enemyStartHealth = {}
     state.enemyTargetHealth = {}
+    state.enemyWasDead = {}
     for i, enemy in ipairs(enemies) do
-        state.enemyStartPositions[i] = { x = enemy.x, y = enemy.y }
-        state.enemyStartRotations[i] = enemy.rotation or 0
-        state.enemyOriginalSpeedMults[i] = enemy.speedMultiplier or 1.0
-        state.enemyOriginalSpinVelocities[i] = enemy.spinVelocity or 0
-        state.enemyStartHealth[i] = enemy.health or 0
-        state.enemyTargetHealth[i] = enemyTargetHealthList and enemyTargetHealthList[i] or enemy.health or 0
+        -- For dead enemies, use their spawn position as start position
+        if enemy.isDead then
+            state.enemyStartPositions[enemy] = { x = enemy.spawnX, y = enemy.spawnY }
+            state.enemyWasDead[enemy] = true
+        else
+            state.enemyStartPositions[enemy] = { x = enemy.x, y = enemy.y }
+            state.enemyWasDead[enemy] = false
+        end
+        state.enemyStartRotations[enemy] = enemy.rotation or 0
+        state.enemyOriginalSpeedMults[enemy] = enemy.speedMultiplier or 1.0
+        state.enemyOriginalSpinVelocities[enemy] = enemy.spinVelocity or 0
+        state.enemyStartHealth[enemy] = enemy.health or 0
+        state.enemyTargetHealth[enemy] = enemyTargetHealthList and enemyTargetHealthList[i] or enemy.health or 0
     end
     
     -- Capture level timer target (full level time)
@@ -150,21 +158,23 @@ function SystemShooterRewind.update(dt, enemies, projectiles, enemyProjectiles, 
             Entity.set_global_pos(proj.entity, proj.x, proj.y)
         end
         
-        -- Scale enemy speed multipliers AND spin velocities for gradual slowdown
+        -- Scale enemy speed multipliers AND spin velocities for gradual slowdown (alive enemies only)
         for i, enemy in ipairs(enemies) do
-            local originalMult = state.enemyOriginalSpeedMults[i] or 1.0
-            local originalSpin = state.enemyOriginalSpinVelocities[i] or 0
-            enemy.speedMultiplier = originalMult * state.timeScale
-            enemy.spinVelocity = originalSpin * state.timeScale
-            
-            -- Apply transparency during slowdown (lerp to 50% brightness)
-            if enemy.sprite then
-                local c = enemy.color or {255, 255, 255}
-                local alpha = 1.0 - (easedProgress * 0.5)  -- Goes from 1.0 to 0.5
-                Sprite.set_color(enemy.sprite, 
-                    math.floor(c[1] * alpha), 
-                    math.floor(c[2] * alpha), 
-                    math.floor(c[3] * alpha))
+            if not enemy.isDead then
+                local originalMult = state.enemyOriginalSpeedMults[enemy] or 1.0
+                local originalSpin = state.enemyOriginalSpinVelocities[enemy] or 0
+                enemy.speedMultiplier = originalMult * state.timeScale
+                enemy.spinVelocity = originalSpin * state.timeScale
+                
+                -- Apply transparency during slowdown (lerp to 50% brightness)
+                if enemy.sprite then
+                    local c = enemy.color or {255, 255, 255}
+                    local alpha = 1.0 - (easedProgress * 0.5)  -- Goes from 1.0 to 0.5
+                    Sprite.set_color(enemy.sprite, 
+                        math.floor(c[1] * alpha), 
+                        math.floor(c[2] * alpha), 
+                        math.floor(c[3] * alpha))
+                end
             end
         end
         
@@ -176,11 +186,13 @@ function SystemShooterRewind.update(dt, enemies, projectiles, enemyProjectiles, 
         if state.timer <= 0 then
             -- Capture final positions/rotations after slowdown for rewind lerp
             for i, enemy in ipairs(enemies) do
-                state.enemyStartPositions[i] = { x = enemy.x, y = enemy.y }
-                state.enemyStartRotations[i] = enemy.rotation or 0
-                -- Restore original speed multiplier (spin stays at 0)
-                enemy.speedMultiplier = state.enemyOriginalSpeedMults[i] or 1.0
-                enemy.spinVelocity = 0
+                if not enemy.isDead then
+                    state.enemyStartPositions[enemy] = { x = enemy.x, y = enemy.y }
+                    state.enemyStartRotations[enemy] = enemy.rotation or 0
+                    -- Restore original speed multiplier (spin stays at 0)
+                    enemy.speedMultiplier = state.enemyOriginalSpeedMults[enemy] or 1.0
+                    enemy.spinVelocity = 0
+                end
             end
             
             state.phase = "stopped"
@@ -201,6 +213,45 @@ function SystemShooterRewind.update(dt, enemies, projectiles, enemyProjectiles, 
             state.enemyProjStartPositions = {}
             for i, proj in ipairs(enemyProjectiles) do
                 state.enemyProjStartPositions[i] = { x = proj.x, y = proj.y }
+            end
+            
+            -- Respawn dead enemies at their spawnpoints with 1hp
+            for i, enemy in ipairs(enemies) do
+                if state.enemyWasDead[enemy] then
+                    -- Position at spawnpoint
+                    enemy.x = enemy.spawnX
+                    enemy.y = enemy.spawnY
+                    Entity.set_global_pos(enemy.entity, enemy.spawnX, enemy.spawnY)
+                    
+                    -- Set to 1hp (will lerp to target during rewind)
+                    enemy.health = 1
+                    state.enemyStartHealth[enemy] = 1
+                    
+                    -- Update display size for 1hp
+                    if enemy.healthScaling then
+                        enemy.displaySize = enemy.size + (1 * (enemy.sizePerHp or 0.125))
+                        if enemy.sprite then
+                            Sprite.set_image_width(enemy.sprite, math.floor(enemy.displaySize))
+                            Sprite.set_image_height(enemy.sprite, math.floor(enemy.displaySize))
+                        end
+                    end
+                    
+                    -- Mark as alive again
+                    enemy.isDead = false
+                    
+                    -- Apply 50% transparency to match alive enemies
+                    if enemy.sprite then
+                        local c = enemy.color or {255, 255, 255}
+                        Sprite.set_color(enemy.sprite, 
+                            math.floor(c[1] * 0.5), 
+                            math.floor(c[2] * 0.5), 
+                            math.floor(c[3] * 0.5))
+                    end
+                    
+                    -- Reset rotation
+                    enemy.rotation = 0
+                    Entity.set_global_rot(enemy.entity, 0)
+                end
             end
             
             -- Transition to rewinding phase
@@ -226,11 +277,13 @@ function SystemShooterRewind.update(dt, enemies, projectiles, enemyProjectiles, 
         
         -- Lerp enemy positions and apply reverse spin toward rotation 0
         for i, enemy in ipairs(enemies) do
-            local startPos = state.enemyStartPositions[i]
-            local targetPos = state.enemySpawnPositions[i]
-            if startPos and targetPos then
-                local newX = startPos.x + (targetPos.x - startPos.x) * easedProgress
-                local newY = startPos.y + (targetPos.y - startPos.y) * easedProgress
+            local startPos = state.enemyStartPositions[enemy]
+            -- Target is always the enemy's own spawnpoint
+            local targetX = enemy.spawnX
+            local targetY = enemy.spawnY
+            if startPos then
+                local newX = startPos.x + (targetX - startPos.x) * easedProgress
+                local newY = startPos.y + (targetY - startPos.y) * easedProgress
                 enemy.x = newX
                 enemy.y = newY
                 Entity.set_global_pos(enemy.entity, newX, newY)
@@ -238,7 +291,7 @@ function SystemShooterRewind.update(dt, enemies, projectiles, enemyProjectiles, 
             
             -- Apply reverse spin during rewind, lerping toward rotation 0
             -- Normalize start rotation to [-180, 180] range
-            local startRot = state.enemyStartRotations[i] or 0
+            local startRot = state.enemyStartRotations[enemy] or 0
             startRot = ((startRot + 180) % 360) - 180
             
             -- Base lerp toward 0
@@ -252,13 +305,17 @@ function SystemShooterRewind.update(dt, enemies, projectiles, enemyProjectiles, 
             -- No lerp needed here
             
             -- Lerp enemy health back to target (for size scaling)
-            local startHp = state.enemyStartHealth[i] or 0
-            local targetHp = state.enemyTargetHealth[i] or startHp
+            local startHp = state.enemyStartHealth[enemy] or 0
+            local targetHp = state.enemyTargetHealth[enemy] or startHp
             enemy.health = math.floor(startHp + (targetHp - startHp) * easedProgress)
             
             -- Update display size based on new health
             if enemy.healthScaling then
                 enemy.displaySize = enemy.size + (enemy.health * (enemy.sizePerHp or 0.125))
+                if enemy.sprite then
+                    Sprite.set_image_width(enemy.sprite, math.floor(enemy.displaySize))
+                    Sprite.set_image_height(enemy.sprite, math.floor(enemy.displaySize))
+                end
             end
         end
         

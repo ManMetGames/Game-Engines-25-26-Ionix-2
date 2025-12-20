@@ -240,7 +240,7 @@ local StartLevel
 local function GetActiveEnemyCount()
     local count = 0
     for i = 1, #enemies do
-        if not enemies[i].disabled then
+        if not enemies[i].disabled and not enemies[i].isDead then
             count = count + 1
         end
     end
@@ -1747,14 +1747,17 @@ function SystemShooter:OnUpdate()
     local playerCenterY = playerY + playerSize/2
     for i = 1, #enemies do
         local e = enemies[i]
-        local enemyCenterX = e.x + enemySize/2
-        local enemyCenterY = e.y + enemySize/2
-        local dx = enemyCenterX - playerCenterX
-        local dy = enemyCenterY - playerCenterY
-        local distSq = dx * dx + dy * dy
-        if closestDistSq == nil or distSq < closestDistSq then
-            closestDistSq = distSq
-            closestEnemy = e
+        -- Skip dead enemies for auto-aim (but allow disabled enemies for pre-fire)
+        if not e.isDead then
+            local enemyCenterX = e.x + enemySize/2
+            local enemyCenterY = e.y + enemySize/2
+            local dx = enemyCenterX - playerCenterX
+            local dy = enemyCenterY - playerCenterY
+            local distSq = dx * dx + dy * dy
+            if closestDistSq == nil or distSq < closestDistSq then
+                closestDistSq = distSq
+                closestEnemy = e
+            end
         end
     end
 
@@ -1980,10 +1983,10 @@ function SystemShooter:OnUpdate()
         )
     end
 
-    -- Count only enabled (non-disabled) enemies as "alive"
+    -- Count only enabled (non-disabled) and non-dead enemies as "alive"
     local enemiesAlive = false
     for i = 1, #enemies do
-        if not enemies[i].disabled then
+        if not enemies[i].disabled and not enemies[i].isDead then
             enemiesAlive = true
             break
         end
@@ -2041,9 +2044,11 @@ function SystemShooter:OnUpdate()
                 local cfg = SystemShooterLevels.getLevelConfig(currentLevel)
                 levelTimerSeconds = cfg and cfg.timeLimitSeconds or 0
                 
-                -- Clear and respawn enemies with reduced health
-                ClearEnemies()
-                SpawnEnemiesForLevel(true)  -- Spawn disabled (peace state)
+                -- Enemies are already at their spawnpoints with correct HP from rewind
+                -- Just disable them for peace state (they'll be enabled when peace ends)
+                for _, enemy in ipairs(enemies) do
+                    SystemShooterEnemy.setEnemyDisabled(enemy, true)
+                end
                 
                 -- Start peace timer and resume music
                 peaceTimerSeconds = startLevelPeaceDuration
@@ -2202,7 +2207,8 @@ local function FindClosestEnemy(fromX, fromY)
     local closestDistSq = math.huge
     for j = 1, #enemies do
         local enemy = enemies[j]
-        if enemy.teleportVisible == nil or enemy.teleportVisible then
+        -- Skip disabled and dead enemies
+        if not enemy.disabled and not enemy.isDead and (enemy.teleportVisible == nil or enemy.teleportVisible) then
             local eDisplaySize = enemy.displaySize or enemy.size or enemySize
             local enemyCenterX = enemy.x + eDisplaySize/2
             local enemyCenterY = enemy.y + eDisplaySize/2
@@ -2256,8 +2262,8 @@ function UpdateProjectiles()
 
         for j = #enemies, 1, -1 do
             local enemy = enemies[j]
-            -- Skip disabled enemies (preview state)
-            if enemy.disabled then
+            -- Skip disabled enemies (preview state) and dead enemies
+            if enemy.disabled or enemy.isDead then
                 goto continue_proj_collision
             end
             local isVisible = enemy.teleportVisible == nil or enemy.teleportVisible
@@ -2312,18 +2318,26 @@ function UpdateProjectiles()
                 AudioComponent.play(impact3SfxEntity)
             end
 
-            if enemy.health <= 0 then
+            if enemy.health <= 0 and not enemy.isDead then
                 local eSize = enemy.size or enemySize
                 local deathX = enemy.x + eSize / 2
                 local deathY = enemy.y + eSize / 2
                 SystemShooterPickups.trySpawnHealingOrb(deathX, deathY)
                 runEnemiesKilled = runEnemiesKilled + 1
                 
+                -- Mark as dead and hide (don't remove from table for rewind)
+                enemy.isDead = true
                 Entity.set_global_pos(enemy.entity, -1000, -1000)
-                table.remove(enemies, hitEnemyIndex)
                 
-                -- Start end-level peace timer when last enemy is killed
-                if #enemies == 0 then
+                -- Start end-level peace timer when all enemies are dead
+                local allDead = true
+                for _, e in ipairs(enemies) do
+                    if not e.isDead then
+                        allDead = false
+                        break
+                    end
+                end
+                if allDead then
                     peaceTimerSeconds = endLevelPeaceDuration
                     isStartLevelPeace = false
                 end
@@ -2491,8 +2505,8 @@ function UpdateEnemyCollision()
     local playerCenterY = playerY + playerSize/2
     for i = 1, #enemies do
         local enemy = enemies[i]
-        -- Skip collision for disabled enemies (preview state)
-        if enemy.disabled then
+        -- Skip collision for disabled or dead enemies
+        if enemy.disabled or enemy.isDead then
             goto continue_collision
         end
         local enemyCenterX = enemy.x + enemySize/2
@@ -2725,6 +2739,10 @@ function UpdateBeatBop()
 
         for i = 1, #enemies do
             local enemy = enemies[i]
+            -- Skip dead enemies
+            if enemy.isDead then
+                goto continue_bop1
+            end
             local state = enemy.teleportState
             local isTeleporting = state == "shrinking" or state == "growing" or state == "teleporting"
             if enemy and enemy.sprite and not isTeleporting then
@@ -2735,12 +2753,17 @@ function UpdateBeatBop()
                 local offset = (scaledSize - currentSize) / 2
                 Entity.set_global_pos(enemy.entity, enemy.x - offset, enemy.y - offset)
             end
+            ::continue_bop1::
         end
         
         SystemShooterPickups.applyBeatBop(t)
     else
         for i = 1, #enemies do
             local enemy = enemies[i]
+            -- Skip dead enemies
+            if enemy.isDead then
+                goto continue_bop2
+            end
             local state = enemy.teleportState
             local isTeleporting = state == "shrinking" or state == "growing" or state == "teleporting"
             if enemy and enemy.sprite and not isTeleporting then
@@ -2749,6 +2772,7 @@ function UpdateBeatBop()
                 Sprite.set_image_height(enemy.sprite, math.floor(currentSize))
                 Entity.set_global_pos(enemy.entity, enemy.x, enemy.y)
             end
+            ::continue_bop2::
         end
         
         SystemShooterPickups.resetBop()

@@ -98,8 +98,11 @@ function SystemShooterEnemy.createEnemy(x, y, config, playerX, playerY, playerSi
         sprite = sprite,
         x = x,
         y = y,
+        spawnX = x,
+        spawnY = y,
         size = size,
         health = health,
+        isDead = false,
         healthScaling = healthScaling,
         sizePerHp = sizePerHp,
         displaySize = displaySize,
@@ -226,8 +229,8 @@ end
      for i = 1, #enemies do
          local enemy = enemies[i]
          
-         -- Skip all behavior for disabled enemies (preview state)
-         if enemy.disabled then
+         -- Skip all behavior for disabled or dead enemies
+         if enemy.disabled or enemy.isDead then
              goto continue
          end
          
