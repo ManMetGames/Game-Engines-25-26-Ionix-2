@@ -108,7 +108,7 @@ local leaderboardFetched = false
 local isPaused = false
 local pauseScreen = "pause" -- "pause" | "settings" | "leaderboard"
 
-
+local NO_BACKGROUND = 128
 
 local function GetPlayerNameForLeaderboard()
     if playerName and playerName ~= "" then
@@ -1127,7 +1127,6 @@ local function DrawSettingsMenu(screenW, screenH, dt, context)
 
     UI.add_centered_label(cx, math.floor(panelH * 0.05), T("settings.title"), UI_FONT_TITLE, 1)
 
-    local NO_BACKGROUND = 128
     UI.begin_child(contentX, contentY, contentW, contentH, "TS_SettingsContent",
         false, NO_BACKGROUND, false)
 
@@ -1277,9 +1276,24 @@ local function DrawPauseMenu(screenW, screenH, dt)
     UI.add_centered_label(cx, math.floor(panelH * 0.15), "Press ESC to resume", UI_FONT_REG, 1)
 
     local bw, bh = math.min(340, math.floor(panelW * 0.60)), 50
-    local bx = math.floor((panelW - bw) / 2)
-    local y0 = math.floor(panelH * 0.34)
     local gap = 14
+
+    -- Button panel sizing (fits 4 buttons + padding)
+    local btnPadY = 18
+    local btnPanelH = (bh * 4) + (gap * 3) + (btnPadY * 2)
+
+    local btnPanelW = math.min(panelW - 90, bw + 120)
+    local btnPanelX = math.floor((panelW - btnPanelW) / 2)
+    local btnPanelY = math.floor(panelH * 0.27)  -- tweak if you want it higher/lower
+
+    UI.begin_child(
+        btnPanelX, btnPanelY, btnPanelW, btnPanelH, "TS_PauseButtons",
+        false, NO_BACKGROUND,
+        false, 0
+    )
+
+    local bx = math.floor((btnPanelW - bw) / 2)
+    local y0 = btnPadY
 
     UI.add_button(bx, y0 + (bh + gap) * 0, bw, bh, T("pause.resume"), "pause_resume",
         UI_FONT_SUB, 1.0, 12, true, 74, 12, 255, 0.95)
@@ -1293,13 +1307,16 @@ local function DrawPauseMenu(screenW, screenH, dt)
     UI.add_button(bx, y0 + (bh + gap) * 3, bw, bh, T("pause.quit"), "pause_mainmenu",
         UI_FONT_SUB, 1.0, 12, true, 120, 30, 30, 0.90)
 
+    UI.end_child()
+
+    -- Button handling stays outside (same IDs)
     if UI.was_button_pressed("pause_resume") then
         SetPaused(false)
     elseif UI.was_button_pressed("pause_settings") then
         pauseScreen = "settings"
     elseif UI.was_button_pressed("pause_leaderboard") then
-           pauseScreen = "leaderboard"
-           leaderboardFetched = false  -- reuse shared fetch flag
+        pauseScreen = "leaderboard"
+        leaderboardFetched = false
     elseif UI.was_button_pressed("pause_mainmenu") then
         GoToMainMenuFromPause()
     end
