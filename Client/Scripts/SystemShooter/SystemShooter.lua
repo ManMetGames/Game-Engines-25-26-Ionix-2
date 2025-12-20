@@ -828,7 +828,12 @@ local function DrawNamePrompt(screenW, screenH)
     UI.add_centered_label(cx, 18, T("play.prompttxt"), UI_FONT_HEADER, 1)
     UI.add_centered_label(cx, 48, T("play.promptdesc"), UI_FONT_REG, 1.2)
     if namePromptError ~= "" then
-        UI.add_centered_label(cx, 82, namePromptError, UI_FONT_BOLD, 1.0)
+        UI.add_centered_label_colored(
+            cx, 82,
+            namePromptError,
+            {255, 80, 80, 255},   -- RGBA (0–255)
+            UI_FONT_BOLD, 1.0
+        )
     end
 
 
@@ -1269,7 +1274,7 @@ local function DrawPauseMenu(screenW, screenH, dt)
 
     local cx = panelW / 2
     UI.add_centered_label(cx, math.floor(panelH * 0.05), T("pause.title"), UI_FONT_TITLE, 1)
-    UI.add_centered_label(cx, math.floor(panelH * 0.13), "Press ESC to resume", UI_FONT_REG, 1)
+    UI.add_centered_label(cx, math.floor(panelH * 0.15), "Press ESC to resume", UI_FONT_REG, 1)
 
     local bw, bh = math.min(340, math.floor(panelW * 0.60)), 50
     local bx = math.floor((panelW - bw) / 2)

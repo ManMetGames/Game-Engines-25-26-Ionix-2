@@ -27,6 +27,60 @@ namespace IonixEngine {
                     fontScale.value_or(1.0f));
             };
 
+
+
+        auto AddLabelColored = [](const int x, int y, float xSize, float ySize, const char* text,
+            sol::table color,
+            sol::optional<std::string> fontName,
+            sol::optional<float> fontScale)
+            {
+                auto norm = [](float v) -> float { return (v > 1.0f) ? (v / 255.0f) : v; };
+
+                auto get = [&](const char* key, int idx, float def) -> float {
+                    if (sol::optional<float> v = color[idx]) return *v;
+                    if (sol::optional<float> v = color[key]) return *v;
+                    return def;
+                    };
+
+                float r = norm(get("r", 1, 1.0f));
+                float g = norm(get("g", 2, 1.0f));
+                float b = norm(get("b", 3, 1.0f));
+                float a = norm(get("a", 4, 1.0f));
+
+                Application::Get().layerUI->m_UIManager->AddLabelColored(
+                    x, y, xSize, ySize, text,
+                    r, g, b, a,
+                    fontName.value_or(""),
+                    fontScale.value_or(1.0f)
+                );
+            };
+
+        auto AddCenteredLabelColored = [](float centerX, float y, const char* text,
+            sol::table color,
+            sol::optional<std::string> fontName,
+            sol::optional<float> fontScale)
+            {
+                auto norm = [](float v) -> float { return (v > 1.0f) ? (v / 255.0f) : v; };
+
+                auto get = [&](const char* key, int idx, float def) -> float {
+                    if (sol::optional<float> v = color[idx]) return *v;
+                    if (sol::optional<float> v = color[key]) return *v;
+                    return def;
+                    };
+
+                float r = norm(get("r", 1, 1.0f));
+                float g = norm(get("g", 2, 1.0f));
+                float b = norm(get("b", 3, 1.0f));
+                float a = norm(get("a", 4, 1.0f));
+
+                Application::Get().layerUI->m_UIManager->AddCenteredLabelColored(
+                    centerX, y, text,
+                    r, g, b, a,
+                    fontName.value_or(""),
+                    fontScale.value_or(1.0f)
+                );
+            };
+
         auto AddButton = [](int x, int y, float w, float h, const char* text,
             sol::optional<std::string> id,
             sol::optional<std::string> fontName,
@@ -520,6 +574,8 @@ namespace IonixEngine {
         lua["UI"] = lua.create_table_with(
             "add_label", AddLabel,
             "add_centered_label", AddCenteredLabel,
+            "add_label_colored", AddLabelColored,
+            "add_centered_label_colored", AddCenteredLabelColored,
             "add_button", AddButton,
             "add_checkbox", AddCheckbox,
             "add_slider", AddSlider,
