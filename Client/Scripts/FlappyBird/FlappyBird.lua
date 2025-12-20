@@ -114,6 +114,7 @@ EnsureDefaultsOwned()
 -- Pipes
 local pipe, pipeT, pipe2, pipeT2, pipe3, pipeT3
 local pipeSets = {}
+local pipesList = {} 
 local pipeSpeed = -3
 local pipeOffScreenLeft = -100 
 
@@ -179,6 +180,7 @@ local s_music = true
 local s_volume = 0.75
 ]]
 
+
 -- Window
 Window.set_size_centered(960, 640)
 
@@ -222,7 +224,7 @@ local function pauseGame(pause)
         Fysics.set_gravity_scale(player1, 0)
         Fysics.set_linear_velocity(player1, 0, 0)
 
-        for _, p in ipairs({pipe, pipeT, pipe2, pipeT2, pipe3, pipeT3}) do
+        for _, p in ipairs(pipesList) do
             Fysics.set_linear_velocity(p, 0, 0)
         end
 
@@ -360,7 +362,7 @@ end
     print("GameOver sound played")
     end
 
-    for _, p in ipairs({pipe, pipeT, pipe2, pipeT2, pipe3, pipeT3}) do
+    for _, p in ipairs(pipesList) do
         Fysics.set_linear_velocity(p, 0, 0)
     end
 
@@ -478,6 +480,9 @@ function ExampleScript:OnStart()
     { bottom = pipe3, top = pipeT3, passed = false }
     }
 
+    -- populate cached pipes list once
+    pipesList = { pipe, pipeT, pipe2, pipeT2, pipe3, pipeT3 }
+
 	------------------------------------------------------
 	-- Create coins
 	------------------------------------------------------
@@ -551,7 +556,7 @@ function ExampleScript:OnStart()
     Fysics.set_gravity_scale(player1, 0)
     Fysics.set_linear_velocity(player1, 0, 0)
 
-    for _, p in ipairs({pipe, pipeT, pipe2, pipeT2, pipe3, pipeT3}) do
+    for _, p in ipairs(pipesList) do
         Fysics.set_linear_velocity(p, 0, 0)
     end
 
@@ -633,7 +638,7 @@ local function DrawMainMenu_C(windowW, windowH)
     elseif UI.was_button_pressed("fb_nav_settings") then
         menuContext = "settings"
     elseif UI.was_button_pressed("fb_nav_exit") then
-        os.exit()
+        Window.quit()
     end
 end
 
@@ -859,10 +864,11 @@ function ExampleScript:OnUpdate()
 -- Main Menu / Pause / Settings / Customise (Layout C)
 ----------------------------------------------------------
 
-if inMainMenu then
-    local windowW = Window.get_width()
-    local windowH = Window.get_height()
+-- Cache window size once per frame
+local windowW = Window.get_width()
+local windowH = Window.get_height()
 
+if inMainMenu then
     -- Only drift the background gently on the main menu
     if Background ~= nil then
         if menuContext == "main" then
@@ -907,7 +913,7 @@ if inMainMenu then
         end
 
         if UI.was_button_pressed("exitButton") then
-            os.exit()
+            Window.quit()
             print("Quitting Game")
         end
     end
@@ -919,7 +925,6 @@ end
 -- Open main menu button in play mode
 -----------------------------------------
     if not inMainMenu then
-        local windowW = Window.get_width()
 
         local btnSize = 36
         local margin = 10
@@ -936,14 +941,6 @@ end
         end
 
     end
-
-    ------------------
-	-- Window
-	------------------
-    Window.set_size_centered(960, 640)
-    local windowW = Window.get_width()
-    local windowH = Window.get_height()
-
     -----------------------------------
     -- Out of bounds check (Game Over)
     -----------------------------------
@@ -1237,8 +1234,6 @@ end
 
        UI.end_child()
 
-
-
         -- Show TextInput only if new high score
         if newHighScore and not submitted then
             local nhW, nhH = 520, 85
@@ -1262,8 +1257,6 @@ end
         -- (submit logic unchanged)
 
         UI.end_child()
-
-
 
             if UI.was_input_committed("player_name") then
                 local name = UI.get_input_text("player_name")
@@ -1311,7 +1304,7 @@ end
             print("Bird jump sfx played")
         end
 
-        for _, p in ipairs({pipe, pipeT, pipe2, pipeT2, pipe3, pipeT3}) do
+        for _, p in ipairs(pipesList) do
             Fysics.set_linear_velocity(p, pipeSpeed, 0)
         end
         for _, c in ipairs(coins) do
@@ -1397,11 +1390,12 @@ end
             set.passed = false
         end
     end
-
+   local cx = windowW / 2
+   local cy = windowH / 2
     -- UI
-    UI.add_label(10, 10, 1000, 1000, pipeScoreText, "", 1.5)
-    UI.add_label(10, 40, 1000, 1000, scoreText, "", 1.5)
-    UI.add_label(350, 290, 1000, 1000, text1, "", 2)
+    UI.add_label(10, 10, 1000, 1000, pipeScoreText, UI_FONT_SUB, 1)
+    UI.add_label(10, 40, 1000, 1000, scoreText, UI_FONT_SUB, 1)
+    UI.add_centered_label(cx, cy, text1, UI_FONT_HEADER, 1)
 end
 
 ----------------------------------------------------------
@@ -1479,4 +1473,3 @@ function ExampleScript:OnCollisionEnter(a, b)
 end
 
 return ExampleScript
-
