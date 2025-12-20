@@ -2463,7 +2463,7 @@ function UpdateProjectiles()
                 local activeCount = GetActiveEnemyCount()
                 local threshold = clutchStacks >= 2 and 2 or 1
                 if activeCount <= threshold then
-                    damage = damage * 1.5
+                    damage = damage * SystemShooterPlayerProgress.getNoWitnessesDamageMultiplier()
                 end
             end
             if not proj.hasHit then

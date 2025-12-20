@@ -169,7 +169,16 @@ if not isUpgradeMenuOpen then return end
 
       UI.add_centered_label(cx, 30, getDisplayLabel(opt), TS_UI.FONT_TITLE, 0.8)
 
-      local lines = splitLines(T(opt.desc) or "")
+      local descText = T(opt.desc) or ""
+      if opt.type == "no_witnesses" then
+        local mult = 1
+        if opt.cfg and opt.cfg.damageMultiplier then
+          mult = opt.cfg.damageMultiplier
+        end
+        descText = descText .. "\n" .. string.format("Damage x%s", tostring(mult))
+      end
+
+      local lines = splitLines(descText)
       local baseY = 95
       local lineGap = 22
       for li, txt in ipairs(lines) do
