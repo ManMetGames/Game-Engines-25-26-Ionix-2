@@ -48,7 +48,8 @@ local UPGRADE_CONFIG = {
         minLevel     = 1,
         maxValue     = 2,
         defaultValue = 0,
-        damageMultiplier = 2,
+        damageMultiplier = 2.25,
+        fireIntervalDelta = 0.05,
     },
     max_health = {
         statKey      = "maxHealth",
@@ -280,6 +281,11 @@ end
 function SystemShooterPlayerProgress.getNoWitnessesDamageMultiplier()
     local cfg = UPGRADE_CONFIG.no_witnesses
     return (cfg and cfg.damageMultiplier) or 1
+end
+
+function SystemShooterPlayerProgress.getNoWitnessesFireIntervalDelta()
+    local cfg = UPGRADE_CONFIG.no_witnesses
+    return (cfg and cfg.fireIntervalDelta) or 0
 end
 
 function SystemShooterPlayerProgress.getCurrentFireInterval()

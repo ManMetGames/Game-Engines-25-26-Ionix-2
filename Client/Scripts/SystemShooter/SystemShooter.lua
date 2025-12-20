@@ -2003,6 +2003,15 @@ function SystemShooter:OnUpdate()
                 if not interval or interval <= 0 then
                     interval = 0.5
                 end
+                local noWitnessesStacks = SystemShooterPlayerProgress.getLowEnemyDamageStacks()
+                if noWitnessesStacks and noWitnessesStacks > 0 then
+                    local activeCount = GetActiveEnemyCount()
+                    local threshold = noWitnessesStacks >= 2 and 2 or 1
+                    if activeCount <= threshold then
+                        local delta = SystemShooterPlayerProgress.getNoWitnessesFireIntervalDelta()
+                        interval = math.max(0.05, interval - (delta or 0))
+                    end
+                end
                 currentFireInterval = interval
                 fireCooldownTimer = interval
             end
@@ -2021,6 +2030,15 @@ function SystemShooter:OnUpdate()
             local interval = SystemShooterPlayerProgress.getCurrentFireInterval()
             if not interval or interval <= 0 then
                 interval = 0.5
+            end
+            local noWitnessesStacks = SystemShooterPlayerProgress.getLowEnemyDamageStacks()
+            if noWitnessesStacks and noWitnessesStacks > 0 then
+                local activeCount = GetActiveEnemyCount()
+                local threshold = noWitnessesStacks >= 2 and 2 or 1
+                if activeCount <= threshold then
+                    local delta = SystemShooterPlayerProgress.getNoWitnessesFireIntervalDelta()
+                    interval = math.max(0.05, interval - (delta or 0))
+                end
             end
             currentFireInterval = interval
             fireCooldownTimer = interval
@@ -2458,10 +2476,10 @@ function UpdateProjectiles()
         if hitEnemyIndex ~= nil then
             local enemy = enemies[hitEnemyIndex]
             local damage = proj.damage or 1
-            local clutchStacks = SystemShooterPlayerProgress.getLowEnemyDamageStacks()
-            if clutchStacks and clutchStacks > 0 then
+            local noWitnessesStacks = SystemShooterPlayerProgress.getLowEnemyDamageStacks()
+            if noWitnessesStacks and noWitnessesStacks > 0 then
                 local activeCount = GetActiveEnemyCount()
-                local threshold = clutchStacks >= 2 and 2 or 1
+                local threshold = noWitnessesStacks >= 2 and 2 or 1
                 if activeCount <= threshold then
                     damage = damage * SystemShooterPlayerProgress.getNoWitnessesDamageMultiplier()
                 end

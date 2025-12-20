@@ -75,9 +75,9 @@ local ENEMY_TEMPLATES = {
         healthMax = 70,
         budgetPercentCap = 0.25,
         budgetCapMinLevel = 20,
-        maxPerLevel = 4,
+        maxPerLevel = 3,
         spaceRequirement = 0,
-        weight = 10,
+        weight = 3,
         baseSize = 32,
         generate = function(health, level, windowW, windowH)
             local speedBase = 1.0 + (level - 6) * 0.05
@@ -94,10 +94,10 @@ local ENEMY_TEMPLATES = {
         minLevel = 1,
         healthMin = 30,
         healthMax = 120,
-        maxPerLevel = 2,
+        maxPerLevel = 3,
         spaceRequirement = 1,
-        weight = 6,
-        baseSize = 36,
+        weight = 5,
+        baseSize = 32,
         generate = function(health, level, windowW, windowH)
             local margin = 100
             local x = margin + math.random() * (windowW - 2 * margin)
@@ -114,12 +114,12 @@ local ENEMY_TEMPLATES = {
         end,
     },
     orbit = {
-        minLevel = 8,
+        minLevel = 7,
         healthMin = 40,
         healthMax = 70,
         maxPerLevel = 4,
         spaceRequirement = 2,
-        weight = 5,
+        weight = 8,
         baseSize = 28,
         generate = function(health, level, windowW, windowH)
             local centerX = windowW / 2
@@ -143,8 +143,8 @@ local ENEMY_TEMPLATES = {
         healthMax = 300,
         maxPerLevel = 1,
         spaceRequirement = 2,
-        weight = 3,
-        baseSize = 40,
+        weight = 6,
+        baseSize = 45,
         generate = function(health, level, windowW, windowH)
             local x = windowW / 2
             local y = windowH / 2
@@ -166,7 +166,7 @@ local ENEMY_TEMPLATES = {
         healthMax = 350,
         maxPerLevel = 1,
         spaceRequirement = 2,
-        weight = 6,
+        weight = 3,
         baseSize = 40,
         healthScaling = false,
         generate = function(health, level, windowW, windowH)
@@ -204,7 +204,7 @@ local levels = {
         windowWidth = 800,
         windowHeight = 400,
         enemies = {
-            { movementType = "bounce", x = 400, y = 200, health = 35},
+            { movementType = "orbit", x = 506, y = 186, health = 35, orbitCenter = {400, 200}, orbitRadius = 120, orbitSpeed = 1.0, shootPattern = "cone", projectileCount = 1, shootInterval = beatsToSeconds(2) },
         },
     },
     [3] = {
@@ -214,16 +214,18 @@ local levels = {
         windowHeight = 640,
         enemies = {
             { movementType = "stationary", x = 500, y = 300, health = 30, shootPattern = "cone", projectileCount = 2, shootInterval = beatsToSeconds(2) },
-            { movementType = "bounce", x = 900, y = 550, health = 30, shootPattern = "cone", projectileCount = 0, shootInterval = 0},
+            { movementType = "orbit", x = 659, y = 306, health = 30, orbitCenter = {513, 320}, orbitRadius = 160, orbitSpeed = -1.0, shootPattern = "cone", projectileCount = 1, shootInterval = beatsToSeconds(2) },
         },
     },
     [4] = {
         timeLimitSeconds = 25,
-        enemyCount = 2,
-        enemyHealth = 30,
         wallPingPong = false,
         windowWidth = 800,
         windowHeight = 800,
+        enemies = {
+            { movementType = "stationary", x = 400, y = 260, health = 30, shootPattern = "cone", projectileCount = 2, shootInterval = beatsToSeconds(2) },
+            { movementType = "bounce", x = 400, y = 540, health = 30 },
+        },
     },
     [5] = {
         timeLimitSeconds = 20,
