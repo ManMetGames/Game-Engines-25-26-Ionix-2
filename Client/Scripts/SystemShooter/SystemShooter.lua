@@ -108,8 +108,7 @@ local leaderboardFetched = false
 local isPaused = false
 local pauseScreen = "pause" -- "pause" | "settings" | "leaderboard"
 
-local pauseTopLeaderboard = nil
-local pauseLeaderboardFetched = false
+local NO_BACKGROUND = 128
 
 local function GetPlayerNameForLeaderboard()
     if playerName and playerName ~= "" then
@@ -838,7 +837,12 @@ local function DrawNamePrompt(screenW, screenH)
     UI.add_centered_label(cx, 18, T("play.prompttxt"), UI_FONT_HEADER, 1)
     UI.add_centered_label(cx, 48, T("play.promptdesc"), UI_FONT_REG, 1.2)
     if namePromptError ~= "" then
-        UI.add_centered_label(cx, 82, namePromptError, UI_FONT_BOLD, 1.0)
+        UI.add_centered_label_colored(
+            cx, 82,
+            namePromptError,
+            {255, 80, 80, 255},   -- RGBA (0–255)
+            UI_FONT_BOLD, 1.0
+        )
     end
 
 
@@ -1025,7 +1029,9 @@ local function DrawMainMenu(screenW, screenH, dt)
 
 end
 
-local function DrawLeaderboardMenu(screenW, screenH, dt)
+local function DrawLeaderboardMenu(screenW, screenH, dt, context)
+    context = context or "main"
+
     UI.add_panel(0, 0, screenW, screenH, 0.65, 0, 0, 0, 0)
 
     local panelW = math.floor(math.max(520, math.min(screenW * 0.70, 860)))
@@ -1037,13 +1043,13 @@ local function DrawLeaderboardMenu(screenW, screenH, dt)
         true, 0,
         true, 0.92, 12, 25, 25, 25,
         0.01, false, 0.85,
-        UI__COLOUR_THEME[1], UI__COLOUR_THEME[2], UI__COLOUR_THEME[3], 1.0 -- RGBA border
+        UI__COLOUR_THEME[1], UI__COLOUR_THEME[2], UI__COLOUR_THEME[3], 1.0
     )
 
     local cx = panelW / 2
-    local footerH = 100 -- space reserved for the Back button area
+    local footerH = 100
     local contentX = 26
-    local contentY = math.floor(panelH * 0.13)  
+    local contentY = math.floor(panelH * 0.13)
     local contentW = panelW - 52
     local contentH = panelH - contentY - footerH
 
@@ -1052,8 +1058,9 @@ local function DrawLeaderboardMenu(screenW, screenH, dt)
 
     local NO_BACKGROUND = 128
     UI.begin_child(contentX, contentY, contentW, contentH, "TS_LeaderboardContent",
-    false, NO_BACKGROUND, false)
+        false, NO_BACKGROUND, false)
 
+    -- Use shared topLeaderboard / leaderboardFetched to avoid duplicated network calls and data
     if not leaderboardFetched then
         topLeaderboard = Firebase.retrieve_high_score(GAME_ID, 10)
         leaderboardFetched = true
@@ -1064,7 +1071,7 @@ local function DrawLeaderboardMenu(screenW, screenH, dt)
     local lineH = 26
 
     if topLeaderboard then
-        local stageX = math.floor(contentW * 0.68) 
+        local stageX = math.floor(contentW * 0.68)
 
         for i = 1, 10 do
             local e = topLeaderboard[i]
@@ -1073,11 +1080,7 @@ local function DrawLeaderboardMenu(screenW, screenH, dt)
             if e then
                 local name = tostring(e.name)
                 local stage = tonumber(e.score) or 0
-
-                -- Left column: "1. Name"
                 UI.add_label(listX, y, 0, 0, string.format("%2d. %s", i, name), "ImGuiDefault", 1.1)
-
-                -- Right column: "Stage X"
                 UI.add_label(stageX, y, 0, 0, string.format(T("leaderboard.stage"), stage), UI_FONT_REG, 1.1)
             else
                 UI.add_label(listX, y, 0, 0, string.format("%2d. --", i), "ImGuiDefault", 1.1)
@@ -1088,25 +1091,29 @@ local function DrawLeaderboardMenu(screenW, screenH, dt)
     end
 
     UI.end_child()
-    -- Back button
+
+    -- Back button (same visual but behaviour differs by context)
     local bw, bh = math.min(320, math.floor(panelW * 0.55)), 50
     local bx = math.floor((panelW - bw) / 2)
     local by = panelH - bh - 32
 
-    UI.add_button(bx, by, bw, bh, "BACK", "menu_back",
-        UI_FONT_SUB, 1.0,
-        12, true,
-        74, 12, 255, 0.95
-    )
+    UI.add_button(bx, by, bw, bh, T("menu.back"), "menu_back",
+        UI_FONT_SUB, 1.0, 12, true, 74, 12, 255, 0.95)
 
     if UI.was_button_pressed("menu_back") then
-        menuScreen = "main"
+        if context == "pause" then
+            pauseScreen = "pause"
+        else
+            menuScreen = "main"
+        end
     end
 
     UI.end_child()
 end
 
-local function DrawSettingsMenu(screenW, screenH, dt)
+local function DrawSettingsMenu(screenW, screenH, dt, context)
+    context = context or "main"
+
     UI.add_panel(0, 0, screenW, screenH, 0.65, 0, 0, 0, 0)
 
     local panelW = math.floor(math.max(520, math.min(screenW * 0.70, 860)))
@@ -1121,18 +1128,16 @@ local function DrawSettingsMenu(screenW, screenH, dt)
     )
 
     local cx = panelW / 2
-    local footerH = 100 -- space reserved for the Back button area
+    local footerH = 100
     local contentX = 26
-    local contentY = math.floor(panelH * 0.13)  
+    local contentY = math.floor(panelH * 0.13)
     local contentW = panelW - 52
     local contentH = panelH - contentY - footerH
 
     UI.add_centered_label(cx, math.floor(panelH * 0.05), T("settings.title"), UI_FONT_TITLE, 1)
 
-    -- Child for scrollable content 
-    local NO_BACKGROUND = 128
     UI.begin_child(contentX, contentY, contentW, contentH, "TS_SettingsContent",
-    false, NO_BACKGROUND, false)
+        false, NO_BACKGROUND, false)
 
     local innerCX = contentW / 2
     local sliderW = math.floor(contentW * 0.5)
@@ -1141,26 +1146,23 @@ local function DrawSettingsMenu(screenW, screenH, dt)
     UI.add_centered_label(innerCX, 12, T("settings.audio"), UI_FONT_HEADER, 1.2)
 
     local sliderStyle = {
-    height = 21,        -- thickness
-    rounding = 10,      -- track rounding
-    grab_size = 16,     -- handle size (easier to grab)
-    track = { 30, 30, 30, 220 },     -- RGBA (0-255)
-    grab  = { 74, 12, 255, 255 },    -- RGBA (0-255) purple accent)
+        height = 21,
+        rounding = 10,
+        grab_size = 16,
+        track = { 30, 30, 30, 220 },
+        grab  = { 74, 12, 255, 255 },
     }
 
     local function DrawVolRow(title, id, value, y)
         UI.add_centered_label(innerCX, y - 16 , title, UI_FONT_REG, 1.05)
-
         UI.add_slider_styled(sliderX, y + 8, sliderW, "", id, 0.0, 1.0, value, nil, nil, " ", sliderStyle)
-
         local percent = math.floor(((UI.get_slider(id) or value) * 100) + 0.5)
         UI.add_label(sliderX + sliderW + 18, y + 2, 0, 0, tostring(percent) .. "%", "ImGuiDefaultBold", 1.0)
     end
 
-    local y0 = 70        -- start near top of inner child
-    local gapY = 66      -- spacing between rows
+    local y0 = 70
+    local gapY = 66
 
-    -- MASTER
     DrawVolRow(T("audio.master"), "ts_master", masterVol, y0)
     if UI.was_slider_changed("ts_master") then
         masterVol = UI.get_slider("ts_master") or masterVol
@@ -1168,7 +1170,6 @@ local function DrawSettingsMenu(screenW, screenH, dt)
         ApplyAudioVolumes()
     end
 
-    -- MUSIC
     DrawVolRow(T("audio.music"), "ts_music", musicVol, y0 + gapY)
     if UI.was_slider_changed("ts_music") then
         musicVol = UI.get_slider("ts_music") or musicVol
@@ -1176,7 +1177,6 @@ local function DrawSettingsMenu(screenW, screenH, dt)
         ApplyAudioVolumes()
     end
 
-    -- SFX
     DrawVolRow(T("audio.sfx"), "ts_sfx", sfxVol, y0 + gapY * 2)
     if UI.was_slider_changed("ts_sfx") then
         sfxVol = UI.get_slider("ts_sfx") or sfxVol
@@ -1188,8 +1188,6 @@ local function DrawSettingsMenu(screenW, screenH, dt)
     UI.add_centered_label(innerCX, controlsHeaderY, T("settings.controls"), UI_FONT_HEADER, 1.2)
 
     local sensY = controlsHeaderY + 76
-    -- draw sensitivity slider at sensY
-
     UI.add_centered_label(innerCX, sensY - 16, T("controls.sensitivity"), UI_FONT_REG, 1.05)
     UI.add_slider_styled(sliderX, sensY + 8, sliderW, "", "ts_sensitivity", 0.25, 2.50, sensitivitySetting, nil, nil, " ", sliderStyle)
 
@@ -1199,7 +1197,6 @@ local function DrawSettingsMenu(screenW, screenH, dt)
         Json.save_setting(GAME_ID, "controls.sensitivity", sensitivitySetting)
     end
 
-    -- show “x” value on the right (2 decimals)
     UI.add_label(sliderX + sliderW + 18, sensY + 2, 0, 0,
         string.format("%.2fx", sensitivitySetting),
         "ImGuiDefaultBold", 1.0
@@ -1210,7 +1207,7 @@ local function DrawSettingsMenu(screenW, screenH, dt)
     UI.add_centered_label(innerCX, langY - 16, T("settings.language"), UI_FONT_HEADER, 1.2)
 
     local opts = { "English", "日本語" }
-    local defaultIndex = (language == "ja") and 1 or 0  
+    local defaultIndex = (language == "ja") and 1 or 0
 
     local dropdownW = sliderW
     local dropdownX = sliderX
@@ -1220,21 +1217,17 @@ local function DrawSettingsMenu(screenW, screenH, dt)
       rounding = 10,
       popup_rounding = 10,
       border_size = 1,
-
       frame        = { 30, 30, 30, 220 },
       frame_hover  = { 40, 40, 40, 230 },
       frame_active = { 50, 50, 50, 240 },
-
       popup_bg = { 20, 20, 20, 240 },
       border   = { 0, 0, 0,  80 },
-
       item        = { 74, 12, 255, 120 },
       item_hover  = { 74, 12, 255, 180 },
       item_active = { 74, 12, 255, 220 },
-
       text = { 255, 255, 255, 255 },
     }
-    local langDropdownFont = "ImGuiDefaultJP" 
+    local langDropdownFont = "ImGuiDefaultJP"
     UI.add_dropdown_styled(dropdownX, langY + 24, dropdownW, 32, "", "ts_lang", opts, defaultIndex, langDropdownFont, 1.0, ddStyle)
 
     if UI.was_dropdown_changed("ts_lang") then
@@ -1245,9 +1238,9 @@ local function DrawSettingsMenu(screenW, screenH, dt)
         ApplyLanguageFonts()
         SyncTSUI()
     end
-    
+
     UI.end_child()
-    -- Back button
+
     local bw, bh = math.min(320, math.floor(panelW * 0.55)), 50
     local bx = math.floor((panelW - bw) / 2)
     local by = panelH - bh - 32
@@ -1260,7 +1253,11 @@ local function DrawSettingsMenu(screenW, screenH, dt)
     )
 
     if UI.was_button_pressed("menu_back_settings") then
-        menuScreen = "main"
+        if context == "pause" then
+            pauseScreen = "pause"
+        else
+            menuScreen = "main"
+        end
     end
 
     UI.end_child()
@@ -1285,12 +1282,27 @@ local function DrawPauseMenu(screenW, screenH, dt)
 
     local cx = panelW / 2
     UI.add_centered_label(cx, math.floor(panelH * 0.05), T("pause.title"), UI_FONT_TITLE, 1)
-    UI.add_centered_label(cx, math.floor(panelH * 0.13), "Press ESC to resume", UI_FONT_REG, 1)
+    UI.add_centered_label(cx, math.floor(panelH * 0.15), "Press ESC to resume", UI_FONT_REG, 1)
 
     local bw, bh = math.min(340, math.floor(panelW * 0.60)), 50
-    local bx = math.floor((panelW - bw) / 2)
-    local y0 = math.floor(panelH * 0.34)
     local gap = 14
+
+    -- Button panel sizing (fits 4 buttons + padding)
+    local btnPadY = 18
+    local btnPanelH = (bh * 4) + (gap * 3) + (btnPadY * 2)
+
+    local btnPanelW = math.min(panelW - 90, bw + 120)
+    local btnPanelX = math.floor((panelW - btnPanelW) / 2)
+    local btnPanelY = math.floor(panelH * 0.27)  -- tweak if you want it higher/lower
+
+    UI.begin_child(
+        btnPanelX, btnPanelY, btnPanelW, btnPanelH, "TS_PauseButtons",
+        false, NO_BACKGROUND,
+        false, 0
+    )
+
+    local bx = math.floor((btnPanelW - bw) / 2)
+    local y0 = btnPadY
 
     UI.add_button(bx, y0 + (bh + gap) * 0, bw, bh, T("pause.resume"), "pause_resume",
         UI_FONT_SUB, 1.0, 12, true, 74, 12, 255, 0.95)
@@ -1304,13 +1316,16 @@ local function DrawPauseMenu(screenW, screenH, dt)
     UI.add_button(bx, y0 + (bh + gap) * 3, bw, bh, T("pause.quit"), "pause_mainmenu",
         UI_FONT_SUB, 1.0, 12, true, 120, 30, 30, 0.90)
 
+    UI.end_child()
+
+    -- Button handling stays outside (same IDs)
     if UI.was_button_pressed("pause_resume") then
         SetPaused(false)
     elseif UI.was_button_pressed("pause_settings") then
         pauseScreen = "settings"
     elseif UI.was_button_pressed("pause_leaderboard") then
         pauseScreen = "leaderboard"
-        pauseLeaderboardFetched = false
+        leaderboardFetched = false
     elseif UI.was_button_pressed("pause_mainmenu") then
         GoToMainMenuFromPause()
     end
@@ -1498,244 +1513,6 @@ SetPaused = function(p)
     end
 end
 
-local function DrawPauseLeaderboard(screenW, screenH, dt)
-    UI.add_panel(0, 0, screenW, screenH, 0.65, 0, 0, 0, 0)
-
-    local panelW = math.floor(math.max(520, math.min(screenW * 0.70, 860)))
-    local panelH = math.floor(math.max(420, math.min(screenH * 0.70, 600)))
-    local panelX = math.floor((screenW - panelW) / 2)
-    local panelY = math.floor((screenH - panelH) / 2)
-
-    UI.begin_child(panelX, panelY, panelW, panelH, "TS_Leaderboard",
-        true, 0,
-        true, 0.92, 12, 25, 25, 25,
-        0.01, false, 0.85,
-        UI__COLOUR_THEME[1], UI__COLOUR_THEME[2], UI__COLOUR_THEME[3], 1.0 -- RGBA border
-    )
-
-    local cx = panelW / 2
-    local footerH = 100 -- space reserved for the Back button area
-    local contentX = 26
-    local contentY = math.floor(panelH * 0.13)  
-    local contentW = panelW - 52
-    local contentH = panelH - contentY - footerH
-
-    UI.add_centered_label(cx, math.floor(panelH * 0.05), T("menu.leaderboard"), UI_FONT_TITLE, 1)
-    UI.add_centered_label(cx, math.floor(panelH * 0.13), T("leaderboard.description"), UI_FONT_REG, 1)
-
-    local NO_BACKGROUND = 128
-    UI.begin_child(contentX, contentY, contentW, contentH, "TS_LeaderboardContent",
-    false, NO_BACKGROUND, false)
-
-    if not leaderboardFetched then
-        topLeaderboard = Firebase.retrieve_high_score(GAME_ID, 10)
-        leaderboardFetched = true
-    end
-
-    local listX = math.floor(contentW * 0.20)
-    local listY = math.floor(contentH * 0.15)
-    local lineH = 26
-
-    if topLeaderboard then
-        local stageX = math.floor(contentW * 0.68) 
-
-        for i = 1, 10 do
-            local e = topLeaderboard[i]
-            local y = listY + (i - 1) * lineH
-
-            if e then
-                local name = tostring(e.name)
-                local stage = tonumber(e.score) or 0
-
-                -- Left column: "1. Name"
-                UI.add_label(listX, y, 0, 0, string.format("%2d. %s", i, name), "ImGuiDefault", 1.1)
-
-                -- Right column: "Stage X"
-                UI.add_label(stageX, y, 0, 0, string.format(T("leaderboard.stage"), stage), UI_FONT_REG, 1.1)
-            else
-                UI.add_label(listX, y, 0, 0, string.format("%2d. --", i), "ImGuiDefault", 1.1)
-            end
-        end
-    else
-        UI.add_centered_label(cx, listY + 10, "(No scores yet)", UI_FONT_REG, 1.1)
-    end
-
-    UI.end_child()
-
-    local bw, bh = math.min(320, math.floor(panelW * 0.55)), 50
-    local bx = math.floor((panelW - bw) / 2)
-    local by = panelH - bh - 32
-
-    UI.add_button(bx, by, bw, bh, T("menu.back"), "pause_back_lb",
-        UI_FONT_SUB, 1.0, 12, true, 74, 12, 255, 0.95)
-
-    if UI.was_button_pressed("pause_back_lb") then
-        pauseScreen = "pause"
-    end
-
-    UI.end_child()
-end
-
-local function DrawPauseSettingsMenu(screenW, screenH, dt)
-    UI.add_panel(0, 0, screenW, screenH, 0.65, 0, 0, 0, 0)
-
-    local panelW = math.floor(math.max(520, math.min(screenW * 0.70, 860)))
-    local panelH = math.floor(math.max(420, math.min(screenH * 0.70, 600)))
-    local panelX = math.floor((screenW - panelW) / 2)
-    local panelY = math.floor((screenH - panelH) / 2)
-
-    UI.begin_child(panelX, panelY, panelW, panelH, "TS_Settings",
-        true, 0,
-        true, 0.92, 12, 25, 25, 25,
-        2.5, true, 1.35
-    )
-
-    local cx = panelW / 2
-    local footerH = 100 -- space reserved for the Back button area
-    local contentX = 26
-    local contentY = math.floor(panelH * 0.13)  
-    local contentW = panelW - 52
-    local contentH = panelH - contentY - footerH
-
-   UI.add_centered_label(cx, math.floor(panelH * 0.05), T("settings.title"), UI_FONT_TITLE, 1)
-
-     -- Child for scrollable content 
-    local NO_BACKGROUND = 128
-    UI.begin_child(contentX, contentY, contentW, contentH, "TS_SettingsContent",
-    false, NO_BACKGROUND, false)
-
-    local innerCX = contentW / 2
-    local sliderW = math.floor(contentW * 0.5)
-    local sliderX = math.floor((contentW - sliderW) / 2)
-
-    UI.add_centered_label(innerCX, 12, T("settings.audio"), UI_FONT_HEADER, 1.2)
-
-    local sliderStyle = {
-    height = 21,        -- thickness
-    rounding = 10,      -- track rounding
-    grab_size = 16,     -- handle size (easier to grab)
-    track = { 30, 30, 30, 220 },     -- RGBA (0-255)
-    grab  = { 74, 12, 255, 255 },    -- RGBA (0-255) purple accent)
-    }
-
-    local function DrawVolRow(title, id, value, y)
-        UI.add_centered_label(innerCX, y - 16 , title, UI_FONT_REG, 1.05)
-
-        UI.add_slider_styled(sliderX, y + 8, sliderW, "", id, 0.0, 1.0, value, nil, nil, " ", sliderStyle)
-
-        local percent = math.floor(((UI.get_slider(id) or value) * 100) + 0.5)
-        UI.add_label(sliderX + sliderW + 18, y + 2, 0, 0, tostring(percent) .. "%", "ImGuiDefaultBold", 1.0)
-    end
-
-    local y0 = 70        -- start near top of inner child
-    local gapY = 66      -- spacing between rows
-
-    -- MASTER
-    DrawVolRow(T("audio.master"), "ts_master", masterVol, y0)
-    if UI.was_slider_changed("ts_master") then
-        masterVol = UI.get_slider("ts_master") or masterVol
-        Json.save_setting(GAME_ID, "audio.master", masterVol)
-        ApplyAudioVolumes()
-    end
-
-    -- MUSIC
-    DrawVolRow(T("audio.music"), "ts_music", musicVol, y0 + gapY)
-    if UI.was_slider_changed("ts_music") then
-        musicVol = UI.get_slider("ts_music") or musicVol
-        Json.save_setting(GAME_ID, "audio.music", musicVol)
-        ApplyAudioVolumes()
-    end
-
-    -- SFX
-    DrawVolRow(T("audio.sfx"), "ts_sfx", sfxVol, y0 + gapY * 2)
-    if UI.was_slider_changed("ts_sfx") then
-        sfxVol = UI.get_slider("ts_sfx") or sfxVol
-        Json.save_setting(GAME_ID, "audio.sfx", sfxVol)
-        ApplyAudioVolumes()
-    end
-
-    local controlsHeaderY = y0 + gapY * 3 + 10
-    UI.add_centered_label(innerCX, controlsHeaderY, T("settings.controls"), UI_FONT_HEADER, 1.2)
-
-        local sensY = controlsHeaderY + 76
-    -- draw sensitivity slider at sensY
-
-    UI.add_centered_label(innerCX, sensY - 16, T("controls.sensitivity"), UI_FONT_REG, 1.05)
-    UI.add_slider_styled(sliderX, sensY + 8, sliderW, "", "ts_sensitivity", 0.25, 2.50, sensitivitySetting, nil, nil, " ", sliderStyle)
-
-    if UI.was_slider_changed("ts_sensitivity") then
-        sensitivitySetting = UI.get_slider("ts_sensitivity") or sensitivitySetting
-        sensitivitySetting = Clamp(sensitivitySetting, 0.25, 2.50)
-        Json.save_setting(GAME_ID, "controls.sensitivity", sensitivitySetting)
-    end
-
-    -- show “x” value on the right (2 decimals)
-    UI.add_label(sliderX + sliderW + 18, sensY + 2, 0, 0,
-        string.format("%.2fx", sensitivitySetting),
-        "ImGuiDefaultBold", 1.0
-    )
-
-    local langY = sensY + 84
-
-    UI.add_centered_label(innerCX, langY - 16, T("settings.language"), UI_FONT_HEADER, 1.2)
-
-    local opts = { "English", "日本語" }
-    local defaultIndex = (language == "ja") and 1 or 0  
-
-    local dropdownW = sliderW
-    local dropdownX = sliderX
-
-    local ddStyle = {
-      height = 32,
-      rounding = 10,
-      popup_rounding = 10,
-      border_size = 1,
-
-      frame        = { 30, 30, 30, 220 },
-      frame_hover  = { 40, 40, 40, 230 },
-      frame_active = { 50, 50, 50, 240 },
-
-      popup_bg = { 20, 20, 20, 240 },
-      border   = { 0, 0, 0,  80 },
-
-      item        = { 74, 12, 255, 120 },
-      item_hover  = { 74, 12, 255, 180 },
-      item_active = { 74, 12, 255, 220 },
-
-      text = { 255, 255, 255, 255 },
-    }
-    local langDropdownFont = "ImGuiDefaultJP" 
-    UI.add_dropdown_styled(dropdownX, langY + 24, dropdownW, 32, "", "ts_lang", opts, defaultIndex, langDropdownFont, 1.0, ddStyle)
-
-    if UI.was_dropdown_changed("ts_lang") then
-        local idx = UI.get_dropdown_index("ts_lang") or 0
-        language = (idx == 1) and "ja" or "en"
-        Json.save_setting(GAME_ID, "ui.language", language)
-        Localisation.set_language(language)
-        ApplyLanguageFonts()
-        SyncTSUI()
-    end
-    
-    UI.end_child()
-    -- Back button
-    local bw, bh = math.min(320, math.floor(panelW * 0.55)), 50
-    local bx = math.floor((panelW - bw) / 2)
-    local by = panelH - bh - 32
-
-    UI.add_button(bx, by, bw, bh,
-        T("menu.back"), "pause_back_settings",
-        UI_FONT_SUB, 1.0,
-        12, true,
-        74, 12, 255, 0.95
-    )
-
-    if UI.was_button_pressed("pause_back_settings") then
-        pauseScreen = "pause"
-    end
-
-    UI.end_child()
-end
-
 local function ResetWallWindowCapture()
     -- makes wall/window system re-capture cleanly 
     windowInitialX = nil
@@ -1794,13 +1571,14 @@ function SystemShooter:OnUpdate()
     if inMainMenu then
         screenW = Window.get_width()
         screenH = Window.get_height()
-    if menuScreen == "leaderboard" then
-        DrawLeaderboardMenu(screenW, screenH, dt)
-    elseif menuScreen == "settings" then
-        DrawSettingsMenu(screenW, screenH, dt)
-    else
-        DrawMainMenu(screenW, screenH, dt)
-    end
+
+        if menuScreen == "leaderboard" then
+            DrawLeaderboardMenu(screenW, screenH, dt, "main")
+        elseif menuScreen == "settings" then
+            DrawSettingsMenu(screenW, screenH, dt, "main")
+        else
+            DrawMainMenu(screenW, screenH, dt)
+        end
         return
     end
 
@@ -1874,9 +1652,9 @@ function SystemShooter:OnUpdate()
         screenH = Window.get_height()
 
         if pauseScreen == "settings" then
-            DrawPauseSettingsMenu(screenW, screenH, dt)
+            DrawSettingsMenu(screenW, screenH, dt, "pause")
         elseif pauseScreen == "leaderboard" then
-            DrawPauseLeaderboard(screenW, screenH, dt)
+            DrawLeaderboardMenu(screenW, screenH, dt, "pause")
         else
             DrawPauseMenu(screenW, screenH, dt)
         end

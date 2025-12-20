@@ -37,7 +37,8 @@ namespace IonixEngine
 
 		std::string ownedText;
 		const char* text = nullptr;
-
+		bool  hasTextColor = false;
+		ImVec4 textColor = ImVec4(1, 1, 1, 1);
 		bool sameline = false;
 
 		std::string widgetId; // Shared ID for id-based widgets (button/checkbox/slider/input/toggle/dropdown/color)
@@ -218,6 +219,14 @@ namespace IonixEngine
 		void AddLabel(int x, int y, float xSize, float ySize, const char* text, const std::string& fontName = "", float fontScale = 1.0f);
 
 		void AddCenteredLabel(float centerX, float y, const char* text, const std::string& fontName = "", float fontScale = 1.0f);
+
+		void AddLabelColored(int x, int y, float xSize, float ySize, const char* text,
+			float r, float g, float b, float a,
+			const std::string& fontName = "", float fontScale = 1.0f);
+
+		void AddCenteredLabelColored(float centerX, float y, const char* text,
+			float r, float g, float b, float a,
+			const std::string& fontName = "", float fontScale = 1.0f);
 
 		void AddButton(int x, int y, float w, float h, const char* text, const char* id = nullptr,
 			const std::string& fontName = "", float fontScale = 1.0f,

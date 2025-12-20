@@ -43,6 +43,51 @@ namespace IonixEngine
 		AddChildToPanel(element);
 	}
 
+	void UIManager::AddLabelColored(int x, int y, float xSize, float ySize, const char* text,
+		float r, float g, float b, float a,
+		const std::string& fontName, float fontScale)
+	{
+		UIElement* element = new UIElement;
+		element->type = UIType::Label;
+		element->xPos = x;
+		element->yPos = y;
+		element->xSize = xSize;
+		element->ySize = ySize;
+
+		element->ownedText = (text ? text : "");
+		element->text = element->ownedText.c_str();
+
+		element->fontName = fontName;
+		element->fontScale = fontScale;
+
+		element->hasTextColor = true;
+		element->textColor = ImVec4(r, g, b, a);
+
+		AddChildToPanel(element);
+	}
+
+	void UIManager::AddCenteredLabelColored(float centerX, float y, const char* text,
+		float r, float g, float b, float a,
+		const std::string& fontName, float fontScale)
+	{
+		UIElement* element = new UIElement{};
+		element->type = UIType::Label;
+		element->centerAligned = true;
+		element->centerX = centerX;
+		element->yPos = (int)y;
+
+		element->fontName = fontName;
+		element->fontScale = fontScale;
+
+		element->ownedText = (text ? text : "");
+		element->text = element->ownedText.c_str();
+
+		element->hasTextColor = true;
+		element->textColor = ImVec4(r, g, b, a);
+
+		AddChildToPanel(element);
+	}
+
 	void UIManager::AddButton(int x, int y, float xSize, float ySize, const char* text, const char* id, const std::string& fontName, float fontScale, float rounding, bool useColor,
 		float r, float g, float b, float a)
 	{
@@ -618,7 +663,16 @@ namespace IonixEngine
 				x = element->centerX - (w * 0.5f);
 			}
 
+			bool pushedTextColor = false;
+			if (element->hasTextColor)
+			{
+				ImGui::PushStyleColor(ImGuiCol_Text, element->textColor);
+				pushedTextColor = true;
+			}
+
 			m_ui->DrawLabel(element->text, element->xSize, element->ySize, (int)x, element->yPos);
+
+			if (pushedTextColor) ImGui::PopStyleColor();
 			break;
 		}
 		case UIType::Button:
