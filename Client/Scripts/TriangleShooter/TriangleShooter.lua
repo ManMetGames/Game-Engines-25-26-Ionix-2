@@ -7,7 +7,6 @@ local assets = require("Scripts.Assets")
 local enums = require("Scripts.Enums")
 local TriangleShooterLevels = require("Scripts.TriangleShooter.TriangleShooterLevels")
 local TriangleShooterEnemy = require("Scripts.TriangleShooter.TriangleShooterEnemy")
-local TriangleShooterAbilities = require("Scripts.TriangleShooter.TriangleShooterAbilities")
 local TriangleShooterPlayerProgress = require("Scripts.TriangleShooter.TriangleShooterPlayerProgress")
 local ParticleSystem = require("Scripts.TriangleShooter.ParticleSystem")
 local TriangleShooterPickups = require("Scripts.TriangleShooter.TriangleShooterPickups")
@@ -2363,7 +2362,7 @@ function SpawnProjectile()
     local pierceCount = TriangleShooterPlayerProgress.getPierceCount()
     local bounceCount = TriangleShooterPlayerProgress.getBounceCount()
 
-    local shots = TriangleShooterAbilities.getShots(firepower, tipX, tipY, aimDirX, aimDirY, projectileSize)
+    local shots = TriangleShooterPlayerProgress.getShots(firepower, tipX, tipY, aimDirX, aimDirY, projectileSize)
     if not shots then
         return
     end

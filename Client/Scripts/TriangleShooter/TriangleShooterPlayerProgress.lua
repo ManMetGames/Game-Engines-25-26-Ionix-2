@@ -1,5 +1,7 @@
 local TriangleShooterPlayerProgress = {}
 
+local SPREAD_ANGLE_DEG = 10
+
 --=====================================================================
 --  UPGRADE CONFIGURATION
 --  Central definition for all upgrades: caps, labels, descriptions,
@@ -71,6 +73,105 @@ local playerStats = {
     lowEnemyDamageStacks = 0,
     maxHealth = 100,
 }
+
+--=====================================================================
+--  FIREPOWER SHOT PATTERNS (chronological by firepower value)
+--=====================================================================
+local function generateShotPattern(firepower, aimX, aimY, projectileSize)
+    local shots = {}
+    local baseAngle = math.atan(aimY, aimX)
+
+    if firepower == 1 then
+        shots[1] = { offsetX = 0, offsetY = 0, dirX = aimX, dirY = aimY }
+
+    elseif firepower == 2 then
+        local sideX = -aimY
+        local sideY = aimX
+        local offset = projectileSize * 0.6
+        shots[1] = { offsetX = sideX * offset, offsetY = sideY * offset, dirX = aimX, dirY = aimY }
+        shots[2] = { offsetX = -sideX * offset, offsetY = -sideY * offset, dirX = aimX, dirY = aimY }
+
+    elseif firepower == 3 then
+        local sideX = -aimY
+        local sideY = aimX
+        local offset = projectileSize * 0.6
+        shots[1] = { offsetX = 0, offsetY = 0, dirX = aimX, dirY = aimY }
+        shots[2] = { offsetX = sideX * offset, offsetY = sideY * offset, dirX = aimX, dirY = aimY }
+        shots[3] = { offsetX = -sideX * offset, offsetY = -sideY * offset, dirX = aimX, dirY = aimY }
+
+    elseif firepower == 4 then
+        local halfSpread = math.rad(SPREAD_ANGLE_DEG) / 2
+        local step = (2 * halfSpread) / (firepower - 1)
+        for i = 0, firepower - 1 do
+            local angle = baseAngle - halfSpread + step * i
+            local dirX = math.cos(angle)
+            local dirY = math.sin(angle)
+            shots[#shots + 1] = { offsetX = 0, offsetY = 0, dirX = dirX, dirY = dirY }
+        end
+
+    elseif firepower == 5 then
+        shots[1] = {
+            offsetX = 0,
+            offsetY = 0,
+            dirX = aimX,
+            dirY = aimY,
+            isGolden = true,
+            damage = 5,
+            sizeMultiplier = 2,
+        }
+
+    elseif firepower == 6 then
+        shots[1] = {
+            offsetX = 0,
+            offsetY = 0,
+            dirX = aimX,
+            dirY = aimY,
+            isGolden = true,
+            damage = 6,
+            sizeMultiplier = 2.5,
+        }
+
+    elseif firepower == 7 then
+        shots[1] = {
+            offsetX = 0,
+            offsetY = 0,
+            dirX = aimX,
+            dirY = aimY,
+            isGolden = true,
+            damage = 7,
+            sizeMultiplier = 3,
+        }
+
+    else
+        local sideX = -aimY
+        local sideY = aimX
+        local offset = projectileSize * 0.8
+        shots[1] = {
+            offsetX = sideX * offset,
+            offsetY = sideY * offset,
+            dirX = aimX,
+            dirY = aimY,
+            isGolden = true,
+            damage = 4,
+            sizeMultiplier = 2,
+        }
+        shots[2] = {
+            offsetX = -sideX * offset,
+            offsetY = -sideY * offset,
+            dirX = aimX,
+            dirY = aimY,
+            isGolden = true,
+            damage = 4,
+            sizeMultiplier = 2,
+        }
+    end
+
+    return shots
+end
+
+function TriangleShooterPlayerProgress.getShots(firepower, tipX, tipY, aimX, aimY, projectileSize)
+    return generateShotPattern(firepower, aimX, aimY, projectileSize)
+end
 
 local function GetXpForNextLevel(level)
     local n = level - 1
