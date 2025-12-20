@@ -1,7 +1,9 @@
-local ExampleScript = {}
+﻿local ExampleScript = {}
 local assets = require("Scripts.Assets")
 local enums = require("Scripts.Enums")
 local Background
+local backgroundSprite
+local bgBaseX, bgBaseY = 0, 0
 local player1
 local x = 100
 local gameOver = false
@@ -12,6 +14,81 @@ local submitted = false -- For Highscore submission
 local playerName = Json.load_player_name()
 if playerName == "" then playerName = "Anon" end
 local showSettings = showSettings or false
+
+-- --------------------------------------------------------------------------------
+-- Saved settings / economy (stored via Json settings)
+-- --------------------------------------------------------------------------------
+local function LoadSetting(key, default)
+    if Json and Json.load_setting then
+        local v = Json.load_setting(GAME_ID, key, default)
+        if v == nil then return default end
+        return v
+    end
+    return default
+end
+
+local function SaveSetting(key, value)
+    if Json and Json.save_setting then
+        Json.save_setting(GAME_ID, key, value)
+    end
+end
+
+-- Audio settings (0..100)
+local s_masterVol = LoadSetting("audio.masterVol", 100)
+local s_sfxVol    = LoadSetting("audio.sfxVol", 100)
+local s_musicVol  = LoadSetting("audio.musicVol", 70)
+local s_musicOn   = LoadSetting("audio.musicOn", true)
+local s_sfxOn     = LoadSetting("audio.sfxOn", true)
+
+-- Currency (total coins owned across runs)
+local bankCoins = LoadSetting("coins.total", 0)
+
+-- Simple CSV helpers for owned items
+local function CsvToSet(csv)
+    local set = {}
+    if type(csv) ~= "string" then return set end
+    for token in string.gmatch(csv, "([^,]+)") do
+        set[token] = true
+    end
+    return set
+end
+
+local function SetToCsv(set)
+    local t = {}
+    for k, v in pairs(set) do
+        if v then table.insert(t, k) end
+    end
+    table.sort(t)
+    return table.concat(t, ",")
+end
+
+-- Owned/equipped cosmetics (IDs). Defaults are always owned.
+local ownedBackgrounds = CsvToSet(LoadSetting("owned.backgrounds", "bg_classic"))
+local ownedBirds       = CsvToSet(LoadSetting("owned.birds", "bird_classic"))
+local equippedBackground = LoadSetting("equipped.background", "bg_classic")
+local equippedBird       = LoadSetting("equipped.bird", "bird_classic")
+
+-- Customise screen tab
+local customiseTab = "backgrounds" -- "backgrounds" or "birds"
+
+-- Shop items (placeholder IDs; hook up textures/sprites later)
+local STORE_BACKGROUNDS = {
+    { id = "bg_classic", name = "Classic Sky", price = 0 },
+    { id = "bg_sunset",  name = "Sunset Sky",  price = 50 },
+    { id = "bg_night",   name = "Night Sky",   price = 120 },
+}
+
+local STORE_BIRDS = {
+    { id = "bird_classic", name = "Classic Bird", price = 0 },
+    { id = "bird_red",     name = "Red Bird",     price = 80 },
+    { id = "bird_gold",    name = "Gold Bird",    price = 250 },
+}
+
+local function EnsureDefaultsOwned()
+    if not ownedBackgrounds["bg_classic"] then ownedBackgrounds["bg_classic"] = true end
+    if not ownedBirds["bird_classic"] then ownedBirds["bird_classic"] = true end
+end
+EnsureDefaultsOwned()
 
 -- Pipes
 local pipe, pipeT, pipe2, pipeT2, pipe3, pipeT3
@@ -84,6 +161,29 @@ local s_volume = 0.75
 -- Window
 Window.set_size_centered(960, 640)
 
+
+-- Base SFX volumes (0..100). Master/SFX settings scale these.
+local BASE_VOL_JUMP    = 100
+local BASE_VOL_HIT     = 50
+local BASE_VOL_COIN    = 100
+local BASE_VOL_GAMEOVER= 30
+
+local function ApplySfxVolumes()
+    local master = (s_masterVol or 100) / 100.0
+    local sfxMul = (s_sfxOn and (s_sfxVol or 100) or 0) / 100.0
+
+    local function setVol(ent, base)
+        if ent ~= nil and AudioComponent and AudioComponent.change_volume then
+            local v = math.floor((base * master * sfxMul) + 0.5)
+            AudioComponent.change_volume(ent, v)
+        end
+    end
+
+    setVol(birdJumpSound, BASE_VOL_JUMP)
+    setVol(hitSound,      BASE_VOL_HIT)
+    setVol(coinSound,     BASE_VOL_COIN)
+    setVol(gameOverSound, BASE_VOL_GAMEOVER)
+end
 ----------------------------------------------------------
 -- Main Menu
 ----------------------------------------------------------
@@ -260,6 +360,10 @@ end
     finalScoreText = "Final Score: " .. tostring(Pscore)
     topScore = "Highscore: " .. tostring(highscore)
     coinsText = "Coins Collected: " .. tostring(score)
+
+    -- Bank run coins so cosmetics can be purchased from the main menu / customise screen
+    bankCoins = (bankCoins or 0) + (score or 0)
+    SaveSetting("coins.total", bankCoins)
 end
 
 ----------------------------------------------------------
@@ -273,7 +377,16 @@ function ExampleScript:OnStart()
     Background = Entity.create_entity()
     local BgBackground = Entity.add_sprite_component(Background, assets.textures.Background,960 , 640, 0)
     
-    ------------------------------------------------------
+    
+    -- Slightly oversize + offset so we can drift it on the main menu without showing edges
+    backgroundSprite = BgBackground
+    if backgroundSprite then
+        Sprite.set_width(backgroundSprite, 980)
+        Sprite.set_height(backgroundSprite, 660)
+    end
+    bgBaseX, bgBaseY = -10, -10
+    Entity.set_global_pos(Background, bgBaseX, bgBaseY)
+------------------------------------------------------
     -- Create player1
     ------------------------------------------------------
     player1 = Entity.create_entity()
@@ -410,6 +523,9 @@ function ExampleScript:OnStart()
     Entity.add_audio_component(gameOverSound, "gameOver", false)
     AudioComponent.change_volume(gameOverSound, 30)
 
+    -- Apply saved audio settings
+    ApplySfxVolumes()
+
     -- Freeze everything on main menu
     Fysics.set_gravity_scale(player1, 0)
     Fysics.set_linear_velocity(player1, 0, 0)
@@ -423,96 +539,364 @@ function ExampleScript:OnStart()
     end
 end
 
+
+----------------------------------------------------------
+-- Flappy UI (Layout C)
+----------------------------------------------------------
+
+local function DrawMainMenu_C(windowW, windowH)
+    -- Light overlay so UI reads without looking like a dark sci‑fi panel
+    UI.add_panel(0, 0, windowW, windowH, 0.10, 0, 0, 0, 0)
+
+    local cx = windowW / 2
+
+    -- Header
+    UI.add_centered_label(cx, 55, "FLAPPY BIRD", "ImGuiDefaultBold", 2.2)
+
+    -- Top-left stats
+    UI.add_label(18, 16, 0, 0, "Best: " .. tostring(highscore), "ImGuiDefaultBold", 1.2)
+    UI.add_label(18, 40, 0, 0, "Coins: " .. tostring(bankCoins or 0), "ImGuiDefaultBold", 1.2)
+
+    -- Big play button
+    local playW, playH = 320, 74
+    local playX = math.floor((windowW - playW) / 2)
+    local playY = math.floor(windowH * 0.44)
+
+    UI.add_button(
+        playX, playY, playW, playH,
+        "PLAY", "fb_play",
+        "ImGuiDefaultBold", 1.15,
+        playH / 2, true,
+        70, 200, 120, 0.95
+    )
+
+    UI.add_centered_label(cx, playY + playH + 28, "Press SPACE to flap", "", 1.15)
+
+    -- Bottom nav strip
+    local navBtnW, navBtnH = 150, 44
+    local navGap = 14
+    local totalW = navBtnW * 3 + navGap * 2
+    local startX = math.floor((windowW - totalW) / 2)
+    local navY = windowH - navBtnH - 26
+
+    -- (No heavy panel; just “mobile-style” buttons)
+    UI.add_button(startX + (navBtnW + navGap) * 0, navY, navBtnW, navBtnH,
+        "Customise", "fb_nav_customise",
+        "ImGuiDefaultBold", 1.0, navBtnH / 2, true,
+        80, 170, 255, 0.92
+    )
+
+    UI.add_button(startX + (navBtnW + navGap) * 1, navY, navBtnW, navBtnH,
+        "Settings", "fb_nav_settings",
+        "ImGuiDefaultBold", 1.0, navBtnH / 2, true,
+        255, 170, 80, 0.92
+    )
+
+    UI.add_button(startX + (navBtnW + navGap) * 2, navY, navBtnW, navBtnH,
+        "Exit", "fb_nav_exit",
+        "ImGuiDefaultBold", 1.0, navBtnH / 2, true,
+        220, 80, 80, 0.90
+    )
+
+    -- Actions
+    if UI.was_button_pressed("fb_play") then
+        if Background ~= nil then
+            Entity.set_global_pos(Background, bgBaseX, bgBaseY)
+        end
+
+        inMainMenu = false
+        resetGame()
+        print("Started Game")
+    elseif UI.was_button_pressed("fb_nav_customise") then
+        menuContext = "customise"
+    elseif UI.was_button_pressed("fb_nav_settings") then
+        menuContext = "settings"
+    elseif UI.was_button_pressed("fb_nav_exit") then
+        os.exit()
+    end
+end
+
+local function DrawSettingsMenu_C(windowW, windowH)
+    UI.add_panel(0, 0, windowW, windowH, 0.18, 0, 0, 0, 0)
+
+    local panelW = math.floor(math.min(560, windowW * 0.85))
+    local panelH = math.floor(math.min(420, windowH * 0.80))
+    local panelX = math.floor((windowW - panelW) / 2)
+    local panelY = math.floor((windowH - panelH) / 2)
+
+    -- Soft “cloudy” panel
+    UI.add_panel(panelX, panelY, panelW, panelH, 0.80, 24, 235, 250, 255)
+
+    local cx = windowW / 2
+    UI.add_centered_label(cx, panelY + 26, "SETTINGS", "ImGuiDefaultBold", 1.9)
+
+    local x = panelX + 40
+    local w = panelW - 80
+    local y = panelY + 85
+
+    -- Music toggle + slider (slider still useful once you add BGM)
+    UI.add_checkbox(x, y, 0, 0, "Music", "fb_music_on", s_musicOn)
+    y = y + 28
+    UI.add_slider(x, y, w, "Music Volume", "fb_music_vol", 0, 100, s_musicVol)
+    y = y + 60
+
+    -- SFX toggle + slider
+    UI.add_checkbox(x, y, 0, 0, "SFX", "fb_sfx_on", s_sfxOn)
+    y = y + 28
+    UI.add_slider(x, y, w, "SFX Volume", "fb_sfx_vol", 0, 100, s_sfxVol)
+    y = y + 60
+
+    -- Master volume
+    UI.add_slider(x, y, w, "Master Volume", "fb_master_vol", 0, 100, s_masterVol)
+
+    -- Apply changes
+    if UI.was_checkbox_changed("fb_music_on") then
+        s_musicOn = UI.get_checkbox("fb_music_on") or s_musicOn
+        SaveSetting("audio.musicOn", s_musicOn)
+    end
+
+    if UI.was_checkbox_changed("fb_sfx_on") then
+        s_sfxOn = UI.get_checkbox("fb_sfx_on") or s_sfxOn
+        SaveSetting("audio.sfxOn", s_sfxOn)
+        ApplySfxVolumes()
+    end
+
+    if UI.was_slider_changed("fb_music_vol") then
+        s_musicVol = UI.get_slider("fb_music_vol") or s_musicVol
+        SaveSetting("audio.musicVol", s_musicVol)
+        -- Hook up to your BGM entity once you add it
+    end
+
+    if UI.was_slider_changed("fb_sfx_vol") then
+        s_sfxVol = UI.get_slider("fb_sfx_vol") or s_sfxVol
+        SaveSetting("audio.sfxVol", s_sfxVol)
+        ApplySfxVolumes()
+    end
+
+    if UI.was_slider_changed("fb_master_vol") then
+        s_masterVol = UI.get_slider("fb_master_vol") or s_masterVol
+        SaveSetting("audio.masterVol", s_masterVol)
+        ApplySfxVolumes()
+    end
+
+    -- Back button
+    local bw, bh = 200, 46
+    local bx = math.floor((windowW - bw) / 2)
+    local by = panelY + panelH - bh - 26
+    UI.add_button(bx, by, bw, bh, "Back", "fb_settings_back",
+        "ImGuiDefaultBold", 1.0, bh / 2, true,
+        80, 170, 255, 0.92
+    )
+
+    if UI.was_button_pressed("fb_settings_back") then
+        menuContext = "main"
+    end
+end
+
+local function DrawCustomiseMenu_C(windowW, windowH)
+    UI.add_panel(0, 0, windowW, windowH, 0.18, 0, 0, 0, 0)
+
+    local panelW = math.floor(math.min(680, windowW * 0.92))
+    local panelH = math.floor(math.min(520, windowH * 0.86))
+    local panelX = math.floor((windowW - panelW) / 2)
+    local panelY = math.floor((windowH - panelH) / 2)
+
+    UI.add_panel(panelX, panelY, panelW, panelH, 0.80, 24, 235, 250, 255)
+
+    local cx = windowW / 2
+    UI.add_centered_label(cx, panelY + 24, "CUSTOMISE", "ImGuiDefaultBold", 1.9)
+    UI.add_centered_label(cx, panelY + 54, "Coins: " .. tostring(bankCoins or 0), "ImGuiDefaultBold", 1.2)
+
+    -- Tabs
+    local tabW, tabH = 160, 40
+    local tabY = panelY + 88
+    local tabX = math.floor(cx - tabW - 10)
+    local tabX2 = math.floor(cx + 10)
+
+    local function tabBtn(label, id, active, x)
+        local r, g, b = 80, 170, 255
+        local a = active and 0.95 or 0.70
+        UI.add_button(x, tabY, tabW, tabH, label, id,
+            "ImGuiDefaultBold", 1.0, tabH / 2, true,
+            r, g, b, a
+        )
+    end
+
+    tabBtn("Backgrounds", "fb_tab_bg", customiseTab == "backgrounds", tabX)
+    tabBtn("Birds",       "fb_tab_bird", customiseTab == "birds", tabX2)
+
+    if UI.was_button_pressed("fb_tab_bg") then customiseTab = "backgrounds" end
+    if UI.was_button_pressed("fb_tab_bird") then customiseTab = "birds" end
+
+    local listX = panelX + 40
+    local listY = tabY + 60
+    local rowH = 54
+    local rowW = panelW - 80
+
+    local function drawItemRow(item, ownedSet, equippedIdKey, currentEquipped, rowIndex)
+        local y = listY + (rowIndex - 1) * rowH
+        if y + rowH > panelY + panelH - 90 then return end
+
+        local owned = ownedSet[item.id] == true
+        local equipped = (currentEquipped == item.id)
+
+        local label = item.name
+        if equipped then
+            label = label .. "  (Equipped)"
+        elseif owned then
+            label = label .. "  (Owned)"
+        else
+            label = label .. "  (" .. tostring(item.price) .. " coins)"
+        end
+
+        UI.add_label(listX, y + 10, 0, 0, label, "ImGuiDefaultBold", 1.15)
+
+        local bw, bh = 140, 38
+        local bx = listX + rowW - bw
+        local by = y + 8
+
+        local btnText, canPress, br, bg, bb, ba
+
+        if equipped then
+            btnText = "Selected"
+            canPress = false
+            br, bg, bb, ba = 120, 120, 120, 0.65
+        elseif owned then
+            btnText = "Equip"
+            canPress = true
+            br, bg, bb, ba = 70, 200, 120, 0.92
+        else
+            btnText = "Buy"
+            canPress = (bankCoins or 0) >= (item.price or 0)
+            if canPress then
+                br, bg, bb, ba = 255, 170, 80, 0.92
+            else
+                br, bg, bb, ba = 120, 120, 120, 0.65
+            end
+        end
+
+        UI.add_button(bx, by, bw, bh, btnText, "fb_buy_" .. item.id,
+            "ImGuiDefaultBold", 1.0, bh / 2, true,
+            br, bg, bb, ba
+        )
+
+        if canPress and UI.was_button_pressed("fb_buy_" .. item.id) then
+            if owned then
+                -- equip
+                if customiseTab == "backgrounds" then
+                    equippedBackground = item.id
+                    SaveSetting("equipped.background", equippedBackground)
+                else
+                    equippedBird = item.id
+                    SaveSetting("equipped.bird", equippedBird)
+                end
+            else
+                -- buy
+                bankCoins = (bankCoins or 0) - (item.price or 0)
+                SaveSetting("coins.total", bankCoins)
+
+                ownedSet[item.id] = true
+                if customiseTab == "backgrounds" then
+                    SaveSetting("owned.backgrounds", SetToCsv(ownedBackgrounds))
+                else
+                    SaveSetting("owned.birds", SetToCsv(ownedBirds))
+                end
+            end
+        end
+    end
+
+    if customiseTab == "backgrounds" then
+        for i, item in ipairs(STORE_BACKGROUNDS) do
+            drawItemRow(item, ownedBackgrounds, "equipped.background", equippedBackground, i)
+        end
+    else
+        for i, item in ipairs(STORE_BIRDS) do
+            drawItemRow(item, ownedBirds, "equipped.bird", equippedBird, i)
+        end
+    end
+
+    -- Back button
+    local bw, bh = 200, 46
+    local bx = math.floor((windowW - bw) / 2)
+    local by = panelY + panelH - bh - 26
+    UI.add_button(bx, by, bw, bh, "Back", "fb_customise_back",
+        "ImGuiDefaultBold", 1.0, bh / 2, true,
+        80, 170, 255, 0.92
+    )
+
+    if UI.was_button_pressed("fb_customise_back") then
+        menuContext = "main"
+    end
+end
+
+
 ----------------------------------------------------------
 -- OnUpdate
 ----------------------------------------------------------
 function ExampleScript:OnUpdate()
+----------------------------------------------------------
+-- Main Menu / Pause / Settings / Customise (Layout C)
+----------------------------------------------------------
 
-    ----------------------------------------------------------
-    -- Main Menu 
-    ----------------------------------------------------------
+if inMainMenu then
+    local windowW = Window.get_width()
+    local windowH = Window.get_height()
 
-    if inMainMenu then
-        local windowW = Window.get_width()
-        local windowH = Window.get_height()
+    -- Only drift the background gently on the main menu
+    if Background ~= nil then
+        if menuContext == "main" then
+            local driftX = math.sin(Mafs.time() * 0.18) * 7
+            local driftY = math.cos(Mafs.time() * 0.12) * 5
+            Entity.set_global_pos(Background, bgBaseX + driftX, bgBaseY + driftY)
+        else
+            Entity.set_global_pos(Background, bgBaseX, bgBaseY)
+        end
+    end
 
-        -- Center button
+    if menuContext == "main" then
+        DrawMainMenu_C(windowW, windowH)
+    elseif menuContext == "settings" then
+        DrawSettingsMenu_C(windowW, windowH)
+    elseif menuContext == "customise" then
+        DrawCustomiseMenu_C(windowW, windowH)
+    elseif menuContext == "ingame" then
+        -- keep your existing pause menu layout for now
         local buttonW, buttonH = 200, 50
         local centerX = (windowW - buttonW) / 2
         local centerY = (windowH - buttonH) / 2
         local gap = 0
 
-        ------------
-        -- Main
-        ------------
-        if menuContext == "main" then
-            UI.add_button(centerX, centerY - 50 - (buttonH / 2) - gap - 20, buttonW, buttonH, "Play", "playButton")
+        UI.add_panel(0, 0, windowW, windowH, 0.35, 0, 0, 0, 0)
 
-            UI.add_button(centerX, centerY + 70 + (buttonH / 2) - gap + 20, buttonW, buttonH, "Exit", "exitButton")
-
-            UI.add_button(centerX, centerY - (buttonH / 2) - gap, buttonW, buttonH, "Customise", "customiseButton")
-
-            UI.add_button(centerX, centerY + 50 - (buttonH / 2) - gap + 20, buttonW, buttonH, "Settings", "settingsButton")
-
-            -- Play button
-            if UI.was_button_pressed("playButton") then
-                inMainMenu = false
-                resetGame()
-                print("Clicked Play Button: Started Game")
-            end
-
-            -- Exit button
-            if UI.was_button_pressed("exitButton") then
-                os.exit()
-                print("Quitting Game")
-            end
-
-            -- Customise button
-            if UI.was_button_pressed("customiseButton") then
-                print("Clicked Customise Button")
-            end
-
-            -- Settings button
-            if UI.was_button_pressed("settingsButton") then
-                print("Clicked Settings Button")
-            end
-        end
-        
-        ------------
-        -- In game
-        ------------
-        if menuContext == "ingame" then
         UI.add_button(centerX, centerY - 50 - (buttonH / 2) - gap - 20, buttonW, buttonH, "Resume", "resumeButton")
-
         UI.add_button(centerX, centerY - (buttonH / 2) - gap, buttonW, buttonH, "Main Menu", "mainMenuButton")
-
         UI.add_button(centerX, centerY + (buttonH / 2) - gap + 20, buttonW, buttonH, "Exit", "exitButton")
 
-            if UI.was_button_pressed("resumeButton") then
-                inMainMenu = false
-                menuContext = "main"
-                print("Resumed Game")
-            end
-
-            if UI.was_button_pressed("mainMenuButton") then
-                resetGame()
-                inMainMenu = true
-                menuContext = "main"
-                print("Switched to main menu")
-            end
-
-            if UI.was_button_pressed("exitButton") then
-                os.exit()
-                print("Quitting Game")
-            end
+        if UI.was_button_pressed("resumeButton") then
+            inMainMenu = false
+            menuContext = "main"
+            print("Resumed Game")
         end
 
-        return
+        if UI.was_button_pressed("mainMenuButton") then
+            resetGame()
+            inMainMenu = true
+            menuContext = "main"
+            print("Switched to main menu")
+        end
+
+        if UI.was_button_pressed("exitButton") then
+            os.exit()
+            print("Quitting Game")
+        end
     end
 
-    -----------------------------------------
-    -- Open main menu button in play mode
-    -----------------------------------------
+    return
+end
+
+-----------------------------------------
+-- Open main menu button in play mode
+-----------------------------------------
     if not inMainMenu then
         local windowW = Window.get_width()
 
@@ -530,19 +914,6 @@ function ExampleScript:OnUpdate()
             menuContext = "ingame"
         end
 
-    end
-
-    ------------------------
-	-- Settings test load
-	------------------------
-
-    if not settings_loaded then
-      s_difficulty = Json.load_setting(GAME_ID, "ui.difficulty", 1)
-      s_skin       = Json.load_setting(GAME_ID, "ui.skin_index", 0)
-      s_tint       = Json.load_setting(GAME_ID, "ui.tint", {1,1,1,1})
-      s_music      = Json.load_setting(GAME_ID, "audio.music", true)
-      s_volume     = Json.load_setting(GAME_ID, "audio.volume", 0.75)
-      settings_loaded = true
     end
 
     ------------------
