@@ -156,6 +156,12 @@ function SystemShooterPlayer.setScreenBounds(w, h)
     screenH = h
 end
 
+function SystemShooterPlayer.setPosition(x, y)
+    playerX = x
+    playerY = y
+    Entity.set_global_pos(player, playerX, playerY)
+end
+
 function SystemShooterPlayer.skipNextDelta()
     skipNextMouseDelta = true
 end
@@ -287,6 +293,9 @@ function SystemShooterPlayer.updateMovement(dt, sensitivity)
     -- Clamp to screen bounds
     playerX = math.max(0, math.min(screenW - playerSize, playerX))
     playerY = math.max(0, math.min(screenH - playerSize, playerY))
+    
+    -- Update entity position (without recoil offset)
+    Entity.set_global_pos(player, playerX, playerY)
 end
 
  --=====================================================================

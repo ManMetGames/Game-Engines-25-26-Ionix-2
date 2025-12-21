@@ -257,9 +257,24 @@ function UpdateWindowTransition(dt)
     Window.set_pos(newX, newY)
     Window.set_size(newWidth, newHeight)
     
-    -- Update screen bounds for player clamping during transition
+    -- Scale player position proportionally to maintain relative position
+    local oldScreenW = screenW
+    local oldScreenH = screenH
     screenW = newWidth
     screenH = newHeight
+    
+    if oldScreenW > 0 and oldScreenH > 0 then
+        local pX, pY = SystemShooterPlayer.getPosition()
+        local pSize = SystemShooterPlayer.getSize()
+        -- Calculate relative position (0-1) in old screen
+        local relX = (pX + pSize/2) / oldScreenW
+        local relY = (pY + pSize/2) / oldScreenH
+        -- Apply to new screen size
+        local newPX = relX * screenW - pSize/2
+        local newPY = relY * screenH - pSize/2
+        SystemShooterPlayer.setScreenBounds(screenW, screenH)
+        SystemShooterPlayer.setPosition(newPX, newPY)
+    end
     
     return true  -- Transition still active
 end
@@ -1563,13 +1578,10 @@ function SystemShooter:OnUpdate()
      --=====================================================================
     local isTransitioning = UpdateWindowTransition(dt)
     if isTransitioning then
-        -- During transition: only update player movement and visual effects
-        -- No shooting, no projectiles, no UI, no enemy updates
+        -- During transition: only update player movement
+        -- No aiming, recoil, flash, shooting, projectiles, UI, or enemy updates
         SystemShooterPlayer.setScreenBounds(screenW, screenH)
         SystemShooterPlayer.updateMovement(dt, sensitivitySetting)
-        SystemShooterPlayer.updateAiming(enemies, enemySize)
-        SystemShooterPlayer.updateRecoil(dt)
-        SystemShooterPlayer.updateFlash(dt)
         SystemShooterPlayer.stopFiring()
         return
     end
