@@ -796,8 +796,6 @@ local function DrawMainMenu_C(windowW, windowH)
         70, 200, 120, 0.95
     )
 
-    UI.add_centered_label(cx, playY + playH + 28, T("fb.press_space_flap"), UI_FONT_REG, 1.15)
-
     -- Bottom nav strip
     local navBtnW, navBtnH = 150, 44
     local navGap = 14
@@ -1374,12 +1372,12 @@ end
         )
 
         local lcx = lbW / 2
-        UI.add_centered_label(lcx, 12, T("fb.leaderboard"), UI_FONT_HEADER, 1.0)
+        UI.add_centered_label(lcx, 6, T("fb.leaderboard"), UI_FONT_HEADER, 1.0)
 
         if topLeaderboard then
             for i, e in ipairs(topLeaderboard) do
                 local line = string.format("%d. %s - %d", i, e.name, e.score)
-                UI.add_label(10, 42 + (i-1)*20, 0, 0, line, UI_FONT_REG, 1.0)
+                UI.add_label(10, 42 + (i-1)*20, 0, 0, line, "ImGuiDefault", 1.0)
             end
         end
 
