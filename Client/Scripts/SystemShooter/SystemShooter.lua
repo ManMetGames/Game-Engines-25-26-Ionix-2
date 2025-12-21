@@ -169,6 +169,7 @@ local windowTransitionTargetH = 0
 local windowTransitionTotalPixels = 0  -- total distance to travel
 local pendingLevelIndex = nil
 local pendingResetPlayerState = false
+local playerInitialized = false  -- Track if player has been initialized (delayed until first transition completes)
 
 
 -- ENEMY (CUBE)
@@ -225,6 +226,17 @@ function UpdateWindowTransition(dt)
         if index ~= nil then
             screenW = Window.get_width()
             screenH = Window.get_height()
+            
+            -- Initialize player after first window transition (MainMenu -> Level 1) completes
+            if not playerInitialized then
+                SystemShooterPlayer.init({
+                    assets = assets,
+                    screenW = screenW,
+                    screenH = screenH,
+                })
+                playerInitialized = true
+            end
+            
             LoadLevel(index, reset)
         end
         return false
@@ -756,12 +768,9 @@ function SystemShooter:OnStart()
     -- Enable relative mouse mode (hides cursor, gives delta movement)
     Input.set_relative_mouse_mode(false)
     
-    -- Initialize player module
-    SystemShooterPlayer.init({
-        assets = assets,
-        screenW = screenW,
-        screenH = screenH,
-    })
+    -- NOTE: Player initialization is now delayed until after the first
+    -- window transition (MainMenu -> Level 1) completes to prevent
+    -- player spawning before the level is ready
     
     -- Initialize projectile module with callbacks
     SystemShooterProjectiles.init({
@@ -1630,11 +1639,13 @@ function SystemShooter:OnUpdate()
      --=====================================================================
     local isTransitioning = UpdateWindowTransition(dt)
     if isTransitioning then
-        -- During transition: only update player movement
+        -- During transition: only update player movement (if player exists)
         -- No aiming, recoil, flash, shooting, projectiles, UI, or enemy updates
-        SystemShooterPlayer.setScreenBounds(screenW, screenH)
-        SystemShooterPlayer.updateMovement(dt, sensitivitySetting)
-        SystemShooterPlayer.stopFiring()
+        if playerInitialized then
+            SystemShooterPlayer.setScreenBounds(screenW, screenH)
+            SystemShooterPlayer.updateMovement(dt, sensitivitySetting)
+            SystemShooterPlayer.stopFiring()
+        end
         return
     end
 
@@ -1733,6 +1744,11 @@ function SystemShooter:OnUpdate()
      --=====================================================================
      --  [ONUPDATE] Player Movement, Aiming, Shooting (via SystemShooterPlayer)
      --=====================================================================
+    -- Guard all player updates - player may not be initialized yet
+    if not playerInitialized then
+        return
+    end
+    
     -- Player can still move during rewind
     SystemShooterPlayer.setScreenBounds(screenW, screenH)
     SystemShooterPlayer.updateMovement(dt, sensitivitySetting)
