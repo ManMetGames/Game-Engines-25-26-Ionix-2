@@ -311,12 +311,16 @@ namespace IonixEngine {
                 ImVec4 fill = ImVec4(0, 0, 0, 0);
                 ImVec4 border = ImVec4(0, 0, 0, 0);
 
+
+                float capMax = -1.0f;
+                ImVec4 capFill = ImVec4(1.0f, 0.82f, 0.24f, 0.86f);
                 if (style)
                 {
                     sol::table t = style.value();
 
                     if (sol::optional<float> v = t["rounding"]) rounding = *v;
                     if (sol::optional<float> v = t["border_size"]) borderSize = *v;
+
 
                     auto readColor = [&](const char* key, ImVec4& out) -> bool
                         {
@@ -335,7 +339,11 @@ namespace IonixEngine {
                     any = readColor("bg", bg) || any;
                     any = readColor("fill", fill) || any;
                     any = readColor("border", border) || any;
-                    useColors = any;
+
+                    if (sol::optional<float> v = t["cap_max"]) capMax = *v;
+                    bool hasCapFill = readColor("cap_fill", capFill);
+
+                    useColors = any || hasCapFill;
                 }
 
                 Application::Get().layerUI->m_UIManager->AddProgressBarValueStyled(
@@ -344,7 +352,8 @@ namespace IonixEngine {
                     rounding, borderSize,
                     useColors, bg, fill, border,
                     overlayText.value_or(""),
-                    "", 1.0f
+                    "", 1.0f,
+                    capMax, capFill
                 );
             };
 

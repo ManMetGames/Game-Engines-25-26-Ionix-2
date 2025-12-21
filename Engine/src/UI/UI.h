@@ -25,6 +25,11 @@ namespace IonixEngine
             float rounding, float borderSize,
             bool useColors, ImVec4 bg, ImVec4 fill, ImVec4 border,
             const char* overlayText = "");
+        void DrawProgressBarStyledCapped(int xpos, int ypos, float xsize, float ysize, float maxvalue, float currentvalue, int colorId,
+            float rounding, float borderSize,
+            bool useColors, ImVec4 bg, ImVec4 fill, ImVec4 border,
+            float capMax, ImVec4 capFill,
+            const char* overlayText = "");
         bool DrawDropdown(int xPos, int yPos, float xSize, float ySize, const char* text,
             const std::vector<std::string>& options, int* currentIndex);
 

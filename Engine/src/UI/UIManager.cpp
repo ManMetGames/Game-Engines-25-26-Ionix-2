@@ -539,7 +539,8 @@ namespace IonixEngine
 		float rounding, float borderSize,
 		bool useColors, ImVec4 bg, ImVec4 fill, ImVec4 border,
 		const std::string& overlayText,
-		const std::string& fontName, float fontScale)
+		const std::string& fontName, float fontScale,
+		float capMax, ImVec4 capFill)
 	{
 		UIElement* element = new UIElement{};
 		element->type = UIType::ProgressBar;
@@ -564,6 +565,9 @@ namespace IonixEngine
 		element->progressBorder = border;
 		element->progressOverlayText = overlayText;
 
+
+		element->progressCapMax = capMax;
+		element->progressCapFill = capFill;
 		element->fontName = fontName;
 		element->fontScale = fontScale;
 
@@ -1005,20 +1009,42 @@ namespace IonixEngine
 			{
 				if (element->progressCustomStyle)
 				{
-					m_ui->DrawProgressBarStyled(
-						element->xPos, element->yPos,
-						element->xSize, element->ySize,
-						element->maxValue,
-						element->progressCurrentValue,
-						element->progressColorId,
-						element->progressRounding,
-						element->progressBorderSize,
-						element->progressUseColors,
-						element->progressBg,
-						element->progressFill,
-						element->progressBorder,
-						element->progressOverlayText.c_str()
-					);
+					if (element->progressCapMax > 0.0f && element->progressCapMax < element->maxValue && element->progressCapFill.w > 0.0f)
+					{
+						m_ui->DrawProgressBarStyledCapped(
+							element->xPos, element->yPos,
+							element->xSize, element->ySize,
+							element->maxValue,
+							element->progressCurrentValue,
+							element->progressColorId,
+							element->progressRounding,
+							element->progressBorderSize,
+							element->progressUseColors,
+							element->progressBg,
+							element->progressFill,
+							element->progressBorder,
+							element->progressCapMax,
+							element->progressCapFill,
+							element->progressOverlayText.c_str()
+						);
+					}
+					else
+					{
+						m_ui->DrawProgressBarStyled(
+							element->xPos, element->yPos,
+							element->xSize, element->ySize,
+							element->maxValue,
+							element->progressCurrentValue,
+							element->progressColorId,
+							element->progressRounding,
+							element->progressBorderSize,
+							element->progressUseColors,
+							element->progressBg,
+							element->progressFill,
+							element->progressBorder,
+							element->progressOverlayText.c_str()
+						);
+					}
 				}
 				else
 				{
