@@ -14,23 +14,19 @@ local STRINGS = {
   },
 
 
-  jp = {
-    ["fb.leaderboard"] = "ƒ‰ƒ“ƒLƒ“ƒO",
+  ja = {
+    ["fb.leaderboard"] = "ï¿½ï¿½ï¿½ï¿½ï¿½Lï¿½ï¿½ï¿½O",
     ["fb.coins"]               = "",
     ["fb.press_space_start"]     = "",
     ["fb.press_space_restart"]   = "",
     ["fb.game_over_try_again"]   = "",
     ["fb.new_highscore_line1"]   = "",
     ["fb.new_highscore_line2"]   = "",
-  },
+  }
 }
 
 function Localisation.set_language(lang)
-  if STRINGS[lang] ~= nil then
-    current = lang
-  else
-    current = "en"
-  end
+  if STRINGS[lang] then current = lang else current = "en" end
 end
 
 function Localisation.get_language()

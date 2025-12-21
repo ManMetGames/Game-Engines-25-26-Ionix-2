@@ -31,36 +31,36 @@ end
 local playerName = SanitiseName(Json.load_player_name())
 local showSettings = showSettings or false
 
--- UI fonts 
-local UI_FONT_REG    = "ImGuiDefault"
-local UI_FONT_SUB    = "ImGuiSub"
-local UI_FONT_HEADER = "ImGuiHeader"
-local UI_FONT_TITLE  = "ImGuiTitle"
+-- --------------------------------------------------------------------------------
+-- Language settings
+-- --------------------------------------------------------------------------------
+local Localisation = require("Scripts.FlappyBird.Localisation")
+local function T(key) return Localisation.t(key) end
+
+local language = Json.load_setting(GAME_ID, "ui.language", "en") or "en"
+Localisation.set_language(language)
+
+local UI_FONT_BOLD = "ImGuiDefaultBold"
+local UI_FONT_REG  = "ImGuiDefault"
 
 -- Language-specific 
-local function ApplyUIFontForLanguage(lang)
-    if lang == "jp" then
-        UI_FONT_REG    = "ImGuiDefaultJP"
-        UI_FONT_SUB    = "ImGuiSubJP"
-        UI_FONT_HEADER = "ImGuiHeaderJP"
-        UI_FONT_TITLE  = "ImGuiTitleJP"
+local function ApplyLanguageFonts()
+    if lang == "ja" then
+      UI_FONT_REG   = "ImGuiDefaultJP"
+      UI_FONT_BOLD  = "ImGuiDefaultBoldJP"
+      UI_FONT_SUB = "ImGuiSubJP"
+      UI_FONT_HEADER = "ImGuiHeaderJP"
+      UI_FONT_TITLE = "ImGuiTitleJP"
     else
-        UI_FONT_REG    = "ImGuiDefault"
-        UI_FONT_SUB    = "ImGuiSub"
-        UI_FONT_HEADER = "ImGuiHeader"
-        UI_FONT_TITLE  = "ImGuiTitle"
+      UI_FONT_REG   = "ImGuiDefault"
+      UI_FONT_BOLD  = "ImGuiDefaultBold"
+      UI_FONT_SUB = "ImGuiSub"
+      UI_FONT_HEADER = "ImGuiHeader"
+      UI_FONT_TITLE = "ImGuiTitle"
     end
 end
 
--- Localisation (separate file)
-local Localisation = require("Scripts.FlappyBird.Localisation")
-
-local function T(key, ...)
-    return Localisation.t(key, ...)
-end
-
-
-
+ApplyLanguageFonts()
 -- --------------------------------------------------------------------------------
 -- Saved settings 
 -- --------------------------------------------------------------------------------
@@ -833,14 +833,38 @@ local function DrawSettingsMenu_C(windowW, windowH)
     local panelX = math.floor((windowW - panelW) / 2)
     local panelY = math.floor((windowH - panelH) / 2)
 
-    UI.add_panel(panelX, panelY, panelW, panelH, 0.80, 26, 245, 225, 170)
+    -- Outer child used as the panel background 
+    UI.begin_child(panelX, panelY, panelW, panelH, "FB_SettingsPanel",
+        true, 0, true, 0.80, 12, 26, 245, 225
+    )
 
-    local cx = windowW / 2
-    UI.add_centered_label(cx, panelY + 26, "SETTINGS", "ImGuiDefaultBold", 1.9)
+    local cx = panelW / 2
+    UI.add_centered_label(cx, 26, "SETTINGS", "ImGuiDefaultBold", 1.9)
 
-    local x = panelX + 40
-    local w = panelW - 80
-    local y = panelY + 85
+    -- Inner content child coordinates are local to the outer child.
+    -- Make the inner child a bit wider (smaller left/right margin) and add internal padding
+    local contentX = 30
+    local contentY = 85
+    local contentW = panelW - 60  -- was panelW - 80 -> wider inner child
+    local contentH = panelH - 157 -- leave space for footer/button area
+
+    UI.begin_child(contentX, contentY, contentW, contentH, "FB_SettingsContent",
+        false, 128, false
+    )
+
+    -- Use local coordinates inside the content child
+    local leftPad = 12
+    local x = leftPad
+    local w = contentW - (leftPad * 2) -- leave padding on both sides so scrollbar doesn't cover controls
+    local y = 0
+
+    -- Center X inside inner child
+    local cxLocal = contentW / 2
+
+    -- Header for the audio block (centered, above all audio controls)
+    UI.add_centered_label(cxLocal, y + 8, "Audio settings", UI_FONT_HEADER, 1)
+    y = y + 36
+
     -- for future sliders
     local sliderStyle = {
         height = 18,
@@ -851,19 +875,23 @@ local function DrawSettingsMenu_C(windowW, windowH)
     }
 
     local checkboxStyle = {
-    size = 18,
-    rounding = 6,
-    off = { 60, 80, 100, 0.35 },
-    on  = { 255, 200, 80, 0.95 },
-    check = { 255, 255, 255, 0.95 }
+        size = 18,
+        rounding = 6,
+        off = { 60, 80, 100, 0.35 },
+        on  = { 255, 200, 80, 0.95 },
+        check = { 255, 255, 255, 0.95 }
     }
+
+    -- Use a fixed block spacing so sliders are equally spaced
+    local blockGap = 66
+
     -- Music toggle + slider 
     UI.add_checkbox_styled(x, y, 0, 0, "Music", "fb_music_on", s_musicOn, UI_FONT_REG, 1, checkboxStyle)
     y = y + 28
     UI.add_label(x, y, 0, 0, "Music Volume", UI_FONT_REG, 1.0)
     y = y + 18
     UI.add_slider_styled(x, y, w, "", "fb_music_vol", 0, 100, s_musicVol, nil, nil, "%.0f", sliderStyle)
-    y = y + 60
+    y = y + blockGap
 
     -- SFX toggle + slider
     UI.add_checkbox_styled(x, y, 0, 0, "SFX", "fb_sfx_on", s_sfxOn, UI_FONT_REG, 1, checkboxStyle)
@@ -871,14 +899,15 @@ local function DrawSettingsMenu_C(windowW, windowH)
     UI.add_label(x, y, 0, 0, "SFX Volume", UI_FONT_REG, 1.0)
     y = y + 18
     UI.add_slider_styled(x, y, w, "", "fb_sfx_vol", 0, 100, s_sfxVol, nil, nil, "%.0f", sliderStyle)
-    y = y + 60
+    y = y + blockGap
 
     -- Master volume
     UI.add_label(x, y, 0, 0, "Master Volume", UI_FONT_REG, 1.0)
     y = y + 18
     UI.add_slider_styled(x, y, w, "", "fb_master_vol", 0, 100, s_masterVol, nil, nil, "%.0f", sliderStyle)
+    y = y + 66 -- extra space before language header
 
-    -- Apply changes
+    -- Apply changes 
     if UI.was_checkbox_changed("fb_music_on") then
         s_musicOn = UI.get_checkbox("fb_music_on")
         if s_musicOn == nil then s_musicOn = true end
@@ -899,7 +928,6 @@ local function DrawSettingsMenu_C(windowW, windowH)
         SaveSetting("audio.sfxOn", s_sfxOn)
         ApplySfxVolumes()
 
-        -- If disabling SFX, stop any currently playing sounds immediately
         if (not s_sfxOn) and AudioComponent and AudioComponent.terminate then
             AudioComponent.terminate(birdJumpSound)
             AudioComponent.terminate(hitSound)
@@ -914,8 +942,6 @@ local function DrawSettingsMenu_C(windowW, windowH)
         ApplySfxVolumes()
     end
 
-
-
     if UI.was_slider_changed("fb_master_vol") then
         s_masterVol = UI.get_slider("fb_master_vol") or s_masterVol
         SaveSetting("audio.masterVol", s_masterVol)
@@ -923,10 +949,49 @@ local function DrawSettingsMenu_C(windowW, windowH)
         ApplyMusicVolume()
     end
 
-    -- Back button
+    local ddStyle = {
+        height = 32,
+        rounding = 10,
+        popup_rounding = 10,
+        border_size = 1,
+        -- frame uses same dark track as slider.track
+        frame = { 60, 80, 100, 0.35 },
+        -- hover/active use the same warm "grab" colour as slider.grab / checkbox.on
+        frame_hover  = { 255, 200, 80, 0.95 },
+        frame_active = { 255, 200, 80, 0.95 },
+        -- dropdown background slightly darker
+        popup_bg = { 20, 20, 20, 0.95 },
+        -- item highlight uses warm accent
+        item        = { 255, 200, 80, 0.95 },
+        item_hover  = { 255, 200, 80, 0.95 },
+        item_active = { 255, 200, 80, 0.95 },
+        text = { 255, 255, 255, 1.0 },
+    }
+
+    -- Language section below audio. Make the label larger and spaced further down.
+    local opts = { "English", "日本語" }
+    local defaultIndex = (language == "ja") and 1 or 0
+
+    UI.add_centered_label(x + w/2, y, "Language", UI_FONT_HEADER, 1.0)
+    y = y + 36
+    local langDropdownFont = UI_FONT_REG
+    UI.add_dropdown_styled(x, y, w, 32, "", "fb_lang", opts, defaultIndex, langDropdownFont, 1.0, ddStyle)
+
+    if UI.was_dropdown_changed("fb_lang") then
+        local idx = UI.get_dropdown_index("fb_lang") or 0
+        language = (idx == 1) and "ja" or "en"
+        Json.save_setting(GAME_ID, "ui.language", language)
+        Localisation.set_language(language)
+        ApplyLanguageFonts()
+    end
+
+    UI.end_child() -- end inner content child
+
+    -- Footer / Back button 
     local bw, bh = 200, 46
-    local bx = math.floor((windowW - bw) / 2)
-    local by = panelY + panelH - bh - 26
+    local bx = math.floor((panelW - bw) / 2)
+    local by = panelH - bh - 26
+
     UI.add_button(bx, by, bw, bh, "Back", "fb_settings_back",
         "ImGuiDefaultBold", 1.0, bh / 2, true,
         80, 170, 255, 0.92
@@ -935,6 +1000,8 @@ local function DrawSettingsMenu_C(windowW, windowH)
     if UI.was_button_pressed("fb_settings_back") then
         menuContext = settingsBackContext
     end
+
+    UI.end_child() -- end outer child (panel)
 end
 
 local function DrawCustomiseMenu_C(windowW, windowH)
