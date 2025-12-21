@@ -53,7 +53,7 @@ SystemShooterEnemy.DEFAULTS = DEFAULTS
  --=====================================================================
  --  [PUBLIC API] Enemy Lifecycle (Create / Clear)
  --=====================================================================
-function SystemShooterEnemy.createEnemy(x, y, config, playerX, playerY, playerSize)
+function SystemShooterEnemy.createEnemy(x, y, config)
     config = config or {}
     
     local size = config.size or DEFAULTS.size
@@ -71,18 +71,10 @@ function SystemShooterEnemy.createEnemy(x, y, config, playerX, playerY, playerSi
     Sprite.set_columns(sprite, 1)
     Sprite.set_color(sprite, color[1], color[2], color[3])
 
-    local playerCenterX = playerX + playerSize/2
-    local playerCenterY = playerY + playerSize/2
-    local enemyCenterX = x + size/2
-    local enemyCenterY = y + size/2
-    local dx = playerCenterX - enemyCenterX
-    local dy = playerCenterY - enemyCenterY
-    local dist = math.sqrt(dx * dx + dy * dy)
-    local dirX, dirY = 0, 0
-    if dist > 0 then
-        dirX = dx / dist
-        dirY = dy / dist
-    end
+    -- Initial direction: random normalized vector (recalculated each frame anyway)
+    local angle = math.random() * 2 * math.pi
+    local dirX = math.cos(angle)
+    local dirY = math.sin(angle)
 
     local healthScaling = config.healthScaling
     if healthScaling == nil then healthScaling = true end

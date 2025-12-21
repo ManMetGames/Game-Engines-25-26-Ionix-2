@@ -195,9 +195,7 @@ local LoadLevel
 
 local function CreateEnemy(x, y, config)
     config = config or {}
-    local pX, pY = SystemShooterPlayer.getPosition()
-    local pSize = SystemShooterPlayer.getSize()
-    return SystemShooterEnemy.createEnemy(x, y, config, pX, pY, pSize)
+    return SystemShooterEnemy.createEnemy(x, y, config)
 end
 
  --=====================================================================
@@ -1644,7 +1642,6 @@ function SystemShooter:OnUpdate()
     if not SystemShooterRewind.isActive() then
         local playGunshotSfx = function()
             if gunshot3SfxEntity then
-                AudioComponent.change_volume(gunshot3SfxEntity, 4)
                 AudioComponent.play(gunshot3SfxEntity)
             end
         end

@@ -380,6 +380,9 @@ function SystemShooterPlayer.updateShooting(dt, isNoWitnessesActive, playGunshot
         isFiring = true
         if fireCooldownTimer <= 0 then
             spawnProjectile(onShotFired)
+            if playGunshotSfx then
+                playGunshotSfx()
+            end
             local interval = SystemShooterPlayerProgress.getCurrentFireInterval()
             if not interval or interval <= 0 then
                 interval = 0.5
