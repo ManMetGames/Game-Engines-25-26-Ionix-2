@@ -11,6 +11,7 @@ local SystemShooterPlayerProgress = require("Scripts.SystemShooter.SystemShooter
 local ParticleSystem = require("Scripts.SystemShooter.ParticleSystem")
 local SystemShooterPickups = require("Scripts.SystemShooter.SystemShooterPickups")
 local SystemShooterRewind = require("Scripts.SystemShooter.SystemShooterRewind")
+local SystemShooterProjectiles = require("Scripts.SystemShooter.SystemShooterProjectiles")
 local Localisation = require("Scripts.SystemShooter.Localisation")
 
 
@@ -181,12 +182,7 @@ local playerFlashDuration = 0.2  -- seconds
 local damageCooldown = 0
 local damageCooldownDuration = 0.5  -- seconds
 
--- PROJECTILE SETTINGS
-local projectiles = {}      -- Active projectiles
-local projectilePool = {}   -- Inactive projectiles (reusable)
-local projectileSize = 24
-local projectileSpeed = 1120 --PIXELS PER SECOND
-local projectileLifetimeSeconds = 4  -- seconds projectile can live before auto-despawn (all projectiles in game)
+-- PROJECTILE SETTINGS (now managed by SystemShooterProjectiles module)
 local fireCooldownTimer = 0
 local isFiring = false
 
@@ -291,22 +287,11 @@ local function ClearEnemies()
 end
 
 local function ClearAllPlayerProjectiles()
-    for i = #projectiles, 1, -1 do
-        local proj = projectiles[i]
-        Entity.set_global_pos(proj.entity, -1000, -1000)
-        table.insert(projectilePool, table.remove(projectiles, i))
-    end
+    SystemShooterProjectiles.clearAllPlayerProjectiles()
 end
 
-local enemyProjectiles = {}
-local enemyProjectilePool = {}
-
 local function ClearAllEnemyProjectiles()
-    for i = #enemyProjectiles, 1, -1 do
-        local proj = enemyProjectiles[i]
-        Entity.set_global_pos(proj.entity, -1000, -1000)
-        table.insert(enemyProjectilePool, table.remove(enemyProjectiles, i))
-    end
+    SystemShooterProjectiles.clearAllEnemyProjectiles()
 end
 
 local function ResetRunStateForMenu()
@@ -337,13 +322,8 @@ local function ResetRunStateForMenu()
 end
 
  --=====================================================================
- --  [STATE] Enemy Projectiles
+ --  [STATE] Enemy Projectiles (now managed by SystemShooterProjectiles module)
  --=====================================================================
--- ENEMY PROJECTILE SETTINGS
-enemyProjectiles = {}
-enemyProjectilePool = {}
-local enemyProjectileSize = 24
-local enemyProjectileSpeed = 420 -- PIXELS PER SECOND 
 local enemyShootIntervalSeconds = 0.5
 
 -- COLLISION SETTINGS
@@ -726,6 +706,58 @@ end
 function SystemShooter:OnStart()
     -- Enable relative mouse mode (hides cursor, gives delta movement)
     Input.set_relative_mouse_mode(false)
+    
+    -- Initialize projectile module with callbacks
+    SystemShooterProjectiles.init({
+        callbacks = {
+            getEnemies = function() return enemies end,
+            getPlayerPos = function() return playerX, playerY, playerSize end,
+            isNoWitnessesActive = IsNoWitnessesActive,
+            getNoWitnessesDamageMultiplier = function() return SystemShooterPlayerProgress.getNoWitnessesDamageMultiplier() end,
+            getLowEnemyDamageStacks = function() return SystemShooterPlayerProgress.getLowEnemyDamageStacks() end,
+            getActiveEnemyCount = GetActiveEnemyCount,
+            onEnemyHit = function(enemy, damage, proj)
+                FlashEnemy(enemy)
+                SystemShooterEnemy.updateDisplaySize(enemy)
+                local eSize = enemy.size or enemySize
+                local enemyCenterX = enemy.x + eSize / 2
+                local enemyCenterY = enemy.y + eSize / 2
+                local color = enemy.color or {255, 255, 255}
+                ParticleSystem.emitHitBurst(enemyCenterX, enemyCenterY, color[1], color[2], color[3])
+                if impact3SfxEntity then
+                    local v = math.random(12, 20)
+                    AudioComponent.change_volume(impact3SfxEntity, v)
+                    AudioComponent.play(impact3SfxEntity)
+                end
+            end,
+            onEnemyKilled = function(enemy, allEnemies)
+                local eSize = enemy.size or enemySize
+                local deathX = enemy.x + eSize / 2
+                local deathY = enemy.y + eSize / 2
+                SystemShooterPickups.trySpawnHealingOrb(deathX, deathY)
+                runEnemiesKilled = runEnemiesKilled + 1
+                enemy.isDead = true
+                Entity.set_global_pos(enemy.entity, -1000, -1000)
+                local allDead = true
+                for _, e in ipairs(allEnemies) do
+                    if not e.isDead then
+                        allDead = false
+                        break
+                    end
+                end
+                if allDead then
+                    peaceTimerSeconds = endLevelPeaceDuration
+                    isStartLevelPeace = false
+                end
+            end,
+            onPlayerHit = function(damage)
+                playerHealth = playerHealth - damage
+                FlashPlayer()
+                damageCooldown = damageCooldownDuration
+            end,
+            addXp = function(amount) SystemShooterPlayerProgress.addXp(amount) end,
+        }
+    })
     
     -- Create player triangle
     player = Entity.create_entity()
@@ -1627,6 +1659,7 @@ function SystemShooter:OnUpdate()
     -- Update screen bounds from window
     screenW = Window.get_width()
     screenH = Window.get_height()
+    SystemShooterProjectiles.setScreenBounds(screenW, screenH)
     
     if levelTimerSeconds > 0 and #enemies > 0 and not isStartLevelPeace and not isLevelupPeace then
         levelTimerSeconds = levelTimerSeconds - dt
@@ -1787,9 +1820,13 @@ function SystemShooter:OnUpdate()
      --=====================================================================
     -- Skip normal updates during rewind (handled in rewind logic)
     if not SystemShooterRewind.isActive() then
-        -- Update all projectiles
-        UpdateProjectiles()
-        UpdateEnemyProjectiles()
+        -- Update all projectiles via module
+        local runStats = { shotsHit = runShotsHit, damageDealt = runDamageDealt, damageTaken = runDamageTaken }
+        SystemShooterProjectiles.updatePlayerProjectiles(dt, runStats)
+        SystemShooterProjectiles.updateEnemyProjectiles(dt, damageCooldown, runStats)
+        runShotsHit = runStats.shotsHit
+        runDamageDealt = runStats.damageDealt
+        runDamageTaken = runStats.damageTaken
 
         -- Check enemy-player collision and apply damage
         UpdateEnemyCollision()
@@ -1964,7 +2001,7 @@ function SystemShooter:OnUpdate()
         
         -- Update rewind system
         local result = SystemShooterRewind.update(
-            dt, enemies, projectiles, enemyProjectiles,
+            dt, enemies, SystemShooterProjectiles.getPlayerProjectiles(), SystemShooterProjectiles.getEnemyProjectiles(),
             UpdateEnemyMovement, clearProjectiles
         )
         
@@ -2045,74 +2082,8 @@ function SystemShooter:OnUpdate()
 end
 
  --=====================================================================
- --  [PLAYER PROJECTILES] Spawn / Update
+ --  [PLAYER PROJECTILES] Spawn (now uses SystemShooterProjectiles module)
  --=====================================================================
-local function SpawnPlayerSingleProjectile(spawnX, spawnY, dirX, dirY, pierceCount, bounceCount, shotData)
-    local projData
-    shotData = shotData or {}
-    
-    local isGolden = shotData.isGolden or false
-    local damage = shotData.damage or 1
-    local sizeMultiplier = shotData.sizeMultiplier or 1
-    local actualSize = projectileSize * sizeMultiplier
-
-    -- Determine projectile color based on golden status and no-witnesses buff
-    local noWitnessesActive = IsNoWitnessesActive()
-    local r, g, b = 255, 255, 255  -- Default white
-    if isGolden then
-        r, g, b = 255, 215, 0  -- Gold color (priority)
-    elseif noWitnessesActive then
-        r, g, b = 255, 0, 0  -- Red when no-witnesses buff is active
-    end
-
-    -- Try to reuse a pooled projectile
-    if #projectilePool > 0 then
-        projData = table.remove(projectilePool)
-        -- Update sprite size for reused projectile
-        local sprite = Entity.get_sprite_component(projData.entity)
-        if sprite then
-            Sprite.set_image_width(sprite, math.floor(actualSize))
-            Sprite.set_image_height(sprite, math.floor(actualSize))
-            Sprite.set_color(sprite, r, g, b)
-        end
-    else
-        -- Create new entity only if pool is empty
-        local proj = Entity.create_entity()
-        -- Layer 4: render under enemies (layer 5)
-        local sprite = Entity.add_sprite_component(proj, assets.textures.Ghast_Tear, math.floor(actualSize), math.floor(actualSize), 4)
-        if sprite then
-            Sprite.set_color(sprite, r, g, b)
-        end
-        projData = { entity = proj }
-    end
-
-    -- Adjust spawn position for larger projectiles
-    local adjustedSpawnX = spawnX - (actualSize - projectileSize) / 2
-    local adjustedSpawnY = spawnY - (actualSize - projectileSize) / 2
-
-    -- Set position and rotation
-    Entity.set_global_pos(projData.entity, adjustedSpawnX, adjustedSpawnY)
-    local projAngle = math.deg(math.atan(dirY, dirX)) + 90
-    Entity.set_global_rot(projData.entity, projAngle)
-
-    -- Initialize projectile data
-    projData.x = adjustedSpawnX
-    projData.y = adjustedSpawnY
-    projData.vx = dirX * projectileSpeed
-    projData.vy = dirY * projectileSpeed
-    projData.age = 0
-    projData.pierceRemaining = pierceCount or 0
-    projData.bounceRemaining = bounceCount or 0
-    projData.maxLifetime = projectileLifetimeSeconds + (bounceCount * 2.5)
-    projData.hitEnemies = {}
-    projData.hasHit = false
-    projData.damage = damage
-    projData.isGolden = isGolden
-    projData.size = actualSize
-
-    table.insert(projectiles, projData)
-end
-
 function SpawnProjectile()
     -- Spawn at tip of triangle (offset in aim direction)
     local centerX = playerX + playerSize/2
@@ -2124,6 +2095,7 @@ function SpawnProjectile()
     local pierceCount = SystemShooterPlayerProgress.getPierceCount()
     local bounceCount = SystemShooterPlayerProgress.getBounceCount()
 
+    local projectileSize = SystemShooterProjectiles.PlayerConfig.size
     local shots = SystemShooterPlayerProgress.getShots(firepower, tipX, tipY, aimDirX, aimDirY, projectileSize)
     if not shots then
         return
@@ -2139,234 +2111,7 @@ function SpawnProjectile()
 
         local spawnX = tipX + offsetX - projectileSize/2
         local spawnY = tipY + offsetY - projectileSize/2
-        SpawnPlayerSingleProjectile(spawnX, spawnY, dirX, dirY, pierceCount, bounceCount, s)
-    end
-end
-
-----------------------------------------------------------
--- Update all active projectiles
-----------------------------------------------------------
-local function FindClosestEnemy(fromX, fromY)
-    local closestEnemy = nil
-    local closestDistSq = math.huge
-    for j = 1, #enemies do
-        local enemy = enemies[j]
-        -- Skip disabled and dead enemies
-        if not enemy.disabled and not enemy.isDead and (enemy.teleportVisible == nil or enemy.teleportVisible) then
-            local eDisplaySize = enemy.displaySize or enemy.size or enemySize
-            local enemyCenterX = enemy.x + eDisplaySize/2
-            local enemyCenterY = enemy.y + eDisplaySize/2
-            local dx = enemyCenterX - fromX
-            local dy = enemyCenterY - fromY
-            local distSq = dx * dx + dy * dy
-            if distSq < closestDistSq then
-                closestDistSq = distSq
-                closestEnemy = enemy
-            end
-        end
-    end
-    return closestEnemy
-end
-
-local function ReturnProjectileToPool(proj, index)
-    Entity.set_global_pos(proj.entity, -1000, -1000)
-    table.insert(projectilePool, table.remove(projectiles, index))
-end
-
-function UpdateProjectiles()
-    local dt = GetDt()
-    local noWitnessesActive = IsNoWitnessesActive()
-    
-    for i = #projectiles, 1, -1 do
-        local proj = projectiles[i]
-        
-        -- Update projectile color based on no-witnesses state
-        local sprite = Entity.get_sprite_component(proj.entity)
-        if sprite then
-            if noWitnessesActive then
-                Sprite.set_color(sprite, 255, 0, 0)  -- Red when buff active
-            elseif proj.isGolden then
-                Sprite.set_color(sprite, 255, 215, 0)  -- Gold for golden bullets
-            else
-                Sprite.set_color(sprite, 255, 255, 255)  -- Default white
-            end
-        end
-        
-        -- Move projectile
-        proj.x = proj.x + proj.vx * dt
-        proj.y = proj.y + proj.vy * dt
-        
-        Entity.set_global_pos(proj.entity, proj.x, proj.y)
-        
-        -- Check collisionRadius with enemies
-        local projSize = proj.size or projectileSize
-        local projCenterX = proj.x + projSize/2
-        local projCenterY = proj.y + projSize/2
-        local hitEnemyIndex = nil
-
-        for j = #enemies, 1, -1 do
-            local enemy = enemies[j]
-            -- Skip disabled enemies (preview state) and dead enemies
-            if enemy.disabled or enemy.isDead then
-                goto continue_proj_collision
-            end
-            local isVisible = enemy.teleportVisible == nil or enemy.teleportVisible
-            if isVisible and not proj.hitEnemies[enemy] then
-                local eDisplaySize = enemy.displaySize or enemy.size or enemySize
-                local enemyCenterX = enemy.x + eDisplaySize/2
-                local enemyCenterY = enemy.y + eDisplaySize/2
-                local enemyHitRadius = eDisplaySize/2 + projSize/2
-                local dx = projCenterX - enemyCenterX
-                local dy = projCenterY - enemyCenterY
-                local distSq = dx * dx + dy * dy
-                if distSq < enemyHitRadius * enemyHitRadius then
-                    hitEnemyIndex = j
-                    break
-                end
-            end
-            ::continue_proj_collision::
-        end
-
-        local shouldRemove = false
-
-        if hitEnemyIndex ~= nil then
-            local enemy = enemies[hitEnemyIndex]
-            local damage = proj.damage or 1
-            local noWitnessesStacks = SystemShooterPlayerProgress.getLowEnemyDamageStacks()
-            if noWitnessesStacks and noWitnessesStacks > 0 then
-                local activeCount = GetActiveEnemyCount()
-                local threshold = noWitnessesStacks >= 2 and 2 or 1
-                if activeCount <= threshold then
-                    damage = damage * SystemShooterPlayerProgress.getNoWitnessesDamageMultiplier()
-                end
-            end
-            if not proj.hasHit then
-                proj.hasHit = true
-                runShotsHit = runShotsHit + 1
-            end
-            runDamageDealt = runDamageDealt + damage
-            enemy.health = (enemy.health or 0) - damage
-            SystemShooterPlayerProgress.addXp(damage)
-            FlashEnemy(enemy)
-            SystemShooterEnemy.updateDisplaySize(enemy)
-
-            local eSize = enemy.size or enemySize
-            local enemyCenterX = enemy.x + eSize / 2
-            local enemyCenterY = enemy.y + eSize / 2
-            local color = enemy.color or {255, 255, 255}
-            ParticleSystem.emitHitBurst(enemyCenterX, enemyCenterY, color[1], color[2], color[3])
-
-            if impact3SfxEntity then
-                local v = math.random(12, 20)
-                AudioComponent.change_volume(impact3SfxEntity, v)
-                AudioComponent.play(impact3SfxEntity)
-            end
-
-            if enemy.health <= 0 and not enemy.isDead then
-                local eSize = enemy.size or enemySize
-                local deathX = enemy.x + eSize / 2
-                local deathY = enemy.y + eSize / 2
-                SystemShooterPickups.trySpawnHealingOrb(deathX, deathY)
-                runEnemiesKilled = runEnemiesKilled + 1
-                
-                -- Mark as dead and hide (don't remove from table for rewind)
-                enemy.isDead = true
-                Entity.set_global_pos(enemy.entity, -1000, -1000)
-                
-                -- Start end-level peace timer when all enemies are dead
-                local allDead = true
-                for _, e in ipairs(enemies) do
-                    if not e.isDead then
-                        allDead = false
-                        break
-                    end
-                end
-                if allDead then
-                    peaceTimerSeconds = endLevelPeaceDuration
-                    isStartLevelPeace = false
-                end
-            end
-
-            if proj.pierceRemaining > 0 then
-                proj.pierceRemaining = proj.pierceRemaining - 1
-                proj.hitEnemies[enemy] = true
-            else
-                shouldRemove = true
-            end
-        end
-
-        if not shouldRemove then
-            proj.age = proj.age + dt
-            local maxLife = proj.maxLifetime or projectileLifetimeSeconds
-
-            if proj.age > maxLife then
-                shouldRemove = true
-            else
-                local hitEdge = false
-                local edgeX, edgeY = nil, nil
-
-                local projSize = proj.size or projectileSize
-
-                if proj.x < 0 then
-                    hitEdge = true
-                    edgeX = "left"
-                    proj.x = 0
-                elseif proj.x + projSize > screenW then
-                    hitEdge = true
-                    edgeX = "right"
-                    proj.x = screenW - projSize
-                end
-
-                if proj.y < 0 then
-                    hitEdge = true
-                    edgeY = "top"
-                    proj.y = 0
-                elseif proj.y + projSize > screenH then
-                    hitEdge = true
-                    edgeY = "bottom"
-                    proj.y = screenH - projSize
-                end
-
-                if hitEdge then
-                    if proj.bounceRemaining > 0 then
-                        proj.bounceRemaining = proj.bounceRemaining - 1
-                        proj.hitEnemies = {}
-
-                        local newProjCenterX = proj.x + projSize/2
-                        local newProjCenterY = proj.y + projSize/2
-                        local closestEnemy = FindClosestEnemy(newProjCenterX, newProjCenterY)
-
-                        if closestEnemy then
-                            local ceDisplaySize = closestEnemy.displaySize or closestEnemy.size or enemySize
-                            local targetX = closestEnemy.x + ceDisplaySize/2
-                            local targetY = closestEnemy.y + ceDisplaySize/2
-                            local dx = targetX - newProjCenterX
-                            local dy = targetY - newProjCenterY
-                            local len = math.sqrt(dx*dx + dy*dy)
-                            if len > 0 then
-                                dx = dx / len
-                                dy = dy / len
-                            end
-                            proj.vx = dx * projectileSpeed
-                            proj.vy = dy * projectileSpeed
-                        else
-                            if edgeX then proj.vx = -proj.vx end
-                            if edgeY then proj.vy = -proj.vy end
-                        end
-
-                        local projAngle = math.deg(math.atan(proj.vy, proj.vx)) + 90
-                        Entity.set_global_rot(proj.entity, projAngle)
-                        Entity.set_global_pos(proj.entity, proj.x, proj.y)
-                    else
-                        shouldRemove = true
-                    end
-                end
-            end
-        end
-
-        if shouldRemove then
-            ReturnProjectileToPool(proj, i)
-        end
+        SystemShooterProjectiles.spawnPlayerProjectile(spawnX, spawnY, dirX, dirY, pierceCount, bounceCount, s)
     end
 end
 
@@ -2724,128 +2469,10 @@ function UpdateBeatBop()
 end
 
  --=====================================================================
- --  [ENEMY PROJECTILES] Spawn / Update
+ --  [ENEMY PROJECTILES] Spawn (now uses SystemShooterProjectiles module)
  --=====================================================================
-local function SpawnEnemySingleProjectile(enemy, dirX, dirY)
-    local projData
-    
-    if #enemyProjectilePool > 0 then
-        projData = table.remove(enemyProjectilePool)
-        Sprite.set_color(projData.sprite, 128, 0, 255)
-        Sprite.set_zed_order(projData.sprite, 4)  -- Ensure layer 4 (under enemies at layer 5)
-    else
-        local proj = Entity.create_entity()
-        -- Layer 4: render under enemies (layer 5)
-        local sprite = Entity.add_sprite_component(proj, assets.textures.Ghast_Tear, enemyProjectileSize, enemyProjectileSize, 4)
-        Sprite.set_color(sprite, 128, 0, 255) -- Purple
-        projData = { entity = proj, sprite = sprite }
-    end
-    
-    local eSize = enemy.displaySize or enemy.size or enemySize
-    local enemyCenterX = enemy.x + eSize/2
-    local enemyCenterY = enemy.y + eSize/2
-    local spawnX = enemyCenterX - enemyProjectileSize/2
-    local spawnY = enemyCenterY - enemyProjectileSize/2
-    
-    Entity.set_global_pos(projData.entity, spawnX, spawnY)
-    local projAngle = math.deg(math.atan(dirY, dirX)) + 90
-    Entity.set_global_rot(projData.entity, projAngle)
-    
-    projData.x = spawnX
-    projData.y = spawnY
-    projData.vx = dirX * enemyProjectileSpeed
-    projData.vy = dirY * enemyProjectileSpeed
-    projData.age = 0
-    projData.sourceEnemy = enemy  -- Track which enemy spawned this projectile
-    
-    table.insert(enemyProjectiles, projData)
-end
-
 function SpawnEnemyProjectile(enemy)
-    local eSize = enemy.displaySize or enemy.size or enemySize
-    local enemyCenterX = enemy.x + eSize/2
-    local enemyCenterY = enemy.y + eSize/2
-    local playerCenterX = playerX + playerSize/2
-    local playerCenterY = playerY + playerSize/2
-    local dx = playerCenterX - enemyCenterX
-    local dy = playerCenterY - enemyCenterY
-    local dist = math.sqrt(dx * dx + dy * dy)
-    
-    local baseDirX, baseDirY = 0, -1
-    if dist > 0 then
-        baseDirX = dx / dist
-        baseDirY = dy / dist
-    end
-    
-    local shootPattern = enemy.shootPattern or "single"
-    local projectileCount = enemy.projectileCount or 1
-    
-    if shootPattern == "single" or projectileCount <= 1 then
-        SpawnEnemySingleProjectile(enemy, baseDirX, baseDirY)
-        
-    elseif shootPattern == "cone" and projectileCount <= 4 then
-        local spreadAngle = math.rad(15)
-        local baseAngle = math.atan(baseDirY, baseDirX)
-        local startAngle = baseAngle - spreadAngle * (projectileCount - 1) / 2
-        
-        for i = 1, projectileCount do
-            local angle = startAngle + spreadAngle * (i - 1)
-            local dirX = math.cos(angle)
-            local dirY = math.sin(angle)
-            SpawnEnemySingleProjectile(enemy, dirX, dirY)
-        end
-        
-    else
-        local angleOffset = enemy.shootAngleOffset or 0
-        for i = 1, projectileCount do
-            local angle = angleOffset + (2 * math.pi * (i - 1)) / projectileCount
-            local dirX = math.cos(angle)
-            local dirY = math.sin(angle)
-            SpawnEnemySingleProjectile(enemy, dirX, dirY)
-        end
-    end
-end
-
--- Update enemy projectiles
-----------------------------------------------------------
-function UpdateEnemyProjectiles()
-    local dt = GetDt()
-    for i = #enemyProjectiles, 1, -1 do
-        local proj = enemyProjectiles[i]
-        
-        -- Move projectile
-        proj.x = proj.x + proj.vx * dt
-        proj.y = proj.y + proj.vy * dt
-        Entity.set_global_pos(proj.entity, proj.x, proj.y)
-        
-        -- Check collision with player
-        local projCenterX = proj.x + enemyProjectileSize/2
-        local projCenterY = proj.y + enemyProjectileSize/2
-        local playerCenterX = playerX + playerSize/2
-        local playerCenterY = playerY + playerSize/2
-        
-        local dx = projCenterX - playerCenterX
-        local dy = projCenterY - playerCenterY
-        local distSq = dx * dx + dy * dy
-        local hitRadius = playerSize/2 + enemyProjectileSize/2
-        
-        if distSq < hitRadius * hitRadius and damageCooldown <= 0 then
-            -- Hit player
-            playerHealth = playerHealth - 5
-            runDamageTaken = runDamageTaken + 5
-            FlashPlayer()
-            damageCooldown = damageCooldownDuration
-            Entity.set_global_pos(proj.entity, -1000, -1000)
-            table.insert(enemyProjectilePool, table.remove(enemyProjectiles, i))
-        else
-            -- Age and remove if expired or off screen
-            proj.age = proj.age + dt
-            if proj.age > projectileLifetimeSeconds or proj.y < -50 or proj.y > screenH + 50 or proj.x < -50 or proj.x > screenW + 50 then
-                Entity.set_global_pos(proj.entity, -1000, -1000)
-                table.insert(enemyProjectilePool, table.remove(enemyProjectiles, i))
-            end
-        end
-    end
+    SystemShooterProjectiles.spawnEnemyProjectile(enemy)
 end
 
 return SystemShooter
