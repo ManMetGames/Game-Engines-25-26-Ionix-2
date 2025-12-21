@@ -777,11 +777,11 @@ local function DrawMainMenu_C(windowW, windowH)
     local cx = windowW / 2
 
     -- Header
-    UI.add_centered_label(cx, 55, T("fb.title"), "ImGuiDefaultBold", 2.2)
+    UI.add_centered_label(cx, 55, T("fb.title"), UI_FONT_TITLE, 1)
 
     -- Top-left stats
-    UI.add_label(18, 16, 0, 0, T("fb.best_score") .. tostring(highscore), "ImGuiDefaultBold", 1.2)
-    UI.add_label(18, 40, 0, 0, T("fb.coins") .. tostring(bankCoins or 0), "ImGuiDefaultBold", 1.2)
+    UI.add_label(18, 16, 0, 0, T("fb.best_score") .. tostring(highscore), UI_FONT_REG, 1)
+    UI.add_label(18, 40, 0, 0, T("fb.coins") .. tostring(bankCoins or 0), UI_FONT_REG, 1)
 
     -- Big play button
     local playW, playH = 320, 74
@@ -791,7 +791,7 @@ local function DrawMainMenu_C(windowW, windowH)
     UI.add_button(
         playX, playY, playW, playH,
         T("fb.play"), "fb_play",
-        "ImGuiDefaultBold", 1.15,
+        UI_FONT_BOLD, 1.15,
         playH / 2, true,
         70, 200, 120, 0.95
     )
@@ -807,19 +807,19 @@ local function DrawMainMenu_C(windowW, windowH)
 
     UI.add_button(startX + (navBtnW + navGap) * 0, navY, navBtnW, navBtnH,
         T("fb.customise"), "fb_nav_customise",
-        "ImGuiDefaultBold", 1.0, navBtnH / 2, true,
+        UI_FONT_BOLD, 1.0, navBtnH / 2, true,
         80, 170, 255, 0.92
     )
 
     UI.add_button(startX + (navBtnW + navGap) * 1, navY, navBtnW, navBtnH,
         T("fb.settings"), "fb_nav_settings",
-        "ImGuiDefaultBold", 1.0, navBtnH / 2, true,
+        UI_FONT_BOLD, 1.0, navBtnH / 2, true,
         255, 170, 80, 0.92
     )
 
     UI.add_button(startX + (navBtnW + navGap) * 2, navY, navBtnW, navBtnH,
         T("fb.exit"), "fb_nav_exit",
-        "ImGuiDefaultBold", 1.0, navBtnH / 2, true,
+        UI_FONT_BOLD, 1.0, navBtnH / 2, true,
         220, 80, 80, 0.90
     )
 
@@ -850,35 +850,31 @@ local function DrawSettingsMenu_C(windowW, windowH)
     local panelX = math.floor((windowW - panelW) / 2)
     local panelY = math.floor((windowH - panelH) / 2)
 
-    -- Outer child used as the panel background 
     UI.begin_child(panelX, panelY, panelW, panelH, "FB_SettingsPanel",
         true, 0, true, 0.80, 12, 26, 245, 225
     )
 
     local cx = panelW / 2
-    UI.add_centered_label(cx, 26, T("settings.settings"), "ImGuiDefaultBold", 1.9)
+    UI.add_centered_label(cx, 26, T("settings.settings"), UI_FONT_BOLD, 1.9)
 
-    -- Inner content child coordinates are local to the outer child.
-    -- Make the inner child a bit wider (smaller left/right margin) and add internal padding
     local contentX = 30
     local contentY = 85
-    local contentW = panelW - 60  -- was panelW - 80 -> wider inner child
-    local contentH = panelH - 157 -- leave space for footer/button area
+    local contentW = panelW - 60  
+    local contentH = panelH - 157
 
     UI.begin_child(contentX, contentY, contentW, contentH, "FB_SettingsContent",
         false, 128, false
     )
 
-    -- Use local coordinates inside the content child
     local leftPad = 12
     local x = leftPad
-    local w = contentW - (leftPad * 2) -- leave padding on both sides so scrollbar doesn't cover controls
+    local w = contentW - (leftPad * 2) 
     local y = 0
 
     -- Center X inside inner child
     local cxLocal = contentW / 2
 
-    -- Header for the audio block (centered, above all audio controls)
+    -- Header for the audio block 
     UI.add_centered_label(cxLocal, y + 8, T("settings.audio"), UI_FONT_HEADER, 1)
     y = y + 36
 
@@ -906,7 +902,7 @@ local function DrawSettingsMenu_C(windowW, windowH)
     UI.add_checkbox_styled(x, y, 0, 0, T("settings.musiccb"), "fb_music_on", s_musicOn, UI_FONT_REG, 1, checkboxStyle)
     y = y + 28
     UI.add_label(x, y, 0, 0, T("settings.musicvol"), UI_FONT_REG, 1.0)
-    y = y + 18
+    y = y + 23
     UI.add_slider_styled(x, y, w, "", "fb_music_vol", 0, 100, s_musicVol, nil, nil, "%.0f", sliderStyle)
     y = y + blockGap
 
@@ -914,15 +910,15 @@ local function DrawSettingsMenu_C(windowW, windowH)
     UI.add_checkbox_styled(x, y, 0, 0, T("settings.sfxcb"), "fb_sfx_on", s_sfxOn, UI_FONT_REG, 1, checkboxStyle)
     y = y + 28
     UI.add_label(x, y, 0, 0, T("settings.sfxvol"), UI_FONT_REG, 1.0)
-    y = y + 18
+    y = y + 23
     UI.add_slider_styled(x, y, w, "", "fb_sfx_vol", 0, 100, s_sfxVol, nil, nil, "%.0f", sliderStyle)
     y = y + blockGap
 
     -- Master volume
     UI.add_label(x, y, 0, 0, T("settings.mastervol"), UI_FONT_REG, 1.0)
-    y = y + 18
+    y = y + 23
     UI.add_slider_styled(x, y, w, "", "fb_master_vol", 0, 100, s_masterVol, nil, nil, "%.0f", sliderStyle)
-    y = y + 66 -- extra space before language header
+    y = y + 88 -- extra space before language header
 
     -- Apply changes 
     if UI.was_checkbox_changed("fb_music_on") then
@@ -971,27 +967,26 @@ local function DrawSettingsMenu_C(windowW, windowH)
         rounding = 10,
         popup_rounding = 10,
         border_size = 1,
-        -- frame uses same dark track as slider.track
+
         frame = { 60, 80, 100, 0.35 },
-        -- hover/active use the same warm "grab" colour as slider.grab / checkbox.on
+
         frame_hover  = { 255, 200, 80, 0.95 },
         frame_active = { 255, 200, 80, 0.95 },
-        -- dropdown background slightly darker
+
         popup_bg = { 20, 20, 20, 0.95 },
-        -- item highlight uses warm accent
+
         item        = { 255, 200, 80, 0.95 },
         item_hover  = { 255, 200, 80, 0.95 },
         item_active = { 255, 200, 80, 0.95 },
         text = { 255, 255, 255, 1.0 },
     }
 
-    -- Language section below audio. Make the label larger and spaced further down.
     local opts = { "English", "日本語" }
     local defaultIndex = (language == "ja") and 1 or 0
 
     UI.add_centered_label(x + w/2, y, T("settings.language"), UI_FONT_HEADER, 1.0)
     y = y + 36
-    local langDropdownFont = UI_FONT_REG
+    local langDropdownFont = "ImGuiDefaultJP" -- use JP fontto support both EN and JA characters
     UI.add_dropdown_styled(x, y, w, 32, "", "fb_lang", opts, defaultIndex, langDropdownFont, 1.0, ddStyle)
 
     if UI.was_dropdown_changed("fb_lang") then
@@ -1010,7 +1005,7 @@ local function DrawSettingsMenu_C(windowW, windowH)
     local by = panelH - bh - 26
 
     UI.add_button(bx, by, bw, bh, T("settings.back"), "fb_settings_back",
-        "ImGuiDefaultBold", 1.0, bh / 2, true,
+        UI_FONT_BOLD, 1.0, bh / 2, true,
         80, 170, 255, 0.92
     )
 
@@ -1032,8 +1027,8 @@ local function DrawCustomiseMenu_C(windowW, windowH)
     UI.add_panel(panelX, panelY, panelW, panelH, 0.80, 26, 245, 225, 170)
 
     local cx = windowW / 2
-    UI.add_centered_label(cx, panelY + 24, T("customise.customise"), "ImGuiDefaultBold", 1.9)
-    UI.add_centered_label(cx, panelY + 54, T("customise.coins") .. tostring(bankCoins or 0), "ImGuiDefaultBold", 1.2)
+    UI.add_centered_label(cx, panelY + 24, T("customise.customise"), UI_FONT_BOLD, 1.9)
+    UI.add_centered_label(cx, panelY + 54, T("customise.coins") .. tostring(bankCoins or 0), UI_FONT_BOLD, 1.2)
 
     -- Tabs
     local tabW, tabH = 160, 40
@@ -1045,7 +1040,7 @@ local function DrawCustomiseMenu_C(windowW, windowH)
         local r, g, b = 80, 170, 255
         local a = active and 0.95 or 0.70
         UI.add_button(x, tabY, tabW, tabH, label, id,
-            "ImGuiDefaultBold", 1.0, tabH / 2, true,
+            UI_FONT_BOLD, 1.0, tabH / 2, true,
             r, g, b, a
         )
     end
@@ -1077,7 +1072,7 @@ local function DrawCustomiseMenu_C(windowW, windowH)
             label = label .. "  (" .. tostring(item.price) .. T("customise.price") .. ")"
         end
 
-        UI.add_label(listX, y + 10, 0, 0, label, "ImGuiDefaultBold", 1.15)
+        UI.add_label(listX, y + 10, 0, 0, label, UI_FONT_BOLD, 1.15)
 
         local bw, bh = 140, 38
         local bx = listX + rowW - bw
@@ -1104,7 +1099,7 @@ local function DrawCustomiseMenu_C(windowW, windowH)
         end
 
         UI.add_button(bx, by, bw, bh, btnText, "fb_buy_" .. item.id,
-            "ImGuiDefaultBold", 1.0, bh / 2, true,
+            UI_FONT_BOLD, 1.0, bh / 2, true,
             br, bg, bb, ba
         )
 
@@ -1136,7 +1131,7 @@ local function DrawCustomiseMenu_C(windowW, windowH)
     end
 
     if customiseTab == "backgrounds" then
-        for i, item in ipairs(STORE_BACKGROUNDS) do
+        for i, item in ipairs(STORE_BACKGROOUNDS or STORE_BACKGROUNDS) do
             drawItemRow(item, ownedBackgrounds, "equipped.background", equippedBackground, i)
         end
     else
@@ -1150,7 +1145,7 @@ local function DrawCustomiseMenu_C(windowW, windowH)
     local bx = math.floor((windowW - bw) / 2)
     local by = panelY + panelH - bh - 26
     UI.add_button(bx, by, bw, bh, T("customise.back"), "fb_customise_back",
-        "ImGuiDefaultBold", 1.0, bh / 2, true,
+        UI_FONT_BOLD, 1.0, bh / 2, true,
         80, 170, 255, 0.92
     )
 
@@ -1173,7 +1168,7 @@ local windowW = Window.get_width()
 local windowH = Window.get_height()
 
 if inMainMenu then
-    -- Scroll the background horizontally on the MAIN menu
+    -- Scroll the background horizontally on main menu
     if Background ~= nil then
         if menuContext == "main" then
             local dt = Mafs.delta_time()
@@ -1189,7 +1184,6 @@ if inMainMenu then
                 Entity.set_global_pos(Background2, bgBaseX + bgScrollX + BG_TILE_W, bgBaseY + driftY)
             end
         else
-            -- Keep it static when in sub-menus
             bgScrollX = 0
             Entity.set_global_pos(Background, bgBaseX, bgBaseY)
             if Background2 ~= nil then
@@ -1230,7 +1224,7 @@ if inMainMenu then
 
         local function AddBtn(row, text, id, r, g, b, a)
             UI.add_button(btnX, startY + (btnH + gapY) * row, btnW, btnH, text, id,
-                "ImGuiDefaultBold", 1.0, btnH / 2, true,
+                UI_FONT_BOLD, 1.0, btnH / 2, true,
                 r, g, b, a
             )
         end
@@ -1316,9 +1310,6 @@ end
      --if UI.was_button_pressed("restart_btn") then
      --    resetGame()
      --end
-
-     -- (省略: デバッグや例のリテラルはそのまま残しています)
-
     ------------------
 	-- Point effect
 	------------------
