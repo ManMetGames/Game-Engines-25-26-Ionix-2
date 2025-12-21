@@ -154,12 +154,13 @@ local screenH = 1080
 
 -- Window transition state (for level changes)
 local windowTransitionActive = false
-local windowTransitionTimer = 0
-local windowTransitionDurationSeconds = 0.75
+local windowTransitionProgress = 0  -- 0 to 1
+local windowTransitionSpeed = 300   -- pixels per second
 local windowTransitionStartW = 0
 local windowTransitionStartH = 0
 local windowTransitionTargetW = 0
 local windowTransitionTargetH = 0
+local windowTransitionTotalPixels = 0  -- total distance to travel
 local pendingLevelIndex = nil
 local pendingResetPlayerState = false
 
@@ -201,15 +202,15 @@ end
  --=====================================================================
  --  [LEVEL FLOW] Window Transition
  --=====================================================================
-function UpdateWindowTransition()
+function UpdateWindowTransition(dt)
     if not windowTransitionActive then
-        return
+        return false
     end
 
-    local dt = GetDt()
-
-    if windowTransitionTimer <= 0 then
+    -- Check if transition is complete
+    if windowTransitionProgress >= 1.0 then
         windowTransitionActive = false
+        windowTransitionProgress = 0
         local index = pendingLevelIndex
         local reset = pendingResetPlayerState
         pendingLevelIndex = nil
@@ -220,14 +221,23 @@ function UpdateWindowTransition()
             screenH = Window.get_height()
             LoadLevel(index, reset)
         end
-        return
+        return false
     end
 
-    windowTransitionTimer = windowTransitionTimer - dt
-    local t = 1.0 - (windowTransitionTimer / windowTransitionDurationSeconds)
-    if t < 0 then t = 0 end
-    if t > 1 then t = 1 end
+    -- Calculate progress increment based on speed (pixels per second)
+    local progressIncrement = 0
+    if windowTransitionTotalPixels > 0 then
+        progressIncrement = (windowTransitionSpeed * dt) / windowTransitionTotalPixels
+    else
+        progressIncrement = 1.0  -- Instant if no distance
+    end
+    
+    windowTransitionProgress = windowTransitionProgress + progressIncrement
+    if windowTransitionProgress > 1.0 then
+        windowTransitionProgress = 1.0
+    end
 
+    local t = windowTransitionProgress
     local startW = windowTransitionStartW
     local startH = windowTransitionStartH
     local targetW = windowTransitionTargetW
@@ -246,6 +256,12 @@ function UpdateWindowTransition()
 
     Window.set_pos(newX, newY)
     Window.set_size(newWidth, newHeight)
+    
+    -- Update screen bounds for player clamping during transition
+    screenW = newWidth
+    screenH = newHeight
+    
+    return true  -- Transition still active
 end
 
 local function ClearEnemies()
@@ -591,12 +607,25 @@ StartLevel = function(index, resetPlayerState)
         return
     end
 
+    -- Calculate total pixel distance for speed-based transition
+    local dw = targetWidth - currentWidth
+    local dh = targetHeight - currentHeight
+    local totalPixels = math.sqrt(dw * dw + dh * dh)
+
+    -- Clear all projectiles before transition starts
+    ClearAllPlayerProjectiles()
+    ClearAllEnemyProjectiles()
+    
+    -- Stop player firing
+    SystemShooterPlayer.stopFiring()
+
     windowTransitionActive = true
-    windowTransitionTimer = windowTransitionDurationSeconds
+    windowTransitionProgress = 0
     windowTransitionStartW = currentWidth
     windowTransitionStartH = currentHeight
     windowTransitionTargetW = targetWidth
     windowTransitionTargetH = targetHeight
+    windowTransitionTotalPixels = totalPixels
     pendingLevelIndex = index
     pendingResetPlayerState = resetPlayerState
 end
@@ -1530,10 +1559,18 @@ function SystemShooter:OnUpdate()
 
 
      --=====================================================================
-     --  [ONUPDATE] Transitions / Early Outs
+     --  [ONUPDATE] Window Transition (player continues to update)
      --=====================================================================
-    if windowTransitionActive then
-        UpdateWindowTransition()
+    local isTransitioning = UpdateWindowTransition(dt)
+    if isTransitioning then
+        -- During transition: only update player movement and visual effects
+        -- No shooting, no projectiles, no UI, no enemy updates
+        SystemShooterPlayer.setScreenBounds(screenW, screenH)
+        SystemShooterPlayer.updateMovement(dt, sensitivitySetting)
+        SystemShooterPlayer.updateAiming(enemies, enemySize)
+        SystemShooterPlayer.updateRecoil(dt)
+        SystemShooterPlayer.updateFlash(dt)
+        SystemShooterPlayer.stopFiring()
         return
     end
 
