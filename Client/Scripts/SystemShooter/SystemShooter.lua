@@ -145,6 +145,12 @@ local function GetDt()
     return Mafs.delta_time()
 end
 
+-- Mutated level config tracking (enemy HP cap / rewind)
+local mutatedLevels = {}
+local hpCap_waitingForFull = false
+local hpCap_hasBeenHit = false
+
+
  --=====================================================================
  --  [STATE] Screen / Window
  --=====================================================================
@@ -292,7 +298,32 @@ local function ClearAllEnemyProjectiles()
     SystemShooterProjectiles.clearAllEnemyProjectiles()
 end
 
+
+local function RestoreMutatedLevelConfigs()
+    for levelIdx, _ in pairs(mutatedLevels) do
+        local cfg = SystemShooterLevels.getLevelConfig(levelIdx)
+        if cfg then
+            if cfg.enemies then
+                for _, enemy in ipairs(cfg.enemies) do
+                    if enemy.base_health ~= nil then
+                        enemy.health = enemy.base_health
+                        enemy.base_health = nil
+                    end
+                end
+            end
+            if cfg.base_enemyHealth ~= nil then
+                cfg.enemyHealth = cfg.base_enemyHealth
+                cfg.base_enemyHealth = nil
+            end
+        end
+        mutatedLevels[levelIdx] = nil
+    end
+end
+
 local function ResetRunStateForMenu()
+    RestoreMutatedLevelConfigs()
+    hpCap_waitingForFull = false
+    hpCap_hasBeenHit = false
     -- cancel any pending window level loads just in case
     windowTransitionActive = false
     pendingLevelIndex = nil
@@ -684,21 +715,39 @@ local function StartRewindSequence()
     end
 end
 
+
 local function OnLevelTimeout()
-    -- Reduce level health by 20% on timeout (applied to config for next spawn)
     local cfg = SystemShooterLevels.getLevelConfig(currentLevel)
-    if cfg and cfg.enemies then
-        for _, enemy in ipairs(cfg.enemies) do
-            if enemy.health then
-                enemy.health = math.floor(enemy.health * 0.8)
-                if enemy.health < 1 then enemy.health = 1 end
+    if cfg then
+        if cfg.enemies then
+            for _, enemy in ipairs(cfg.enemies) do
+                if enemy.health then
+                    if enemy.base_health == nil then
+                        enemy.base_health = enemy.health
+                    end
+                    enemy.health = math.floor(enemy.health * 0.8)
+                    if enemy.health < 1 then enemy.health = 1 end
+                end
+            end
+        else
+            if cfg.enemyHealth ~= nil then
+                if cfg.base_enemyHealth == nil then
+                    cfg.base_enemyHealth = cfg.enemyHealth
+                end
+                cfg.enemyHealth = math.floor(cfg.enemyHealth * 0.8)
+                if cfg.enemyHealth < 1 then cfg.enemyHealth = 1 end
             end
         end
     end
-    
-    -- Start rewind sequence instead of instant restart
+
+    mutatedLevels[currentLevel] = true
+
+    hpCap_waitingForFull = true
+    hpCap_hasBeenHit = false
+
     StartRewindSequence()
 end
+
 
  --=====================================================================
  --  [ENGINE CALLBACKS] OnStart
@@ -1356,7 +1405,10 @@ local function DrawGameOverMenu(screenW, screenH, dt)
     )
 
     local cx = panelW / 2
-    UI.add_centered_label(cx, math.floor(panelH * 0.05), T("gameover.title"), UI_FONT_TITLE, 1)
+    UI.add_centered_label_colored(cx, math.floor(panelH * 0.03),
+    T("gameover.title"),
+    {255, 40, 40, 255},
+    UI_FONT_TITLE, 1)
 
     local summary = endRunSummary or CaptureEndRunSummary()
     SubmitLeaderboardScoreOnce(summary.stageReached or 1)
@@ -1756,30 +1808,89 @@ function SystemShooter:OnUpdate()
      --=====================================================================
     local levelCfg = SystemShooterLevels.getLevelConfig(currentLevel)
     if levelCfg ~= nil then
-        local maxEnemyHealthTotal = 0
+        local baseEnemyHealthTotal = 0
+        local capEnemyHealthTotal = 0
+
         if levelCfg.enemies then
             for _, enemyCfg in ipairs(levelCfg.enemies) do
-                maxEnemyHealthTotal = maxEnemyHealthTotal + (enemyCfg.health or levelEnemyHealth)
+                local cap = enemyCfg.health or levelEnemyHealth
+                local base = enemyCfg.base_health or cap
+                capEnemyHealthTotal = capEnemyHealthTotal + cap
+                baseEnemyHealthTotal = baseEnemyHealthTotal + base
             end
         else
             local enemyCount = levelCfg.enemyCount or 1
-            maxEnemyHealthTotal = (levelCfg.enemyHealth or levelEnemyHealth) * enemyCount
+            local capSingle = (levelCfg.enemyHealth or levelEnemyHealth)
+            local baseSingle = (levelCfg.base_enemyHealth or capSingle)
+            capEnemyHealthTotal = capSingle * enemyCount
+            baseEnemyHealthTotal = baseSingle * enemyCount
         end
+
+        if baseEnemyHealthTotal < 1 then baseEnemyHealthTotal = 1 end
+        if capEnemyHealthTotal < 1 then capEnemyHealthTotal = 1 end
+
         local currentEnemyHealthTotal = 0
         for i = 1, #enemies do
             currentEnemyHealthTotal = currentEnemyHealthTotal + (enemies[i].health or 0)
         end
-        if maxEnemyHealthTotal < 1 then
-            maxEnemyHealthTotal = 1
+        if currentEnemyHealthTotal < 0 then currentEnemyHealthTotal = 0 end
+        if currentEnemyHealthTotal > capEnemyHealthTotal then
+            currentEnemyHealthTotal = capEnemyHealthTotal
         end
-            local enemyHpStyle = {
-              rounding = 10,
-              border_size = 0,
-              bg   = {30,30,30,220},
-              fill = {255,0,0,255},
-            }
-        UI.draw_progress_bar_styled(20, 20, 200, 20, maxEnemyHealthTotal, currentEnemyHealthTotal, 1, enemyHpStyle, "")
-    if levelCfg.timeLimitSeconds ~= nil and levelCfg.timeLimitSeconds > 0 then
+
+-- Enemy HP bar with "lost max" segment that:
+-- - appears only after rewind refills to the capped max
+-- - pulses yellow until the first hit, then turns grey
+local eps = 0.001
+
+if capEnemyHealthTotal >= baseEnemyHealthTotal - eps then
+    -- no cap active
+    hpCap_waitingForFull = false
+    hpCap_hasBeenHit = false
+else
+    if hpCap_waitingForFull then
+        if currentEnemyHealthTotal >= capEnemyHealthTotal - eps then
+            hpCap_waitingForFull = false
+            hpCap_hasBeenHit = false
+        end
+    else
+        if (not hpCap_hasBeenHit) and (currentEnemyHealthTotal < capEnemyHealthTotal - eps) then
+            hpCap_hasBeenHit = true
+        end
+    end
+end
+
+local capMaxForUI = capEnemyHealthTotal
+local capFill = {255, 210, 60, 220}
+
+if hpCap_waitingForFull or capEnemyHealthTotal >= baseEnemyHealthTotal - eps then
+    capMaxForUI = baseEnemyHealthTotal
+else
+    if hpCap_hasBeenHit then
+        capFill = {30, 30, 30, 200} -- grey
+    else
+        -- pulse while visible before first hit
+        local pulse = 0.5 + 0.5 * math.sin(Mafs.time() * 5.0)
+        local a = math.floor(50 + 70 * pulse)
+        capFill = {255, 210, 60, a} -- yellow (pulsing alpha)
+    end
+end
+
+local enemyHpStyle = {
+    rounding = 10,
+    border_size = 0,
+    bg = {30, 30, 30, 220},
+    fill = {255, 0, 0, 255},
+    cap_max = capMaxForUI,
+    cap_fill = capFill,
+}
+
+-- Note: we intentionally do NOT normalise to "full" here.
+-- The bar starts at the capped max (e.g. 80%) and drains from there.
+UI.draw_progress_bar_styled(20, 20, 200, 20,
+    baseEnemyHealthTotal, currentEnemyHealthTotal, 1,
+    enemyHpStyle, "")
+if levelCfg.timeLimitSeconds ~= nil and levelCfg.timeLimitSeconds > 0 then
         local barW, barH = 200, 10
         local x, y = 20, 50
 
