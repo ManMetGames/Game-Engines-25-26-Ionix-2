@@ -190,7 +190,6 @@ local ENEMY_TEMPLATES = {
 local levels = {
     [1] = {
         timeLimitSeconds = 20,
-        wallPingPong = false,
         windowWidth = 640,
         windowHeight = 800,
         enemies = {
@@ -200,7 +199,6 @@ local levels = {
     },
     [2] = {
         timeLimitSeconds = 20,
-        wallPingPong = false,
         windowWidth = 800,
         windowHeight = 400,
         enemies = {
@@ -209,7 +207,6 @@ local levels = {
     },
     [3] = {
         timeLimitSeconds = 20,
-        wallPingPong = false,
         windowWidth = 1026,
         windowHeight = 640,
         enemies = {
@@ -219,7 +216,6 @@ local levels = {
     },
     [4] = {
         timeLimitSeconds = 25,
-        wallPingPong = false,
         windowWidth = 800,
         windowHeight = 800,
         enemies = {
@@ -229,7 +225,6 @@ local levels = {
     },
     [5] = {
         timeLimitSeconds = 20,
-        wallPingPong = false,
         windowWidth = 600,
         windowHeight = 800,
         enemies = {
@@ -478,7 +473,6 @@ local function generateProceduralLevel(levelIndex)
     
     return {
         timeLimitSeconds = timer,
-        wallPingPong = false,
         windowWidth = windowW,
         windowHeight = windowH,
         enemies = enemies,

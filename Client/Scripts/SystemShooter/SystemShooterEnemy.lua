@@ -217,7 +217,7 @@ end
      screenW, screenH,
      enemyShootIntervalSeconds,
      SpawnEnemyProjectile,
-     TriggerWallLerp,
+     _, -- TriggerWallLerp removed (unused)
      SpawnBeam,
      EmitTeleportBurst,
      EmitBeamCharge
@@ -237,7 +237,7 @@ end
          local movementType = enemy.movementType or "bounce"
 
          if movementType == "bounce" then
-             updateBounceMovement(enemy, dt, playerCenterX, playerCenterY, screenW, screenH, TriggerWallLerp)
+             updateBounceMovement(enemy, dt, playerCenterX, playerCenterY, screenW, screenH)
          elseif movementType == "orbit" then
              updateOrbitMovement(enemy, dt, screenW, screenH)
          elseif movementType == "stationary" then
@@ -274,7 +274,7 @@ end
  --=====================================================================
  --  [MOVEMENT] Bounce
  --=====================================================================
- updateBounceMovement = function(enemy, dt, playerCenterX, playerCenterY, screenW, screenH, TriggerWallLerp)
+ updateBounceMovement = function(enemy, dt, playerCenterX, playerCenterY, screenW, screenH)
     local enemySize = enemy.size
     local minX, minY = 0, 0
     local maxX = screenW - enemySize
@@ -347,13 +347,6 @@ end
                 enemy.dirX = newDirX / newLen
                 enemy.dirY = newDirY / newLen
             end
-        end
-
-        if TriggerWallLerp then
-            if hitLeft then TriggerWallLerp("left") end
-            if hitRight then TriggerWallLerp("right") end
-            if hitTop then TriggerWallLerp("top") end
-            if hitBottom then TriggerWallLerp("bottom") end
         end
 
         enemy.spinVelocity = (enemy.spinVelocity or 0) + enemy.spinBoost

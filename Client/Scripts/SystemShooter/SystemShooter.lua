@@ -144,43 +144,13 @@ local function GetDt()
 end
 
  --=====================================================================
- --  [STATE] Screen / Window / Walls
+ --  [STATE] Screen / Window
  --=====================================================================
 -- SCREEN BOUNDS (UPDATED EACH FRAME FROM WINDOW SIZE)
 local screenW = 1920
 local screenH = 1080
 
--- WALL SETTINGS
-local wallPingPongEnabled = true
-local wallMaxShrinkX = 600        -- Max pixels each horizontal wall can shrink (1920 - 400 = 1520, /2 = 760)
-local wallMaxShrinkY = 200        -- Max pixels each vertical wall can shrink (1080 - 400 = 680, /2 = 340)
-local wallShrinkSpeedPerSecond = 70      -- Pixels per second each wall shrinks
-local wallExpandDurationSeconds = 0.75   -- how long walls spend expanding after a trigger
-local wallMinWindowWidth = 600
-local wallMinWindowHeight = 600
-local wallMaxWindowWidth = 1920
-local wallMaxWindowHeight = 1080
-local wallExpandSpeedMultiplier = 3.0
-
--- Each wall has: offset (current shrink amount), expandTimer (>0 means expanding)
-local leftWallOffset = 0
-local leftWallExpandTimer = 0
-local rightWallOffset = 0
-local rightWallExpandTimer = 0
-local topWallOffset = 0
-local topWallExpandTimer = 0
-local bottomWallOffset = 0
-local bottomWallExpandTimer = 0
-
--- Base window size and initial position (captured on first frame)
-local windowBaseWidth = 1920
-local windowBaseHeight = 1080
-local windowInitialX = nil
-local windowInitialY = nil
-
--- Original window size (never changes)
-local originalWindowWidth = 1920
-local originalWindowHeight = 1080
+-- Window transition state (for level changes)
 local windowTransitionActive = false
 local windowTransitionTimer = 0
 local windowTransitionDurationSeconds = 0.75
@@ -249,7 +219,7 @@ end
 
 local function IsNoWitnessesActive()
     -- NoWitnesses is disabled during peace timers
-    if peaceTimerSeconds > 0 then return false end
+    if (peaceTimerSeconds or 0) > 0 then return false end
     
     local stacks = SystemShooterPlayerProgress.getLowEnemyDamageStacks()
     if stacks <= 0 then return false end
@@ -636,24 +606,6 @@ LoadLevel = function(index, resetPlayerState)
     -- Persist best stage + submit to leaderboard (only if higher stage than last time)
     TryUpdateBestStage(currentLevel)
     levelTimerSeconds = cfg.timeLimitSeconds or 0
-
-    wallPingPongEnabled = cfg.wallPingPong and true or false
-
-     --=====================================================================
-     --  [LOAD LEVEL] Reset Walls / Clear Enemies
-     --=====================================================================
-    if wallPingPongEnabled then
-        leftWallOffset = 0
-        leftWallExpandTimer = 0
-        rightWallOffset = 0
-        rightWallExpandTimer = 0
-        topWallOffset = 0
-        topWallExpandTimer = 0
-        bottomWallOffset = 0
-        bottomWallExpandTimer = 0
-        windowInitialX = nil
-        windowInitialY = nil
-    end
 
     ClearEnemies()
 
@@ -1516,13 +1468,6 @@ SetPaused = function(p)
     end
 end
 
-local function ResetWallWindowCapture()
-    -- makes wall/window system re-capture cleanly 
-    windowInitialX = nil
-    windowInitialY = nil
-    leftWallOffset, rightWallOffset, topWallOffset, bottomWallOffset = 0, 0, 0, 0
-    leftWallExpandTimer, rightWallExpandTimer, topWallExpandTimer, bottomWallExpandTimer = 0, 0, 0, 0
-end
 
 local function SetCenteredWindowSize(w, h)
     local displayW = Window.get_display_width()
@@ -1539,8 +1484,6 @@ GoToMainMenuFromPause = function()
     SubmitLeaderboardScoreOnce(currentLevel or 1)
 
     ResetRunStateForMenu()
-
-    ResetWallWindowCapture()
 
     -- Stop music when returning to main menu
     if musicEntity then
@@ -1679,11 +1622,8 @@ function SystemShooter:OnUpdate()
     -- Track run time (excludes menus, pause, transitions, and upgrade screens)
     runTimeSeconds = runTimeSeconds + dt
  --=====================================================================
-     --  [ONUPDATE] World Bounds (Walls / Window)
+     --  [ONUPDATE] World Bounds (Window)
      --=====================================================================
-    -- Update wall lerps
-    UpdateWallLerps()
-    
     -- Update screen bounds from window
     screenW = Window.get_width()
     screenH = Window.get_height()
@@ -2662,7 +2602,7 @@ function UpdateEnemyMovement()
         screenW, screenH,
         enemyShootIntervalSeconds,
         SpawnEnemyProjectile,
-        TriggerWallLerp,
+        nil, -- TriggerWallLerp removed
         SpawnBeam,
         EmitTeleportBurst,
         EmitBeamCharge
@@ -2906,123 +2846,6 @@ function UpdateEnemyProjectiles()
             end
         end
     end
-end
-
- --=====================================================================
- --  [WALLS / WINDOW] Ping-Pong Shrink / Expand
- --=====================================================================
-function TriggerWallLerp(wall)
-    if not wallPingPongEnabled then return end
-    
-    if wall == "left" then
-        leftWallExpandTimer = wallExpandDurationSeconds
-    elseif wall == "right" then
-        rightWallExpandTimer = wallExpandDurationSeconds
-    elseif wall == "top" then
-        topWallExpandTimer = wallExpandDurationSeconds
-    elseif wall == "bottom" then
-        bottomWallExpandTimer = wallExpandDurationSeconds
-    end
-end
-
-----------------------------------------------------------
--- Update wall offsets: always shrinking unless expand timer is active
-----------------------------------------------------------
-function UpdateWallLerps()
-    if not wallPingPongEnabled then return end
-    if peaceTimerSeconds > 0 and #enemies == 0 then return end
-    
-    local dt = GetDt()
-
-    local minWindowWidth = wallMinWindowWidth
-    local minWindowHeight = wallMinWindowHeight
-    local maxShrinkX = math.min(wallMaxShrinkX, math.max(0, (windowBaseWidth - minWindowWidth) * 0.5))
-    local maxShrinkY = math.min(wallMaxShrinkY, math.max(0, (windowBaseHeight - minWindowHeight) * 0.5))
-
-    -- Update left wall: always shrinking, expand when hit
-    if leftWallExpandTimer > 0 then
-        leftWallExpandTimer = leftWallExpandTimer - dt
-        leftWallOffset = leftWallOffset - wallShrinkSpeedPerSecond * wallExpandSpeedMultiplier * dt
-        if leftWallExpandTimer < 0 then leftWallExpandTimer = 0 end
-    else
-        leftWallOffset = leftWallOffset + wallShrinkSpeedPerSecond * dt
-        if leftWallOffset > maxShrinkX then leftWallOffset = maxShrinkX end
-    end
-    
-    -- Update right wall
-    if rightWallExpandTimer > 0 then
-        rightWallExpandTimer = rightWallExpandTimer - dt
-        rightWallOffset = rightWallOffset - wallShrinkSpeedPerSecond * wallExpandSpeedMultiplier * dt
-        if rightWallExpandTimer < 0 then rightWallExpandTimer = 0 end
-    else
-        rightWallOffset = rightWallOffset + wallShrinkSpeedPerSecond * dt
-        if rightWallOffset > maxShrinkX then rightWallOffset = maxShrinkX end
-    end
-    
-    -- Update top wall
-    if topWallExpandTimer > 0 then
-        topWallExpandTimer = topWallExpandTimer - dt
-        topWallOffset = topWallOffset - wallShrinkSpeedPerSecond * wallExpandSpeedMultiplier * dt
-        if topWallExpandTimer < 0 then topWallExpandTimer = 0 end
-    else
-        topWallOffset = topWallOffset + wallShrinkSpeedPerSecond * dt
-        if topWallOffset > maxShrinkY then topWallOffset = maxShrinkY end
-    end
-    
-    -- Update bottom wall
-    if bottomWallExpandTimer > 0 then
-        bottomWallExpandTimer = bottomWallExpandTimer - dt
-        bottomWallOffset = bottomWallOffset - wallShrinkSpeedPerSecond * wallExpandSpeedMultiplier * dt
-        if bottomWallExpandTimer < 0 then bottomWallExpandTimer = 0 end
-    else
-        bottomWallOffset = bottomWallOffset + wallShrinkSpeedPerSecond * dt
-        if bottomWallOffset > maxShrinkY then bottomWallOffset = maxShrinkY end
-    end
-    
-    -- Capture initial position on first frame
-    if windowInitialX == nil then
-        windowBaseWidth = Window.get_width()
-        windowBaseHeight = Window.get_height()
-        originalWindowWidth = windowBaseWidth
-        originalWindowHeight = windowBaseHeight
-
-        local displayWidth = Window.get_display_width()
-        local displayHeight = Window.get_display_height()
-        windowInitialX = math.floor((displayWidth - windowBaseWidth) * 0.5)
-        windowInitialY = math.floor((displayHeight - windowBaseHeight) * 0.5)
-
-        Window.set_pos(windowInitialX, windowInitialY)
-        Window.set_size(windowBaseWidth, windowBaseHeight)
-    end
-    
-    -- Calculate new window bounds
-    local newX = math.floor(windowInitialX + leftWallOffset)
-    local newY = math.floor(windowInitialY + topWallOffset)
-    local newWidth = math.floor(windowBaseWidth - leftWallOffset - rightWallOffset)
-    local newHeight = math.floor(windowBaseHeight - topWallOffset - bottomWallOffset)
-
-    if newWidth < minWindowWidth then newWidth = minWindowWidth end
-    if newHeight < minWindowHeight then newHeight = minWindowHeight end
-
-    local realScreenWidth = Window.get_display_width()
-    local realScreenHeight = Window.get_display_height()
-    local maxWindowWidth = math.min(wallMaxWindowWidth, realScreenWidth)
-    local maxWindowHeight = math.min(wallMaxWindowHeight, realScreenHeight)
-
-    if newWidth > maxWindowWidth then newWidth = maxWindowWidth end
-    if newHeight > maxWindowHeight then newHeight = maxWindowHeight end
-    
-    -- Clamp to real screen bounds (top and bottom edges)
-    if newY < 0 then
-        newY = 0
-    end
-    if newY + newHeight > realScreenHeight then
-        newY = realScreenHeight - newHeight
-    end
-    
-    -- Apply window position and size
-    Window.set_pos(newX, newY)
-    Window.set_size(newWidth, newHeight)
 end
 
 return SystemShooter
