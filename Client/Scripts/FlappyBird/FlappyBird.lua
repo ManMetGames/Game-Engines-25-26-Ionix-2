@@ -249,20 +249,86 @@ local menuContext = "main"
 ----------------------------------
 -- Pause game when in main menu
 ----------------------------------
+-- ----------------------------------------------------------
+-- UI scaling helpers (virtual UI space 960x640, letterboxed)
+-- ----------------------------------------------------------
+local UI_BASE_W, UI_BASE_H = 960, 640
+local uiScale = 1.0
+local uiOffX, uiOffY = 0, 0
+
+local function UpdateUiScale(windowW, windowH)
+    uiScale = math.min(windowW / UI_BASE_W, windowH / UI_BASE_H)
+    uiOffX = (windowW - (UI_BASE_W * uiScale)) / 2
+    uiOffY = (windowH - (UI_BASE_H * uiScale)) / 2
+end
+
+local function S(px)
+    return math.floor((px * uiScale) + 0.5)
+end
+
+local function Ux(px)
+    return math.floor((uiOffX + (px * uiScale)) + 0.5)
+end
+
+local function Uy(py)
+    return math.floor((uiOffY + (py * uiScale)) + 0.5)
+end
+
+-- Settings menu back navigation (so pause -> settings -> back returns to pause)
+local settingsBackContext = "main"
+
+-- Cached motion during pause so Resume restores correctly
+local pausedPlayerVel = nil
+local pausedPlayerGravity = nil
+local pausedPipeVels = {}
+local pausedCoinVels = {}
+
 local function pauseGame(pause)
     gamePaused = pause
 
+    -- Safety: if the world/entities are not ready, just set the flag
+    if player1 == nil then return end
+
     if pause then
-        -- stop movement
+        -- Cache current motion so Resume restores correctly
+        pausedPlayerVel = Fysics.get_linear_velocity(player1)
+        pausedPlayerGravity = Fysics.get_gravity_scale(player1)
+
         Fysics.set_gravity_scale(player1, 0)
         Fysics.set_linear_velocity(player1, 0, 0)
 
-        for _, p in ipairs(pipesList) do
+        pausedPipeVels = {}
+        for i, p in ipairs(pipesList) do
+            pausedPipeVels[i] = Fysics.get_linear_velocity(p)
             Fysics.set_linear_velocity(p, 0, 0)
         end
 
-        for _, c in ipairs(coins) do
+        pausedCoinVels = {}
+        for i, c in ipairs(coins) do
+            pausedCoinVels[i] = Fysics.get_linear_velocity(c)
             Fysics.set_linear_velocity(c, 0, 0)
+        end
+    else
+        -- Restore cached motion
+        if pausedPlayerGravity ~= nil then
+            Fysics.set_gravity_scale(player1, pausedPlayerGravity)
+        end
+        if pausedPlayerVel ~= nil then
+            Fysics.set_linear_velocity_v(player1, pausedPlayerVel)
+        end
+
+        for i, p in ipairs(pipesList) do
+            local v = pausedPipeVels[i]
+            if v ~= nil then
+                Fysics.set_linear_velocity_v(p, v)
+            end
+        end
+
+        for i, c in ipairs(coins) do
+            local v = pausedCoinVels[i]
+            if v ~= nil then
+                Fysics.set_linear_velocity_v(c, v)
+            end
         end
     end
 end
@@ -673,6 +739,7 @@ local function DrawMainMenu_C(windowW, windowH)
     elseif UI.was_button_pressed("fb_nav_customise") then
         menuContext = "customise"
     elseif UI.was_button_pressed("fb_nav_settings") then
+        settingsBackContext = "main"
         menuContext = "settings"
     elseif UI.was_button_pressed("fb_nav_exit") then
         Window.quit()
@@ -743,7 +810,7 @@ local function DrawSettingsMenu_C(windowW, windowH)
     )
 
     if UI.was_button_pressed("fb_settings_back") then
-        menuContext = "main"
+        menuContext = settingsBackContext
     end
 end
 
@@ -915,32 +982,62 @@ if inMainMenu then
     elseif menuContext == "customise" then
         DrawCustomiseMenu_C(windowW, windowH)
     elseif menuContext == "ingame" then
-        -- keep your existing pause menu layout for now
-        local buttonW, buttonH = 200, 50
-        local centerX = (windowW - buttonW) / 2
-        local centerY = (windowH - buttonH) / 2
-        local gap = 0
+        -- Redesigned pause menu (Layout C style)
+        UpdateUiScale(windowW, windowH)
 
         UI.add_panel(0, 0, windowW, windowH, 0.35, 0, 0, 0, 0)
 
-        UI.add_button(centerX, centerY - 50 - (buttonH / 2) - gap - 20, buttonW, buttonH, "Resume", "resumeButton")
-        UI.add_button(centerX, centerY - (buttonH / 2) - gap, buttonW, buttonH, "Main Menu", "mainMenuButton")
-        UI.add_button(centerX, centerY + (buttonH / 2) - gap + 20, buttonW, buttonH, "Exit", "exitButton")
+        local baseW, baseH = 520, 390
+        local panelW, panelH = S(baseW), S(baseH)
+        local panelX = Ux((UI_BASE_W - baseW) / 2)
+        local panelY = Uy((UI_BASE_H - baseH) / 2)
 
-        if UI.was_button_pressed("resumeButton") then
-            inMainMenu = false
-            menuContext = "main"
-            print("Resumed Game")
+        UI.begin_child(panelX, panelY, panelW, panelH, "FB_PauseMenu",
+            true, 0,
+            true, 0.85, 10, 70, 160, 115
+        )
+
+        local cx = panelW / 2
+        UI.add_centered_label(cx, S(34), "Paused", UI_FONT_TITLE, 1.0)
+
+        local btnW, btnH = S(260), S(46)
+        local btnX = (panelW - btnW) / 2
+        local startY = S(90)
+        local gapY = S(14)
+
+        local function AddBtn(row, text, id, r, g, b, a)
+            UI.add_button(btnX, startY + (btnH + gapY) * row, btnW, btnH, text, id,
+                "ImGuiDefaultBold", 1.0, btnH / 2, true,
+                r, g, b, a
+            )
         end
 
-        if UI.was_button_pressed("mainMenuButton") then
+        AddBtn(0, "Resume",   "fb_pause_resume",   80, 170, 255, 0.92)
+        AddBtn(1, "Restart",  "fb_pause_restart",  255, 170, 80, 0.92)
+        AddBtn(2, "Settings", "fb_pause_settings", 120, 220, 140, 0.90)
+        AddBtn(3, "Main Menu","fb_pause_main",     255, 170, 80, 0.92)
+        AddBtn(4, "Exit",     "fb_pause_exit",     220, 80, 80, 0.90)
+
+        UI.end_child()
+
+        if UI.was_button_pressed("fb_pause_resume") then
+            pauseGame(false)
+            inMainMenu = false
+            print("Resumed Game")
+        elseif UI.was_button_pressed("fb_pause_restart") then
+            pauseGame(false)
+            inMainMenu = false
             resetGame()
+            print("Restarted Game")
+        elseif UI.was_button_pressed("fb_pause_settings") then
+            settingsBackContext = "ingame"
+            menuContext = "settings"
+        elseif UI.was_button_pressed("fb_pause_main") then
+            pauseGame(false)
             inMainMenu = true
             menuContext = "main"
             print("Switched to main menu")
-        end
-
-        if UI.was_button_pressed("exitButton") then
+        elseif UI.was_button_pressed("fb_pause_exit") then
             Window.quit()
             print("Quitting Game")
         end
