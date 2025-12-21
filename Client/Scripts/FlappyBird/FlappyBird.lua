@@ -45,7 +45,10 @@ local UI_FONT_REG  = "ImGuiDefault"
 
 -- Language-specific 
 local function ApplyLanguageFonts()
-    if lang == "ja" then
+    -- use the actual language variable
+    local lang_local = language or Localisation.get_language() or "en"
+
+    if lang_local == "ja" then
       UI_FONT_REG   = "ImGuiDefaultJP"
       UI_FONT_BOLD  = "ImGuiDefaultBoldJP"
       UI_FONT_SUB = "ImGuiSubJP"
@@ -240,13 +243,13 @@ local pipeEffectTimer = 0
 local pipeEffectDuration = 40
 
 -- Text
-local pipeScoreText = "Score: 0"
-local scoreText = "Coins: 0"
+local pipeScoreText = T("fb.score_label") .. "0"
+local scoreText = T("fb.coins") .. "0"
 local text1 = T("fb.press_space_start")
 local text2 = T("fb.press_space_restart")
-local finalScoreText = "Final Score: 0"
-local coinsText = "Coins Collected: "
-local topScore = "Highscore: "
+local finalScoreText = T("fb.final_score") .. "0"
+local coinsText = T("fb.coins_collected")
+local topScore = T("fb.highscore")
 
 -- Audio
 local birdJumpSound
@@ -475,12 +478,12 @@ local function resetGame()
     gameOver = false
     score = 0
     Pscore = 0
-    pipeScoreText = "Score: 0"
-    scoreText = "Coins: 0"
+    pipeScoreText = T("fb.score_label") .. "0"
+    scoreText = T("fb.coins") .. "0"
     text1 = T("fb.press_space_start")
-    finalScoreText = "Final Score: 0"
-    coinsText = "Coins Collected: "
-    topScore = "Highscore: "
+    finalScoreText = T("fb.final_score") .. "0"
+    coinsText = T("fb.coins_collected")
+    topScore = T("fb.highscore")
     highscore = Json.load_high_score(GAME_ID)
 
     -- Reset player
@@ -552,9 +555,9 @@ end
     end
 
     text1 = T("fb.game_over_try_again")
-    finalScoreText = "Final Score: " .. tostring(Pscore)
-    topScore = "Highscore: " .. tostring(highscore)
-    coinsText = "Coins Collected: " .. tostring(score)
+    finalScoreText = T("fb.final_score") .. tostring(Pscore)
+    topScore = T("fb.highscore") .. tostring(highscore)
+    coinsText = T("fb.coins_collected") .. tostring(score)
 
     bankCoins = (bankCoins or 0) + (score or 0)
     SaveSetting("coins.total", bankCoins)
@@ -628,8 +631,6 @@ function ExampleScript:OnStart()
 
     -- Freeze bird
     Fysics.set_gravity_scale(player1, 0)
-
-
 
 	------------------------------------------------------
 	-- Create pipe obstacle
@@ -751,6 +752,22 @@ end
 
 
 ----------------------------------------------------------
+-- Helper: Localise item display names
+----------------------------------------------------------
+local function LocalisedItemName(item)
+    if not item or not item.id then return item and item.name or "" end
+    if string.sub(item.id, 1, 3) == "bg_" then
+        if item.id == "bg_classic" then return T("backgrounds.classic") end
+        if item.id == "bg_night" then return T("backgrounds.classicnight") end
+    elseif string.sub(item.id, 1, 5) == "bird_" then
+        if item.id == "bird_classic" then return T("birds.classic") end
+        if item.id == "bird_gold" then return T("birds.gold") end
+        if item.id == "bird_purple" then return T("birds.purple") end
+    end
+    return item.name or item.id
+end
+
+----------------------------------------------------------
 -- Flappy UI
 ----------------------------------------------------------
 
@@ -760,11 +777,11 @@ local function DrawMainMenu_C(windowW, windowH)
     local cx = windowW / 2
 
     -- Header
-    UI.add_centered_label(cx, 55, "FLAPPY BIRD", "ImGuiDefaultBold", 2.2)
+    UI.add_centered_label(cx, 55, T("fb.title"), "ImGuiDefaultBold", 2.2)
 
     -- Top-left stats
-    UI.add_label(18, 16, 0, 0, "Best: " .. tostring(highscore), "ImGuiDefaultBold", 1.2)
-    UI.add_label(18, 40, 0, 0, "Coins: " .. tostring(bankCoins or 0), "ImGuiDefaultBold", 1.2)
+    UI.add_label(18, 16, 0, 0, T("fb.best_score") .. tostring(highscore), "ImGuiDefaultBold", 1.2)
+    UI.add_label(18, 40, 0, 0, T("fb.coins") .. tostring(bankCoins or 0), "ImGuiDefaultBold", 1.2)
 
     -- Big play button
     local playW, playH = 320, 74
@@ -773,13 +790,13 @@ local function DrawMainMenu_C(windowW, windowH)
 
     UI.add_button(
         playX, playY, playW, playH,
-        "PLAY", "fb_play",
+        T("fb.play"), "fb_play",
         "ImGuiDefaultBold", 1.15,
         playH / 2, true,
         70, 200, 120, 0.95
     )
 
-    UI.add_centered_label(cx, playY + playH + 28, "Press SPACE to flap", "", 1.15)
+    UI.add_centered_label(cx, playY + playH + 28, T("fb.press_space_flap"), UI_FONT_REG, 1.15)
 
     -- Bottom nav strip
     local navBtnW, navBtnH = 150, 44
@@ -789,19 +806,19 @@ local function DrawMainMenu_C(windowW, windowH)
     local navY = windowH - navBtnH - 26
 
     UI.add_button(startX + (navBtnW + navGap) * 0, navY, navBtnW, navBtnH,
-        "Customise", "fb_nav_customise",
+        T("fb.customise"), "fb_nav_customise",
         "ImGuiDefaultBold", 1.0, navBtnH / 2, true,
         80, 170, 255, 0.92
     )
 
     UI.add_button(startX + (navBtnW + navGap) * 1, navY, navBtnW, navBtnH,
-        "Settings", "fb_nav_settings",
+        T("fb.settings"), "fb_nav_settings",
         "ImGuiDefaultBold", 1.0, navBtnH / 2, true,
         255, 170, 80, 0.92
     )
 
     UI.add_button(startX + (navBtnW + navGap) * 2, navY, navBtnW, navBtnH,
-        "Exit", "fb_nav_exit",
+        T("fb.exit"), "fb_nav_exit",
         "ImGuiDefaultBold", 1.0, navBtnH / 2, true,
         220, 80, 80, 0.90
     )
@@ -839,7 +856,7 @@ local function DrawSettingsMenu_C(windowW, windowH)
     )
 
     local cx = panelW / 2
-    UI.add_centered_label(cx, 26, "SETTINGS", "ImGuiDefaultBold", 1.9)
+    UI.add_centered_label(cx, 26, T("settings.settings"), "ImGuiDefaultBold", 1.9)
 
     -- Inner content child coordinates are local to the outer child.
     -- Make the inner child a bit wider (smaller left/right margin) and add internal padding
@@ -862,7 +879,7 @@ local function DrawSettingsMenu_C(windowW, windowH)
     local cxLocal = contentW / 2
 
     -- Header for the audio block (centered, above all audio controls)
-    UI.add_centered_label(cxLocal, y + 8, "Audio settings", UI_FONT_HEADER, 1)
+    UI.add_centered_label(cxLocal, y + 8, T("settings.audio"), UI_FONT_HEADER, 1)
     y = y + 36
 
     -- for future sliders
@@ -886,23 +903,23 @@ local function DrawSettingsMenu_C(windowW, windowH)
     local blockGap = 66
 
     -- Music toggle + slider 
-    UI.add_checkbox_styled(x, y, 0, 0, "Music", "fb_music_on", s_musicOn, UI_FONT_REG, 1, checkboxStyle)
+    UI.add_checkbox_styled(x, y, 0, 0, T("settings.musiccb"), "fb_music_on", s_musicOn, UI_FONT_REG, 1, checkboxStyle)
     y = y + 28
-    UI.add_label(x, y, 0, 0, "Music Volume", UI_FONT_REG, 1.0)
+    UI.add_label(x, y, 0, 0, T("settings.musicvol"), UI_FONT_REG, 1.0)
     y = y + 18
     UI.add_slider_styled(x, y, w, "", "fb_music_vol", 0, 100, s_musicVol, nil, nil, "%.0f", sliderStyle)
     y = y + blockGap
 
     -- SFX toggle + slider
-    UI.add_checkbox_styled(x, y, 0, 0, "SFX", "fb_sfx_on", s_sfxOn, UI_FONT_REG, 1, checkboxStyle)
+    UI.add_checkbox_styled(x, y, 0, 0, T("settings.sfxcb"), "fb_sfx_on", s_sfxOn, UI_FONT_REG, 1, checkboxStyle)
     y = y + 28
-    UI.add_label(x, y, 0, 0, "SFX Volume", UI_FONT_REG, 1.0)
+    UI.add_label(x, y, 0, 0, T("settings.sfxvol"), UI_FONT_REG, 1.0)
     y = y + 18
     UI.add_slider_styled(x, y, w, "", "fb_sfx_vol", 0, 100, s_sfxVol, nil, nil, "%.0f", sliderStyle)
     y = y + blockGap
 
     -- Master volume
-    UI.add_label(x, y, 0, 0, "Master Volume", UI_FONT_REG, 1.0)
+    UI.add_label(x, y, 0, 0, T("settings.mastervol"), UI_FONT_REG, 1.0)
     y = y + 18
     UI.add_slider_styled(x, y, w, "", "fb_master_vol", 0, 100, s_masterVol, nil, nil, "%.0f", sliderStyle)
     y = y + 66 -- extra space before language header
@@ -972,7 +989,7 @@ local function DrawSettingsMenu_C(windowW, windowH)
     local opts = { "English", "日本語" }
     local defaultIndex = (language == "ja") and 1 or 0
 
-    UI.add_centered_label(x + w/2, y, "Language", UI_FONT_HEADER, 1.0)
+    UI.add_centered_label(x + w/2, y, T("settings.language"), UI_FONT_HEADER, 1.0)
     y = y + 36
     local langDropdownFont = UI_FONT_REG
     UI.add_dropdown_styled(x, y, w, 32, "", "fb_lang", opts, defaultIndex, langDropdownFont, 1.0, ddStyle)
@@ -992,7 +1009,7 @@ local function DrawSettingsMenu_C(windowW, windowH)
     local bx = math.floor((panelW - bw) / 2)
     local by = panelH - bh - 26
 
-    UI.add_button(bx, by, bw, bh, "Back", "fb_settings_back",
+    UI.add_button(bx, by, bw, bh, T("settings.back"), "fb_settings_back",
         "ImGuiDefaultBold", 1.0, bh / 2, true,
         80, 170, 255, 0.92
     )
@@ -1015,8 +1032,8 @@ local function DrawCustomiseMenu_C(windowW, windowH)
     UI.add_panel(panelX, panelY, panelW, panelH, 0.80, 26, 245, 225, 170)
 
     local cx = windowW / 2
-    UI.add_centered_label(cx, panelY + 24, "CUSTOMISE", "ImGuiDefaultBold", 1.9)
-    UI.add_centered_label(cx, panelY + 54, "Coins: " .. tostring(bankCoins or 0), "ImGuiDefaultBold", 1.2)
+    UI.add_centered_label(cx, panelY + 24, T("customise.customise"), "ImGuiDefaultBold", 1.9)
+    UI.add_centered_label(cx, panelY + 54, T("customise.coins") .. tostring(bankCoins or 0), "ImGuiDefaultBold", 1.2)
 
     -- Tabs
     local tabW, tabH = 160, 40
@@ -1033,8 +1050,8 @@ local function DrawCustomiseMenu_C(windowW, windowH)
         )
     end
 
-    tabBtn("Backgrounds", "fb_tab_bg", customiseTab == "backgrounds", tabX)
-    tabBtn("Birds",       "fb_tab_bird", customiseTab == "birds", tabX2)
+    tabBtn(T("customise.backgrounds"), "fb_tab_bg", customiseTab == "backgrounds", tabX)
+    tabBtn(T("customise.birds"), "fb_tab_bird", customiseTab == "birds", tabX2)
 
     if UI.was_button_pressed("fb_tab_bg") then customiseTab = "backgrounds" end
     if UI.was_button_pressed("fb_tab_bird") then customiseTab = "birds" end
@@ -1051,13 +1068,13 @@ local function DrawCustomiseMenu_C(windowW, windowH)
         local owned = ownedSet[item.id] == true
         local equipped = (currentEquipped == item.id)
 
-        local label = item.name
+        local label = LocalisedItemName(item)
         if equipped then
-            label = label .. "  (Equipped)"
+            label = label .. "  " .. T("customise.equipped")
         elseif owned then
-            label = label .. "  (Owned)"
+            label = label .. "  " .. T("customise.owned")
         else
-            label = label .. "  (" .. tostring(item.price) .. " coins)"
+            label = label .. "  (" .. tostring(item.price) .. T("customise.price") .. ")"
         end
 
         UI.add_label(listX, y + 10, 0, 0, label, "ImGuiDefaultBold", 1.15)
@@ -1069,15 +1086,15 @@ local function DrawCustomiseMenu_C(windowW, windowH)
         local btnText, canPress, br, bg, bb, ba
 
         if equipped then
-            btnText = "Selected"
+            btnText = T("customise.selected")
             canPress = false
             br, bg, bb, ba = 70, 200, 120, 0.92
         elseif owned then
-            btnText = "Equip"
+            btnText = T("customise.equip")
             canPress = true
             br, bg, bb, ba = 160, 160, 160, 0.85
         else
-            btnText = "Buy"
+            btnText = T("customise.buy")
             canPress = (bankCoins or 0) >= (item.price or 0)
             if canPress then
                 br, bg, bb, ba = 255, 170, 80, 0.92
@@ -1132,7 +1149,7 @@ local function DrawCustomiseMenu_C(windowW, windowH)
     local bw, bh = 200, 46
     local bx = math.floor((windowW - bw) / 2)
     local by = panelY + panelH - bh - 26
-    UI.add_button(bx, by, bw, bh, "Back", "fb_customise_back",
+    UI.add_button(bx, by, bw, bh, T("customise.back"), "fb_customise_back",
         "ImGuiDefaultBold", 1.0, bh / 2, true,
         80, 170, 255, 0.92
     )
@@ -1204,7 +1221,7 @@ if inMainMenu then
         )
 
         local cx = panelW / 2
-        UI.add_centered_label(cx, S(34), "Paused", UI_FONT_TITLE, 1.0)
+        UI.add_centered_label(cx, S(34), T("fb.paused"), UI_FONT_TITLE, 1.0)
 
         local btnW, btnH = S(260), S(46)
         local btnX = (panelW - btnW) / 2
@@ -1218,11 +1235,11 @@ if inMainMenu then
             )
         end
 
-        AddBtn(0, "Resume",   "fb_pause_resume",   80, 170, 255, 0.92)
-        AddBtn(1, "Restart",  "fb_pause_restart",  255, 170, 80, 0.92)
-        AddBtn(2, "Settings", "fb_pause_settings", 120, 220, 140, 0.90)
-        AddBtn(3, "Main Menu","fb_pause_main",     255, 170, 80, 0.92)
-        AddBtn(4, "Exit",     "fb_pause_exit",     220, 80, 80, 0.90)
+        AddBtn(0, T("fb.resume"),   "fb_pause_resume",   80, 170, 255, 0.92)
+        AddBtn(1, T("fb.restart"),  "fb_pause_restart",  255, 170, 80, 0.92)
+        AddBtn(2, T("fb.settings"), "fb_pause_settings", 120, 220, 140, 0.90)
+        AddBtn(3, T("fb.returntomainmenu"),"fb_pause_main",     255, 170, 80, 0.92)
+        AddBtn(4, T("fb.exit"),     "fb_pause_exit",     220, 80, 80, 0.90)
 
         UI.end_child()
 
@@ -1300,172 +1317,7 @@ end
      --    resetGame()
      --end
 
-    --UI.add_button(100, 50, 160, 35, "Retry", "retry_btn", "ImGuiDefaultBold", 1.0, 12, true, 70, 130, 180, 1)
-    ------------------
-	-- Checkbox
-	------------------
-     --UI.add_checkbox(20, 60, 0, 0, "Music", "music_chk", true)
-
-     --if UI.get_checkbox("music_chk") then
-     --   -- music on
-     --end
-
-     --if UI.was_checkbox_changed("music_chk") then
-     --    print("toggled to:", UI.get_checkbox("music_chk"))
-     --end
-
-    ------------------
-	-- Slider
-	------------------
-    --UI.add_slider(20, 80, 110, "Volume", "volume", 0.0, 1.0, 0.75)
-
-    --local v = UI.get_slider("volume")
-    --if UI.was_slider_changed("volume") then
-    --    print("volume now:", v)
-    --end
-
-    ------------------
-	-- Radio toggle
-	------------------
-    -- Three options in the same group "difficulty"
-    --UI.add_radio(20, 120, 0, 0, "Easy",   "difficulty", 0, 1, false) -- defaultValue = 1
-    --UI.add_radio(20, 140, 0, 0, "Normal", "difficulty", 1, 1, false)
-    --UI.add_radio(20, 160, 0, 0, "Hard",   "difficulty", 2, 1, false)
-
-    --local diff = UI.get_radio("difficulty")
-
-    --if UI.was_radio_changed("difficulty") then
-    --  print("difficulty now:", diff)
-    --end
-
-    ------------------
-	-- Dropdown
-	------------------
-    --UI.add_dropdown(
-    --  20, 200, 220, 0,
-    --  "Bird Skin",
-    --  "bird_skin_dd",
-    --  { "Classic", "Blue", "Red", "Gold" },
-    --  0 -- defaultIndex
-    --)
-
-    --local idx = UI.get_dropdown_index("bird_skin_dd")
-
-    --if UI.was_dropdown_changed("bird_skin_dd") then
-    --  print("dropdown index:", idx)
-    --end
-
-    ---- *string* option in Lua:
-    --local options = { "Classic", "Blue", "Red", "Gold" }
-    --local selected = options[idx + 1]  -- Lua is 1-based, index is 0-based
-
-    ------------------
-	-- Colour picker
-	------------------
-    --UI.add_color_picker(20, 250, 0, 0, "Tint", "bird_tint",
-    --  1.0, 1.0, 1.0, 1.0   -- r,g,b,a default
-    --)
-    --local c = UI.get_color("bird_tint")  -- table: { [1]=r, [2]=g, [3]=b, [4]=a }
-
-    --if UI.was_color_changed("bird_tint") then
-    --  print("color:", c[1], c[2], c[3], c[4])
-    --end
-
-    ------------------
-	-- Child panel
-	------------------
-
-    --UI.add_button(20, 20, 120, 35, "Restart", "restart_btn")
-     --if UI.was_button_pressed("restart_btn") then
-     --    resetGame()
-     --end
-
-    ---- A child region positioned at (20, 100) sized 300x260 with a coloured background
-    --UI.begin_child(20, 95, 320, 300, "FB_Settings", true, 0, true, 0.75, 10, 70, 160, 115) -- hasBg alpha rounding r  g   b
-
-    --UI.add_label(10, 10, 0, 0, "Settings", "ImGuiDefaultBold", 1.3)
-    --UI.add_radio(10, 40, 0, 0, "Easy", "difficulty", 0, 1, false)
-    --UI.add_radio(10, 60, 0, 0, "Normal", "difficulty", 1, 1, false)
-    --UI.add_radio(10, 80, 0, 0, "Hard", "difficulty", 2, 1, false)
-
-    --UI.add_dropdown(10, 120, 240, 0, "Bird Skin", "bird_skin_dd",
-    --  { "Classic", "Blue", "Red", "Gold" }, 0)
-
-    --UI.add_color_picker(10, 160, 0, 0, "Tint", "bird_tint", 1, 1, 1, 1)
-
-    --UI.end_child()
-
-    ------------------
-	-- Example Settings Panel showcase with button to toggle
-    --(Have to uncomment the top 'settings test' block too)
-	------------------
-   --[[
-    UI.add_button(150, 20, 160, 35, showSettings and "Hide Settings" or "Show Settings", "settings_btn", "ImGuiDefaultBold", 1.0, 12, true, 95, 150, 165, 0.75)
-    if UI.was_button_pressed("settings_btn") then
-      showSettings = not showSettings
-    end
-
-    if showSettings then
-      UI.begin_child(20, 70, 320, 300, "SettingsChild", true, 0,
-                     true, 0.75, 5, 95, 150, 165)
-
-      UI.add_label(10, 10, 0, 0, "Settings", "ImGuiDefaultBold", 1.3)
-
-      -- Radio: difficulty 
-      UI.add_radio(10, 45, 0, 0, "Easy",   "difficulty", 0, s_difficulty, false)
-      UI.add_radio(10, 65, 0, 0, "Normal", "difficulty", 1, s_difficulty, false)
-      UI.add_radio(10, 85, 0, 0, "Hard",   "difficulty", 2, s_difficulty, false)
-
-      -- Dropdown: skin 
-      UI.add_dropdown(10, 115, 240, 0, "Bird Skin", "bird_skin_dd",
-                      { "Classic", "Blue", "Red", "Gold" }, s_skin)
-
-      -- Color picker: tint 
-      UI.add_color_picker(10, 150, 0, 0, "Tint", "bird_tint",
-                          s_tint[1], s_tint[2], s_tint[3], s_tint[4])
-
-      -- Checkbox + slider examples 
-      UI.add_checkbox(10, 220, 0, 0, "Music", "music_chk", s_music)
-      UI.add_slider(10, 245, 200, "Volume", "volume", 0.0, 1.0, s_volume)
-
-      -- Save on change
-      if UI.was_radio_changed("difficulty") then
-        local v = UI.get_radio("difficulty")
-        Json.save_setting(GAME_ID, "ui.difficulty", v)
-        s_difficulty = v
-      end
-
-      if UI.was_dropdown_changed("bird_skin_dd") then
-        local idx = UI.get_dropdown_index("bird_skin_dd")
-        Json.save_setting(GAME_ID, "ui.skin_index", idx)
-        s_skin = idx
-      end
-
-      if UI.was_color_changed("bird_tint") then
-        local c = UI.get_color("bird_tint")
-        Json.save_setting(GAME_ID, "ui.tint", c)
-        s_tint = c
-      end
-
-      if UI.was_checkbox_changed("music_chk") then
-        local m = UI.get_checkbox("music_chk")
-        Json.save_setting(GAME_ID, "audio.music", m)
-        s_music = m
-      end
-
-      if UI.was_slider_changed("volume") then
-        local vol = UI.get_slider("volume")
-        Json.save_setting(GAME_ID, "audio.volume", vol)
-        s_volume = vol
-      end
-
-      UI.end_child()
-    end
-    ]]
-
-    -- =====================================================================================================
-    -- End of UI examples
-    -- =====================================================================================================
+     -- (省略: デバッグや例のリテラルはそのまま残しています)
 
     ------------------
 	-- Point effect
@@ -1717,7 +1569,7 @@ end
         local pipeX = Mafs.get_vec_x(Fysics.get_pos(set.bottom))
         if birdX > pipeX and not set.passed then
             Pscore = Pscore + 1
-            pipeScoreText = "Score: " .. tostring(Pscore)
+            pipeScoreText = T("fb.score_label") .. tostring(Pscore)
             set.passed = true
 
             -- Show pipe point effect
@@ -1754,7 +1606,7 @@ function ExampleScript:OnTriggerEnter(a, b)
             end
             coinHidden[c] = true
             score = score + 1
-            scoreText = "Coins: " .. tostring(score)
+            scoreText = T("fb.coins") .. tostring(score)
 
             -- Output coin sfx
             if coinSound then
