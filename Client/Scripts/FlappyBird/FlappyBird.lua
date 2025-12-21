@@ -803,7 +803,7 @@ local function DrawSettingsMenu_C(windowW, windowH)
     local panelY = math.floor((windowH - panelH) / 2)
 
     -- Soft “cloudy” panel
-    UI.add_panel(panelX, panelY, panelW, panelH, 0.80, 24, 235, 250, 255)
+    UI.add_panel(panelX, panelY, panelW, panelH, 0.72, 24, 60, 140, 190)
 
     local cx = windowW / 2
     UI.add_centered_label(cx, panelY + 26, "SETTINGS", "ImGuiDefaultBold", 1.9)
@@ -815,17 +815,23 @@ local function DrawSettingsMenu_C(windowW, windowH)
     -- Music toggle + slider (slider still useful once you add BGM)
     UI.add_checkbox(x, y, 0, 0, "Music", "fb_music_on", s_musicOn)
     y = y + 28
-    UI.add_slider(x, y, w, "Music Volume", "fb_music_vol", 0, 100, s_musicVol)
+    UI.add_label(x, y, "Music Volume", UI_FONT_REG, 1.0)
+    y = y + 18
+    UI.add_slider(x, y, w, "", "fb_music_vol", 0, 100, s_musicVol, nil, nil, "%.0f")
     y = y + 60
 
     -- SFX toggle + slider
     UI.add_checkbox(x, y, 0, 0, "SFX", "fb_sfx_on", s_sfxOn)
     y = y + 28
-    UI.add_slider(x, y, w, "SFX Volume", "fb_sfx_vol", 0, 100, s_sfxVol)
+    UI.add_label(x, y, "SFX Volume", UI_FONT_REG, 1.0)
+    y = y + 18
+    UI.add_slider(x, y, w, "", "fb_sfx_vol", 0, 100, s_sfxVol, nil, nil, "%.0f")
     y = y + 60
 
     -- Master volume
-    UI.add_slider(x, y, w, "Master Volume", "fb_master_vol", 0, 100, s_masterVol)
+    UI.add_label(x, y, "Master Volume", UI_FONT_REG, 1.0)
+    y = y + 18
+    UI.add_slider(x, y, w, "", "fb_master_vol", 0, 100, s_masterVol, nil, nil, "%.0f")
 
     -- Apply changes
     if UI.was_checkbox_changed("fb_music_on") then
@@ -840,6 +846,20 @@ local function DrawSettingsMenu_C(windowW, windowH)
         SaveSetting("audio.musicVol", s_musicVol)
         ApplyMusicVolume()
     end
+
+    if UI.was_checkbox_changed("fb_sfx_on") then
+        s_sfxOn = UI.get_checkbox("fb_sfx_on") or s_sfxOn
+        SaveSetting("audio.sfxOn", s_sfxOn)
+        ApplySfxVolumes()
+    end
+
+    if UI.was_slider_changed("fb_sfx_vol") then
+        s_sfxVol = UI.get_slider("fb_sfx_vol") or s_sfxVol
+        SaveSetting("audio.sfxVol", s_sfxVol)
+        ApplySfxVolumes()
+    end
+
+
 
     if UI.was_slider_changed("fb_master_vol") then
         s_masterVol = UI.get_slider("fb_master_vol") or s_masterVol
@@ -870,7 +890,7 @@ local function DrawCustomiseMenu_C(windowW, windowH)
     local panelX = math.floor((windowW - panelW) / 2)
     local panelY = math.floor((windowH - panelH) / 2)
 
-    UI.add_panel(panelX, panelY, panelW, panelH, 0.80, 24, 235, 250, 255)
+    UI.add_panel(panelX, panelY, panelW, panelH, 0.72, 24, 60, 140, 190)
 
     local cx = windowW / 2
     UI.add_centered_label(cx, panelY + 24, "CUSTOMISE", "ImGuiDefaultBold", 1.9)
@@ -1101,6 +1121,7 @@ if inMainMenu then
             pauseGame(false)
             inMainMenu = true
             menuContext = "main"
+            resetGame()
             print("Switched to main menu")
         elseif UI.was_button_pressed("fb_pause_exit") then
             Window.quit()
@@ -1598,6 +1619,7 @@ end
 -- Coins collision + score
 ----------------------------------------------------------
 function ExampleScript:OnTriggerEnter(a, b)
+    if inMainMenu or gameOver then return end
     local player, coin
     if a == player1 then player, coin = a, b
     elseif b == player1 then player, coin = b, a end
@@ -1632,6 +1654,7 @@ end
 -- Collision
 ------------------------------------------------------
 function ExampleScript:OnCollisionEnter(a, b)
+    if inMainMenu or gameOver then return end
     if gameOver then return end
 
     local other = nil
