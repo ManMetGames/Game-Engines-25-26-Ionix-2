@@ -234,6 +234,8 @@ function UpdateWindowTransition(dt)
                 screenW = screenW,
                 screenH = screenH,
             })
+            -- Skip first mouse delta to prevent spawn position snap
+            SystemShooterPlayer.skipNextDelta()
             playerInitialized = true
         end
         
@@ -1772,7 +1774,10 @@ function SystemShooter:OnUpdate()
     screenH = Window.get_height()
     SystemShooterProjectiles.setScreenBounds(screenW, screenH)
     
-    if levelTimerSeconds > 0 and #enemies > 0 and not isStartLevelPeace and not isLevelupPeace then
+    -- Check if in peace phase (end-level peace when no enemies alive)
+    local inPeacePhase = isStartLevelPeace or isLevelupPeace or (not enemiesAlive and peaceTimerSeconds > 0)
+    
+    if levelTimerSeconds > 0 and #enemies > 0 and not inPeacePhase then
         levelTimerSeconds = levelTimerSeconds - dt
     end
 
