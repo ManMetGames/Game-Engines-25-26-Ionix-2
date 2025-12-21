@@ -1341,7 +1341,10 @@ local function DrawGameOverMenu(screenW, screenH, dt)
     )
 
     local cx = panelW / 2
-    UI.add_centered_label(cx, math.floor(panelH * 0.05), T("gameover.title"), UI_FONT_TITLE, 1)
+    UI.add_centered_label_colored(cx, math.floor(panelH * 0.03),
+    T("gameover.title"),
+    {255, 40, 40, 255},
+    UI_FONT_TITLE, 1)
 
     local summary = endRunSummary or CaptureEndRunSummary()
     SubmitLeaderboardScoreOnce(summary.stageReached or 1)
