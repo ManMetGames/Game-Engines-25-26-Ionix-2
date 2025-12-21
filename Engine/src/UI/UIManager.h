@@ -103,6 +103,10 @@ namespace IonixEngine
 		ImVec4 progressBorder = ImVec4(0, 0, 0, 0);
 		std::string progressOverlayText;
 
+
+		// Optional cap segment for styled progress bars (shows reduced max)
+		float progressCapMax = -1.0f;               // <=0 or >=max => disabled
+		ImVec4 progressCapFill = ImVec4(0, 0, 0, 0); // alpha==0 => disabled
 		// Panel specific
 		float panelAlpha = 0.45f;
 		float panelRounding = 6.0f;
@@ -316,7 +320,8 @@ namespace IonixEngine
 			float rounding, float borderSize,
 			bool useColors, ImVec4 bg, ImVec4 fill, ImVec4 border,
 			const std::string& overlayText = "",
-			const std::string& fontName = "", float fontScale = 1.0f);
+			const std::string& fontName = "", float fontScale = 1.0f,
+			float capMax = -1.0f, ImVec4 capFill = ImVec4(0, 0, 0, 0));
 
 		void AddPanel(int x, int y, float w, float h, float alpha = 0.45f, float rounding = 6.0f,
 			int r = 0, int g = 0, int b = 0);

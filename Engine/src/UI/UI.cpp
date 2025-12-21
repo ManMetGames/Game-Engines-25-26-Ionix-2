@@ -203,6 +203,139 @@ namespace IonixEngine
 		ImGui::PopStyleVar(pushedVars);
 	}
 
+	void UI::DrawProgressBarStyledCapped(int xPos, int yPos, float xSize, float ySize,
+		float maxValue, float currentValue, int colorId,
+		float rounding, float borderSize,
+		bool useColors, ImVec4 bg, ImVec4 fill, ImVec4 border,
+		float capMax, ImVec4 capFill,
+		const char* overlayText)
+	{
+		// If cap isn't valid, fall back to the normal styled bar (backwards compatible)
+		if (capMax <= 0.0f || capMax >= maxValue || capFill.w <= 0.0f)
+		{
+			DrawProgressBarStyled(xPos, yPos, xSize, ySize,
+				maxValue, currentValue, colorId,
+				rounding, borderSize,
+				useColors, bg, fill, border,
+				overlayText);
+			return;
+		}
+
+		float clampedMax = (maxValue <= 0.0f) ? 1.0f : maxValue;
+		if (capMax < 0.0f) capMax = 0.0f;
+		if (capMax > clampedMax) capMax = clampedMax;
+
+		float capCurrent = currentValue;
+		if (capCurrent < 0.0f) capCurrent = 0.0f;
+		if (capCurrent > capMax) capCurrent = capMax;
+
+		// fracCap = portion of the bar that remains "available"
+		float fracCap = capMax / clampedMax;
+		fracCap = IM_CLAMP(fracCap, 0.0f, 1.0f);
+
+		// current as a fraction of cap, then mapped into full bar width
+		float fracFillInCap = (capMax > 0.0f) ? (capCurrent / capMax) : 0.0f;
+		fracFillInCap = IM_CLAMP(fracFillInCap, 0.0f, 1.0f);
+
+		float fracCur = fracCap * fracFillInCap; // fill fraction in whole bar
+		fracCur = IM_CLAMP(fracCur, 0.0f, 1.0f);
+
+		ImVec4 fgColor;
+		ImVec4 bgColor;
+		ImVec4 borderColor = ImVec4(0, 0, 0, 0);
+
+		if (useColors)
+		{
+			fgColor = fill;
+			bgColor = bg;
+			borderColor = border;
+		}
+		else
+		{
+			switch (colorId)
+			{
+			case 1: // red
+				fgColor = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
+				bgColor = ImVec4(0.2f, 0.0f, 0.0f, 0.6f);
+				break;
+			case 2: // green
+				fgColor = ImVec4(0.0f, 1.0f, 0.0f, 1.0f);
+				bgColor = ImVec4(0.0f, 0.2f, 0.0f, 0.6f);
+				break;
+			case 3: // white
+				fgColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+				bgColor = ImVec4(0.2f, 0.2f, 0.2f, 0.6f);
+				break;
+			default: // 0 = default/orange
+				fgColor = ImVec4(1.0f, 0.6f, 0.0f, 1.0f);
+				bgColor = ImVec4(0.2f, 0.12f, 0.0f, 0.6f);
+				break;
+			}
+		}
+
+		ImGui::SetNextWindowPos(ImVec2((float)xPos, (float)yPos));
+		ImGui::SetNextWindowSize(ImVec2(xSize, ySize));
+		ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
+			ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar |
+			ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoBackground;
+
+		char windowName[64];
+		std::snprintf(windowName, sizeof(windowName), "BarStyledCap_%d_%d_%d_%d", xPos, yPos, (int)xSize, (int)ySize);
+
+		// No padding/spacing for a clean draw-list based bar
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
+		int pushedVars = 2;
+
+		float usedRounding = (rounding >= 0.0f) ? rounding : ImGui::GetStyle().FrameRounding;
+		float thick = (borderSize > 0.0f) ? borderSize : 0.0f;
+
+		if (ImGui::Begin(windowName, nullptr, flags))
+		{
+			ImDrawList* dl = ImGui::GetWindowDrawList();
+			ImVec2 p0 = ImGui::GetWindowPos();
+			ImVec2 p1 = ImVec2(p0.x + xSize, p0.y + ySize);
+			float w = xSize;
+
+			// Background (full bar)
+			dl->AddRectFilled(p0, p1, ImGui::GetColorU32(bgColor), usedRounding, ImDrawFlags_RoundCornersAll);
+
+			// Fill (left side, up to fracCur)
+			if (fracCur > 0.0f)
+			{
+				ImVec2 f1 = ImVec2(p0.x + w * fracCur, p1.y);
+				ImDrawFlags fFlags = (fracCur >= 1.0f) ? ImDrawFlags_RoundCornersAll : ImDrawFlags_RoundCornersLeft;
+				dl->AddRectFilled(p0, f1, ImGui::GetColorU32(fgColor), usedRounding, fFlags);
+			}
+
+			// "Lost max" cap segment (right side, from fracCap to 1.0)
+			if (fracCap < 1.0f)
+			{
+				ImVec2 c0 = ImVec2(p0.x + w * fracCap, p0.y);
+				ImDrawFlags cFlags = ImDrawFlags_RoundCornersRight;
+				dl->AddRectFilled(c0, p1, ImGui::GetColorU32(capFill), usedRounding, cFlags);
+			}
+
+			// Border
+			if (thick > 0.0f && borderColor.w > 0.0f)
+			{
+				dl->AddRect(p0, p1, ImGui::GetColorU32(borderColor), usedRounding, ImDrawFlags_RoundCornersAll, thick);
+			}
+
+			// Overlay text centered
+			const char* overlay = (overlayText && overlayText[0]) ? overlayText : "";
+			if (overlay[0] != '\0')
+			{
+				ImVec2 ts = ImGui::CalcTextSize(overlay);
+				ImVec2 tp = ImVec2(p0.x + (xSize - ts.x) * 0.5f, p0.y + (ySize - ts.y) * 0.5f);
+				dl->AddText(tp, ImGui::GetColorU32(ImGuiCol_Text), overlay);
+			}
+		}
+		ImGui::End();
+
+		ImGui::PopStyleVar(pushedVars);
+	}
+
 	bool UI::DrawDropdown(int xPos, int yPos, float xSize, float ySize, const char* text,
 		const std::vector<std::string>& options, int* currentIndex)
 	{
