@@ -127,6 +127,64 @@ namespace IonixEngine {
                 );
             };
 
+        auto AddCheckboxStyled = [](int x, int y, float w, float h,
+            const char* text, const std::string& id,
+            sol::optional<bool> defaultValue,
+            sol::optional<std::string> fontName,
+            sol::optional<float> fontScale,
+            sol::optional<sol::table> style)
+            {
+                auto norm = [](float v) -> float { return (v > 1.0f) ? (v / 255.0f) : v; };
+
+                float sizePx = 0.0f;
+                float rounding = -1.0f;
+                bool useColors = false;
+
+                ImVec4 onBg(0, 0, 0, 0);
+                ImVec4 offBg(0, 0, 0, 0);
+                ImVec4 check(0, 0, 0, 0);
+
+                if (style)
+                {
+                    sol::table t = style.value();
+
+                    if (sol::optional<float> v = t["size"])     sizePx = *v;
+                    if (sol::optional<float> v = t["rounding"]) rounding = *v;
+
+                    auto readColor = [&](const char* key, ImVec4& out) -> bool {
+                        sol::object o = t[key];
+                        if (!o.valid() || !o.is<sol::table>()) return false;
+                        sol::table c = o.as<sol::table>();
+                        float r = norm(c.get_or(1, 0.0f));
+                        float g = norm(c.get_or(2, 0.0f));
+                        float b = norm(c.get_or(3, 0.0f));
+                        float a = c.get_or(4, 1.0f);
+                        a = (a > 1.0f) ? (a / 255.0f) : a;
+                        if (a < 0.0f) a = 0.0f;
+                        if (a > 1.0f) a = 1.0f;
+                        out = ImVec4(r, g, b, a);
+                        return true;
+                        };
+
+                    bool any = false;
+                    any = readColor("on", onBg) || any;
+                    any = readColor("off", offBg) || any;
+                    any = readColor("check", check) || any;
+                    useColors = any;
+                }
+
+                Application::Get().layerUI->m_UIManager->AddCheckboxStyled(
+                    x, y, w, h,
+                    text, id.c_str(),
+                    defaultValue.value_or(false),
+                    fontName.value_or(""),
+                    fontScale.value_or(1.0f),
+                    sizePx, rounding, useColors,
+                    onBg, offBg, check
+                );
+            };
+
+
         auto GetCheckbox = [](const std::string& id)
             {
                 return Application::Get().layerUI->m_UIManager->GetCheckbox(id);
@@ -578,6 +636,7 @@ namespace IonixEngine {
             "add_centered_label_colored", AddCenteredLabelColored,
             "add_button", AddButton,
             "add_checkbox", AddCheckbox,
+            "add_checkbox_styled", AddCheckboxStyled,
             "add_slider", AddSlider,
             "add_slider_styled", AddSliderStyled,
             "draw_progress_bar", DrawProgressBar,
