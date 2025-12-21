@@ -2,9 +2,18 @@ local ExampleScript = {}
 local assets = require("Scripts.Assets")
 local enums = require("Scripts.Enums")
 local Background
+local Background2
 local backgroundSprite
+local backgroundSprite2
 local bgBaseX, bgBaseY = 0, 0
+local bgScrollX = 0
 local player1
+local playerSprite
+-- Background scrolling (main menu). Keep world authored at 960x640 ("virtual world").
+local BG_BASE_W, BG_BASE_H = 960, 640
+local BG_PAD = 20                -- oversize to hide seams/edges
+local BG_TILE_W = BG_BASE_W      -- wrap distance
+local BG_SCROLL_SPEED = -18      -- pixels/sec (menu only)
 local x = 100
 local gameOver = false
 local GAME_ID = "flappy_bird"
@@ -117,6 +126,35 @@ local function EnsureDefaultsOwned()
     if not ownedBackgrounds["bg_classic"] then ownedBackgrounds["bg_classic"] = true end
     if not ownedBirds["bird_classic"] then ownedBirds["bird_classic"] = true end
 end
+-- --------------------------------------------------------------------------------
+-- Cosmetic styles (visual-only for now).
+-- Later, when you add new textures, you can update these tables to point at them.
+-- --------------------------------------------------------------------------------
+local BG_STYLES = {
+    bg_classic = { tint = {255, 255, 255} },
+    bg_sunset  = { tint = {255, 210, 170} },
+    bg_night   = { tint = {170, 190, 255} },
+}
+
+local BIRD_STYLES = {
+    bird_classic = { tint = {255, 255, 255} },
+    bird_red     = { tint = {255, 140, 140} },
+    bird_gold    = { tint = {255, 225, 120} },
+}
+
+local function ApplyBackgroundStyle()
+    local style = BG_STYLES[equippedBackground] or BG_STYLES["bg_classic"]
+    local t = (style and style.tint) or {255, 255, 255}
+    if backgroundSprite then Sprite.set_color(backgroundSprite, t[1], t[2], t[3]) end
+    if backgroundSprite2 then Sprite.set_color(backgroundSprite2, t[1], t[2], t[3]) end
+end
+
+local function ApplyBirdStyle()
+    local style = BIRD_STYLES[equippedBird] or BIRD_STYLES["bird_classic"]
+    local t = (style and style.tint) or {255, 255, 255}
+    if playerSprite then Sprite.set_color(playerSprite, t[1], t[2], t[3]) end
+end
+
 EnsureDefaultsOwned()
 
 -- Pipes
@@ -490,23 +528,32 @@ end
 ----------------------------------------------------------
 -- OnStart
 ----------------------------------------------------------
-function ExampleScript:OnStart()
+function ExampleScript:OnStart()------------------------------------------------------
+-- Background Texture (two tiles for menu scrolling)
+------------------------------------------------------
+Background = Entity.create_entity()
+Background2 = Entity.create_entity()
 
-    ------------------------------------------------------
-	-- Background Texture
-	------------------------------------------------------
-    Background = Entity.create_entity()
-    local BgBackground = Entity.add_sprite_component(Background, assets.textures.Background,960 , 640, 0)
-    
-    
-    -- Slightly oversize + offset so we can drift it on the main menu without showing edges
-    backgroundSprite = BgBackground
-    if backgroundSprite then
-        Sprite.set_width(backgroundSprite, 980)
-        Sprite.set_height(backgroundSprite, 660)
-    end
-    bgBaseX, bgBaseY = -10, -10
-    Entity.set_global_pos(Background, bgBaseX, bgBaseY)
+backgroundSprite = Entity.add_sprite_component(Background, assets.textures.Background, BG_BASE_W, BG_BASE_H, 0)
+backgroundSprite2 = Entity.add_sprite_component(Background2, assets.textures.Background, BG_BASE_W, BG_BASE_H, 0)
+
+-- Slightly oversize so scrolling doesn't show edges
+if backgroundSprite then
+    Sprite.set_width(backgroundSprite, BG_BASE_W + BG_PAD)
+    Sprite.set_height(backgroundSprite, BG_BASE_H + BG_PAD)
+end
+if backgroundSprite2 then
+    Sprite.set_width(backgroundSprite2, BG_BASE_W + BG_PAD)
+    Sprite.set_height(backgroundSprite2, BG_BASE_H + BG_PAD)
+end
+
+bgBaseX, bgBaseY = -(BG_PAD / 2), -(BG_PAD / 2)
+bgScrollX = 0
+
+Entity.set_global_pos(Background, bgBaseX, bgBaseY)
+Entity.set_global_pos(Background2, bgBaseX + BG_TILE_W, bgBaseY)
+
+ApplyBackgroundStyle()
 ------------------------------------------------------
     -- Create player1
     ------------------------------------------------------
@@ -514,8 +561,9 @@ function ExampleScript:OnStart()
 
     Entity.set_global_pos(player1, x, 300)
 	
-    local playerSprite1 = Entity.add_sprite_component(player1, assets.textures.FlappyBird, 64, 64, 10)
-    Sprite.set_columns(playerSprite1,1)
+    playerSprite = Entity.add_sprite_component(player1, assets.textures.FlappyBird, 64, 64, 10)
+    Sprite.set_columns(playerSprite,1)
+    ApplyBirdStyle()
 
     -- PLAYER 1 PHYSICS
     Entity.add_fysics_component(player1, enums.bodytype.dynamicBody, true) -- dynamic body
@@ -907,9 +955,11 @@ local function DrawCustomiseMenu_C(windowW, windowH)
                 if customiseTab == "backgrounds" then
                     equippedBackground = item.id
                     SaveSetting("equipped.background", equippedBackground)
+                    ApplyBackgroundStyle()
                 else
                     equippedBird = item.id
                     SaveSetting("equipped.bird", equippedBird)
+                    ApplyBirdStyle()
                 end
             else
                 -- buy
@@ -964,16 +1014,31 @@ local windowW = Window.get_width()
 local windowH = Window.get_height()
 
 if inMainMenu then
-    -- Only drift the background gently on the main menu
+    -- Scroll the background horizontally on the MAIN menu only (classic Flappy vibe).
     if Background ~= nil then
         if menuContext == "main" then
-            local driftX = math.sin(Mafs.time() * 0.18) * 7
-            local driftY = math.cos(Mafs.time() * 0.12) * 5
-            Entity.set_global_pos(Background, bgBaseX + driftX, bgBaseY + driftY)
+            local dt = Mafs.delta_time()
+            local driftY = math.cos(Mafs.time() * 0.12) * 4
+
+            bgScrollX = bgScrollX + (BG_SCROLL_SPEED * dt)
+            if bgScrollX <= -BG_TILE_W then
+                bgScrollX = bgScrollX + BG_TILE_W
+            end
+
+            Entity.set_global_pos(Background,  bgBaseX + bgScrollX,              bgBaseY + driftY)
+            if Background2 ~= nil then
+                Entity.set_global_pos(Background2, bgBaseX + bgScrollX + BG_TILE_W, bgBaseY + driftY)
+            end
         else
+            -- Keep it static when in sub-menus (settings/customise) so UI feels stable
+            bgScrollX = 0
             Entity.set_global_pos(Background, bgBaseX, bgBaseY)
+            if Background2 ~= nil then
+                Entity.set_global_pos(Background2, bgBaseX + BG_TILE_W, bgBaseY)
+            end
         end
     end
+
 
     if menuContext == "main" then
         DrawMainMenu_C(windowW, windowH)
