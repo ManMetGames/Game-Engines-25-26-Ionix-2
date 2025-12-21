@@ -38,17 +38,11 @@ local UI_FONT_SUB    = "ImGuiSub"
 local UI_FONT_HEADER = "ImGuiHeader"
 local UI_FONT_TITLE  = "ImGuiTitle"
 
--- String table scaffold (EN for now; ready for localisation later)
-local STR = {
-    ["fb.leaderboard"]           = "Leaderboard",
-    ["fb.press_space_start"]     = "Press SPACE to start!",
-    ["fb.press_space_restart"]   = "Press SPACE to restart",
-    ["fb.game_over_try_again"]   = "GAME OVER!! TRY AGAIN",
-    ["fb.new_highscore_line1"]   = "New Highscore! Enter your name",
-    ["fb.new_highscore_line2"]   = "to be added to the leaderboard:",
-}
-local function T(key)
-    return STR[key] or key
+-- Localisation (separate file)
+local Localisation = require("Scripts.FlappyBird.Localisation")
+
+local function T(key, ...)
+    return Localisation.t(key, ...)
 end
 
 
@@ -337,7 +331,7 @@ local menuContext = "main"
 -- Pause game when in main menu
 ----------------------------------
 -- ----------------------------------------------------------
--- UI scaling helpers (virtual UI space 960x640, letterboxed)
+-- UI scaling helpers
 -- ----------------------------------------------------------
 local UI_BASE_W, UI_BASE_H = 960, 600
 local uiScale = 1.0
@@ -361,7 +355,7 @@ local function Uy(py)
     return math.floor((uiOffY + (py * uiScale)) + 0.5)
 end
 
--- Settings menu back navigation (so pause -> settings -> back returns to pause)
+-- Settings menu back navigation
 local settingsBackContext = "main"
 
 -- Cached motion during pause so Resume restores correctly
@@ -743,7 +737,7 @@ function ExampleScript:OnStart()
     AudioComponent.change_volume(gameOverSound, 30)
 
     --    musicEntity = Entity.create_entity()
-    --Entity.add_audio_component(musicEntity, "technoSong", false)
+    --Entity.add_audio_component(musicEntity, "", false)
     
     -- Apply saved audio settings
     ApplyMusicVolume()
@@ -765,7 +759,7 @@ end
 
 
 ----------------------------------------------------------
--- Flappy UI (Layout C)
+-- Flappy UI
 ----------------------------------------------------------
 
 local function DrawMainMenu_C(windowW, windowH)
