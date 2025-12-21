@@ -9,14 +9,13 @@ local bgBaseX, bgBaseY = 0, 0
 local bgScrollX = 0
 local player1
 local playerSprite
--- Background scrolling (main menu). Keep world authored at 960x640 ("virtual world").
+-- Background scrolling (main menu)
 local BG_BASE_W, BG_BASE_H = 960, 610
 local BG_PAD = 20                -- oversize to hide seams/edges
 
--- Floor visuals (collision tiles + optional foreground mask)
 local floorTileSprites = {}
-local BG_TILE_W = BG_BASE_W      -- wrap distance
-local BG_SCROLL_SPEED = -18      -- pixels/sec (menu only)
+local BG_TILE_W = BG_BASE_W      
+local BG_SCROLL_SPEED = -18      
 local x = 100
 local gameOver = false
 local GAME_ID = "flappy_bird"
@@ -32,11 +31,26 @@ end
 local playerName = SanitiseName(Json.load_player_name())
 local showSettings = showSettings or false
 
--- UI fonts (baked sizes; avoid scaling blur)
+-- UI fonts 
 local UI_FONT_REG    = "ImGuiDefault"
 local UI_FONT_SUB    = "ImGuiSub"
 local UI_FONT_HEADER = "ImGuiHeader"
 local UI_FONT_TITLE  = "ImGuiTitle"
+
+-- Language-specific 
+local function ApplyUIFontForLanguage(lang)
+    if lang == "jp" then
+        UI_FONT_REG    = "ImGuiDefaultJP"
+        UI_FONT_SUB    = "ImGuiSubJP"
+        UI_FONT_HEADER = "ImGuiHeaderJP"
+        UI_FONT_TITLE  = "ImGuiTitleJP"
+    else
+        UI_FONT_REG    = "ImGuiDefault"
+        UI_FONT_SUB    = "ImGuiSub"
+        UI_FONT_HEADER = "ImGuiHeader"
+        UI_FONT_TITLE  = "ImGuiTitle"
+    end
+end
 
 -- Localisation (separate file)
 local Localisation = require("Scripts.FlappyBird.Localisation")
@@ -48,7 +62,7 @@ end
 
 
 -- --------------------------------------------------------------------------------
--- Saved settings / economy (stored via Json settings)
+-- Saved settings 
 -- --------------------------------------------------------------------------------
 local function LoadSetting(key, default)
     if Json and Json.load_setting then
@@ -97,7 +111,7 @@ local function SetToCsv(set)
     return table.concat(t, ",")
 end
 
--- Owned/equipped cosmetics (IDs). Defaults are always owned.
+-- Owned/equipped cosmetics
 local ownedBackgrounds = CsvToSet(LoadSetting("owned.backgrounds", "bg_classic"))
 local ownedBirds       = CsvToSet(LoadSetting("owned.birds", "bird_classic"))
 local equippedBackground = LoadSetting("equipped.background", "bg_classic")
@@ -106,9 +120,8 @@ local equippedBird       = LoadSetting("equipped.bird", "bird_classic")
 -- Customise screen tab
 local customiseTab = "backgrounds" -- "backgrounds" or "birds"
 
--- Shop items (placeholder IDs; hook up textures/sprites later)
+-- Shop items 
 local STORE_BACKGROUNDS = {
-    -- Only keep: Classic + Night (tint). Dark Forest removed.
     { id = "bg_classic", name = "Classic Sky", price = 0,  textureKey = "Background" },
     { id = "bg_night",   name = "Night Sky",   price = 30, textureKey = "Background" }, -- tint style
 }
@@ -124,7 +137,6 @@ local BIRD_STYLES
 
 
 local function EnsureDefaultsOwned()
--- If your save referenced removed skins (e.g. sunset/desert/red), fall back safely.
 if not BG_STYLES[equippedBackground] then
     equippedBackground = "bg_classic"
     SaveSetting("equipped.background", equippedBackground)
@@ -137,23 +149,16 @@ end
     if not ownedBackgrounds["bg_classic"] then ownedBackgrounds["bg_classic"] = true end
     if not ownedBirds["bird_classic"] then ownedBirds["bird_classic"] = true end
 end
--- --------------------------------------------------------------------------------
--- Cosmetic styles (visual-only for now).
--- Later, when you add new textures, you can update these tables to point at them.
--- --------------------------------------------------------------------------------
+
 BG_STYLES = {
-    -- Only keep: Classic + Night. Both use the same base texture with different tints.
     bg_classic = { tint = {255, 255, 255}, textureKey = "Background" },
-    bg_night   = { tint = {150, 170, 255}, textureKey = "Background" }, -- cool night tint
+    bg_night   = { tint = {150, 170, 255}, textureKey = "Background" }, -- night tint
 }
 
 
 BIRD_STYLES = {
-    -- Keep only: Classic, Gold (tint), Purple (real texture)
     bird_classic = { tint = {255, 255, 255}, textureKey = "FlappyBird" },
     bird_gold    = { tint = {255, 220, 120}, textureKey = "FlappyBird" },
-
-    -- Real texture (recommended: FlappyPurple_64x64.png to match framing of the original FlappyBird.png)
     bird_purple  = { tint = {255, 255, 255}, textureKey = "FlappyPurple" },
 }
 
@@ -161,7 +166,6 @@ BIRD_STYLES = {
 local function ApplyBackgroundStyle()
     local style = BG_STYLES[equippedBackground] or BG_STYLES["bg_classic"]
 
-    -- Always set a known base texture so tint skins don't stack on top of a previously equipped real texture.
     if (backgroundSprite or backgroundSprite2) and Sprite and Sprite.set_texture and assets and assets.textures then
         local key = (style and style.textureKey) or "Background"
         local tex = assets.textures[key] or assets.textures["Background"]
@@ -182,7 +186,6 @@ end
 local function ApplyBirdStyle()
     local style = BIRD_STYLES[equippedBird] or BIRD_STYLES["bird_classic"]
 
-    -- Always set a known base texture so tint skins don't stack on top of a previously equipped real texture.
     if playerSprite and Sprite and Sprite.set_texture and assets and assets.textures then
         local key = (style and style.textureKey) or "FlappyBird"
         local tex = assets.textures[key] or assets.textures["FlappyBird"]
@@ -259,22 +262,12 @@ local leaderboardFetched = false
 local RESTART_DELAY_FRAMES = 90   -- equivalent 1s at 60fps
 local restartDelayFrames = 0
 
---[[
--- Settings test
-local settings_loaded = false
-local s_difficulty = 1
-local s_skin = 0
-local s_tint = {1,1,1,1}
-local s_music = true
-local s_volume = 0.75
-]]
-
 
 -- Window
 Window.set_size_centered(960, 600)
 
 
--- Base SFX volumes (0..100). Master/SFX settings scale these.
+-- Base SFX volumes
 local BASE_VOL_JUMP    = 100
 local BASE_VOL_HIT     = 50
 local BASE_VOL_COIN    = 100
@@ -293,7 +286,7 @@ local function UpdateMusicPlayback()
 
     if s_musicOn then
         if not musicStarted then
-            AudioComponent.play(musicEntity, 0, -1) -- loop forever (like SystemShooter)
+            AudioComponent.play(musicEntity, 0, -1)
             musicStarted = true
         elseif AudioComponent.resume then
             AudioComponent.resume(musicEntity)
@@ -563,7 +556,6 @@ end
     topScore = "Highscore: " .. tostring(highscore)
     coinsText = "Coins Collected: " .. tostring(score)
 
-    -- Bank run coins so cosmetics can be purchased from the main menu / customise screen
     bankCoins = (bankCoins or 0) + (score or 0)
     SaveSetting("coins.total", bankCoins)
 end
@@ -578,7 +570,7 @@ function ExampleScript:OnStart()
     ------------------------------------------------------
     local tileSize = 64
     local floorY = 550
-    -- Floor collision tiles (visuals are toggled by ApplyFloorStyle)
+    -- Floor collision tiles
     for i = 0, 30 do
 
         local tile = Entity.create_entity()
@@ -763,7 +755,6 @@ end
 ----------------------------------------------------------
 
 local function DrawMainMenu_C(windowW, windowH)
-    -- Light overlay so UI reads without looking like a dark sci‑fi panel
     UI.add_panel(0, 0, windowW, windowH, 0.10, 0, 0, 0, 0)
 
     local cx = windowW / 2
@@ -797,7 +788,6 @@ local function DrawMainMenu_C(windowW, windowH)
     local startX = math.floor((windowW - totalW) / 2)
     local navY = windowH - navBtnH - 26
 
-    -- (No heavy panel; just “mobile-style” buttons)
     UI.add_button(startX + (navBtnW + navGap) * 0, navY, navBtnW, navBtnH,
         "Customise", "fb_nav_customise",
         "ImGuiDefaultBold", 1.0, navBtnH / 2, true,
@@ -843,7 +833,6 @@ local function DrawSettingsMenu_C(windowW, windowH)
     local panelX = math.floor((windowW - panelW) / 2)
     local panelY = math.floor((windowH - panelH) / 2)
 
-    -- Soft “cloudy” panel
     UI.add_panel(panelX, panelY, panelW, panelH, 0.80, 26, 245, 225, 170)
 
     local cx = windowW / 2
@@ -852,8 +841,7 @@ local function DrawSettingsMenu_C(windowW, windowH)
     local x = panelX + 40
     local w = panelW - 80
     local y = panelY + 85
-
-    -- Slider styling (rounded + warm accent)
+    -- for future sliders
     local sliderStyle = {
         height = 18,
         rounding = 10,
@@ -862,8 +850,15 @@ local function DrawSettingsMenu_C(windowW, windowH)
         grab  = { 255, 200, 80, 0.95 }
     }
 
-    -- Music toggle + slider (slider still useful once you add BGM)
-    UI.add_checkbox(x, y, 0, 0, "Music", "fb_music_on", s_musicOn)
+    local checkboxStyle = {
+    size = 18,
+    rounding = 6,
+    off = { 60, 80, 100, 0.35 },
+    on  = { 255, 200, 80, 0.95 },
+    check = { 255, 255, 255, 0.95 }
+    }
+    -- Music toggle + slider 
+    UI.add_checkbox_styled(x, y, 0, 0, "Music", "fb_music_on", s_musicOn, UI_FONT_REG, 1, checkboxStyle)
     y = y + 28
     UI.add_label(x, y, 0, 0, "Music Volume", UI_FONT_REG, 1.0)
     y = y + 18
@@ -871,7 +866,7 @@ local function DrawSettingsMenu_C(windowW, windowH)
     y = y + 60
 
     -- SFX toggle + slider
-    UI.add_checkbox(x, y, 0, 0, "SFX", "fb_sfx_on", s_sfxOn)
+    UI.add_checkbox_styled(x, y, 0, 0, "SFX", "fb_sfx_on", s_sfxOn, UI_FONT_REG, 1, checkboxStyle)
     y = y + 28
     UI.add_label(x, y, 0, 0, "SFX Volume", UI_FONT_REG, 1.0)
     y = y + 18
@@ -1009,12 +1004,10 @@ local function DrawCustomiseMenu_C(windowW, windowH)
         if equipped then
             btnText = "Selected"
             canPress = false
-            -- Selected should be positive/green
             br, bg, bb, ba = 70, 200, 120, 0.92
         elseif owned then
             btnText = "Equip"
             canPress = true
-            -- Equip should be neutral/grey
             br, bg, bb, ba = 160, 160, 160, 0.85
         else
             btnText = "Buy"
@@ -1096,7 +1089,7 @@ local windowW = Window.get_width()
 local windowH = Window.get_height()
 
 if inMainMenu then
-    -- Scroll the background horizontally on the MAIN menu only (classic Flappy vibe).
+    -- Scroll the background horizontally on the MAIN menu
     if Background ~= nil then
         if menuContext == "main" then
             local dt = Mafs.delta_time()
@@ -1112,7 +1105,7 @@ if inMainMenu then
                 Entity.set_global_pos(Background2, bgBaseX + bgScrollX + BG_TILE_W, bgBaseY + driftY)
             end
         else
-            -- Keep it static when in sub-menus (settings/customise) so UI feels stable
+            -- Keep it static when in sub-menus
             bgScrollX = 0
             Entity.set_global_pos(Background, bgBaseX, bgBaseY)
             if Background2 ~= nil then
@@ -1129,7 +1122,6 @@ if inMainMenu then
     elseif menuContext == "customise" then
         DrawCustomiseMenu_C(windowW, windowH)
     elseif menuContext == "ingame" then
-        -- Redesigned pause menu (Layout C style)
         UpdateUiScale(windowW, windowH)
 
         UI.add_panel(0, 0, windowW, windowH, 0.35, 0, 0, 0, 0)
@@ -1193,7 +1185,6 @@ if inMainMenu then
 
     return
 end
-
 -----------------------------------------
 -- Open main menu button in play mode
 -----------------------------------------
@@ -1553,7 +1544,7 @@ end
     end
 
 
--- Count down once per frame (never below 0)
+        -- Count down once per frame (never below 0)
         restartDelayFrames = math.max(0, restartDelayFrames - 1)
 
         -- Only allow restart when delay is done AND name entry isn't active
