@@ -10,8 +10,11 @@ local bgScrollX = 0
 local player1
 local playerSprite
 -- Background scrolling (main menu). Keep world authored at 960x640 ("virtual world").
-local BG_BASE_W, BG_BASE_H = 960, 640
+local BG_BASE_W, BG_BASE_H = 960, 610
 local BG_PAD = 20                -- oversize to hide seams/edges
+
+-- Floor visuals (collision tiles + optional foreground mask)
+local floorTileSprites = {}
 local BG_TILE_W = BG_BASE_W      -- wrap distance
 local BG_SCROLL_SPEED = -18      -- pixels/sec (menu only)
 local x = 100
@@ -111,18 +114,32 @@ local customiseTab = "backgrounds" -- "backgrounds" or "birds"
 
 -- Shop items (placeholder IDs; hook up textures/sprites later)
 local STORE_BACKGROUNDS = {
-    { id = "bg_classic", name = "Classic Sky", price = 0 },
-    { id = "bg_sunset",  name = "Sunset Sky",  price = 50 },
-    { id = "bg_night",   name = "Night Sky",   price = 120 },
+    -- Only keep: Classic + Night (tint). Dark Forest removed.
+    { id = "bg_classic", name = "Classic Sky", price = 0,  textureKey = "Background" },
+    { id = "bg_night",   name = "Night Sky",   price = 30, textureKey = "Background" }, -- tint style
 }
 
 local STORE_BIRDS = {
-    { id = "bird_classic", name = "Classic Bird", price = 0 },
-    { id = "bird_red",     name = "Red Bird",     price = 80 },
-    { id = "bird_gold",    name = "Gold Bird",    price = 250 },
+    { id = "bird_classic", name = "Classic Bird", price = 0,  textureKey = "FlappyBird" },
+    { id = "bird_gold",    name = "Gold Bird",    price = 50, textureKey = "FlappyBird" }, -- tint skin
+    { id = "bird_purple",  name = "Purple Bird",  price = 75, textureKey = "FlappyPurple" },
 }
 
+local BG_STYLES
+local BIRD_STYLES
+
+
 local function EnsureDefaultsOwned()
+-- If your save referenced removed skins (e.g. sunset/desert/red), fall back safely.
+if not BG_STYLES[equippedBackground] then
+    equippedBackground = "bg_classic"
+    SaveSetting("equipped.background", equippedBackground)
+end
+if not BIRD_STYLES[equippedBird] then
+    equippedBird = "bird_classic"
+    SaveSetting("equipped.bird", equippedBird)
+end
+
     if not ownedBackgrounds["bg_classic"] then ownedBackgrounds["bg_classic"] = true end
     if not ownedBirds["bird_classic"] then ownedBirds["bird_classic"] = true end
 end
@@ -130,30 +147,62 @@ end
 -- Cosmetic styles (visual-only for now).
 -- Later, when you add new textures, you can update these tables to point at them.
 -- --------------------------------------------------------------------------------
-local BG_STYLES = {
-    bg_classic = { tint = {255, 255, 255} },
-    bg_sunset  = { tint = {255, 210, 170} },
-    bg_night   = { tint = {170, 190, 255} },
+BG_STYLES = {
+    -- Only keep: Classic + Night. Both use the same base texture with different tints.
+    bg_classic = { tint = {255, 255, 255}, textureKey = "Background" },
+    bg_night   = { tint = {150, 170, 255}, textureKey = "Background" }, -- cool night tint
 }
 
-local BIRD_STYLES = {
-    bird_classic = { tint = {255, 255, 255} },
-    bird_red     = { tint = {255, 140, 140} },
-    bird_gold    = { tint = {255, 225, 120} },
+
+BIRD_STYLES = {
+    -- Keep only: Classic, Gold (tint), Purple (real texture)
+    bird_classic = { tint = {255, 255, 255}, textureKey = "FlappyBird" },
+    bird_gold    = { tint = {255, 220, 120}, textureKey = "FlappyBird" },
+
+    -- Real texture (recommended: FlappyPurple_64x64.png to match framing of the original FlappyBird.png)
+    bird_purple  = { tint = {255, 255, 255}, textureKey = "FlappyPurple" },
 }
+
 
 local function ApplyBackgroundStyle()
     local style = BG_STYLES[equippedBackground] or BG_STYLES["bg_classic"]
+
+    -- Always set a known base texture so tint skins don't stack on top of a previously equipped real texture.
+    if (backgroundSprite or backgroundSprite2) and Sprite and Sprite.set_texture and assets and assets.textures then
+        local key = (style and style.textureKey) or "Background"
+        local tex = assets.textures[key] or assets.textures["Background"]
+        if tex then
+            if backgroundSprite then pcall(Sprite.set_texture, backgroundSprite, tex) end
+            if backgroundSprite2 then pcall(Sprite.set_texture, backgroundSprite2, tex) end
+        end
+    end
+
     local t = (style and style.tint) or {255, 255, 255}
-    if backgroundSprite then Sprite.set_color(backgroundSprite, t[1], t[2], t[3]) end
-    if backgroundSprite2 then Sprite.set_color(backgroundSprite2, t[1], t[2], t[3]) end
+    if Sprite and Sprite.set_color then
+        if backgroundSprite then Sprite.set_color(backgroundSprite, t[1], t[2], t[3]) end
+        if backgroundSprite2 then Sprite.set_color(backgroundSprite2, t[1], t[2], t[3]) end
+    end
 end
+
 
 local function ApplyBirdStyle()
     local style = BIRD_STYLES[equippedBird] or BIRD_STYLES["bird_classic"]
+
+    -- Always set a known base texture so tint skins don't stack on top of a previously equipped real texture.
+    if playerSprite and Sprite and Sprite.set_texture and assets and assets.textures then
+        local key = (style and style.textureKey) or "FlappyBird"
+        local tex = assets.textures[key] or assets.textures["FlappyBird"]
+        if tex then
+            pcall(Sprite.set_texture, playerSprite, tex)
+        end
+    end
+
     local t = (style and style.tint) or {255, 255, 255}
-    if playerSprite then Sprite.set_color(playerSprite, t[1], t[2], t[3]) end
+    if playerSprite and Sprite and Sprite.set_color then
+        Sprite.set_color(playerSprite, t[1], t[2], t[3])
+    end
 end
+
 
 EnsureDefaultsOwned()
 
@@ -228,7 +277,7 @@ local s_volume = 0.75
 
 
 -- Window
-Window.set_size_centered(960, 640)
+Window.set_size_centered(960, 600)
 
 
 -- Base SFX volumes (0..100). Master/SFX settings scale these.
@@ -290,7 +339,7 @@ local menuContext = "main"
 -- ----------------------------------------------------------
 -- UI scaling helpers (virtual UI space 960x640, letterboxed)
 -- ----------------------------------------------------------
-local UI_BASE_W, UI_BASE_H = 960, 640
+local UI_BASE_W, UI_BASE_H = 960, 600
 local uiScale = 1.0
 local uiOffX, uiOffY = 0, 0
 
@@ -528,33 +577,55 @@ end
 ----------------------------------------------------------
 -- OnStart
 ----------------------------------------------------------
-function ExampleScript:OnStart()------------------------------------------------------
--- Background Texture (two tiles for menu scrolling)
-------------------------------------------------------
-Background = Entity.create_entity()
-Background2 = Entity.create_entity()
+function ExampleScript:OnStart()
 
-backgroundSprite = Entity.add_sprite_component(Background, assets.textures.Background, BG_BASE_W, BG_BASE_H, 0)
-backgroundSprite2 = Entity.add_sprite_component(Background2, assets.textures.Background, BG_BASE_W, BG_BASE_H, 0)
+    ------------------------------------------------------
+    -- Pick texture for left / middle / right
+    ------------------------------------------------------
+    local tileSize = 64
+    local floorY = 550
+    -- Floor collision tiles (visuals are toggled by ApplyFloorStyle)
+    for i = 0, 30 do
 
--- Slightly oversize so scrolling doesn't show edges
-if backgroundSprite then
-    Sprite.set_width(backgroundSprite, BG_BASE_W + BG_PAD)
-    Sprite.set_height(backgroundSprite, BG_BASE_H + BG_PAD)
-end
-if backgroundSprite2 then
-    Sprite.set_width(backgroundSprite2, BG_BASE_W + BG_PAD)
-    Sprite.set_height(backgroundSprite2, BG_BASE_H + BG_PAD)
-end
+        local tile = Entity.create_entity()
+        local xPos = i * tileSize
 
-bgBaseX, bgBaseY = -(BG_PAD / 2), -(BG_PAD / 2)
-bgScrollX = 0
+        Entity.set_global_pos(tile, xPos, floorY)
+        local s = Entity.add_sprite_component(tile, assets.textures.Sand, tileSize, tileSize, -5)
+        floorTileSprites[#floorTileSprites+1] = s
+        Sprite.set_columns(s, 1)
 
-Entity.set_global_pos(Background, bgBaseX, bgBaseY)
-Entity.set_global_pos(Background2, bgBaseX + BG_TILE_W, bgBaseY)
+        Entity.add_fysics_component(tile, enums.bodytype.staticBody, false)
+        Fysics.add_sprite_collider(tile, false, 1)
+    end
 
-ApplyBackgroundStyle()
-------------------------------------------------------
+    ------------------------------------------------------
+    -- Background Texture (two tiles for menu scrolling)
+    ------------------------------------------------------
+    Background = Entity.create_entity()
+    Background2 = Entity.create_entity()
+
+    backgroundSprite = Entity.add_sprite_component(Background, assets.textures.Background, BG_BASE_W, BG_BASE_H, 0)
+    backgroundSprite2 = Entity.add_sprite_component(Background2, assets.textures.Background, BG_BASE_W, BG_BASE_H, 0)
+
+    -- Slightly oversize so scrolling doesn't show edges
+    if backgroundSprite then
+        Sprite.set_width(backgroundSprite, BG_BASE_W + BG_PAD)
+        Sprite.set_height(backgroundSprite, BG_BASE_H + BG_PAD)
+    end
+    if backgroundSprite2 then
+        Sprite.set_width(backgroundSprite2, BG_BASE_W + BG_PAD)
+        Sprite.set_height(backgroundSprite2, BG_BASE_H + BG_PAD)
+    end
+
+    bgBaseX, bgBaseY = -(BG_PAD / 2), -(BG_PAD / 2)
+    bgScrollX = 0
+
+    Entity.set_global_pos(Background, bgBaseX, bgBaseY)
+    Entity.set_global_pos(Background2, bgBaseX + BG_TILE_W, bgBaseY)
+
+    ApplyBackgroundStyle()
+    ------------------------------------------------------
     -- Create player1
     ------------------------------------------------------
     player1 = Entity.create_entity()
@@ -572,31 +643,7 @@ ApplyBackgroundStyle()
     -- Freeze bird
     Fysics.set_gravity_scale(player1, 0)
 
-	------------------------------------------------------
-	-- Pick texture for left / middle / right
-	------------------------------------------------------
-    local tileSize = 64
-    local floorY = 600
-    
-	local tex = "middle"
 
-	for i = 0, 30 do
-		local tile = Entity.create_entity()
-		local xPos = i * tileSize
-
-		------------------------------------------------------
-		-- Place sprite
-		------------------------------------------------------
-		Entity.set_global_pos(tile, xPos, floorY)
-		local s = Entity.add_sprite_component(tile, assets.textures.Sand, tileSize, tileSize, 1)
-        Sprite.set_columns(s,1)
-
-		------------------------------------------------------
-		-- Add physics body + collider
-		------------------------------------------------------
-		Entity.add_fysics_component(tile, enums.bodytype.staticBody, false)  -- static
-		Fysics.add_sprite_collider(tile, false,1)
-	end
 
 	------------------------------------------------------
 	-- Create pipe obstacle
