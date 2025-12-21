@@ -12,6 +12,7 @@ local ParticleSystem = require("Scripts.SystemShooter.ParticleSystem")
 local SystemShooterPickups = require("Scripts.SystemShooter.SystemShooterPickups")
 local SystemShooterRewind = require("Scripts.SystemShooter.SystemShooterRewind")
 local SystemShooterProjectiles = require("Scripts.SystemShooter.SystemShooterProjectiles")
+local SystemShooterPlayer = require("Scripts.SystemShooter.SystemShooterPlayer")
 local Localisation = require("Scripts.SystemShooter.Localisation")
 
 
@@ -162,39 +163,6 @@ local windowTransitionTargetH = 0
 local pendingLevelIndex = nil
 local pendingResetPlayerState = false
 
- --=====================================================================
- --  [STATE] Player (Triangle)
- --=====================================================================
--- PLAYER (TRIANGLE)
-local player
-local playerSprite
-local playerSize = 48
-local playerX = 400
-local playerY = 300
-local playerSpeed = 0.5  -- Mouse sensitivity multiplier
-local playerHealth = 100
-
--- PLAYER FLASH EFFECT
-local playerFlashTimer = 0
-local playerFlashDuration = 0.2  -- seconds
-
--- DAMAGE COOLDOWN
-local damageCooldown = 0
-local damageCooldownDuration = 0.5  -- seconds
-
--- PROJECTILE SETTINGS (now managed by SystemShooterProjectiles module)
-local fireCooldownTimer = 0
-local isFiring = false
-
-local currentFireInterval = 0.5
-
-local recoilOffset = 0
-local recoilMaxOffset = 16
-local recoilLerpSpeed = 12
-
--- Current aim direction (updated each frame)
-local aimDirX = 0
-local aimDirY = -1  -- Default: pointing up
 
 -- ENEMY (CUBE)
 local enemySize = 48
@@ -214,12 +182,11 @@ local function GetActiveEnemyCount()
 end
 
 local function IsNoWitnessesActive()
-    -- NoWitnesses is disabled during peace timers
-    if (peaceTimerSeconds or 0) > 0 then return false end
-    
     local stacks = SystemShooterPlayerProgress.getLowEnemyDamageStacks()
     if stacks <= 0 then return false end
     local activeCount = GetActiveEnemyCount()
+    -- NoWitnesses only active when enemies are alive (0 < count <= threshold)
+    if activeCount <= 0 then return false end
     local threshold = stacks >= 2 and 2 or 1
     return activeCount <= threshold
 end
@@ -228,7 +195,9 @@ local LoadLevel
 
 local function CreateEnemy(x, y, config)
     config = config or {}
-    return SystemShooterEnemy.createEnemy(x, y, config, playerX, playerY, playerSize)
+    local pX, pY = SystemShooterPlayer.getPosition()
+    local pSize = SystemShooterPlayer.getSize()
+    return SystemShooterEnemy.createEnemy(x, y, config, pX, pY, pSize)
 end
 
  --=====================================================================
@@ -304,8 +273,9 @@ local function ResetRunStateForMenu()
     ClearAllPlayerProjectiles()
     ClearAllEnemyProjectiles()
 
-    fireCooldownTimer = 0
-    damageCooldown = 0
+    -- Reset player state via module
+    SystemShooterPlayer.resetForRun()
+    
     peaceTimerSeconds = 0
     isStartLevelPeace = false
     isLevelupPeace = false
@@ -333,14 +303,6 @@ local collisionRadius = 24  -- Half of enemy size for circle collision
 local flashTimer = 0
 local flashDuration = 0.2  -- seconds
 
-local knockbackTimer = 0
-local knockbackDuration = 0.2
-local knockbackBaseSpeed = 1200
-local knockbackDirX = 0
-local knockbackDirY = 0
-
-local playerBaseImageWidth = playerSize
-local playerBaseImageHeight = playerSize
 local enemyBaseImageSize = enemySize
 
 local globalFrame = 0
@@ -443,7 +405,7 @@ local function TriggerGameOver()
     -- show cursor for menu
     Input.set_relative_mouse_mode(false)
     -- stop firing immediately
-    isFiring = false
+    SystemShooterPlayer.stopFiring()
 end
 
  --=====================================================================
@@ -603,17 +565,13 @@ LoadLevel = function(index, resetPlayerState)
      --  [LOAD LEVEL] Reset Player State
      --=====================================================================
     if resetPlayerState then
-        playerHealth = SystemShooterPlayerProgress.getMaxHealth()
-        playerX = screenW / 2 - playerSize / 2
-        playerY = screenH / 2 - playerSize / 2
-        Entity.set_global_pos(player, playerX, playerY)
-        Sprite.set_color(playerSprite, 255, 255, 255)
-        playerFlashTimer = 0
-        damageCooldown = 0
+        SystemShooterPlayer.setScreenBounds(screenW, screenH)
+        SystemShooterPlayer.resetForLevel(true)
     end
 
+    local playerHealth = SystemShooterPlayer.getHealth()
     if playerHealth == nil or playerHealth <= 0 then
-        playerHealth = SystemShooterPlayerProgress.getMaxHealth()
+        SystemShooterPlayer.setHealth(SystemShooterPlayerProgress.getMaxHealth())
     end
 end
 
@@ -676,7 +634,7 @@ local function StartRewindSequence()
     end
     
     -- Start the rewind sequence via the module
-    SystemShooterRewind.start(enemies, playerHealth, maxHealth, levelTimeLimit, enemyTargetHealthList)
+    SystemShooterRewind.start(enemies, SystemShooterPlayer.getHealth(), maxHealth, levelTimeLimit, enemyTargetHealthList)
     
     -- Pause music
     if musicEntity then
@@ -707,11 +665,22 @@ function SystemShooter:OnStart()
     -- Enable relative mouse mode (hides cursor, gives delta movement)
     Input.set_relative_mouse_mode(false)
     
+    -- Initialize player module
+    SystemShooterPlayer.init({
+        assets = assets,
+        screenW = screenW,
+        screenH = screenH,
+    })
+    
     -- Initialize projectile module with callbacks
     SystemShooterProjectiles.init({
         callbacks = {
             getEnemies = function() return enemies end,
-            getPlayerPos = function() return playerX, playerY, playerSize end,
+            getPlayerPos = function() 
+                local pX, pY = SystemShooterPlayer.getPosition()
+                local pSize = SystemShooterPlayer.getSize()
+                return pX, pY, pSize
+            end,
             isNoWitnessesActive = IsNoWitnessesActive,
             getNoWitnessesDamageMultiplier = function() return SystemShooterPlayerProgress.getNoWitnessesDamageMultiplier() end,
             getLowEnemyDamageStacks = function() return SystemShooterPlayerProgress.getLowEnemyDamageStacks() end,
@@ -751,25 +720,14 @@ function SystemShooter:OnStart()
                 end
             end,
             onPlayerHit = function(damage)
-                playerHealth = playerHealth - damage
-                FlashPlayer()
-                damageCooldown = damageCooldownDuration
+                local currentHealth = SystemShooterPlayer.getHealth()
+                SystemShooterPlayer.setHealth(currentHealth - damage)
+                SystemShooterPlayer.flash()
+                SystemShooterPlayer.setDamageCooldown(SystemShooterPlayer.getDamageCooldownDuration())
             end,
             addXp = function(amount) SystemShooterPlayerProgress.addXp(amount) end,
         }
     })
-    
-    -- Create player triangle
-    player = Entity.create_entity()
-    
-    -- Start at center of screen
-    playerX = screenW / 2 - playerSize / 2
-    playerY = screenH / 2 - playerSize / 2
-    Entity.set_global_pos(player, playerX, playerY)
-    
-    -- Add sprite component 
-    playerSprite = Entity.add_sprite_component(player, assets.textures.Triangle, playerSize, playerSize, 10)
-    Sprite.set_columns(playerSprite, 1)
 
     -- Main menu window size (target)
     local displayWidth = Window.get_display_width()
@@ -1490,6 +1448,11 @@ SetPaused = function(p)
     -- show cursor in pause menus, lock cursor in gameplay
     Input.set_relative_mouse_mode(not isPaused)
 
+    -- Skip first mouse delta to prevent teleport on unpause
+    if not isPaused then
+        SystemShooterPlayer.skipNextDelta()
+    end
+
     -- Stop/resume music to prevent desync
     if musicEntity then
         if isPaused then
@@ -1567,12 +1530,6 @@ function SystemShooter:OnUpdate()
         return
     end
 
-    if fireCooldownTimer > 0 then
-        fireCooldownTimer = fireCooldownTimer - dt
-        if fireCooldownTimer < 0 then
-            fireCooldownTimer = 0
-        end
-    end
 
      --=====================================================================
      --  [ONUPDATE] Transitions / Early Outs
@@ -1594,7 +1551,8 @@ function SystemShooter:OnUpdate()
             SystemShooterPlayerProgress.applyUpgrade(selectedUpgrade.type)
             if selectedUpgrade.type == "max_health" then
                 local maxH = SystemShooterPlayerProgress.getMaxHealth()
-                playerHealth = math.min(maxH, playerHealth + 20)
+                local currentH = SystemShooterPlayer.getHealth()
+                SystemShooterPlayer.setHealth(math.min(maxH, currentH + 20))
             end
             -- Start levelup peace timer and disable enemies
             peaceTimerSeconds = levelupPeaceDuration
@@ -1672,147 +1630,31 @@ function SystemShooter:OnUpdate()
         print(string.format("[BeatMarker] globalFrame=%d", globalFrame))
     end
 
-    if Input.get_key_down(Keys.ionix_m) then
-        musicMuted = not musicMuted
-        if musicEntity then
-            local targetVolume = musicMuted and 0 or musicVolume
-            AudioComponent.change_volume(musicEntity, targetVolume)
-        end
-    end
     
      --=====================================================================
-     --  [ONUPDATE] Player Movement (Mouse + Knockback)
+     --  [ONUPDATE] Player Movement, Aiming, Shooting (via SystemShooterPlayer)
      --=====================================================================
     -- Player can still move during rewind
-    -- Get mouse delta (relative movement)
-    local delta = Input.get_mouse_delta()
-    local deltaX = 0
-    local deltaY = 0
+    SystemShooterPlayer.setScreenBounds(screenW, screenH)
+    SystemShooterPlayer.updateMovement(dt, sensitivitySetting)
+    SystemShooterPlayer.updateAiming(enemies, enemySize)
+    SystemShooterPlayer.updateRecoil(dt)
     
-    if knockbackTimer <= 0 then
-        deltaX = delta.x
-        deltaY = delta.y
-    end
-    
-    -- Move player by delta (allows knockback since not snapping to cursor)
-    local sens = sensitivitySetting or 1.0
-    playerX = playerX + deltaX * playerSpeed * sens
-    playerY = playerY + deltaY * playerSpeed * sens
-    
-    if knockbackTimer > 0 then
-        local tNorm = 1.0 - (knockbackTimer / knockbackDuration)
-        if tNorm < 0 then tNorm = 0 end
-        if tNorm > 1 then tNorm = 1 end
-        local factor = 1.0 - (tNorm * tNorm)
-        local speed = knockbackBaseSpeed * factor * dt
-        playerX = playerX + knockbackDirX * speed
-        playerY = playerY + knockbackDirY * speed
-        
-        knockbackTimer = knockbackTimer - dt
-    end
-    
-    -- Clamp to screen bounds
-    playerX = math.max(0, math.min(screenW - playerSize, playerX))
-    playerY = math.max(0, math.min(screenH - playerSize, playerY))
-    
-     --=====================================================================
-     --  [ONUPDATE] Aim (Nearest Enemy)
-     --=====================================================================
-    local closestEnemy = nil
-    local closestDistSq = nil
-    local playerCenterX = playerX + playerSize/2
-    local playerCenterY = playerY + playerSize/2
-    for i = 1, #enemies do
-        local e = enemies[i]
-        -- Skip dead enemies for auto-aim (but allow disabled enemies for pre-fire)
-        if not e.isDead then
-            local enemyCenterX = e.x + enemySize/2
-            local enemyCenterY = e.y + enemySize/2
-            local dx = enemyCenterX - playerCenterX
-            local dy = enemyCenterY - playerCenterY
-            local distSq = dx * dx + dy * dy
-            if closestDistSq == nil or distSq < closestDistSq then
-                closestDistSq = distSq
-                closestEnemy = e
-            end
-        end
-    end
-
-    if closestEnemy ~= nil then
-        local enemyCenterX = closestEnemy.x + enemySize/2
-        local enemyCenterY = closestEnemy.y + enemySize/2
-        local dx = enemyCenterX - playerCenterX
-        local dy = enemyCenterY - playerCenterY
-        local angleRadians = math.atan(dy, dx)
-        local angleDegrees = math.deg(angleRadians) + 90  -- +90 because triangle points up by default
-        Entity.set_global_rot(player, angleDegrees)
-
-        local dist = math.sqrt(dx * dx + dy * dy)
-        if dist > 0 then
-            aimDirX = dx / dist
-            aimDirY = dy / dist
-        end
-    end
-
-    -- Apply visual recoil offset to player sprite based on aim direction
-    UpdatePlayerRecoil()
-    
-     --=====================================================================
-     --  [ONUPDATE] Shooting
-     --=====================================================================
-    -- Disable shooting during rewind
+    -- Shooting (disabled during rewind)
     if not SystemShooterRewind.isActive() then
-        if Input.get_mouse_button_down(1) then
-            isFiring = true
-            if fireCooldownTimer <= 0 then
-                SpawnProjectile()
-                local interval = SystemShooterPlayerProgress.getCurrentFireInterval()
-                if not interval or interval <= 0 then
-                    interval = 0.5
-                end
-                local noWitnessesStacks = SystemShooterPlayerProgress.getLowEnemyDamageStacks()
-                if noWitnessesStacks and noWitnessesStacks > 0 then
-                    local activeCount = GetActiveEnemyCount()
-                    local threshold = noWitnessesStacks >= 2 and 2 or 1
-                    if activeCount <= threshold then
-                        local delta = SystemShooterPlayerProgress.getNoWitnessesFireIntervalDelta()
-                        interval = math.max(0.05, interval - (delta or 0))
-                    end
-                end
-                currentFireInterval = interval
-                fireCooldownTimer = interval
-            end
-        end
-
-        if Input.get_mouse_button_up(1) then
-            isFiring = false
-        end
-
-        if isFiring and fireCooldownTimer <= 0 then
-            SpawnProjectile()
+        local playGunshotSfx = function()
             if gunshot3SfxEntity then
                 AudioComponent.change_volume(gunshot3SfxEntity, 4)
                 AudioComponent.play(gunshot3SfxEntity)
             end
-            local interval = SystemShooterPlayerProgress.getCurrentFireInterval()
-            if not interval or interval <= 0 then
-                interval = 0.5
-            end
-            local noWitnessesStacks = SystemShooterPlayerProgress.getLowEnemyDamageStacks()
-            if noWitnessesStacks and noWitnessesStacks > 0 then
-                local activeCount = GetActiveEnemyCount()
-                local threshold = noWitnessesStacks >= 2 and 2 or 1
-                if activeCount <= threshold then
-                    local delta = SystemShooterPlayerProgress.getNoWitnessesFireIntervalDelta()
-                    interval = math.max(0.05, interval - (delta or 0))
-                end
-            end
-            currentFireInterval = interval
-            fireCooldownTimer = interval
         end
+        local onShotFired = function(count)
+            runShotsFired = runShotsFired + count
+        end
+        SystemShooterPlayer.updateShooting(dt, IsNoWitnessesActive, playGunshotSfx, onShotFired)
     else
         -- Force stop firing during rewind
-        isFiring = false
+        SystemShooterPlayer.stopFiring()
     end
     
      --=====================================================================
@@ -1823,7 +1665,7 @@ function SystemShooter:OnUpdate()
         -- Update all projectiles via module
         local runStats = { shotsHit = runShotsHit, damageDealt = runDamageDealt, damageTaken = runDamageTaken }
         SystemShooterProjectiles.updatePlayerProjectiles(dt, runStats)
-        SystemShooterProjectiles.updateEnemyProjectiles(dt, damageCooldown, runStats)
+        SystemShooterProjectiles.updateEnemyProjectiles(dt, SystemShooterPlayer.getDamageCooldown(), runStats)
         runShotsHit = runStats.shotsHit
         runDamageDealt = runStats.damageDealt
         runDamageTaken = runStats.damageTaken
@@ -1841,11 +1683,14 @@ function SystemShooter:OnUpdate()
     -- Check pickup collision and heal player (skip during rewind)
     if not SystemShooterRewind.isActive() then
         local maxHealth = SystemShooterPlayerProgress.getMaxHealth()
-        local healAmount = SystemShooterPickups.checkPlayerCollision(playerX, playerY, playerSize, maxHealth)
+        local pX, pY = SystemShooterPlayer.getPosition()
+        local pSize = SystemShooterPlayer.getSize()
+        local healAmount = SystemShooterPickups.checkPlayerCollision(pX, pY, pSize, maxHealth)
         if healAmount then
-            local before = playerHealth
-            playerHealth = math.min(maxHealth, playerHealth + healAmount)
-            local actual = playerHealth - before
+            local before = SystemShooterPlayer.getHealth()
+            local newHealth = math.min(maxHealth, before + healAmount)
+            SystemShooterPlayer.setHealth(newHealth)
+            local actual = newHealth - before
             if actual > 0 then
                 runHealingCollected = runHealingCollected + actual
             end
@@ -1938,6 +1783,7 @@ function SystemShooter:OnUpdate()
     }
 
     local playerMaxHealth = SystemShooterPlayerProgress.getMaxHealth()
+    local playerHealth = SystemShooterPlayer.getHealth()
     UI.draw_progress_bar_styled(playerHpBarX, playerHpBarY, playerHpBarW, playerHpBarH, playerMaxHealth, playerHealth, 2, hpStyle, "")
 
     local level, xp, xpToNextLevel = SystemShooterPlayerProgress.getProgress()
@@ -1984,7 +1830,7 @@ function SystemShooter:OnUpdate()
     --=====================================================================
     if SystemShooterRewind.isActive() then
         -- During rewind, check for game over
-        if playerHealth <= 0 then
+        if SystemShooterPlayer.getHealth() <= 0 then
             SystemShooterRewind.reset()
             SystemShooterRewind.restoreEnemyColors(enemies)
             TriggerGameOver()
@@ -2011,7 +1857,7 @@ function SystemShooter:OnUpdate()
                 levelTimerSeconds = result.levelTimer
             end
             if result.playerHealth then
-                playerHealth = result.playerHealth
+                SystemShooterPlayer.setHealth(result.playerHealth)
             end
             
             -- Clear enemy projectiles when signaled (after they've been rewound)
@@ -2051,7 +1897,7 @@ function SystemShooter:OnUpdate()
             SystemShooterEnemy.enableAllEnemies(enemies)
         end
         -- Don't process normal level flow during levelup peace
-        if playerHealth <= 0 then
+        if SystemShooterPlayer.getHealth() <= 0 then
             TriggerGameOver()
         end
         return
@@ -2060,7 +1906,7 @@ function SystemShooter:OnUpdate()
      --=====================================================================
      --  [ONUPDATE] Level Flow (Win / Lose / Timeout)
      --=====================================================================
-    if playerHealth <= 0 then
+    if SystemShooterPlayer.getHealth() <= 0 then
         TriggerGameOver()
         return
     elseif not enemiesAlive then
@@ -2078,40 +1924,6 @@ function SystemShooter:OnUpdate()
         end
     elseif levelTimerSeconds <= 0 and enemiesAlive and not SystemShooterRewind.isActive() then
         OnLevelTimeout()
-    end
-end
-
- --=====================================================================
- --  [PLAYER PROJECTILES] Spawn (now uses SystemShooterProjectiles module)
- --=====================================================================
-function SpawnProjectile()
-    -- Spawn at tip of triangle (offset in aim direction)
-    local centerX = playerX + playerSize/2
-    local centerY = playerY + playerSize/2
-    local tipX = centerX + aimDirX * (playerSize/2)
-    local tipY = centerY + aimDirY * (playerSize/2)
-
-    local firepower = SystemShooterPlayerProgress.getFirepower()
-    local pierceCount = SystemShooterPlayerProgress.getPierceCount()
-    local bounceCount = SystemShooterPlayerProgress.getBounceCount()
-
-    local projectileSize = SystemShooterProjectiles.PlayerConfig.size
-    local shots = SystemShooterPlayerProgress.getShots(firepower, tipX, tipY, aimDirX, aimDirY, projectileSize)
-    if not shots then
-        return
-    end
-    runShotsFired = runShotsFired + #shots
-
-    for i = 1, #shots do
-        local s = shots[i]
-        local offsetX = s.offsetX or 0
-        local offsetY = s.offsetY or 0
-        local dirX = s.dirX or aimDirX
-        local dirY = s.dirY or aimDirY
-
-        local spawnX = tipX + offsetX - projectileSize/2
-        local spawnY = tipY + offsetY - projectileSize/2
-        SystemShooterProjectiles.spawnPlayerProjectile(spawnX, spawnY, dirX, dirY, pierceCount, bounceCount, s)
     end
 end
 
@@ -2154,33 +1966,15 @@ function UpdateFlash()
             end
         end
     end
-    
-    -- Player flash
-    if playerFlashDuration > 0 and playerFlashTimer > 0 then
-        playerFlashTimer = playerFlashTimer - dt
-        if playerFlashTimer < 0 then playerFlashTimer = 0 end
 
-        local t = playerFlashTimer / playerFlashDuration
-        if t < 0 then t = 0 end
-        if t > 1 then t = 1 end
-
-        local r = 255
-        local g = math.floor(255 * (1.0 - t) + 0.5)
-        local b = math.floor(255 * (1.0 - t) + 0.5)
-        Sprite.set_color(playerSprite, r, g, b)
-    end
-    
-    -- Damage cooldown
-    if damageCooldown > 0 then
-        damageCooldown = damageCooldown - dt
-    end
+    SystemShooterPlayer.updateFlash(dt)
 end
 
 ----------------------------------------------------------
 -- Enemy-Player collision with damage cooldown
 ----------------------------------------------------------
 function UpdateEnemyCollision()
-    if damageCooldown > 0 then
+    if SystemShooterPlayer.getDamageCooldown() > 0 then
         return
     end
     
@@ -2190,8 +1984,10 @@ function UpdateEnemyCollision()
     end
     
     -- Check collision between enemies and player
-    local playerCenterX = playerX + playerSize/2
-    local playerCenterY = playerY + playerSize/2
+    local pX, pY = SystemShooterPlayer.getPosition()
+    local pSize = SystemShooterPlayer.getSize()
+    local playerCenterX = pX + pSize/2
+    local playerCenterY = pY + pSize/2
     for i = 1, #enemies do
         local enemy = enemies[i]
         -- Skip collision for disabled or dead enemies
@@ -2203,7 +1999,7 @@ function UpdateEnemyCollision()
         local dx = playerCenterX - enemyCenterX
         local dy = playerCenterY - enemyCenterY
         local distSq = dx * dx + dy * dy
-        local hitRadius = collisionRadius + playerSize/2
+        local hitRadius = collisionRadius + pSize/2
         
         if distSq < hitRadius * hitRadius then
              -- Collision! Damage player
@@ -2221,9 +2017,9 @@ function UpdateEnemyCollision()
 
             local newPlayerCenterX = enemyCenterX + nx * targetDistance
             local newPlayerCenterY = enemyCenterY + ny * targetDistance
-            playerX = newPlayerCenterX - playerSize/2
-            playerY = newPlayerCenterY - playerSize/2
-            Entity.set_global_pos(player, playerX, playerY)
+            local newPX = newPlayerCenterX - pSize/2
+            local newPY = newPlayerCenterY - pSize/2
+            SystemShooterPlayer.setPosition(newPX, newPY)
 
             local pushX = nx
             local pushY = ny
@@ -2244,14 +2040,13 @@ function UpdateEnemyCollision()
                     pushY = sideRY
                 end
             end
-            knockbackDirX = pushX
-            knockbackDirY = pushY
-            knockbackTimer = knockbackDuration
+            SystemShooterPlayer.applyKnockback(pushX, pushY)
 
-            playerHealth = playerHealth - 10
+            local currentHealth = SystemShooterPlayer.getHealth()
+            SystemShooterPlayer.setHealth(currentHealth - 10)
             runDamageTaken = runDamageTaken + 10
-            FlashPlayer()
-            damageCooldown = damageCooldownDuration
+            SystemShooterPlayer.flash()
+            SystemShooterPlayer.setDamageCooldown(SystemShooterPlayer.getDamageCooldownDuration())
             if playerDamageSfxEntity then
                 AudioComponent.play(playerDamageSfxEntity)
             end
@@ -2262,11 +2057,7 @@ function UpdateEnemyCollision()
 end
 
 function FlashPlayer()
-    Sprite.set_color(playerSprite, 255, 0, 0)
-    playerFlashTimer = playerFlashDuration
-    if playerHealth <= 0 then
-        Entity.set_global_pos(player, -1000, -1000)
-    end
+    SystemShooterPlayer.flash()
 end
 
  --=====================================================================
@@ -2297,10 +2088,12 @@ function SpawnBeam(enemy, fromX, fromY, toX, toY)
         end
     end
     
-    if damageCooldown <= 0 then
-        local playerCenterX = playerX + playerSize / 2
-        local playerCenterY = playerY + playerSize / 2
-        local playerRadius = playerSize / 2
+    if SystemShooterPlayer.getDamageCooldown() <= 0 then
+        local pX, pY = SystemShooterPlayer.getPosition()
+        local pSize = SystemShooterPlayer.getSize()
+        local playerCenterX = pX + pSize / 2
+        local playerCenterY = pY + pSize / 2
+        local playerRadius = pSize / 2
         
         local apx = playerCenterX - fromX
         local apy = playerCenterY - fromY
@@ -2321,10 +2114,11 @@ function SpawnBeam(enemy, fromX, fromY, toX, toY)
         
         local hitRadius = playerRadius + BEAM_RADIUS
         if distToPlayerSq < hitRadius * hitRadius then
-            playerHealth = playerHealth - BEAM_DAMAGE
+            local currentHealth = SystemShooterPlayer.getHealth()
+            SystemShooterPlayer.setHealth(currentHealth - BEAM_DAMAGE)
             runDamageTaken = runDamageTaken + (BEAM_DAMAGE or 0)
-            FlashPlayer()
-            damageCooldown = damageCooldownDuration
+            SystemShooterPlayer.flash()
+            SystemShooterPlayer.setDamageCooldown(SystemShooterPlayer.getDamageCooldownDuration())
         end
     end
 end
@@ -2341,9 +2135,11 @@ end
  --  [ENEMIES] Movement / Behavior (Wrapper)
  --=====================================================================
 function UpdateEnemyMovement()
+    local pX, pY = SystemShooterPlayer.getPosition()
+    local pSize = SystemShooterPlayer.getSize()
     SystemShooterEnemy.updateEnemyMovement(
         enemies,
-        playerX, playerY, playerSize,
+        pX, pY, pSize,
         screenW, screenH,
         enemyShootIntervalSeconds,
         SpawnEnemyProjectile,
@@ -2352,57 +2148,6 @@ function UpdateEnemyMovement()
         EmitTeleportBurst,
         EmitBeamCharge
     )
-end
-
- --=====================================================================
- --  [PLAYER FEEL] Recoil
- --=====================================================================
-function UpdatePlayerRecoil()
-    local dt = GetDt()
-
-    local target = 0
-
-    local interval = currentFireInterval or 0.5
-    if interval < 0.001 then
-        interval = 0.5
-    end
-
-    if fireCooldownTimer >= 0 then
-        local remaining = fireCooldownTimer
-        if remaining < 0 then remaining = 0 end
-        if remaining > interval then remaining = interval end
-
-        local elapsed = interval - remaining
-        if elapsed < 0 then elapsed = 0 end
-        if elapsed > interval then elapsed = interval end
-
-        local tNorm = 0
-        if interval > 0 then
-            tNorm = elapsed / interval
-            if tNorm < 0 then tNorm = 0 end
-            if tNorm > 1 then tNorm = 1 end
-        end
-
-        local tri = 0
-        if tNorm <= 0.5 then
-            tri = tNorm / 0.5
-        else
-            tri = (1.0 - tNorm) / 0.5
-        end
-
-        target = recoilMaxOffset * tri
-    end
-
-    recoilOffset = target
-
-    local rx = 0
-    local ry = 0
-    if recoilOffset > 0 then
-        rx = -aimDirX * recoilOffset
-        ry = -aimDirY * recoilOffset
-    end
-
-    Entity.set_global_pos(player, playerX + rx, playerY + ry)
 end
 
  --=====================================================================

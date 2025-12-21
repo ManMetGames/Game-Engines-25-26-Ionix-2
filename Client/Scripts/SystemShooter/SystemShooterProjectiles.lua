@@ -309,15 +309,10 @@ function SystemShooterProjectiles.updatePlayerProjectiles(dt, runStats)
             local enemy = enemies[hitEnemyIndex]
             local damage = proj.damage or 1
             
-            -- Apply no-witnesses damage multiplier
-            if callbacks.getLowEnemyDamageStacks and callbacks.getActiveEnemyCount and callbacks.getNoWitnessesDamageMultiplier then
-                local stacks = callbacks.getLowEnemyDamageStacks()
-                if stacks and stacks > 0 then
-                    local activeCount = callbacks.getActiveEnemyCount()
-                    local threshold = stacks >= 2 and 2 or 1
-                    if activeCount <= threshold then
-                        damage = damage * callbacks.getNoWitnessesDamageMultiplier()
-                    end
+            -- Apply no-witnesses damage multiplier (only when 0 < activeCount <= threshold)
+            if callbacks.isNoWitnessesActive and callbacks.isNoWitnessesActive() then
+                if callbacks.getNoWitnessesDamageMultiplier then
+                    damage = damage * callbacks.getNoWitnessesDamageMultiplier()
                 end
             end
             
