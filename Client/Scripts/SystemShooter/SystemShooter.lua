@@ -171,6 +171,12 @@ local pendingLevelIndex = nil
 local pendingResetPlayerState = false
 local playerInitialized = false  -- Track if player has been initialized (delayed until first transition completes)
 
+-- Transition phase state machine (to prevent lag spikes)
+local transitionPhase = "none"  -- "none" | "pre" | "window" | "post"
+local transitionTimer = 0
+local PRE_TRANSITION_DELAY = 0.15   -- seconds before window resize starts
+local POST_TRANSITION_DELAY = 0.3  -- seconds after window resize ends
+
 
 -- ENEMY (CUBE)
 local enemySize = 48
@@ -218,28 +224,23 @@ function UpdateWindowTransition(dt)
     if windowTransitionProgress >= 1.0 then
         windowTransitionActive = false
         windowTransitionProgress = 0
-        local index = pendingLevelIndex
-        local reset = pendingResetPlayerState
-        pendingLevelIndex = nil
-        pendingResetPlayerState = false
-
-        if index ~= nil then
-            screenW = Window.get_width()
-            screenH = Window.get_height()
-            
-            -- Initialize player after first window transition (MainMenu -> Level 1) completes
-            if not playerInitialized then
-                SystemShooterPlayer.init({
-                    assets = assets,
-                    screenW = screenW,
-                    screenH = screenH,
-                })
-                playerInitialized = true
-            end
-            
-            LoadLevel(index, reset)
+        screenW = Window.get_width()
+        screenH = Window.get_height()
+        
+        -- Initialize player after first window transition (MainMenu -> Level 1) completes
+        if not playerInitialized then
+            SystemShooterPlayer.init({
+                assets = assets,
+                screenW = screenW,
+                screenH = screenH,
+            })
+            playerInitialized = true
         end
-        return false
+        
+        -- Transition to post-phase (delay before loading level)
+        transitionPhase = "post"
+        transitionTimer = POST_TRANSITION_DELAY
+        return true  -- Still transitioning (in post-phase)
     end
 
     -- Calculate progress increment based on speed (pixels per second)
@@ -670,15 +671,7 @@ StartLevel = function(index, resetPlayerState)
     local dh = targetHeight - currentHeight
     local totalPixels = math.sqrt(dw * dw + dh * dh)
 
-    -- Clear all projectiles before transition starts
-    ClearAllPlayerProjectiles()
-    ClearAllEnemyProjectiles()
-    
-    -- Stop player firing
-    SystemShooterPlayer.stopFiring()
-
-    windowTransitionActive = true
-    windowTransitionProgress = 0
+    -- Store window transition parameters
     windowTransitionStartW = currentWidth
     windowTransitionStartH = currentHeight
     windowTransitionTargetW = targetWidth
@@ -686,6 +679,17 @@ StartLevel = function(index, resetPlayerState)
     windowTransitionTotalPixels = totalPixels
     pendingLevelIndex = index
     pendingResetPlayerState = resetPlayerState
+    
+    -- Start pre-transition phase (lightweight cleanup)
+    transitionPhase = "pre"
+    transitionTimer = PRE_TRANSITION_DELAY
+    
+    -- Do lightweight cleanup immediately
+    ClearAllPlayerProjectiles()
+    ClearAllEnemyProjectiles()
+    if playerInitialized then
+        SystemShooterPlayer.stopFiring()
+    end
 end
 
 local function OnEnemyKilled()
@@ -768,9 +772,6 @@ function SystemShooter:OnStart()
     -- Enable relative mouse mode (hides cursor, gives delta movement)
     Input.set_relative_mouse_mode(false)
     
-    -- NOTE: Player initialization is now delayed until after the first
-    -- window transition (MainMenu -> Level 1) completes to prevent
-    -- player spawning before the level is ready
     
     -- Initialize projectile module with callbacks
     SystemShooterProjectiles.init({
@@ -1634,6 +1635,48 @@ function SystemShooter:OnUpdate()
     end
 
 
+     --=====================================================================
+     --  [ONUPDATE] Transition State Machine (prevents lag spikes)
+     --=====================================================================
+    -- Handle pre-transition phase (delay before window resize starts)
+    if transitionPhase == "pre" then
+        transitionTimer = transitionTimer - dt
+        if transitionTimer <= 0 then
+            -- Pre-transition complete, start window transition
+            transitionPhase = "window"
+            windowTransitionActive = true
+            windowTransitionProgress = 0
+        end
+        -- Allow player movement during pre-phase
+        if playerInitialized then
+            SystemShooterPlayer.setScreenBounds(screenW, screenH)
+            SystemShooterPlayer.updateMovement(dt, sensitivitySetting)
+        end
+        return
+    end
+    
+    -- Handle post-transition phase (delay after window resize ends)
+    if transitionPhase == "post" then
+        transitionTimer = transitionTimer - dt
+        if transitionTimer <= 0 then
+            -- Post-transition complete, load the level (heavy work)
+            transitionPhase = "none"
+            local index = pendingLevelIndex
+            local reset = pendingResetPlayerState
+            pendingLevelIndex = nil
+            pendingResetPlayerState = false
+            if index ~= nil then
+                LoadLevel(index, reset)
+            end
+        end
+        -- Allow player movement during post-phase
+        if playerInitialized then
+            SystemShooterPlayer.setScreenBounds(screenW, screenH)
+            SystemShooterPlayer.updateMovement(dt, sensitivitySetting)
+        end
+        return
+    end
+    
      --=====================================================================
      --  [ONUPDATE] Window Transition (player continues to update)
      --=====================================================================
