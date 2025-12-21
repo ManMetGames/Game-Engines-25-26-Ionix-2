@@ -8,6 +8,8 @@ struct Textures {
     uint32_t Apple = 3562895354u;
     uint32_t Back = 679751378u;
     uint32_t Background = 2667361274u;
+    uint32_t Background_Desert = 3584265252u;
+    uint32_t Background_Forest = 177688696u;
     uint32_t Bananas = 280088504u;
     uint32_t Blink__42x42_ = 4197074976u;
     uint32_t Blink__54x52_ = 2510351194u;
@@ -46,6 +48,7 @@ struct Textures {
     uint32_t Fall__32x32__1_2 = 730365616u;
     uint32_t Fall__32x32__1_2_3 = 2227305082u;
     uint32_t FlappyBird = 2136167952u;
+    uint32_t FlappyBirdPurple = 3752995492u;
     uint32_t FlappyPipe = 1290161702u;
     uint32_t FlappyPipe2 = 2484853856u;
     uint32_t Ghast_Tear = 3650266058u;
@@ -207,6 +210,8 @@ struct Textures {
         map["Apple"] = "./Assets/Jimmy Demo/Items/Fruits/Apple.png";
         map["Back"] = "./Assets/Jimmy Demo/Menu/Buttons/Back.png";
         map["Background"] = "./Assets/Background.png";
+        map["Background_Desert"] = "./Assets/Background_Desert.png";
+        map["Background_Forest"] = "./Assets/Background_Forest.png";
         map["Bananas"] = "./Assets/Jimmy Demo/Items/Fruits/Bananas.png";
         map["Blink__42x42_"] = "./Assets/Jimmy Demo/Traps/Rock Head/Blink (42x42).png";
         map["Blink__54x52_"] = "./Assets/Jimmy Demo/Traps/Spike Head/Blink (54x52).png";
@@ -245,6 +250,7 @@ struct Textures {
         map["Fall__32x32__1_2"] = "./Assets/Jimmy Demo/Main Characters/Pink Man/Fall (32x32).png";
         map["Fall__32x32__1_2_3"] = "./Assets/Jimmy Demo/Main Characters/Virtual Guy/Fall (32x32).png";
         map["FlappyBird"] = "./Assets/FlappyBird.png";
+        map["FlappyBirdPurple"] = "./Assets/FlappyBirdPurple.png";
         map["FlappyPipe"] = "./Assets/FlappyPipe.png";
         map["FlappyPipe2"] = "./Assets/FlappyPipe2.png";
         map["Ghast_Tear"] = "./Assets/Ghast_Tear.png";
@@ -428,8 +434,8 @@ struct Sounds {
         map["impact3"] = "./Assets/Audio/impact3.mp3";
         map["playerDamage"] = "./Assets/Audio/playerDamage.mp3";
         map["technoSong"] = "./Assets/technoSong.mp3";
-        map["test"] = "./Assets/test.wav";
-        map["test_1"] = "./Assets/test.mp3";
+        map["test"] = "./Assets/test.mp3";
+        map["test_1"] = "./Assets/test.wav";
         return map;
     };
 };
