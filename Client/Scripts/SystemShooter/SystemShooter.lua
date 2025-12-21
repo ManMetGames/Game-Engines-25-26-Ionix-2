@@ -183,13 +183,11 @@ local originalWindowWidth = 1920
 local originalWindowHeight = 1080
 local windowTransitionActive = false
 local windowTransitionTimer = 0
-local windowTransitionDurationSeconds = 1
+local windowTransitionDurationSeconds = 0.75
 local windowTransitionStartW = 0
 local windowTransitionStartH = 0
 local windowTransitionTargetW = 0
 local windowTransitionTargetH = 0
-local windowTransitionLastW = 0
-local windowTransitionLastH = 0
 local pendingLevelIndex = nil
 local pendingResetPlayerState = false
 
@@ -251,7 +249,7 @@ end
 
 local function IsNoWitnessesActive()
     -- NoWitnesses is disabled during peace timers
-    if (peaceTimerSeconds or 0) > 0 then return false end
+    if peaceTimerSeconds > 0 then return false end
     
     local stacks = SystemShooterPlayerProgress.getLowEnemyDamageStacks()
     if stacks <= 0 then return false end
@@ -279,13 +277,16 @@ function UpdateWindowTransition()
 
     if windowTransitionTimer <= 0 then
         windowTransitionActive = false
-        -- Ensure we hit the exact target at the end
-        local displayWidth = Window.get_display_width()
-        local displayHeight = Window.get_display_height()
-        local finalX = math.floor((displayWidth - windowTransitionTargetW) * 0.5)
-        local finalY = math.floor((displayHeight - windowTransitionTargetH) * 0.5)
-        Window.set_pos(finalX, finalY)
-        Window.set_size(windowTransitionTargetW, windowTransitionTargetH)
+        local index = pendingLevelIndex
+        local reset = pendingResetPlayerState
+        pendingLevelIndex = nil
+        pendingResetPlayerState = false
+
+        if index ~= nil then
+            screenW = Window.get_width()
+            screenH = Window.get_height()
+            LoadLevel(index, reset)
+        end
         return
     end
 
@@ -294,33 +295,24 @@ function UpdateWindowTransition()
     if t < 0 then t = 0 end
     if t > 1 then t = 1 end
 
-    -- Smooth easing (ease-out quad)
-    local eased = 1.0 - (1.0 - t) * (1.0 - t)
-
     local startW = windowTransitionStartW
     local startH = windowTransitionStartH
     local targetW = windowTransitionTargetW
     local targetH = windowTransitionTargetH
 
-    local newW = startW + (targetW - startW) * eased
-    local newH = startH + (targetH - startH) * eased
+    local newW = startW + (targetW - startW) * t
+    local newH = startH + (targetH - startH) * t
 
     local newWidth = math.floor(newW + 0.5)
     local newHeight = math.floor(newH + 0.5)
 
-    -- Only update window if size actually changed (reduces OS overhead)
-    if newWidth ~= windowTransitionLastW or newHeight ~= windowTransitionLastH then
-        windowTransitionLastW = newWidth
-        windowTransitionLastH = newHeight
+    local displayWidth = Window.get_display_width()
+    local displayHeight = Window.get_display_height()
+    local newX = math.floor((displayWidth - newWidth) * 0.5)
+    local newY = math.floor((displayHeight - newHeight) * 0.5)
 
-        local displayWidth = Window.get_display_width()
-        local displayHeight = Window.get_display_height()
-        local newX = math.floor((displayWidth - newWidth) * 0.5)
-        local newY = math.floor((displayHeight - newHeight) * 0.5)
-
-        Window.set_pos(newX, newY)
-        Window.set_size(newWidth, newHeight)
-    end
+    Window.set_pos(newX, newY)
+    Window.set_size(newWidth, newHeight)
 end
 
 local function ClearEnemies()
@@ -704,24 +696,21 @@ StartLevel = function(index, resetPlayerState)
     local targetWidth = cfg.windowWidth or currentWidth
     local targetHeight = cfg.windowHeight or currentHeight
 
-    -- Set screen dimensions to target immediately so level spawns correctly
-    screenW = targetWidth
-    screenH = targetHeight
-
-    -- Load the level immediately (enemies spawn at target positions)
-    LoadLevel(index, resetPlayerState)
-
-    -- If window size differs, start smooth transition (game continues playing)
-    if currentWidth ~= targetWidth or currentHeight ~= targetHeight then
-        windowTransitionActive = true
-        windowTransitionTimer = windowTransitionDurationSeconds
-        windowTransitionStartW = currentWidth
-        windowTransitionStartH = currentHeight
-        windowTransitionTargetW = targetWidth
-        windowTransitionTargetH = targetHeight
-        windowTransitionLastW = currentWidth
-        windowTransitionLastH = currentHeight
+    if currentWidth == targetWidth and currentHeight == targetHeight then
+        screenW = currentWidth
+        screenH = currentHeight
+        LoadLevel(index, resetPlayerState)
+        return
     end
+
+    windowTransitionActive = true
+    windowTransitionTimer = windowTransitionDurationSeconds
+    windowTransitionStartW = currentWidth
+    windowTransitionStartH = currentHeight
+    windowTransitionTargetW = targetWidth
+    windowTransitionTargetH = targetHeight
+    pendingLevelIndex = index
+    pendingResetPlayerState = resetPlayerState
 end
 
 local function OnEnemyKilled()
@@ -1613,9 +1602,9 @@ function SystemShooter:OnUpdate()
      --=====================================================================
      --  [ONUPDATE] Transitions / Early Outs
      --=====================================================================
-    -- Update window transition (non-blocking - game continues during resize)
     if windowTransitionActive then
         UpdateWindowTransition()
+        return
     end
 
      --=====================================================================
