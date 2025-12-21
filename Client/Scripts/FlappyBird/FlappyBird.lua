@@ -803,7 +803,7 @@ local function DrawSettingsMenu_C(windowW, windowH)
     local panelY = math.floor((windowH - panelH) / 2)
 
     -- Soft “cloudy” panel
-    UI.add_panel(panelX, panelY, panelW, panelH, 0.72, 24, 60, 140, 190)
+    UI.add_panel(panelX, panelY, panelW, panelH, 0.80, 26, 245, 225, 170)
 
     local cx = windowW / 2
     UI.add_centered_label(cx, panelY + 26, "SETTINGS", "ImGuiDefaultBold", 1.9)
@@ -812,30 +812,40 @@ local function DrawSettingsMenu_C(windowW, windowH)
     local w = panelW - 80
     local y = panelY + 85
 
+    -- Slider styling (rounded + warm accent)
+    local sliderStyle = {
+        height = 18,
+        rounding = 10,
+        grab_size = 16,
+        track = { 60, 80, 100, 0.35 },
+        grab  = { 255, 200, 80, 0.95 }
+    }
+
     -- Music toggle + slider (slider still useful once you add BGM)
     UI.add_checkbox(x, y, 0, 0, "Music", "fb_music_on", s_musicOn)
     y = y + 28
-    UI.add_label(x, y, "Music Volume", UI_FONT_REG, 1.0)
+    UI.add_label(x, y, 0, 0, "Music Volume", UI_FONT_REG, 1.0)
     y = y + 18
-    UI.add_slider(x, y, w, "", "fb_music_vol", 0, 100, s_musicVol, nil, nil, "%.0f")
+    UI.add_slider_styled(x, y, w, "", "fb_music_vol", 0, 100, s_musicVol, nil, nil, "%.0f", sliderStyle)
     y = y + 60
 
     -- SFX toggle + slider
     UI.add_checkbox(x, y, 0, 0, "SFX", "fb_sfx_on", s_sfxOn)
     y = y + 28
-    UI.add_label(x, y, "SFX Volume", UI_FONT_REG, 1.0)
+    UI.add_label(x, y, 0, 0, "SFX Volume", UI_FONT_REG, 1.0)
     y = y + 18
-    UI.add_slider(x, y, w, "", "fb_sfx_vol", 0, 100, s_sfxVol, nil, nil, "%.0f")
+    UI.add_slider_styled(x, y, w, "", "fb_sfx_vol", 0, 100, s_sfxVol, nil, nil, "%.0f", sliderStyle)
     y = y + 60
 
     -- Master volume
-    UI.add_label(x, y, "Master Volume", UI_FONT_REG, 1.0)
+    UI.add_label(x, y, 0, 0, "Master Volume", UI_FONT_REG, 1.0)
     y = y + 18
-    UI.add_slider(x, y, w, "", "fb_master_vol", 0, 100, s_masterVol, nil, nil, "%.0f")
+    UI.add_slider_styled(x, y, w, "", "fb_master_vol", 0, 100, s_masterVol, nil, nil, "%.0f", sliderStyle)
 
     -- Apply changes
     if UI.was_checkbox_changed("fb_music_on") then
-        s_musicOn = UI.get_checkbox("fb_music_on") or s_musicOn
+        s_musicOn = UI.get_checkbox("fb_music_on")
+        if s_musicOn == nil then s_musicOn = true end
         SaveSetting("audio.musicOn", s_musicOn)
         ApplyMusicVolume()
         UpdateMusicPlayback()
@@ -848,9 +858,18 @@ local function DrawSettingsMenu_C(windowW, windowH)
     end
 
     if UI.was_checkbox_changed("fb_sfx_on") then
-        s_sfxOn = UI.get_checkbox("fb_sfx_on") or s_sfxOn
+        s_sfxOn = UI.get_checkbox("fb_sfx_on")
+        if s_sfxOn == nil then s_sfxOn = true end
         SaveSetting("audio.sfxOn", s_sfxOn)
         ApplySfxVolumes()
+
+        -- If disabling SFX, stop any currently playing sounds immediately
+        if (not s_sfxOn) and AudioComponent and AudioComponent.terminate then
+            AudioComponent.terminate(birdJumpSound)
+            AudioComponent.terminate(hitSound)
+            AudioComponent.terminate(coinSound)
+            AudioComponent.terminate(gameOverSound)
+        end
     end
 
     if UI.was_slider_changed("fb_sfx_vol") then
@@ -890,7 +909,7 @@ local function DrawCustomiseMenu_C(windowW, windowH)
     local panelX = math.floor((windowW - panelW) / 2)
     local panelY = math.floor((windowH - panelH) / 2)
 
-    UI.add_panel(panelX, panelY, panelW, panelH, 0.72, 24, 60, 140, 190)
+    UI.add_panel(panelX, panelY, panelW, panelH, 0.80, 26, 245, 225, 170)
 
     local cx = windowW / 2
     UI.add_centered_label(cx, panelY + 24, "CUSTOMISE", "ImGuiDefaultBold", 1.9)
@@ -949,11 +968,13 @@ local function DrawCustomiseMenu_C(windowW, windowH)
         if equipped then
             btnText = "Selected"
             canPress = false
-            br, bg, bb, ba = 120, 120, 120, 0.65
+            -- Selected should be positive/green
+            br, bg, bb, ba = 70, 200, 120, 0.92
         elseif owned then
             btnText = "Equip"
             canPress = true
-            br, bg, bb, ba = 70, 200, 120, 0.92
+            -- Equip should be neutral/grey
+            br, bg, bb, ba = 160, 160, 160, 0.85
         else
             btnText = "Buy"
             canPress = (bankCoins or 0) >= (item.price or 0)
