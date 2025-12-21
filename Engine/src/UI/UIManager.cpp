@@ -151,6 +151,44 @@ namespace IonixEngine
 		AddChildToPanel(element);
 	}
 
+
+	void UIManager::AddCheckboxStyled(int x, int y, float xSize, float ySize,
+		const char* text, const char* id, bool defaultValue,
+		const std::string& fontName, float fontScale,
+		float sizePx, float rounding, bool useColors,
+		ImVec4 onBg, ImVec4 offBg, ImVec4 check)
+	{
+		UIElement* element = new UIElement{};
+		element->type = UIType::Checkbox;
+		element->xPos = x;
+		element->yPos = y;
+		element->xSize = xSize;
+		element->ySize = ySize;
+
+		element->ownedText = (text ? text : "");
+		element->text = element->ownedText.c_str();
+
+		element->fontName = fontName;
+		element->fontScale = fontScale;
+
+		element->widgetId = (id && id[0]) ? id : element->ownedText;
+		element->defaultValue = defaultValue;
+
+		// only set default once
+		if (m_checkboxValues.find(element->widgetId) == m_checkboxValues.end())
+			m_checkboxValues[element->widgetId] = defaultValue;
+
+		element->checkboxCustomStyle = true;
+		element->checkboxSizePx = sizePx;
+		element->checkboxRounding = rounding;
+		element->checkboxUseColors = useColors;
+		element->checkboxOnBg = onBg;
+		element->checkboxOffBg = offBg;
+		element->checkboxCheck = check;
+
+		AddChildToPanel(element);
+	}
+
 	bool UIManager::GetCheckbox(const std::string& id) const
 	{
 		auto it = m_checkboxValues.find(id);
@@ -723,6 +761,83 @@ namespace IonixEngine
 
 			bool& v = m_checkboxValues[element->widgetId];
 
+			// Styled checkbox (drawn manually so Lua can control size/rounding/colors)
+			if (element->checkboxCustomStyle)
+			{
+				const float x = (float)element->xPos;
+				const float y = (float)element->yPos;
+
+				ImGui::SetCursorPos(ImVec2(x, y));
+
+				const float size = (element->checkboxSizePx > 0.0f)
+					? element->checkboxSizePx
+					: ImGui::GetFrameHeight();
+
+				std::string btnId = "##" + element->widgetId;
+				ImVec2 p0 = ImGui::GetCursorScreenPos();
+
+				const bool clicked = ImGui::InvisibleButton(btnId.c_str(), ImVec2(size, size));
+				const bool hovered = ImGui::IsItemHovered();
+
+				if (clicked)
+				{
+					v = !v;
+					m_checkboxChanged[element->widgetId] = true;
+				}
+
+				ImDrawList* dl = ImGui::GetWindowDrawList();
+
+				const float rounding = (element->checkboxRounding >= 0.0f)
+					? element->checkboxRounding
+					: ImGui::GetStyle().FrameRounding;
+
+				ImVec4 bg = v ? element->checkboxOnBg : element->checkboxOffBg;
+				if (!element->checkboxUseColors)
+				{
+					bg = ImGui::GetStyleColorVec4(v ? ImGuiCol_FrameBgActive : ImGuiCol_FrameBg);
+				}
+				else if (hovered)
+				{
+					// subtle brighten on hover
+					bg.x = std::min(bg.x + 0.05f, 1.0f);
+					bg.y = std::min(bg.y + 0.05f, 1.0f);
+					bg.z = std::min(bg.z + 0.05f, 1.0f);
+				}
+
+				ImU32 colBg = ImGui::ColorConvertFloat4ToU32(bg);
+				ImU32 colBorder = ImGui::GetColorU32(ImGuiCol_Border);
+
+				ImVec2 p1(p0.x + size, p0.y + size);
+				dl->AddRectFilled(p0, p1, colBg, rounding);
+				dl->AddRect(p0, p1, colBorder, rounding);
+
+				if (v)
+				{
+					ImVec4 ck = element->checkboxUseColors ? element->checkboxCheck : ImGui::GetStyleColorVec4(ImGuiCol_CheckMark);
+					ImU32 colCk = ImGui::ColorConvertFloat4ToU32(ck);
+
+					const float pad = size * 0.22f;
+					const float thick = std::max(2.0f, size * 0.12f);
+
+					ImVec2 a(p0.x + pad, p0.y + size * 0.55f);
+					ImVec2 b(p0.x + size * 0.44f, p0.y + size - pad);
+					ImVec2 c(p0.x + size - pad, p0.y + pad);
+
+					dl->AddLine(a, b, colCk, thick);
+					dl->AddLine(b, c, colCk, thick);
+				}
+
+				// Label (drawn separately so we can keep absolute positioning)
+				if (!element->ownedText.empty())
+				{
+					ImGui::SetCursorPos(ImVec2(x + size + 10.0f, y + (size - ImGui::GetTextLineHeight()) * 0.5f));
+					ImGui::TextUnformatted(element->ownedText.c_str());
+				}
+
+				break;
+			}
+
+			// Default ImGui checkbox
 			std::string imguiLabel = element->ownedText + "##" + element->widgetId;
 
 			bool changed = m_ui->DrawCheckbox(imguiLabel.c_str(), &v, element->xPos, element->yPos);
@@ -732,8 +847,6 @@ namespace IonixEngine
 
 			break;
 		}
-
-
 		case UIType::Slider:
 		{
 			if (element->widgetId.empty())

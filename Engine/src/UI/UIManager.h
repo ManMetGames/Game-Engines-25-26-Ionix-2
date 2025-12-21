@@ -68,6 +68,15 @@ namespace IonixEngine
 		ImVec4 sliderTrack = ImVec4(0, 0, 0, 0);
 		ImVec4 sliderGrab = ImVec4(0, 0, 0, 0);
 
+
+		// Checkbox (styled) specific
+		bool  checkboxCustomStyle = false;
+		float checkboxSizePx = 0.0f;     // 0 = default
+		float checkboxRounding = -1.0f;  // -1 = default
+		bool  checkboxUseColors = false;
+		ImVec4 checkboxOnBg = ImVec4(0, 0, 0, 0);
+		ImVec4 checkboxOffBg = ImVec4(0, 0, 0, 0);
+		ImVec4 checkboxCheck = ImVec4(0, 0, 0, 0);
 		// InputText specific
 		char* inputBuffer = nullptr;
 		size_t inputBufferSize = 0;
@@ -237,6 +246,13 @@ namespace IonixEngine
 		void AddCheckbox(int x, int y, float xSize, float ySize, const char* text, const char* id, bool defaultValue = false,
 			const std::string& fontName = "", float fontScale = 1.0f);
 
+
+		void AddCheckboxStyled(int x, int y, float xSize, float ySize,
+			const char* text, const char* id, bool defaultValue = false,
+			const std::string& fontName = "", float fontScale = 1.0f,
+			float sizePx = 0.0f, float rounding = -1.0f,
+			bool useColors = false,
+			ImVec4 onBg = ImVec4(0, 0, 0, 0), ImVec4 offBg = ImVec4(0, 0, 0, 0), ImVec4 check = ImVec4(0, 0, 0, 0));
 
 		void AddSlider(int x, int y, float width,
 			const char* label, const char* id,
