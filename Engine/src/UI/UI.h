@@ -10,7 +10,7 @@ namespace IonixEngine
     class UI
     {
     public:
-        void DrawLabel(const char* text, int xpos, int ypos, int xsize, int ysize);
+        void DrawLabel(const char* text, int xpos, int ypos, int xsize, int ysize, float wrapWidth = 0.0f);
         bool DrawButton(char* text, int xsize, int ysize, int xpos, int ypos);
         bool DrawSlider(const char* label, float* value, float width,
             int xpos, int ypos, float minval, float maxval,

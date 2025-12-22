@@ -14,17 +14,19 @@ namespace IonixEngine {
     void UIScripting::Init(sol::state& lua)
     {
         auto AddLabel = [](const int x, int y, float xSize, float ySize, const char* text, sol::optional<std::string> fontName,
-            sol::optional<float> fontScale) {
+            sol::optional<float> fontScale, sol::optional<float> wrapWidth) {
                 Application::Get().layerUI->m_UIManager->AddLabel(x, y, xSize, ySize, text,
                     fontName.value_or(""),
-                    fontScale.value_or(1.0f));
+                    fontScale.value_or(1.0f),
+                    wrapWidth.value_or(0.0f));
             };
 
         auto AddCenteredLabel = [](float centerX, float y, const char* text, sol::optional<std::string> fontName,
-            sol::optional<float> fontScale) {
+            sol::optional<float> fontScale, sol::optional<float> wrapWidth) {
                 Application::Get().layerUI->m_UIManager->AddCenteredLabel(centerX, y, text,
                     fontName.value_or(""),
-                    fontScale.value_or(1.0f));
+                    fontScale.value_or(1.0f),
+                    wrapWidth.value_or(0.0f));
             };
 
 
@@ -32,7 +34,7 @@ namespace IonixEngine {
         auto AddLabelColored = [](const int x, int y, float xSize, float ySize, const char* text,
             sol::table color,
             sol::optional<std::string> fontName,
-            sol::optional<float> fontScale)
+            sol::optional<float> fontScale, sol::optional<float> wrapWidth)
             {
                 auto norm = [](float v) -> float { return (v > 1.0f) ? (v / 255.0f) : v; };
 
@@ -51,14 +53,15 @@ namespace IonixEngine {
                     x, y, xSize, ySize, text,
                     r, g, b, a,
                     fontName.value_or(""),
-                    fontScale.value_or(1.0f)
+                    fontScale.value_or(1.0f),
+                    wrapWidth.value_or(0.0f)
                 );
             };
 
         auto AddCenteredLabelColored = [](float centerX, float y, const char* text,
             sol::table color,
             sol::optional<std::string> fontName,
-            sol::optional<float> fontScale)
+            sol::optional<float> fontScale, sol::optional<float> wrapWidth)
             {
                 auto norm = [](float v) -> float { return (v > 1.0f) ? (v / 255.0f) : v; };
 
@@ -77,7 +80,8 @@ namespace IonixEngine {
                     centerX, y, text,
                     r, g, b, a,
                     fontName.value_or(""),
-                    fontScale.value_or(1.0f)
+                    fontScale.value_or(1.0f),
+                    wrapWidth.value_or(0.0f)
                 );
             };
 

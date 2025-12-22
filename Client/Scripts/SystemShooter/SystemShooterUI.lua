@@ -242,12 +242,11 @@ if not isUpgradeMenuOpen then return end
         descText = descText .. "\n" .. string.format("Damage x%s", tostring(mult))
       end
 
-      local lines = splitLines(descText)
-      local baseY = 95
-      local lineGap = 22
-      for li, txt in ipairs(lines) do
-        UI.add_centered_label(cx, baseY + (li-1)*lineGap, txt, TS_UI.FONT_SUB, 1)
-      end
+      local pad = 20
+      local wrapW = cardW - pad*2
+      local descY = 95
+
+      UI.add_centered_label(cx, descY, descText, TS_UI.FONT_SUB, 1.0, wrapW)
 
       local chooseW, chooseH = math.min(180, math.floor(cardW * 0.55)), 44
       local chooseX = (cardW - chooseW) / 2

@@ -10,7 +10,7 @@ void UIManager::AddChildToPanel(UIElement* element)
 	elements.push_back(element);
 }
 
-void UIManager::AddLabel(int x, int y, float xSize, float ySize, const char* text, const std::string& fontName, float fontScale)
+void UIManager::AddLabel(int x, int y, float xSize, float ySize, const char* text, const std::string& fontName, float fontScale, float wrapWidth)
 {
 	UIElement* element = new UIElement;
 	element->type = UIType::Label;
@@ -22,10 +22,12 @@ void UIManager::AddLabel(int x, int y, float xSize, float ySize, const char* tex
 	element->text = element->ownedText.c_str();
 	element->fontName = fontName;
 	element->fontScale = fontScale;
+	element->wrapWidth = wrapWidth;
+
 	AddChildToPanel(element);
 }
 
-void UIManager::AddCenteredLabel(float centerX, float y, const char* text, const std::string& fontName, float fontScale)
+void UIManager::AddCenteredLabel(float centerX, float y, const char* text, const std::string& fontName, float fontScale, float wrapWidth)
 {
 	UIElement* element = new UIElement{};
 	element->type = UIType::Label;
@@ -35,6 +37,7 @@ void UIManager::AddCenteredLabel(float centerX, float y, const char* text, const
 
 	element->fontName = fontName;
 	element->fontScale = fontScale;
+	element->wrapWidth = wrapWidth;
 
 	element->ownedText = (text ? text : "");
 	element->text = element->ownedText.c_str();
@@ -44,7 +47,7 @@ void UIManager::AddCenteredLabel(float centerX, float y, const char* text, const
 
 void UIManager::AddLabelColored(int x, int y, float xSize, float ySize, const char* text,
 	float r, float g, float b, float a,
-	const std::string& fontName, float fontScale)
+	const std::string& fontName, float fontScale, float wrapWidth)
 {
 	UIElement* element = new UIElement;
 	element->type = UIType::Label;
@@ -58,6 +61,7 @@ void UIManager::AddLabelColored(int x, int y, float xSize, float ySize, const ch
 
 	element->fontName = fontName;
 	element->fontScale = fontScale;
+	element->wrapWidth = wrapWidth;
 
 	element->hasTextColor = true;
 	element->textColor = ImVec4(r, g, b, a);
@@ -67,7 +71,7 @@ void UIManager::AddLabelColored(int x, int y, float xSize, float ySize, const ch
 
 void UIManager::AddCenteredLabelColored(float centerX, float y, const char* text,
 	float r, float g, float b, float a,
-	const std::string& fontName, float fontScale)
+	const std::string& fontName, float fontScale, float wrapWidth)
 {
 	UIElement* element = new UIElement{};
 	element->type = UIType::Label;
@@ -77,6 +81,7 @@ void UIManager::AddCenteredLabelColored(float centerX, float y, const char* text
 
 	element->fontName = fontName;
 	element->fontScale = fontScale;
+	element->wrapWidth = wrapWidth;
 
 	element->ownedText = (text ? text : "");
 	element->text = element->ownedText.c_str();
@@ -693,9 +698,13 @@ void UIManager::RenderElement(UIElement* element)
 
 		if (element->centerAligned)
 		{
-			// This runs during rendering, with the correct font pushed already
-			float w = ImGui::CalcTextSize(element->text).x;
-			x = element->centerX - (w * 0.5f);
+			if (element->wrapWidth > 0.0f) {
+				x = element->centerX - (element->wrapWidth * 0.5f);
+			}
+			else {
+				float w = ImGui::CalcTextSize(element->text).x;
+				x = element->centerX - (w * 0.5f);
+			}
 		}
 
 		bool pushedTextColor = false;
@@ -705,11 +714,12 @@ void UIManager::RenderElement(UIElement* element)
 			pushedTextColor = true;
 		}
 
-		m_ui->DrawLabel(element->text, element->xSize, element->ySize, (int)x, element->yPos);
+		m_ui->DrawLabel(element->text, element->xSize, element->ySize, (int)x, element->yPos, element->wrapWidth);
 
 		if (pushedTextColor) ImGui::PopStyleColor();
 		break;
 	}
+
 	case UIType::Button:
 	{
 		// Make ImGui id unique: "Visible##id"
