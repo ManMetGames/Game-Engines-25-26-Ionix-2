@@ -52,7 +52,7 @@ namespace IonixEngine
         return name;
     }
 
-    void FirebaseLeaderboard::SubmitScore(const std::string& name, int score)
+    void FirebaseLeaderboard::SubmitScore(const std::string& gameId, const std::string& name, int score)
     {
         if (!g_db) {
             std::cout << "Database not initialized!\n";
@@ -60,8 +60,9 @@ namespace IonixEngine
         }
 
         const std::string key = MakeNameKey(name);
+        auto path = std::string("leaderboards/") + gameId;
         firebase::database::DatabaseReference player_ref =
-            g_db->GetReference("leaderboard").Child(key.c_str());
+            g_db->GetReference(path.c_str()).Child(key.c_str());
 
         // Transaction: read existing score, only replace if score is higher.
         auto future = player_ref.RunTransaction([name, score](firebase::database::MutableData* data) {
@@ -99,13 +100,14 @@ namespace IonixEngine
 
 
     std::vector<FirebaseLeaderboard::LeaderboardEntry>
-        FirebaseLeaderboard::GetTopScores(int count)
+        FirebaseLeaderboard::GetTopScores(const std::string& gameId, int count)
     {
         std::vector<LeaderboardEntry> top_scores;
 
         if (!g_db) return top_scores;
 
-        auto leaderboard_ref = g_db->GetReference("leaderboard");
+        auto path = std::string("leaderboards/") + gameId;
+        auto leaderboard_ref = g_db->GetReference(path.c_str());
         auto query = leaderboard_ref.OrderByChild("score").LimitToLast(count);
         auto result = query.GetValue();
 
