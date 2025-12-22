@@ -131,7 +131,7 @@ function ExampleScript:OnUpdate()
             local py = Mafs.get_vec_y(pos)
             
             local distance = 40
-            Hitbox.spawn(player1, px + dirX * distance, py + dirY * distance, 20, 20, 0.3, assets, enums)
+            local hb = Hitbox.spawn(player1, px + dirX * distance, py + dirY * distance, 20, 20, 0.3, assets, enums)
             hb.dirX = dirX
             hb.dirY = dirY
         end
