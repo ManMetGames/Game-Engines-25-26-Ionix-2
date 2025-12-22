@@ -513,8 +513,8 @@ local function ApplyAudioVolumes()
     -- SFX (scale your existing base volumes)
     local sfxMul = masterVol * sfxVol
     if playerDamageSfxEntity then AudioComponent.change_volume(playerDamageSfxEntity, math.floor(48 * sfxMul + 0.5)) end
-    if gunshot3SfxEntity     then AudioComponent.change_volume(gunshot3SfxEntity,     math.floor( 4 * sfxMul + 0.5)) end
-    if impact3SfxEntity      then AudioComponent.change_volume(impact3SfxEntity,      math.floor(16 * sfxMul + 0.5)) end
+    if gunshot3SfxEntity     then AudioComponent.change_volume(gunshot3SfxEntity,     math.floor(32 * sfxMul + 0.5)) end
+    if impact3SfxEntity      then AudioComponent.change_volume(impact3SfxEntity,      math.floor(32 * sfxMul + 0.5)) end
 end
 
 
@@ -815,8 +815,6 @@ function SystemShooter:OnStart()
                 local color = enemy.color or {255, 255, 255}
                 ParticleSystem.emitHitBurst(enemyCenterX, enemyCenterY, color[1], color[2], color[3])
                 if impact3SfxEntity then
-                    local v = math.random(12, 20)
-                    AudioComponent.change_volume(impact3SfxEntity, v)
                     AudioComponent.play(impact3SfxEntity)
                 end
             end,

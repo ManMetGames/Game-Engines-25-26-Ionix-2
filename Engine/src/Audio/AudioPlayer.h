@@ -41,9 +41,14 @@ namespace IonixEngine
                 return;
             }
 
-            // Apply volume to the chunk BEFORE playing to prevent issues
+            // Calculate target volume
             int vol = mute ? 0 : static_cast<int>(volume);
-            Mix_VolumeChunk(chunk, vol);
+            
+            // Don't play if volume is 0
+            if (vol <= 0)
+            {
+                return;
+            }
 
             // Choose fade in or instant start
             if (fadeMilliseconds > 0)
@@ -55,7 +60,7 @@ namespace IonixEngine
                 m_Channel = Mix_PlayChannel(-1, chunk, numOfLoops);
             }
 
-            // Also apply volume to the channel as backup
+            // Apply volume to the channel
             if (m_Channel != -1)
             {
                 Mix_Volume(m_Channel, vol);
@@ -72,18 +77,7 @@ namespace IonixEngine
         {
             volume = vol;
             
-            // Update the chunk volume if we have a clip loaded
-            if (!clip.empty())
-            {
-                Mix_Chunk* chunk = SoundManager::GetInstance().GetAudio(clip);
-                if (chunk != nullptr)
-                {
-                    int v = mute ? 0 : static_cast<int>(volume);
-                    Mix_VolumeChunk(chunk, v);
-                }
-            }
-            
-            // Also update the channel if currently playing
+            // Update the channel volume if currently playing
             if (m_Channel != -1 && !mute)
             {
                 Mix_Volume(m_Channel, static_cast<int>(volume));
