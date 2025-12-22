@@ -741,6 +741,18 @@ end
 
 
 local function OnLevelTimeout()
+    -- Increment timeout counter
+    local currentTimeouts = SystemShooterPlayerProgress.incrementTimeoutCount()
+    local maxTimeouts = SystemShooterPlayerProgress.getMaxTimeouts()
+    
+    -- Check if we've reached the timeout limit
+    if currentTimeouts >= maxTimeouts then
+        -- Set player HP to 0 (this will trigger game over)
+        SystemShooterPlayer.setHealth(0)
+        return
+    end
+    
+    -- Otherwise, proceed with normal timeout behavior (reduce enemy health and rewind)
     local cfg = SystemShooterLevels.getLevelConfig(currentLevel)
     if cfg then
         if cfg.enemies then
@@ -2030,6 +2042,11 @@ if levelCfg.timeLimitSeconds ~= nil and levelCfg.timeLimitSeconds > 0 then
     end
 
     UI.add_centered_label(screenW / 2, 10, T("gameplay.stage") .. tostring(currentLevel), UI_FONT_REG)
+    
+    -- Display timeout counter
+    local timeoutCount = SystemShooterPlayerProgress.getTimeoutCount()
+    local maxTimeouts = SystemShooterPlayerProgress.getMaxTimeouts()
+    UI.add_centered_label(screenW / 2, 30, "Timeouts: " .. tostring(timeoutCount) .. " / " .. tostring(maxTimeouts), UI_FONT_REG)
 
     local playerHpBarX = screenW - 220
     local playerHpBarY = 20

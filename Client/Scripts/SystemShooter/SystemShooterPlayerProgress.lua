@@ -82,6 +82,9 @@ local playerStats = {
     maxHealth = 100,
 }
 
+local timeoutCount = 0
+local MAX_TIMEOUTS = 5
+
 --=====================================================================
 --  FIREPOWER SHOT PATTERNS (chronological by firepower value)
 --=====================================================================
@@ -306,11 +309,25 @@ function SystemShooterPlayerProgress.getStats()
     return playerStats
 end
 
+function SystemShooterPlayerProgress.getTimeoutCount()
+    return timeoutCount
+end
+
+function SystemShooterPlayerProgress.getMaxTimeouts()
+    return MAX_TIMEOUTS
+end
+
+function SystemShooterPlayerProgress.incrementTimeoutCount()
+    timeoutCount = timeoutCount + 1
+    return timeoutCount
+end
+
 function SystemShooterPlayerProgress.reset()
     playerLevel = 1
     xp = 0
     xpToNextLevel = 100
     pendingLevelUp = false
+    timeoutCount = 0
     
     playerStats.firepower = 1
     playerStats.pierceCount = 0
