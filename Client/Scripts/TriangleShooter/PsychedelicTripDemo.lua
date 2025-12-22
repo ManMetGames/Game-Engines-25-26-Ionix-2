@@ -1,4 +1,4 @@
-local ParticleSystem = require("Scripts.SystemShooter.ParticleSystem")
+local ParticleSystem = require("Scripts.TriangleShooter.ParticleSystem")
 
 local PsychedelicTripDemo = {}
 

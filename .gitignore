@@ -77,8 +77,6 @@ Client/*
 !Client/Scripts/*.lua
 !Client/Assets/
 !Client/Assets/*.png
-!Client/Fonts/
-
 Client/Scripts/Settings.lua
 
 # --- Firebase C++ SDK (track only what we need) ---

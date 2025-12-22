@@ -1,6 +1,5 @@
 #include "Scripting/Window/WindowScripting.h"
 #include "Architecture/Application.h"
-#include <SDL.h>
 
 namespace IonixEngine {
     WindowScripting* WindowScripting::s_Instance = nullptr;
@@ -68,18 +67,6 @@ namespace IonixEngine {
             return 1080;
             };
 
-        auto quitWindow = []() {
-            Window& window = Application::Get().GetWindow();
-
-            // Simulate clicking the window X button
-            SDL_Event e{};
-            e.type = SDL_WINDOWEVENT;
-            e.window.event = SDL_WINDOWEVENT_CLOSE;
-            e.window.windowID = SDL_GetWindowID(window.m_Window);
-            SDL_PushEvent(&e);
-            };
-
-
         lua["Window"] = lua.create_table_with(
             "get_title", getWindowTitle,
             "get_width", getWindowWidth,
@@ -89,9 +76,7 @@ namespace IonixEngine {
             "set_pos", setWindowPos,
             "get_pos", getWindowPos,
             "get_display_width", getDisplayWidth,
-            "get_display_height", getDisplayHeight,
-            "quit", quitWindow
-
+            "get_display_height", getDisplayHeight
         );
     }
 }

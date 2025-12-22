@@ -30,5 +30,6 @@ namespace IonixEngine
         UI* GetUI() { return m_UI; }
 
         UIManager* m_UIManager;
+        Fontloader* m_FontLoader;
     };
 }

@@ -21,14 +21,14 @@ namespace IonixEngine
     public:
         static void Init();
 
-        static void SubmitScore(const std::string& gameId, const std::string& name, int score);
+        static void SubmitScore(const std::string& name, int score);
 
         struct LeaderboardEntry {
             std::string name;
             int score;
         };
 
-        std::vector<LeaderboardEntry> GetTopScores(const std::string& gameId, int count);
+        std::vector<LeaderboardEntry> GetTopScores(int count);
 
     };
 };

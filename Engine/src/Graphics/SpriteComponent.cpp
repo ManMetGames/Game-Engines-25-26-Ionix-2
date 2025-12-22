@@ -107,8 +107,7 @@ namespace IonixEngine {
 			position.x = pos.x;
 			position.y = pos.y;
 			angleDegrees = angleRadians * (180.0 / 3.14159265358979323846);
-		}
-		else {
+		} else {
 			// Transform rotation is in degrees
 		}
 		angleDegrees = entity->transform.GetGlobalRotation();
@@ -129,7 +128,7 @@ namespace IonixEngine {
 			static_cast<Uint8>(255),
 			spriteAngle,
 			renderLayer
-			});
+		});
 
 
 		//This is just here so we can see the animation play at a normal speed
@@ -211,24 +210,6 @@ namespace IonixEngine {
 		setAnimation(iRows, iCols, iSpriteWidth, iSpriteHeight);
 	}
 
-	void SpriteComponent::setTexture(uint32_t hash)
-	{
-		SDL_Texture* newTex = IonixEngine::TextureManager::Get().GetTexture(hash).GetTexture();
-		if (!newTex) {
-			std::cout << "[SpriteComponent] setTexture failed: missing texture hash " << hash << std::endl;
-			return;
-		}
-
-		texture = newTex;
-		SDL_QueryTexture(texture, NULL, NULL, &size.x, &size.y);
-
-		// Keep current rows/cols, but refresh frame sizing from the new texture.
-		RecalcFrameSize();
-		calculateTotalFrames();
-		initialiseSpritesheet();
-	}
-
-
 	void SpriteComponent::initialiseSpritesheet()
 	{
 		switch (playbackMode) {
@@ -266,14 +247,14 @@ namespace IonixEngine {
 	void SpriteComponent::setEndFrame(int x) { endFrame = x; }
 	void SpriteComponent::setPlaybackMode(enum playbackOptions x) { playbackMode = x; }
 	void SpriteComponent::setCurrentFrame(int x) { if (!(x > totalFrames)) { currentFrame = x; } }
-	void SpriteComponent::setRows(int x)
+	void SpriteComponent::setRows(int x) 
 	{
 		rows = x;
 		RecalcFrameSize();
 		calculateTotalFrames();
 		initialiseSpritesheet();
 	}
-	void SpriteComponent::setCols(int x)
+	void SpriteComponent::setCols(int x) 
 	{
 		cols = x;
 		RecalcFrameSize();
@@ -293,7 +274,7 @@ namespace IonixEngine {
 	void SpriteComponent::setZedOrder(int x) { zOrder = x; }
 	void SpriteComponent::setWidth(int x) { width = x; }
 	void SpriteComponent::setHeight(int x) { height = x; }
-	void SpriteComponent::setAngle(float angle) { spriteAngle = angle; }
+	void SpriteComponent::setAngle(float angle){ spriteAngle = angle; }
 	void SpriteComponent::setTickRate(float x) { tickRate = x; }
 
 	void SpriteComponent::setBoxColliderSize(b2Vec2 newSize) { boxColliderSize = newSize; }

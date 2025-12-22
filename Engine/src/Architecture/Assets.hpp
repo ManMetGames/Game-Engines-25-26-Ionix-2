@@ -8,7 +8,6 @@ struct Textures {
     uint32_t Apple = 3562895354u;
     uint32_t Back = 679751378u;
     uint32_t Background = 2667361274u;
-    uint32_t Background_Forest = 177688696u;
     uint32_t Bananas = 280088504u;
     uint32_t Blink__42x42_ = 4197074976u;
     uint32_t Blink__54x52_ = 2510351194u;
@@ -49,8 +48,6 @@ struct Textures {
     uint32_t FlappyBird = 2136167952u;
     uint32_t FlappyPipe = 1290161702u;
     uint32_t FlappyPipe2 = 2484853856u;
-    uint32_t FlappyPurple = 4063090336u;
-    uint32_t FloorMask = 3391567730u;
     uint32_t Ghast_Tear = 3650266058u;
     uint32_t Gray = 220346788u;
     uint32_t Green = 1896123910u;
@@ -138,7 +135,6 @@ struct Textures {
     uint32_t Top_Hit__42x42_ = 230122424u;
     uint32_t Top_Hit__54x52_ = 1240705420u;
     uint32_t Transition = 1219866090u;
-    uint32_t Transparent = 43703720u;
     uint32_t Triangle = 801038052u;
     uint32_t Volume = 260271804u;
     uint32_t Wall_Jump__32x32_ = 3987263338u;
@@ -211,7 +207,6 @@ struct Textures {
         map["Apple"] = "./Assets/Jimmy Demo/Items/Fruits/Apple.png";
         map["Back"] = "./Assets/Jimmy Demo/Menu/Buttons/Back.png";
         map["Background"] = "./Assets/Background.png";
-        map["Background_Forest"] = "./Assets/Background_Forest.png";
         map["Bananas"] = "./Assets/Jimmy Demo/Items/Fruits/Bananas.png";
         map["Blink__42x42_"] = "./Assets/Jimmy Demo/Traps/Rock Head/Blink (42x42).png";
         map["Blink__54x52_"] = "./Assets/Jimmy Demo/Traps/Spike Head/Blink (54x52).png";
@@ -252,8 +247,6 @@ struct Textures {
         map["FlappyBird"] = "./Assets/FlappyBird.png";
         map["FlappyPipe"] = "./Assets/FlappyPipe.png";
         map["FlappyPipe2"] = "./Assets/FlappyPipe2.png";
-        map["FlappyPurple"] = "./Assets/FlappyPurple.png";
-        map["FloorMask"] = "./Assets/FloorMask.png";
         map["Ghast_Tear"] = "./Assets/Ghast_Tear.png";
         map["Gray"] = "./Assets/Jimmy Demo/Background/Gray.png";
         map["Green"] = "./Assets/Jimmy Demo/Background/Green.png";
@@ -341,7 +334,6 @@ struct Textures {
         map["Top_Hit__42x42_"] = "./Assets/Jimmy Demo/Traps/Rock Head/Top Hit (42x42).png";
         map["Top_Hit__54x52_"] = "./Assets/Jimmy Demo/Traps/Spike Head/Top Hit (54x52).png";
         map["Transition"] = "./Assets/Jimmy Demo/Other/Transition.png";
-        map["Transparent"] = "./Assets/Transparent.png";
         map["Triangle"] = "./Assets/Triangle.png";
         map["Volume"] = "./Assets/Jimmy Demo/Menu/Buttons/Volume.png";
         map["Wall_Jump__32x32_"] = "./Assets/Jimmy Demo/Main Characters/Mask Dude/Wall Jump (32x32).png";
@@ -411,10 +403,6 @@ struct Textures {
 };
 
 struct Sounds {
-    uint32_t Hit = 2134794416u;
-    uint32_t Jump = 3884640712u;
-    uint32_t coin = 1941127746u;
-    uint32_t gameOver = 3624654154u;
     uint32_t gunshot1 = 1107995564u;
     uint32_t gunshot2 = 1286261536u;
     uint32_t gunshot3 = 3098717796u;
@@ -426,10 +414,6 @@ struct Sounds {
 
     inline std::map<std::string, std::string> GetSounds() {
         std::map<std::string, std::string> map;
-        map["Hit"] = "./Assets/FlappyBird Audio/Hit.wav";
-        map["Jump"] = "./Assets/FlappyBird Audio/Jump.mp3";
-        map["coin"] = "./Assets/FlappyBird Audio/coin.mp3";
-        map["gameOver"] = "./Assets/FlappyBird Audio/gameOver.wav";
         map["gunshot1"] = "./Assets/Audio/gunshot1.mp3";
         map["gunshot2"] = "./Assets/Audio/gunshot2.mp3";
         map["gunshot3"] = "./Assets/Audio/gunshot3.mp3";
