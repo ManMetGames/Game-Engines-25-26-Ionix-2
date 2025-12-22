@@ -46,6 +46,34 @@ namespace SoLoud
 		if (mParent->mData == NULL)
 			return 0;
 
+		// Check for reverse playback (negative samplerate)
+		if (mSamplerate < 0)
+		{
+			// Reverse playback
+			unsigned int copylen = aSamplesToRead;
+			if (copylen > mOffset)
+				copylen = mOffset;
+			
+			if (copylen == 0)
+				return 0;
+
+			unsigned int i, s;
+			for (i = 0; i < mChannels; i++)
+			{
+				float* src = mParent->mData + i * mParent->mSampleCount;
+				float* dst = aBuffer + i * aBufferSize;
+				// Read samples in reverse order
+				for (s = 0; s < copylen; s++)
+				{
+					dst[s] = src[mOffset - 1 - s];
+				}
+			}
+
+			mOffset -= copylen;
+			return copylen;
+		}
+		
+		// Forward playback (original code)
 		unsigned int dataleft = mParent->mSampleCount - mOffset;
 		unsigned int copylen = dataleft;
 		if (copylen > aSamplesToRead)
@@ -70,9 +98,18 @@ namespace SoLoud
 
 	bool WavInstance::hasEnded()
 	{
-		if (!(mFlags & AudioSourceInstance::LOOPING) && mOffset >= mParent->mSampleCount)
+		if (!(mFlags & AudioSourceInstance::LOOPING))
 		{
-			return 1;
+			// Reverse playback ends when we reach the beginning
+			if (mSamplerate < 0 && mOffset == 0)
+			{
+				return 1;
+			}
+			// Forward playback ends when we reach the end
+			if (mSamplerate >= 0 && mOffset >= mParent->mSampleCount)
+			{
+				return 1;
+			}
 		}
 		return 0;
 	}

@@ -162,7 +162,9 @@ namespace SoLoud
 			}
 			offset = aSeconds;
 		}
-		int samples_to_discard = (int)floor(mSamplerate * offset);
+		// Use absolute value of samplerate to handle reverse playback correctly
+		float absSamplerate = mSamplerate < 0 ? -mSamplerate : mSamplerate;
+		int samples_to_discard = (int)floor(absSamplerate * offset);
 
 		while (samples_to_discard)
 		{

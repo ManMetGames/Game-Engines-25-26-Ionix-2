@@ -32,7 +32,8 @@ namespace SoLoud
 	{
 		SOLOUD_ASSERT(aVoice < VOICE_COUNT);
 		SOLOUD_ASSERT(mInsideAudioThreadMutex);
-		if (aSpeed <= 0.0f)
+		// Allow negative speeds for reverse playback
+		if (aSpeed == 0.0f)
 		{
 			return INVALID_PARAMETER;
 		}

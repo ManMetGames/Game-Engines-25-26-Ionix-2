@@ -937,13 +937,9 @@ namespace SoLoud
 		{
 			int p = pos >> FIXPOINT_FRAC_BITS;
 			int f = pos & FIXPOINT_FRAC_MASK;
-#ifdef _DEBUG
-			if (p >= SAMPLE_GRANULARITY || p < 0)
-			{
-				// This should never actually happen
-				p = SAMPLE_GRANULARITY - 1;
-			}
-#endif
+			// Clamp p for reverse playback (negative step)
+			if (p < 0) p = 0;
+			if (p >= SAMPLE_GRANULARITY) p = SAMPLE_GRANULARITY - 1;
 			float s1 = aSrc1[SAMPLE_GRANULARITY - 1];
 			float s2 = aSrc[p];
 			if (p != 0)
@@ -959,6 +955,9 @@ namespace SoLoud
 		for (i = 0; i < aDstSampleCount; i++, pos += aStepFixed)
 		{
 			int p = pos >> FIXPOINT_FRAC_BITS;
+			// Clamp p for reverse playback (negative step)
+			if (p < 0) p = 0;
+			if (p >= SAMPLE_GRANULARITY) p = SAMPLE_GRANULARITY - 1;
 			aDst[i] = aSrc[p];
 		}
 #endif
@@ -1425,10 +1424,12 @@ namespace SoLoud
 				!(voice->mFlags & AudioSourceInstance::INAUDIBLE))
 			{
 				float step = voice->mSamplerate / aSamplerate;
-				// avoid step overflow
+				// avoid step overflow (positive and negative)
 				if (step > (1 << (32 - FIXPOINT_FRAC_BITS)))
 					step = 0;
-				unsigned int step_fixed = (int)floor(step * FIXPOINT_FRAC_MUL);
+				if (step < -(1 << (32 - FIXPOINT_FRAC_BITS)))
+					step = 0;
+				int step_fixed = (int)floor(step * FIXPOINT_FRAC_MUL);
 				unsigned int outofs = 0;
 			
 				if (voice->mDelaySamples)
@@ -1462,6 +1463,8 @@ namespace SoLoud
 						voice->mResampleData[1] = t;
 
 						// Get a block of source data
+						// Note: For reverse playback (negative samplerate), the audio source
+						// (like WavInstance) is responsible for providing samples in reverse order
 
 						int readcount = 0;
 						if (!voice->hasEnded() || voice->mFlags & AudioSourceInstance::LOOPING)
@@ -1526,14 +1529,21 @@ namespace SoLoud
 					// The value may be zero.
 
 					unsigned int writesamples = 0;
+					
+					// For reverse playback with reversed buffer, use absolute step value
+					int resample_step = step_fixed < 0 ? -step_fixed : step_fixed;
 
-					if (voice->mSrcOffset < SAMPLE_GRANULARITY * FIXPOINT_FRAC_MUL)
+					if (resample_step > 0)
 					{
-						writesamples = ((SAMPLE_GRANULARITY * FIXPOINT_FRAC_MUL) - voice->mSrcOffset) / step_fixed + 1;
+						// Forward playback (or reverse with reversed buffer)
+						if (voice->mSrcOffset < SAMPLE_GRANULARITY * FIXPOINT_FRAC_MUL)
+						{
+							writesamples = ((SAMPLE_GRANULARITY * FIXPOINT_FRAC_MUL) - voice->mSrcOffset) / resample_step + 1;
 
-						// avoid reading past the current buffer..
-						if (((writesamples * step_fixed + voice->mSrcOffset) >> FIXPOINT_FRAC_BITS) >= SAMPLE_GRANULARITY)
-							writesamples--;
+							// avoid reading past the current buffer..
+							if (((writesamples * resample_step + voice->mSrcOffset) >> FIXPOINT_FRAC_BITS) >= SAMPLE_GRANULARITY)
+								writesamples--;
+						}
 					}
 
 
@@ -1545,6 +1555,7 @@ namespace SoLoud
 					}
 
 					// Call resampler to generate the samples, once per channel
+					// Use positive step since buffer is already reversed for reverse playback
 					if (writesamples)
 					{
 						for (j = 0; j < voice->mChannels; j++)
@@ -1556,7 +1567,7 @@ namespace SoLoud
 									 writesamples,
 									 voice->mSamplerate,
 									 aSamplerate,
-									 step_fixed);
+									 resample_step);
 						}
 					}
 
@@ -1564,7 +1575,8 @@ namespace SoLoud
 					outofs += writesamples;
 
 					// Move source pointer onwards (writesamples may be zero)
-					voice->mSrcOffset += writesamples * step_fixed;
+					// Use positive step since we're moving forward through the (possibly reversed) buffer
+					voice->mSrcOffset += writesamples * resample_step;
 				}
 				
 				// Handle panning and channel expansion (and/or shrinking)
@@ -1585,6 +1597,11 @@ namespace SoLoud
 			{
 				// Inaudible but needs ticking. Do minimal work (keep counters up to date and ask audiosource for data)
 				float step = voice->mSamplerate / aSamplerate;
+				// avoid step overflow (positive and negative)
+				if (step > (1 << (32 - FIXPOINT_FRAC_BITS)))
+					step = 0;
+				if (step < -(1 << (32 - FIXPOINT_FRAC_BITS)))
+					step = 0;
 				int step_fixed = (int)floor(step * FIXPOINT_FRAC_MUL);
 				unsigned int outofs = 0;
 
@@ -1653,13 +1670,20 @@ namespace SoLoud
 
 					unsigned int writesamples = 0;
 
-					if (voice->mSrcOffset < SAMPLE_GRANULARITY * FIXPOINT_FRAC_MUL)
-					{
-						writesamples = ((SAMPLE_GRANULARITY * FIXPOINT_FRAC_MUL) - voice->mSrcOffset) / step_fixed + 1;
+					// For reverse playback, use absolute step value
+					int resample_step = step_fixed < 0 ? -step_fixed : step_fixed;
 
-						// avoid reading past the current buffer..
-						if (((writesamples * step_fixed + voice->mSrcOffset) >> FIXPOINT_FRAC_BITS) >= SAMPLE_GRANULARITY)
-							writesamples--;
+					if (resample_step > 0)
+					{
+						// Forward playback (or reverse with reversed buffer)
+						if (voice->mSrcOffset < SAMPLE_GRANULARITY * FIXPOINT_FRAC_MUL)
+						{
+							writesamples = ((SAMPLE_GRANULARITY * FIXPOINT_FRAC_MUL) - voice->mSrcOffset) / resample_step + 1;
+
+							// avoid reading past the current buffer..
+							if (((writesamples * resample_step + voice->mSrcOffset) >> FIXPOINT_FRAC_BITS) >= SAMPLE_GRANULARITY)
+								writesamples--;
+						}
 					}
 
 
@@ -1676,7 +1700,7 @@ namespace SoLoud
 					outofs += writesamples;
 
 					// Move source pointer onwards (writesamples may be zero)
-					voice->mSrcOffset += writesamples * step_fixed;
+					voice->mSrcOffset += writesamples * resample_step;
 				}
 
 				// clear voice if the sound is over
