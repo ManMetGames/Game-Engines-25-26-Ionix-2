@@ -51,11 +51,11 @@ end
 
 local function ApplyLanguageFonts()
     if language == "ja" then
-      UI_FONT_REG   = "ImGuiDefaultJP"
-      UI_FONT_BOLD  = "ImGuiDefaultBoldJP"
-      UI_FONT_SUB = "ImGuiSubJP"
-      UI_FONT_HEADER = "ImGuiHeaderJP"
-      UI_FONT_TITLE = "ImGuiTitleJP"
+      UI_FONT_REG   = "JFDotJP"
+      UI_FONT_BOLD  = "JFDotBoldJP"
+      UI_FONT_SUB = "JFDotSubJP"
+      UI_FONT_HEADER = "JFDotHeaderJP"
+      UI_FONT_TITLE = "JFDotTitleJP"
     else
       UI_FONT_REG   = "ImGuiDefault"
       UI_FONT_BOLD  = "ImGuiDefaultBold"
