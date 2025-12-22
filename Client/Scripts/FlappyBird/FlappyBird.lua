@@ -156,7 +156,8 @@ end
 
 BG_STYLES = {
     bg_classic = { tint = {255, 255, 255}, textureKey = "Background" },
-    bg_night   = { tint = {150, 170, 255}, textureKey = "Background" }, -- night tint
+    bg_night   = { tint = {150, 170, 255}, textureKey = "Background" },
+    bg_plains   ={ tint = {255, 255, 255}, textureKey = "Background_Mountains" }-- night tint
 }
 
 
