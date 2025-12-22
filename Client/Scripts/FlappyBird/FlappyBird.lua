@@ -49,11 +49,11 @@ local function ApplyLanguageFonts()
     local lang_local = language or Localisation.get_language() or "en"
 
     if lang_local == "ja" then
-      UI_FONT_REG   = "ImGuiDefaultJP"
-      UI_FONT_BOLD  = "ImGuiDefaultBoldJP"
-      UI_FONT_SUB = "ImGuiSubJP"
-      UI_FONT_HEADER = "ImGuiHeaderJP"
-      UI_FONT_TITLE = "ImGuiTitleJP"
+      UI_FONT_REG   = "JFDotJP"
+      UI_FONT_BOLD  = "JFDotBoldJP"
+      UI_FONT_SUB = "JFDotSubJP"
+      UI_FONT_HEADER = "JFDotHeaderJP"
+      UI_FONT_TITLE = "JFDotTitleJP"
     else
       UI_FONT_REG   = "ImGuiDefault"
       UI_FONT_BOLD  = "ImGuiDefaultBold"
@@ -1377,7 +1377,7 @@ end
         if topLeaderboard then
             for i, e in ipairs(topLeaderboard) do
                 local line = string.format("%d. %s - %d", i, e.name, e.score)
-                UI.add_label(10, 42 + (i-1)*20, 0, 0, line, "ImGuiDefault", 1.0)
+                UI.add_label(10, 42 + (i-1)*20, 0, 0, line, UI_FONT_REG, 1.0)
             end
         end
 
