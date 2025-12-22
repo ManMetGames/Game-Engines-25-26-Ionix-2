@@ -1,6 +1,10 @@
 local ExampleScript = {}
 local assets = require("Scripts.Assets")
 local enums = require("Scripts.Enums")
+
+-- Raycast coin collection toggle
+local ENABLE_RAYCAST = false
+
 local Background
 local Background2
 local backgroundSprite
@@ -1580,47 +1584,49 @@ end
     ------------------------------
     -----------Raycast------------
     ---------------------------------
-    local playerPos = Entity.get_center_pos(player1)
-    local mousePos = Input.get_mouse_pos()
-    local hit, info = Fysics.raycast(playerPos, mousePos)
-    Fysics.draw_raycast(playerPos, mousePos, false)
-    local hitEntity = Raycast.entity(info)
-    if hit and hitEntity then
-        -- Check if the hit entity is a coin
-        local isCoin = false
-        for _, c in ipairs(coins) do
-            if c == hitEntity then
-                isCoin = true
-                break
-            end
-        end
-        
-        -- Only collect coins via raycast
-        if isCoin and not coinHidden[hitEntity] then
-            Fysics.draw_raycast(playerPos, mousePos, true)
-            
-            -- Hide the coin sprite
-            local s = Entity.get_sprite_component(hitEntity)
-            if s then
-                Sprite.set_width(s, 0)
-                Sprite.set_height(s, 0)
+    if ENABLE_RAYCAST then
+        local playerPos = Entity.get_center_pos(player1)
+        local mousePos = Input.get_mouse_pos()
+        local hit, info = Fysics.raycast(playerPos, mousePos)
+        Fysics.draw_raycast(playerPos, mousePos, false)
+        local hitEntity = Raycast.entity(info)
+        if hit and hitEntity then
+            -- Check if the hit entity is a coin
+            local isCoin = false
+            for _, c in ipairs(coins) do
+                if c == hitEntity then
+                    isCoin = true
+                    break
+                end
             end
             
-            -- Move the coin physics body off-screen
-            Fysics.set_pos(hitEntity, -1000, -1000)
-            Fysics.set_linear_velocity(hitEntity, 0, 0)
-            
-            coinHidden[hitEntity] = true
-            score = score + 1
-            scoreText = T("fb.coins") .. tostring(score)
-            
-            -- Play coin sfx
-            if coinSound then
-                AudioComponent.play(coinSound)
+            -- Only collect coins via raycast
+            if isCoin and not coinHidden[hitEntity] then
+                Fysics.draw_raycast(playerPos, mousePos, true)
+                
+                -- Hide the coin sprite
+                local s = Entity.get_sprite_component(hitEntity)
+                if s then
+                    Sprite.set_width(s, 0)
+                    Sprite.set_height(s, 0)
+                end
+                
+                -- Move the coin physics body off-screen
+                Fysics.set_pos(hitEntity, -1000, -1000)
+                Fysics.set_linear_velocity(hitEntity, 0, 0)
+                
+                coinHidden[hitEntity] = true
+                score = score + 1
+                scoreText = T("fb.coins") .. tostring(score)
+                
+                -- Play coin sfx
+                if coinSound then
+                    AudioComponent.play(coinSound)
+                end
+                
+                -- Show point effect
+                showPointEffect()
             end
-            
-            -- Show point effect
-            showPointEffect()
         end
     end
 
