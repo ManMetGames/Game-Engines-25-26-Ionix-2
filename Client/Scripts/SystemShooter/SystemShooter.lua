@@ -1102,7 +1102,7 @@ local function DrawLeaderboardMenu(screenW, screenH, dt, context)
     local contentH = panelH - contentY - footerH
 
     UI.add_centered_label(cx, math.floor(panelH * 0.05), T("menu.leaderboard"), UI_FONT_TITLE, 1)
-    UI.add_centered_label(cx, math.floor(panelH * 0.13), T("leaderboard.description"), UI_FONT_REG, 1)
+    UI.add_centered_label(cx, math.floor(panelH * 0.15), T("leaderboard.description"), UI_FONT_SUB, 1)
 
     local NO_BACKGROUND = 128
     UI.begin_child(contentX, contentY, contentW, contentH, "TS_LeaderboardContent",
@@ -1128,7 +1128,7 @@ local function DrawLeaderboardMenu(screenW, screenH, dt, context)
             if e then
                 local name = tostring(e.name)
                 local stage = tonumber(e.score) or 0
-                UI.add_label(listX, y, 0, 0, string.format("%2d. %s", i, name), "ImGuiDefault", 1.1)
+                UI.add_label(listX, y, 0, 0, string.format("%2d. %s", i, name), UI_FONT_REG, 1.1)
                 UI.add_label(stageX, y, 0, 0, string.format(T("leaderboard.stage"), stage), UI_FONT_REG, 1.1)
             else
                 UI.add_label(listX, y, 0, 0, string.format("%2d. --", i), "ImGuiDefault", 1.1)
