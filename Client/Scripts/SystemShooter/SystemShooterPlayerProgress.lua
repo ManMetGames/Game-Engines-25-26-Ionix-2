@@ -15,6 +15,7 @@ local UPGRADE_CONFIG = {
         minLevel     = 1,
         maxValue     = 8,
         defaultValue = 1,
+        weight       = 10,  -- Higher weight = more common
     },
     pierce = {
         statKey      = "pierceCount",
@@ -23,6 +24,7 @@ local UPGRADE_CONFIG = {
         minLevel     = 6,
         maxValue     = 2,
         defaultValue = 0,
+        weight       = 5,
     },
     bounce = {
         statKey      = "bounceCount",
@@ -31,6 +33,7 @@ local UPGRADE_CONFIG = {
         minLevel     = 3,
         maxValue     = 1,
         defaultValue = 0,
+        weight       = 5,
     },
     fire_rate = {
         statKey      = "fireRateUpgradeCount",
@@ -40,6 +43,7 @@ local UPGRADE_CONFIG = {
         maxValue     = 3,
         defaultValue = 0,
         customApply  = true,
+        weight       = 8,
     },
     no_witnesses = {
         statKey      = "lowEnemyDamageStacks",
@@ -50,6 +54,7 @@ local UPGRADE_CONFIG = {
         defaultValue = 0,
         damageMultiplier = 2.0,
         fireIntervalDelta = 0.05,
+        weight       = 6,
     },
     max_health = {
         statKey      = "maxHealth",
@@ -59,6 +64,7 @@ local UPGRADE_CONFIG = {
         maxValue     = nil,
         defaultValue = 100,
         increment    = 30,
+        weight       = 7,
     },
 }
 

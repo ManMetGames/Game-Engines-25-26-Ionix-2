@@ -495,13 +495,36 @@ function SystemShooterProjectiles.spawnEnemyProjectile(enemy)
     elseif shootPattern == "cone" and projectileCount <= 4 then
         local spreadAngle = math.rad(15)
         local baseAngle = math.atan(baseDirY, baseDirX)
-        local startAngle = baseAngle - spreadAngle * (projectileCount - 1) / 2
         
-        for i = 1, projectileCount do
-            local angle = startAngle + spreadAngle * (i - 1)
-            local dirX = math.cos(angle)
-            local dirY = math.sin(angle)
-            spawnEnemySingleProjectile(enemy, dirX, dirY)
+        -- For even counts (2, 4), ensure one bullet goes straight at player
+        if projectileCount == 2 or projectileCount == 4 then
+            -- Spawn one bullet straight at player
+            spawnEnemySingleProjectile(enemy, baseDirX, baseDirY)
+            
+            -- Spawn remaining bullets spread around
+            local remaining = projectileCount - 1
+            local halfSpread = spreadAngle * remaining / 2
+            local step = spreadAngle
+            
+            for i = 1, remaining do
+                local offset = -halfSpread + step * (i - 1)
+                -- Skip the center (already spawned)
+                if math.abs(offset) > 0.01 then
+                    local angle = baseAngle + offset
+                    local dirX = math.cos(angle)
+                    local dirY = math.sin(angle)
+                    spawnEnemySingleProjectile(enemy, dirX, dirY)
+                end
+            end
+        else
+            -- Odd counts: use original spread (center bullet is already aimed)
+            local startAngle = baseAngle - spreadAngle * (projectileCount - 1) / 2
+            for i = 1, projectileCount do
+                local angle = startAngle + spreadAngle * (i - 1)
+                local dirX = math.cos(angle)
+                local dirY = math.sin(angle)
+                spawnEnemySingleProjectile(enemy, dirX, dirY)
+            end
         end
         
     else

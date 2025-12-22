@@ -58,15 +58,41 @@ function SystemShooterUI.getRandomUpgradeOptions(count, playerLevel)
     local minLevel = cfg.minLevel or 1
     if playerLevel >= minLevel and SystemShooterPlayerProgress.canTakeUpgrade(upgradeType) then
       local currentValue = stats[cfg.statKey] or cfg.defaultValue or 0
-      table.insert(available, { type = upgradeType, label = cfg.label, desc = cfg.desc, cfg = cfg, currentValue = currentValue })
+      table.insert(available, { 
+        type = upgradeType, 
+        label = cfg.label, 
+        desc = cfg.desc, 
+        cfg = cfg, 
+        currentValue = currentValue,
+        weight = cfg.weight or 1
+      })
     end
   end
 
+  -- Weighted random selection
   local chosen = {}
   for _ = 1, count do
     if #available == 0 then break end
-    local idx = math.random(1, #available)
-    table.insert(chosen, table.remove(available, idx))
+    
+    -- Calculate total weight
+    local totalWeight = 0
+    for _, opt in ipairs(available) do
+      totalWeight = totalWeight + opt.weight
+    end
+    
+    -- Pick weighted random
+    local roll = math.random() * totalWeight
+    local cumulative = 0
+    local selectedIdx = 1
+    for i, opt in ipairs(available) do
+      cumulative = cumulative + opt.weight
+      if roll <= cumulative then
+        selectedIdx = i
+        break
+      end
+    end
+    
+    table.insert(chosen, table.remove(available, selectedIdx))
   end
   return chosen
 end

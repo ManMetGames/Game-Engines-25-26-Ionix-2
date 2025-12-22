@@ -133,6 +133,8 @@ local ENEMY_TEMPLATES = {
                 orbitRadius = radius,
                 orbitSpeed = speed,
                 health = health,
+                shootPattern = "cone",
+                projectileCount = math.random(1, 2),
                 shootInterval = weightedBeatPick(FIRE_RATE_WEIGHTS.standard),
             }
         end,
