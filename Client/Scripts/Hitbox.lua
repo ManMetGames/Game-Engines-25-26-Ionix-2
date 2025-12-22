@@ -14,7 +14,7 @@ function Hitbox.spawn(owner, x, y, width, height, duration, assets, enums)
     
     --Physics
     Entity.add_fysics_component(hitbox, enums.bodytype.kinematicBody, false)
-    Fysics.add_sprite_collider(hitbox, false, 1)
+    Fysics.add_sprite_collider(hitbox, true, 1) -- isTrigger
     
     --Store owner and timer
     hitbox.owner = owner
@@ -31,8 +31,8 @@ function Hitbox.update()
         local hb = hitboxes[i]
         if hb.timer then
             hb.timer = hb.timer - Mafs.delta_time()
+            
             if hb.timer <= 0 then
-                Entity.destroy_entity(hb)
                 table.remove(hitboxes, i)
             end
         end
