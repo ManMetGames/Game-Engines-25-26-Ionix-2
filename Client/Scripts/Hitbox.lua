@@ -16,6 +16,10 @@ function Hitbox.spawn(owner, x, y, width, height, duration, assets, enums)
     Entity.add_fysics_component(hitbox, enums.bodytype.kinematicBody, false)
     Fysics.add_sprite_collider(hitbox, true, 1) -- isTrigger
     
+    --multiHit Prevention 
+    hitbox.hasHit = false
+    hitbox.active = true
+    
     --Store owner and timer
     hitbox.owner = owner
     hitbox.timer = duration or 0.2
@@ -26,17 +30,42 @@ function Hitbox.spawn(owner, x, y, width, height, duration, assets, enums)
     return hitbox
 end
 
-function Hitbox.update()
+function Hitbox.update(player1, player2)
     for i = #hitboxes, 1, -1 do
         local hb = hitboxes[i]
-        if hb.timer then
-            hb.timer = hb.timer - Mafs.delta_time()
+        
+        --Check for hit 
+        if hb.active and not hb.hasHit then 
+            if hb.owner == player1 and Fysics.col(hb, player2) then 
+                Hitbox.onHit(hb, player2)
+            elseif hb.owner == player2 and Fysics.col(hb, player1) then 
+                Hitbox.onHit(hb, player1)
+            end 
+        end    
+        
+        --Timer 
+        hb.timer = hb.timer - Mafs.delta_time()
+        if hb.timer <= 0 then 
+            table.remove(hitboxes, i)
             
-            if hb.timer <= 0 then
-                table.remove(hitboxes, i)
-            end
         end
     end
 end
+
+--What happens on Hit 
+function Hitbox.onHit(hb, target)
+    hb.hasHit = true
+    
+    --Dmg
+    target.health = (target.health or 20) - 1
+    print("Hit! playerhealth: ", target.health)
+    
+    --Knockback when hit 
+    local kb = 8
+    local dirX = 1
+    local dirY = 0
+    
+    Fysics.add_impulse_to_center(target, dirX * kb, dirY * kb)
+end 
 
 return Hitbox

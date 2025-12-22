@@ -133,7 +133,7 @@ function ExampleScript:OnUpdate()
             local distance = 40
             Hitbox.spawn(player1, px + dirX * distance, py + dirY * distance, 20, 20, 0.15, assets, enums)
         end
-    Hitbox.update()
+    Hitbox.update(player1, player2)
     
     
     if Input.get_key_down(Keys.ionix_m) then
