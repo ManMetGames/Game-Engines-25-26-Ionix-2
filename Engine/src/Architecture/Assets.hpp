@@ -39,6 +39,8 @@ struct Textures {
     uint32_t Double_Jump__32x32__1 = 2620560242u;
     uint32_t Double_Jump__32x32__1_2 = 2905950182u;
     uint32_t Double_Jump__32x32__1_2_3 = 541522250u;
+    uint32_t DuckLeft = 367995890u;
+    uint32_t DuckRight = 4029090160u;
     uint32_t Dust_Particle = 3860065720u;
     uint32_t End__Idle_ = 1090496402u;
     uint32_t End__Pressed___64x64_ = 1747199472u;
@@ -95,6 +97,7 @@ struct Textures {
     uint32_t Levels = 4207048006u;
     uint32_t Melon = 2988198104u;
     uint32_t Mud_Particle = 1923432266u;
+    uint32_t NEWcrosshair = 1079046746u;
     uint32_t Next = 1958711472u;
     uint32_t Off = 891709858u;
     uint32_t Off_1 = 518608092u;
@@ -105,6 +108,7 @@ struct Textures {
     uint32_t On__32x10_ = 1098933380u;
     uint32_t On__38x38_ = 2396822420u;
     uint32_t Orange = 3725847912u;
+    uint32_t PacMan = 2199143984u;
     uint32_t Part_1__22x22_ = 3402242302u;
     uint32_t Part_2__22x22_ = 1294351574u;
     uint32_t PimBall = 3518613816u;
@@ -122,6 +126,7 @@ struct Textures {
     uint32_t Run__32x32__1 = 129598374u;
     uint32_t Run__32x32__1_2 = 2552516020u;
     uint32_t Run__32x32__1_2_3 = 2171291920u;
+    uint32_t SMOLcrosshair = 4171525044u;
     uint32_t Sand = 2995081222u;
     uint32_t Sand_Mud_Ice__16x6_ = 259244214u;
     uint32_t Sand_Particle = 383235570u;
@@ -197,12 +202,17 @@ struct Textures {
     uint32_t _48 = 3331315088u;
     uint32_t _49 = 52203812u;
     uint32_t _50 = 2779066472u;
+    uint32_t backgroundDuckHunt = 2360523392u;
     uint32_t ball = 369994598u;
     uint32_t ball2 = 1354646532u;
     uint32_t balls = 2771258852u;
+    uint32_t bottomPanel = 3898366832u;
+    uint32_t crosshair2 = 99284478u;
     uint32_t hermer = 242799782u;
     uint32_t horse_fat = 963803500u;
     uint32_t office = 2084752704u;
+    uint32_t pew = 1466443448u;
+    uint32_t shootypointer = 3014932692u;
 
     inline std::map<std::string, std::string> GetTextures() {
         std::map<std::string, std::string> map;
@@ -242,6 +252,8 @@ struct Textures {
         map["Double_Jump__32x32__1"] = "./Assets/Jimmy Demo/Main Characters/Ninja Frog/Double Jump (32x32).png";
         map["Double_Jump__32x32__1_2"] = "./Assets/Jimmy Demo/Main Characters/Pink Man/Double Jump (32x32).png";
         map["Double_Jump__32x32__1_2_3"] = "./Assets/Jimmy Demo/Main Characters/Virtual Guy/Double Jump (32x32).png";
+        map["DuckLeft"] = "./Assets/DuckLeft.png";
+        map["DuckRight"] = "./Assets/DuckRight.png";
         map["Dust_Particle"] = "./Assets/Jimmy Demo/Other/Dust Particle.png";
         map["End__Idle_"] = "./Assets/Jimmy Demo/Items/Checkpoints/End/End (Idle).png";
         map["End__Pressed___64x64_"] = "./Assets/Jimmy Demo/Items/Checkpoints/End/End (Pressed) (64x64).png";
@@ -298,6 +310,7 @@ struct Textures {
         map["Levels"] = "./Assets/Jimmy Demo/Menu/Buttons/Levels.png";
         map["Melon"] = "./Assets/Jimmy Demo/Items/Fruits/Melon.png";
         map["Mud_Particle"] = "./Assets/Jimmy Demo/Traps/Sand Mud Ice/Mud Particle.png";
+        map["NEWcrosshair"] = "./Assets/NEWcrosshair.png";
         map["Next"] = "./Assets/Jimmy Demo/Menu/Buttons/Next.png";
         map["Off"] = "./Assets/Jimmy Demo/Traps/Falling Platforms/Off.png";
         map["Off_1"] = "./Assets/Jimmy Demo/Traps/Fan/Off.png";
@@ -308,6 +321,7 @@ struct Textures {
         map["On__32x10_"] = "./Assets/Jimmy Demo/Traps/Falling Platforms/On (32x10).png";
         map["On__38x38_"] = "./Assets/Jimmy Demo/Traps/Saw/On (38x38).png";
         map["Orange"] = "./Assets/Jimmy Demo/Items/Fruits/Orange.png";
+        map["PacMan"] = "./Assets/PacMan.png";
         map["Part_1__22x22_"] = "./Assets/Jimmy Demo/Traps/Blocks/Part 1 (22x22).png";
         map["Part_2__22x22_"] = "./Assets/Jimmy Demo/Traps/Blocks/Part 2 (22x22).png";
         map["PimBall"] = "./Assets/PimBall.png";
@@ -325,6 +339,7 @@ struct Textures {
         map["Run__32x32__1"] = "./Assets/Jimmy Demo/Main Characters/Ninja Frog/Run (32x32).png";
         map["Run__32x32__1_2"] = "./Assets/Jimmy Demo/Main Characters/Pink Man/Run (32x32).png";
         map["Run__32x32__1_2_3"] = "./Assets/Jimmy Demo/Main Characters/Virtual Guy/Run (32x32).png";
+        map["SMOLcrosshair"] = "./Assets/SMOLcrosshair.png";
         map["Sand"] = "./Assets/Sand.png";
         map["Sand_Mud_Ice__16x6_"] = "./Assets/Jimmy Demo/Traps/Sand Mud Ice/Sand Mud Ice (16x6).png";
         map["Sand_Particle"] = "./Assets/Jimmy Demo/Traps/Sand Mud Ice/Sand Particle.png";
@@ -400,12 +415,17 @@ struct Textures {
         map["_48"] = "./Assets/Jimmy Demo/Menu/Levels/48.png";
         map["_49"] = "./Assets/Jimmy Demo/Menu/Levels/49.png";
         map["_50"] = "./Assets/Jimmy Demo/Menu/Levels/50.png";
+        map["backgroundDuckHunt"] = "./Assets/backgroundDuckHunt.png";
         map["ball"] = "./Assets/ball.png";
         map["ball2"] = "./Assets/ball2.png";
         map["balls"] = "./Assets/balls.png";
+        map["bottomPanel"] = "./Assets/bottomPanel.png";
+        map["crosshair2"] = "./Assets/crosshair2.png";
         map["hermer"] = "./Assets/hermer.png";
         map["horse_fat"] = "./Assets/horse-fat.gif";
         map["office"] = "./Assets/office.png";
+        map["pew"] = "./Assets/pew.png";
+        map["shootypointer"] = "./Assets/shootypointer.png";
         return map;
     };
 };
@@ -436,8 +456,8 @@ struct Sounds {
         map["impact3"] = "./Assets/Audio/impact3.mp3";
         map["playerDamage"] = "./Assets/Audio/playerDamage.mp3";
         map["technoSong"] = "./Assets/technoSong.mp3";
-        map["test"] = "./Assets/test.mp3";
-        map["test_1"] = "./Assets/test.wav";
+        map["test"] = "./Assets/test.wav";
+        map["test_1"] = "./Assets/test.mp3";
         return map;
     };
 };

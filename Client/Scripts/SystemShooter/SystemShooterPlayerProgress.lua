@@ -15,6 +15,7 @@ local UPGRADE_CONFIG = {
         minLevel     = 1,
         maxValue     = 8,
         defaultValue = 1,
+        weight       = 10,  -- Higher weight = more common
     },
     pierce = {
         statKey      = "pierceCount",
@@ -23,6 +24,7 @@ local UPGRADE_CONFIG = {
         minLevel     = 6,
         maxValue     = 2,
         defaultValue = 0,
+        weight       = 5,
     },
     bounce = {
         statKey      = "bounceCount",
@@ -31,6 +33,7 @@ local UPGRADE_CONFIG = {
         minLevel     = 3,
         maxValue     = 1,
         defaultValue = 0,
+        weight       = 5,
     },
     fire_rate = {
         statKey      = "fireRateUpgradeCount",
@@ -40,6 +43,7 @@ local UPGRADE_CONFIG = {
         maxValue     = 3,
         defaultValue = 0,
         customApply  = true,
+        weight       = 8,
     },
     no_witnesses = {
         statKey      = "lowEnemyDamageStacks",
@@ -48,8 +52,9 @@ local UPGRADE_CONFIG = {
         minLevel     = 1,
         maxValue     = 2,
         defaultValue = 0,
-        damageMultiplier = 2.25,
+        damageMultiplier = 2.0,
         fireIntervalDelta = 0.05,
+        weight       = 6,
     },
     max_health = {
         statKey      = "maxHealth",
@@ -59,6 +64,17 @@ local UPGRADE_CONFIG = {
         maxValue     = nil,
         defaultValue = 100,
         increment    = 30,
+        weight       = 7,
+    },
+    healing_orb_spawn = {
+        statKey      = "healingOrbSpawnUpgrade",
+        label        = "upgradetype.healingorbspawn",
+        desc         = "upgradedesc.healingorbspawn",
+        minLevel     = 6,
+        maxValue     = 2,
+        defaultValue = 0,
+        customApply  = true,
+        weight       = 2,
     },
 }
 
@@ -74,7 +90,11 @@ local playerStats = {
     fireRateUpgradeCount = 0,
     lowEnemyDamageStacks = 0,
     maxHealth = 100,
+    healingOrbSpawnUpgrade = 0,
 }
+
+local timeoutCount = 0
+local MAX_TIMEOUTS = 5
 
 --=====================================================================
 --  FIREPOWER SHOT PATTERNS (chronological by firepower value)
@@ -227,6 +247,18 @@ function SystemShooterPlayerProgress.applyUpgrade(upgradeType)
                 playerStats.fireInterval = math.max(0.05, playerStats.fireInterval - delta)
                 playerStats.fireRateUpgradeCount = count + 1
             end
+        elseif upgradeType == "healing_orb_spawn" then
+            local count = playerStats.healingOrbSpawnUpgrade or 0
+            if count < cfg.maxValue then
+                playerStats.healingOrbSpawnUpgrade = count + 1
+                -- Update the pickup module's spawn chance
+                local SystemShooterPickups = require("Scripts.SystemShooter.SystemShooterPickups")
+                if count == 0 then
+                    SystemShooterPickups.CONFIG.HEALING_ORB_DROP_CHANCE = 0.25
+                elseif count == 1 then
+                    SystemShooterPickups.CONFIG.HEALING_ORB_DROP_CHANCE = 0.40
+                end
+            end
         end
     else
         local increment = cfg.increment or 1
@@ -300,11 +332,25 @@ function SystemShooterPlayerProgress.getStats()
     return playerStats
 end
 
+function SystemShooterPlayerProgress.getTimeoutCount()
+    return timeoutCount
+end
+
+function SystemShooterPlayerProgress.getMaxTimeouts()
+    return MAX_TIMEOUTS
+end
+
+function SystemShooterPlayerProgress.incrementTimeoutCount()
+    timeoutCount = timeoutCount + 1
+    return timeoutCount
+end
+
 function SystemShooterPlayerProgress.reset()
     playerLevel = 1
     xp = 0
     xpToNextLevel = 100
     pendingLevelUp = false
+    timeoutCount = 0
     
     playerStats.firepower = 1
     playerStats.pierceCount = 0
@@ -313,6 +359,11 @@ function SystemShooterPlayerProgress.reset()
     playerStats.fireRateUpgradeCount = 0
     playerStats.lowEnemyDamageStacks = 0
     playerStats.maxHealth = 100
+    playerStats.healingOrbSpawnUpgrade = 0
+    
+    -- Reset healing orb spawn chance
+    local SystemShooterPickups = require("Scripts.SystemShooter.SystemShooterPickups")
+    SystemShooterPickups.CONFIG.HEALING_ORB_DROP_CHANCE = 0.15
 end
 
 return SystemShooterPlayerProgress

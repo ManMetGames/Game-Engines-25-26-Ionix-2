@@ -6,26 +6,21 @@ local assets = require("Scripts.Assets")
 --  [TUNING] Easy-to-adjust values for fine-tuning
 --=====================================================================
 local CONFIG = {
-    -- Drop chance (0.0 to 1.0, where 0.15 = 15%)
-    HEALING_ORB_DROP_CHANCE = 0.20,
+
+    HEALING_ORB_DROP_CHANCE = 0.15,
     
-    -- Healing amount (0.0 to 1.0, where 0.20 = 20% of max health)
     HEALING_ORB_HEAL_PERCENT = 0.25,
     
-    -- Visual settings
     ORB_SIZE = 16,
     ORB_COLOR = {50, 255, 100},  -- Green
     
     -- Beat/bop animation
-    BOP_SCALE = 0.3,             -- How much the orb scales up on beat (0.3 = 30%)
+    BOP_SCALE = 0.3,             
     
-    -- Lifetime before despawn (seconds)
-    ORB_LIFETIME = 16.0,
+    ORB_LIFETIME = 32.0,
     
-    -- Pickup radius
     PICKUP_RADIUS = 24,
     
-    -- Render layer
     RENDER_LAYER = 5,
 }
 

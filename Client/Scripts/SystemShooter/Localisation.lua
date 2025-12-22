@@ -40,6 +40,8 @@ local STRINGS = {
             ["upgradedesc.no_witnesses"] = "Deal +50% damage when there are 1 (Rank 1) or 2 or less (Rank 2) enemies left.",
         ["upgradetype.maxhp"] = "+ Max Health",
             ["upgradedesc.maxhp"] = "Increase your max health.",
+        ["upgradetype.healingorbspawn"] = "+ Healing Orb Spawn",
+            ["upgradedesc.healingorbspawn"] = "Increases the chance for enemies to drop healing orbs.",
 
     ["pause.title"] = "PAUSED",
     ["pause.resume"] = "RESUME",
@@ -115,8 +117,8 @@ local STRINGS = {
         ["upgradetype.no_witnesses"] = "口封じ",
             ["upgradedesc.no_witnesses"] = "敵が（ランク1：1体以下／ランク2：2体以下）のとき、ダメージが50%増加する。",
         ["upgradetype.maxhp"] = "最大HP＋",
-            ["upgradedesc.maxhp"] = "最大HPが増える。",
-
+            ["upgradedesc.maxhp"] = "最大HPが増える。",        ["upgradetype.healingorbspawn"] = "回復オーブ出現率＋",
+            ["upgradedesc.healingorbspawn"] = "敵が回復オーブをドロップする確率を増やす。",
     ["pause.title"] = "一時停止",
     ["pause.resume"] = "再開",
     ["pause.quit"] = "メインメニューへ",

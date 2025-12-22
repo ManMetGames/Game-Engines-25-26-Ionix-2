@@ -1312,17 +1312,6 @@ end
         end
     end
 
-    -- ===================================================================================================== 
-	-- User Interface - button/checkbox/sliderFloat/radio button/dropdown/colour picker/child panel examples
-	-- ===================================================================================================== 
-
-    ------------------
-	-- Button
-	------------------
-    --UI.add_button(20, 20, 120, 35, "Restart", "restart_btn")
-     --if UI.was_button_pressed("restart_btn") then
-     --    resetGame()
-     --end
     ------------------
 	-- Point effect
 	------------------
@@ -1586,9 +1575,28 @@ end
    local cx = windowW / 2
    local cy = windowH / 2
     -- UI
-    UI.add_label(10, 10, 1000, 1000, pipeScoreText, UI_FONT_SUB, 1)
-    UI.add_label(10, 40, 1000, 1000, scoreText, UI_FONT_SUB, 1)
-    UI.add_centered_label(cx, cy, text1, UI_FONT_HEADER, 1)
+    UI.Add_label(10, 10, 1000, 1000, pipeScoreText)
+    UI.Add_label(10, 40, 1000, 1000, scoreText)
+
+    ------------------------------
+    -----------Raycast------------
+    ---------------------------------
+    local playerPos = Entity.get_center_pos(player1)
+    local mousePos = Input.get_mouse_pos()
+    local hit, info = Fysics.raycast(playerPos, mousePos)
+    Fysics.draw_raycast(playerPos, mousePos, false)
+    local hitEntity = Raycast.entity(info)
+    if hit and hitEntity then
+        Fysics.draw_raycast(playerPos, mousePos, true)
+        Entity.set_global_pos(hitEntity, 200, 300)
+    end
+
+
+
+    -- UI.add_label(10, 10, 1000, 1000, pipeScoreText, UI_FONT_SUB, 1)
+    -- UI.add_label(10, 40, 1000, 1000, scoreText, UI_FONT_SUB, 1)
+    -- UI.add_centered_label(cx, cy, text1, UI_FONT_HEADER, 1)
+    -- THIS MIGHT HAVE BEEN THE UI FUNCTIONS I SHOULD HAVE KEPT IN THE MERGE COMMIT
 end
 
 ----------------------------------------------------------

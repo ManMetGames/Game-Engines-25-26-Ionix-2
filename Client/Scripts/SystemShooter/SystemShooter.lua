@@ -110,6 +110,12 @@ local leaderboardFetched = false
 local isPaused = false
 local pauseScreen = "pause" -- "pause" | "settings" | "leaderboard"
 
+-- Window resize for pause menu
+local prePauseWindowW = nil
+local prePauseWindowH = nil
+local MIN_PAUSE_W = 1000
+local MIN_PAUSE_H = 700
+
 local NO_BACKGROUND = 128
 
 local function GetPlayerNameForLeaderboard()
@@ -237,6 +243,14 @@ function UpdateWindowTransition(dt)
             -- Skip first mouse delta to prevent spawn position snap
             SystemShooterPlayer.skipNextDelta()
             playerInitialized = true
+            
+            -- Start music after first window transition completes (synced with gameplay)
+            if musicEntity and not musicStartedThisLaunch then
+                AudioComponent.play(musicEntity, 0, -1)
+                musicStartedThisLaunch = true
+                -- Reset beat delay counter to sync with music start
+                beatStartDelayCounter = 0
+            end
         end
         
         -- Transition to post-phase (delay before loading level)
@@ -481,6 +495,11 @@ local function TriggerGameOver()
     Input.set_relative_mouse_mode(false)
     -- stop firing immediately
     SystemShooterPlayer.stopFiring()
+    -- Stop music when run ends
+    if musicEntity then
+        AudioComponent.terminate(musicEntity)
+        musicStartedThisLaunch = false
+    end
 end
 
  --=====================================================================
@@ -507,8 +526,8 @@ local function ApplyAudioVolumes()
     -- SFX (scale your existing base volumes)
     local sfxMul = masterVol * sfxVol
     if playerDamageSfxEntity then AudioComponent.change_volume(playerDamageSfxEntity, math.floor(48 * sfxMul + 0.5)) end
-    if gunshot3SfxEntity     then AudioComponent.change_volume(gunshot3SfxEntity,     math.floor( 4 * sfxMul + 0.5)) end
-    if impact3SfxEntity      then AudioComponent.change_volume(impact3SfxEntity,      math.floor(16 * sfxMul + 0.5)) end
+    if gunshot3SfxEntity     then AudioComponent.change_volume(gunshot3SfxEntity,     math.floor(32 * sfxMul + 0.5)) end
+    if impact3SfxEntity      then AudioComponent.change_volume(impact3SfxEntity,      math.floor(64 * sfxMul + 0.5)) end
 end
 
 
@@ -735,6 +754,18 @@ end
 
 
 local function OnLevelTimeout()
+    -- Increment timeout counter
+    local currentTimeouts = SystemShooterPlayerProgress.incrementTimeoutCount()
+    local maxTimeouts = SystemShooterPlayerProgress.getMaxTimeouts()
+    
+    -- Check if we've reached the timeout limit
+    if currentTimeouts >= maxTimeouts then
+        -- Set player HP to 0 (this will trigger game over)
+        SystemShooterPlayer.setHealth(0)
+        return
+    end
+    
+    -- Otherwise, proceed with normal timeout behavior (reduce enemy health and rewind)
     local cfg = SystemShooterLevels.getLevelConfig(currentLevel)
     if cfg then
         if cfg.enemies then
@@ -797,8 +828,6 @@ function SystemShooter:OnStart()
                 local color = enemy.color or {255, 255, 255}
                 ParticleSystem.emitHitBurst(enemyCenterX, enemyCenterY, color[1], color[2], color[3])
                 if impact3SfxEntity then
-                    local v = math.random(12, 20)
-                    AudioComponent.change_volume(impact3SfxEntity, v)
                     AudioComponent.play(impact3SfxEntity)
                 end
             end,
@@ -998,11 +1027,7 @@ local function DrawMainMenu(screenW, screenH, dt)
             isGameOver = false
             runLeaderboardSubmitted = false
             StartLevel(1, true)
-            -- Start music from beginning (synced with gameplay)
-            if musicEntity and not musicStartedThisLaunch then
-                AudioComponent.play(musicEntity, 0, -1)
-                musicStartedThisLaunch = true
-            end
+            -- Music will start after first window transition completes
         end
     end
 
@@ -1551,6 +1576,40 @@ SetPaused = function(p)
     isPaused = p
     pauseScreen = "pause"
 
+    if isPaused then
+        -- Check if window is too small for pause menu
+        local currentW = Window.get_width()
+        local currentH = Window.get_height()
+        
+        if currentW < MIN_PAUSE_W or currentH < MIN_PAUSE_H then
+            -- Store current size
+            prePauseWindowW = currentW
+            prePauseWindowH = currentH
+            
+            -- Resize to comfortable size
+            local targetW = math.max(currentW, MIN_PAUSE_W)
+            local targetH = math.max(currentH, MIN_PAUSE_H)
+            local displayW = Window.get_display_width()
+            local displayH = Window.get_display_height()
+            local x = math.floor((displayW - targetW) * 0.5)
+            local y = math.floor((displayH - targetH) * 0.5)
+            Window.set_pos(x, y)
+            Window.set_size(targetW, targetH)
+        end
+    else
+        -- Restore original window size if it was resized for the pause menu
+        if prePauseWindowW and prePauseWindowH then
+            local displayW = Window.get_display_width()
+            local displayH = Window.get_display_height()
+            local x = math.floor((displayW - prePauseWindowW) * 0.5)
+            local y = math.floor((displayH - prePauseWindowH) * 0.5)
+            Window.set_pos(x, y)
+            Window.set_size(prePauseWindowW, prePauseWindowH)
+            prePauseWindowW = nil
+            prePauseWindowH = nil
+        end
+    end
+
     -- show cursor in pause menus, lock cursor in gameplay
     Input.set_relative_mouse_mode(not isPaused)
 
@@ -1990,6 +2049,11 @@ if levelCfg.timeLimitSeconds ~= nil and levelCfg.timeLimitSeconds > 0 then
     end
 
     UI.add_centered_label(screenW / 2, 10, T("gameplay.stage") .. tostring(currentLevel), UI_FONT_REG)
+    
+    -- Display timeout counter
+    local timeoutCount = SystemShooterPlayerProgress.getTimeoutCount()
+    local maxTimeouts = SystemShooterPlayerProgress.getMaxTimeouts()
+    UI.add_centered_label(screenW / 2, 30, "Timeouts: " .. tostring(timeoutCount) .. " / " .. tostring(maxTimeouts), UI_FONT_REG)
 
     local playerHpBarX = screenW - 220
     local playerHpBarY = 20
@@ -2376,18 +2440,25 @@ end
  --=====================================================================
 function UpdateBeatBop()
     local dt = GetDt()
+    
+    -- Track delay counter
+    local beatBopActive = false
     if beatStartDelayCounter < beatStartDelaySeconds then
         beatStartDelayCounter = beatStartDelayCounter + dt
-        return
+    else
+        beatBopActive = true
     end
 
-    beatTimer = beatTimer + dt
-    if beatTimer >= secondsPerBeat then
-        beatTimer = beatTimer - secondsPerBeat
-        bopTimer = bopDurationSeconds
+    -- Update beat timer (only when beatBopActive)
+    if beatBopActive then
+        beatTimer = beatTimer + dt
+        if beatTimer >= secondsPerBeat then
+            beatTimer = beatTimer - secondsPerBeat
+            bopTimer = bopDurationSeconds
+        end
     end
 
-    if bopTimer > 0 then
+    if beatBopActive and bopTimer > 0 then
         bopTimer = bopTimer - dt
         local t = bopTimer / bopDurationSeconds
         local scale = 1.0 + bopScale * t
@@ -2413,6 +2484,7 @@ function UpdateBeatBop()
         
         SystemShooterPickups.applyBeatBop(t)
     else
+        -- Always update enemy display sizes to match current health (not just during bop)
         for i = 1, #enemies do
             local enemy = enemies[i]
             -- Skip dead enemies

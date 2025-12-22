@@ -25,12 +25,12 @@ SystemShooterProjectiles.PlayerConfig = {
 --=====================================================================
 SystemShooterProjectiles.EnemyConfig = {
     size = 24,
-    speed = 420,            -- pixels per second
+    speed = 350,            -- pixels per second
     lifetimeSeconds = 6,    -- separate lifetime for enemy projectiles
     texture = nil,          -- set on init
     color = {128, 0, 255},  -- purple
     layer = 4,              -- render layer
-    damage = 5,             -- damage dealt to player on hit
+    damage = 4,             -- damage dealt to player on hit
 }
 
 --=====================================================================
@@ -495,13 +495,36 @@ function SystemShooterProjectiles.spawnEnemyProjectile(enemy)
     elseif shootPattern == "cone" and projectileCount <= 4 then
         local spreadAngle = math.rad(15)
         local baseAngle = math.atan(baseDirY, baseDirX)
-        local startAngle = baseAngle - spreadAngle * (projectileCount - 1) / 2
         
-        for i = 1, projectileCount do
-            local angle = startAngle + spreadAngle * (i - 1)
-            local dirX = math.cos(angle)
-            local dirY = math.sin(angle)
-            spawnEnemySingleProjectile(enemy, dirX, dirY)
+        -- For even counts (2, 4), ensure one bullet goes straight at player
+        if projectileCount == 2 or projectileCount == 4 then
+            -- Spawn one bullet straight at player
+            spawnEnemySingleProjectile(enemy, baseDirX, baseDirY)
+            
+            -- Spawn remaining bullets spread around
+            local remaining = projectileCount - 1
+            local halfSpread = spreadAngle * remaining / 2
+            local step = spreadAngle
+            
+            for i = 1, remaining do
+                local offset = -halfSpread + step * (i - 1)
+                -- Skip the center (already spawned)
+                if math.abs(offset) > 0.01 then
+                    local angle = baseAngle + offset
+                    local dirX = math.cos(angle)
+                    local dirY = math.sin(angle)
+                    spawnEnemySingleProjectile(enemy, dirX, dirY)
+                end
+            end
+        else
+            -- Odd counts: use original spread (center bullet is already aimed)
+            local startAngle = baseAngle - spreadAngle * (projectileCount - 1) / 2
+            for i = 1, projectileCount do
+                local angle = startAngle + spreadAngle * (i - 1)
+                local dirX = math.cos(angle)
+                local dirY = math.sin(angle)
+                spawnEnemySingleProjectile(enemy, dirX, dirY)
+            end
         end
         
     else
