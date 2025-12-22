@@ -6,6 +6,12 @@ local isUpgradeMenuOpen = false
 local upgradeOptions = {}      -- { type, label, desc }
 local selectedIndex = 0        -- 0 = none
 
+-- Window resize for upgrade menu
+local preUpgradeWindowW = nil
+local preUpgradeWindowH = nil
+local MIN_UPGRADE_W = 1000
+local MIN_UPGRADE_H = 700
+
 -- Confirm countdown (keeps menu open briefly so game doesn't resume instantly)
 local confirmPending = false
 local confirmTimer = 0
@@ -66,6 +72,26 @@ function SystemShooterUI.getRandomUpgradeOptions(count, playerLevel)
 end
 
 function SystemShooterUI.showUpgradeMenu(options, playerLevel)
+  -- Check if window is too small for upgrade menu
+  local currentW = Window.get_width()
+  local currentH = Window.get_height()
+  
+  if currentW < MIN_UPGRADE_W or currentH < MIN_UPGRADE_H then
+    -- Store current size
+    preUpgradeWindowW = currentW
+    preUpgradeWindowH = currentH
+    
+    -- Resize to comfortable size
+    local targetW = math.max(currentW, MIN_UPGRADE_W)
+    local targetH = math.max(currentH, MIN_UPGRADE_H)
+    local displayW = Window.get_display_width()
+    local displayH = Window.get_display_height()
+    local x = math.floor((displayW - targetW) * 0.5)
+    local y = math.floor((displayH - targetH) * 0.5)
+    Window.set_pos(x, y)
+    Window.set_size(targetW, targetH)
+  end
+  
   isUpgradeMenuOpen = true
   upgradeOptions = options or SystemShooterUI.getRandomUpgradeOptions(2, playerLevel)
   selectedIndex = 0
@@ -77,6 +103,18 @@ function SystemShooterUI.showUpgradeMenu(options, playerLevel)
 end
 
 function SystemShooterUI.hideUpgradeMenu()
+  -- Restore original window size if it was resized for the menu
+  if preUpgradeWindowW and preUpgradeWindowH then
+    local displayW = Window.get_display_width()
+    local displayH = Window.get_display_height()
+    local x = math.floor((displayW - preUpgradeWindowW) * 0.5)
+    local y = math.floor((displayH - preUpgradeWindowH) * 0.5)
+    Window.set_pos(x, y)
+    Window.set_size(preUpgradeWindowW, preUpgradeWindowH)
+    preUpgradeWindowW = nil
+    preUpgradeWindowH = nil
+  end
+  
   isUpgradeMenuOpen = false
   upgradeOptions = {}
   selectedIndex = 0

@@ -48,7 +48,7 @@ local UPGRADE_CONFIG = {
         minLevel     = 1,
         maxValue     = 2,
         defaultValue = 0,
-        damageMultiplier = 2.25,
+        damageMultiplier = 2.0,
         fireIntervalDelta = 0.05,
     },
     max_health = {

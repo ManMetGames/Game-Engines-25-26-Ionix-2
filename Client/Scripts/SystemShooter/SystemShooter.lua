@@ -110,6 +110,12 @@ local leaderboardFetched = false
 local isPaused = false
 local pauseScreen = "pause" -- "pause" | "settings" | "leaderboard"
 
+-- Window resize for pause menu
+local prePauseWindowW = nil
+local prePauseWindowH = nil
+local MIN_PAUSE_W = 1000
+local MIN_PAUSE_H = 700
+
 local NO_BACKGROUND = 128
 
 local function GetPlayerNameForLeaderboard()
@@ -1550,6 +1556,40 @@ SetPaused = function(p)
     if isPaused == p then return end
     isPaused = p
     pauseScreen = "pause"
+
+    if isPaused then
+        -- Check if window is too small for pause menu
+        local currentW = Window.get_width()
+        local currentH = Window.get_height()
+        
+        if currentW < MIN_PAUSE_W or currentH < MIN_PAUSE_H then
+            -- Store current size
+            prePauseWindowW = currentW
+            prePauseWindowH = currentH
+            
+            -- Resize to comfortable size
+            local targetW = math.max(currentW, MIN_PAUSE_W)
+            local targetH = math.max(currentH, MIN_PAUSE_H)
+            local displayW = Window.get_display_width()
+            local displayH = Window.get_display_height()
+            local x = math.floor((displayW - targetW) * 0.5)
+            local y = math.floor((displayH - targetH) * 0.5)
+            Window.set_pos(x, y)
+            Window.set_size(targetW, targetH)
+        end
+    else
+        -- Restore original window size if it was resized for the pause menu
+        if prePauseWindowW and prePauseWindowH then
+            local displayW = Window.get_display_width()
+            local displayH = Window.get_display_height()
+            local x = math.floor((displayW - prePauseWindowW) * 0.5)
+            local y = math.floor((displayH - prePauseWindowH) * 0.5)
+            Window.set_pos(x, y)
+            Window.set_size(prePauseWindowW, prePauseWindowH)
+            prePauseWindowW = nil
+            prePauseWindowH = nil
+        end
+    end
 
     -- show cursor in pause menus, lock cursor in gameplay
     Input.set_relative_mouse_mode(not isPaused)
