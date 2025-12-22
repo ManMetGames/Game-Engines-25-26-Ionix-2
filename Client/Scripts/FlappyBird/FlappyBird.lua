@@ -1257,6 +1257,13 @@ if inMainMenu then
             Window.quit()
             print("Quitting Game")
         end
+
+        -- Escape to pause
+        if Input.get_key_down(Keys.ionix_escape) then
+            pauseGame(false)
+            inMainMenu = false
+            print("Resumed Game (Escape)")
+        end
     end
 
     return
@@ -1278,6 +1285,14 @@ end
             pauseGame(true)
             inMainMenu = true   
             menuContext = "ingame"
+        end
+
+        -- Escape to resume
+        if Input.get_key_down(Keys.ionix_escape) then
+            pauseGame(true)
+            inMainMenu = true
+            menuContext = "ingame"
+            print("Paused Game (Escape)")
         end
 
     end
