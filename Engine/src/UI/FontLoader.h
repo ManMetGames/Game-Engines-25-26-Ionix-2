@@ -105,6 +105,12 @@ namespace IonixEngine
             AddFontFromFileIfExists(
                 "Fonts/NotoSansJP-Bold.ttf", 23.0f, &cfg, jpRanges, imguiDefaultBold, "ImGuiDefaultBoldJP");
 
+            AddFontFromFileIfExists(
+                "Fonts/JF-Dot-MPlusH10.ttf", 23.0f, &cfg, jpRanges, imguiDefault, "JFDotMPlusH10");
+
+            AddFontFromFileIfExists(
+                "Fonts/JF-Dot-MPlusH10B.ttf", 23.0f, &cfg, jpRanges, imguiDefaultBold, "JFDotMPlusH10Bold");
+
             ImFontConfig jpSubCfg = cfg;
             jpSubCfg.SizePixels = 29.0f;
             AddFontFromFileIfExists(
@@ -119,6 +125,21 @@ namespace IonixEngine
             jpTitleCfg.SizePixels = 47.0f;
             AddFontFromFileIfExists(
                 "Fonts/NotoSansJP-Bold.ttf", 47.0f, &jpTitleCfg, jpRanges, imguiTitle, "ImGuiTitleJP");
+
+            ImFontConfig h10SubCfg = cfg;
+            h10SubCfg.SizePixels = 29.0f;
+            AddFontFromFileIfExists(
+                "Fonts/JF-Dot-MPlusH10.ttf", 29.0f, &h10SubCfg, jpRanges, imguiSub, "JFDotMPlusH10_29");
+
+            ImFontConfig h10HeaderCfg = cfg;
+            h10HeaderCfg.SizePixels = 33.0f;
+            AddFontFromFileIfExists(
+                "Fonts/JF-Dot-MPlusH10B.ttf", 33.0f, &h10HeaderCfg, jpRanges, imguiHeader, "JFDotMPlusH10Bold_33");
+
+            ImFontConfig h10TitleCfg = cfg;
+            h10TitleCfg.SizePixels = 47.0f;
+            AddFontFromFileIfExists(
+                "Fonts/JF-Dot-MPlusH10B.ttf", 47.0f, &h10TitleCfg, jpRanges, imguiTitle, "JFDotMPlusH10Bold_47");
 
             // Build font atlas
             io.Fonts->Build();
