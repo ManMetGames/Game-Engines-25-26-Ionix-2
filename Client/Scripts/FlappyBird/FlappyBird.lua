@@ -126,7 +126,8 @@ local customiseTab = "backgrounds" -- "backgrounds" or "birds"
 -- Shop items 
 local STORE_BACKGROUNDS = {
     { id = "bg_classic", name = "Classic Sky", price = 0,  textureKey = "Background" },
-    { id = "bg_night",   name = "Night Sky",   price = 30, textureKey = "Background" }, -- tint style
+    { id = "bg_night",   name = "Night Sky",   price = 30, textureKey = "Background" },
+    { id = "bg_plains",  name = "Open Plains",  price = 150, textureKey = "Background_Mountains" },
 }
 
 local STORE_BIRDS = {
@@ -1575,8 +1576,8 @@ end
    local cx = windowW / 2
    local cy = windowH / 2
     -- UI
-    UI.Add_label(10, 10, 1000, 1000, pipeScoreText)
-    UI.Add_label(10, 40, 1000, 1000, scoreText)
+    UI.add_label(10, 10, 1000, 1000, pipeScoreText)
+    UI.add_label(10, 40, 1000, 1000, scoreText)
 
     ------------------------------
     -----------Raycast------------
