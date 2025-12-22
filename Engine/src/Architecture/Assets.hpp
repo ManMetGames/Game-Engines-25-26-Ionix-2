@@ -462,6 +462,18 @@ struct Sounds {
     };
 };
 
+struct Music {
+    // Add music file hash IDs here as they are added to the project
+    // Example: uint32_t BackgroundMusic = 1234567890u;
+
+    inline std::map<std::string, std::string> GetMusic() {
+        std::map<std::string, std::string> map;
+        // Add music files here
+        // Example: map["BackgroundMusic"] = "./Assets/Audio/background.mp3";
+        return map;
+    };
+};
+
 struct Fonts {
     uint32_t OpenSans_Bold = 3125297026u;
     uint32_t OpenSans_BoldItalic = 3887720094u;
@@ -549,6 +561,7 @@ struct Fonts {
 struct Assets {
     Textures textures;
     Sounds sounds;
+    Music music;
     Fonts fonts;
 
     static Assets& Get() {
