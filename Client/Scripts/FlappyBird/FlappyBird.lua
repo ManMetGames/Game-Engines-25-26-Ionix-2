@@ -1396,7 +1396,7 @@ end
 
        local cx = panelW / 2
        local y0 = 14
-       local gap = 22
+       local gap = 28
 
        UI.add_centered_label(cx, y0, text1, UI_FONT_HEADER, 1.0)
        UI.add_centered_label(cx, y0 + gap*2, topScore, UI_FONT_SUB, 1.0)
