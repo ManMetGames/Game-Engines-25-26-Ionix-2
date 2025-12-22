@@ -25,12 +25,12 @@ SystemShooterProjectiles.PlayerConfig = {
 --=====================================================================
 SystemShooterProjectiles.EnemyConfig = {
     size = 24,
-    speed = 420,            -- pixels per second
+    speed = 350,            -- pixels per second
     lifetimeSeconds = 6,    -- separate lifetime for enemy projectiles
     texture = nil,          -- set on init
     color = {128, 0, 255},  -- purple
     layer = 4,              -- render layer
-    damage = 5,             -- damage dealt to player on hit
+    damage = 4,             -- damage dealt to player on hit
 }
 
 --=====================================================================

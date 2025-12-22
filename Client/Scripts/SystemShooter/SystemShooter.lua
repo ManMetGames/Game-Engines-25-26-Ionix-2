@@ -243,6 +243,14 @@ function UpdateWindowTransition(dt)
             -- Skip first mouse delta to prevent spawn position snap
             SystemShooterPlayer.skipNextDelta()
             playerInitialized = true
+            
+            -- Start music after first window transition completes (synced with gameplay)
+            if musicEntity and not musicStartedThisLaunch then
+                AudioComponent.play(musicEntity, 0, -1)
+                musicStartedThisLaunch = true
+                -- Reset beat delay counter to sync with music start
+                beatStartDelayCounter = 0
+            end
         end
         
         -- Transition to post-phase (delay before loading level)
@@ -487,6 +495,11 @@ local function TriggerGameOver()
     Input.set_relative_mouse_mode(false)
     -- stop firing immediately
     SystemShooterPlayer.stopFiring()
+    -- Stop music when run ends
+    if musicEntity then
+        AudioComponent.terminate(musicEntity)
+        musicStartedThisLaunch = false
+    end
 end
 
  --=====================================================================
@@ -514,7 +527,7 @@ local function ApplyAudioVolumes()
     local sfxMul = masterVol * sfxVol
     if playerDamageSfxEntity then AudioComponent.change_volume(playerDamageSfxEntity, math.floor(48 * sfxMul + 0.5)) end
     if gunshot3SfxEntity     then AudioComponent.change_volume(gunshot3SfxEntity,     math.floor(32 * sfxMul + 0.5)) end
-    if impact3SfxEntity      then AudioComponent.change_volume(impact3SfxEntity,      math.floor(32 * sfxMul + 0.5)) end
+    if impact3SfxEntity      then AudioComponent.change_volume(impact3SfxEntity,      math.floor(64 * sfxMul + 0.5)) end
 end
 
 
@@ -1014,11 +1027,7 @@ local function DrawMainMenu(screenW, screenH, dt)
             isGameOver = false
             runLeaderboardSubmitted = false
             StartLevel(1, true)
-            -- Start music from beginning (synced with gameplay)
-            if musicEntity and not musicStartedThisLaunch then
-                AudioComponent.play(musicEntity, 0, -1)
-                musicStartedThisLaunch = true
-            end
+            -- Music will start after first window transition completes
         end
     end
 
@@ -2431,18 +2440,25 @@ end
  --=====================================================================
 function UpdateBeatBop()
     local dt = GetDt()
+    
+    -- Track delay counter
+    local beatBopActive = false
     if beatStartDelayCounter < beatStartDelaySeconds then
         beatStartDelayCounter = beatStartDelayCounter + dt
-        return
+    else
+        beatBopActive = true
     end
 
-    beatTimer = beatTimer + dt
-    if beatTimer >= secondsPerBeat then
-        beatTimer = beatTimer - secondsPerBeat
-        bopTimer = bopDurationSeconds
+    -- Update beat timer (only when beatBopActive)
+    if beatBopActive then
+        beatTimer = beatTimer + dt
+        if beatTimer >= secondsPerBeat then
+            beatTimer = beatTimer - secondsPerBeat
+            bopTimer = bopDurationSeconds
+        end
     end
 
-    if bopTimer > 0 then
+    if beatBopActive and bopTimer > 0 then
         bopTimer = bopTimer - dt
         local t = bopTimer / bopDurationSeconds
         local scale = 1.0 + bopScale * t
@@ -2468,6 +2484,7 @@ function UpdateBeatBop()
         
         SystemShooterPickups.applyBeatBop(t)
     else
+        -- Always update enemy display sizes to match current health (not just during bop)
         for i = 1, #enemies do
             local enemy = enemies[i]
             -- Skip dead enemies
