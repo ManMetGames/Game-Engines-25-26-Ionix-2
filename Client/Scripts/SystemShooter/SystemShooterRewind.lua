@@ -9,7 +9,7 @@ local state = {
     phase = nil,
     slowdownDuration = 2.0,      -- seconds for enemies to slow to a stop
     stopPauseDuration = 0.3,     -- brief pause at full stop before rewinding
-    duration = 4.5,              -- seconds for enemies to rewind to spawn positions
+    duration = 6.0,              -- seconds for enemies to rewind to spawn positions
     timer = 0,                   -- current phase timer
     timeScale = 1.0,             -- current time scale (1.0 = normal, 0.0 = stopped)
     enemyStartPositions = {},    -- stores {enemy -> {x, y}} for lerp start (keyed by enemy ref)
@@ -39,6 +39,14 @@ end
 
 function SystemShooterRewind.getTimeScale()
     return state.timeScale
+end
+
+function SystemShooterRewind.getTimer()
+    return state.timer
+end
+
+function SystemShooterRewind.getDuration()
+    return state.duration
 end
 
 --=====================================================================

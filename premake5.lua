@@ -17,7 +17,13 @@ project "Engine"
     files {
         "%{prj.name}/src/**.h",
         "%{prj.name}/src/**.hpp",
-        "%{prj.name}/src/**.cpp"
+        "%{prj.name}/src/**.cpp",
+        -- SoLoud source files
+        "dependencies/bin/soloud20200207/src/audiosource/**.cpp",
+        "dependencies/bin/soloud20200207/src/audiosource/**.c",
+        "dependencies/bin/soloud20200207/src/backend/sdl2_static/**.cpp",
+        "dependencies/bin/soloud20200207/src/core/**.cpp",
+        "dependencies/bin/soloud20200207/src/filter/**.cpp"
     }
 
     vpaths {
@@ -36,7 +42,8 @@ project "Engine"
         "dependencies/bin/ImGui",
         "dependencies/bin/box2d/include/box2d",
         "dependencies/bin/firebase_cpp_sdk/include",
-		"dependencies/bin/sol2/include"
+		"dependencies/bin/sol2/include",
+		"dependencies/bin/soloud20200207/include"
     }
 
     libdirs {
@@ -72,7 +79,8 @@ project "Engine"
 
         defines {
             "ENGINE_EXPORTS",
-            "ENGINE_BUILD_DLL"
+            "ENGINE_BUILD_DLL",
+            "WITH_SDL2_STATIC"  -- SoLoud SDL2 backend define
         }
 
     postbuildcommands {

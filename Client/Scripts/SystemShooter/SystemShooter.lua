@@ -89,6 +89,12 @@ local bopScale = 0.25
 local beatStartDelaySeconds = (8 * 4) * secondsPerBeat
 local beatStartDelayCounter = 0
 
+-- Music rewind sync
+local rememberedMusicPosition = 0    -- Position to restore after rewind
+local musicRewindStartPosition = 0   -- Position when rewind starts
+local musicBaseVolume = 1.0          -- Base volume before rewind effects
+local lastRewindPhase = nil          -- Track phase changes to avoid re-setting speed every frame
+
 -- Controls
 local sensitivitySetting = Json.load_setting(GAME_ID, "controls.sensitivity", 1.0) or 1.0
 local function Clamp(v, a, b)
@@ -246,7 +252,7 @@ function UpdateWindowTransition(dt)
             
             -- Start music after first window transition completes (synced with gameplay)
             if musicEntity and not musicStartedThisLaunch then
-                AudioComponent.play(musicEntity, 0, -1)
+                MusicComponent.play(musicEntity, true, 2.0)  -- loop=true, fadeIn=2.0 seconds
                 musicStartedThisLaunch = true
                 -- Reset beat delay counter to sync with music start
                 beatStartDelayCounter = 0
@@ -497,7 +503,7 @@ local function TriggerGameOver()
     SystemShooterPlayer.stopFiring()
     -- Stop music when run ends
     if musicEntity then
-        AudioComponent.terminate(musicEntity)
+        MusicComponent.stop(musicEntity, 0)  -- fadeOut=0
         musicStartedThisLaunch = false
     end
 end
@@ -517,10 +523,10 @@ local function ApplyAudioVolumes()
     musicVol  = Clamp01(musicVol  or 0.8)
     sfxVol    = Clamp01(sfxVol    or 0.8)
 
-    -- MUSIC (base 0..128)
-    local musicOut = math.floor(128 * masterVol * musicVol + 0.5)
+    -- MUSIC (SoLoud uses 0.0..1.0 range)
+    local musicOut = masterVol * musicVol
     if musicEntity then
-        AudioComponent.change_volume(musicEntity, musicMuted and 0 or musicOut)
+        MusicComponent.set_volume(musicEntity, musicMuted and 0 or musicOut)
     end
 
     -- SFX (scale your existing base volumes)
@@ -651,6 +657,11 @@ LoadLevel = function(index, resetPlayerState)
     -- Spawn enemies as disabled (preview state) during start-level peace
     SpawnEnemiesForLevel(true)
     
+    -- Remember music position for rewind restoration
+    if musicEntity and MusicComponent.is_playing(musicEntity) then
+        rememberedMusicPosition = MusicComponent.get_position(musicEntity)
+    end
+    
     -- Start the start-level peace timer (enemies will be enabled when it expires)
     peaceTimerSeconds = startLevelPeaceDuration
     isStartLevelPeace = true
@@ -746,9 +757,15 @@ local function StartRewindSequence()
     -- Start the rewind sequence via the module
     SystemShooterRewind.start(enemies, SystemShooterPlayer.getHealth(), maxHealth, levelTimeLimit, enemyTargetHealthList)
     
-    -- Pause music
-    if musicEntity then
-        AudioComponent.pause(musicEntity)
+    -- Start music slowdown effect
+    if musicEntity and MusicComponent.is_playing(musicEntity) then
+        musicRewindStartPosition = MusicComponent.get_position(musicEntity)
+        musicBaseVolume = masterVol * musicVol
+        -- Seek back 10 seconds before starting rewind for smoother effect
+        local newPosition = math.max(0, musicRewindStartPosition - 10.0)
+        MusicComponent.seek(musicEntity, newPosition)
+        print("[Rewind Music] Seeking back 10 seconds: " .. tostring(musicRewindStartPosition) .. " -> " .. tostring(newPosition))
+        -- Music will slow down and fade out during the "slowing" phase (handled in update)
     end
 end
 
@@ -874,8 +891,8 @@ function SystemShooter:OnStart()
     StartLevel(1, true)
 
     musicEntity = Entity.create_entity()
-    Entity.add_audio_component(musicEntity, "technoSong", false)
-    -- Music will start when player presses START GAME
+    Entity.add_music_component(musicEntity, "technoSong", false)
+    -- Music will start when player presses START GAME (now using SoLoud)
 
     playerDamageSfxEntity = Entity.create_entity()
     Entity.add_audio_component(playerDamageSfxEntity, "playerDamage", false)
@@ -1545,8 +1562,8 @@ local function DrawGameOverMenu(screenW, screenH, dt)
         StartLevel(1, true)
         -- Restart music from beginning to sync with gameplay
         if musicEntity then
-            AudioComponent.terminate(musicEntity)
-            AudioComponent.play(musicEntity, 0, -1)
+            MusicComponent.stop(musicEntity, 0)  -- fadeOut=0
+            MusicComponent.play(musicEntity, true, 0)  -- loop=true, fadeIn=0
         end
 
     elseif UI.was_button_pressed("gameover_mainmenu") then
@@ -1621,9 +1638,9 @@ SetPaused = function(p)
     -- Stop/resume music to prevent desync
     if musicEntity then
         if isPaused then
-            AudioComponent.pause(musicEntity)
+            MusicComponent.pause(musicEntity)
         else
-            AudioComponent.resume(musicEntity)
+            MusicComponent.resume(musicEntity)
         end
     end
 end
@@ -1647,7 +1664,7 @@ GoToMainMenuFromPause = function()
 
     -- Stop music when returning to main menu
     if musicEntity then
-        AudioComponent.terminate(musicEntity)
+        MusicComponent.stop(musicEntity, 0)  -- fadeOut=0
         musicStartedThisLaunch = false
     end
 
@@ -2136,6 +2153,94 @@ if levelCfg.timeLimitSeconds ~= nil and levelCfg.timeLimitSeconds > 0 then
             UpdateEnemyMovement, clearProjectiles
         )
         
+        -- Sync music with rewind phases
+        if result and musicEntity then
+            local timeScale = SystemShooterRewind.getTimeScale()
+            local phase = result.phase
+            local isPlaying = MusicComponent.is_playing(musicEntity)
+            
+            -- Only log and set speed when phase changes
+            if phase ~= lastRewindPhase then
+                print("[Rewind Music] Phase changed: " .. tostring(lastRewindPhase) .. " -> " .. tostring(phase) .. ", IsPlaying: " .. tostring(isPlaying))
+                lastRewindPhase = phase
+                
+                if phase == "slowing" then
+                    -- Start slowing down - speed will be updated every frame for smooth slowdown
+                    print("[Rewind Music] Starting slowdown phase")
+                    
+                elseif phase == "stopped" then
+                    -- Brief pause - keep music playing at very slow speed, just mute it
+                    if isPlaying then
+                        print("[Rewind Music] Stopped phase - keeping stream alive, muting")
+                        -- Don't change speed, just mute
+                        MusicComponent.set_volume(musicEntity, 0)
+                    end
+                    
+                elseif phase == "rewinding" then
+                    -- Log when entering rewind phase, but don't set speed yet (will be smoothed every frame)
+                    if isPlaying then
+                        local currentSpeed = MusicComponent.get_speed(musicEntity)
+                        local currentPos = MusicComponent.get_position(musicEntity)
+                        print("[Rewind Music] ENTERING REWIND PHASE - Current speed: " .. tostring(currentSpeed) .. ", Position: " .. tostring(currentPos))
+                        print("[Rewind Music] Will smoothly transition to reverse speed -1.0")
+                    else
+                        print("[Rewind Music] WARNING: Music not playing when entering rewind phase!")
+                    end
+                end
+            end
+            
+            -- Update speed and volume every frame during slowing and rewinding
+            if phase == "slowing" then
+                if isPlaying then
+                    MusicComponent.set_speed(musicEntity, timeScale)  -- Update speed for smooth slowdown
+                    -- Use cubic ease-in for more dramatic slowdown (faster at start, smoother at end)
+                    local volumeProgress = 1.0 - timeScale
+                    local easedVolumeProgress = volumeProgress * volumeProgress * volumeProgress
+                    local volumeFade = 1.0 - easedVolumeProgress
+                    MusicComponent.set_volume(musicEntity, musicMuted and 0 or (musicBaseVolume * volumeFade))
+                end
+                
+            elseif phase == "rewinding" then
+                if isPlaying then
+                    -- Calculate rewind progress (0 at start, 1 at end)
+                    local rewindTimer = SystemShooterRewind.getTimer()
+                    local rewindDuration = SystemShooterRewind.getDuration()
+                    local rewindProgress = 1.0 - (rewindTimer / rewindDuration)
+                    if rewindProgress < 0 then rewindProgress = 0 end
+                    if rewindProgress > 1 then rewindProgress = 1 end
+                    
+                    -- Calculate required average playback speed to reach rememberedMusicPosition exactly
+                    local currentMusicPos = MusicComponent.get_position(musicEntity)
+                    local targetMusicPos = rememberedMusicPosition
+                    local positionDifference = currentMusicPos - targetMusicPos
+                    
+                    -- Required average speed = distance / time remaining
+                    -- Negative because we're going backwards
+                    local requiredAvgSpeed = -positionDifference / rewindTimer
+                    if rewindTimer < 0.01 then requiredAvgSpeed = 0 end  -- Avoid division by zero
+                    
+                    -- Apply sine wave curve to match visual rewind (peaks in middle, slows at ends)
+                    -- sin(progress * π) gives us: 0 at start → 1.0 at middle → 0 at end
+                    local speedCurve = math.sin(rewindProgress * math.pi)
+                    
+                    -- Scale the curve so that the average equals requiredAvgSpeed
+                    -- Integral of sin(x*π) from 0 to 1 is 2/π ≈ 0.6366
+                    -- So multiply by π/2 ≈ 1.571 to normalize the average to 1.0
+                    local normalizedSpeed = requiredAvgSpeed * speedCurve * (math.pi / 2)
+                    MusicComponent.set_speed(musicEntity, normalizedSpeed)
+                    
+                    -- Smoothly increase volume from 0% to 50% (capped) as rewind progresses
+                    -- Use ease-in-out for smoother volume transition
+                    local volumeFade = rewindProgress < 0.5 
+                        and 2 * rewindProgress * rewindProgress 
+                        or 1 - math.pow(-2 * rewindProgress + 2, 2) / 2
+                    -- Cap at 50% volume during rewind
+                    volumeFade = volumeFade * 0.5
+                    MusicComponent.set_volume(musicEntity, musicMuted and 0 or (musicBaseVolume * volumeFade))
+                end
+            end
+        end
+        
         if result then
             -- Apply returned values
             if result.levelTimer then
@@ -2162,12 +2267,22 @@ if levelCfg.timeLimitSeconds ~= nil and levelCfg.timeLimitSeconds > 0 then
                     SystemShooterEnemy.setEnemyDisabled(enemy, true)
                 end
                 
-                -- Start peace timer and resume music
+                -- Start peace timer and restore music
                 peaceTimerSeconds = startLevelPeaceDuration
                 isStartLevelPeace = true
                 
+                -- Restore music to normal playback (position should already be at rememberedMusicPosition from smooth rewind)
                 if musicEntity then
-                    AudioComponent.resume(musicEntity)
+                    local finalPos = MusicComponent.get_position(musicEntity)
+                    print("[Rewind Music] Rewind complete - Final position: " .. tostring(finalPos) .. ", Target was: " .. tostring(rememberedMusicPosition))
+                    MusicComponent.set_speed(musicEntity, 1.0)  -- Normal speed
+                    -- Position should already be correct from smooth rewind, but ensure it's exact
+                    if math.abs(finalPos - rememberedMusicPosition) > 0.1 then
+                        print("[Rewind Music] Position drift detected, correcting...")
+                        MusicComponent.seek(musicEntity, rememberedMusicPosition)
+                    end
+                    -- Fade in volume from current (50%) to full over 1 second
+                    MusicComponent.fade_volume(musicEntity, musicMuted and 0 or musicBaseVolume, 1.0)
                 end
             end
         end
