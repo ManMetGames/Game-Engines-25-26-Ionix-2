@@ -66,6 +66,16 @@ local UPGRADE_CONFIG = {
         increment    = 30,
         weight       = 7,
     },
+    healing_orb_spawn = {
+        statKey      = "healingOrbSpawnUpgrade",
+        label        = "upgradetype.healingorbspawn",
+        desc         = "upgradedesc.healingorbspawn",
+        minLevel     = 1,
+        maxValue     = 2,
+        defaultValue = 0,
+        customApply  = true,
+        weight       = 2,
+    },
 }
 
 local playerLevel = 1
@@ -80,6 +90,7 @@ local playerStats = {
     fireRateUpgradeCount = 0,
     lowEnemyDamageStacks = 0,
     maxHealth = 100,
+    healingOrbSpawnUpgrade = 0,
 }
 
 local timeoutCount = 0
@@ -236,6 +247,18 @@ function SystemShooterPlayerProgress.applyUpgrade(upgradeType)
                 playerStats.fireInterval = math.max(0.05, playerStats.fireInterval - delta)
                 playerStats.fireRateUpgradeCount = count + 1
             end
+        elseif upgradeType == "healing_orb_spawn" then
+            local count = playerStats.healingOrbSpawnUpgrade or 0
+            if count < cfg.maxValue then
+                playerStats.healingOrbSpawnUpgrade = count + 1
+                -- Update the pickup module's spawn chance
+                local SystemShooterPickups = require("Scripts.SystemShooter.SystemShooterPickups")
+                if count == 0 then
+                    SystemShooterPickups.CONFIG.HEALING_ORB_DROP_CHANCE = 0.25
+                elseif count == 1 then
+                    SystemShooterPickups.CONFIG.HEALING_ORB_DROP_CHANCE = 0.40
+                end
+            end
         end
     else
         local increment = cfg.increment or 1
@@ -336,6 +359,11 @@ function SystemShooterPlayerProgress.reset()
     playerStats.fireRateUpgradeCount = 0
     playerStats.lowEnemyDamageStacks = 0
     playerStats.maxHealth = 100
+    playerStats.healingOrbSpawnUpgrade = 0
+    
+    -- Reset healing orb spawn chance
+    local SystemShooterPickups = require("Scripts.SystemShooter.SystemShooterPickups")
+    SystemShooterPickups.CONFIG.HEALING_ORB_DROP_CHANCE = 0.15
 end
 
 return SystemShooterPlayerProgress
