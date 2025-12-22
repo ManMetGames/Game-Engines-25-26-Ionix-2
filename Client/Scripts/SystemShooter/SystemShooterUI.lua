@@ -246,7 +246,7 @@ if not isUpgradeMenuOpen then return end
       local wrapW = cardW - pad*2
       local descY = 95
 
-      UI.add_centered_label(cx, descY, descText, TS_UI.FONT_SUB, 1.0, wrapW)
+      UI.add_centered_label(cx, descY, descText, TS_UI.FONT_SUB, 1.0, 9000)
 
       local chooseW, chooseH = math.min(180, math.floor(cardW * 0.55)), 44
       local chooseX = (cardW - chooseW) / 2

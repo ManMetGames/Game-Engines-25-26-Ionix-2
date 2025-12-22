@@ -180,7 +180,6 @@ namespace IonixEngine
 		std::string fontName = "";
 		float fontScale = 1.0f;
 		float wrapWidth = 0.0f;
-
 	};
 
 	class UIManager

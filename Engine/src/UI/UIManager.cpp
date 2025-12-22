@@ -12,7 +12,7 @@ void UIManager::AddChildToPanel(UIElement* element)
 
 void UIManager::AddLabel(int x, int y, float xSize, float ySize, const char* text, const std::string& fontName, float fontScale, float wrapWidth)
 {
-	UIElement* element = new UIElement;
+	UIElement* element = new UIElement{};
 	element->type = UIType::Label;
 	element->xPos = x;
 	element->yPos = y;
@@ -49,7 +49,7 @@ void UIManager::AddLabelColored(int x, int y, float xSize, float ySize, const ch
 	float r, float g, float b, float a,
 	const std::string& fontName, float fontScale, float wrapWidth)
 {
-	UIElement* element = new UIElement;
+	UIElement* element = new UIElement{};
 	element->type = UIType::Label;
 	element->xPos = x;
 	element->yPos = y;
@@ -90,6 +90,47 @@ void UIManager::AddCenteredLabelColored(float centerX, float y, const char* text
 	element->textColor = ImVec4(r, g, b, a);
 
 	AddChildToPanel(element);
+}
+
+static void DrawWrappedCenteredLines(const char* text, float regionLeft, float regionWidth, float startY)
+{
+	if (!text || regionWidth <= 0.0f) return;
+	ImFont* font = ImGui::GetFont();
+	const float fontSize = ImGui::GetFontSize();
+	const float lineH = ImGui::GetTextLineHeightWithSpacing();
+
+	const char* s = text;
+	const char* end = text + (int)strlen(text);
+	float y = startY;
+
+	while (s < end)
+	{
+		const char* newline = (const char*)memchr(s, '\n', (size_t)(end - s));
+		const char* hardEnd = newline ? newline : end;
+
+		const char* wrapEnd = font->CalcWordWrapPositionA(fontSize, s, hardEnd, regionWidth);
+		if (wrapEnd == s)
+			wrapEnd = hardEnd;
+
+		const char* lineEnd = wrapEnd;
+		while (lineEnd > s && (lineEnd[-1] == ' ' || lineEnd[-1] == '\t'))
+			lineEnd--;
+
+		float lineW = ImGui::CalcTextSize(s, lineEnd).x;
+		float x = regionLeft + (regionWidth - lineW) * 0.5f;
+
+		ImGui::SetCursorPos(ImVec2(x, y));
+		ImGui::TextUnformatted(s, lineEnd);
+
+		y += lineH;
+
+		s = wrapEnd;
+		while (s < hardEnd && (*s == ' ' || *s == '\t'))
+			s++;
+
+		if (newline && s >= newline)
+			s = newline + 1;
+	}
 }
 
 void UIManager::AddButton(int x, int y, float xSize, float ySize, const char* text, const char* id, const std::string& fontName, float fontScale, float rounding, bool useColor,
@@ -301,7 +342,7 @@ void UIManager::SetSlider(const std::string& id, float v)
 
 void UIManager::AddInputText(int xPos, int yPos, float width, const char* label, const char* id, size_t maxLen, const std::string& fontName, float fontScale)
 {
-	UIElement* element = new UIElement;
+	UIElement* element = new UIElement{};
 	element->type = UIType::InputText;
 	element->xPos = xPos;
 	element->yPos = yPos;
@@ -496,7 +537,7 @@ void UIManager::AddDropdownStyled(int x, int y, float xSize, float ySize, const 
 
 void UIManager::AddProgressBar(int x, int y, float xSize, float ySize, float maxvalue, float* currentvalue, float incrementamount, const std::string& fontName)
 {
-	UIElement* element = new UIElement;
+	UIElement* element = new UIElement{};
 	element->type = UIType::ProgressBar;
 	element->xPos = x;
 	element->yPos = y;
@@ -696,17 +737,6 @@ void UIManager::RenderElement(UIElement* element)
 	{
 		float x = (float)element->xPos;
 
-		if (element->centerAligned)
-		{
-			if (element->wrapWidth > 0.0f) {
-				x = element->centerX - (element->wrapWidth * 0.5f);
-			}
-			else {
-				float w = ImGui::CalcTextSize(element->text).x;
-				x = element->centerX - (w * 0.5f);
-			}
-		}
-
 		bool pushedTextColor = false;
 		if (element->hasTextColor)
 		{
@@ -714,7 +744,27 @@ void UIManager::RenderElement(UIElement* element)
 			pushedTextColor = true;
 		}
 
-		m_ui->DrawLabel(element->text, element->xSize, element->ySize, (int)x, element->yPos, element->wrapWidth);
+		if (element->centerAligned && element->wrapWidth > 0.0f)
+		{
+			float regionLeft = element->centerX - (element->wrapWidth * 0.5f);
+			DrawWrappedCenteredLines(element->text, regionLeft, element->wrapWidth, (float)element->yPos);
+		}
+		else if (element->wrapWidth > 0.0f)
+		{
+			ImGui::SetCursorPos(ImVec2(x, (float)element->yPos));
+			ImGui::PushTextWrapPos(ImGui::GetCursorPosX() + element->wrapWidth);
+			ImGui::TextUnformatted(element->text);
+			ImGui::PopTextWrapPos();
+		}
+		else
+		{
+			if (element->centerAligned)
+			{
+				float w = ImGui::CalcTextSize(element->text).x;
+				x = element->centerX - (w * 0.5f);
+			}
+			m_ui->DrawLabel(element->text, element->xSize, element->ySize, (int)x, element->yPos);
+		}
 
 		if (pushedTextColor) ImGui::PopStyleColor();
 		break;
