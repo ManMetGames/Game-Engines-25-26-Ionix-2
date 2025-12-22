@@ -271,7 +271,7 @@ function SystemShooterPlayerProgress.getUpgradeConfig()
 end
 
 function SystemShooterPlayerProgress.addXp(amount)
-    xp = xp + 50
+    xp = xp + amount
     while xp >= xpToNextLevel do
         xp = xp - xpToNextLevel
         OnLevelUp()
