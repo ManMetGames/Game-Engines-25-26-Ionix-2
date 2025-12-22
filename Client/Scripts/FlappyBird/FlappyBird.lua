@@ -218,15 +218,16 @@ local pipeSets = {}
 local pipesList = {} 
 local pipeSpeed = -3
 local pipeOffScreenLeft = -100 
+local pipeSpacingX = 350 -- horizontal spacing between pipe sets (pixels)
 
 -- Pipe randomness (in pixels)
-local pipeHeight = 500       -- pipe sprite height in pixels
+local pipeHeight = 300       -- pipe sprite height in pixels
 local pipeStartGap = 330     -- starting gap size in pixels (easier)
 local pipeMinGap   = 210     -- minimum gap size in pixels (harder)
 local pipeShrinkGap = 3      -- gap shrinks by this many pixels per point
 
 local pipesetMinGap = 150    -- minimum Y position for gap center (in pixels from top)
-local pipesetMaxGap = 400    -- maximum Y position for gap center (in pixels from top)
+local pipesetMaxGap = 350    -- maximum Y position for gap center (in pixels from top)
 
 -- Coins
 local coins = {}
@@ -1469,7 +1470,6 @@ end
         -- Only allow restart when delay is done AND name entry isn't active
         local canRestart = (restartDelayFrames == 0) and not (newHighScore and not submitted)
 
-
         text2 = canRestart and T("fb.press_space_restart") or ""
 
 
@@ -1510,7 +1510,7 @@ end
     for i, set in ipairs(pipeSets) do
         local pipeX = Mafs.get_vec_x(Fysics.get_pos(set.bottom))
 
-        if pipeX < -60 then
+        if pipeX < pipeOffScreenLeft then
 
             -- Added difficulty: shrink pipe gap as score increases (in pixels)
             local gapSize = pipeStartGap - (Pscore * pipeShrinkGap)
@@ -1536,7 +1536,19 @@ end
             -- topY is where the BOTTOM edge of top pipe should be (pipe extends upward)
             local topY = gapCenter - (gapSize / 2) - pipeHeight
 
-            local spawnX = windowW + 60
+            -- Respawn X: place this set after the current right-most pipe set
+            local rightMostX = -math.huge
+            for _, other in ipairs(pipeSets) do
+                if other ~= set then
+                    local ox = Mafs.get_vec_x(Fysics.get_pos(other.bottom))
+                    if ox > rightMostX then rightMostX = ox end
+                end
+            end
+            local spawnX = rightMostX + pipeSpacingX
+            if rightMostX == -math.huge then
+                spawnX = windowW + 60
+            end
+            if spawnX < windowW + 60 then spawnX = windowW + 60 end
 
             -- Apply positions
             Fysics.set_pos(set.bottom, spawnX, bottomY)
@@ -1580,10 +1592,10 @@ end
    local cx = windowW / 2
    local cy = windowH / 2
     -- UI
+
     UI.add_label(10, 10, 1000, 1000, pipeScoreText, UI_FONT_REG, 1)
     UI.add_label(10, 40, 1000, 1000, scoreText, UI_FONT_REG, 1)
     UI.add_centered_label(cx, cy, text1, UI_FONT_HEADER, 1)
-
     ------------------------------
     -----------Raycast------------
     ---------------------------------
