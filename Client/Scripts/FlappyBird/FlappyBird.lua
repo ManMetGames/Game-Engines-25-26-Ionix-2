@@ -765,6 +765,7 @@ local function LocalisedItemName(item)
     if string.sub(item.id, 1, 3) == "bg_" then
         if item.id == "bg_classic" then return T("backgrounds.classic") end
         if item.id == "bg_night" then return T("backgrounds.classicnight") end
+        if item.id == "bg_plains" then return T("backgrounds.plains") end
     elseif string.sub(item.id, 1, 5) == "bird_" then
         if item.id == "bird_classic" then return T("birds.classic") end
         if item.id == "bird_gold" then return T("birds.gold") end
