@@ -1469,6 +1469,7 @@ end
         -- Only allow restart when delay is done AND name entry isn't active
         local canRestart = (restartDelayFrames == 0) and not (newHighScore and not submitted)
 
+
         text2 = canRestart and T("fb.press_space_restart") or ""
 
 
@@ -1579,8 +1580,9 @@ end
    local cx = windowW / 2
    local cy = windowH / 2
     -- UI
-    UI.add_label(10, 10, 1000, 1000, pipeScoreText)
-    UI.add_label(10, 40, 1000, 1000, scoreText)
+    UI.add_label(10, 10, 1000, 1000, pipeScoreText, UI_FONT_REG, 1)
+    UI.add_label(10, 40, 1000, 1000, scoreText, UI_FONT_REG, 1)
+    UI.add_centered_label(cx, cy, text1, UI_FONT_HEADER, 1)
 
     ------------------------------
     -----------Raycast------------
