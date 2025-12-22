@@ -228,17 +228,17 @@ namespace IonixEngine {
             bool hasComp = entity->TryGetComponent<AudioPlayer>(&comp);
 
             result = std::make_pair(hasComp, comp);
-MusicComponent = [](Entity* entity) -> auto {
+
+            return result;
+            };
+
+        auto tryGetMusicComponent = [](Entity* entity) -> auto {
             MusicComponent* comp = nullptr;
             std::pair<bool, MusicComponent*> result;
             bool hasComp = entity->TryGetComponent<MusicComponent>(&comp);
 
             result = std::make_pair(hasComp, comp);
 
-            return result;
-            };
-
-        auto tryGet
             return result;
             };
 
@@ -250,11 +250,7 @@ MusicComponent = [](Entity* entity) -> auto {
             result = std::make_pair(hasComp, comp);
 
             return result;
-            };MusicComponent = [](Entity* entity) -> bool {
-            return entity->HasComponent<MusicComponent>();
             };
-
-        auto has
 
         auto hasSpriteComponent = [](Entity* entity) -> bool {
             return entity->HasComponent<SpriteComponent>();
@@ -262,6 +258,10 @@ MusicComponent = [](Entity* entity) -> auto {
 
         auto hasAudioComponent = [](Entity* entity) -> bool {
             return entity->HasComponent<AudioPlayer>();
+            };
+
+        auto hasMusicComponent = [](Entity* entity) -> bool {
+            return entity->HasComponent<MusicComponent>();
             };
 
         auto hasFysicsBodyComponent = [](Entity* entity) -> bool {

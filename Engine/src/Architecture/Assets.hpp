@@ -440,7 +440,6 @@ struct Sounds {
     uint32_t gunshot3 = 3098717796u;
     uint32_t impact3 = 2700059400u;
     uint32_t playerDamage = 738334250u;
-    uint32_t technoSong = 1268943446u;
     uint32_t test = 1642075152u;
     uint32_t test_1 = 1449390318u;
 
@@ -455,7 +454,6 @@ struct Sounds {
         map["gunshot3"] = "./Assets/Audio/gunshot3.mp3";
         map["impact3"] = "./Assets/Audio/impact3.mp3";
         map["playerDamage"] = "./Assets/Audio/playerDamage.mp3";
-        map["technoSong"] = "./Assets/technoSong.mp3";
         map["test"] = "./Assets/test.wav";
         map["test_1"] = "./Assets/test.mp3";
         return map;
@@ -464,12 +462,12 @@ struct Sounds {
 
 struct Music {
     // Add music file hash IDs here as they are added to the project
-    // Example: uint32_t BackgroundMusic = 1234567890u;
+    uint32_t technoSong = 1268943446u;
 
     inline std::map<std::string, std::string> GetMusic() {
         std::map<std::string, std::string> map;
         // Add music files here
-        // Example: map["BackgroundMusic"] = "./Assets/Audio/background.mp3";
+        map["technoSong"] = "./Assets/technoSong.mp3";
         return map;
     };
 };

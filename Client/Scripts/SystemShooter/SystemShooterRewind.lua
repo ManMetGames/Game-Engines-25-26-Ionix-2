@@ -41,6 +41,14 @@ function SystemShooterRewind.getTimeScale()
     return state.timeScale
 end
 
+function SystemShooterRewind.getTimer()
+    return state.timer
+end
+
+function SystemShooterRewind.getDuration()
+    return state.duration
+end
+
 --=====================================================================
 --  [PUBLIC API] Store Spawn Positions (called when level loads)    
 --=====================================================================

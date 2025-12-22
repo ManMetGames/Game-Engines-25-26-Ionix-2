@@ -89,6 +89,12 @@ local bopScale = 0.25
 local beatStartDelaySeconds = (8 * 4) * secondsPerBeat
 local beatStartDelayCounter = 0
 
+-- Music rewind sync
+local rememberedMusicPosition = 0    -- Position to restore after rewind
+local musicRewindStartPosition = 0   -- Position when rewind starts
+local musicBaseVolume = 1.0          -- Base volume before rewind effects
+local lastRewindPhase = nil          -- Track phase changes to avoid re-setting speed every frame
+
 -- Controls
 local sensitivitySetting = Json.load_setting(GAME_ID, "controls.sensitivity", 1.0) or 1.0
 local function Clamp(v, a, b)
@@ -246,7 +252,7 @@ function UpdateWindowTransition(dt)
             
             -- Start music after first window transition completes (synced with gameplay)
             if musicEntity and not musicStartedThisLaunch then
-                AudioComponent.play(musicEntity, 0, -1)
+                MusicComponent.play(musicEntity, true, 2.0)  -- loop=true, fadeIn=2.0 seconds
                 musicStartedThisLaunch = true
                 -- Reset beat delay counter to sync with music start
                 beatStartDelayCounter = 0
@@ -497,7 +503,7 @@ local function TriggerGameOver()
     SystemShooterPlayer.stopFiring()
     -- Stop music when run ends
     if musicEntity then
-        AudioComponent.terminate(musicEntity)
+        MusicComponent.stop(musicEntity, 0)  -- fadeOut=0
         musicStartedThisLaunch = false
     end
 end
@@ -517,10 +523,10 @@ local function ApplyAudioVolumes()
     musicVol  = Clamp01(musicVol  or 0.8)
     sfxVol    = Clamp01(sfxVol    or 0.8)
 
-    -- MUSIC (base 0..128)
-    local musicOut = math.floor(128 * masterVol * musicVol + 0.5)
+    -- MUSIC (SoLoud uses 0.0..1.0 range)
+    local musicOut = masterVol * musicVol
     if musicEntity then
-        AudioComponent.change_volume(musicEntity, musicMuted and 0 or musicOut)
+        MusicComponent.set_volume(musicEntity, musicMuted and 0 or musicOut)
     end
 
     -- SFX (scale your existing base volumes)
@@ -651,6 +657,11 @@ LoadLevel = function(index, resetPlayerState)
     -- Spawn enemies as disabled (preview state) during start-level peace
     SpawnEnemiesForLevel(true)
     
+    -- Remember music position for rewind restoration
+    if musicEntity and MusicComponent.is_playing(musicEntity) then
+        rememberedMusicPosition = MusicComponent.get_position(musicEntity)
+    end
+    
     -- Start the start-level peace timer (enemies will be enabled when it expires)
     peaceTimerSeconds = startLevelPeaceDuration
     isStartLevelPeace = true
@@ -746,9 +757,11 @@ local function StartRewindSequence()
     -- Start the rewind sequence via the module
     SystemShooterRewind.start(enemies, SystemShooterPlayer.getHealth(), maxHealth, levelTimeLimit, enemyTargetHealthList)
     
-    -- Pause music
-    if musicEntity then
-        AudioComponent.pause(musicEntity)
+    -- Start music slowdown effect
+    if musicEntity and MusicComponent.is_playing(musicEntity) then
+        musicRewindStartPosition = MusicComponent.get_position(musicEntity)
+        musicBaseVolume = masterVol * musicVol
+        -- Music will slow down and fade out during the "slowing" phase (handled in update)
     end
 end
 
@@ -874,8 +887,8 @@ function SystemShooter:OnStart()
     StartLevel(1, true)
 
     musicEntity = Entity.create_entity()
-    Entity.add_audio_component(musicEntity, "technoSong", false)
-    -- Music will start when player presses START GAME
+    Entity.add_music_component(musicEntity, "technoSong", false)
+    -- Music will start when player presses START GAME (now using SoLoud)
 
     playerDamageSfxEntity = Entity.create_entity()
     Entity.add_audio_component(playerDamageSfxEntity, "playerDamage", false)
@@ -1545,8 +1558,8 @@ local function DrawGameOverMenu(screenW, screenH, dt)
         StartLevel(1, true)
         -- Restart music from beginning to sync with gameplay
         if musicEntity then
-            AudioComponent.terminate(musicEntity)
-            AudioComponent.play(musicEntity, 0, -1)
+            MusicComponent.stop(musicEntity, 0)  -- fadeOut=0
+            MusicComponent.play(musicEntity, true, 0)  -- loop=true, fadeIn=0
         end
 
     elseif UI.was_button_pressed("gameover_mainmenu") then
@@ -1621,9 +1634,9 @@ SetPaused = function(p)
     -- Stop/resume music to prevent desync
     if musicEntity then
         if isPaused then
-            AudioComponent.pause(musicEntity)
+            MusicComponent.pause(musicEntity)
         else
-            AudioComponent.resume(musicEntity)
+            MusicComponent.resume(musicEntity)
         end
     end
 end
@@ -1647,7 +1660,7 @@ GoToMainMenuFromPause = function()
 
     -- Stop music when returning to main menu
     if musicEntity then
-        AudioComponent.terminate(musicEntity)
+        MusicComponent.stop(musicEntity, 0)  -- fadeOut=0
         musicStartedThisLaunch = false
     end
 
@@ -2136,6 +2149,70 @@ if levelCfg.timeLimitSeconds ~= nil and levelCfg.timeLimitSeconds > 0 then
             UpdateEnemyMovement, clearProjectiles
         )
         
+        -- Sync music with rewind phases
+        if result and musicEntity then
+            local timeScale = SystemShooterRewind.getTimeScale()
+            local phase = result.phase
+            local isPlaying = MusicComponent.is_playing(musicEntity)
+            
+            -- Only log and set speed when phase changes
+            if phase ~= lastRewindPhase then
+                print("[Rewind Music] Phase changed: " .. tostring(lastRewindPhase) .. " -> " .. tostring(phase) .. ", IsPlaying: " .. tostring(isPlaying))
+                lastRewindPhase = phase
+                
+                if phase == "slowing" then
+                    -- Start slowing down - speed will be updated every frame for smooth slowdown
+                    print("[Rewind Music] Starting slowdown phase")
+                    
+                elseif phase == "stopped" then
+                    -- Brief pause - keep music playing at very slow speed, just mute it
+                    if isPlaying then
+                        print("[Rewind Music] Stopped phase - keeping stream alive, muting")
+                        -- Don't change speed, just mute
+                        MusicComponent.set_volume(musicEntity, 0)
+                    end
+                    
+                elseif phase == "rewinding" then
+                    -- CRITICAL: Set reverse speed ONCE when entering rewind phase
+                    if isPlaying then
+                        local currentSpeed = MusicComponent.get_speed(musicEntity)
+                        local currentPos = MusicComponent.get_position(musicEntity)
+                        print("[Rewind Music] ENTERING REWIND PHASE - Current speed: " .. tostring(currentSpeed) .. ", Position: " .. tostring(currentPos))
+                        print("[Rewind Music] Setting reverse speed -1.0")
+                        MusicComponent.set_speed(musicEntity, -1.0)
+                        -- Set initial volume to 50% immediately so rewind is audible
+                        MusicComponent.set_volume(musicEntity, musicMuted and 0 or (musicBaseVolume * 0.5))
+                        local newSpeed = MusicComponent.get_speed(musicEntity)
+                        local newPos = MusicComponent.get_position(musicEntity)
+                        print("[Rewind Music] After setting - Speed: " .. tostring(newSpeed) .. ", Position: " .. tostring(newPos))
+                    else
+                        print("[Rewind Music] WARNING: Music not playing when entering rewind phase!")
+                    end
+                end
+            end
+            
+            -- Update volume every frame during slowing and rewinding
+            if phase == "slowing" then
+                if isPlaying then
+                    MusicComponent.set_speed(musicEntity, timeScale)  -- Update speed for smooth slowdown
+                    local volumeFade = timeScale
+                    MusicComponent.set_volume(musicEntity, musicMuted and 0 or (musicBaseVolume * volumeFade))
+                end
+                
+            elseif phase == "rewinding" then
+                if isPlaying then
+                    -- Update volume from 50% to full during rewind for smooth fade-in
+                    local rewindProgress = 1.0 - (SystemShooterRewind.getTimer() / SystemShooterRewind.getDuration())
+                    if rewindProgress < 0 then rewindProgress = 0 end
+                    if rewindProgress > 1 then rewindProgress = 1 end
+                    
+                    -- Lerp from 50% to 100% volume as rewind progresses
+                    local volumeFade = 0.5 + (0.5 * rewindProgress)
+                    MusicComponent.set_volume(musicEntity, musicMuted and 0 or (musicBaseVolume * volumeFade))
+                end
+            end
+        end
+        
         if result then
             -- Apply returned values
             if result.levelTimer then
@@ -2162,12 +2239,18 @@ if levelCfg.timeLimitSeconds ~= nil and levelCfg.timeLimitSeconds > 0 then
                     SystemShooterEnemy.setEnemyDisabled(enemy, true)
                 end
                 
-                -- Start peace timer and resume music
+                -- Start peace timer and restore music
                 peaceTimerSeconds = startLevelPeaceDuration
                 isStartLevelPeace = true
                 
+                -- Restore music to remembered position with normal playback
                 if musicEntity then
-                    AudioComponent.resume(musicEntity)
+                    print("[Rewind Music] Restoring music to position: " .. tostring(rememberedMusicPosition))
+                    MusicComponent.set_speed(musicEntity, 1.0)  -- Normal speed
+                    MusicComponent.seek(musicEntity, rememberedMusicPosition)  -- Restore position
+                    -- Fade in the volume over 1 second
+                    MusicComponent.set_volume(musicEntity, 0)  -- Start at 0
+                    MusicComponent.fade_volume(musicEntity, musicMuted and 0 or musicBaseVolume, 1.0)  -- Fade to full over 1 second
                 end
             end
         end
