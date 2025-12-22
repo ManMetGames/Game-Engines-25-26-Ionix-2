@@ -3,7 +3,7 @@
 #include <string>
 #include <unordered_map>
 #include <utility>
- #include <filesystem>
+#include <filesystem>
 
 namespace IonixEngine
 {
@@ -11,6 +11,7 @@ namespace IonixEngine
     {
     public:
         std::unordered_map<std::string, ImFont*> fontMap;
+        bool fontsLoaded = false;
 
         ImFont* GetFont(const std::string& fontName)
         {
@@ -27,13 +28,22 @@ namespace IonixEngine
         {
             ImGuiIO& io = ImGui::GetIO();
 
+            if (fontsLoaded) return;
+            fontsLoaded = true;
+
+            // Clear existing fonts/atlas so we don't keep growing the atlas on re-init
+            io.Fonts->Clear();
+            fontMap.clear();
+
+
             // IMPORTANT: set atlas size BEFORE adding fonts (esp. for JP/CJK glyph ranges)
-            io.Fonts->TexDesiredWidth = 4096;
+            io.Fonts->TexDesiredWidth = 8192; // was 4096; helps keep atlas height under GPU limits
+            io.Fonts->TexGlyphPadding = 1;
 
             ImFontConfig cfg;
-            cfg.OversampleH = 3;
-            cfg.OversampleV = 2;
-            cfg.PixelSnapH  = true;
+            cfg.OversampleH = 2;
+            cfg.OversampleV = 1;
+            cfg.PixelSnapH = true;
 
             // -------------------------
             // ImGui default family (baked at multiple sizes to avoid blurry scaling)
@@ -86,30 +96,24 @@ namespace IonixEngine
                 const ImWchar* ranges,
                 ImFont* fallback,
                 const char* mapName
-            )
-            {
-                ImFont* font = fallback;
-                if (std::filesystem::exists(filename))
+                )
                 {
-                    font = io.Fonts->AddFontFromFileTTF(filename, sizePixels, fontCfg, ranges);
-                    if (!font)
-                        font = fallback;
-                }
-                AddMap({ mapName, font });
-                return font;
-            };
+                    ImFont* font = fallback;
+                    if (std::filesystem::exists(filename))
+                    {
+                        font = io.Fonts->AddFontFromFileTTF(filename, sizePixels, fontCfg, ranges);
+                        if (!font)
+                            font = fallback;
+                    }
+                    AddMap({ mapName, font });
+                    return font;
+                };
 
             AddFontFromFileIfExists(
                 "Fonts/NotoSansJP-Regular.ttf", 23.0f, &cfg, jpRanges, imguiDefault, "ImGuiDefaultJP");
 
             AddFontFromFileIfExists(
                 "Fonts/NotoSansJP-Bold.ttf", 23.0f, &cfg, jpRanges, imguiDefaultBold, "ImGuiDefaultBoldJP");
-
-            AddFontFromFileIfExists(
-                "Fonts/JF-Dot-MPlusH10.ttf", 23.0f, &cfg, jpRanges, imguiDefault, "JFDotMPlusH10");
-
-            AddFontFromFileIfExists(
-                "Fonts/JF-Dot-MPlusH10B.ttf", 23.0f, &cfg, jpRanges, imguiDefaultBold, "JFDotMPlusH10Bold");
 
             ImFontConfig jpSubCfg = cfg;
             jpSubCfg.SizePixels = 29.0f;
@@ -125,21 +129,6 @@ namespace IonixEngine
             jpTitleCfg.SizePixels = 47.0f;
             AddFontFromFileIfExists(
                 "Fonts/NotoSansJP-Bold.ttf", 47.0f, &jpTitleCfg, jpRanges, imguiTitle, "ImGuiTitleJP");
-
-            ImFontConfig h10SubCfg = cfg;
-            h10SubCfg.SizePixels = 29.0f;
-            AddFontFromFileIfExists(
-                "Fonts/JF-Dot-MPlusH10.ttf", 29.0f, &h10SubCfg, jpRanges, imguiSub, "JFDotMPlusH10_29");
-
-            ImFontConfig h10HeaderCfg = cfg;
-            h10HeaderCfg.SizePixels = 33.0f;
-            AddFontFromFileIfExists(
-                "Fonts/JF-Dot-MPlusH10B.ttf", 33.0f, &h10HeaderCfg, jpRanges, imguiHeader, "JFDotMPlusH10Bold_33");
-
-            ImFontConfig h10TitleCfg = cfg;
-            h10TitleCfg.SizePixels = 47.0f;
-            AddFontFromFileIfExists(
-                "Fonts/JF-Dot-MPlusH10B.ttf", 47.0f, &h10TitleCfg, jpRanges, imguiTitle, "JFDotMPlusH10Bold_47");
 
             // Build font atlas
             io.Fonts->Build();
