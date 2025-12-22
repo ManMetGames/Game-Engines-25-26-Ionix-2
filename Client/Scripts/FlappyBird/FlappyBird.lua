@@ -124,14 +124,16 @@ function ExampleScript:OnUpdate()
     	if Input.get_button_down(0, Buttons.ionix_x) then
             --Directional hitboxes
             local dirX = Input.get_left_stick_x(0)
-            local dirY= Input.get_left_stick_y(0)
+            local dirY = Input.get_left_stick_y(0)
             
             local pos = Entity.get_global_pos(player1)
             local px = Mafs.get_vec_x(pos)
             local py = Mafs.get_vec_y(pos)
             
             local distance = 40
-            Hitbox.spawn(player1, px + dirX * distance, py + dirY * distance, 20, 20, 0.15, assets, enums)
+            Hitbox.spawn(player1, px + dirX * distance, py + dirY * distance, 20, 20, 0.3, assets, enums)
+            hb.dirX = dirX
+            hb.dirY = dirY
         end
     Hitbox.update(player1, player2)
     

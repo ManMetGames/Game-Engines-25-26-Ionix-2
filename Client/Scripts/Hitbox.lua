@@ -62,8 +62,9 @@ function Hitbox.onHit(hb, target)
     
     --Knockback when hit 
     local kb = 8
-    local dirX = 1
-    local dirY = 0
+    local dirX = hb.dirX or 1
+    local dirY = hb.dirY or 0
+    
     
     Fysics.add_impulse_to_center(target, dirX * kb, dirY * kb)
 end 
