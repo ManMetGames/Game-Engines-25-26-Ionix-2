@@ -38,6 +38,13 @@ namespace IonixEngine {
         float offsetX = 0.0f;         // Offset from entity center
         float offsetY = 0.0f;
         
+        // Distortion effect (heat haze / gravitational lensing effect)
+        bool distortionEnabled = false;     // Enable waviness/warping effect
+        float distortionAmplitude = 5.0f;   // How far vertices deviate (in pixels)
+        float distortionFrequency = 3.0f;   // Number of waves around the ring
+        float distortionSpeed = 2.0f;       // Animation speed
+        float distortionTime = 0.0f;        // Time accumulator for animation
+        
         // Render settings
         int renderLayer = 0;
         int zOrder = 0;
@@ -66,10 +73,12 @@ namespace IonixEngine {
         void SetRingFollowEntity(int id, int entityId, float offsetX = 0.0f, float offsetY = 0.0f);
         void SetRingRenderLayer(int id, int layer, int zOrder = 0);
         void SetRingSegments(int id, int segments);
+        void SetRingDistortion(int id, bool enabled, float amplitude = 5.0f, float frequency = 3.0f, float speed = 2.0f);
         
         // Getters
         bool IsRingActive(int id) const;
         float GetRingRadius(int id) const;
+        bool IsRingDistortionEnabled(int id) const;
 
     private:
         std::vector<RingEffect> m_Rings;
@@ -80,5 +89,9 @@ namespace IonixEngine {
         void DrawThickCircle(SDL_Renderer* renderer, float centerX, float centerY, 
                             float radius, float thickness, int segments,
                             Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+        void DrawThickCircleWithDistortion(SDL_Renderer* renderer, float centerX, float centerY,
+                            float radius, float thickness, int segments,
+                            Uint8 r, Uint8 g, Uint8 b, Uint8 a,
+                            float distortAmplitude, float distortFrequency, float distortTime);
     };
 }

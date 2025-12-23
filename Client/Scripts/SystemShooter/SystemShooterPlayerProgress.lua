@@ -78,7 +78,7 @@ local UPGRADE_CONFIG = {
         customApply  = true,
         weight       = 4,
         -- Drop chance values for each upgrade level
-        dropChances  = { 0.90, 0.40 },  -- [1] = first upgrade, [2] = second upgrade
+        dropChances  = { 0.25, 0.40 },  -- [1] = first upgrade, [2] = second upgrade
     },
     antivirus = {
         statKey      = "antivirusUpgrade",

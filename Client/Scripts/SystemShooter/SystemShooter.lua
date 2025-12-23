@@ -2044,6 +2044,7 @@ function SystemShooter:OnUpdate()
                 VFX.set_ring_pulsing(overhealthRingId, true, 3.0, 100, 255)
                 VFX.set_ring_render_layer(overhealthRingId, 0, 15)  -- High z-order to render on top
                 VFX.set_ring_segments(overhealthRingId, 48)
+                VFX.set_ring_distortion(overhealthRingId, true, 3.5, 4.0, 3.5)
             end
         elseif not overhealthActive and wasOverhealthActive then
             -- Overhealth just became inactive - destroy the ring

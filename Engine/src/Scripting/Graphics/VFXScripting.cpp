@@ -124,6 +124,22 @@ namespace IonixEngine {
             scene->GetVFXSystem().SetRingSegments(id, segments);
         };
 
+        // Set ring distortion effect (heat haze / gravitational lensing)
+        auto setRingDistortion = [](int id, bool enabled, sol::optional<float> amplitude,
+                                    sol::optional<float> frequency, sol::optional<float> speed) {
+            if (!Application::Get().layerScene || !Application::Get().layerScene->GetScene()) {
+                return;
+            }
+            Scene* scene = Application::Get().layerScene->GetScene();
+            scene->GetVFXSystem().SetRingDistortion(
+                id,
+                enabled,
+                amplitude.value_or(5.0f),
+                frequency.value_or(3.0f),
+                speed.value_or(2.0f)
+            );
+        };
+
         // Check if ring is active
         auto isRingActive = [](int id) -> bool {
             if (!Application::Get().layerScene || !Application::Get().layerScene->GetScene()) {
@@ -140,6 +156,15 @@ namespace IonixEngine {
             }
             Scene* scene = Application::Get().layerScene->GetScene();
             return scene->GetVFXSystem().GetRingRadius(id);
+        };
+
+        // Check if ring distortion is enabled
+        auto isRingDistortionEnabled = [](int id) -> bool {
+            if (!Application::Get().layerScene || !Application::Get().layerScene->GetScene()) {
+                return false;
+            }
+            Scene* scene = Application::Get().layerScene->GetScene();
+            return scene->GetVFXSystem().IsRingDistortionEnabled(id);
         };
 
         // Clear all VFX effects
@@ -166,10 +191,12 @@ namespace IonixEngine {
             "set_ring_follow_entity", setRingFollowEntity,
             "set_ring_render_layer", setRingRenderLayer,
             "set_ring_segments", setRingSegments,
+            "set_ring_distortion", setRingDistortion,
             
             // Ring queries
             "is_ring_active", isRingActive,
             "get_ring_radius", getRingRadius,
+            "is_ring_distortion_enabled", isRingDistortionEnabled,
             
             // General VFX control
             "clear", clearVFX

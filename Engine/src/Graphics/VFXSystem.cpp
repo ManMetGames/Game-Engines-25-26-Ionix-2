@@ -71,6 +71,11 @@ namespace IonixEngine {
         ring.offsetY = 0.0f;
         ring.renderLayer = 0;
         ring.zOrder = 0;
+        ring.distortionEnabled = false;
+        ring.distortionAmplitude = 5.0f;
+        ring.distortionFrequency = 3.0f;
+        ring.distortionSpeed = 2.0f;
+        ring.distortionTime = 0.0f;
 
         return static_cast<int>(index);
     }
@@ -148,6 +153,16 @@ namespace IonixEngine {
         m_Rings[id].segments = segments > 8 ? segments : 8; // Minimum 8 segments
     }
 
+    void VFXSystem::SetRingDistortion(int id, bool enabled, float amplitude, float frequency, float speed) {
+        if (id < 0 || static_cast<std::size_t>(id) >= m_Rings.size() || !m_Rings[id].active) {
+            return;
+        }
+        m_Rings[id].distortionEnabled = enabled;
+        m_Rings[id].distortionAmplitude = amplitude;
+        m_Rings[id].distortionFrequency = frequency;
+        m_Rings[id].distortionSpeed = speed;
+    }
+
     bool VFXSystem::IsRingActive(int id) const {
         if (id < 0 || static_cast<std::size_t>(id) >= m_Rings.size()) {
             return false;
@@ -162,6 +177,13 @@ namespace IonixEngine {
         return m_Rings[id].radius;
     }
 
+    bool VFXSystem::IsRingDistortionEnabled(int id) const {
+        if (id < 0 || static_cast<std::size_t>(id) >= m_Rings.size()) {
+            return false;
+        }
+        return m_Rings[id].distortionEnabled;
+    }
+
     void VFXSystem::Update(float dt) {
         for (std::size_t i = 0; i < m_Rings.size(); ++i) {
             RingEffect& ring = m_Rings[i];
@@ -174,6 +196,14 @@ namespace IonixEngine {
                 ring.pulseTimer += dt * ring.pulseSpeed;
                 if (ring.pulseTimer > 2.0f * static_cast<float>(M_PI)) {
                     ring.pulseTimer -= 2.0f * static_cast<float>(M_PI);
+                }
+            }
+
+            // Update distortion animation
+            if (ring.distortionEnabled) {
+                ring.distortionTime += dt * ring.distortionSpeed;
+                if (ring.distortionTime > 2.0f * static_cast<float>(M_PI)) {
+                    ring.distortionTime -= 2.0f * static_cast<float>(M_PI);
                 }
             }
 
@@ -228,8 +258,15 @@ namespace IonixEngine {
             finalAlpha = static_cast<Uint8>(ring.pulseMinAlpha + pulse * (ring.pulseMaxAlpha - ring.pulseMinAlpha));
         }
 
-        DrawThickCircle(renderer, ring.x, ring.y, ring.radius, ring.thickness, 
-                       ring.segments, ring.r, ring.g, ring.b, finalAlpha);
+        // Pass distortion parameters to drawing function
+        if (ring.distortionEnabled) {
+            DrawThickCircleWithDistortion(renderer, ring.x, ring.y, ring.radius, ring.thickness, 
+                                         ring.segments, ring.r, ring.g, ring.b, finalAlpha,
+                                         ring.distortionAmplitude, ring.distortionFrequency, ring.distortionTime);
+        } else {
+            DrawThickCircle(renderer, ring.x, ring.y, ring.radius, ring.thickness, 
+                           ring.segments, ring.r, ring.g, ring.b, finalAlpha);
+        }
     }
 
     void VFXSystem::DrawThickCircle(SDL_Renderer* renderer, float centerX, float centerY,
@@ -300,6 +337,107 @@ namespace IonixEngine {
                     int y1 = static_cast<int>(centerY + currentRadius * sin1);
                     int x2 = static_cast<int>(centerX + currentRadius * cos2);
                     int y2 = static_cast<int>(centerY + currentRadius * sin2);
+                    
+                    SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
+                }
+            }
+        }
+
+        // Restore previous renderer state
+        SDL_SetRenderDrawBlendMode(renderer, previousBlendMode);
+        SDL_SetRenderDrawColor(renderer, prevR, prevG, prevB, prevA);
+    }
+
+    void VFXSystem::DrawThickCircleWithDistortion(SDL_Renderer* renderer, float centerX, float centerY,
+                                                  float radius, float thickness, int segments,
+                                                  Uint8 r, Uint8 g, Uint8 b, Uint8 a,
+                                                  float distortAmplitude, float distortFrequency, float distortTime) {
+        // Save current renderer state
+        SDL_BlendMode previousBlendMode;
+        SDL_GetRenderDrawBlendMode(renderer, &previousBlendMode);
+        Uint8 prevR, prevG, prevB, prevA;
+        SDL_GetRenderDrawColor(renderer, &prevR, &prevG, &prevB, &prevA);
+
+        // Enable blending for alpha
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(renderer, r, g, b, a);
+
+        float innerRadius = radius - thickness / 2.0f;
+        float outerRadius = radius + thickness / 2.0f;
+        
+        if (innerRadius < 0) innerRadius = 0;
+
+        // Increase segment count for smoother distortion to prevent square-like appearance
+        // More segments = smoother curves even with high distortion
+        int effectiveSegments = segments * 2; // Double the segments for distortion smoothness
+        float angleStep = 2.0f * static_cast<float>(M_PI) / static_cast<float>(effectiveSegments);
+
+        // Draw with distortion effect applied to vertices
+        // The distortion creates a wave/warping effect that travels around the ring
+        if (thickness <= 2.0f) {
+            // Simple single-pixel thick ring with distortion
+            for (int i = 0; i < effectiveSegments; ++i) {
+                float angle1 = static_cast<float>(i) * angleStep;
+                float angle2 = static_cast<float>(i + 1) * angleStep;
+
+                // Calculate distortion offset using sine wave
+                // This creates a waviness that appears to travel around the circle
+                float distort1 = std::sin(angle1 * distortFrequency + distortTime) * distortAmplitude;
+                float distort2 = std::sin(angle2 * distortFrequency + distortTime) * distortAmplitude;
+
+                // Apply distortion by varying the radius at each point
+                float distortedRadius1 = radius + distort1;
+                float distortedRadius2 = radius + distort2;
+
+                int x1 = static_cast<int>(centerX + distortedRadius1 * std::cos(angle1));
+                int y1 = static_cast<int>(centerY + distortedRadius1 * std::sin(angle1));
+                int x2 = static_cast<int>(centerX + distortedRadius2 * std::cos(angle2));
+                int y2 = static_cast<int>(centerY + distortedRadius2 * std::sin(angle2));
+
+                SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
+            }
+        } else {
+            // Thick ring with distortion
+            for (int i = 0; i < effectiveSegments; ++i) {
+                float angle1 = static_cast<float>(i) * angleStep;
+                float angle2 = static_cast<float>(i + 1) * angleStep;
+
+                float cos1 = std::cos(angle1);
+                float sin1 = std::sin(angle1);
+                float cos2 = std::cos(angle2);
+                float sin2 = std::sin(angle2);
+
+                // Calculate distortion for this segment
+                float distort1 = std::sin(angle1 * distortFrequency + distortTime) * distortAmplitude;
+                float distort2 = std::sin(angle2 * distortFrequency + distortTime) * distortAmplitude;
+
+                // Apply distortion to both inner and outer radius
+                float distortedInnerRadius1 = innerRadius + distort1;
+                float distortedOuterRadius1 = outerRadius + distort1;
+                float distortedInnerRadius2 = innerRadius + distort2;
+                float distortedOuterRadius2 = outerRadius + distort2;
+
+                // Inner and outer points for this segment with distortion
+                float innerX1 = centerX + distortedInnerRadius1 * cos1;
+                float innerY1 = centerY + distortedInnerRadius1 * sin1;
+                float outerX1 = centerX + distortedOuterRadius1 * cos1;
+                float outerY1 = centerY + distortedOuterRadius1 * sin1;
+                float innerX2 = centerX + distortedInnerRadius2 * cos2;
+                float innerY2 = centerY + distortedInnerRadius2 * sin2;
+                float outerX2 = centerX + distortedOuterRadius2 * cos2;
+                float outerY2 = centerY + distortedOuterRadius2 * sin2;
+
+                // Draw lines to create thickness
+                int numThicknessLines = static_cast<int>(thickness / 1.0f) + 1;
+                for (int t = 0; t <= numThicknessLines; ++t) {
+                    float tFactor = static_cast<float>(t) / static_cast<float>(numThicknessLines);
+                    float currentInnerRadius = distortedInnerRadius1 + tFactor * (distortedOuterRadius1 - distortedInnerRadius1);
+                    float currentInnerRadius2 = distortedInnerRadius2 + tFactor * (distortedOuterRadius2 - distortedInnerRadius2);
+                    
+                    int x1 = static_cast<int>(centerX + currentInnerRadius * cos1);
+                    int y1 = static_cast<int>(centerY + currentInnerRadius * sin1);
+                    int x2 = static_cast<int>(centerX + currentInnerRadius2 * cos2);
+                    int y2 = static_cast<int>(centerY + currentInnerRadius2 * sin2);
                     
                     SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
                 }
