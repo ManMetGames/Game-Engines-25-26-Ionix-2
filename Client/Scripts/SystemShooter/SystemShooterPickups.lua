@@ -7,7 +7,8 @@ local assets = require("Scripts.Assets")
 --=====================================================================
 local CONFIG = {
 
-    HEALING_ORB_DROP_CHANCE = 0.15,
+    BASE_HEALING_ORB_DROP_CHANCE = 0.15,  -- Base spawn chance (never modified)
+    HEALING_ORB_DROP_CHANCE = 0.15,       -- Active spawn chance (gets modified by upgrades)
     
     HEALING_ORB_HEAL_PERCENT = 0.25,
     

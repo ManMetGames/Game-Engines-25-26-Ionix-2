@@ -478,9 +478,9 @@ function SystemShooterPlayerProgress.reset()
     overhealthEnabled = false
     overhealthZapTimer = 0
     
-    -- Reset healing orb spawn chance
+    -- Reset healing orb spawn chance to base value from config
     local SystemShooterPickups = require("Scripts.SystemShooter.SystemShooterPickups")
-    SystemShooterPickups.CONFIG.HEALING_ORB_DROP_CHANCE = 1.0
+    SystemShooterPickups.CONFIG.HEALING_ORB_DROP_CHANCE = SystemShooterPickups.CONFIG.BASE_HEALING_ORB_DROP_CHANCE
     
     -- Reset antivirus
     local SystemShooterPlayer = require("Scripts.SystemShooter.SystemShooterPlayer")
