@@ -1935,7 +1935,21 @@ function SystemShooter:OnUpdate()
             elseif selectedUpgrade.type == "overhealth" then
                 local maxH = SystemShooterPlayerProgress.getMaxHealth()
                 local currentH = SystemShooterPlayer.getHealth()
-                SystemShooterPlayer.setHealth(math.min(maxH, currentH + 20))
+                local healAmount = 20
+                
+                if currentH + healAmount > maxH then
+                    -- Heal to full, put remainder into overhealth
+                    local overflow = (currentH + healAmount) - maxH
+                    SystemShooterPlayer.setHealth(maxH)
+                    
+                    local currentOver = SystemShooterPlayerProgress.getOverhealth()
+                    -- Cap overhealth at maxHealth (same as normal pickup logic)
+                    local newOver = math.min(maxH, currentOver + overflow)
+                    SystemShooterPlayerProgress.setOverhealth(newOver)
+                else
+                    -- Normal heal
+                    SystemShooterPlayer.setHealth(currentH + healAmount)
+                end
             end
             -- Start levelup peace timer and disable enemies
             peaceTimerSeconds = levelupPeaceDuration

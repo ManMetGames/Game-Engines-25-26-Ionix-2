@@ -286,7 +286,29 @@ local function getAvailableTemplates(level)
     return available
 end
 
-local function weightedRandomPick(available, counts)
+local MAX_ENEMIES_CONFIG = {
+    { stage = 42, max = 8 },
+    { stage = 35, max = 7 },
+    { stage = 30, max = 6 },
+    { stage = 22, max = 5 },
+    { stage = 16, max = 4 },
+    { stage = 8,  max = 3 },
+    { stage = 1,  max = 2 }, -- Default/fallback
+}
+
+local function getMaxEnemiesForStage(stage)
+    for _, cfg in ipairs(MAX_ENEMIES_CONFIG) do
+        if stage >= cfg.stage then
+            return cfg.max
+        end
+    end
+    return 2
+end
+
+local function weightedRandomPick(available, counts, totalEnemies, stage)
+    local maxEnemies = getMaxEnemiesForStage(stage)
+    if totalEnemies >= maxEnemies then return nil end
+
     local totalWeight = 0
     for _, entry in ipairs(available) do
         local name = entry.name
@@ -390,16 +412,15 @@ local function generateProceduralLevel(levelIndex)
         end
     end
     
-    local maxEnemies = 8
     local minEnemies = 2
     
     local attempts = 0
     local maxAttempts = 20
     
-    while #enemies < maxEnemies and attempts < maxAttempts do
+    while attempts < maxAttempts do
         attempts = attempts + 1
         
-        local picked = weightedRandomPick(available, counts)
+        local picked = weightedRandomPick(available, counts, #enemies, levelIndex)
         if not picked then break end
         
         local template = picked.template
