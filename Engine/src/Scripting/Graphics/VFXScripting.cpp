@@ -176,6 +176,99 @@ namespace IonixEngine {
             scene->GetVFXSystem().Clear();
         };
 
+        // =========================================================================
+        // LIGHTNING VFX BINDINGS
+        // =========================================================================
+
+        // Create a lightning bolt effect between two points
+        // Returns: lightning ID (int), or -1 if failed
+        auto createLightning = [](float startX, float startY, float endX, float endY, 
+                                  sol::optional<float> lifetime) -> int {
+            if (!Application::Get().layerScene || !Application::Get().layerScene->GetScene()) {
+                return -1;
+            }
+            Scene* scene = Application::Get().layerScene->GetScene();
+            return scene->GetVFXSystem().CreateLightning(startX, startY, endX, endY, 
+                                                         lifetime.value_or(0.5f));
+        };
+
+        // Destroy a lightning effect
+        auto destroyLightning = [](int id) {
+            if (!Application::Get().layerScene || !Application::Get().layerScene->GetScene()) {
+                return;
+            }
+            Scene* scene = Application::Get().layerScene->GetScene();
+            scene->GetVFXSystem().DestroyLightning(id);
+        };
+
+        // Set lightning color (RGBA)
+        auto setLightningColor = [](int id, int r, int g, int b, sol::optional<int> a) {
+            if (!Application::Get().layerScene || !Application::Get().layerScene->GetScene()) {
+                return;
+            }
+            Scene* scene = Application::Get().layerScene->GetScene();
+            scene->GetVFXSystem().SetLightningColor(
+                id,
+                static_cast<Uint8>(r),
+                static_cast<Uint8>(g),
+                static_cast<Uint8>(b),
+                static_cast<Uint8>(a.value_or(255))
+            );
+        };
+
+        // Set lightning visual properties (thickness, jaggedness, segments)
+        auto setLightningProperties = [](int id, sol::optional<float> thickness, 
+                                        sol::optional<float> jaggedness, 
+                                        sol::optional<int> segments) {
+            if (!Application::Get().layerScene || !Application::Get().layerScene->GetScene()) {
+                return;
+            }
+            Scene* scene = Application::Get().layerScene->GetScene();
+            
+            // Get current properties if not specified
+            float th = thickness.value_or(2.0f);
+            float jag = jaggedness.value_or(0.1f);
+            int seg = segments.value_or(10);
+            
+            scene->GetVFXSystem().SetLightningProperties(id, th, jag, seg);
+        };
+
+        // Set lightning flicker animation
+        auto setLightningFlicker = [](int id, bool enabled, sol::optional<float> speed) {
+            if (!Application::Get().layerScene || !Application::Get().layerScene->GetScene()) {
+                return;
+            }
+            Scene* scene = Application::Get().layerScene->GetScene();
+            scene->GetVFXSystem().SetLightningFlicker(id, enabled, speed.value_or(0.05f));
+        };
+
+        // Set lightning render layer and z-order
+        auto setLightningRenderLayer = [](int id, int layer, sol::optional<int> zOrder) {
+            if (!Application::Get().layerScene || !Application::Get().layerScene->GetScene()) {
+                return;
+            }
+            Scene* scene = Application::Get().layerScene->GetScene();
+            scene->GetVFXSystem().SetLightningRenderLayer(id, layer, zOrder.value_or(0));
+        };
+
+        // Set lightning fade out
+        auto setLightningFadeOut = [](int id, bool enabled) {
+            if (!Application::Get().layerScene || !Application::Get().layerScene->GetScene()) {
+                return;
+            }
+            Scene* scene = Application::Get().layerScene->GetScene();
+            scene->GetVFXSystem().SetLightningFadeOut(id, enabled);
+        };
+
+        // Check if lightning is active
+        auto isLightningActive = [](int id) -> bool {
+            if (!Application::Get().layerScene || !Application::Get().layerScene->GetScene()) {
+                return false;
+            }
+            Scene* scene = Application::Get().layerScene->GetScene();
+            return scene->GetVFXSystem().IsLightningActive(id);
+        };
+
         // Register VFX table with Lua
         lua["VFX"] = lua.create_table_with(
             // Ring creation and destruction
@@ -197,6 +290,20 @@ namespace IonixEngine {
             "is_ring_active", isRingActive,
             "get_ring_radius", getRingRadius,
             "is_ring_distortion_enabled", isRingDistortionEnabled,
+            
+            // Lightning creation and destruction
+            "create_lightning", createLightning,
+            "destroy_lightning", destroyLightning,
+            
+            // Lightning configuration
+            "set_lightning_color", setLightningColor,
+            "set_lightning_properties", setLightningProperties,
+            "set_lightning_flicker", setLightningFlicker,
+            "set_lightning_render_layer", setLightningRenderLayer,
+            "set_lightning_fade_out", setLightningFadeOut,
+            
+            // Lightning queries
+            "is_lightning_active", isLightningActive,
             
             // General VFX control
             "clear", clearVFX

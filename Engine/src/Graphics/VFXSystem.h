@@ -2,10 +2,51 @@
 
 #include <vector>
 #include <cstdint>
+#include <cstdlib>
 #include "SDL.h"
 #include "Architecture/ECS/Component.hpp"
 
 namespace IonixEngine {
+
+    // Lightning bolt effect configuration
+    struct LightningEffect {
+        bool active = false;
+        
+        // Start and end points
+        float x1 = 0.0f;
+        float y1 = 0.0f;
+        float x2 = 0.0f;
+        float y2 = 0.0f;
+        
+        // Visual properties
+        float thickness = 2.0f;
+        float jaggedness = 0.1f;    // Percentage of distance for max perpendicular offset
+        int segments = 10;           // Number of line segments
+        
+        // Color
+        Uint8 r = 100;
+        Uint8 g = 180;
+        Uint8 b = 255;
+        Uint8 a = 255;
+        
+        // Lifetime (auto-destroy)
+        float lifetime = 0.5f;       // Total lifetime in seconds
+        float timeAlive = 0.0f;      // Time elapsed since creation
+        bool fadeOut = true;         // Whether to fade alpha over lifetime
+        
+        // Flicker animation (regenerate path periodically)
+        bool flickerEnabled = true;
+        float flickerSpeed = 0.05f;  // Time between path regenerations
+        float flickerTimer = 0.0f;
+        
+        // Cached path points (regenerated on flicker)
+        std::vector<float> pathX;
+        std::vector<float> pathY;
+        
+        // Render settings
+        int renderLayer = 0;
+        int zOrder = 0;
+    };
 
     // Ring effect configuration
     struct RingEffect {
@@ -80,9 +121,26 @@ namespace IonixEngine {
         float GetRingRadius(int id) const;
         bool IsRingDistortionEnabled(int id) const;
 
+        // Lightning effect management
+        int CreateLightning(float startX, float startY, float endX, float endY, float lifetime);
+        void DestroyLightning(int id);
+        
+        // Lightning configuration
+        void SetLightningColor(int id, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+        void SetLightningProperties(int id, float thickness, float jaggedness, int segments);
+        void SetLightningFlicker(int id, bool enabled, float speed);
+        void SetLightningRenderLayer(int id, int layer, int zOrder = 0);
+        void SetLightningFadeOut(int id, bool enabled);
+        
+        // Lightning getters
+        bool IsLightningActive(int id) const;
+
     private:
         std::vector<RingEffect> m_Rings;
         std::size_t m_MaxRings;
+        
+        std::vector<LightningEffect> m_Lightnings;
+        std::size_t m_MaxLightnings;
 
         std::size_t GetFreeRingIndex();
         void DrawRing(SDL_Renderer* renderer, const RingEffect& ring);
@@ -93,5 +151,12 @@ namespace IonixEngine {
                             float radius, float thickness, int segments,
                             Uint8 r, Uint8 g, Uint8 b, Uint8 a,
                             float distortAmplitude, float distortFrequency, float distortTime);
+        
+        // Lightning helpers
+        std::size_t GetFreeLightningIndex();
+        void GenerateLightningPath(LightningEffect& lightning);
+        void DrawLightning(SDL_Renderer* renderer, const LightningEffect& lightning);
+        void DrawThickLine(SDL_Renderer* renderer, float x1, float y1, float x2, float y2,
+                          float thickness, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
     };
 }
