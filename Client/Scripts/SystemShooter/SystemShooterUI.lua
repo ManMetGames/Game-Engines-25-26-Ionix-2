@@ -235,6 +235,14 @@ if not isUpgradeMenuOpen then return end
 
       local descText = T(opt.desc) or ""
       if opt.type == "no_witnesses" then
+        -- Custom description per rank
+        local currentRank = opt.currentValue or 0
+        if currentRank == 0 then
+            descText = T("upgradedesc.no_witnesses_rank1")
+        elseif currentRank >= 1 then
+            descText = T("upgradedesc.no_witnesses_rank2")
+        end
+
         local mult = 1
         if opt.cfg and opt.cfg.damageMultiplier then
           mult = opt.cfg.damageMultiplier

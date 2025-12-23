@@ -216,10 +216,14 @@ local function IsNoWitnessesActive()
     local stacks = SystemShooterPlayerProgress.getLowEnemyDamageStacks()
     if stacks <= 0 then return false end
     local activeCount = GetActiveEnemyCount()
-    -- NoWitnesses only active when enemies are alive (0 < count <= threshold)
+    -- NoWitnesses only active when enemies are alive
     if activeCount <= 0 then return false end
-    local threshold = stacks >= 2 and 2 or 1
-    return activeCount <= threshold
+    
+    if stacks == 1 then
+        return activeCount == 1
+    else -- stacks >= 2
+        return activeCount < 3
+    end
 end
 
 local LoadLevel

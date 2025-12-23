@@ -390,7 +390,7 @@ local function generateProceduralLevel(levelIndex)
         end
     end
     
-    local maxEnemies = 6
+    local maxEnemies = 8
     local minEnemies = 2
     
     local attempts = 0
