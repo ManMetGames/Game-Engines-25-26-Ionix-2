@@ -1165,6 +1165,9 @@ local function DrawCustomiseMenu_C(windowW, windowH)
     end
 end
 
+local GAP_CAP_STEPS = 20  -- this is “the gap at 60 score” if you were using score/3 before
+local gapMinAtCap = pipeStartGap - (GAP_CAP_STEPS * pipeShrinkGap)
+if gapMinAtCap < pipeMinGap then gapMinAtCap = pipeMinGap end
 
 ----------------------------------------------------------
 -- OnUpdate
@@ -1519,9 +1522,10 @@ end
 
             -- Added difficulty: shrink pipe gap as score increases (in pixels)
             local effectiveScore = math.min(Pscore / 3, 20)
-            local gapSize = pipeGapMinAtCap + math.random() * (pipeStartGap - pipeGapMinAtCap)
+            local t = math.random()
+            t = t * t
+            local gapSize = gapMinAtCap + math.random() * (pipeStartGap - gapMinAtCap)
 
-            if gapSize < pipeMinGap then gapSize = pipeMinGap end
 
             -- Random gap center Y position (in pixels)
             local floorPad = 10
