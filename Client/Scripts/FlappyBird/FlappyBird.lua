@@ -866,7 +866,7 @@ local function DrawSettingsMenu_C(windowW, windowH)
     )
 
     local cx = panelW / 2
-    UI.add_centered_label(cx, 26, T("settings.settings"), UI_FONT_BOLD, 1.9)
+    UI.add_centered_label(cx, 26, T("settings.settings"), UI_FONT_HEADER, 1)
 
     local contentX = 30
     local contentY = 85
@@ -995,7 +995,7 @@ local function DrawSettingsMenu_C(windowW, windowH)
     local opts = { "English", "日本語" }
     local defaultIndex = (language == "ja") and 1 or 0
 
-    UI.add_centered_label(x + w/2, y, T("settings.language"), UI_FONT_HEADER, 1.0)
+    UI.add_centered_label(x + w/2, y, T("settings.language"), UI_FONT_HEADER, 1.2)
     y = y + 36
     local langDropdownFont = "ImGuiDefaultJP" -- use JP fontto support both EN and JA characters
     UI.add_dropdown_styled(x, y, w, 32, "", "fb_lang", opts, defaultIndex, langDropdownFont, 1.0, ddStyle)
@@ -1038,8 +1038,8 @@ local function DrawCustomiseMenu_C(windowW, windowH)
     UI.add_panel(panelX, panelY, panelW, panelH, 0.80, 26, 245, 225, 170)
 
     local cx = windowW / 2
-    UI.add_centered_label(cx, panelY + 24, T("customise.customise"), UI_FONT_BOLD, 1.9)
-    UI.add_centered_label(cx, panelY + 54, T("customise.coins") .. tostring(bankCoins or 0), UI_FONT_BOLD, 1.2)
+    UI.add_centered_label(cx, panelY + 22, T("customise.customise"), UI_FONT_HEADER, 1.2)
+    UI.add_centered_label(cx, panelY + 56, T("customise.coins") .. tostring(bankCoins or 0), UI_FONT_BOLD, 1.2)
 
     -- Tabs
     local tabW, tabH = 160, 40
