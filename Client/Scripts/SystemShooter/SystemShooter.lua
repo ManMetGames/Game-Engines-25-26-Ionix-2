@@ -739,7 +739,6 @@ end
 local function StartRewindSequence()
     -- Get level config for time limit and enemy target health
     local cfg = SystemShooterLevels.getLevelConfig(currentLevel)
-    local maxHealth = SystemShooterPlayerProgress.getMaxHealth()
     local levelTimeLimit = cfg and cfg.timeLimitSeconds or 0
     
     -- Build target health list from level config (these are the reduced values after timeout)
@@ -756,7 +755,7 @@ local function StartRewindSequence()
     end
     
     -- Start the rewind sequence via the module
-    SystemShooterRewind.start(enemies, SystemShooterPlayer.getHealth(), maxHealth, levelTimeLimit, enemyTargetHealthList)
+    SystemShooterRewind.start(enemies, levelTimeLimit, enemyTargetHealthList)
     
     -- Start music slowdown effect
     if musicEntity and MusicComponent.is_playing(musicEntity) then
@@ -2326,9 +2325,6 @@ if levelCfg.timeLimitSeconds ~= nil and levelCfg.timeLimitSeconds > 0 then
             -- Apply returned values
             if result.levelTimer then
                 levelTimerSeconds = result.levelTimer
-            end
-            if result.playerHealth then
-                SystemShooterPlayer.setHealth(result.playerHealth)
             end
             
             -- Clear enemy projectiles when signaled (after they've been rewound)

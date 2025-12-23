@@ -64,7 +64,7 @@ local UPGRADE_CONFIG = {
         maxValue     = nil,
         defaultValue = 100,
         increment    = 30,
-        weight       = 7,
+        weight       = 6,
     },
     healing_orb_spawn = {
         statKey      = "healingOrbSpawnUpgrade",
@@ -74,7 +74,7 @@ local UPGRADE_CONFIG = {
         maxValue     = 2,
         defaultValue = 0,
         customApply  = true,
-        weight       = 2,
+        weight       = 4,
     },
 }
 
