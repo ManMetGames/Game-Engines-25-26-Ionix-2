@@ -3,6 +3,16 @@ local SystemShooterPlayerProgress = {}
 local SPREAD_ANGLE_DEG = 10
 
 --=====================================================================
+--  [MUSIC] BPM & Beat-Synced Timing
+--=====================================================================
+local BPM = 133
+local BEAT_DURATION = 60 / BPM
+
+local function beatsToSeconds(beats)
+    return beats * BEAT_DURATION
+end
+
+--=====================================================================
 --  UPGRADE CONFIGURATION
 --  Central definition for all upgrades: caps, labels, descriptions,
 --  minimum level requirements, and apply behavior.
@@ -101,12 +111,12 @@ local UPGRADE_CONFIG = {
         weight       = 5,
         -- Configuration for overhealth system
         decayRate    = 0.5,      -- HP lost per second
-        damageRadius = 275,    -- Circle radius in pixels
+        damageRadius = 325,    -- Circle radius in pixels
         -- Lightning zap configuration (replaces continuous DPS)
-        zapInterval  = 1.25,    -- Seconds between zaps
+        zapInterval  = beatsToSeconds(2),    -- Every 2 beats
         zapDamage    = 10,     -- Damage per zap (burst damage)
         maxZapTargets = 10,     -- Maximum enemies to zap at once
-        lightningLifetime = 0.2,  -- Lightning VFX duration
+        lightningLifetime = 0.35,  -- Lightning VFX duration
         lightningColor = { r = 100, g = 200, b = 255, a = 255 },  -- Electric blue
     },
 }

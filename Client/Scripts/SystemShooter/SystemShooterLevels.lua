@@ -48,9 +48,9 @@ local HEALTH_BUDGET = {
     base = 60,
     perLevel = 15,
     levelSquaredFactor = 0.5,
-    lateLevelThreshold = 12,
-    lateSquaredFactor = 1.75,
-    lateCubedFactor = 0.35,
+    lateLevelThreshold = 15,
+    lateSquaredFactor = 1.7,
+    lateCubedFactor = 0.275,
 }
 
 local TIMER_CONFIG = {
@@ -182,9 +182,9 @@ local ENEMY_TEMPLATES = {
                 health = health,
                 healthScaling = false,
                 size = 40,
-                teleportChargeTime = 1.75,
-                beamDuration = 0.25,
-                teleportCooldown = 2.25,
+                teleportChargeTime = beatsToSeconds(4),      -- 4 beats to charge
+                beamDuration = beatsToSeconds(0.5),          -- 0.5 beats beam
+                teleportCooldown = beatsToSeconds(5.5),      -- 5.5 beats cooldown
             }
         end,
     },
