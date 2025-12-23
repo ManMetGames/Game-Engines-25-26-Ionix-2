@@ -426,7 +426,7 @@ local enemyBaseImageSize = enemySize
 local globalFrame = 0
 local peaceTimerSeconds = 0
 local startLevelPeaceDuration = 3
-local endLevelPeaceDuration = 2.5
+local endLevelPeaceDuration = 4.0
 local levelupPeaceDuration = 2.0
 local isStartLevelPeace = false  -- true = waiting before enemies spawn, false = end-of-level peace
 local isLevelupPeace = false     -- true = peace period after selecting a levelup upgrade
@@ -439,6 +439,9 @@ local impact3SfxEntity
 -- LEVEL SETTINGS
 local currentLevel = 1
 local levelTimerSeconds = 0
+local levelXpGained = 0
+local notificationMessage = ""
+local notificationTimer = 0
 
 -- Run stats (per attempt; used for Game Over summary)
 local runTimeSeconds = 0
@@ -671,6 +674,9 @@ LoadLevel = function(index, resetPlayerState)
     -- Persist best stage + submit to leaderboard (only if higher stage than last time)
     TryUpdateBestStage(currentLevel)
     levelTimerSeconds = cfg.timeLimitSeconds or 0
+    levelXpGained = 0
+    notificationMessage = ""
+    notificationTimer = 0
 
     ClearEnemies()
 
@@ -886,6 +892,21 @@ function SystemShooter:OnStart()
                     end
                 end
                 if allDead then
+                    -- Calculate bonus XP based on remaining time
+                    local cfg = SystemShooterLevels.getLevelConfig(currentLevel)
+                    local totalTime = cfg and cfg.timeLimitSeconds or 0
+                    
+                    -- Only award bonus XP if level hasn't been rewound (mutated)
+                    if not mutatedLevels[currentLevel] and totalTime > 0 and levelTimerSeconds > 0 then
+                        local bonusRatio = levelTimerSeconds / totalTime
+                        local bonusXp = math.floor(levelXpGained * 0.25 * bonusRatio)
+                        if bonusXp > 0 then
+                            SystemShooterPlayerProgress.addXp(bonusXp)
+                            notificationMessage = "Level Complete! Bonus XP: " .. bonusXp .. " (Time Left: " .. string.format("%.1f", levelTimerSeconds) .. "s)"
+                            notificationTimer = endLevelPeaceDuration
+                        end
+                    end
+
                     peaceTimerSeconds = endLevelPeaceDuration
                     isStartLevelPeace = false
                 end
@@ -914,7 +935,10 @@ function SystemShooter:OnStart()
                 SystemShooterPlayer.setDamageCooldown(SystemShooterPlayer.getDamageCooldownDuration())
             end,
             isAntivirusActive = function() return SystemShooterPlayer.isAntivirusActive() end,
-            addXp = function(amount) SystemShooterPlayerProgress.addXp(amount) end,
+            addXp = function(amount) 
+                levelXpGained = levelXpGained + amount
+                SystemShooterPlayerProgress.addXp(amount) 
+            end,
         }
     })
 
@@ -2139,7 +2163,9 @@ function SystemShooter:OnUpdate()
                         SystemShooterPickups.trySpawnHealingOrb(deathX, deathY)
                         
                         runEnemiesKilled = runEnemiesKilled + 1
-                        SystemShooterPlayerProgress.addXp(enemy.xpReward or 5)
+                        local xpAmount = enemy.xpReward or 5
+                        levelXpGained = levelXpGained + xpAmount
+                        SystemShooterPlayerProgress.addXp(xpAmount)
                     end
                 end
             end
@@ -2322,6 +2348,12 @@ if levelCfg.timeLimitSeconds ~= nil and levelCfg.timeLimitSeconds > 0 then
     local timeoutCount = SystemShooterPlayerProgress.getTimeoutCount()
     local maxTimeouts = SystemShooterPlayerProgress.getMaxTimeouts()
     UI.add_centered_label(screenW / 2, 30, "Timeouts: " .. tostring(timeoutCount) .. " / " .. tostring(maxTimeouts), UI_FONT_REG)
+
+    -- Display notification
+    if notificationTimer > 0 then
+        notificationTimer = notificationTimer - dt
+        UI.add_centered_label(screenW / 2, 100, notificationMessage, UI_FONT_BOLD, 1)
+    end
 
     local playerHpBarX = screenW - 220
     local playerHpBarY = 20

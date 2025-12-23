@@ -94,14 +94,14 @@ local UPGRADE_CONFIG = {
         statKey      = "overhealthUpgrade",
         label        = "upgradetype.overhealth",
         desc         = "upgradedesc.overhealth",
-        minLevel     = 4,
+        minLevel     = 6,
         maxValue     = 1,
         defaultValue = 0,
         customApply  = true,
         weight       = 5,
         -- Configuration for overhealth system
-        decayRate    = 3,      -- HP lost per second
-        damageRadius = 350,    -- Circle radius in pixels
+        decayRate    = 0.5,      -- HP lost per second
+        damageRadius = 275,    -- Circle radius in pixels
         -- Lightning zap configuration (replaces continuous DPS)
         zapInterval  = 1.25,    -- Seconds between zaps
         zapDamage    = 10,     -- Damage per zap (burst damage)
