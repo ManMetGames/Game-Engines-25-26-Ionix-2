@@ -132,25 +132,25 @@ namespace IonixEngine
 
 
             AddFontFromFileIfExists(
-                "Fonts/JF-Dot-MPlusH10.ttf", 19.0f, &cfg, jpRanges, imguiDefault, "JFDotJP");
+                "Fonts/JF-Dot-MPlus12.ttf", 19.0f, &cfg, jpRanges, imguiDefault, "JFDotJP");
 
             AddFontFromFileIfExists(
-                "Fonts/JF-Dot-MPlusH10B.ttf", 19.0f, &cfg, jpRanges, imguiDefaultBold, "JFDotBoldJP");
+                "Fonts/JF-Dot-MPlus12B.ttf", 19.0f, &cfg, jpRanges, imguiDefaultBold, "JFDotBoldJP");
 
             ImFontConfig jpSubCfg2 = cfg;
             jpSubCfg.SizePixels = 25.0f;
             AddFontFromFileIfExists(
-                "Fonts/JF-Dot-MPlusH10.ttf", 25.0f, &jpSubCfg2, jpRanges, imguiSub, "JFDotSubJP");
+                "Fonts/JF-Dot-MPlus12.ttf", 25.0f, &jpSubCfg2, jpRanges, imguiSub, "JFDotSubJP");
 
             ImFontConfig jpHeaderCfg2 = cfg;
             jpHeaderCfg.SizePixels = 29.0f;
             AddFontFromFileIfExists(
-                "Fonts/JF-Dot-MPlusH10B.ttf", 29.0f, &jpHeaderCfg2, jpRanges, imguiHeader, "JFDotHeaderJP");
+                "Fonts/JF-Dot-MPlus12B.ttf", 29.0f, &jpHeaderCfg2, jpRanges, imguiHeader, "JFDotHeaderJP");
 
             ImFontConfig jpTitleCfg2 = cfg;
             jpTitleCfg.SizePixels = 43.0f;
             AddFontFromFileIfExists(
-                "Fonts/JF-Dot-MPlusH10B.ttf", 43.0f, &jpTitleCfg2, jpRanges, imguiTitle, "JFDotTitleJP");
+                "Fonts/JF-Dot-MPlus12B.ttf", 43.0f, &jpTitleCfg2, jpRanges, imguiTitle, "JFDotTitleJP");
 
 
             // Build font atlas

@@ -1,6 +1,10 @@
 local ExampleScript = {}
 local assets = require("Scripts.Assets")
 local enums = require("Scripts.Enums")
+
+-- Raycast coin collection toggle
+local ENABLE_RAYCAST = false
+
 local Background
 local Background2
 local backgroundSprite
@@ -126,7 +130,8 @@ local customiseTab = "backgrounds" -- "backgrounds" or "birds"
 -- Shop items 
 local STORE_BACKGROUNDS = {
     { id = "bg_classic", name = "Classic Sky", price = 0,  textureKey = "Background" },
-    { id = "bg_night",   name = "Night Sky",   price = 30, textureKey = "Background" }, -- tint style
+    { id = "bg_night",   name = "Night Sky",   price = 30, textureKey = "Background" },
+    { id = "bg_plains",  name = "Open Plains",  price = 150, textureKey = "Background_Mountains" },
 }
 
 local STORE_BIRDS = {
@@ -155,7 +160,8 @@ end
 
 BG_STYLES = {
     bg_classic = { tint = {255, 255, 255}, textureKey = "Background" },
-    bg_night   = { tint = {150, 170, 255}, textureKey = "Background" }, -- night tint
+    bg_night   = { tint = {150, 170, 255}, textureKey = "Background" },
+    bg_plains   ={ tint = {255, 255, 255}, textureKey = "Background_Mountains" }-- night tint
 }
 
 
@@ -212,15 +218,16 @@ local pipeSets = {}
 local pipesList = {} 
 local pipeSpeed = -3
 local pipeOffScreenLeft = -100 
+local pipeSpacingX = 350 -- horizontal spacing between pipe sets (pixels)
 
--- Pipe randomness
-local pipeHeight = 3.0      
-local pipeStartGap = 3.3   -- start easier
-local pipeMinGap   = 2.1   -- end harder
-local pipeShrinkGap = 0.03
+-- Pipe randomness (in pixels)
+local pipeHeight = 300       -- pipe sprite height in pixels
+local pipeStartGap = 330     -- starting gap size in pixels (easier)
+local pipeMinGap   = 210     -- minimum gap size in pixels (harder)
+local pipeShrinkGap = 3      -- gap shrinks by this many pixels per point
 
-local pipesetMinGap = 1
-local pipesetMaxGap = 3.5
+local pipesetMinGap = 150    -- minimum Y position for gap center (in pixels from top)
+local pipesetMaxGap = 350    -- maximum Y position for gap center (in pixels from top)
 
 -- Coins
 local coins = {}
@@ -457,15 +464,16 @@ local function spawnCoins(coin, pipeSet, offsetX)
     local bottomPos = Fysics.get_pos(pipeSet.bottom)
     local topPos = Fysics.get_pos(pipeSet.top)
 
-    local pipeHeight = 3.5
+    -- Calculate gap between pipes (topPos.y + pipeHeight is bottom of top pipe, bottomPos.y is top of bottom pipe)
     local gapTop = Mafs.get_vec_y(topPos) + pipeHeight
     local gapBottom = Mafs.get_vec_y(bottomPos)
 
-    local randY = math.random() * (gapBottom - gapTop - 1) + gapTop + 0.1
-    local yRandomOffset = (math.random() * 2 - 1) * 0.8
+    -- Place coin randomly in the gap
+    local randY = math.random() * (gapBottom - gapTop - 100) + gapTop + 10
+    local yRandomOffset = (math.random() * 2 - 1) * 80
     randY = randY + yRandomOffset
 
-    local randX = Mafs.get_vec_x(bottomPos) + (offsetX / 100)
+    local randX = Mafs.get_vec_x(bottomPos) + offsetX
     Fysics.set_pos(coin, randX, randY)
 end
 
@@ -487,13 +495,13 @@ local function resetGame()
     highscore = Json.load_high_score(GAME_ID)
 
     -- Reset player
-    Fysics.set_pos(player1, 1, 3)
+    Fysics.set_pos(player1, 100, 300)
     Fysics.set_gravity_scale(player1, 0)
     Fysics.set_linear_velocity(player1, 0, 0)
 
     -- Reset pipes
     local function resetPipe(pipeEntity, xPos, yPos)
-        Fysics.set_pos(pipeEntity, xPos / 100, yPos / 100)
+        Fysics.set_pos(pipeEntity, xPos, yPos)
         Fysics.set_linear_velocity(pipeEntity, 0, 0)
     end
 
@@ -579,13 +587,13 @@ function ExampleScript:OnStart()
         local tile = Entity.create_entity()
         local xPos = i * tileSize
 
-        Entity.set_global_pos(tile, xPos, floorY)
         local s = Entity.add_sprite_component(tile, assets.textures.Sand, tileSize, tileSize, -5)
         floorTileSprites[#floorTileSprites+1] = s
         Sprite.set_columns(s, 1)
 
         Entity.add_fysics_component(tile, enums.bodytype.staticBody, false)
         Fysics.add_sprite_collider(tile, false, 1)
+        Fysics.set_pos(tile, xPos, floorY)
     end
 
     ------------------------------------------------------
@@ -618,8 +626,6 @@ function ExampleScript:OnStart()
     -- Create player1
     ------------------------------------------------------
     player1 = Entity.create_entity()
-
-    Entity.set_global_pos(player1, x, 300)
 	
     playerSprite = Entity.add_sprite_component(player1, assets.textures.FlappyBird, 64, 64, 10)
     Sprite.set_columns(playerSprite,1)
@@ -628,6 +634,7 @@ function ExampleScript:OnStart()
     -- PLAYER 1 PHYSICS
     Entity.add_fysics_component(player1, enums.bodytype.dynamicBody, true) -- dynamic body
     Fysics.add_sprite_collider(player1,false, 0.35)
+    Fysics.set_pos(player1, x, 300)
 
     -- Freeze bird
     Fysics.set_gravity_scale(player1, 0)
@@ -637,16 +644,16 @@ function ExampleScript:OnStart()
 	------------------------------------------------------
     local function createPipeSet(bottomX, bottomY, topX, topY)
         local bottomPipe = Entity.create_entity()
-        Entity.set_global_pos(bottomPipe, bottomX, bottomY)
         Entity.add_sprite_component(bottomPipe, assets.textures.FlappyPipe, 60, 500, 0)
         Entity.add_fysics_component(bottomPipe, enums.bodytype.kinematicBody, false)
         Fysics.add_sprite_collider(bottomPipe, false, 1)
+        Fysics.set_pos(bottomPipe, bottomX, bottomY)
 
         local topPipe = Entity.create_entity()
-        Entity.set_global_pos(topPipe, topX, topY)
         Entity.add_sprite_component(topPipe, assets.textures.FlappyPipe2, 60, 500, 0)
         Entity.add_fysics_component(topPipe, enums.bodytype.kinematicBody, false)
         Fysics.add_sprite_collider(topPipe, false, 1)
+        Fysics.set_pos(topPipe, topX, topY)
         return bottomPipe, topPipe
     end
 
@@ -759,6 +766,7 @@ local function LocalisedItemName(item)
     if string.sub(item.id, 1, 3) == "bg_" then
         if item.id == "bg_classic" then return T("backgrounds.classic") end
         if item.id == "bg_night" then return T("backgrounds.classicnight") end
+        if item.id == "bg_plains" then return T("backgrounds.plains") end
     elseif string.sub(item.id, 1, 5) == "bird_" then
         if item.id == "bird_classic" then return T("birds.classic") end
         if item.id == "bird_gold" then return T("birds.gold") end
@@ -1499,60 +1507,69 @@ end
     ------------------------------------
     -- Pipe reset w randomness 
     ------------------------------------
-    for _, set in ipairs(pipeSets) do
+    for i, set in ipairs(pipeSets) do
         local pipeX = Mafs.get_vec_x(Fysics.get_pos(set.bottom))
 
-        if pipeX < -0.6 then
+        if pipeX < pipeOffScreenLeft then
 
-            -- Added difficulty: shrink pipe gap as score increases
+            -- Added difficulty: shrink pipe gap as score increases (in pixels)
             local gapSize = pipeStartGap - (Pscore * pipeShrinkGap)
             if gapSize < pipeMinGap then
                 gapSize = pipeMinGap
             end
 
-            -- Random gap
+            -- Random gap center Y position (in pixels)
             local gapCenter = pipesetMinGap +
                 math.random() * (pipesetMaxGap - pipesetMinGap)
 
             if set.lastGapCenter then
                 local delta = gapCenter - set.lastGapCenter
-                if math.abs(delta) < 0.4 then
-                    gapCenter = gapCenter + (delta > 0 and 0.6 or -0.6)
+                if math.abs(delta) < 40 then
+                    gapCenter = gapCenter + (delta > 0 and 60 or -60)
                 end
             end
             set.lastGapCenter = gapCenter
 
-            -- Calculate pipe positions
+            -- Calculate pipe positions (in pixels)
+            -- bottomY is where the TOP edge of bottom pipe should be
             local bottomY = gapCenter + (gapSize / 2)
+            -- topY is where the BOTTOM edge of top pipe should be (pipe extends upward)
             local topY = gapCenter - (gapSize / 2) - pipeHeight
 
-            local spawnX = (windowW + 60) / 100
+            -- Respawn X: place this set after the current right-most pipe set
+            local rightMostX = -math.huge
+            for _, other in ipairs(pipeSets) do
+                if other ~= set then
+                    local ox = Mafs.get_vec_x(Fysics.get_pos(other.bottom))
+                    if ox > rightMostX then rightMostX = ox end
+                end
+            end
+            local spawnX = rightMostX + pipeSpacingX
+            if rightMostX == -math.huge then
+                spawnX = windowW + 60
+            end
+            if spawnX < windowW + 60 then spawnX = windowW + 60 end
 
             -- Apply positions
             Fysics.set_pos(set.bottom, spawnX, bottomY)
             Fysics.set_pos(set.top, spawnX, topY)
 
             set.passed = false
-        end
-    end
-
-    -- Coin reset
-    for i, c in ipairs(coins) do
-        local coinX = Mafs.get_vec_x(Fysics.get_pos(c))
-
-        if coinX < -0.6 then
-            local pipeSet = pipeSets[i]
-
-            spawnCoins(c, pipeSet, 140)
-
-            local s = Entity.get_sprite_component(c)
-            if s then
-                Sprite.set_width(s, 16)
-                Sprite.set_height(s, 16)
+            
+            -- Respawn the coin associated with this pipe set
+            local c = coins[i]
+            if c then
+                spawnCoins(c, set, 140)
+                
+                local s = Entity.get_sprite_component(c)
+                if s then
+                    Sprite.set_width(s, 16)
+                    Sprite.set_height(s, 16)
+                end
+                
+                coinHidden[c] = false
+                Fysics.set_linear_velocity(c, coinSpeed, 0)
             end
-
-            coinHidden[c] = false
-            Fysics.set_linear_velocity(c, coinSpeed, 0)
         end
     end
 
@@ -1575,20 +1592,57 @@ end
    local cx = windowW / 2
    local cy = windowH / 2
     -- UI
-    UI.Add_label(10, 10, 1000, 1000, pipeScoreText)
-    UI.Add_label(10, 40, 1000, 1000, scoreText)
 
+    UI.add_label(10, 10, 1000, 1000, pipeScoreText, UI_FONT_REG, 1)
+    UI.add_label(10, 40, 1000, 1000, scoreText, UI_FONT_REG, 1)
+    UI.add_centered_label(cx, cy, text1, UI_FONT_HEADER, 1)
     ------------------------------
     -----------Raycast------------
     ---------------------------------
-    local playerPos = Entity.get_center_pos(player1)
-    local mousePos = Input.get_mouse_pos()
-    local hit, info = Fysics.raycast(playerPos, mousePos)
-    Fysics.draw_raycast(playerPos, mousePos, false)
-    local hitEntity = Raycast.entity(info)
-    if hit and hitEntity then
-        Fysics.draw_raycast(playerPos, mousePos, true)
-        Entity.set_global_pos(hitEntity, 200, 300)
+    if ENABLE_RAYCAST then
+        local playerPos = Entity.get_center_pos(player1)
+        local mousePos = Input.get_mouse_pos()
+        local hit, info = Fysics.raycast(playerPos, mousePos)
+        Fysics.draw_raycast(playerPos, mousePos, false)
+        local hitEntity = Raycast.entity(info)
+        if hit and hitEntity then
+            -- Check if the hit entity is a coin
+            local isCoin = false
+            for _, c in ipairs(coins) do
+                if c == hitEntity then
+                    isCoin = true
+                    break
+                end
+            end
+            
+            -- Only collect coins via raycast
+            if isCoin and not coinHidden[hitEntity] then
+                Fysics.draw_raycast(playerPos, mousePos, true)
+                
+                -- Hide the coin sprite
+                local s = Entity.get_sprite_component(hitEntity)
+                if s then
+                    Sprite.set_width(s, 0)
+                    Sprite.set_height(s, 0)
+                end
+                
+                -- Move the coin physics body off-screen
+                Fysics.set_pos(hitEntity, -1000, -1000)
+                Fysics.set_linear_velocity(hitEntity, 0, 0)
+                
+                coinHidden[hitEntity] = true
+                score = score + 1
+                scoreText = T("fb.coins") .. tostring(score)
+                
+                -- Play coin sfx
+                if coinSound then
+                    AudioComponent.play(coinSound)
+                end
+                
+                -- Show point effect
+                showPointEffect()
+            end
+        end
     end
 
 
@@ -1616,14 +1670,18 @@ function ExampleScript:OnTriggerEnter(a, b)
                 Sprite.set_width(s, 0)
                 Sprite.set_height(s, 0)
             end
+            
+            -- Move the coin physics body off-screen
+            Fysics.set_pos(c, -1000, -1000)
+            Fysics.set_linear_velocity(c, 0, 0)
+            
             coinHidden[c] = true
             score = score + 1
             scoreText = T("fb.coins") .. tostring(score)
 
             -- Output coin sfx
             if coinSound then
-            AudioComponent.play(coinSound)
-            print("Coin sfx played")
+                AudioComponent.play(coinSound)
             end
 
             -- Show point effect

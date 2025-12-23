@@ -179,7 +179,7 @@ namespace IonixEngine
 		// Font controls per element
 		std::string fontName = "";
 		float fontScale = 1.0f;
-
+		float wrapWidth = 0.0f;
 	};
 
 	class UIManager
@@ -229,17 +229,17 @@ namespace IonixEngine
 
 		// UI widgets
 
-		void AddLabel(int x, int y, float xSize, float ySize, const char* text, const std::string& fontName = "", float fontScale = 1.0f);
+		void AddLabel(int x, int y, float xSize, float ySize, const char* text, const std::string& fontName = "", float fontScale = 1.0f, float wrapWidth = 0.0f);
 
-		void AddCenteredLabel(float centerX, float y, const char* text, const std::string& fontName = "", float fontScale = 1.0f);
+		void AddCenteredLabel(float centerX, float y, const char* text, const std::string& fontName = "", float fontScale = 1.0f, float wrapWidth = 0.0f);
 
 		void AddLabelColored(int x, int y, float xSize, float ySize, const char* text,
 			float r, float g, float b, float a,
-			const std::string& fontName = "", float fontScale = 1.0f);
+			const std::string& fontName = "", float fontScale = 1.0f, float wrapWidth = 0.0f);
 
 		void AddCenteredLabelColored(float centerX, float y, const char* text,
 			float r, float g, float b, float a,
-			const std::string& fontName = "", float fontScale = 1.0f);
+			const std::string& fontName = "", float fontScale = 1.0f, float wrapWidth = 0.0f);
 
 		void AddButton(int x, int y, float w, float h, const char* text, const char* id = nullptr,
 			const std::string& fontName = "", float fontScale = 1.0f,

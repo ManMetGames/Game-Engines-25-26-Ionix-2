@@ -112,7 +112,8 @@ local UI__COLOUR_THEME = { 44, 8, 160 }
 local menuScreen = "main"
 local topLeaderboard = nil
 local leaderboardFetched = false
-
+local showDifficultyMenu = false
+local diffChosen = false
 local isPaused = false
 local pauseScreen = "pause" -- "pause" | "settings" | "leaderboard"
 
@@ -974,8 +975,7 @@ local function DrawNamePrompt(screenW, screenH)
             UI.clear_input("ts_player_name")
             if pendingStartAfterName then
                 pendingStartAfterName = false
-                menuStarting = true
-                menuStartTimer = menuStartDelay
+                showDifficultyMenu = true
             end
         end
     end
@@ -983,6 +983,83 @@ local function DrawNamePrompt(screenW, screenH)
 
     UI.end_child()
 end
+
+local function DrawDifficultyPrompt(screenW, screenH)
+    -- Dim background
+    UI.add_panel(0, 0, screenW, screenH, 0.65, 0, 0, 0, 0)
+
+    local panelW = 610
+    local panelH = 420
+    local panelX = math.floor((screenW - panelW) / 2)
+    local panelY = math.floor((screenH - panelH) / 2+10)
+
+    UI.begin_child(panelX, panelY, panelW, panelH, "TS_Difficulty",
+        true, 0,
+        true, 1, 12, 25, 25, 25,
+        5, true, 1.35
+    )
+
+    local cx = panelW / 2
+    UI.add_centered_label(cx, 34, T("play.difficulty"), UI_FONT_HEADER, 1.0)
+
+    local bw, bh = math.floor(panelW * 0.62), 56
+    local bx = math.floor((panelW - bw) / 2)
+    local gap = 16
+
+    -- Reserve space for Back button (and a little padding)
+    local backH = 52
+    local backY = panelH - 76
+    local bottomPadding = 18
+
+    -- Child area for the difficulty buttons
+    local listX = bx
+    local listY = 90
+    local listW = bw
+    local listH = (backY - bottomPadding) - listY
+
+    UI.begin_child(listX, listY, listW, listH, "TS_Difficulty_List",
+        false, 0,
+        true, 0.0, 0, 0, 0, 0,
+        0, false, 1.0
+    )
+
+    local by = 20 -- inside the child
+    UI.add_button(0, by + 0*(bh + gap), listW, bh, T("difficulty.easy"),   "ts_diff_easy", UI_FONT_HEADER, 1, 12, true, 0,   170, 110, 0.95)
+    UI.add_button(0, by + 1*(bh + gap), listW, bh, T("difficulty.medium"), "ts_diff_med",  UI_FONT_HEADER, 1, 12, true, 220, 140, 0,   0.95)
+    UI.add_button(0, by + 2*(bh + gap), listW, bh, T("difficulty.hard"),   "ts_diff_hard", UI_FONT_HEADER, 1, 12, true, 200, 60,  60,  0.95)
+
+    UI.end_child()
+
+    if not diffChosen then
+        if UI.was_button_pressed("ts_diff_easy") then
+            diffChosen = true
+            menuStarting = true
+            menuStartTimer = menuStartDelay
+
+        elseif UI.was_button_pressed("ts_diff_med") then
+            diffChosen = true
+            menuStarting = true
+            menuStartTimer = menuStartDelay
+
+        elseif UI.was_button_pressed("ts_diff_hard") then
+            diffChosen = true
+            menuStarting = true
+            menuStartTimer = menuStartDelay
+        end
+
+        UI.add_button(bx, backY, bw, backH, T("menu.back"), "ts_diff_back",
+            UI_FONT_HEADER, 1, 12, true, 120, 120, 120, 0.95
+        )
+
+        if UI.was_button_pressed("ts_diff_back") then
+            showDifficultyMenu = false
+        end
+    end
+
+    UI.end_child()
+end
+
+
 
 local function DrawMainMenu(screenW, screenH, dt)
     UI.add_panel(0, 0, screenW, screenH, 0.65, 0, 0, 0, 0)
@@ -1035,6 +1112,8 @@ local function DrawMainMenu(screenW, screenH, dt)
 
         if menuStartTimer <= 0 then
             menuStarting = false
+            showDifficultyMenu = false
+            diffChosen = false
             inMainMenu = false
             menuScreen = "main"
             Input.set_relative_mouse_mode(true)
@@ -1064,8 +1143,7 @@ local function DrawMainMenu(screenW, screenH, dt)
             pendingStartAfterName = true
             UI.clear_input("ts_player_name") -- ensures a clean box
         else
-            menuStarting = true
-            menuStartTimer = menuStartDelay
+            showDifficultyMenu = true
         end
     end
 
@@ -1116,7 +1194,9 @@ local function DrawMainMenu(screenW, screenH, dt)
     if showNamePrompt then
         DrawNamePrompt(screenW, screenH)
     end
-
+    if showDifficultyMenu and (not showNamePrompt) then
+        DrawDifficultyPrompt(screenW, screenH)
+    end
 end
 
 local function DrawLeaderboardMenu(screenW, screenH, dt, context)

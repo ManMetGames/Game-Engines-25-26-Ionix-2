@@ -9,10 +9,19 @@
 
 namespace IonixEngine
 {
-	void UI::DrawLabel(const char* text, int xsize, int ysize, int xpos, int ypos)
+	void UI::DrawLabel(const char* text, int xsize, int ysize, int xpos, int ypos, float wrapWidth)
 	{
 		ImGui::SetCursorPos(ImVec2(xpos, ypos));
-		ImGui::TextUnformatted(text);
+		if (wrapWidth > 0.0f)
+		{
+			ImGui::PushTextWrapPos(ImGui::GetCursorPosX() + wrapWidth);
+			ImGui::TextUnformatted(text);
+			ImGui::PopTextWrapPos();
+		}
+		else
+		{
+			ImGui::TextUnformatted(text);
+		}
 	}
 
 	bool UI::DrawButton(char* text, int xsize, int ysize, int xpos, int ypos)
