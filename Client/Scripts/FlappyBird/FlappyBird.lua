@@ -226,6 +226,8 @@ local pipeHeight = 300       -- pipe sprite height in pixels
 local pipeStartGap = 330     -- starting gap size in pixels (easier)
 local pipeMinGap   = 210     -- minimum gap size in pixels (harder)
 local pipeShrinkGap = 3      -- gap shrinks by this many pixels per point
+local pipeGapMinAtCap = pipeStartGap - (20 * pipeShrinkGap)
+if pipeGapMinAtCap < pipeMinGap then pipeGapMinAtCap = pipeMinGap end
 
 local pipesetMinGap = 150    -- minimum Y position for gap center (in pixels from top)
 local pipesetMaxGap = 350    -- maximum Y position for gap center (in pixels from top)
@@ -1517,7 +1519,8 @@ end
 
             -- Added difficulty: shrink pipe gap as score increases (in pixels)
             local effectiveScore = math.min(Pscore / 3, 20)
-            local gapSize = pipeStartGap - (effectiveScore * pipeShrinkGap)
+            local gapSize = pipeGapMinAtCap + math.random() * (pipeStartGap - pipeGapMinAtCap)
+
             if gapSize < pipeMinGap then gapSize = pipeMinGap end
 
             -- Random gap center Y position (in pixels)
