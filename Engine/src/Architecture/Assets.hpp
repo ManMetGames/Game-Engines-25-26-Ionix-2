@@ -49,9 +49,12 @@ struct Textures {
     uint32_t Fall__32x32__1_2 = 730365616u;
     uint32_t Fall__32x32__1_2_3 = 2227305082u;
     uint32_t FlappyBird = 2136167952u;
+    uint32_t FlappyBlaze = 658862684u;
+    uint32_t FlappyIce = 1879486528u;
     uint32_t FlappyPipe = 1290161702u;
     uint32_t FlappyPipe2 = 2484853856u;
     uint32_t FlappyPurple = 4063090336u;
+    uint32_t FlappySlime = 1323397008u;
     uint32_t Ghast_Tear = 3650266058u;
     uint32_t Gray = 220346788u;
     uint32_t Green = 1896123910u;
@@ -260,11 +263,12 @@ struct Textures {
         map["Fall__32x32__1_2"] = "./Assets/Jimmy Demo/Main Characters/Pink Man/Fall (32x32).png";
         map["Fall__32x32__1_2_3"] = "./Assets/Jimmy Demo/Main Characters/Virtual Guy/Fall (32x32).png";
         map["FlappyBird"] = "./Assets/FlappyBird.png";
+        map["FlappyBlaze"] = "./Assets/FlappyBlaze.png";
+        map["FlappyIce"] = "./Assets/FlappyIce.png";
         map["FlappyPipe"] = "./Assets/FlappyPipe.png";
         map["FlappyPipe2"] = "./Assets/FlappyPipe2.png";
         map["FlappyPurple"] = "./Assets/FlappyPurple.png";
-        map["Flappy_BlueClassic"] = "./Assets/Flappy_BlueClassic.png";
-        map["Flappy_Redblaze"] = "./Assets/Flappy_Redblaze.png";
+        map["FlappySlime"] = "./Assets/FlappySlime.png";
         map["Ghast_Tear"] = "./Assets/Ghast_Tear.png";
         map["Gray"] = "./Assets/Jimmy Demo/Background/Gray.png";
         map["Green"] = "./Assets/Jimmy Demo/Background/Green.png";

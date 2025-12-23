@@ -131,14 +131,17 @@ local customiseTab = "backgrounds" -- "backgrounds" or "birds"
 -- Shop items 
 local STORE_BACKGROUNDS = {
     { id = "bg_classic", name = "Classic Sky", price = 0,  textureKey = "Background" },
-    { id = "bg_night",   name = "Night Sky",   price = 30, textureKey = "Background" },
-    { id = "bg_plains",  name = "Open Plains",  price = 150, textureKey = "Background_Mountains" },
+    { id = "bg_night",   name = "Night Sky",   price = 75, textureKey = "Background" },
+    { id = "bg_plains",  name = "Open Plains",  price = 250, textureKey = "Background_Mountains" },
 }
 
 local STORE_BIRDS = {
     { id = "bird_classic", name = "Classic Bird", price = 0,  textureKey = "FlappyBird" },
-    { id = "bird_gold",    name = "Gold Bird",    price = 50, textureKey = "FlappyBird" }, -- tint skin
-    { id = "bird_purple",  name = "Purple Bird",  price = 75, textureKey = "FlappyPurple" },
+    { id = "bird_purple",  name = "Purple Bird",  price = 150, textureKey = "FlappyPurple" },
+    { id = "bird_ice",  name = "Ice Bird",  price = 300, textureKey = "FlappyIce" },
+    { id = "bird_blazing",  name = "Blazing Bird",  price = 300, textureKey = "FlappyBlaze" },
+    { id = "bird_gold",    name = "Gold Bird",    price = 400, textureKey = "FlappyBird" }, -- tint skin
+    { id = "bird_gui",  name = "Gui Bird",  price = 500, textureKey = "FlappyGui" },
 }
 
 local BG_STYLES
@@ -162,14 +165,17 @@ end
 BG_STYLES = {
     bg_classic = { tint = {255, 255, 255}, textureKey = "Background" },
     bg_night   = { tint = {150, 170, 255}, textureKey = "Background" },
-    bg_plains   ={ tint = {255, 255, 255}, textureKey = "Background_Mountains" }-- night tint
+    bg_plains   ={ tint = {255, 255, 255}, textureKey = "Background_Mountains" },-- night tint
 }
 
 
 BIRD_STYLES = {
     bird_classic = { tint = {255, 255, 255}, textureKey = "FlappyBird" },
-    bird_gold    = { tint = {255, 220, 120}, textureKey = "FlappyBird" },
     bird_purple  = { tint = {255, 255, 255}, textureKey = "FlappyPurple" },
+    bird_gold    = { tint = {255, 220, 120}, textureKey = "FlappyBird" },
+    bird_ice     = { tint = {180, 220, 255}, textureKey = "FlappyIce" },
+    bird_blazing = { tint = {255, 180, 100}, textureKey = "FlappyBlaze" },
+    bird_gui     = { tint = {255, 255, 255}, textureKey = "FlappyGui" },
 }
 
 
