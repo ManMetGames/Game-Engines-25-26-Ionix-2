@@ -199,12 +199,12 @@ local function GetXpForNextLevel(level)
     local n = level - 1
     local base = 100 + 85 * n + 15 * n * math.max(n - 1, 0)
 
-    -- Late-game slowdown: quadratic bump starting at level 10
+    -- Late-game slowdown: mixed quadratic/cubic formula starting at level 10
+    -- Keeps early levels similar, but ramps up more aggressively at higher levels
     local lateBumpStart = 10
-    local lateBumpScale = 60
     if level > lateBumpStart then
         local delta = level - lateBumpStart
-        base = base + lateBumpScale * delta * delta
+        base = base + 40 * delta * delta + 10 * delta * delta * delta
     end
 
     return math.floor(base)
