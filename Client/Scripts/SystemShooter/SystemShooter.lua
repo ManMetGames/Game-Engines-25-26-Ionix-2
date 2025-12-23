@@ -870,7 +870,24 @@ function SystemShooter:OnStart()
             end,
             onPlayerHit = function(damage)
                 local currentHealth = SystemShooterPlayer.getHealth()
-                SystemShooterPlayer.setHealth(currentHealth - damage)
+                local currentOverhealth = SystemShooterPlayerProgress.getOverhealth()
+                
+                -- Damage overhealth first if present
+                if currentOverhealth > 0 then
+                    if currentOverhealth >= damage then
+                        -- Overhealth absorbs all damage
+                        SystemShooterPlayerProgress.setOverhealth(currentOverhealth - damage)
+                    else
+                        -- Overhealth partially absorbs, remaining damage goes to health
+                        local remainingDamage = damage - currentOverhealth
+                        SystemShooterPlayerProgress.setOverhealth(0)
+                        SystemShooterPlayer.setHealth(currentHealth - remainingDamage)
+                    end
+                else
+                    -- No overhealth, damage health directly
+                    SystemShooterPlayer.setHealth(currentHealth - damage)
+                end
+                
                 SystemShooterPlayer.flash()
                 SystemShooterPlayer.setDamageCooldown(SystemShooterPlayer.getDamageCooldownDuration())
             end,
@@ -2014,6 +2031,14 @@ function SystemShooter:OnUpdate()
                         enemy.health = enemy.health - overhealthDamage
                         if enemy.health <= 0 then
                             enemy.isDead = true
+                            Entity.set_global_pos(enemy.entity, -1000, -1000)
+                            
+                            -- Try to spawn healing orb at enemy death location
+                            local eSize = enemy.size or enemySize
+                            local deathX = enemy.x + eSize / 2
+                            local deathY = enemy.y + eSize / 2
+                            SystemShooterPickups.trySpawnHealingOrb(deathX, deathY)
+                            
                             runEnemiesKilled = runEnemiesKilled + 1
                             SystemShooterPlayerProgress.addXp(enemy.xpReward or 5)
                         end
@@ -2589,8 +2614,26 @@ function UpdateEnemyCollision()
             SystemShooterPlayer.applyKnockback(pushX, pushY)
 
             local currentHealth = SystemShooterPlayer.getHealth()
-            SystemShooterPlayer.setHealth(currentHealth - 10)
-            runDamageTaken = runDamageTaken + 10
+            local currentOverhealth = SystemShooterPlayerProgress.getOverhealth()
+            local damage = 10
+            
+            -- Damage overhealth first if present
+            if currentOverhealth > 0 then
+                if currentOverhealth >= damage then
+                    -- Overhealth absorbs all damage
+                    SystemShooterPlayerProgress.setOverhealth(currentOverhealth - damage)
+                else
+                    -- Overhealth partially absorbs, remaining damage goes to health
+                    local remainingDamage = damage - currentOverhealth
+                    SystemShooterPlayerProgress.setOverhealth(0)
+                    SystemShooterPlayer.setHealth(currentHealth - remainingDamage)
+                end
+            else
+                -- No overhealth, damage health directly
+                SystemShooterPlayer.setHealth(currentHealth - damage)
+            end
+            
+            runDamageTaken = runDamageTaken + damage
             SystemShooterPlayer.flash()
             SystemShooterPlayer.setDamageCooldown(SystemShooterPlayer.getDamageCooldownDuration())
             if playerDamageSfxEntity then
@@ -2661,7 +2704,24 @@ function SpawnBeam(enemy, fromX, fromY, toX, toY)
         local hitRadius = playerRadius + BEAM_RADIUS
         if distToPlayerSq < hitRadius * hitRadius then
             local currentHealth = SystemShooterPlayer.getHealth()
-            SystemShooterPlayer.setHealth(currentHealth - BEAM_DAMAGE)
+            local currentOverhealth = SystemShooterPlayerProgress.getOverhealth()
+            
+            -- Damage overhealth first if present
+            if currentOverhealth > 0 then
+                if currentOverhealth >= BEAM_DAMAGE then
+                    -- Overhealth absorbs all damage
+                    SystemShooterPlayerProgress.setOverhealth(currentOverhealth - BEAM_DAMAGE)
+                else
+                    -- Overhealth partially absorbs, remaining damage goes to health
+                    local remainingDamage = BEAM_DAMAGE - currentOverhealth
+                    SystemShooterPlayerProgress.setOverhealth(0)
+                    SystemShooterPlayer.setHealth(currentHealth - remainingDamage)
+                end
+            else
+                -- No overhealth, damage health directly
+                SystemShooterPlayer.setHealth(currentHealth - BEAM_DAMAGE)
+            end
+            
             runDamageTaken = runDamageTaken + (BEAM_DAMAGE or 0)
             SystemShooterPlayer.flash()
             SystemShooterPlayer.setDamageCooldown(SystemShooterPlayer.getDamageCooldownDuration())
