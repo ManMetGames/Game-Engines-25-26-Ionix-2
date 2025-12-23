@@ -50,6 +50,13 @@ local screenH = 1080
 -- Skip first mouse delta after resume (prevents teleport on unpause)
 local skipNextMouseDelta = false
 
+-- ANTIVIRUS SYSTEM
+local antivirusEnabled = false
+local antivirusActive = false
+local antivirusCycleTimer = 0
+local antivirusCycleDuration = 10  -- seconds
+local antivirusActiveDuration = 2  -- seconds
+
 -- Callbacks (set via init)
 local callbacks = {
     getEnemies = nil,
@@ -135,6 +142,26 @@ function SystemShooterPlayer.getDamageCooldownDuration()
     return damageCooldownDuration
 end
 
+function SystemShooterPlayer.enableAntivirus()
+    antivirusEnabled = true
+    antivirusCycleTimer = 0
+    antivirusActive = false
+end
+
+function SystemShooterPlayer.disableAntivirus()
+    antivirusEnabled = false
+    antivirusActive = false
+    antivirusCycleTimer = 0
+    -- Reset sprite color to white
+    if playerSprite then
+        Sprite.set_color(playerSprite, 255, 255, 255)
+    end
+end
+
+function SystemShooterPlayer.isAntivirusActive()
+    return antivirusActive
+end
+
 function SystemShooterPlayer.isFiring()
     return isFiring
 end
@@ -179,6 +206,11 @@ end
  --  [FLASH] Player damage flash
  --=====================================================================
 function SystemShooterPlayer.flash()
+    -- Don't flash if antivirus is active
+    if antivirusActive then
+        return
+    end
+    
     Sprite.set_color(playerSprite, 255, 0, 0)
     playerFlashTimer = playerFlashDuration
     if playerHealth <= 0 then
@@ -198,12 +230,38 @@ function SystemShooterPlayer.updateFlash(dt)
         local r = 255
         local g = math.floor(255 * (1.0 - t) + 0.5)
         local b = math.floor(255 * (1.0 - t) + 0.5)
-        Sprite.set_color(playerSprite, r, g, b)
+        
+        -- Don't override antivirus yellow color
+        if not antivirusActive then
+            Sprite.set_color(playerSprite, r, g, b)
+        end
     end
     
     -- Damage cooldown
     if damageCooldown > 0 then
         damageCooldown = damageCooldown - dt
+    end
+    
+    -- Antivirus system
+    if antivirusEnabled then
+        antivirusCycleTimer = antivirusCycleTimer + dt
+        
+        if antivirusCycleTimer >= antivirusCycleDuration then
+            antivirusCycleTimer = 0
+        end
+        
+        -- Check if we should be in active phase
+        local wasActive = antivirusActive
+        antivirusActive = (antivirusCycleTimer < antivirusActiveDuration)
+        
+        -- Handle state changes
+        if antivirusActive and not wasActive then
+            -- Just activated - set yellow sprite
+            Sprite.set_color(playerSprite, 255, 255, 0)
+        elseif not antivirusActive and wasActive then
+            -- Just deactivated - set white sprite
+            Sprite.set_color(playerSprite, 255, 255, 255)
+        end
     end
 end
 
@@ -434,7 +492,12 @@ function SystemShooterPlayer.resetForLevel(resetHealth)
     playerX = screenW / 2 - playerSize / 2
     playerY = screenH / 2 - playerSize / 2
     Entity.set_global_pos(player, playerX, playerY)
-    Sprite.set_color(playerSprite, 255, 255, 255)
+    
+    -- Only reset sprite color if antivirus isn't currently active
+    if not antivirusActive then
+        Sprite.set_color(playerSprite, 255, 255, 255)
+    end
+    
     playerFlashTimer = 0
     damageCooldown = 0
     
@@ -453,7 +516,11 @@ function SystemShooterPlayer.resetForRun()
     playerX = screenW / 2 - playerSize / 2
     playerY = screenH / 2 - playerSize / 2
     Entity.set_global_pos(player, playerX, playerY)
-    Sprite.set_color(playerSprite, 255, 255, 255)
+    
+    -- Only reset sprite color if antivirus isn't currently active
+    if not antivirusActive then
+        Sprite.set_color(playerSprite, 255, 255, 255)
+    end
 end
 
 function SystemShooterPlayer.stopFiring()

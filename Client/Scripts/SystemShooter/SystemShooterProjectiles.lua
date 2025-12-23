@@ -544,6 +544,12 @@ end
 function SystemShooterProjectiles.updateEnemyProjectiles(dt, damageCooldown, runStats)
     if not callbacks.getPlayerPos then return end
     
+    -- Check if antivirus is active
+    local isInvulnerable = false
+    if callbacks.isAntivirusActive then
+        isInvulnerable = callbacks.isAntivirusActive()
+    end
+    
     local cfg = SystemShooterProjectiles.EnemyConfig
     local playerX, playerY, playerSize = callbacks.getPlayerPos()
     
@@ -566,7 +572,7 @@ function SystemShooterProjectiles.updateEnemyProjectiles(dt, damageCooldown, run
         local distSq = dx * dx + dy * dy
         local hitRadius = playerSize/2 + cfg.size/2
         
-        if distSq < hitRadius * hitRadius and damageCooldown <= 0 then
+        if distSq < hitRadius * hitRadius and damageCooldown <= 0 and not isInvulnerable then
             -- Hit player
             if callbacks.onPlayerHit then
                 callbacks.onPlayerHit(cfg.damage)

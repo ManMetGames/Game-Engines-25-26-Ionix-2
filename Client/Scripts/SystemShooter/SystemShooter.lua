@@ -874,6 +874,7 @@ function SystemShooter:OnStart()
                 SystemShooterPlayer.flash()
                 SystemShooterPlayer.setDamageCooldown(SystemShooterPlayer.getDamageCooldownDuration())
             end,
+            isAntivirusActive = function() return SystemShooterPlayer.isAntivirusActive() end,
             addXp = function(amount) SystemShooterPlayerProgress.addXp(amount) end,
         }
     })
@@ -2463,6 +2464,11 @@ end
 -- Enemy-Player collision with damage cooldown
 ----------------------------------------------------------
 function UpdateEnemyCollision()
+    -- Skip collision if antivirus is active
+    if SystemShooterPlayer.isAntivirusActive() then
+        return
+    end
+    
     if SystemShooterPlayer.getDamageCooldown() > 0 then
         return
     end

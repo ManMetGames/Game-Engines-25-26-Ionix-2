@@ -76,6 +76,16 @@ local UPGRADE_CONFIG = {
         customApply  = true,
         weight       = 4,
     },
+    antivirus = {
+        statKey      = "antivirusUpgrade",
+        label        = "upgradetype.antivirus",
+        desc         = "upgradedesc.antivirus",
+        minLevel     = 8,
+        maxValue     = 1,
+        defaultValue = 0,
+        customApply  = true,
+        weight       = 5,
+    },
 }
 
 local playerLevel = 1
@@ -91,6 +101,7 @@ local playerStats = {
     lowEnemyDamageStacks = 0,
     maxHealth = 100,
     healingOrbSpawnUpgrade = 0,
+    antivirusUpgrade = 0,
 }
 
 local timeoutCount = 0
@@ -259,6 +270,14 @@ function SystemShooterPlayerProgress.applyUpgrade(upgradeType)
                     SystemShooterPickups.CONFIG.HEALING_ORB_DROP_CHANCE = 0.40
                 end
             end
+        elseif upgradeType == "antivirus" then
+            local count = playerStats.antivirusUpgrade or 0
+            if count < cfg.maxValue then
+                playerStats.antivirusUpgrade = count + 1
+                -- Enable antivirus system in player module
+                local SystemShooterPlayer = require("Scripts.SystemShooter.SystemShooterPlayer")
+                SystemShooterPlayer.enableAntivirus()
+            end
         end
     else
         local increment = cfg.increment or 1
@@ -360,10 +379,15 @@ function SystemShooterPlayerProgress.reset()
     playerStats.lowEnemyDamageStacks = 0
     playerStats.maxHealth = 100
     playerStats.healingOrbSpawnUpgrade = 0
+    playerStats.antivirusUpgrade = 0
     
     -- Reset healing orb spawn chance
     local SystemShooterPickups = require("Scripts.SystemShooter.SystemShooterPickups")
     SystemShooterPickups.CONFIG.HEALING_ORB_DROP_CHANCE = 0.15
+    
+    -- Reset antivirus
+    local SystemShooterPlayer = require("Scripts.SystemShooter.SystemShooterPlayer")
+    SystemShooterPlayer.disableAntivirus()
 end
 
 return SystemShooterPlayerProgress

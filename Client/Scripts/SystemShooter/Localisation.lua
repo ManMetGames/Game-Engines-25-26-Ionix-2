@@ -45,6 +45,8 @@ local STRINGS = {
             ["upgradedesc.maxhp"] = "Increase your max health.",
         ["upgradetype.healingorbspawn"] = "More orbs",
             ["upgradedesc.healingorbspawn"] = "Enemies have increased chance of dropping healing orbs",
+        ["upgradetype.antivirus"] = "Antivirus",
+            ["upgradedesc.antivirus"] = "Become invulnerable for 2 seconds every 10 seconds",
 
     ["pause.title"] = "PAUSED",
     ["pause.resume"] = "RESUME",
@@ -127,6 +129,8 @@ local STRINGS = {
             ["upgradedesc.maxhp"] = "最大HPが増える。",
             ["upgradetype.healingorbspawn"] = "More orbs",
             ["upgradedesc.healingorbspawn"] = "Enemies have increased chance of dropping healing orbs",
+        ["upgradetype.antivirus"] = "Antivirus",
+            ["upgradedesc.antivirus"] = "Become invulnerable for 2 seconds every 10 seconds",
     ["pause.title"] = "一時停止",
     ["pause.resume"] = "再開",
     ["pause.quit"] = "メインメニューへ",
