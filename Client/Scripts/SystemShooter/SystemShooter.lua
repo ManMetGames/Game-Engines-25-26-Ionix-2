@@ -2027,8 +2027,8 @@ function SystemShooter:OnUpdate()
         -- Check enemy-player collision and apply damage
         UpdateEnemyCollision()
         
-        -- Update overhealth system and apply electric circle damage to enemies
-        local overhealthActive, overhealthRadius, overhealthDamage = SystemShooterPlayerProgress.updateOverhealth(dt)
+        -- Update overhealth system and apply lightning zap damage to enemies
+        local overhealthActive, overhealthRadius, shouldZap, zapDamage, maxZapTargets = SystemShooterPlayerProgress.updateOverhealth(dt)
         
         -- Manage overhealth ring VFX
         if overhealthActive and not wasOverhealthActive then
@@ -2044,7 +2044,7 @@ function SystemShooter:OnUpdate()
                 VFX.set_ring_pulsing(overhealthRingId, true, 3.0, 100, 255)
                 VFX.set_ring_render_layer(overhealthRingId, 0, 15)  -- High z-order to render on top
                 VFX.set_ring_segments(overhealthRingId, 48)
-                VFX.set_ring_distortion(overhealthRingId, true, 3.5, 4.0, 3.5)
+                VFX.set_ring_distortion(overhealthRingId, true, 2, 4.0, 3.5)
             end
         elseif not overhealthActive and wasOverhealthActive then
             -- Overhealth just became inactive - destroy the ring
@@ -2064,31 +2064,73 @@ function SystemShooter:OnUpdate()
             VFX.set_ring_position(overhealthRingId, playerCenterX, playerCenterY)
             VFX.set_ring_radius(overhealthRingId, overhealthRadius)
             
-            -- Apply damage to all enemies within radius
-            for i = 1, #enemies do
-                local enemy = enemies[i]
-                if not enemy.isDead and not enemy.disabled then
-                    local enemyCenterX = enemy.x + enemySize / 2
-                    local enemyCenterY = enemy.y + enemySize / 2
-                    local dx = enemyCenterX - playerCenterX
-                    local dy = enemyCenterY - playerCenterY
-                    local dist = math.sqrt(dx * dx + dy * dy)
-                    
-                    if dist <= overhealthRadius then
-                        enemy.health = enemy.health - overhealthDamage
-                        if enemy.health <= 0 then
-                            enemy.isDead = true
-                            Entity.set_global_pos(enemy.entity, -1000, -1000)
-                            
-                            -- Try to spawn healing orb at enemy death location
-                            local eSize = enemy.size or enemySize
-                            local deathX = enemy.x + eSize / 2
-                            local deathY = enemy.y + eSize / 2
-                            SystemShooterPickups.trySpawnHealingOrb(deathX, deathY)
-                            
-                            runEnemiesKilled = runEnemiesKilled + 1
-                            SystemShooterPlayerProgress.addXp(enemy.xpReward or 5)
+            -- Apply lightning zap damage when timer triggers
+            if shouldZap then
+                -- Gather all enemies within radius
+                local enemiesInRange = {}
+                for i = 1, #enemies do
+                    local enemy = enemies[i]
+                    if not enemy.isDead and not enemy.disabled then
+                        local enemyCenterX = enemy.x + enemySize / 2
+                        local enemyCenterY = enemy.y + enemySize / 2
+                        local dx = enemyCenterX - playerCenterX
+                        local dy = enemyCenterY - playerCenterY
+                        local dist = math.sqrt(dx * dx + dy * dy)
+                        
+                        if dist <= overhealthRadius then
+                            table.insert(enemiesInRange, { enemy = enemy, dist = dist, cx = enemyCenterX, cy = enemyCenterY })
                         end
+                    end
+                end
+                
+                -- Randomly select up to maxZapTargets enemies to zap
+                local targetsToZap = {}
+                local availableCount = #enemiesInRange
+                local numToZap = math.min(maxZapTargets, availableCount)
+                
+                -- Fisher-Yates shuffle to randomly select targets
+                for i = 1, numToZap do
+                    local randomIndex = math.random(i, availableCount)
+                    enemiesInRange[i], enemiesInRange[randomIndex] = enemiesInRange[randomIndex], enemiesInRange[i]
+                    table.insert(targetsToZap, enemiesInRange[i])
+                end
+                
+                -- Get overhealth config for lightning settings
+                local overhealthCfg = SystemShooterPlayerProgress.getOverhealthConfig()
+                local lightningLifetime = overhealthCfg.lightningLifetime or 0.25
+                local lightningColor = overhealthCfg.lightningColor or { r = 100, g = 200, b = 255, a = 255 }
+                
+                -- Zap each selected target
+                for _, target in ipairs(targetsToZap) do
+                    local enemy = target.enemy
+                    local enemyCenterX = target.cx
+                    local enemyCenterY = target.cy
+                    
+                    -- Create lightning bolt VFX from player to enemy
+                    local lightningId = VFX.create_lightning(playerCenterX, playerCenterY, enemyCenterX, enemyCenterY, lightningLifetime)
+                    if lightningId and lightningId >= 0 then
+                        VFX.set_lightning_color(lightningId, lightningColor.r, lightningColor.g, lightningColor.b, lightningColor.a)
+                        VFX.set_lightning_flicker(lightningId, true, 0.03)  -- Fast flicker for electric effect
+                        VFX.set_lightning_render_layer(lightningId, 0, 20)  -- High z-order, above ring
+                        VFX.set_lightning_fade_out(lightningId, true)
+                    end
+                    
+                    -- Apply burst damage
+                    enemy.health = enemy.health - zapDamage
+                    runDamageDealt = runDamageDealt + zapDamage
+                    
+                    if enemy.health <= 0 then
+                        enemy.isDead = true
+                        Entity.set_global_pos(enemy.entity, -1000, -1000)
+                        
+                        -- Try to spawn healing orb at enemy death location
+                        local eSize = enemy.size or enemySize
+                        local deathX = enemy.x + eSize / 2
+                        local deathY = enemy.y + eSize / 2
+                        SystemShooterPickups.trySpawnHealingOrb(deathX, deathY)
+                        
+                        runEnemiesKilled = runEnemiesKilled + 1
+                        SystemShooterPlayerProgress.addXp(enemy.xpReward or 5)
                     end
                 end
             end

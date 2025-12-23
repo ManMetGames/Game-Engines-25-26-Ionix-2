@@ -101,8 +101,13 @@ local UPGRADE_CONFIG = {
         weight       = 100,
         -- Configuration for overhealth system
         decayRate    = 3,      -- HP lost per second
-        damageRadius = 200,    -- Circle radius in pixels
-        damagePerSecond = 10,  -- Damage dealt to enemies per second
+        damageRadius = 300,    -- Circle radius in pixels
+        -- Lightning zap configuration (replaces continuous DPS)
+        zapInterval  = 1.25,    -- Seconds between zaps
+        zapDamage    = 10,     -- Damage per zap (burst damage)
+        maxZapTargets = 10,     -- Maximum enemies to zap at once
+        lightningLifetime = 0.25,  -- Lightning VFX duration
+        lightningColor = { r = 100, g = 200, b = 255, a = 255 },  -- Electric blue
     },
 }
 
@@ -126,6 +131,7 @@ local playerStats = {
 -- Overhealth tracking (runtime state, not saved)
 local currentOverhealth = 0
 local overhealthEnabled = false
+local overhealthZapTimer = 0  -- Timer for periodic lightning zaps
 
 local timeoutCount = 0
 local MAX_TIMEOUTS = 5
@@ -414,26 +420,37 @@ function SystemShooterPlayerProgress.getOverhealthConfig()
     return UPGRADE_CONFIG.overhealth
 end
 
--- Called each frame to decay overhealth and return damage info
--- Returns: isActive (bool), damageRadius (float), damageThisFrame (float)
+-- Called each frame to decay overhealth and return zap info
+-- Returns: isActive (bool), damageRadius (float), shouldZap (bool), zapDamage (float), maxTargets (int)
 function SystemShooterPlayerProgress.updateOverhealth(dt)
     if not overhealthEnabled or currentOverhealth <= 0 then
-        return false, 0, 0
+        overhealthZapTimer = 0
+        return false, 0, false, 0, 0
     end
     
     local cfg = UPGRADE_CONFIG.overhealth
     
     -- Decay overhealth over time
-    local decayAmount = (cfg.decayRate or 5) * dt
+    local decayAmount = (cfg.decayRate or 3) * dt
     currentOverhealth = math.max(0, currentOverhealth - decayAmount)
     
-    -- If still active, return damage info
+    -- If still active, check zap timer
     if currentOverhealth > 0 then
-        local damageThisFrame = (cfg.damagePerSecond or 15) * dt
-        return true, cfg.damageRadius or 100, damageThisFrame
+        overhealthZapTimer = overhealthZapTimer + dt
+        local zapInterval = cfg.zapInterval or 0.5
+        
+        if overhealthZapTimer >= zapInterval then
+            overhealthZapTimer = overhealthZapTimer - zapInterval
+            -- Time to zap!
+            return true, cfg.damageRadius or 200, true, cfg.zapDamage or 25, cfg.maxZapTargets or 2
+        else
+            -- Active but not zapping this frame
+            return true, cfg.damageRadius or 200, false, 0, 0
+        end
     end
     
-    return false, 0, 0
+    overhealthZapTimer = 0
+    return false, 0, false, 0, 0
 end
 
 function SystemShooterPlayerProgress.reset()
@@ -457,6 +474,7 @@ function SystemShooterPlayerProgress.reset()
     -- Reset overhealth
     currentOverhealth = 0
     overhealthEnabled = false
+    overhealthZapTimer = 0
     
     -- Reset healing orb spawn chance
     local SystemShooterPickups = require("Scripts.SystemShooter.SystemShooterPickups")
