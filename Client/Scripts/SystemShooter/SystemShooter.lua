@@ -222,7 +222,7 @@ local function IsNoWitnessesActive()
     if stacks == 1 then
         return activeCount == 1
     else -- stacks >= 2
-        return activeCount < 3
+        return activeCount <= 3
     end
 end
 
@@ -902,7 +902,7 @@ function SystemShooter:OnStart()
                         local bonusXp = math.floor(levelXpGained * 0.25 * bonusRatio)
                         if bonusXp > 0 then
                             SystemShooterPlayerProgress.addXp(bonusXp)
-                            notificationMessage = "Level Complete! Bonus XP: " .. bonusXp .. " (Time Left: " .. string.format("%.1f", levelTimerSeconds) .. "s)"
+                            notificationMessage = "Bonus XP: " .. bonusXp .. " (Time Left: " .. string.format("%.1f", levelTimerSeconds) .. "s)"
                             notificationTimer = endLevelPeaceDuration
                         end
                     end
@@ -1910,6 +1910,11 @@ function SystemShooter:OnUpdate()
             SystemShooterPlayer.updateMovement(dt, sensitivitySetting)
             SystemShooterPlayer.stopFiring()
         end
+        
+        -- Update healing orbs during transition (so they don't freeze)
+        SystemShooterPickups.update(dt)
+        SystemShooterPickups.constrainToScreen(screenW, screenH)
+        
         return
     end
 
@@ -2352,7 +2357,7 @@ if levelCfg.timeLimitSeconds ~= nil and levelCfg.timeLimitSeconds > 0 then
     -- Display notification
     if notificationTimer > 0 then
         notificationTimer = notificationTimer - dt
-        UI.add_centered_label(screenW / 2, 100, notificationMessage, UI_FONT_BOLD, 1)
+        UI.add_centered_label(screenW / 2, 100, notificationMessage, UI_FONT_BOLD, 0.75)
     end
 
     local playerHpBarX = screenW - 220
@@ -2376,7 +2381,7 @@ if levelCfg.timeLimitSeconds ~= nil and levelCfg.timeLimitSeconds > 0 then
     UI.draw_progress_bar_layered(playerHpBarX, playerHpBarY, playerHpBarW, playerHpBarH, playerMaxHealth, playerHealth, 2, hpStyle, "")
 
     local level, xp, xpToNextLevel = SystemShooterPlayerProgress.getProgress()
-    local playerInfoText = T("gameplay.level") .. tostring(level) .. T("gameplay.exp") .. tostring(xp) .. "/" .. tostring(xpToNextLevel)
+    local playerInfoText = T("gameplay.level") .. tostring(level) .. T("gameplay.exp") .. tostring(math.floor(xp)) .. "/" .. tostring(math.floor(xpToNextLevel))
     UI.add_centered_label(playerHpBarX + playerHpBarW / 2, playerHpBarY + playerHpBarH + 8, playerInfoText, UI_FONT_REG, 0.85)
 
     -- Peace progress bar (during start-level or end-level peace)
