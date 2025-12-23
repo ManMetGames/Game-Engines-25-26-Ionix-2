@@ -16,6 +16,7 @@ local playerSprite
 -- Background scrolling (main menu)
 local BG_BASE_W, BG_BASE_H = 960, 610
 local BG_PAD = 20                -- oversize to hide seams/edges
+local floorTopWorld = 0.0 -- top of the floor collider
 
 local floorTileSprites = {}
 local BG_TILE_W = BG_BASE_W      
@@ -581,6 +582,8 @@ function ExampleScript:OnStart()
     ------------------------------------------------------
     local tileSize = 64
     local floorY = 550
+    floorTopWorld = (floorY - (tileSize * 0.5))
+
     -- Floor collision tiles
     for i = 0, 30 do
 
@@ -1518,8 +1521,18 @@ end
             if gapSize < pipeMinGap then gapSize = pipeMinGap end
 
             -- Random gap center Y position (in pixels)
-            local gapCenter = pipesetMinGap +
-                math.random() * (pipesetMaxGap - pipesetMinGap)
+            local floorPad = 10
+
+            local minCenter = pipesetMinGap
+            local maxCenter = pipesetMaxGap
+
+            
+            local maxByFloor = (floorTopWorld - floorPad) - (gapSize / 2)
+            if maxCenter > maxByFloor then maxCenter = maxByFloor end
+            if maxCenter < minCenter then maxCenter = minCenter end
+
+            local gapCenter = minCenter + math.random() * (maxCenter - minCenter)
+
 
             if set.lastGapCenter then
                 local delta = gapCenter - set.lastGapCenter
@@ -1527,6 +1540,7 @@ end
                     gapCenter = gapCenter + (delta > 0 and 60 or -60)
                 end
             end
+            gapCenter = math.max(minCenter, math.min(maxCenter, gapCenter))
             set.lastGapCenter = gapCenter
 
             -- Calculate pipe positions (in pixels)
