@@ -86,8 +86,8 @@ local beatTimer = 0
 local bopDurationSeconds = 8 / 60.0
 local bopTimer = 0
 local bopScale = 0.25
-local beatStartDelaySeconds = (8 * 4) * secondsPerBeat
-local beatStartDelayCounter = 0
+local beatStartDelaySeconds = 14.4  -- Drop happens at 14.4 seconds (start of 9th bar)
+local beatBopHasStarted = false
 
 -- Music rewind sync
 local rememberedMusicPosition = 0    -- Position to restore after rewind
@@ -253,10 +253,12 @@ function UpdateWindowTransition(dt)
             
             -- Start music after first window transition completes (synced with gameplay)
             if musicEntity and not musicStartedThisLaunch then
+                print("[BEAT DEBUG] Starting music at time: " .. tostring(os.clock()))
                 MusicComponent.play(musicEntity, true, 2.0)  -- loop=true, fadeIn=2.0 seconds
                 musicStartedThisLaunch = true
-                -- Reset beat delay counter to sync with music start
-                beatStartDelayCounter = 0
+                -- Reset beat bop flag to sync with music start
+                beatBopHasStarted = false
+                print("[BEAT DEBUG] Reset beatBopHasStarted. Will activate at music position: " .. tostring(beatStartDelaySeconds) .. " seconds")
             end
         end
         
@@ -2633,11 +2635,18 @@ end
 function UpdateBeatBop()
     local dt = GetDt()
     
-    -- Track delay counter
+    -- Check if music has reached the drop point (using actual music position)
     local beatBopActive = false
-    if beatStartDelayCounter < beatStartDelaySeconds then
-        beatStartDelayCounter = beatStartDelayCounter + dt
-    else
+    if not beatBopHasStarted and musicEntity and MusicComponent.is_playing(musicEntity) then
+        local musicPos = MusicComponent.get_position(musicEntity)
+        if musicPos >= beatStartDelaySeconds then
+            beatBopHasStarted = true
+            beatBopActive = true
+            -- Trigger immediate bop on the drop
+            bopTimer = bopDurationSeconds
+            print("[BEAT DEBUG] Beat bop activated at music position: " .. tostring(musicPos) .. " seconds (target was " .. tostring(beatStartDelaySeconds) .. ") - IMMEDIATE BOP")
+        end
+    elseif beatBopHasStarted then
         beatBopActive = true
     end
 
@@ -2647,6 +2656,13 @@ function UpdateBeatBop()
         if beatTimer >= secondsPerBeat then
             beatTimer = beatTimer - secondsPerBeat
             bopTimer = bopDurationSeconds
+            -- Log first few bops
+            if musicEntity then
+                local musicPos = MusicComponent.get_position(musicEntity)
+                if musicPos < beatStartDelaySeconds + 3.0 then
+                    print("[BEAT DEBUG] BOP triggered at music position: " .. tostring(musicPos) .. " seconds")
+                end
+            end
         end
     end
 
