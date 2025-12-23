@@ -408,12 +408,14 @@ function SystemShooterPlayerProgress.setOverhealth(value)
         currentOverhealth = 0
         return
     end
-    currentOverhealth = math.max(0, value)
+    local maxHealth = playerStats.maxHealth or 100
+    currentOverhealth = math.max(0, math.min(value, maxHealth))
 end
 
 function SystemShooterPlayerProgress.addOverhealth(amount)
     if not overhealthEnabled then return end
-    currentOverhealth = currentOverhealth + amount
+    local maxHealth = playerStats.maxHealth or 100
+    currentOverhealth = math.min(currentOverhealth + amount, maxHealth)
 end
 
 function SystemShooterPlayerProgress.getOverhealthConfig()
