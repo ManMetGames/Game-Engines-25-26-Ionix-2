@@ -253,12 +253,10 @@ function UpdateWindowTransition(dt)
             
             -- Start music after first window transition completes (synced with gameplay)
             if musicEntity and not musicStartedThisLaunch then
-                print("[BEAT DEBUG] Starting music at time: " .. tostring(os.clock()))
                 MusicComponent.play(musicEntity, true, 2.0)  -- loop=true, fadeIn=2.0 seconds
                 musicStartedThisLaunch = true
                 -- Reset beat bop flag to sync with music start
                 beatBopHasStarted = false
-                print("[BEAT DEBUG] Reset beatBopHasStarted. Will activate at music position: " .. tostring(beatStartDelaySeconds) .. " seconds")
             end
         end
         
@@ -2344,6 +2342,8 @@ if levelCfg.timeLimitSeconds ~= nil and levelCfg.timeLimitSeconds > 0 then
                 -- Just disable them for peace state (they'll be enabled when peace ends)
                 for _, enemy in ipairs(enemies) do
                     SystemShooterEnemy.setEnemyDisabled(enemy, true)
+                    -- Reset shoot timer to resync with beat after rewind
+                    enemy.shootTimer = 0
                 end
                 
                 -- Start peace timer and restore music
@@ -2362,6 +2362,16 @@ if levelCfg.timeLimitSeconds ~= nil and levelCfg.timeLimitSeconds > 0 then
                     end
                     -- Fade in volume from current (50%) to full over 1 second
                     MusicComponent.fade_volume(musicEntity, musicMuted and 0 or musicBaseVolume, 1.0)
+                    
+                    -- Resync beatTimer with current music position to maintain beat timing
+                    local musicPos = MusicComponent.get_position(musicEntity)
+                    if beatBopHasStarted and musicPos >= beatStartDelaySeconds then
+                        -- Calculate how many beats have elapsed since drop
+                        local timeSinceDrop = musicPos - beatStartDelaySeconds
+                        local beatCount = math.floor(timeSinceDrop / secondsPerBeat)
+                        -- Set beatTimer to the remainder (current position within the beat)
+                        beatTimer = timeSinceDrop - (beatCount * secondsPerBeat)
+                    end
                 end
             end
         end
@@ -2644,7 +2654,6 @@ function UpdateBeatBop()
             beatBopActive = true
             -- Trigger immediate bop on the drop
             bopTimer = bopDurationSeconds
-            print("[BEAT DEBUG] Beat bop activated at music position: " .. tostring(musicPos) .. " seconds (target was " .. tostring(beatStartDelaySeconds) .. ") - IMMEDIATE BOP")
         end
     elseif beatBopHasStarted then
         beatBopActive = true
@@ -2656,13 +2665,6 @@ function UpdateBeatBop()
         if beatTimer >= secondsPerBeat then
             beatTimer = beatTimer - secondsPerBeat
             bopTimer = bopDurationSeconds
-            -- Log first few bops
-            if musicEntity then
-                local musicPos = MusicComponent.get_position(musicEntity)
-                if musicPos < beatStartDelaySeconds + 3.0 then
-                    print("[BEAT DEBUG] BOP triggered at music position: " .. tostring(musicPos) .. " seconds")
-                end
-            end
         end
     end
 
