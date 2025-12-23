@@ -1513,10 +1513,9 @@ end
         if pipeX < pipeOffScreenLeft then
 
             -- Added difficulty: shrink pipe gap as score increases (in pixels)
-            local gapSize = pipeStartGap - (Pscore * pipeShrinkGap)
-            if gapSize < pipeMinGap then
-                gapSize = pipeMinGap
-            end
+            local effectiveScore = math.min(Pscore / 3, 20)
+            local gapSize = pipeStartGap - (effectiveScore * pipeShrinkGap)
+            if gapSize < pipeMinGap then gapSize = pipeMinGap end
 
             -- Random gap center Y position (in pixels)
             local gapCenter = pipesetMinGap +
