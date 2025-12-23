@@ -899,7 +899,7 @@ function SystemShooter:OnStart()
                     -- Only award bonus XP if level hasn't been rewound (mutated)
                     if not mutatedLevels[currentLevel] and totalTime > 0 and levelTimerSeconds > 0 then
                         local bonusRatio = levelTimerSeconds / totalTime
-                        local bonusXp = math.floor(levelXpGained * 0.25 * bonusRatio)
+                        local bonusXp = math.floor(levelXpGained * 0.35 * bonusRatio)
                         if bonusXp > 0 then
                             SystemShooterPlayerProgress.addXp(bonusXp)
                             notificationMessage = "Bonus XP: " .. bonusXp .. " (Time Left: " .. string.format("%.1f", levelTimerSeconds) .. "s)"
@@ -1929,6 +1929,10 @@ function SystemShooter:OnUpdate()
         if selectedUpgrade then
             SystemShooterPlayerProgress.applyUpgrade(selectedUpgrade.type)
             if selectedUpgrade.type == "max_health" then
+                local maxH = SystemShooterPlayerProgress.getMaxHealth()
+                local currentH = SystemShooterPlayer.getHealth()
+                SystemShooterPlayer.setHealth(math.min(maxH, currentH + 20))
+            elseif selectedUpgrade.type == "overhealth" then
                 local maxH = SystemShooterPlayerProgress.getMaxHealth()
                 local currentH = SystemShooterPlayer.getHealth()
                 SystemShooterPlayer.setHealth(math.min(maxH, currentH + 20))

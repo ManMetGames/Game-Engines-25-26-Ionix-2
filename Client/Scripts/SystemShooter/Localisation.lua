@@ -50,7 +50,7 @@ local STRINGS = {
         ["upgradetype.antivirus"] = "Antivirus",
             ["upgradedesc.antivirus"] = "Become invulnerable for 2 seconds every 10 seconds",
         ["upgradetype.overhealth"] = "Overhealth",
-            ["upgradedesc.overhealth"] = "Healing past full HP creates Overhealth, which activates an electric circle that damages nearby enemies",
+            ["upgradedesc.overhealth"] = "Healing past full HP creates Overhealth, which activates an electric circle that damages nearby enemies. Also heal +20hp now.",
 
     ["pause.title"] = "PAUSED",
     ["pause.resume"] = "RESUME",

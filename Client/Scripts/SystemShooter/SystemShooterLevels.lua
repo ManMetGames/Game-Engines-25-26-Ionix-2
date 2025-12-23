@@ -140,7 +140,7 @@ local ENEMY_TEMPLATES = {
         end,
     },
     stationary_boss = {
-        minLevel = 12,
+        minLevel = 20,
         healthMin = 150,
         healthMax = 300,
         maxPerLevel = 1,
@@ -163,7 +163,7 @@ local ENEMY_TEMPLATES = {
         end,
     },
     teleporter = {
-        minLevel = 15,
+        minLevel = 35,
         healthMin = 180,
         healthMax = 350,
         maxPerLevel = 1,
@@ -182,9 +182,9 @@ local ENEMY_TEMPLATES = {
                 health = health,
                 healthScaling = false,
                 size = 40,
-                teleportChargeTime = 1.25,
+                teleportChargeTime = 1.75,
                 beamDuration = 0.25,
-                teleportCooldown = 2.0,
+                teleportCooldown = 2.25,
             }
         end,
     },
