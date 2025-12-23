@@ -44,6 +44,8 @@ local UPGRADE_CONFIG = {
         defaultValue = 0,
         customApply  = true,
         weight       = 8,
+        -- Delta values for each upgrade level
+        levelDeltas  = { 0.1, 0.05, 0.025 },  -- [1] = first upgrade, [2] = second, etc.
     },
     no_witnesses = {
         statKey      = "lowEnemyDamageStacks",
@@ -75,6 +77,8 @@ local UPGRADE_CONFIG = {
         defaultValue = 0,
         customApply  = true,
         weight       = 4,
+        -- Drop chance values for each upgrade level
+        dropChances  = { 0.90, 0.40 },  -- [1] = first upgrade, [2] = second upgrade
     },
     antivirus = {
         statKey      = "antivirusUpgrade",
@@ -268,12 +272,8 @@ function SystemShooterPlayerProgress.applyUpgrade(upgradeType)
         if upgradeType == "fire_rate" then
             local count = playerStats.fireRateUpgradeCount or 0
             if count < cfg.maxValue then
-                local delta = 0.1
-                if count == 1 then
-                    delta = 0.05
-                elseif count == 2 then
-                    delta = 0.025
-                end
+                -- Get delta from config based on current count (next upgrade level)
+                local delta = cfg.levelDeltas and cfg.levelDeltas[count + 1] or 0.1
                 playerStats.fireInterval = math.max(0.05, playerStats.fireInterval - delta)
                 playerStats.fireRateUpgradeCount = count + 1
             end
@@ -281,13 +281,10 @@ function SystemShooterPlayerProgress.applyUpgrade(upgradeType)
             local count = playerStats.healingOrbSpawnUpgrade or 0
             if count < cfg.maxValue then
                 playerStats.healingOrbSpawnUpgrade = count + 1
-                -- Update the pickup module's spawn chance
+                -- Update the pickup module's spawn chance using config value
                 local SystemShooterPickups = require("Scripts.SystemShooter.SystemShooterPickups")
-                if count == 0 then
-                    SystemShooterPickups.CONFIG.HEALING_ORB_DROP_CHANCE = 0.90
-                elseif count == 1 then
-                    SystemShooterPickups.CONFIG.HEALING_ORB_DROP_CHANCE = 0.40
-                end
+                local dropChance = cfg.dropChances and cfg.dropChances[count + 1] or 1.0
+                SystemShooterPickups.CONFIG.HEALING_ORB_DROP_CHANCE = dropChance
             end
         elseif upgradeType == "antivirus" then
             local count = playerStats.antivirusUpgrade or 0
