@@ -875,13 +875,14 @@ local function DrawSettingsMenu_C(windowW, windowH)
     UI.add_centered_label(cx, 26, T("settings.settings"), UI_FONT_HEADER, 1)
 
     local contentX = 30
-    local contentY = 85
+    local contentY = 65
     local contentW = panelW - 60  
-    local contentH = panelH - 157
+    local contentH = panelH - 137
 
     UI.begin_child(contentX, contentY, contentW, contentH, "FB_SettingsContent",
-        false, 128, false
-    )
+         false, 8, true, 0.0, 0, 0, 0, 0,
+    0, false, 1.0
+)
 
     local leftPad = 12
     local x = leftPad
@@ -1073,9 +1074,22 @@ local function DrawCustomiseMenu_C(windowW, windowH)
     local rowH = 54
     local rowW = panelW - 80
 
-    local function drawItemRow(item, ownedSet, equippedIdKey, currentEquipped, rowIndex)
-        local y = listY + (rowIndex - 1) * rowH
-        if y + rowH > panelY + panelH - 90 then return end
+    -- Back button (reserve space so list doesn't overlap it)
+    local backW, backH = 200, 46
+    local backX = math.floor((windowW - backW) / 2)
+    local backY = panelY + panelH - backH - 26
+
+    -- Scrollable list area (ends above Back button)
+    local listW = rowW
+    local listH = (backY - 18) - listY
+    if listH < 60 then listH = 60 end
+
+    UI.begin_child(listX, listY, listW, listH, "fb_customise_list",
+         false, 8, false
+    )
+
+    local function drawItemRow(item, ownedSet, currentEquipped, rowIndex)
+        local y = (rowIndex - 1) * rowH
 
         local owned = ownedSet[item.id] == true
         local equipped = (currentEquipped == item.id)
@@ -1089,10 +1103,10 @@ local function DrawCustomiseMenu_C(windowW, windowH)
             label = label .. "  (" .. tostring(item.price) .. T("customise.price") .. ")"
         end
 
-        UI.add_label(listX, y + 10, 0, 0, label, UI_FONT_BOLD, 1.15)
+        UI.add_label(0, y + 10, 0, 0, label, UI_FONT_BOLD, 1.15)
 
         local bw, bh = 140, 38
-        local bx = listX + rowW - bw
+        local bx = listW - bw
         local by = y + 8
 
         local btnText, canPress, br, bg, bb, ba
@@ -1122,7 +1136,6 @@ local function DrawCustomiseMenu_C(windowW, windowH)
 
         if canPress and UI.was_button_pressed("fb_buy_" .. item.id) then
             if owned then
-                -- equip
                 if customiseTab == "backgrounds" then
                     equippedBackground = item.id
                     SaveSetting("equipped.background", equippedBackground)
@@ -1133,7 +1146,6 @@ local function DrawCustomiseMenu_C(windowW, windowH)
                     ApplyBirdStyle()
                 end
             else
-                -- buy
                 bankCoins = (bankCoins or 0) - (item.price or 0)
                 SaveSetting("coins.total", bankCoins)
 
@@ -1148,21 +1160,22 @@ local function DrawCustomiseMenu_C(windowW, windowH)
     end
 
     if customiseTab == "backgrounds" then
-        for i, item in ipairs(STORE_BACKGROOUNDS or STORE_BACKGROUNDS) do
-            drawItemRow(item, ownedBackgrounds, "equipped.background", equippedBackground, i)
+        for i, item in ipairs(STORE_BACKGROUNDS) do
+            drawItemRow(item, ownedBackgrounds, equippedBackground, i)
         end
     else
         for i, item in ipairs(STORE_BIRDS) do
-            drawItemRow(item, ownedBirds, "equipped.bird", equippedBird, i)
+            drawItemRow(item, ownedBirds, equippedBird, i)
         end
     end
 
+    UI.end_child()
     -- Back button
     local bw, bh = 200, 46
     local bx = math.floor((windowW - bw) / 2)
     local by = panelY + panelH - bh - 26
-    UI.add_button(bx, by, bw, bh, T("customise.back"), "fb_customise_back",
-        UI_FONT_BOLD, 1.0, bh / 2, true,
+    UI.add_button(backX, backY, backW, backH, T("customise.back"), "fb_customise_back",
+        UI_FONT_BOLD, 1.0, backH / 2, true,
         80, 170, 255, 0.92
     )
 
