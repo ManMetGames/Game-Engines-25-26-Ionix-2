@@ -613,6 +613,50 @@ void UIManager::AddProgressBarValueStyled(int x, int y, float xSize, float ySize
 	AddChildToPanel(element);
 }
 
+void UIManager::AddProgressBarValueLayered(int x, int y, float xSize, float ySize,
+	float maxValue, float currentValue, int colorId,
+	float rounding, float borderSize,
+	bool useColors, ImVec4 bg, ImVec4 fill, ImVec4 border,
+	float overfillValue, ImVec4 overfillColor,
+	float capMax, ImVec4 capFill,
+	const std::string& overlayText,
+	const std::string& fontName, float fontScale)
+{
+	UIElement* element = new UIElement{};
+	element->type = UIType::ProgressBar;
+	element->xPos = x;
+	element->yPos = y;
+	element->xSize = xSize;
+	element->ySize = ySize;
+
+	element->maxValue = maxValue;
+	element->currentValue = nullptr;          // value-mode
+	element->incrementAmount = 0.0f;
+
+	element->progressCurrentValue = currentValue;
+	element->progressColorId = colorId;
+
+	element->progressCustomStyle = true;
+	element->progressRounding = rounding;
+	element->progressBorderSize = borderSize;
+	element->progressUseColors = useColors;
+	element->progressBg = bg;
+	element->progressFill = fill;
+	element->progressBorder = border;
+	element->progressOverlayText = overlayText;
+
+	element->progressOverfillValue = overfillValue;
+	element->progressOverfillColor = overfillColor;
+
+	element->progressCapMax = capMax;
+	element->progressCapFill = capFill;
+
+	element->fontName = fontName;
+	element->fontScale = fontScale;
+
+	AddChildToPanel(element);
+}
+
 void UIManager::AddPanel(int x, int y, float w, float h,
 	float alpha, float rounding,
 	int r, int g, int b)
@@ -1062,9 +1106,13 @@ void UIManager::RenderElement(UIElement* element)
 			{
 				if (element->progressCustomStyle)
 				{
-					if (element->progressCapMax > 0.0f && element->progressCapMax < element->maxValue && element->progressCapFill.w > 0.0f)
+					bool hasCap = (element->progressCapMax > 0.0f && element->progressCapMax < element->maxValue && element->progressCapFill.w > 0.0f);
+					bool hasOverfill = (element->progressOverfillValue > 0.0f && element->progressOverfillColor.w > 0.0f);
+
+					if (hasCap || hasOverfill)
 					{
-						m_ui->DrawProgressBarStyledCapped(
+						// Use the layered bar which supports both overfill and cap
+						m_ui->DrawProgressBarLayered(
 							element->xPos, element->yPos,
 							element->xSize, element->ySize,
 							element->maxValue,
@@ -1076,6 +1124,8 @@ void UIManager::RenderElement(UIElement* element)
 							element->progressBg,
 							element->progressFill,
 							element->progressBorder,
+							element->progressOverfillValue,
+							element->progressOverfillColor,
 							element->progressCapMax,
 							element->progressCapFill,
 							element->progressOverlayText.c_str()

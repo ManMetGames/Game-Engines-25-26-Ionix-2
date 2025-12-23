@@ -30,6 +30,16 @@ namespace IonixEngine
             bool useColors, ImVec4 bg, ImVec4 fill, ImVec4 border,
             float capMax, ImVec4 capFill,
             const char* overlayText = "");
+
+        // Layered progress bar: supports both overfill (on top, e.g. overhealth) and cap (lost portion)
+        void DrawProgressBarLayered(int xpos, int ypos, float xsize, float ysize,
+            float maxvalue, float currentvalue, int colorId,
+            float rounding, float borderSize,
+            bool useColors, ImVec4 bg, ImVec4 fill, ImVec4 border,
+            float overfillValue, ImVec4 overfillColor,
+            float capMax, ImVec4 capFill,
+            const char* overlayText = "");
+
         bool DrawDropdown(int xPos, int yPos, float xSize, float ySize, const char* text,
             const std::vector<std::string>& options, int* currentIndex);
 
