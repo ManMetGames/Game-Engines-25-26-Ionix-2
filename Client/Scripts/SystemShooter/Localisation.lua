@@ -47,6 +47,8 @@ local STRINGS = {
             ["upgradedesc.healingorbspawn"] = "Enemies have increased chance of dropping healing orbs",
         ["upgradetype.antivirus"] = "Antivirus",
             ["upgradedesc.antivirus"] = "Become invulnerable for 2 seconds every 10 seconds",
+        ["upgradetype.overhealth"] = "Overhealth",
+            ["upgradedesc.overhealth"] = "Healing past full HP creates Overhealth, which activates an electric circle that damages nearby enemies",
 
     ["pause.title"] = "PAUSED",
     ["pause.resume"] = "RESUME",
@@ -131,6 +133,8 @@ local STRINGS = {
             ["upgradedesc.healingorbspawn"] = "Enemies have increased chance of dropping healing orbs",
         ["upgradetype.antivirus"] = "Antivirus",
             ["upgradedesc.antivirus"] = "Become invulnerable for 2 seconds every 10 seconds",
+        ["upgradetype.overhealth"] = "オーバーヘルス",
+            ["upgradedesc.overhealth"] = "最大HPを超えた回復はオーバーヘルスになり、周囲の敵にダメージを与える電気サークルが発動する",
     ["pause.title"] = "一時停止",
     ["pause.resume"] = "再開",
     ["pause.quit"] = "メインメニューへ",

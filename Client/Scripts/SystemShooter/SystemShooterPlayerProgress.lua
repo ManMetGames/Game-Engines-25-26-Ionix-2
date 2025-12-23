@@ -86,6 +86,20 @@ local UPGRADE_CONFIG = {
         customApply  = true,
         weight       = 5,
     },
+    overhealth = {
+        statKey      = "overhealthUpgrade",
+        label        = "upgradetype.overhealth",
+        desc         = "upgradedesc.overhealth",
+        minLevel     = 1,
+        maxValue     = 1,
+        defaultValue = 0,
+        customApply  = true,
+        weight       = 100,
+        -- Configuration for overhealth system
+        decayRate    = 2,      -- HP lost per second
+        damageRadius = 100,    -- Circle radius in pixels
+        damagePerSecond = 15,  -- Damage dealt to enemies per second
+    },
 }
 
 local playerLevel = 1
@@ -102,7 +116,12 @@ local playerStats = {
     maxHealth = 100,
     healingOrbSpawnUpgrade = 0,
     antivirusUpgrade = 0,
+    overhealthUpgrade = 0,
 }
+
+-- Overhealth tracking (runtime state, not saved)
+local currentOverhealth = 0
+local overhealthEnabled = false
 
 local timeoutCount = 0
 local MAX_TIMEOUTS = 5
@@ -278,6 +297,12 @@ function SystemShooterPlayerProgress.applyUpgrade(upgradeType)
                 local SystemShooterPlayer = require("Scripts.SystemShooter.SystemShooterPlayer")
                 SystemShooterPlayer.enableAntivirus()
             end
+        elseif upgradeType == "overhealth" then
+            local count = playerStats.overhealthUpgrade or 0
+            if count < cfg.maxValue then
+                playerStats.overhealthUpgrade = count + 1
+                overhealthEnabled = true
+            end
         end
     else
         local increment = cfg.increment or 1
@@ -364,6 +389,56 @@ function SystemShooterPlayerProgress.incrementTimeoutCount()
     return timeoutCount
 end
 
+--=====================================================================
+--  OVERHEALTH SYSTEM
+--=====================================================================
+function SystemShooterPlayerProgress.isOverhealthEnabled()
+    return overhealthEnabled
+end
+
+function SystemShooterPlayerProgress.getOverhealth()
+    return currentOverhealth
+end
+
+function SystemShooterPlayerProgress.setOverhealth(value)
+    if not overhealthEnabled then
+        currentOverhealth = 0
+        return
+    end
+    currentOverhealth = math.max(0, value)
+end
+
+function SystemShooterPlayerProgress.addOverhealth(amount)
+    if not overhealthEnabled then return end
+    currentOverhealth = currentOverhealth + amount
+end
+
+function SystemShooterPlayerProgress.getOverhealthConfig()
+    return UPGRADE_CONFIG.overhealth
+end
+
+-- Called each frame to decay overhealth and return damage info
+-- Returns: isActive (bool), damageRadius (float), damageThisFrame (float)
+function SystemShooterPlayerProgress.updateOverhealth(dt)
+    if not overhealthEnabled or currentOverhealth <= 0 then
+        return false, 0, 0
+    end
+    
+    local cfg = UPGRADE_CONFIG.overhealth
+    
+    -- Decay overhealth over time
+    local decayAmount = (cfg.decayRate or 5) * dt
+    currentOverhealth = math.max(0, currentOverhealth - decayAmount)
+    
+    -- If still active, return damage info
+    if currentOverhealth > 0 then
+        local damageThisFrame = (cfg.damagePerSecond or 15) * dt
+        return true, cfg.damageRadius or 100, damageThisFrame
+    end
+    
+    return false, 0, 0
+end
+
 function SystemShooterPlayerProgress.reset()
     playerLevel = 1
     xp = 0
@@ -380,6 +455,11 @@ function SystemShooterPlayerProgress.reset()
     playerStats.maxHealth = 100
     playerStats.healingOrbSpawnUpgrade = 0
     playerStats.antivirusUpgrade = 0
+    playerStats.overhealthUpgrade = 0
+    
+    -- Reset overhealth
+    currentOverhealth = 0
+    overhealthEnabled = false
     
     -- Reset healing orb spawn chance
     local SystemShooterPickups = require("Scripts.SystemShooter.SystemShooterPickups")

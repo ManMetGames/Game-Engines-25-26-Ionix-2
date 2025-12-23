@@ -1992,6 +1992,36 @@ function SystemShooter:OnUpdate()
         -- Check enemy-player collision and apply damage
         UpdateEnemyCollision()
         
+        -- Update overhealth system and apply electric circle damage to enemies
+        local overhealthActive, overhealthRadius, overhealthDamage = SystemShooterPlayerProgress.updateOverhealth(dt)
+        if overhealthActive then
+            local pX, pY = SystemShooterPlayer.getPosition()
+            local pSize = SystemShooterPlayer.getSize()
+            local playerCenterX = pX + pSize / 2
+            local playerCenterY = pY + pSize / 2
+            
+            -- Apply damage to all enemies within radius
+            for i = 1, #enemies do
+                local enemy = enemies[i]
+                if not enemy.isDead and not enemy.disabled then
+                    local enemyCenterX = enemy.x + enemySize / 2
+                    local enemyCenterY = enemy.y + enemySize / 2
+                    local dx = enemyCenterX - playerCenterX
+                    local dy = enemyCenterY - playerCenterY
+                    local dist = math.sqrt(dx * dx + dy * dy)
+                    
+                    if dist <= overhealthRadius then
+                        enemy.health = enemy.health - overhealthDamage
+                        if enemy.health <= 0 then
+                            enemy.isDead = true
+                            runEnemiesKilled = runEnemiesKilled + 1
+                            SystemShooterPlayerProgress.addXp(enemy.xpReward or 5)
+                        end
+                    end
+                end
+            end
+        end
+        
         -- Update enemy movement
         UpdateEnemyMovement()
     end
@@ -2007,11 +2037,28 @@ function SystemShooter:OnUpdate()
         local healAmount = SystemShooterPickups.checkPlayerCollision(pX, pY, pSize, maxHealth)
         if healAmount then
             local before = SystemShooterPlayer.getHealth()
-            local newHealth = math.min(maxHealth, before + healAmount)
-            SystemShooterPlayer.setHealth(newHealth)
-            local actual = newHealth - before
-            if actual > 0 then
-                runHealingCollected = runHealingCollected + actual
+            local newHealth = before + healAmount
+            
+            -- Check if overhealth is enabled
+            if SystemShooterPlayerProgress.isOverhealthEnabled() then
+                -- If healing would go over max, put excess into overhealth
+                if newHealth > maxHealth then
+                    local excess = newHealth - maxHealth
+                    SystemShooterPlayer.setHealth(maxHealth)
+                    SystemShooterPlayerProgress.addOverhealth(excess)
+                    runHealingCollected = runHealingCollected + healAmount
+                else
+                    SystemShooterPlayer.setHealth(newHealth)
+                    runHealingCollected = runHealingCollected + healAmount
+                end
+            else
+                -- No overhealth upgrade, just cap at max
+                newHealth = math.min(maxHealth, newHealth)
+                SystemShooterPlayer.setHealth(newHealth)
+                local actual = newHealth - before
+                if actual > 0 then
+                    runHealingCollected = runHealingCollected + actual
+                end
             end
         end
     end
@@ -2158,16 +2205,20 @@ if levelCfg.timeLimitSeconds ~= nil and levelCfg.timeLimitSeconds > 0 then
     local playerHpBarW = 200
     local playerHpBarH = 20
 
+    local playerMaxHealth = SystemShooterPlayerProgress.getMaxHealth()
+    local playerHealth = SystemShooterPlayer.getHealth()
+    local playerOverhealth = SystemShooterPlayerProgress.getOverhealth()
+
     local hpStyle = {
       rounding = 10,
       border_size = 0,
       bg   = {30,30,30,220},
       fill = {0,255,0,255},
+      overfill = playerOverhealth,
+      overfill_color = {50, 150, 255, 200},  -- Blue for overhealth
     }
 
-    local playerMaxHealth = SystemShooterPlayerProgress.getMaxHealth()
-    local playerHealth = SystemShooterPlayer.getHealth()
-    UI.draw_progress_bar_styled(playerHpBarX, playerHpBarY, playerHpBarW, playerHpBarH, playerMaxHealth, playerHealth, 2, hpStyle, "")
+    UI.draw_progress_bar_layered(playerHpBarX, playerHpBarY, playerHpBarW, playerHpBarH, playerMaxHealth, playerHealth, 2, hpStyle, "")
 
     local level, xp, xpToNextLevel = SystemShooterPlayerProgress.getProgress()
     local playerInfoText = T("gameplay.level") .. tostring(level) .. T("gameplay.exp") .. tostring(xp) .. "/" .. tostring(xpToNextLevel)

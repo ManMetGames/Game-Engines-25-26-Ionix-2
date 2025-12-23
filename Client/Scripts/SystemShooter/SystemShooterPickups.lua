@@ -7,7 +7,7 @@ local assets = require("Scripts.Assets")
 --=====================================================================
 local CONFIG = {
 
-    HEALING_ORB_DROP_CHANCE = 0.15,
+    HEALING_ORB_DROP_CHANCE = 0.9,
     
     HEALING_ORB_HEAL_PERCENT = 0.25,
     
