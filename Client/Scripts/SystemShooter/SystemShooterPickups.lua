@@ -174,4 +174,30 @@ function SystemShooterPickups.getActiveCount()
     return #activePickups
 end
 
+--=====================================================================
+--  [PUBLIC API] Constrain all pickups to screen bounds
+--=====================================================================
+function SystemShooterPickups.constrainToScreen(screenW, screenH)
+    for i = 1, #activePickups do
+        local pickup = activePickups[i]
+        local orbSize = CONFIG.ORB_SIZE
+        
+        -- Clamp pickup position to stay within screen bounds
+        if pickup.x < 0 then
+            pickup.x = 0
+        elseif pickup.x + orbSize > screenW then
+            pickup.x = screenW - orbSize
+        end
+        
+        if pickup.y < 0 then
+            pickup.y = 0
+        elseif pickup.y + orbSize > screenH then
+            pickup.y = screenH - orbSize
+        end
+        
+        -- Update entity position
+        Entity.set_global_pos(pickup.entity, pickup.x, pickup.y)
+    end
+end
+
 return SystemShooterPickups

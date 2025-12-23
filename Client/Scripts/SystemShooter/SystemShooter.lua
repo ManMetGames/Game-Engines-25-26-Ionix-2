@@ -1849,6 +1849,7 @@ function SystemShooter:OnUpdate()
     screenW = Window.get_width()
     screenH = Window.get_height()
     SystemShooterProjectiles.setScreenBounds(screenW, screenH)
+    SystemShooterPickups.constrainToScreen(screenW, screenH)
     
     -- Check if in peace phase (end-level peace when no enemies alive)
     local inPeacePhase = isStartLevelPeace or isLevelupPeace or (not enemiesAlive and peaceTimerSeconds > 0)
