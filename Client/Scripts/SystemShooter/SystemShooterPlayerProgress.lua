@@ -96,9 +96,9 @@ local UPGRADE_CONFIG = {
         customApply  = true,
         weight       = 100,
         -- Configuration for overhealth system
-        decayRate    = 2,      -- HP lost per second
-        damageRadius = 100,    -- Circle radius in pixels
-        damagePerSecond = 15,  -- Damage dealt to enemies per second
+        decayRate    = 3,      -- HP lost per second
+        damageRadius = 200,    -- Circle radius in pixels
+        damagePerSecond = 10,  -- Damage dealt to enemies per second
     },
 }
 
@@ -284,7 +284,7 @@ function SystemShooterPlayerProgress.applyUpgrade(upgradeType)
                 -- Update the pickup module's spawn chance
                 local SystemShooterPickups = require("Scripts.SystemShooter.SystemShooterPickups")
                 if count == 0 then
-                    SystemShooterPickups.CONFIG.HEALING_ORB_DROP_CHANCE = 0.25
+                    SystemShooterPickups.CONFIG.HEALING_ORB_DROP_CHANCE = 0.90
                 elseif count == 1 then
                     SystemShooterPickups.CONFIG.HEALING_ORB_DROP_CHANCE = 0.40
                 end
@@ -463,7 +463,7 @@ function SystemShooterPlayerProgress.reset()
     
     -- Reset healing orb spawn chance
     local SystemShooterPickups = require("Scripts.SystemShooter.SystemShooterPickups")
-    SystemShooterPickups.CONFIG.HEALING_ORB_DROP_CHANCE = 0.15
+    SystemShooterPickups.CONFIG.HEALING_ORB_DROP_CHANCE = 1.0
     
     -- Reset antivirus
     local SystemShooterPlayer = require("Scripts.SystemShooter.SystemShooterPlayer")

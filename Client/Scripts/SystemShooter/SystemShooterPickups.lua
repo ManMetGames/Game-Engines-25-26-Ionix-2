@@ -7,9 +7,9 @@ local assets = require("Scripts.Assets")
 --=====================================================================
 local CONFIG = {
 
-    HEALING_ORB_DROP_CHANCE = 0.9,
+    HEALING_ORB_DROP_CHANCE = 1.0,
     
-    HEALING_ORB_HEAL_PERCENT = 0.25,
+    HEALING_ORB_HEAL_PERCENT = 0.9,
     
     ORB_SIZE = 16,
     ORB_COLOR = {50, 255, 100},  -- Green

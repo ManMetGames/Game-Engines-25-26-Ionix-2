@@ -196,7 +196,11 @@ local enemySize = 48
 
 local enemies = {}
 local levelEnemyHealth = 50
-local StartLevel    
+local StartLevel
+
+-- Overhealth ring VFX
+local overhealthRingId = nil  -- VFX ring ID for overhealth effect
+local wasOverhealthActive = false  -- Track previous state to detect transitions    
 
 local function GetActiveEnemyCount()
     local count = 0
@@ -316,6 +320,13 @@ function UpdateWindowTransition(dt)
         local newPY = relY * screenH - pSize/2
         SystemShooterPlayer.setScreenBounds(screenW, screenH)
         SystemShooterPlayer.setPosition(newPX, newPY)
+        
+        -- Update overhealth ring position if active
+        if overhealthRingId and overhealthRingId >= 0 then
+            local playerCenterX = newPX + pSize / 2
+            local playerCenterY = newPY + pSize / 2
+            VFX.set_ring_position(overhealthRingId, playerCenterX, playerCenterY)
+        end
     end
     
     return true  -- Transition still active
@@ -368,6 +379,13 @@ local function ResetRunStateForMenu()
     ClearEnemies()
     ClearAllPlayerProjectiles()
     ClearAllEnemyProjectiles()
+    
+    -- Clean up overhealth ring VFX
+    if overhealthRingId and overhealthRingId >= 0 then
+        VFX.destroy_ring(overhealthRingId)
+        overhealthRingId = nil
+    end
+    wasOverhealthActive = false
 
     -- Reset player state via module
     SystemShooterPlayer.resetForRun()
@@ -2011,11 +2029,39 @@ function SystemShooter:OnUpdate()
         
         -- Update overhealth system and apply electric circle damage to enemies
         local overhealthActive, overhealthRadius, overhealthDamage = SystemShooterPlayerProgress.updateOverhealth(dt)
-        if overhealthActive then
+        
+        -- Manage overhealth ring VFX
+        if overhealthActive and not wasOverhealthActive then
+            -- Overhealth just became active - create the ring
             local pX, pY = SystemShooterPlayer.getPosition()
             local pSize = SystemShooterPlayer.getSize()
             local playerCenterX = pX + pSize / 2
             local playerCenterY = pY + pSize / 2
+            overhealthRingId = VFX.create_ring(playerCenterX, playerCenterY, overhealthRadius, 1.5)
+            if overhealthRingId and overhealthRingId >= 0 then
+                -- Electric blue/cyan color with pulsing effect
+                VFX.set_ring_color(overhealthRingId, 0, 200, 255, 200)
+                VFX.set_ring_pulsing(overhealthRingId, true, 3.0, 100, 255)
+                VFX.set_ring_render_layer(overhealthRingId, 0, 15)  -- High z-order to render on top
+                VFX.set_ring_segments(overhealthRingId, 48)
+            end
+        elseif not overhealthActive and wasOverhealthActive then
+            -- Overhealth just became inactive - destroy the ring
+            if overhealthRingId and overhealthRingId >= 0 then
+                VFX.destroy_ring(overhealthRingId)
+                overhealthRingId = nil
+            end
+        end
+        wasOverhealthActive = overhealthActive
+        
+        -- Update ring position to follow player if active
+        if overhealthActive and overhealthRingId and overhealthRingId >= 0 then
+            local pX, pY = SystemShooterPlayer.getPosition()
+            local pSize = SystemShooterPlayer.getSize()
+            local playerCenterX = pX + pSize / 2
+            local playerCenterY = pY + pSize / 2
+            VFX.set_ring_position(overhealthRingId, playerCenterX, playerCenterY)
+            VFX.set_ring_radius(overhealthRingId, overhealthRadius)
             
             -- Apply damage to all enemies within radius
             for i = 1, #enemies do
