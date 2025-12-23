@@ -16,6 +16,7 @@ local playerSprite
 -- Background scrolling (main menu)
 local BG_BASE_W, BG_BASE_H = 960, 610
 local BG_PAD = 20                -- oversize to hide seams/edges
+local floorTopWorld = 0.0 -- top of the floor collider
 
 local floorTileSprites = {}
 local BG_TILE_W = BG_BASE_W      
@@ -130,14 +131,17 @@ local customiseTab = "backgrounds" -- "backgrounds" or "birds"
 -- Shop items 
 local STORE_BACKGROUNDS = {
     { id = "bg_classic", name = "Classic Sky", price = 0,  textureKey = "Background" },
-    { id = "bg_night",   name = "Night Sky",   price = 30, textureKey = "Background" },
-    { id = "bg_plains",  name = "Open Plains",  price = 150, textureKey = "Background_Mountains" },
+    { id = "bg_night",   name = "Night Sky",   price = 75, textureKey = "Background" },
+    { id = "bg_plains",  name = "Open Plains",  price = 250, textureKey = "Background_Mountains" },
 }
 
 local STORE_BIRDS = {
     { id = "bird_classic", name = "Classic Bird", price = 0,  textureKey = "FlappyBird" },
-    { id = "bird_gold",    name = "Gold Bird",    price = 50, textureKey = "FlappyBird" }, -- tint skin
-    { id = "bird_purple",  name = "Purple Bird",  price = 75, textureKey = "FlappyPurple" },
+    { id = "bird_purple",  name = "Purple Bird",  price = 150, textureKey = "FlappyPurple" },
+    { id = "bird_ice",  name = "Ice Bird",  price = 300, textureKey = "FlappyIce" },
+    { id = "bird_blazing",  name = "Blazing Bird",  price = 300, textureKey = "FlappyBlaze" },
+    { id = "bird_gold",    name = "Gold Bird",    price = 400, textureKey = "FlappyBird" }, -- tint skin
+    { id = "bird_gui",  name = "Gui Bird",  price = 500, textureKey = "FlappyGui" },
 }
 
 local BG_STYLES
@@ -161,14 +165,17 @@ end
 BG_STYLES = {
     bg_classic = { tint = {255, 255, 255}, textureKey = "Background" },
     bg_night   = { tint = {150, 170, 255}, textureKey = "Background" },
-    bg_plains   ={ tint = {255, 255, 255}, textureKey = "Background_Mountains" }-- night tint
+    bg_plains   ={ tint = {255, 255, 255}, textureKey = "Background_Mountains" },-- night tint
 }
 
 
 BIRD_STYLES = {
     bird_classic = { tint = {255, 255, 255}, textureKey = "FlappyBird" },
-    bird_gold    = { tint = {255, 220, 120}, textureKey = "FlappyBird" },
     bird_purple  = { tint = {255, 255, 255}, textureKey = "FlappyPurple" },
+    bird_gold    = { tint = {255, 220, 120}, textureKey = "FlappyBird" },
+    bird_ice     = { tint = {180, 220, 255}, textureKey = "FlappyIce" },
+    bird_blazing = { tint = {255, 180, 100}, textureKey = "FlappyBlaze" },
+    bird_gui     = { tint = {255, 255, 255}, textureKey = "FlappyGui" },
 }
 
 
@@ -225,6 +232,8 @@ local pipeHeight = 300       -- pipe sprite height in pixels
 local pipeStartGap = 330     -- starting gap size in pixels (easier)
 local pipeMinGap   = 210     -- minimum gap size in pixels (harder)
 local pipeShrinkGap = 3      -- gap shrinks by this many pixels per point
+local pipeGapMinAtCap = pipeStartGap - (20 * pipeShrinkGap)
+if pipeGapMinAtCap < pipeMinGap then pipeGapMinAtCap = pipeMinGap end
 
 local pipesetMinGap = 150    -- minimum Y position for gap center (in pixels from top)
 local pipesetMaxGap = 350    -- maximum Y position for gap center (in pixels from top)
@@ -581,6 +590,8 @@ function ExampleScript:OnStart()
     ------------------------------------------------------
     local tileSize = 64
     local floorY = 550
+    floorTopWorld = (floorY - (tileSize * 0.5))
+
     -- Floor collision tiles
     for i = 0, 30 do
 
@@ -769,8 +780,11 @@ local function LocalisedItemName(item)
         if item.id == "bg_plains" then return T("backgrounds.plains") end
     elseif string.sub(item.id, 1, 5) == "bird_" then
         if item.id == "bird_classic" then return T("birds.classic") end
-        if item.id == "bird_gold" then return T("birds.gold") end
         if item.id == "bird_purple" then return T("birds.purple") end
+        if item.id == "bird_ice" then return T("birds.ice") end
+        if item.id == "bird_blazing" then return T("birds.blazing") end
+        if item.id == "bird_gold" then return T("birds.gold") end
+        if item.id == "bird_gui" then return T("birds.gui") end
     end
     return item.name or item.id
 end
@@ -861,16 +875,17 @@ local function DrawSettingsMenu_C(windowW, windowH)
     )
 
     local cx = panelW / 2
-    UI.add_centered_label(cx, 26, T("settings.settings"), UI_FONT_BOLD, 1.9)
+    UI.add_centered_label(cx, 26, T("settings.settings"), UI_FONT_HEADER, 1)
 
     local contentX = 30
-    local contentY = 85
+    local contentY = 65
     local contentW = panelW - 60  
-    local contentH = panelH - 157
+    local contentH = panelH - 137
 
     UI.begin_child(contentX, contentY, contentW, contentH, "FB_SettingsContent",
-        false, 128, false
-    )
+         false, 8, true, 0.0, 0, 0, 0, 0,
+    0, false, 1.0
+)
 
     local leftPad = 12
     local x = leftPad
@@ -990,7 +1005,7 @@ local function DrawSettingsMenu_C(windowW, windowH)
     local opts = { "English", "日本語" }
     local defaultIndex = (language == "ja") and 1 or 0
 
-    UI.add_centered_label(x + w/2, y, T("settings.language"), UI_FONT_HEADER, 1.0)
+    UI.add_centered_label(x + w/2, y, T("settings.language"), UI_FONT_HEADER, 1.2)
     y = y + 36
     local langDropdownFont = "ImGuiDefaultJP" -- use JP fontto support both EN and JA characters
     UI.add_dropdown_styled(x, y, w, 32, "", "fb_lang", opts, defaultIndex, langDropdownFont, 1.0, ddStyle)
@@ -1033,8 +1048,8 @@ local function DrawCustomiseMenu_C(windowW, windowH)
     UI.add_panel(panelX, panelY, panelW, panelH, 0.80, 26, 245, 225, 170)
 
     local cx = windowW / 2
-    UI.add_centered_label(cx, panelY + 24, T("customise.customise"), UI_FONT_BOLD, 1.9)
-    UI.add_centered_label(cx, panelY + 54, T("customise.coins") .. tostring(bankCoins or 0), UI_FONT_BOLD, 1.2)
+    UI.add_centered_label(cx, panelY + 22, T("customise.customise"), UI_FONT_HEADER, 1.2)
+    UI.add_centered_label(cx, panelY + 56, T("customise.coins") .. tostring(bankCoins or 0), UI_FONT_BOLD, 1.2)
 
     -- Tabs
     local tabW, tabH = 160, 40
@@ -1062,9 +1077,22 @@ local function DrawCustomiseMenu_C(windowW, windowH)
     local rowH = 54
     local rowW = panelW - 80
 
-    local function drawItemRow(item, ownedSet, equippedIdKey, currentEquipped, rowIndex)
-        local y = listY + (rowIndex - 1) * rowH
-        if y + rowH > panelY + panelH - 90 then return end
+    -- Back button (reserve space so list doesn't overlap it)
+    local backW, backH = 200, 46
+    local backX = math.floor((windowW - backW) / 2)
+    local backY = panelY + panelH - backH - 26
+
+    -- Scrollable list area (ends above Back button)
+    local listW = rowW
+    local listH = (backY - 18) - listY
+    if listH < 60 then listH = 60 end
+
+    UI.begin_child(listX, listY, listW, listH, "fb_customise_list",
+         false, 8, false
+    )
+
+    local function drawItemRow(item, ownedSet, currentEquipped, rowIndex)
+        local y = (rowIndex - 1) * rowH
 
         local owned = ownedSet[item.id] == true
         local equipped = (currentEquipped == item.id)
@@ -1078,10 +1106,10 @@ local function DrawCustomiseMenu_C(windowW, windowH)
             label = label .. "  (" .. tostring(item.price) .. T("customise.price") .. ")"
         end
 
-        UI.add_label(listX, y + 10, 0, 0, label, UI_FONT_BOLD, 1.15)
+        UI.add_label(0, y + 10, 0, 0, label, UI_FONT_BOLD, 1.15)
 
         local bw, bh = 140, 38
-        local bx = listX + rowW - bw
+        local bx = listW - bw
         local by = y + 8
 
         local btnText, canPress, br, bg, bb, ba
@@ -1111,7 +1139,6 @@ local function DrawCustomiseMenu_C(windowW, windowH)
 
         if canPress and UI.was_button_pressed("fb_buy_" .. item.id) then
             if owned then
-                -- equip
                 if customiseTab == "backgrounds" then
                     equippedBackground = item.id
                     SaveSetting("equipped.background", equippedBackground)
@@ -1122,7 +1149,6 @@ local function DrawCustomiseMenu_C(windowW, windowH)
                     ApplyBirdStyle()
                 end
             else
-                -- buy
                 bankCoins = (bankCoins or 0) - (item.price or 0)
                 SaveSetting("coins.total", bankCoins)
 
@@ -1137,21 +1163,22 @@ local function DrawCustomiseMenu_C(windowW, windowH)
     end
 
     if customiseTab == "backgrounds" then
-        for i, item in ipairs(STORE_BACKGROOUNDS or STORE_BACKGROUNDS) do
-            drawItemRow(item, ownedBackgrounds, "equipped.background", equippedBackground, i)
+        for i, item in ipairs(STORE_BACKGROUNDS) do
+            drawItemRow(item, ownedBackgrounds, equippedBackground, i)
         end
     else
         for i, item in ipairs(STORE_BIRDS) do
-            drawItemRow(item, ownedBirds, "equipped.bird", equippedBird, i)
+            drawItemRow(item, ownedBirds, equippedBird, i)
         end
     end
 
+    UI.end_child()
     -- Back button
     local bw, bh = 200, 46
     local bx = math.floor((windowW - bw) / 2)
     local by = panelY + panelH - bh - 26
-    UI.add_button(bx, by, bw, bh, T("customise.back"), "fb_customise_back",
-        UI_FONT_BOLD, 1.0, bh / 2, true,
+    UI.add_button(backX, backY, backW, backH, T("customise.back"), "fb_customise_back",
+        UI_FONT_BOLD, 1.0, backH / 2, true,
         80, 170, 255, 0.92
     )
 
@@ -1160,6 +1187,9 @@ local function DrawCustomiseMenu_C(windowW, windowH)
     end
 end
 
+local GAP_CAP_STEPS = 20  -- this is “the gap at 60 score” if you were using score/3 before
+local gapMinAtCap = pipeStartGap - (GAP_CAP_STEPS * pipeShrinkGap)
+if gapMinAtCap < pipeMinGap then gapMinAtCap = pipeMinGap end
 
 ----------------------------------------------------------
 -- OnUpdate
@@ -1513,14 +1543,25 @@ end
         if pipeX < pipeOffScreenLeft then
 
             -- Added difficulty: shrink pipe gap as score increases (in pixels)
-            local gapSize = pipeStartGap - (Pscore * pipeShrinkGap)
-            if gapSize < pipeMinGap then
-                gapSize = pipeMinGap
-            end
+            local effectiveScore = math.min(Pscore / 3, 20)
+            local t = math.random()
+            t = t * t
+            local gapSize = gapMinAtCap + math.random() * (pipeStartGap - gapMinAtCap)
+
 
             -- Random gap center Y position (in pixels)
-            local gapCenter = pipesetMinGap +
-                math.random() * (pipesetMaxGap - pipesetMinGap)
+            local floorPad = 10
+
+            local minCenter = pipesetMinGap
+            local maxCenter = pipesetMaxGap
+
+            
+            local maxByFloor = (floorTopWorld - floorPad) - (gapSize / 2)
+            if maxCenter > maxByFloor then maxCenter = maxByFloor end
+            if maxCenter < minCenter then maxCenter = minCenter end
+
+            local gapCenter = minCenter + math.random() * (maxCenter - minCenter)
+
 
             if set.lastGapCenter then
                 local delta = gapCenter - set.lastGapCenter
@@ -1528,6 +1569,7 @@ end
                     gapCenter = gapCenter + (delta > 0 and 60 or -60)
                 end
             end
+            gapCenter = math.max(minCenter, math.min(maxCenter, gapCenter))
             set.lastGapCenter = gapCenter
 
             -- Calculate pipe positions (in pixels)
