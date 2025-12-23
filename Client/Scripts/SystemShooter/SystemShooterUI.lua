@@ -242,12 +242,6 @@ if not isUpgradeMenuOpen then return end
         elseif currentRank >= 1 then
             descText = T("upgradedesc.no_witnesses_rank2")
         end
-
-        local mult = 1
-        if opt.cfg and opt.cfg.damageMultiplier then
-          mult = opt.cfg.damageMultiplier
-        end
-        descText = descText .. "\n" .. string.format("Damage x%s", tostring(mult))
       end
 
       local pad = 20
