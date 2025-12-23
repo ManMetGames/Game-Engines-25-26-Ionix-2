@@ -2115,9 +2115,14 @@ function SystemShooter:OnUpdate()
                         VFX.set_lightning_fade_out(lightningId, true)
                     end
                     
+                    -- Calculate damage as 5% of enemy max health, with a minimum of 10
+                    local enemyMaxHealth = enemy.maxHealth or 100
+                    local percentDamage = enemyMaxHealth * 0.10
+                    local actualDamage = math.max(percentDamage, 15)
+                    
                     -- Apply burst damage
-                    enemy.health = enemy.health - zapDamage
-                    runDamageDealt = runDamageDealt + zapDamage
+                    enemy.health = enemy.health - actualDamage
+                    runDamageDealt = runDamageDealt + actualDamage
                     
                     if enemy.health <= 0 then
                         enemy.isDead = true

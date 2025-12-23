@@ -94,19 +94,19 @@ local UPGRADE_CONFIG = {
         statKey      = "overhealthUpgrade",
         label        = "upgradetype.overhealth",
         desc         = "upgradedesc.overhealth",
-        minLevel     = 1,
+        minLevel     = 7,
         maxValue     = 1,
         defaultValue = 0,
         customApply  = true,
-        weight       = 100,
+        weight       = 5,
         -- Configuration for overhealth system
         decayRate    = 3,      -- HP lost per second
-        damageRadius = 300,    -- Circle radius in pixels
+        damageRadius = 350,    -- Circle radius in pixels
         -- Lightning zap configuration (replaces continuous DPS)
         zapInterval  = 1.25,    -- Seconds between zaps
         zapDamage    = 10,     -- Damage per zap (burst damage)
         maxZapTargets = 10,     -- Maximum enemies to zap at once
-        lightningLifetime = 0.25,  -- Lightning VFX duration
+        lightningLifetime = 0.2,  -- Lightning VFX duration
         lightningColor = { r = 100, g = 200, b = 255, a = 255 },  -- Electric blue
     },
 }

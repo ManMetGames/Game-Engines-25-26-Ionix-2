@@ -94,6 +94,7 @@ function SystemShooterEnemy.createEnemy(x, y, config)
         spawnY = y,
         size = size,
         health = health,
+        maxHealth = health,  -- Store initial max health for percentage-based damage calculations
         isDead = false,
         healthScaling = healthScaling,
         sizePerHp = sizePerHp,
