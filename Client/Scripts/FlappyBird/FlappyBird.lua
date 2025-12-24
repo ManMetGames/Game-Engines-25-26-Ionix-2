@@ -141,7 +141,7 @@ local STORE_BIRDS = {
     { id = "bird_ice",  name = "Ice Bird",  price = 300, textureKey = "FlappyIce" },
     { id = "bird_blazing",  name = "Blazing Bird",  price = 300, textureKey = "FlappyBlaze" },
     { id = "bird_gold",    name = "Gold Bird",    price = 400, textureKey = "FlappyBird" }, -- tint skin
-    { id = "bird_gui",  name = "Gui Bird",  price = 500, textureKey = "FlappyGui" },
+    { id = "bird_gui",  name = "Gui Bird",  price = 500, textureKey = "FlappySlime" },
     { id = "bird_glitch",  name = "Glitch Bird",  price = 750, textureKey = "Flappy_Glitch" },
 }
 
@@ -173,10 +173,10 @@ BG_STYLES = {
 BIRD_STYLES = {
     bird_classic = { tint = {255, 255, 255}, textureKey = "FlappyBird", cols = 1, rows = 1  },
     bird_purple  = { tint = {255, 255, 255}, textureKey = "FlappyPurple", cols = 1, rows = 1  },
-    bird_gold    = { tint = {255, 220, 120}, textureKey = "FlappyBird", cols = 1, rows = 1  },
     bird_ice     = { tint = {180, 220, 255}, textureKey = "FlappyIce", cols = 1, rows = 1  },
     bird_blazing = { tint = {255, 180, 100}, textureKey = "FlappyBlaze", cols = 1, rows = 1  },
-    bird_gui     = { tint = {255, 255, 255}, textureKey = "FlappyGui", cols = 1, rows = 1  },
+    bird_gold    = { tint = {255, 220, 120}, textureKey = "FlappyBird", cols = 1, rows = 1  },
+    bird_gui     = { tint = {255, 255, 255}, textureKey = "FlappySlime", cols = 6, rows = 1, tick = 0.08 },
     bird_glitch  = { tint = {255, 255, 255}, textureKey = "Flappy_Glitch", cols = 6, rows = 1, tick = 0.08 },
 }
 
