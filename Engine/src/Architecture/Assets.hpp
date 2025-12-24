@@ -58,7 +58,7 @@ struct Textures {
     uint32_t FlappyPurple = 4063090336u;
     uint32_t FlappyGui = 1627424584u;
     uint32_t Flappy_Crystal = 539763344u;
-    uint32_t FlappyGlitch = 2851616010u;
+    uint32_t FlappyGlitch = 3619484804u;
     uint32_t Flappy_Origami = 379557468u;
     uint32_t Ghast_Tear = 3650266058u;
     uint32_t Gray = 220346788u;
