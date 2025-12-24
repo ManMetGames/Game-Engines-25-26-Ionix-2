@@ -143,7 +143,7 @@ local STORE_BIRDS = {
     { id = "bird_ice",  name = "Ice Bird",  price = 450, textureKey = "FlappyIce" },
     { id = "bird_hologram",  name = "Hologram Bird",  price = 550, textureKey = "FlappyHologram" },
     { id = "bird_gui",  name = "Gui Bird",  price = 650, textureKey = "FlappyGui" },
-    { id = "bird_glitch",  name = "Glitchy Bird",  price = 750, textureKey = "FlappyGlitch" },
+    { id = "bird_glitchy",  name = "Glitchy Bird",  price = 750, textureKey = "FlappyGlitch" },
     { id = "bird_space",  name = "Space Bird",  price = 1000, textureKey = "FlappySpace" },
 }
 
@@ -191,8 +191,6 @@ BG_STYLES = {
     },
 }
 
-
-
 BIRD_STYLES = {
     bird_classic = { tint = {255, 255, 255}, textureKey = "FlappyBird", cols = 1, rows = 1  },
     bird_purple  = { tint = {255, 255, 255}, textureKey = "FlappyPurple", cols = 1, rows = 1  },
@@ -201,7 +199,7 @@ BIRD_STYLES = {
     bird_ice     = { tint = {180, 220, 255}, textureKey = "FlappyIce", cols = 6, rows = 1, tick = 0.3 },
     bird_hologram = { tint = {180, 255, 255}, textureKey = "FlappyHologram", cols = 6, rows = 1, tick = 0.145},
     bird_gui     = { tint = {255, 255, 255}, textureKey = "FlappyGui", cols = 6, rows = 1, tick = 0.12 },
-    bird_glitch  = { tint = {255, 255, 255}, textureKey = "FlappyGlitch", cols = 6, rows = 1, tick = 0.19 },
+    bird_glitchy  = { tint = {255, 255, 255}, textureKey = "FlappyGlitch", cols = 6, rows = 1, tick = 0.19 },
     bird_space = { tint = {200, 220, 255}, textureKey = "FlappySpace", cols = 8, rows = 1, tick = 0.135 },
 }
 
@@ -298,8 +296,8 @@ local pipeSpacingX = 350 -- horizontal spacing between pipe sets (pixels)
 
 -- Pipe randomness (in pixels)
 local pipeHeight = 300       -- pipe sprite height in pixels
-local pipeStartGap = 330     -- starting gap size in pixels (easier)
-local pipeMinGap   = 210     -- minimum gap size in pixels (harder)
+local pipeStartGap = 355     -- starting gap size in pixels (easier)
+local pipeMinGap   = 240     -- minimum gap size in pixels (harder)
 local pipeShrinkGap = 3      -- gap shrinks by this many pixels per point
 local pipeGapMinAtCap = pipeStartGap - (20 * pipeShrinkGap)
 if pipeGapMinAtCap < pipeMinGap then pipeGapMinAtCap = pipeMinGap end
@@ -540,20 +538,37 @@ end
 ----------------------------------------------------------
 local function spawnCoins(coin, pipeSet, offsetX)
     local bottomPos = Fysics.get_pos(pipeSet.bottom)
-    local topPos = Fysics.get_pos(pipeSet.top)
+    local topPos    = Fysics.get_pos(pipeSet.top)
 
-    -- Calculate gap between pipes (topPos.y + pipeHeight is bottom of top pipe, bottomPos.y is top of bottom pipe)
-    local gapTop = Mafs.get_vec_y(topPos) + pipeHeight
+    local gapTop    = Mafs.get_vec_y(topPos) + pipeHeight
     local gapBottom = Mafs.get_vec_y(bottomPos)
 
-    -- Place coin randomly in the gap
-    local randY = math.random() * (gapBottom - gapTop - 100) + gapTop + 10
-    local yRandomOffset = (math.random() * 2 - 1) * 80
-    randY = randY + yRandomOffset
+    -- keep coins comfortably inside the gap
+    local margin = 24
+    local minY = gapTop + margin
+    local maxY = gapBottom - margin
 
-    local randX = Mafs.get_vec_x(bottomPos) + offsetX
+    -- fallback if gap gets tight
+    if maxY <= minY then
+        minY = gapTop + 6
+        maxY = gapBottom - 6
+    end
+    if maxY <= minY then
+        local mid = (gapTop + gapBottom) * 0.5
+        minY, maxY = mid, mid
+    end
+
+    -- bias towards center using triangular distribution
+    local t = (math.random() + math.random()) * 0.5   -- clustered around 0.5
+    -- optional extra “center bias” (tighter grouping):
+    t = 0.5 + (t - 0.5) * 0.65
+
+    local randY = minY + (maxY - minY) * t
+    local randX = Mafs.get_vec_x(bottomPos) + (offsetX or 0)
+
     Fysics.set_pos(coin, randX, randY)
 end
+
 
 ----------------------------------------------------------
 -- Reset Game
@@ -851,8 +866,12 @@ local function LocalisedItemName(item)
         if item.id == "bird_classic" then return T("birds.classic") end
         if item.id == "bird_purple" then return T("birds.purple") end
         if item.id == "bird_gold" then return T("birds.gold") end
+        if item.id == "bird_sandy" then return T("birds.sandy") end
         if item.id == "bird_ice" then return T("birds.ice") end
+        if item.id == "bird_hologram" then return T("birds.hologram") end
         if item.id == "bird_gui" then return T("birds.gui") end
+        if item.id == "bird_glitchy" then return T("birds.glitchy") end
+        if item.id == "bird_space" then return T("birds.space") end
     end
     return item.name or item.id
 end
