@@ -1993,7 +1993,7 @@ function SystemShooter:OnUpdate()
             DrawPauseMenu(screenW, screenH, dt)
         end
 
-        return -- <-- THIS is what freezes gameplay
+        return
     end
 
 
@@ -2365,12 +2365,14 @@ if levelCfg.timeLimitSeconds ~= nil and levelCfg.timeLimitSeconds > 0 then
         UI.draw_progress_bar(20, 20, 200, 20, currentEnemyHealthTotal, currentEnemyHealthTotal, 1)
     end
 
-    UI.add_centered_label(screenW / 2, 10, T("gameplay.stage") .. tostring(currentLevel), UI_FONT_REG)
+    UI.add_centered_label(screenW/ 2, 10, tostring(FormatTimeMMSS(runTimeSeconds)), UI_FONT_REG)
+    UI.add_centered_label(screenW / 2, 30, T("gameplay.stage") .. tostring(currentLevel), UI_FONT_REG)
     
     -- Display timeout counter
     local timeoutCount = SystemShooterPlayerProgress.getTimeoutCount()
     local maxTimeouts = SystemShooterPlayerProgress.getMaxTimeouts()
-    UI.add_centered_label(screenW / 2, 30, "Timeouts: " .. tostring(timeoutCount) .. " / " .. tostring(maxTimeouts), UI_FONT_REG)
+    UI.add_centered_label(screenW / 2, 50, T("gameplay.timeouts") .. tostring(timeoutCount) .. " / " .. tostring(maxTimeouts), UI_FONT_REG)
+ 
 
     -- Display notification
     if notificationTimer > 0 then
