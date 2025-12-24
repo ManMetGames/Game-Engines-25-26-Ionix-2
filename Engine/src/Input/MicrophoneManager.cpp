@@ -78,5 +78,7 @@ namespace IonixEngine
             default:
                 break;
         }
+
+        currentState = state;
     }
 }
