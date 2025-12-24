@@ -57,6 +57,12 @@ namespace IonixEngine
         Uint32 bytesAvailable = SDL_GetQueuedAudioSize(deviceID);
         if (bytesAvailable == 0)
             return;
+
+        tempBuffer.resize(bytesAvailable / sizeof(float));
+
+        Uint32 bytesRead = SDL_DequeueAudio(deviceID, tempBuffer.data(), bytesAvailable);
+
+
     }
 
     void MicrophoneManager::SetState(recordingState state)
