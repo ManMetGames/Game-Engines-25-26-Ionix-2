@@ -4,7 +4,7 @@
 namespace IonixEngine
 {
 
-    SDL_AudioDeviceID playbackDeviceID = 0;
+   
 
 	bool MicrophoneManager::openDevice(const char* deviceName)
 	{

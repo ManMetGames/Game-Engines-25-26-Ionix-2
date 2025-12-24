@@ -38,6 +38,8 @@ namespace IonixEngine
         SDL_AudioSpec obtained{};
         SDL_AudioDeviceID deviceID;
 
+        SDL_AudioDeviceID playbackDeviceID = 0;
+
         recordingState currentState = STOPPED;
 
         std::vector<float> recordedSamples;
