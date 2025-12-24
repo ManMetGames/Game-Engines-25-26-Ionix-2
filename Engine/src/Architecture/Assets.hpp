@@ -60,6 +60,8 @@ struct Textures {
     uint32_t Flappy_Crystal = 539763344u;
     uint32_t FlappyGlitch = 3619484804u;
     uint32_t Flappy_Origami = 379557468u;
+    uint32_t FlappySandy = 2268662876u;
+    uint32_t FlappySpace = 906825536u;
     uint32_t Ghast_Tear = 3650266058u;
     uint32_t Gray = 220346788u;
     uint32_t Green = 1896123910u;
@@ -278,6 +280,8 @@ struct Textures {
         map["FlappyGui"] = "./Assets/FlappyGui.png";
         map["Flappy_Crystal"] = "./Assets/Flappy_Crystal.png";
         map["FlappyGlitch"] = "./Assets/FlappyGlitch.png";
+        map["FlappySandy"] = "./Assets/FlappySandy.png";
+        map["FlappySpace"] = "./Assets/FlappySpace.png";
         map["Flappy_Origami"] = "./Assets/Flappy_Origami.png";
         map["Ghast_Tear"] = "./Assets/Ghast_Tear.png";
         map["Gray"] = "./Assets/Jimmy Demo/Background/Gray.png";

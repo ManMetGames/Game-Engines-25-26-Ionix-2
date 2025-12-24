@@ -55,6 +55,8 @@ return {
         FlappyPipe = 1290161702,
         FlappyPipe2 = 2484853856,
         FlappyPurple = 4063090336,
+        FlappySandy = 2268662876,
+        FlappySpace = 906825536,
         Ghast_Tear = 3650266058,
         Gray = 220346788,
         Green = 1896123910,
