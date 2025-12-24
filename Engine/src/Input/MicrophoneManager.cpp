@@ -53,9 +53,16 @@ namespace IonixEngine
         if (deviceID != 0)
         {
             SDL_CloseAudioDevice(deviceID);			//Only close if a device is actually open
-            deviceID = 0;							//reset device ID
+            deviceID = 0;                           //reset device ID
+        }
+        if (playbackDeviceID != 0)
+        {
+            SDL_CloseAudioDevice(playbackDeviceID);
+            playbackDeviceID = 0;
+
+        }
+
             SDL_QuitSubSystem(SDL_INIT_AUDIO); //quit SDL audio subsystem
-            
             std::cout << "Microphone closed." << "\n";
         }
     }
