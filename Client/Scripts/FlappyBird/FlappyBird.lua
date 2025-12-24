@@ -166,16 +166,37 @@ end
 end
 
 BG_STYLES = {
-    bg_classic = { tint = {255, 255, 255}, textureKey = "Background" },
-    bg_night   = { tint = {150, 170, 255}, textureKey = "Background" },
-    bg_plains   ={ tint = {255, 255, 255}, textureKey = "Background_Mountains" },-- night tint
+    bg_classic = {
+        tint = {255, 255, 255},
+        textureKey = "Background",
+        cols = 1,
+        rows = 1,
+        tick = nil, -- seconds per frame (nil = no animation)
+    },
+
+    bg_night = {
+        tint = {150, 170, 255},
+        textureKey = "Background",
+        cols = 1,
+        rows = 1,
+        tick = nil,
+    },
+
+    bg_plains = {
+        tint = {255, 255, 255},
+        textureKey = "Background_Mountains",
+        cols = 1,
+        rows = 1,
+        tick = nil,
+    },
 }
+
 
 
 BIRD_STYLES = {
     bird_classic = { tint = {255, 255, 255}, textureKey = "FlappyBird", cols = 1, rows = 1  },
     bird_purple  = { tint = {255, 255, 255}, textureKey = "FlappyPurple", cols = 1, rows = 1  },
-    bird_ice     = { tint = {180, 220, 255}, textureKey = "FlappyIce", cols = 6, rows = 1, tick = 0.13 },
+    bird_ice     = { tint = {180, 220, 255}, textureKey = "FlappyIce", cols = 6, rows = 1, tick = 0.3 },
     bird_blazing = { tint = {255, 180, 100}, textureKey = "FlappyBlaze", cols = 1, rows = 1  },
     bird_gold    = { tint = {255, 220, 120}, textureKey = "FlappyBird", cols = 1, rows = 1  },
     bird_juice   = { tint = {255, 255, 255}, textureKey = "FlappyJuice", cols = 6, rows = 1, tick = 0.15 },
@@ -186,23 +207,45 @@ BIRD_STYLES = {
 
 
 local function ApplyBackgroundStyle()
-    local style = BG_STYLES[equippedBackground] or BG_STYLES["bg_classic"]
+    local style = BG_STYLES[equippedBackground] or BG_STYLES.bg_classic
 
-    if (backgroundSprite or backgroundSprite2) and Sprite and Sprite.set_texture and assets and assets.textures then
-        local key = (style and style.textureKey) or "Background"
-        local tex = assets.textures[key] or assets.textures["Background"]
-        if tex then
-            if backgroundSprite then pcall(Sprite.set_texture, backgroundSprite, tex) end
-            if backgroundSprite2 then pcall(Sprite.set_texture, backgroundSprite2, tex) end
+    local key  = (style and style.textureKey) or "Background"
+    local tex  = (assets and assets.textures and (assets.textures[key] or assets.textures.Background)) or nil
+
+    local t    = (style and style.tint) or {255, 255, 255}
+    local cols = (style and style.cols) or 1
+    local rows = (style and style.rows) or 1
+    local tick = style and style.tick -- optional
+
+    for _, spr in ipairs({ backgroundSprite, backgroundSprite2 }) do
+        if spr then
+            if tex and Sprite and Sprite.set_texture then
+                pcall(Sprite.set_texture, spr, tex)
+            end
+
+            if Sprite and Sprite.set_columns then
+                pcall(Sprite.set_columns, spr, cols)
+            end
+
+            if Sprite and Sprite.set_rows then
+                pcall(Sprite.set_rows, spr, rows)
+            end
+
+            if tick and Sprite and Sprite.set_tick_rate then
+                pcall(Sprite.set_tick_rate, spr, tick)
+            end
+
+            if Sprite and Sprite.set_current_frame then
+                pcall(Sprite.set_current_frame, spr, 0)
+            end
+
+            if Sprite and Sprite.set_color then
+                pcall(Sprite.set_color, spr, t[1], t[2], t[3])
+            end
         end
     end
-
-    local t = (style and style.tint) or {255, 255, 255}
-    if Sprite and Sprite.set_color then
-        if backgroundSprite then Sprite.set_color(backgroundSprite, t[1], t[2], t[3]) end
-        if backgroundSprite2 then Sprite.set_color(backgroundSprite2, t[1], t[2], t[3]) end
-    end
 end
+
 
 
 local function ApplyBirdStyle()
@@ -664,7 +707,7 @@ function ExampleScript:OnStart()
     ------------------------------------------------------
     player1 = Entity.create_entity()
 	
-    playerSprite = Entity.add_sprite_component(player1, assets.textures.FlappyBird, 64, 64, 10)
+    playerSprite = Entity.add_sprite_component(player1, assets.textures.FlappyBird, 96, 96, 10)
     Sprite.set_columns(playerSprite,1)
     ApplyBirdStyle()
 
