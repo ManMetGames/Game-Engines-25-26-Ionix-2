@@ -19,7 +19,7 @@ namespace IonixEngine
     {
     public:
         //Mouse
-        MouseCoords GetMousePosition();
+        MouseCoords GetMousePosition(); 
 
         //Keyboard
         bool IsKeyDown(SDL_Scancode code) const;
@@ -53,7 +53,7 @@ namespace IonixEngine
         //Microphone
 
         const int maxRecordingDevices = 10;
-        const int currentRecDevicesNumber; 
+        const int currentRecDevicesNumber = 0; 
         const int maxRecordingSeconds = 30;
         const int recordingBufferSeconds = maxRecordingSeconds + 1;
 
