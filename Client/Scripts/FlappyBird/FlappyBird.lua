@@ -138,14 +138,12 @@ local STORE_BACKGROUNDS = {
 local STORE_BIRDS = {
     { id = "bird_classic", name = "Classic Bird", price = 0,  textureKey = "FlappyBird" },
     { id = "bird_purple",  name = "Purple Bird",  price = 150, textureKey = "FlappyPurple" },
-    { id = "bird_ice",  name = "Ice Bird",  price = 300, textureKey = "FlappyIce" },
-    { id = "bird_blazing",  name = "Blazing Bird",  price = 300, textureKey = "FlappyBlaze" },
-    { id = "bird_gold",    name = "Gold Bird",    price = 400, textureKey = "FlappyBird" }, -- tint skin
-    { id = "bird_juice",  name = "Juiced Bird",  price = 450, textureKey = "FlappyJuice" },
+    { id = "bird_gold",    name = "Gold Bird",    price = 300, textureKey = "FlappyBird" }, -- tint skin
     { id = "bird_sandy",  name = "Sandy Bird",  price = 450, textureKey = "FlappySandy" },
-    { id = "bird_gui",  name = "Gui Bird",  price = 500, textureKey = "FlappyGui" },
+    { id = "bird_ice",  name = "Ice Bird",  price = 450, textureKey = "FlappyIce" },
+    { id = "bird_hologram",  name = "Hologram Bird",  price = 550, textureKey = "FlappyHologram" },
+    { id = "bird_gui",  name = "Gui Bird",  price = 650, textureKey = "FlappyGui" },
     { id = "bird_glitch",  name = "Glitchy Bird",  price = 750, textureKey = "FlappyGlitch" },
-    { id = "bird_hologram",  name = "Hologram Bird",  price = 750, textureKey = "FlappyHologram" },
     { id = "bird_space",  name = "Space Bird",  price = 1000, textureKey = "FlappySpace" },
 }
 
@@ -198,14 +196,12 @@ BG_STYLES = {
 BIRD_STYLES = {
     bird_classic = { tint = {255, 255, 255}, textureKey = "FlappyBird", cols = 1, rows = 1  },
     bird_purple  = { tint = {255, 255, 255}, textureKey = "FlappyPurple", cols = 1, rows = 1  },
-    bird_ice     = { tint = {180, 220, 255}, textureKey = "FlappyIce", cols = 6, rows = 1, tick = 0.3 },
-    bird_blazing = { tint = {255, 180, 100}, textureKey = "FlappyBlaze", cols = 1, rows = 1  },
     bird_gold    = { tint = {255, 220, 120}, textureKey = "FlappyBird", cols = 1, rows = 1  },
-    bird_juice   = { tint = {255, 255, 255}, textureKey = "FlappyJuice", cols = 6, rows = 1, tick = 0.15 },
     bird_sandy   = { tint = {255, 240, 200}, textureKey = "FlappySandy", cols = 6, rows = 1, tick = 0.14 },
+    bird_ice     = { tint = {180, 220, 255}, textureKey = "FlappyIce", cols = 6, rows = 1, tick = 0.3 },
+    bird_hologram = { tint = {180, 255, 255}, textureKey = "FlappyHologram", cols = 6, rows = 1, tick = 0.145},
     bird_gui     = { tint = {255, 255, 255}, textureKey = "FlappyGui", cols = 6, rows = 1, tick = 0.12 },
     bird_glitch  = { tint = {255, 255, 255}, textureKey = "FlappyGlitch", cols = 6, rows = 1, tick = 0.19 },
-    bird_hologram = { tint = {180, 255, 255}, textureKey = "FlappyHologram", cols = 6, rows = 1, tick = 0.145},
     bird_space = { tint = {200, 220, 255}, textureKey = "FlappySpace", cols = 8, rows = 1, tick = 0.135 },
 }
 
@@ -711,7 +707,7 @@ function ExampleScript:OnStart()
     ------------------------------------------------------
     player1 = Entity.create_entity()
 	
-    playerSprite = Entity.add_sprite_component(player1, assets.textures.FlappyBird, 96, 96, 10)
+    playerSprite = Entity.add_sprite_component(player1, assets.textures.FlappyBird, 80, 80, 10)
     Sprite.set_columns(playerSprite,1)
     ApplyBirdStyle()
 
@@ -854,9 +850,8 @@ local function LocalisedItemName(item)
     elseif string.sub(item.id, 1, 5) == "bird_" then
         if item.id == "bird_classic" then return T("birds.classic") end
         if item.id == "bird_purple" then return T("birds.purple") end
-        if item.id == "bird_ice" then return T("birds.ice") end
-        if item.id == "bird_blazing" then return T("birds.blazing") end
         if item.id == "bird_gold" then return T("birds.gold") end
+        if item.id == "bird_ice" then return T("birds.ice") end
         if item.id == "bird_gui" then return T("birds.gui") end
     end
     return item.name or item.id
