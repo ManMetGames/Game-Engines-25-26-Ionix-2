@@ -49,7 +49,7 @@ namespace IonixEngine
         }
     }
 
-    void MicrophoneManager::MicrophoneRecordingStates(recordingState state)
+    void MicrophoneManager::SetState(recordingState state)
     {
         // turned it into a switch for easier control elsewhere
         switch (state)
