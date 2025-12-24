@@ -141,8 +141,10 @@ local STORE_BIRDS = {
     { id = "bird_ice",  name = "Ice Bird",  price = 300, textureKey = "FlappyIce" },
     { id = "bird_blazing",  name = "Blazing Bird",  price = 300, textureKey = "FlappyBlaze" },
     { id = "bird_gold",    name = "Gold Bird",    price = 400, textureKey = "FlappyBird" }, -- tint skin
+    { id = "bird_juice",  name = "Juiced Bird",  price = 450, textureKey = "FlappyJuice" },
     { id = "bird_gui",  name = "Gui Bird",  price = 500, textureKey = "FlappyGui" },
-    { id = "bird_glitch",  name = "Glitch Bird",  price = 750, textureKey = "FlappyGlitch" },
+    { id = "bird_glitch",  name = "Glitchy Bird",  price = 750, textureKey = "FlappyGlitch" },
+    { id = "bird_hologram",  name = "Hologram Bird",  price = 750, textureKey = "FlappyHologram" },
 }
 
 local BG_STYLES
@@ -173,11 +175,13 @@ BG_STYLES = {
 BIRD_STYLES = {
     bird_classic = { tint = {255, 255, 255}, textureKey = "FlappyBird", cols = 1, rows = 1  },
     bird_purple  = { tint = {255, 255, 255}, textureKey = "FlappyPurple", cols = 1, rows = 1  },
-    bird_ice     = { tint = {180, 220, 255}, textureKey = "FlappyIce", cols = 1, rows = 1  },
+    bird_ice     = { tint = {180, 220, 255}, textureKey = "FlappyIce", cols = 6, rows = 1, tick = 0.13 },
     bird_blazing = { tint = {255, 180, 100}, textureKey = "FlappyBlaze", cols = 1, rows = 1  },
     bird_gold    = { tint = {255, 220, 120}, textureKey = "FlappyBird", cols = 1, rows = 1  },
-    bird_gui     = { tint = {255, 255, 255}, textureKey = "FlappyGui", cols = 6, rows = 1, tick = 0.08 },
-    bird_glitch  = { tint = {255, 255, 255}, textureKey = "FlappyGlitch", cols = 6, rows = 1, tick = 0.08 },
+    bird_juice   = { tint = {255, 255, 255}, textureKey = "FlappyJuice", cols = 6, rows = 1, tick = 0.15 },
+    bird_gui     = { tint = {255, 255, 255}, textureKey = "FlappyGui", cols = 6, rows = 1, tick = 0.12 },
+    bird_glitch  = { tint = {255, 255, 255}, textureKey = "FlappyGlitch", cols = 6, rows = 1, tick = 0.19 },
+    bird_hologram = { tint = {180, 255, 255}, textureKey = "FlappyHologram", cols = 6, rows = 1, tick = 0.145},
 }
 
 
