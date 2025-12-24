@@ -52,6 +52,10 @@ namespace IonixEngine
     void MicrophoneManager::Update() 
     {
         if (currentState != RECORDING || deviceID == 0)
+            return; 
+
+        Uint32 bytesAvailable = SDL_GetQueuedAudioSize(deviceID);
+        if (bytesAvailable == 0)
             return;
     }
 
