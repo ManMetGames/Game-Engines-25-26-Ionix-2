@@ -35,6 +35,14 @@ namespace IonixEngine
 	    	//failed to open
 	        return false;
 	    }
+
+        //Start paused and in known state 
+        SDL_PauseAudioDevice(deviceID, 1); 
+        currentState = STOPPED;
+
+        //Clear just in case
+        SDL_ClearQueuedAudio(deviceID);
+
 		//opened and ready for recording
 	    return true;
 	}
