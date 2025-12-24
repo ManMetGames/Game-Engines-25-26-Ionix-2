@@ -142,6 +142,7 @@ local STORE_BIRDS = {
     { id = "bird_blazing",  name = "Blazing Bird",  price = 300, textureKey = "FlappyBlaze" },
     { id = "bird_gold",    name = "Gold Bird",    price = 400, textureKey = "FlappyBird" }, -- tint skin
     { id = "bird_gui",  name = "Gui Bird",  price = 500, textureKey = "FlappyGui" },
+    { id = "bird_glitch",  name = "Glitch Bird",  price = 750, textureKey = "Flappy_Glitch" },
 }
 
 local BG_STYLES
@@ -170,12 +171,13 @@ BG_STYLES = {
 
 
 BIRD_STYLES = {
-    bird_classic = { tint = {255, 255, 255}, textureKey = "FlappyBird" },
-    bird_purple  = { tint = {255, 255, 255}, textureKey = "FlappyPurple" },
-    bird_gold    = { tint = {255, 220, 120}, textureKey = "FlappyBird" },
-    bird_ice     = { tint = {180, 220, 255}, textureKey = "FlappyIce" },
-    bird_blazing = { tint = {255, 180, 100}, textureKey = "FlappyBlaze" },
-    bird_gui     = { tint = {255, 255, 255}, textureKey = "FlappyGui" },
+    bird_classic = { tint = {255, 255, 255}, textureKey = "FlappyBird", cols = 1, rows = 1  },
+    bird_purple  = { tint = {255, 255, 255}, textureKey = "FlappyPurple", cols = 1, rows = 1  },
+    bird_gold    = { tint = {255, 220, 120}, textureKey = "FlappyBird", cols = 1, rows = 1  },
+    bird_ice     = { tint = {180, 220, 255}, textureKey = "FlappyIce", cols = 1, rows = 1  },
+    bird_blazing = { tint = {255, 180, 100}, textureKey = "FlappyBlaze", cols = 1, rows = 1  },
+    bird_gui     = { tint = {255, 255, 255}, textureKey = "FlappyGui", cols = 1, rows = 1  },
+    bird_glitch  = { tint = {255, 255, 255}, textureKey = "Flappy_Glitch", cols = 6, rows = 1, tick = 0.08 },
 }
 
 
@@ -202,6 +204,7 @@ end
 local function ApplyBirdStyle()
     local style = BIRD_STYLES[equippedBird] or BIRD_STYLES["bird_classic"]
 
+    -- Texture
     if playerSprite and Sprite and Sprite.set_texture and assets and assets.textures then
         local key = (style and style.textureKey) or "FlappyBird"
         local tex = assets.textures[key] or assets.textures["FlappyBird"]
@@ -210,9 +213,28 @@ local function ApplyBirdStyle()
         end
     end
 
+    -- Animation (spritesheet)
+    if playerSprite and Sprite then
+        local cols = (style and style.cols) or 1
+        local rows = (style and style.rows) or 1
+
+        if Sprite.set_columns then pcall(Sprite.set_columns, playerSprite, cols) end
+        if Sprite.set_rows then pcall(Sprite.set_rows, playerSprite, rows) end
+
+        if style and style.tick and Sprite.set_tick_rate then
+            pcall(Sprite.set_tick_rate, playerSprite, style.tick)
+        end
+
+        -- optional: restart anim on swap, only if your binding exists
+        if Sprite.set_current_frame then
+            pcall(Sprite.set_current_frame, playerSprite, 0)
+        end
+    end
+
+    -- Tint
     local t = (style and style.tint) or {255, 255, 255}
     if playerSprite and Sprite and Sprite.set_color then
-        Sprite.set_color(playerSprite, t[1], t[2], t[3])
+        pcall(Sprite.set_color, playerSprite, t[1], t[2], t[3])
     end
 end
 
