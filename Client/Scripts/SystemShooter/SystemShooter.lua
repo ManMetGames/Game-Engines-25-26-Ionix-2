@@ -2389,32 +2389,16 @@ if levelCfg.timeLimitSeconds ~= nil and levelCfg.timeLimitSeconds > 0 then
     local playerHealth = SystemShooterPlayer.getHealth()
     local playerOverhealth = SystemShooterPlayerProgress.getOverhealth()
 
-    -- Pulse between base blue and electric blue
-    local base = {50, 150, 255, 200}
-    local electric = {190, 235, 255, 240}  -- near-white blue
-
-    local t = 0.5 + 0.5 * math.sin((timeNow or os.clock()) * 6.0)  -- speed
-
-    local function lerp(a,b,t) return a + (b-a)*t end
-    local pulseColor = {
-        math.floor(lerp(base[1], electric[1], t) + 0.5),
-        math.floor(lerp(base[2], electric[2], t) + 0.5),
-        math.floor(lerp(base[3], electric[3], t) + 0.5),
-        math.floor(lerp(base[4], electric[4], t) + 0.5),
-    }
-
     local hpStyle = {
-        rounding = 10,
-        border_size = 0,
-        bg   = {30,30,30,220},
-        fill = {0,255,0,255},
-        overfill = playerOverhealth,
-        overfill_color = pulseColor,
+      rounding = 10,
+      border_size = 0,
+      bg   = {30,30,30,220},
+      fill = {0,255,0,255},
+      overfill = playerOverhealth,
+      overfill_color = {50, 150, 255, 200},  -- Blue for overhealth
     }
 
-    UI.draw_progress_bar_layered(playerHpBarX, playerHpBarY, playerHpBarW, playerHpBarH,
-    playerMaxHealth, playerHealth, 2, hpStyle, "")
-
+    UI.draw_progress_bar_layered(playerHpBarX, playerHpBarY, playerHpBarW, playerHpBarH, playerMaxHealth, playerHealth, 2, hpStyle, "")
 
     local level, xp, xpToNextLevel = SystemShooterPlayerProgress.getProgress()
     local playerInfoText = T("gameplay.level") .. tostring(level) .. T("gameplay.exp") .. tostring(math.floor(xp)) .. "/" .. tostring(math.floor(xpToNextLevel))
