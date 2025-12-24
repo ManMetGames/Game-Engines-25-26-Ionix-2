@@ -70,8 +70,6 @@ float scrollDiff;
         currentMouse.erase(code);
     }
 
-   
-
     //Frame management
     void Input::CopyCodesEndFrame()
     {
