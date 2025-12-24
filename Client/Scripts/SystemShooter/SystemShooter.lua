@@ -2155,14 +2155,24 @@ function SystemShooter:OnUpdate()
                         VFX.set_lightning_fade_out(lightningId, true)
                     end
                     
-                    -- Calculate damage as 5% of enemy max health, with a minimum of 10
+                    -- Calculate damage as configured percentage of enemy max health, with a minimum
                     local enemyMaxHealth = enemy.maxHealth or 100
-                    local percentDamage = enemyMaxHealth * 0.10
-                    local actualDamage = math.max(percentDamage, 15)
+                    local damagePercent = overhealthCfg.zapDamagePercent or 0.10
+                    local minDamage = overhealthCfg.zapMinDamage or 15
+                    local percentDamage = enemyMaxHealth * damagePercent
+                    local actualDamage = math.max(percentDamage, minDamage)
                     
                     -- Apply burst damage
                     enemy.health = enemy.health - actualDamage
+                    
+                    -- Flash enemy red when hit by zap
+                    FlashEnemy(enemy)
                     runDamageDealt = runDamageDealt + actualDamage
+                    
+                    -- Grant XP for damage dealt (1 XP = 1 damage)
+                    local xpFromDamage = math.floor(actualDamage)
+                    levelXpGained = levelXpGained + xpFromDamage
+                    SystemShooterPlayerProgress.addXp(xpFromDamage)
                     
                     if enemy.health <= 0 then
                         enemy.isDead = true
@@ -2797,8 +2807,10 @@ end
 local BEAM_RADIUS = 16
 local BEAM_DAMAGE = 15
 
-function SpawnBeam(enemy, fromX, fromY, toX, toY)
-    SystemShooterAudio.playBeam()
+function SpawnBeam(enemy, fromX, fromY, toX, toY, shouldPlayAudio)
+    if shouldPlayAudio then
+        SystemShooterAudio.playBeam()
+    end
     
     local dx = toX - fromX
     local dy = toY - fromY

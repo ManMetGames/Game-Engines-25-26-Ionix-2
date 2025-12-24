@@ -137,6 +137,7 @@ function SystemShooterEnemy.createEnemy(x, y, config)
         teleportVisible = true,
         beamTargetX = 0,
         beamTargetY = 0,
+        beamAudioPlayed = false,  -- Track if beam audio has been played for current shot
         rainbowHue = 0,
         baseSize = size,
     }
@@ -441,6 +442,7 @@ local TELEPORT_GROW_DURATION = 0.25
             enemy.teleportState = "shooting"
             enemy.teleportTimer = 0
             enemy.beamLocked = false
+            enemy.beamAudioPlayed = false  -- Reset audio flag for new beam
         end
     elseif enemy.teleportState == "shooting" then
         local eDisplaySize = enemy.displaySize or enemy.size
@@ -458,7 +460,10 @@ local TELEPORT_GROW_DURATION = 0.25
             beamStartY = enemyCenterY + dirY * (eDisplaySize / 2)
         end
         if SpawnBeam then
-            SpawnBeam(enemy, beamStartX, beamStartY, enemy.beamTargetX, enemy.beamTargetY)
+            -- Pass whether audio should play (only once per beam)
+            local shouldPlayAudio = not enemy.beamAudioPlayed
+            SpawnBeam(enemy, beamStartX, beamStartY, enemy.beamTargetX, enemy.beamTargetY, shouldPlayAudio)
+            enemy.beamAudioPlayed = true
         end
         if enemy.teleportTimer >= enemy.beamDuration then
             enemy.teleportState = "cooldown"

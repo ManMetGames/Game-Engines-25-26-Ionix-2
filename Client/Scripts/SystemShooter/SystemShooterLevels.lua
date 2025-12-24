@@ -48,9 +48,9 @@ local HEALTH_BUDGET = {
     base = 60,
     perLevel = 15,
     levelSquaredFactor = 0.5,
-    lateLevelThreshold = 15,
-    lateSquaredFactor = 1.7,
-    lateCubedFactor = 0.275,
+    lateLevelThreshold = 13,
+    lateSquaredFactor = 1.6,
+    lateCubedFactor = 0.3,
 }
 
 local TIMER_CONFIG = {
