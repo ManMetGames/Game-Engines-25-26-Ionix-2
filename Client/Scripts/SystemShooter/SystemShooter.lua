@@ -924,6 +924,7 @@ function SystemShooter:OnStart()
                 
                 SystemShooterPlayer.flash()
                 SystemShooterPlayer.setDamageCooldown(SystemShooterPlayer.getDamageCooldownDuration())
+                SystemShooterAudio.playPlayerDamage()
             end,
             isAntivirusActive = function() return SystemShooterPlayer.isAntivirusActive() end,
             addXp = function(amount) 
@@ -2868,6 +2869,7 @@ function SpawnBeam(enemy, fromX, fromY, toX, toY)
             runDamageTaken = runDamageTaken + (BEAM_DAMAGE or 0)
             SystemShooterPlayer.flash()
             SystemShooterPlayer.setDamageCooldown(SystemShooterPlayer.getDamageCooldownDuration())
+            SystemShooterAudio.playPlayerDamage()
         end
     end
 end
