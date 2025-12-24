@@ -51,36 +51,26 @@ namespace IonixEngine
 
     void MicrophoneManager::SetState(recordingState state)
     {
-        // turned it into a switch for easier control elsewhere
+
+        if (deviceID == 0)
+        {
+            currentState = ERROR;
+            return;
+        }
+
+       
         switch (state)
         {
-            case SELECTING_DEVICE:
-                std::cout << "Device is being selected";
-                // something something - once device is selected, ID needs to be specified or the name of device
-                // for a different part but just putting it down before i forget
-                break;
-
-            case STOPPED:
-                // SDL_PauseAudioDevice( [something related to the current device in here - like "device, ID number"] );   <- i think that's the SDL function we have to use??
-                // there is no function for StartAudioDevice only pause sadly :(
-                break;
-
             case RECORDING:
-                // something to clear what was last recorded + the buffer version 
-                // then just what's on the tin
+                recordedSamples.clear();
+                SDL_PauseAudioDevice(deviceID, 0); //Start capturing audio 
+                break;
+            case STOPPED:
+                SDL_PauseAudioDevice(deviceID, 1); //Stop capturing audio
                 break;
 
-            case RECORDED:
-                // saves whatever has been recorded /w buffer encase all audio isn't captured
-                break;
+    
 
-            case PLAYBACK:
-                // plays the saved audio /w buffer 
-                break;
-
-            case ERROR:
-                std::cout << "Microphone ERROR"; // you can make this more specific or fancy if you want
-                break;
         }
     }
 }
