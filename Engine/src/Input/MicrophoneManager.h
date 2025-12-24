@@ -27,7 +27,9 @@ namespace IonixEngine
 
 
         void SetState(recordingState state);
-        void Update(); 
+        void Update();
+        void OpenPlaybackDevice();
+
 
         const std::vector<float>& GetRecordedData() const { return recordedSamples;  }
 

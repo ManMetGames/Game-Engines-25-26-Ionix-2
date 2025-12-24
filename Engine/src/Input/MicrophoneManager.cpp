@@ -3,6 +3,9 @@
 
 namespace IonixEngine
 {
+
+    SDL_AudioDeviceID playbackDeviceID = 0;
+
 	bool MicrophoneManager::openDevice(const char* deviceName)
 	{
 	    //Initialize SDL audio subsystem
@@ -69,6 +72,15 @@ namespace IonixEngine
         }
     }
 
+    void MicrophoneManager::OpenPlaybackDevice() {
+        if (playbackDeviceID != 0)
+            return;
+
+        playbackDeviceID = SDL_OpenAudioDevice(nullptr, 0, &obtained, nullptr, 0);
+
+        SDL_PauseAudioDevice(playbackDeviceID, 1);
+    }
+
     void MicrophoneManager::SetState(recordingState state)
     {
 
@@ -90,9 +102,13 @@ namespace IonixEngine
                 break;
 
             case PLAYBACK:
+            {
                 SDL_ClearQueuedAudio(deviceID);
                 SDL_QueueAudio(deviceID, recordedSamples.data(), recordedSamples.size() * sizeof(float));
                 SDL_PauseAudioDevice(deviceID, 0);
+
+            };
+            SDL_PauseAudioDevice(playbackDeviceID, 0)
                 break;
 
             default:
