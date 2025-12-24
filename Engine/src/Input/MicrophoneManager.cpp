@@ -49,6 +49,12 @@ namespace IonixEngine
         }
     }
 
+    void MicrophoneManager::Update() 
+    {
+        if (currentState != RECORDING || deviceID == 0)
+            return;
+    }
+
     void MicrophoneManager::SetState(recordingState state)
     {
 
