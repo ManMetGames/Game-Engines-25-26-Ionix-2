@@ -2131,6 +2131,14 @@ function SystemShooter:OnUpdate()
                 local lightningLifetime = overhealthCfg.lightningLifetime or 0.25
                 local lightningColor = overhealthCfg.lightningColor or { r = 100, g = 200, b = 255, a = 255 }
                 
+                -- Play appropriate lightning sound based on number of targets
+                local zapCount = #targetsToZap
+                if zapCount == 1 then
+                    SystemShooterAudio.playLightning1()
+                elseif zapCount >= 2 then
+                    SystemShooterAudio.playLightning2()
+                end
+                
                 -- Zap each selected target
                 for _, target in ipairs(targetsToZap) do
                     local enemy = target.enemy
@@ -2144,7 +2152,6 @@ function SystemShooter:OnUpdate()
                         VFX.set_lightning_flicker(lightningId, true, 0.03)  -- Fast flicker for electric effect
                         VFX.set_lightning_render_layer(lightningId, 0, 20)  -- High z-order, above ring
                         VFX.set_lightning_fade_out(lightningId, true)
-                        SystemShooterAudio.playLightningAlternate()
                     end
                     
                     -- Calculate damage as 5% of enemy max health, with a minimum of 10
