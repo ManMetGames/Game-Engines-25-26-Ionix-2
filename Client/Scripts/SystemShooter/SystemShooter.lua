@@ -14,6 +14,7 @@ local SystemShooterRewind = require("Scripts.SystemShooter.SystemShooterRewind")
 local SystemShooterProjectiles = require("Scripts.SystemShooter.SystemShooterProjectiles")
 local SystemShooterPlayer = require("Scripts.SystemShooter.SystemShooterPlayer")
 local Localisation = require("Scripts.SystemShooter.Localisation")
+local SystemShooterAudio = require("Scripts.SystemShooter.SystemShooterAudio")
 
 
  --=====================================================================
@@ -431,11 +432,6 @@ local levelupPeaceDuration = 2.0
 local isStartLevelPeace = false  -- true = waiting before enemies spawn, false = end-of-level peace
 local isLevelupPeace = false     -- true = peace period after selecting a levelup upgrade
 
--- SFX
-local playerDamageSfxEntity
-local gunshot3SfxEntity
-local impact3SfxEntity
-
 -- LEVEL SETTINGS
 local currentLevel = 1
 local levelTimerSeconds = 0
@@ -556,10 +552,7 @@ local function ApplyAudioVolumes()
     end
 
     -- SFX (scale your existing base volumes)
-    local sfxMul = masterVol * sfxVol
-    if playerDamageSfxEntity then AudioComponent.change_volume(playerDamageSfxEntity, math.floor(48 * sfxMul + 0.5)) end
-    if gunshot3SfxEntity     then AudioComponent.change_volume(gunshot3SfxEntity,     math.floor(32 * sfxMul + 0.5)) end
-    if impact3SfxEntity      then AudioComponent.change_volume(impact3SfxEntity,      math.floor(64 * sfxMul + 0.5)) end
+    SystemShooterAudio.applyVolumes(masterVol, sfxVol)
 end
 
 
@@ -872,9 +865,7 @@ function SystemShooter:OnStart()
                 local enemyCenterY = enemy.y + eSize / 2
                 local color = enemy.color or {255, 255, 255}
                 ParticleSystem.emitHitBurst(enemyCenterX, enemyCenterY, color[1], color[2], color[3])
-                if impact3SfxEntity then
-                    AudioComponent.play(impact3SfxEntity)
-                end
+                SystemShooterAudio.playImpact()
             end,
             onEnemyKilled = function(enemy, allEnemies)
                 local eSize = enemy.size or enemySize
@@ -958,16 +949,7 @@ function SystemShooter:OnStart()
     Entity.add_music_component(musicEntity, "technoSong", false)
     -- Music will start when player presses START GAME (now using SoLoud)
 
-    playerDamageSfxEntity = Entity.create_entity()
-    Entity.add_audio_component(playerDamageSfxEntity, "playerDamage", false)
-    -- Set player damage SFX volume to half (range is 0-128)
-
-    gunshot3SfxEntity = Entity.create_entity()
-    Entity.add_audio_component(gunshot3SfxEntity, "gunshot3", false)
-
-    impact3SfxEntity = Entity.create_entity()
-    Entity.add_audio_component(impact3SfxEntity, "impact3", false)
-
+    SystemShooterAudio.init()
     ApplyAudioVolumes()
 
 end
@@ -2049,9 +2031,7 @@ function SystemShooter:OnUpdate()
     -- Shooting (disabled during rewind)
     if not SystemShooterRewind.isActive() then
         local playGunshotSfx = function()
-            if gunshot3SfxEntity then
-                AudioComponent.play(gunshot3SfxEntity)
-            end
+            SystemShooterAudio.playGunshot()
         end
         local onShotFired = function(count)
             runShotsFired = runShotsFired + count
@@ -2164,6 +2144,7 @@ function SystemShooter:OnUpdate()
                         VFX.set_lightning_flicker(lightningId, true, 0.03)  -- Fast flicker for electric effect
                         VFX.set_lightning_render_layer(lightningId, 0, 20)  -- High z-order, above ring
                         VFX.set_lightning_fade_out(lightningId, true)
+                        SystemShooterAudio.playLightningAlternate()
                     end
                     
                     -- Calculate damage as 5% of enemy max health, with a minimum of 10
@@ -2791,9 +2772,7 @@ function UpdateEnemyCollision()
             runDamageTaken = runDamageTaken + damage
             SystemShooterPlayer.flash()
             SystemShooterPlayer.setDamageCooldown(SystemShooterPlayer.getDamageCooldownDuration())
-            if playerDamageSfxEntity then
-                AudioComponent.play(playerDamageSfxEntity)
-            end
+            SystemShooterAudio.playPlayerDamage()
             break
         end
         ::continue_collision::
@@ -2811,6 +2790,8 @@ local BEAM_RADIUS = 16
 local BEAM_DAMAGE = 15
 
 function SpawnBeam(enemy, fromX, fromY, toX, toY)
+    SystemShooterAudio.playBeam()
+    
     local dx = toX - fromX
     local dy = toY - fromY
     local dist = math.sqrt(dx * dx + dy * dy)

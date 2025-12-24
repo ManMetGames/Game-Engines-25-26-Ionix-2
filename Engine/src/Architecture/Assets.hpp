@@ -457,6 +457,9 @@ struct Sounds {
         map["gunshot3"] = "./Assets/Audio/gunshot3.mp3";
         map["impact3"] = "./Assets/Audio/impact3.mp3";
         map["playerDamage"] = "./Assets/Audio/playerDamage.mp3";
+        map["beam"] = "./Assets/Audio/beam.wav";
+        map["lightning1"] = "./Assets/Audio/lightning1.wav";
+        map["lightning2"] = "./Assets/Audio/lightning2.wav";
         map["technoSong"] = "./Assets/technoSong.mp3";
         map["test"] = "./Assets/test.wav";
         map["test_1"] = "./Assets/test.mp3";
