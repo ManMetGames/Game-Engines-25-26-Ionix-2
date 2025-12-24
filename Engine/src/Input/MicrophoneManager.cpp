@@ -113,8 +113,8 @@ namespace IonixEngine
             {
                 OpenPlaybackDevice();
 
-                SDL_ClearQueuedAudio(deviceID);
-                SDL_QueueAudio(deviceID, recordedSamples.data(), recordedSamples.size() * sizeof(float));
+                SDL_ClearQueuedAudio(playbackDeviceID);
+                SDL_QueueAudio(playbackDeviceID, recordedSamples.data(), recordedSamples.size() * sizeof(float));
                 SDL_PauseAudioDevice(playbackDeviceID, 0);
                break;
             }
