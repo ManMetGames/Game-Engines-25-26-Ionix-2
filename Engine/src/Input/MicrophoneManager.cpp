@@ -69,8 +69,14 @@ namespace IonixEngine
                 SDL_PauseAudioDevice(deviceID, 1); //Stop capturing audio
                 break;
 
-    
+            case PLAYBACK:
+                SDL_ClearQueuedAudio(deviceID);
+                SDL_QueueAudio(deviceID, recordedSamples.data(), recordedSamples.size() * sizeof(float));
+                SDL_PauseAudioDevice(deviceID, 0);
+                break;
 
+            default:
+                break;
         }
     }
 }
