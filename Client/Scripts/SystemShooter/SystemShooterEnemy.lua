@@ -9,7 +9,7 @@ local assets = require("Scripts.Assets")
  --  [TUNING] ENEMY STATS / TYPES
  --=====================================================================
 local DEFAULTS = {
-    baseSpeed = 550,
+    baseSpeed = 375,
     size = 30,
     sizePerHp = 0.125,
     health = 50,
