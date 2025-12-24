@@ -103,13 +103,13 @@ namespace IonixEngine
 
             case PLAYBACK:
             {
+                OpenPlaybackDevice();
+
                 SDL_ClearQueuedAudio(deviceID);
                 SDL_QueueAudio(deviceID, recordedSamples.data(), recordedSamples.size() * sizeof(float));
-                SDL_PauseAudioDevice(deviceID, 0);
-
-            };
-            SDL_PauseAudioDevice(playbackDeviceID, 0)
-                break;
+                SDL_PauseAudioDevice(playbackDeviceID, 0);
+               break;
+            }
 
             default:
                 break;
