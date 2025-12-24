@@ -138,10 +138,13 @@ local STORE_BACKGROUNDS = {
 local STORE_BIRDS = {
     { id = "bird_classic", name = "Classic Bird", price = 0,  textureKey = "FlappyBird" },
     { id = "bird_purple",  name = "Purple Bird",  price = 150, textureKey = "FlappyPurple" },
-    { id = "bird_ice",  name = "Ice Bird",  price = 300, textureKey = "FlappyIce" },
-    { id = "bird_blazing",  name = "Blazing Bird",  price = 300, textureKey = "FlappyBlaze" },
-    { id = "bird_gold",    name = "Gold Bird",    price = 400, textureKey = "FlappyBird" }, -- tint skin
-    { id = "bird_gui",  name = "Gui Bird",  price = 500, textureKey = "FlappyGui" },
+    { id = "bird_gold",    name = "Gold Bird",    price = 300, textureKey = "FlappyBird" }, -- tint skin
+    { id = "bird_sandy",  name = "Sandy Bird",  price = 450, textureKey = "FlappySandy" },
+    { id = "bird_ice",  name = "Ice Bird",  price = 450, textureKey = "FlappyIce" },
+    { id = "bird_hologram",  name = "Hologram Bird",  price = 550, textureKey = "FlappyHologram" },
+    { id = "bird_gui",  name = "Gui Bird",  price = 650, textureKey = "FlappyGui" },
+    { id = "bird_glitchy",  name = "Glitchy Bird",  price = 750, textureKey = "FlappyGlitch" },
+    { id = "bird_space",  name = "Space Bird",  price = 1000, textureKey = "FlappySpace" },
 }
 
 local BG_STYLES
@@ -163,45 +166,90 @@ end
 end
 
 BG_STYLES = {
-    bg_classic = { tint = {255, 255, 255}, textureKey = "Background" },
-    bg_night   = { tint = {150, 170, 255}, textureKey = "Background" },
-    bg_plains   ={ tint = {255, 255, 255}, textureKey = "Background_Mountains" },-- night tint
+    bg_classic = {
+        tint = {255, 255, 255},
+        textureKey = "Background",
+        cols = 1,
+        rows = 1,
+        tick = nil, -- seconds per frame (nil = no animation)
+    },
+
+    bg_night = {
+        tint = {150, 170, 255},
+        textureKey = "Background",
+        cols = 1,
+        rows = 1,
+        tick = nil,
+    },
+
+    bg_plains = {
+        tint = {255, 255, 255},
+        textureKey = "Background_Mountains",
+        cols = 1,
+        rows = 1,
+        tick = nil,
+    },
 }
 
-
 BIRD_STYLES = {
-    bird_classic = { tint = {255, 255, 255}, textureKey = "FlappyBird" },
-    bird_purple  = { tint = {255, 255, 255}, textureKey = "FlappyPurple" },
-    bird_gold    = { tint = {255, 220, 120}, textureKey = "FlappyBird" },
-    bird_ice     = { tint = {180, 220, 255}, textureKey = "FlappyIce" },
-    bird_blazing = { tint = {255, 180, 100}, textureKey = "FlappyBlaze" },
-    bird_gui     = { tint = {255, 255, 255}, textureKey = "FlappyGui" },
+    bird_classic = { tint = {255, 255, 255}, textureKey = "FlappyBird", cols = 1, rows = 1  },
+    bird_purple  = { tint = {255, 255, 255}, textureKey = "FlappyPurple", cols = 1, rows = 1  },
+    bird_gold    = { tint = {255, 220, 120}, textureKey = "FlappyBird", cols = 1, rows = 1  },
+    bird_sandy   = { tint = {255, 240, 200}, textureKey = "FlappySandy", cols = 6, rows = 1, tick = 0.14 },
+    bird_ice     = { tint = {180, 220, 255}, textureKey = "FlappyIce", cols = 6, rows = 1, tick = 0.3 },
+    bird_hologram = { tint = {180, 255, 255}, textureKey = "FlappyHologram", cols = 6, rows = 1, tick = 0.145},
+    bird_gui     = { tint = {255, 255, 255}, textureKey = "FlappyGui", cols = 6, rows = 1, tick = 0.12 },
+    bird_glitchy  = { tint = {255, 255, 255}, textureKey = "FlappyGlitch", cols = 6, rows = 1, tick = 0.19 },
+    bird_space = { tint = {200, 220, 255}, textureKey = "FlappySpace", cols = 8, rows = 1, tick = 0.135 },
 }
 
 
 local function ApplyBackgroundStyle()
-    local style = BG_STYLES[equippedBackground] or BG_STYLES["bg_classic"]
+    local style = BG_STYLES[equippedBackground] or BG_STYLES.bg_classic
 
-    if (backgroundSprite or backgroundSprite2) and Sprite and Sprite.set_texture and assets and assets.textures then
-        local key = (style and style.textureKey) or "Background"
-        local tex = assets.textures[key] or assets.textures["Background"]
-        if tex then
-            if backgroundSprite then pcall(Sprite.set_texture, backgroundSprite, tex) end
-            if backgroundSprite2 then pcall(Sprite.set_texture, backgroundSprite2, tex) end
+    local key  = (style and style.textureKey) or "Background"
+    local tex  = (assets and assets.textures and (assets.textures[key] or assets.textures.Background)) or nil
+
+    local t    = (style and style.tint) or {255, 255, 255}
+    local cols = (style and style.cols) or 1
+    local rows = (style and style.rows) or 1
+    local tick = style and style.tick -- optional
+
+    for _, spr in ipairs({ backgroundSprite, backgroundSprite2 }) do
+        if spr then
+            if tex and Sprite and Sprite.set_texture then
+                pcall(Sprite.set_texture, spr, tex)
+            end
+
+            if Sprite and Sprite.set_columns then
+                pcall(Sprite.set_columns, spr, cols)
+            end
+
+            if Sprite and Sprite.set_rows then
+                pcall(Sprite.set_rows, spr, rows)
+            end
+
+            if tick and Sprite and Sprite.set_tick_rate then
+                pcall(Sprite.set_tick_rate, spr, tick)
+            end
+
+            if Sprite and Sprite.set_current_frame then
+                pcall(Sprite.set_current_frame, spr, 0)
+            end
+
+            if Sprite and Sprite.set_color then
+                pcall(Sprite.set_color, spr, t[1], t[2], t[3])
+            end
         end
     end
-
-    local t = (style and style.tint) or {255, 255, 255}
-    if Sprite and Sprite.set_color then
-        if backgroundSprite then Sprite.set_color(backgroundSprite, t[1], t[2], t[3]) end
-        if backgroundSprite2 then Sprite.set_color(backgroundSprite2, t[1], t[2], t[3]) end
-    end
 end
+
 
 
 local function ApplyBirdStyle()
     local style = BIRD_STYLES[equippedBird] or BIRD_STYLES["bird_classic"]
 
+    -- Texture
     if playerSprite and Sprite and Sprite.set_texture and assets and assets.textures then
         local key = (style and style.textureKey) or "FlappyBird"
         local tex = assets.textures[key] or assets.textures["FlappyBird"]
@@ -210,9 +258,28 @@ local function ApplyBirdStyle()
         end
     end
 
+    -- Animation (spritesheet)
+    if playerSprite and Sprite then
+        local cols = (style and style.cols) or 1
+        local rows = (style and style.rows) or 1
+
+        if Sprite.set_columns then pcall(Sprite.set_columns, playerSprite, cols) end
+        if Sprite.set_rows then pcall(Sprite.set_rows, playerSprite, rows) end
+
+        if style and style.tick and Sprite.set_tick_rate then
+            pcall(Sprite.set_tick_rate, playerSprite, style.tick)
+        end
+
+        -- optional: restart anim on swap, only if your binding exists
+        if Sprite.set_current_frame then
+            pcall(Sprite.set_current_frame, playerSprite, 0)
+        end
+    end
+
+    -- Tint
     local t = (style and style.tint) or {255, 255, 255}
     if playerSprite and Sprite and Sprite.set_color then
-        Sprite.set_color(playerSprite, t[1], t[2], t[3])
+        pcall(Sprite.set_color, playerSprite, t[1], t[2], t[3])
     end
 end
 
@@ -229,8 +296,8 @@ local pipeSpacingX = 350 -- horizontal spacing between pipe sets (pixels)
 
 -- Pipe randomness (in pixels)
 local pipeHeight = 300       -- pipe sprite height in pixels
-local pipeStartGap = 330     -- starting gap size in pixels (easier)
-local pipeMinGap   = 210     -- minimum gap size in pixels (harder)
+local pipeStartGap = 355     -- starting gap size in pixels (easier)
+local pipeMinGap   = 240     -- minimum gap size in pixels (harder)
 local pipeShrinkGap = 3      -- gap shrinks by this many pixels per point
 local pipeGapMinAtCap = pipeStartGap - (20 * pipeShrinkGap)
 if pipeGapMinAtCap < pipeMinGap then pipeGapMinAtCap = pipeMinGap end
@@ -471,20 +538,37 @@ end
 ----------------------------------------------------------
 local function spawnCoins(coin, pipeSet, offsetX)
     local bottomPos = Fysics.get_pos(pipeSet.bottom)
-    local topPos = Fysics.get_pos(pipeSet.top)
+    local topPos    = Fysics.get_pos(pipeSet.top)
 
-    -- Calculate gap between pipes (topPos.y + pipeHeight is bottom of top pipe, bottomPos.y is top of bottom pipe)
-    local gapTop = Mafs.get_vec_y(topPos) + pipeHeight
+    local gapTop    = Mafs.get_vec_y(topPos) + pipeHeight
     local gapBottom = Mafs.get_vec_y(bottomPos)
 
-    -- Place coin randomly in the gap
-    local randY = math.random() * (gapBottom - gapTop - 100) + gapTop + 10
-    local yRandomOffset = (math.random() * 2 - 1) * 80
-    randY = randY + yRandomOffset
+    -- keep coins comfortably inside the gap
+    local margin = 24
+    local minY = gapTop + margin
+    local maxY = gapBottom - margin
 
-    local randX = Mafs.get_vec_x(bottomPos) + offsetX
+    -- fallback if gap gets tight
+    if maxY <= minY then
+        minY = gapTop + 6
+        maxY = gapBottom - 6
+    end
+    if maxY <= minY then
+        local mid = (gapTop + gapBottom) * 0.5
+        minY, maxY = mid, mid
+    end
+
+    -- bias towards center using triangular distribution
+    local t = (math.random() + math.random()) * 0.5   -- clustered around 0.5
+    -- optional extra “center bias” (tighter grouping):
+    t = 0.5 + (t - 0.5) * 0.65
+
+    local randY = minY + (maxY - minY) * t
+    local randX = Mafs.get_vec_x(bottomPos) + (offsetX or 0)
+
     Fysics.set_pos(coin, randX, randY)
 end
+
 
 ----------------------------------------------------------
 -- Reset Game
@@ -638,7 +722,7 @@ function ExampleScript:OnStart()
     ------------------------------------------------------
     player1 = Entity.create_entity()
 	
-    playerSprite = Entity.add_sprite_component(player1, assets.textures.FlappyBird, 64, 64, 10)
+    playerSprite = Entity.add_sprite_component(player1, assets.textures.FlappyBird, 80, 80, 10)
     Sprite.set_columns(playerSprite,1)
     ApplyBirdStyle()
 
@@ -781,10 +865,13 @@ local function LocalisedItemName(item)
     elseif string.sub(item.id, 1, 5) == "bird_" then
         if item.id == "bird_classic" then return T("birds.classic") end
         if item.id == "bird_purple" then return T("birds.purple") end
-        if item.id == "bird_ice" then return T("birds.ice") end
-        if item.id == "bird_blazing" then return T("birds.blazing") end
         if item.id == "bird_gold" then return T("birds.gold") end
+        if item.id == "bird_sandy" then return T("birds.sandy") end
+        if item.id == "bird_ice" then return T("birds.ice") end
+        if item.id == "bird_hologram" then return T("birds.hologram") end
         if item.id == "bird_gui" then return T("birds.gui") end
+        if item.id == "bird_glitchy" then return T("birds.glitchy") end
+        if item.id == "bird_space" then return T("birds.space") end
     end
     return item.name or item.id
 end
