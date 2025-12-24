@@ -97,19 +97,23 @@ namespace IonixEngine
     void MicrophoneManager::SetState(recordingState state)
     {
 
-        if (deviceID == 0)
-        {
-            currentState = ERROR;
-            return;
-        }
+      
 
        
         switch (state)
         {
             case RECORDING:
+                if (deviceID == 0)
+                {
+                    std::cout << "Cant record: no capture device\n";
+                    currentState = ERROR_STATE;
+                    return;
+                }
+
                 recordedSamples.clear();
                 SDL_PauseAudioDevice(deviceID, 0); //Start capturing audio 
                 break;
+
             case STOPPED:
                 SDL_PauseAudioDevice(deviceID, 1); //Stop capturing audio
                 break;

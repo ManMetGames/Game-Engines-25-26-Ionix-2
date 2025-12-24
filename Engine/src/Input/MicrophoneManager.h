@@ -21,7 +21,7 @@ namespace IonixEngine
             RECORDING,
             RECORDED,
             PLAYBACK,
-            ERROR
+            ERROR_STATE
         };
 
 
