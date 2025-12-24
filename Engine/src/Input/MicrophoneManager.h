@@ -1,6 +1,7 @@
 #pragma once
 #include <unordered_set>
 #include <SDL.h>
+#include <vector>
 
 namespace IonixEngine
 {
@@ -23,12 +24,24 @@ namespace IonixEngine
             ERROR
         };
 
-        void MicrophoneRecordingStates(recordingState state);
+
+
+        void SetState(recordingState state);
+        void Update(); 
+
+        const std::vector<float>& GetRecordedData() const { return recordedSamples;  }
 
     private:
         SDL_AudioSpec desired{};
         SDL_AudioSpec obtained{};
         SDL_AudioDeviceID deviceID;
+
+        recordingState currentState = STOPPED;
+
+        std::vector<float> recordedSamples;
+        std::vector<float> tempBuffer;
+
+
     };
 }
 
