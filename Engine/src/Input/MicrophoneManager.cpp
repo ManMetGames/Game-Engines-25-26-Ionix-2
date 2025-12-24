@@ -14,7 +14,7 @@ namespace IonixEngine
 	    //Clears the struct to start fresh
         SDL_zero(desired);
         desired.freq = 48000;			 /**< DSP frequency -- samples per second */
-        desired.format = AUDIO_F32;		/**< Audio data format */
+        desired.format = AUDIO_F32SYS;		/**< Audio data format */
         desired.channels = 1;		   /**< Number of channels: 1 mono, 2 stereo */
         desired.samples = 4096;		  /**< Audio buffer size in sample FRAMES (total samples divided by channel count) */
         desired.callback = nullptr;  /**< Callback that feeds the audio device (NULL to use SDL_QueueAudio()). */
