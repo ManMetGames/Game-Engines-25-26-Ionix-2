@@ -4,8 +4,6 @@
 namespace IonixEngine
 {
 
-   
-
 	bool MicrophoneManager::openDevice(const char* deviceName)
 	{
 	    //Initialize SDL audio subsystem
@@ -64,10 +62,10 @@ namespace IonixEngine
 
             SDL_QuitSubSystem(SDL_INIT_AUDIO); //quit SDL audio subsystem
             std::cout << "Microphone closed." << "\n";
-        }
     }
+    
 
-    void MicrophoneManager::Update() 
+    void MicrophoneManager::Update()
     {
         if (currentState != RECORDING || deviceID == 0)
             return; 
