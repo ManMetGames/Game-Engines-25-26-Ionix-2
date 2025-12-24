@@ -36,7 +36,7 @@ namespace IonixEngine
     private:
         SDL_AudioSpec desired{};
         SDL_AudioSpec obtained{};
-        SDL_AudioDeviceID deviceID;
+        SDL_AudioDeviceID deviceID = 0;
 
         SDL_AudioDeviceID playbackDeviceID = 0;
 
