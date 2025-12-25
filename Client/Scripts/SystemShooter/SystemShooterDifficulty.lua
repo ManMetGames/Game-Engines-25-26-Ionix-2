@@ -10,17 +10,20 @@ local DIFFICULTY_PRESETS = {
     easy = {
         name = "Easy",
         -- Enemy projectile settings
-        enemyProjectileSpeed = 260,           -- Base: 325 (−20%)
-        enemyProjectileDamage = 3,            -- Base: 4
+        enemyProjectileSpeed = 260,          
+        enemyProjectileDamage = 3,          
         
         -- Player survivability
-        playerInvulnerabilityTime = 0.75,     -- Base: 0.5 (+50%)
+        playerInvulnerabilityTime = 0.75,   
         
         -- Bonus XP percentage (applied to level XP based on time remaining)
-        bonusXpPercent = 0.625,               -- Up to 62.5% bonus XP
+        bonusXpPercent = 0.625,               
         
         -- Bounce enemy base speed (pixels per second)
-        bounceEnemyBaseSpeed = 300,           -- Base: 375 (−20%)
+        bounceEnemyBaseSpeed = 300,
+        
+        -- Number of times player can timeout
+        playerTimeoutCount = 5,
     },
     
     medium = {
@@ -36,7 +39,10 @@ local DIFFICULTY_PRESETS = {
         bonusXpPercent = 0.45,  
         
         -- Bounce enemy base speed (pixels per second)
-        bounceEnemyBaseSpeed = 375,           -- Baseline
+        bounceEnemyBaseSpeed = 375,
+        
+        -- Number of times player can timeout
+        playerTimeoutCount = 4,
     },
     
     hard = {
@@ -46,13 +52,16 @@ local DIFFICULTY_PRESETS = {
         enemyProjectileDamage = 6.5,   
         
         -- Player survivability
-        playerInvulnerabilityTime = 0.25,     -- Base: 0.5 (−30%)
+        playerInvulnerabilityTime = 0.25,    
         
         -- Bonus XP percentage (reduced for hard mode)
         bonusXpPercent = 0.35,     
         
         -- Bounce enemy base speed (pixels per second)
-        bounceEnemyBaseSpeed = 425,           
+        bounceEnemyBaseSpeed = 425,
+        
+        -- Number of times player can timeout
+        playerTimeoutCount = 3,
     },
 }
 
@@ -118,6 +127,10 @@ end
 
 function SystemShooterDifficulty.getBounceEnemyBaseSpeed()
     return DIFFICULTY_PRESETS[currentDifficulty].bounceEnemyBaseSpeed
+end
+
+function SystemShooterDifficulty.getPlayerTimeoutCount()
+    return DIFFICULTY_PRESETS[currentDifficulty].playerTimeoutCount
 end
 
 --=====================================================================

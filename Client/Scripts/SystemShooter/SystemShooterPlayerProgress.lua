@@ -157,7 +157,6 @@ local overhealthEnabled = false
 local overhealthZapTimer = 0  -- Timer for periodic lightning zaps
 
 local timeoutCount = 0
-local MAX_TIMEOUTS = 5
 
 --=====================================================================
 --  FIREPOWER SHOT PATTERNS (chronological by firepower value)
@@ -411,7 +410,8 @@ function SystemShooterPlayerProgress.getTimeoutCount()
 end
 
 function SystemShooterPlayerProgress.getMaxTimeouts()
-    return MAX_TIMEOUTS
+    local SystemShooterDifficulty = require("Scripts.SystemShooter.SystemShooterDifficulty")
+    return SystemShooterDifficulty.getPlayerTimeoutCount()
 end
 
 function SystemShooterPlayerProgress.incrementTimeoutCount()
