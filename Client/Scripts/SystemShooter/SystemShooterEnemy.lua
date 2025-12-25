@@ -4,6 +4,7 @@ local SystemShooterEnemy = {}
  --  [MODULE] Dependencies
  --=====================================================================
 local assets = require("Scripts.Assets")
+local SystemShooterDifficulty = require("Scripts.SystemShooter.SystemShooterDifficulty")
 
  --=====================================================================
  --  [TUNING] ENEMY STATS / TYPES
@@ -294,7 +295,8 @@ end
         end
     end
 
-    local currentSpeed = enemy.baseSpeed * enemy.speedMultiplier
+    local difficultyBaseSpeed = SystemShooterDifficulty.getBounceEnemyBaseSpeed()
+    local currentSpeed = difficultyBaseSpeed * enemy.speedMultiplier
     enemy.x = enemy.x + enemy.dirX * currentSpeed * dt
     enemy.y = enemy.y + enemy.dirY * currentSpeed * dt
 

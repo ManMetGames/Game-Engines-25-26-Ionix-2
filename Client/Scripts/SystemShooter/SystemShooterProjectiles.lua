@@ -4,6 +4,7 @@ local SystemShooterProjectiles = {}
 --  [MODULE] Imports / Dependencies
 --=====================================================================
 local assets = require("Scripts.Assets")
+local SystemShooterDifficulty = require("Scripts.SystemShooter.SystemShooterDifficulty")
 
 --=====================================================================
 --  [CONFIG] Player Projectile Settings
@@ -22,16 +23,28 @@ SystemShooterProjectiles.PlayerConfig = {
 
 --=====================================================================
 --  [CONFIG] Enemy Projectile Settings
+--  Note: speed and damage are now driven by difficulty settings.
+--  Use getEnemySpeed() and getEnemyDamage() for the actual values.
 --=====================================================================
 SystemShooterProjectiles.EnemyConfig = {
     size = 24,
-    speed = 325,            -- pixels per second
+    speed = 325,            -- Base value (overridden by difficulty)
     lifetimeSeconds = 6,    -- separate lifetime for enemy projectiles
     texture = nil,          -- set on init
     color = {128, 0, 255},  -- purple
     layer = 4,              -- render layer
-    damage = 4,             -- damage dealt to player on hit
+    damage = 4,             -- Base value (overridden by difficulty)
 }
+
+-- Get effective enemy projectile speed (from difficulty)
+local function getEnemySpeed()
+    return SystemShooterDifficulty.getEnemyProjectileSpeed()
+end
+
+-- Get effective enemy projectile damage (from difficulty)
+local function getEnemyDamage()
+    return SystemShooterDifficulty.getEnemyProjectileDamage()
+end
 
 --=====================================================================
 --  [STATE] Active Projectiles & Pools
@@ -431,6 +444,7 @@ end
 local function spawnEnemySingleProjectile(enemy, dirX, dirY)
     local projData
     local cfg = SystemShooterProjectiles.EnemyConfig
+    local speed = getEnemySpeed()
     
     if #enemyProjectilePool > 0 then
         projData = table.remove(enemyProjectilePool)
@@ -455,8 +469,8 @@ local function spawnEnemySingleProjectile(enemy, dirX, dirY)
     
     projData.x = spawnX
     projData.y = spawnY
-    projData.vx = dirX * cfg.speed
-    projData.vy = dirY * cfg.speed
+    projData.vx = dirX * speed
+    projData.vy = dirY * speed
     projData.age = 0
     projData.sourceEnemy = enemy
     
@@ -551,6 +565,7 @@ function SystemShooterProjectiles.updateEnemyProjectiles(dt, damageCooldown, run
     end
     
     local cfg = SystemShooterProjectiles.EnemyConfig
+    local damage = getEnemyDamage()
     local playerX, playerY, playerSize = callbacks.getPlayerPos()
     
     for i = #enemyProjectiles, 1, -1 do
@@ -575,9 +590,9 @@ function SystemShooterProjectiles.updateEnemyProjectiles(dt, damageCooldown, run
         if distSq < hitRadius * hitRadius and damageCooldown <= 0 and not isInvulnerable then
             -- Hit player
             if callbacks.onPlayerHit then
-                callbacks.onPlayerHit(cfg.damage)
+                callbacks.onPlayerHit(damage)
             end
-            if runStats then runStats.damageTaken = (runStats.damageTaken or 0) + cfg.damage end
+            if runStats then runStats.damageTaken = (runStats.damageTaken or 0) + damage end
             Entity.set_global_pos(proj.entity, -1000, -1000)
             table.insert(enemyProjectilePool, table.remove(enemyProjectiles, i))
         else

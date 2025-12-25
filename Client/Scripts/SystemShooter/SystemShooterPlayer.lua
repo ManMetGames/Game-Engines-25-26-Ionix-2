@@ -2,6 +2,7 @@ local SystemShooterPlayer = {}
 
 local SystemShooterPlayerProgress = require("Scripts.SystemShooter.SystemShooterPlayerProgress")
 local SystemShooterProjectiles = require("Scripts.SystemShooter.SystemShooterProjectiles")
+local SystemShooterDifficulty = require("Scripts.SystemShooter.SystemShooterDifficulty")
 
  --=====================================================================
  --  [STATE] Player (Triangle)
@@ -139,7 +140,7 @@ function SystemShooterPlayer.setDamageCooldown(cd)
 end
 
 function SystemShooterPlayer.getDamageCooldownDuration()
-    return damageCooldownDuration
+    return SystemShooterDifficulty.getPlayerInvulnerabilityTime()
 end
 
 function SystemShooterPlayer.enableAntivirus()
