@@ -242,6 +242,11 @@ if not isUpgradeMenuOpen then return end
         elseif currentRank >= 1 then
             descText = T("upgradedesc.no_witnesses_rank2")
         end
+      elseif opt.type == "antivirus" and opt.cfg then
+        -- Dynamic description using config values
+        local active = opt.cfg.activeDuration or 2
+        local cycle = opt.cfg.cycleDuration or 10
+        descText = string.format(T("upgradedesc.antivirus"), active, cycle)
       end
 
       local pad = 20

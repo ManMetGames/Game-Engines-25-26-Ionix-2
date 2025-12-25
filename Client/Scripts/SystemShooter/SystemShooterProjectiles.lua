@@ -24,7 +24,6 @@ SystemShooterProjectiles.PlayerConfig = {
 --=====================================================================
 --  [CONFIG] Enemy Projectile Settings
 --  Note: speed and damage are now driven by difficulty settings.
---  Use getEnemySpeed() and getEnemyDamage() for the actual values.
 --=====================================================================
 SystemShooterProjectiles.EnemyConfig = {
     size = 24,

@@ -111,6 +111,8 @@ local UPGRADE_CONFIG = {
         defaultValue = 0,
         customApply  = true,
         weight       = 5,
+        cycleDuration = 8,  -- seconds (total cycle time)
+        activeDuration = 2.5,  -- seconds (active immunity time)
     },
     overhealth = {
         statKey      = "overhealthUpgrade",
@@ -318,9 +320,9 @@ function SystemShooterPlayerProgress.applyUpgrade(upgradeType)
             local count = playerStats.antivirusUpgrade or 0
             if count < cfg.maxValue then
                 playerStats.antivirusUpgrade = count + 1
-                -- Enable antivirus system in player module
+                -- Enable antivirus system in player module with config values
                 local SystemShooterPlayer = require("Scripts.SystemShooter.SystemShooterPlayer")
-                SystemShooterPlayer.enableAntivirus()
+                SystemShooterPlayer.enableAntivirus(cfg.cycleDuration, cfg.activeDuration)
             end
         elseif upgradeType == "overhealth" then
             local count = playerStats.overhealthUpgrade or 0
