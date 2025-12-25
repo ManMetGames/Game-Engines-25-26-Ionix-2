@@ -287,7 +287,6 @@ local function getAvailableTemplates(level)
 end
 
 local MAX_ENEMIES_CONFIG = {
-    { stage = 42, max = 8 },
     { stage = 35, max = 7 },
     { stage = 30, max = 6 },
     { stage = 22, max = 5 },

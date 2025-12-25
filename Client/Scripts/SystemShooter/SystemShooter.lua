@@ -886,11 +886,17 @@ function SystemShooter:OnStart()
                     -- Calculate bonus XP based on remaining time
                     local cfg = SystemShooterLevels.getLevelConfig(currentLevel)
                     local totalTime = cfg and cfg.timeLimitSeconds or 0
+                    local timeBonusCfg = SystemShooterPlayerProgress.getTimeBonusConfig()
                     
-                    -- Only award bonus XP if level hasn't been rewound (mutated)
-                    if not mutatedLevels[currentLevel] and totalTime > 0 and levelTimerSeconds > 0 then
+                    -- Award bonus XP based on configuration
+                    local shouldAwardBonus = totalTime > 0 and levelTimerSeconds > 0
+                    if timeBonusCfg.requireNonMutated then
+                        shouldAwardBonus = shouldAwardBonus and not mutatedLevels[currentLevel]
+                    end
+                    
+                    if shouldAwardBonus then
                         local bonusRatio = levelTimerSeconds / totalTime
-                        local bonusXp = math.floor(levelXpGained * 0.35 * bonusRatio)
+                        local bonusXp = math.floor(levelXpGained * timeBonusCfg.bonusMultiplier * bonusRatio)
                         if bonusXp > 0 then
                             SystemShooterPlayerProgress.addXp(bonusXp)
                             notificationMessage = "Bonus XP: " .. bonusXp .. " (Time Left: " .. string.format("%.1f", levelTimerSeconds) .. "s)"

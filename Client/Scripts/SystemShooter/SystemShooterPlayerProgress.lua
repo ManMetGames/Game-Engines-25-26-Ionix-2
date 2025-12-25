@@ -17,6 +17,18 @@ end
 --  Central definition for all upgrades: caps, labels, descriptions,
 --  minimum level requirements, and apply behavior.
 --=====================================================================
+
+--=====================================================================
+--  TIME BONUS XP CONFIGURATION
+--=====================================================================
+local TIME_BONUS_CONFIG = {
+    -- Multiplier applied to level XP based on remaining time percentage
+    bonusMultiplier = 0.50,
+    
+    -- If true, only award bonus XP on non-mutated levels
+    requireNonMutated = true,
+}
+
 local UPGRADE_CONFIG = {
     firepower = {
         statKey      = "firepower",
@@ -326,6 +338,10 @@ end
 
 function SystemShooterPlayerProgress.getUpgradeConfig()
     return UPGRADE_CONFIG
+end
+
+function SystemShooterPlayerProgress.getTimeBonusConfig()
+    return TIME_BONUS_CONFIG
 end
 
 function SystemShooterPlayerProgress.addXp(amount)
