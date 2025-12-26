@@ -1289,7 +1289,7 @@ function ExampleScript:OnUpdate()
 -- Cache window size once per frame
 local windowW = Window.get_width()
 local windowH = Window.get_height()
-
+Window.set_size(960, 600)
 if inMainMenu then
     -- Scroll the background horizontally on main menu
     if Background ~= nil then
