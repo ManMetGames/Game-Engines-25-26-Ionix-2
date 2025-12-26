@@ -2,6 +2,7 @@ local SystemShooterPlayer = {}
 
 local SystemShooterPlayerProgress = require("Scripts.SystemShooter.SystemShooterPlayerProgress")
 local SystemShooterProjectiles = require("Scripts.SystemShooter.SystemShooterProjectiles")
+local SystemShooterDifficulty = require("Scripts.SystemShooter.SystemShooterDifficulty")
 
  --=====================================================================
  --  [STATE] Player (Triangle)
@@ -54,8 +55,8 @@ local skipNextMouseDelta = false
 local antivirusEnabled = false
 local antivirusActive = false
 local antivirusCycleTimer = 0
-local antivirusCycleDuration = 10  -- seconds
-local antivirusActiveDuration = 2  -- seconds
+local antivirusCycleDuration 
+local antivirusActiveDuration 
 
 -- Callbacks (set via init)
 local callbacks = {
@@ -139,13 +140,21 @@ function SystemShooterPlayer.setDamageCooldown(cd)
 end
 
 function SystemShooterPlayer.getDamageCooldownDuration()
-    return damageCooldownDuration
+    return SystemShooterDifficulty.getPlayerInvulnerabilityTime()
 end
 
-function SystemShooterPlayer.enableAntivirus()
+function SystemShooterPlayer.enableAntivirus(cycleDuration, activeDuration)
     antivirusEnabled = true
     antivirusCycleTimer = 0
     antivirusActive = false
+    
+    -- Use provided config values or keep defaults
+    if cycleDuration then
+        antivirusCycleDuration = cycleDuration
+    end
+    if activeDuration then
+        antivirusActiveDuration = activeDuration
+    end
 end
 
 function SystemShooterPlayer.disableAntivirus()

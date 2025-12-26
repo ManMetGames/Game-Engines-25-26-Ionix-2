@@ -17,6 +17,18 @@ end
 --  Central definition for all upgrades: caps, labels, descriptions,
 --  minimum level requirements, and apply behavior.
 --=====================================================================
+
+--=====================================================================
+--  TIME BONUS XP CONFIGURATION
+--=====================================================================
+local TIME_BONUS_CONFIG = {
+    -- Multiplier applied to level XP based on remaining time percentage
+    bonusMultiplier = 0.50,
+    
+    -- If true, only award bonus XP on non-mutated levels
+    requireNonMutated = true,
+}
+
 local UPGRADE_CONFIG = {
     firepower = {
         statKey      = "firepower",
@@ -99,6 +111,8 @@ local UPGRADE_CONFIG = {
         defaultValue = 0,
         customApply  = true,
         weight       = 5,
+        cycleDuration = 8,  -- seconds (total cycle time)
+        activeDuration = 2.5,  -- seconds (active immunity time)
     },
     overhealth = {
         statKey      = "overhealthUpgrade",
@@ -145,7 +159,6 @@ local overhealthEnabled = false
 local overhealthZapTimer = 0  -- Timer for periodic lightning zaps
 
 local timeoutCount = 0
-local MAX_TIMEOUTS = 5
 
 --=====================================================================
 --  FIREPOWER SHOT PATTERNS (chronological by firepower value)
@@ -307,9 +320,9 @@ function SystemShooterPlayerProgress.applyUpgrade(upgradeType)
             local count = playerStats.antivirusUpgrade or 0
             if count < cfg.maxValue then
                 playerStats.antivirusUpgrade = count + 1
-                -- Enable antivirus system in player module
+                -- Enable antivirus system in player module with config values
                 local SystemShooterPlayer = require("Scripts.SystemShooter.SystemShooterPlayer")
-                SystemShooterPlayer.enableAntivirus()
+                SystemShooterPlayer.enableAntivirus(cfg.cycleDuration, cfg.activeDuration)
             end
         elseif upgradeType == "overhealth" then
             local count = playerStats.overhealthUpgrade or 0
@@ -326,6 +339,10 @@ end
 
 function SystemShooterPlayerProgress.getUpgradeConfig()
     return UPGRADE_CONFIG
+end
+
+function SystemShooterPlayerProgress.getTimeBonusConfig()
+    return TIME_BONUS_CONFIG
 end
 
 function SystemShooterPlayerProgress.addXp(amount)
@@ -395,7 +412,8 @@ function SystemShooterPlayerProgress.getTimeoutCount()
 end
 
 function SystemShooterPlayerProgress.getMaxTimeouts()
-    return MAX_TIMEOUTS
+    local SystemShooterDifficulty = require("Scripts.SystemShooter.SystemShooterDifficulty")
+    return SystemShooterDifficulty.getPlayerTimeoutCount()
 end
 
 function SystemShooterPlayerProgress.incrementTimeoutCount()

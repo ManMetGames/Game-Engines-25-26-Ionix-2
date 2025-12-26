@@ -15,6 +15,7 @@ local SystemShooterProjectiles = require("Scripts.SystemShooter.SystemShooterPro
 local SystemShooterPlayer = require("Scripts.SystemShooter.SystemShooterPlayer")
 local Localisation = require("Scripts.SystemShooter.Localisation")
 local SystemShooterAudio = require("Scripts.SystemShooter.SystemShooterAudio")
+local SystemShooterDifficulty = require("Scripts.SystemShooter.SystemShooterDifficulty")
 
 
  --=====================================================================
@@ -886,11 +887,18 @@ function SystemShooter:OnStart()
                     -- Calculate bonus XP based on remaining time
                     local cfg = SystemShooterLevels.getLevelConfig(currentLevel)
                     local totalTime = cfg and cfg.timeLimitSeconds or 0
+                    local timeBonusCfg = SystemShooterPlayerProgress.getTimeBonusConfig()
+                    local difficultyXpPercent = SystemShooterDifficulty.getBonusXpPercent()
                     
-                    -- Only award bonus XP if level hasn't been rewound (mutated)
-                    if not mutatedLevels[currentLevel] and totalTime > 0 and levelTimerSeconds > 0 then
+                    -- Award bonus XP based on configuration
+                    local shouldAwardBonus = totalTime > 0 and levelTimerSeconds > 0
+                    if timeBonusCfg.requireNonMutated then
+                        shouldAwardBonus = shouldAwardBonus and not mutatedLevels[currentLevel]
+                    end
+                    
+                    if shouldAwardBonus then
                         local bonusRatio = levelTimerSeconds / totalTime
-                        local bonusXp = math.floor(levelXpGained * 0.35 * bonusRatio)
+                        local bonusXp = math.floor(levelXpGained * difficultyXpPercent * bonusRatio)
                         if bonusXp > 0 then
                             SystemShooterPlayerProgress.addXp(bonusXp)
                             notificationMessage = "Bonus XP: " .. bonusXp .. " (Time Left: " .. string.format("%.1f", levelTimerSeconds) .. "s)"
@@ -1078,16 +1086,19 @@ local function DrawDifficultyPrompt(screenW, screenH)
 
     if not diffChosen then
         if UI.was_button_pressed("ts_diff_easy") then
+            SystemShooterDifficulty.setDifficulty("easy")
             diffChosen = true
             menuStarting = true
             menuStartTimer = menuStartDelay
 
         elseif UI.was_button_pressed("ts_diff_med") then
+            SystemShooterDifficulty.setDifficulty("medium")
             diffChosen = true
             menuStarting = true
             menuStartTimer = menuStartDelay
 
         elseif UI.was_button_pressed("ts_diff_hard") then
+            SystemShooterDifficulty.setDifficulty("hard")
             diffChosen = true
             menuStarting = true
             menuStartTimer = menuStartDelay
