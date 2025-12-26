@@ -96,6 +96,12 @@ function ExampleScript:OnStart()
 	Fysics.add_edge_collider(platform1, 20, 30, 50, 30, false)
 end
 
+
+
+   
+
+
+
 ----------------------------------------------------------
 -- OnUpdate
 ----------------------------------------------------------
@@ -135,7 +141,8 @@ function ExampleScript:OnUpdate()
             hb.dirX = dirX
             hb.dirY = dirY
         end
-    Hitbox.update(player1, player2)
+      Hitbox.update(player1, player2)
+   
     
     
     if Input.get_key_down(Keys.ionix_m) then
