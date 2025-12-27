@@ -85,9 +85,9 @@ local UPGRADE_CONFIG = {
         label        = "upgradetype.maxhp",
         desc         = "upgradedesc.maxhp",
         minLevel     = 6,
-        maxValue     = nil,
+        maxValue     = 2,
         defaultValue = 100,
-        increment    = 30,
+        increment    = 50,
         weight       = 4,
     },
     healing_orb_spawn = {

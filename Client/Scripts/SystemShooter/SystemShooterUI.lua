@@ -222,10 +222,27 @@ if not isUpgradeMenuOpen then return end
       local function getDisplayLabel(option)
         if option.cfg then
           local base = T(option.cfg.label) or option.cfg.label or ""
-          if option.cfg.maxValue then
-            local currentVal = option.currentValue or 0
-            return string.format("%s %d/%d", base, currentVal, option.cfg.maxValue)
+          local cfg = option.cfg
+          local currentVal = option.currentValue or cfg.defaultValue or 0
+
+          -- For upgrades that increase a numeric stat by an increment (eg. max health),
+          -- display the number of times the upgrade has been applied rather than the raw stat.
+          if cfg.increment then
+            local default = cfg.defaultValue or 0
+            local inc = cfg.increment or 1
+            local applied = math.floor((currentVal - default) / inc)
+            if applied < 0 then applied = 0 end
+            if cfg.maxValue then
+              return string.format("%s %d/%d", base, applied, cfg.maxValue)
+            else
+              return string.format("%s %d", base, applied)
+            end
           end
+
+          if cfg.maxValue then
+            return string.format("%s %d/%d", base, currentVal, cfg.maxValue)
+          end
+
           return base
         end
         return T(option.label) or option.label
