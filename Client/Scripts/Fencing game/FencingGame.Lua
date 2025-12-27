@@ -16,15 +16,25 @@ local playerIdleSprite
 local playerWalkSprite
 local playerAttackSprite
 
+local leftMarker
+local rightMarker
+
 local playerState = "idle"
 local attackTimer = 0
+local playerHitRegistered = false
+
+local aiAttackTimer = 0
+local aiAttackCooldownTimer = 0
+local aiHitRegistered = false
 
 local playerStartX = 200
 local playerStartY = 400
 local aiStartX = 700
 local aiStartY = 400
 
+local aiSpeed = 70.0
 local playerSpeed = 70.0
+local attackRange = 150.0
 
 local currentRound = 1
 local maxRounds = 5
@@ -37,6 +47,10 @@ local roundText = "Round: 1 / 5"
 local scoreText = "Player 0  -  0 AI"
 local resultText = ""
 
+local maxHP = 1
+local playerHP = maxHP
+local aiHP = maxHP
+
 local function resetFighters()
     if player then
         Entity.set_global_pos(player, playerStartX, playerStartY)
@@ -45,8 +59,18 @@ local function resetFighters()
 
     if ai then
         Entity.set_global_pos(ai, aiStartX, aiStartY)
-        Fysics.set_linear_velocity(ai, 0, 0)
     end
+
+    playerState = "idle"
+    attackTimer = 0
+    playerHitRegistered = false
+
+    aiAttackTimer = 0
+    aiAttackCooldownTimer = 0
+    aiHitRegistered = false
+
+    playerHP = maxHP
+    aiHP = maxHP
 end
 
 local function updateTexts()
@@ -126,14 +150,28 @@ function FencingGame:OnStart()
     Sprite.set_width(playerAttackSprite, 0)
     Sprite.set_height(playerAttackSprite, 0)
 
+    -- Debug markers to visualise attack range around the player
+    leftMarker = Entity.create_entity()
+    rightMarker = Entity.create_entity()
+
+    Entity.set_global_pos(leftMarker, playerStartX - attackRange, playerStartY)
+    Entity.set_global_pos(rightMarker, playerStartX + attackRange, playerStartY)
+
+    local leftSprite = Entity.add_sprite_component(leftMarker, assets.textures.Player, 4, 64, 5)
+    Sprite.set_columns(leftSprite, 1)
+    Sprite.set_width(leftSprite, 4)
+    Sprite.set_height(leftSprite, 64)
+
+    local rightSprite = Entity.add_sprite_component(rightMarker, assets.textures.Player, 4, 64, 5)
+    Sprite.set_columns(rightSprite, 1)
+    Sprite.set_width(rightSprite, 4)
+    Sprite.set_height(rightSprite, 64)
+
     ai = Entity.create_entity()
     Entity.set_global_pos(ai, aiStartX, aiStartY)
 
     local aiSprite = Entity.add_sprite_component(ai, assets.textures.FlappyBird, 64, 64, 10)
     Sprite.set_columns(aiSprite, 1)
-
-    Entity.add_fysics_component(ai, enums.bodytype.dynamicBody, true)
-    Fysics.add_sprite_collider(ai, false, 1)
 
     ground = Entity.create_entity()
     Entity.set_global_pos(ground, 960 / 2, 640 - 5)
@@ -148,8 +186,17 @@ function FencingGame:OnUpdate()
         return
     end
 
+    if matchOver or not roundActive then
+        UI.Add_label(20, 20, 400, 40, roundText)
+        UI.Add_label(20, 60, 400, 40, scoreText)
+
+        if resultText ~= "" then
+            UI.Add_label(200, 20, 800, 60, resultText)
+        end
+        return
+    end
+
     local vx = 0
-    local vy = 0
 
     if Input.get_key_held(Keys.ionix_d) then
         vx = playerSpeed
@@ -157,11 +204,17 @@ function FencingGame:OnUpdate()
         vx = -playerSpeed
     end
 
+    -- Preserve vertical velocity so gravity and jumping (if added later) still work
+    local vel = Fysics.get_linear_velocity(player)
+    local vy = Mafs.get_vec_y(vel)
+
     Fysics.set_linear_velocity(player, vx, vy)
 
+    -- Lock player to a fixed Y so they don't stick to ceiling or fall
     local pos = Fysics.get_pos(player)
     local px = Mafs.get_vec_x(pos)
-    local py = Mafs.get_vec_y(pos)
+    local py = playerStartY
+    Fysics.set_pos(player, px, py)
 
     if playerIdle then
         Entity.set_global_pos(playerIdle, px, py)
@@ -171,6 +224,68 @@ function FencingGame:OnUpdate()
     end
     if playerAttack then
         Entity.set_global_pos(playerAttack, px, py)
+    end
+
+    -- Get AI position (kinematic entity) and lock to fixed Y
+    local aiPos = Entity.get_global_pos(ai)
+    local aix = Mafs.get_vec_x(aiPos)
+    local aiy = aiStartY
+
+    -- AI behaviour (kinematic horizontal movement)
+    -- If AI is to the right of the player, move left; if left, move right
+    local dx = aix - px
+    local absDx = Mafs.abs(dx)
+
+    local aiMoveDir = 0
+
+    -- Spacing controller:
+    -- - If too far: step toward player
+    -- - If too close: step away from player (prevents player slipping behind)
+    -- - Otherwise: hold position (attack / idle)
+    local chaseStart = attackRange
+    local retreatStart = attackRange * 0.55
+
+    if absDx > chaseStart then
+        if dx > 0 then
+            aiMoveDir = -1   -- AI is right of player: move left toward player
+        else
+            aiMoveDir = 1    -- AI is left of player: move right toward player
+        end
+    elseif absDx < retreatStart then
+        if dx > 0 then
+            aiMoveDir = 1    -- AI is right of player: move further right (retreat)
+        else
+            aiMoveDir = -1   -- AI is left of player: move further left (retreat)
+        end
+    else
+        aiMoveDir = 0
+    end
+
+    local dt = Mafs.delta_time()
+
+    if aiAttackCooldownTimer > 0 then
+        aiAttackCooldownTimer = aiAttackCooldownTimer - dt
+        if aiAttackCooldownTimer < 0 then
+            aiAttackCooldownTimer = 0
+        end
+    end
+
+    if aiMoveDir ~= 0 then
+        local newAix = aix + aiMoveDir * aiSpeed * dt
+
+        -- Keep AI roughly inside the window horizontally
+        if newAix < 0 then newAix = 0 end
+        if newAix > 960 then newAix = 960 end
+
+        Entity.set_global_pos(ai, newAix, aiy)
+    end
+
+    -- Move debug markers to show current attack range around the player
+    if leftMarker then
+        Entity.set_global_pos(leftMarker, px - attackRange, py)
+    end
+    if rightMarker then
+        Entity.set_global_pos(rightMarker, px + attackRange, py)
     end
 
     local isMoving = vx ~= 0
@@ -188,11 +303,51 @@ function FencingGame:OnUpdate()
         if Input.get_mouse_button_down(1) then
             playerState = "attack"
             attackTimer = 0.4
+            playerHitRegistered = false
         else
             if isMoving then
                 playerState = "walk"
             else
                 playerState = "idle"
+            end
+        end
+    end
+
+    -- Player hit check (simple distance-based hitbox during a small attack window)
+    if playerState == "attack" and attackTimer > 0 and not playerHitRegistered then
+        local inHitWindow = attackTimer < 0.28 and attackTimer > 0.12
+        if inHitWindow and absDx <= attackRange then
+            aiHP = aiHP - 1
+            playerHitRegistered = true
+            if aiHP <= 0 then
+                endRound("player")
+                return
+            end
+        end
+    end
+
+    -- AI attack logic + hit check
+    if aiAttackTimer > 0 then
+        aiAttackTimer = aiAttackTimer - dt
+        if aiAttackTimer <= 0 then
+            aiAttackTimer = 0
+        end
+    else
+        if aiAttackCooldownTimer <= 0 and absDx <= attackRange then
+            aiAttackTimer = 0.4
+            aiAttackCooldownTimer = 0.8
+            aiHitRegistered = false
+        end
+    end
+
+    if aiAttackTimer > 0 and not aiHitRegistered then
+        local inHitWindow = aiAttackTimer < 0.28 and aiAttackTimer > 0.12
+        if inHitWindow and absDx <= attackRange then
+            playerHP = playerHP - 1
+            aiHitRegistered = true
+            if playerHP <= 0 then
+                endRound("ai")
+                return
             end
         end
     end
