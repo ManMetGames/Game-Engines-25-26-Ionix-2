@@ -3,6 +3,7 @@ local SystemShooterPlayer = {}
 local SystemShooterPlayerProgress = require("Scripts.SystemShooter.SystemShooterPlayerProgress")
 local SystemShooterProjectiles = require("Scripts.SystemShooter.SystemShooterProjectiles")
 local SystemShooterDifficulty = require("Scripts.SystemShooter.SystemShooterDifficulty")
+local SystemShooterAudio = require("Scripts.SystemShooter.SystemShooterAudio")
 
  --=====================================================================
  --  [STATE] Player (Triangle)
@@ -327,11 +328,15 @@ function SystemShooterPlayer.updateFlash(dt)
         if antivirusActive and not wasActive then
             -- Just activated - set yellow sprite
             Sprite.set_color(playerSprite, 255, 255, 0)
+            -- Play power up sound
+            SystemShooterAudio.playPowerUpRandom()
             print(string.format("[Antivirus] ACTIVATED at cycle=%.3fs | beatTimer=%.3fs | secondsPerBeat=%.3fs",
                 antivirusCycleTimer, beatTimer, secondsPerBeat))
         elseif not antivirusActive and wasActive then
             -- Just deactivated - set white sprite
             Sprite.set_color(playerSprite, 255, 255, 255)
+            -- Play power down sound
+            SystemShooterAudio.playPowerDownRandom()
             print(string.format("[Antivirus] DEACTIVATED at cycle=%.3fs | beatTimer=%.3fs | secondsPerBeat=%.3fs",
                 antivirusCycleTimer, beatTimer, secondsPerBeat))
         end

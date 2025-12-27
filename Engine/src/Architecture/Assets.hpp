@@ -447,6 +447,10 @@ struct Sounds {
     uint32_t lightning1 = 3999073294u;
     uint32_t lightning2 = 2542704150u;
     uint32_t playerDamage = 738334250u;
+    uint32_t powerDown1 = 1u;
+    uint32_t powerDown2 = 2u;
+    uint32_t powerUp1 = 3u;
+    uint32_t powerUp2 = 4u;
     uint32_t technoSong = 1268943446u;
     uint32_t test = 1642075152u;
     uint32_t test_1 = 1449390318u;
@@ -465,6 +469,10 @@ struct Sounds {
         map["lightning1"] = "./Assets/Audio/lightning1.wav";
         map["lightning2"] = "./Assets/Audio/lightning2.wav";
         map["playerDamage"] = "./Assets/Audio/playerDamage.mp3";
+        map["powerDown1"] = "./Assets/Audio/powerDown1.mp3";
+        map["powerDown2"] = "./Assets/Audio/powerDown2.mp3";
+        map["powerUp1"] = "./Assets/Audio/powerUp1.mp3";
+        map["powerUp2"] = "./Assets/Audio/powerUp2.mp3";
         map["technoSong"] = "./Assets/technoSong.mp3";
         map["test"] = "./Assets/test.mp3";
         map["test_1"] = "./Assets/test.wav";
