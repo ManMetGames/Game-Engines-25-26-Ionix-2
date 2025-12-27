@@ -85,6 +85,7 @@ local musicMuted = false
 local bpm = 133 
 local secondsPerBeat = 60.0 / bpm
 local beatTimer = 0
+local beatIndex = 0  -- Absolute beat counter since beatBop started
 local bopDurationSeconds = 8 / 60.0
 local bopTimer = 0
 local bopScale = 0.25
@@ -2613,6 +2614,7 @@ if levelCfg.timeLimitSeconds ~= nil and levelCfg.timeLimitSeconds > 0 then
                         local beatCount = math.floor(timeSinceDrop / secondsPerBeat)
                         -- Set beatTimer to the remainder (current position within the beat)
                         beatTimer = timeSinceDrop - (beatCount * secondsPerBeat)
+                        beatIndex = beatCount
                     end
                 end
             end
@@ -2698,6 +2700,22 @@ function UpdateFlash()
         end
     end
 
+    -- Compute authoritative beat/time info from music if possible so player stays synced
+    local sendBeatTimer = beatTimer
+    local sendBeatIndex = beatIndex
+    local sendTimeSinceDrop = nil
+    if musicEntity and MusicComponent.is_playing(musicEntity) then
+        local musicPos = MusicComponent.get_position(musicEntity)
+        if musicPos >= beatStartDelaySeconds then
+            local timeSinceDrop = musicPos - beatStartDelaySeconds
+            local bc = math.floor(timeSinceDrop / secondsPerBeat)
+            sendBeatTimer = timeSinceDrop - (bc * secondsPerBeat)
+            sendBeatIndex = bc
+            sendTimeSinceDrop = timeSinceDrop
+        end
+    end
+    -- Pass beat timing info and rewind state to player for beat-synced antivirus
+    SystemShooterPlayer.setBeatInfo(sendBeatTimer, secondsPerBeat, sendBeatIndex, SystemShooterRewind.isActive(), sendTimeSinceDrop)
     SystemShooterPlayer.updateFlash(dt)
 end
 
@@ -2949,6 +2967,7 @@ function UpdateBeatBop()
         beatTimer = beatTimer + dt
         if beatTimer >= secondsPerBeat then
             beatTimer = beatTimer - secondsPerBeat
+            beatIndex = beatIndex + 1
             bopTimer = bopDurationSeconds
         end
     end

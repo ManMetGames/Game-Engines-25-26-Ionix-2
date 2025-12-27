@@ -54,6 +54,7 @@ struct Textures {
     uint32_t FlappyPipe = 1290161702u;
     uint32_t FlappyPipe2 = 2484853856u;
     uint32_t FlappyPurple = 4063090336u;
+    uint32_t FlappyRedBlaze = 3497092200u;
     uint32_t FlappySlime = 1323397008u;
     uint32_t Ghast_Tear = 3650266058u;
     uint32_t Gray = 220346788u;
@@ -268,6 +269,7 @@ struct Textures {
         map["FlappyPipe"] = "./Assets/FlappyPipe.png";
         map["FlappyPipe2"] = "./Assets/FlappyPipe2.png";
         map["FlappyPurple"] = "./Assets/FlappyPurple.png";
+        map["FlappyRedBlaze"] = "./Assets/FlappyRedBlaze.png";
         map["FlappySlime"] = "./Assets/FlappySlime.png";
         map["Ghast_Tear"] = "./Assets/Ghast_Tear.png";
         map["Gray"] = "./Assets/Jimmy Demo/Background/Gray.png";
@@ -435,12 +437,15 @@ struct Textures {
 struct Sounds {
     uint32_t Hit = 2134794416u;
     uint32_t Jump = 3884640712u;
+    uint32_t beam = 2668643436u;
     uint32_t coin = 1941127746u;
     uint32_t gameOver = 3624654154u;
     uint32_t gunshot1 = 1107995564u;
     uint32_t gunshot2 = 1286261536u;
     uint32_t gunshot3 = 3098717796u;
     uint32_t impact3 = 2700059400u;
+    uint32_t lightning1 = 3999073294u;
+    uint32_t lightning2 = 2542704150u;
     uint32_t playerDamage = 738334250u;
     uint32_t technoSong = 1268943446u;
     uint32_t test = 1642075152u;
@@ -450,19 +455,19 @@ struct Sounds {
         std::map<std::string, std::string> map;
         map["Hit"] = "./Assets/FlappyBird Audio/Hit.wav";
         map["Jump"] = "./Assets/FlappyBird Audio/Jump.mp3";
+        map["beam"] = "./Assets/Audio/beam.wav";
         map["coin"] = "./Assets/FlappyBird Audio/coin.mp3";
         map["gameOver"] = "./Assets/FlappyBird Audio/gameOver.wav";
         map["gunshot1"] = "./Assets/Audio/gunshot1.mp3";
         map["gunshot2"] = "./Assets/Audio/gunshot2.mp3";
         map["gunshot3"] = "./Assets/Audio/gunshot3.mp3";
         map["impact3"] = "./Assets/Audio/impact3.mp3";
-        map["playerDamage"] = "./Assets/Audio/playerDamage.mp3";
-        map["beam"] = "./Assets/Audio/beam.wav";
         map["lightning1"] = "./Assets/Audio/lightning1.wav";
         map["lightning2"] = "./Assets/Audio/lightning2.wav";
+        map["playerDamage"] = "./Assets/Audio/playerDamage.mp3";
         map["technoSong"] = "./Assets/technoSong.mp3";
-        map["test"] = "./Assets/test.wav";
-        map["test_1"] = "./Assets/test.mp3";
+        map["test"] = "./Assets/test.mp3";
+        map["test_1"] = "./Assets/test.wav";
         return map;
     };
 };
@@ -550,7 +555,6 @@ struct Fonts {
         return map;
     };
 };
-
 struct Music {
     uint32_t technoSong = 3284719502u;
 

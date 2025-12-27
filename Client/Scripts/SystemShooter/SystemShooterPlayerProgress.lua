@@ -106,13 +106,13 @@ local UPGRADE_CONFIG = {
         statKey      = "antivirusUpgrade",
         label        = "upgradetype.antivirus",
         desc         = "upgradedesc.antivirus",
-        minLevel     = 8,
+        minLevel     = 1,
         maxValue     = 1,
         defaultValue = 0,
         customApply  = true,
-        weight       = 5,
-        cycleDuration = 8,  -- seconds (total cycle time)
-        activeDuration = 2.5,  -- seconds (active immunity time)
+        weight       = 100,
+        cycleDuration = 7.2,  -- seconds (total cycle time)
+        activeDuration = 1.8,  -- seconds (active immunity time)
     },
     overhealth = {
         statKey      = "overhealthUpgrade",
