@@ -1105,6 +1105,8 @@ local function DrawSettingsMenu_C(windowW, windowH)
         ApplyLanguageFonts()
     end
 
+    UI.add_centered_label(x + w/2, y+50, "", UI_FONT_HEADER, 1.2)
+
     UI.end_child() -- end inner content child
 
     -- Footer / Back button 
