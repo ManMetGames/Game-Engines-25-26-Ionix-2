@@ -261,14 +261,14 @@ function UpdateWindowTransition(dt)
             -- Skip first mouse delta to prevent spawn position snap
             SystemShooterPlayer.skipNextDelta()
             playerInitialized = true
-            
-            -- Start music after first window transition completes (synced with gameplay)
-            if musicEntity and not musicStartedThisLaunch then
-                MusicComponent.play(musicEntity, true, 2.0)  -- loop=true, fadeIn=2.0 seconds
-                musicStartedThisLaunch = true
-                -- Reset beat bop flag to sync with music start
-                beatBopHasStarted = false
-            end
+        end
+        
+        -- Start music after first window transition completes (synced with gameplay)
+        if musicEntity and not musicStartedThisLaunch then
+            MusicComponent.play(musicEntity, true, 2.0)  -- loop=true, fadeIn=2.0 seconds
+            musicStartedThisLaunch = true
+            -- Reset beat bop flag to sync with music start
+            beatBopHasStarted = false
         end
         
         -- Transition to post-phase (delay before loading level)
@@ -2219,6 +2219,11 @@ function SystemShooter:OnUpdate()
         local pSize = SystemShooterPlayer.getSize()
         local healAmount = SystemShooterPickups.checkPlayerCollision(pX, pY, pSize, maxHealth)
         if healAmount then
+            -- If player already has overhealth, halve the incoming healing
+            if SystemShooterPlayerProgress.getOverhealth() > 0 then
+                healAmount = math.floor(healAmount * 0.5)
+            end
+
             local before = SystemShooterPlayer.getHealth()
             local newHealth = before + healAmount
             
