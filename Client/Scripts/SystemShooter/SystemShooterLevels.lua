@@ -46,11 +46,11 @@ local generatedLevelCache = {}
 
 local HEALTH_BUDGET = {
     base = 60,
-    perLevel = 15,
-    levelSquaredFactor = 0.5,
+    perLevel = 14,
+    levelSquaredFactor = 0.05,
     lateLevelThreshold = 13,
     lateSquaredFactor = 1.6,
-    lateCubedFactor = 0.3,
+    lateCubedFactor = 0.27,
 }
 
 local TIMER_CONFIG = {

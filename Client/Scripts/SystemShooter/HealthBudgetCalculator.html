@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>System Shooter Health Budget Calculator</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; max-width: 900px; margin: 0 auto; }
+        .container { display: flex; gap: 20px; }
+        .controls { display: flex; flex-direction: column; gap: 10px; min-width: 250px; padding: 20px; background: #f5f5f5; border-radius: 8px; height: fit-content; }
+        .control-group { display: flex; flex-direction: column; }
+        label { font-weight: bold; margin-bottom: 5px; font-size: 0.9em; color: #333; }
+        input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        button { padding: 10px; background-color: #2c3e50; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        button:hover { background-color: #34495e; }
+        table { border-collapse: collapse; width: 100%; font-size: 0.9em; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: right; }
+        th:first-child, td:first-child { text-align: center; }
+        th { background-color: #2c3e50; color: white; position: sticky; top: 0; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        tr:hover { background-color: #f0f0f0; }
+        .diff-pos { color: green; font-weight: bold; }
+        .diff-neg { color: red; font-weight: bold; }
+        .table-container { flex-grow: 1; max-height: 80vh; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <h2>System Shooter Health Budget Calculator</h2>
+    <p>Edit values to see comparison. Press <strong>Save Baseline</strong> to set the current values as the new comparison point.</p>
+    
+    <div class="container">
+        <div class="controls">
+            <div class="control-group">
+                <label>Base</label>
+                <input type="number" id="base" value="60" step="1">
+            </div>
+            <div class="control-group">
+                <label>Per Level</label>
+                <input type="number" id="perLevel" value="14" step="1">
+            </div>
+            <div class="control-group">
+                <label>Level Squared Factor</label>
+                <input type="number" id="levelSquaredFactor" value="0.05" step="0.01">
+            </div>
+            <div class="control-group">
+                <label>Late Level Threshold</label>
+                <input type="number" id="lateLevelThreshold" value="13" step="1">
+            </div>
+            <div class="control-group">
+                <label>Late Squared Factor</label>
+                <input type="number" id="lateSquaredFactor" value="1.6" step="0.01">
+            </div>
+            <div class="control-group">
+                <label>Late Cubed Factor</label>
+                <input type="number" id="lateCubedFactor" value="0.27" step="0.01">
+            </div>
+            <div class="control-group">
+                <label>Procedural Start Level</label>
+                <input type="number" id="startLevel" value="6" step="1">
+            </div>
+            <button id="saveBtn">Save Baseline</button>
+            <button id="exportBtn" style="background-color: #27ae60;">Export to Lua</button>
+            <button id="copyBtn" style="background-color: #2980b9;">Copy Lua Code</button>
+            <button id="exportJsonBtn" style="background-color: #e67e22;">Export JSON (Auto-Update)</button>
+            <div id="exportStatus" style="margin-top: 10px; font-size: 0.85em; color: #27ae60; font-weight: bold;"></div>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Stage</th>
+                        <th>Saved</th>
+                        <th>Current</th>
+                        <th>Diff</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- Rows generated here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const inputs = document.querySelectorAll('input');
+        const saveBtn = document.getElementById('saveBtn');
+        const exportBtn = document.getElementById('exportBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const exportJsonBtn = document.getElementById('exportJsonBtn');
+        const exportStatus = document.getElementById('exportStatus');
+        
+        // Store the "Saved" state
+        let savedParams = {};
+
+        function getParamsFromInputs() {
+            return {
+                base: parseFloat(document.getElementById('base').value) || 0,
+                perLevel: parseFloat(document.getElementById('perLevel').value) || 0,
+                levelSquaredFactor: parseFloat(document.getElementById('levelSquaredFactor').value) || 0,
+                lateLevelThreshold: parseFloat(document.getElementById('lateLevelThreshold').value) || 0,
+                lateSquaredFactor: parseFloat(document.getElementById('lateSquaredFactor').value) || 0,
+                lateCubedFactor: parseFloat(document.getElementById('lateCubedFactor').value) || 0,
+                startLevel: parseFloat(document.getElementById('startLevel').value) || 0
+            };
+        }
+
+        function saveBaseline() {
+            savedParams = getParamsFromInputs();
+            calculate();
+        }
+
+        function calculateBudget(level, params) {
+            let n = level - params.startLevel;
+            let budget = params.base + (n * params.perLevel) + (n * n * params.levelSquaredFactor);
+
+            if (level > params.lateLevelThreshold) {
+                let lateN = level - params.lateLevelThreshold;
+                budget = budget + (lateN * lateN * params.lateSquaredFactor);
+                budget = budget + (lateN * lateN * lateN * params.lateCubedFactor);
+            }
+            return Math.floor(budget);
+        }
+
+        function calculate() {
+            const currentParams = getParamsFromInputs();
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            for (let level = 10; level <= 50; level++) {
+                const savedVal = calculateBudget(level, savedParams);
+                const currentVal = calculateBudget(level, currentParams);
+                const diff = currentVal - savedVal;
+
+                const tr = document.createElement('tr');
+                
+                let diffClass = '';
+                if (diff > 0) diffClass = 'diff-pos';
+                if (diff < 0) diffClass = 'diff-neg';
+                
+                let diffDisplay = diff === 0 ? '-' : (diff > 0 ? '+' + diff : diff);
+
+                tr.innerHTML = `
+                    <td>${level}</td>
+                    <td>${savedVal}</td>
+                    <td><strong>${currentVal}</strong></td>
+                    <td class="${diffClass}">${diffDisplay}</td>
+                `;
+                tbody.appendChild(tr);
+            }
+        }
+
+        function generateLuaCode() {
+            const params = getParamsFromInputs();
+            return `local HEALTH_BUDGET = {
+    base = ${params.base},
+    perLevel = ${params.perLevel},
+    levelSquaredFactor = ${params.levelSquaredFactor},
+    lateLevelThreshold = ${params.lateLevelThreshold},
+    lateSquaredFactor = ${params.lateSquaredFactor},
+    lateCubedFactor = ${params.lateCubedFactor},
+}`;
+        }
+
+        function exportToLua() {
+            const luaCode = generateLuaCode();
+            const blob = new Blob([luaCode], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'HEALTH_BUDGET_export.lua';
+            a.click();
+            URL.revokeObjectURL(url);
+            showExportStatus('Exported to HEALTH_BUDGET_export.lua');
+        }
+
+        function copyToClipboard() {
+            const luaCode = generateLuaCode();
+            navigator.clipboard.writeText(luaCode).then(() => {
+                showExportStatus('Copied to clipboard! Paste into SystemShooterLevels.lua');
+            }).catch(err => {
+                showExportStatus('Failed to copy: ' + err);
+            });
+        }
+
+        function exportToJson() {
+            const params = getParamsFromInputs();
+            const json = JSON.stringify(params, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'health_budget_config.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            showExportStatus('Exported to health_budget_config.json - Run UpdateHealthBudget.ps1 to apply');
+        }
+
+        function showExportStatus(message) {
+            exportStatus.textContent = message;
+            setTimeout(() => {
+                exportStatus.textContent = '';
+            }, 3000);
+        }
+
+        // Event Listeners
+        inputs.forEach(input => input.addEventListener('input', calculate));
+        saveBtn.addEventListener('click', saveBaseline);
+        exportBtn.addEventListener('click', exportToLua);
+        copyBtn.addEventListener('click', copyToClipboard);
+        exportJsonBtn.addEventListener('click', exportToJson);
+
+        // Initialize
+        saveBaseline(); 
+    </script>
+</body>
+</html>
