@@ -84,11 +84,11 @@ local UPGRADE_CONFIG = {
         statKey      = "maxHealth",
         label        = "upgradetype.maxhp",
         desc         = "upgradedesc.maxhp",
-        minLevel     = 6,
-        maxValue     = nil,
+        minLevel     = 1,
+        maxValue     = 2,
         defaultValue = 100,
-        increment    = 30,
-        weight       = 4,
+        increment    = 50,
+        weight       = 1000,
     },
     healing_orb_spawn = {
         statKey      = "healingOrbSpawnUpgrade",
@@ -110,9 +110,9 @@ local UPGRADE_CONFIG = {
         maxValue     = 1,
         defaultValue = 0,
         customApply  = true,
-        weight       = 5,
-        cycleDuration = 8,  -- seconds (total cycle time)
-        activeDuration = 2.5,  -- seconds (active immunity time)
+        weight       = 4,
+        cycleDuration = 7.2,  -- seconds (total cycle time)
+        activeDuration = 1.8,  -- seconds (active immunity time)
     },
     overhealth = {
         statKey      = "overhealthUpgrade",
@@ -290,7 +290,19 @@ function SystemShooterPlayerProgress.canTakeUpgrade(upgradeType)
     if not cfg then return true end
     if cfg.maxValue == nil then return true end
     
-    local currentValue = playerStats[cfg.statKey] or cfg.defaultValue
+    local currentValue = playerStats[cfg.statKey]
+    if currentValue == nil then currentValue = cfg.defaultValue end
+
+    -- If this upgrade uses an increment (e.g. maxHealth increases by X per upgrade),
+    -- compute how many times it has been applied and compare against maxValue.
+    if cfg.increment then
+        local default = cfg.defaultValue or 0
+        local inc = cfg.increment or 1
+        local applied = math.floor((currentValue - default) / inc)
+        if applied < 0 then applied = 0 end
+        return applied < cfg.maxValue
+    end
+
     return currentValue < cfg.maxValue
 end
 
