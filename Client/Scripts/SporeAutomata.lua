@@ -29,12 +29,15 @@ function spore:OnUpdate()
     for y = 1, self.gridSize do
         newGrid[y] = {}
         for x = 1, self.gridSize do
+            newGrid[y][x] = 0
+        end
+    end
+
+    for y = 1, self.gridSize do
+        for x = 1, self.gridSize do
             local current = self.grid[y][x]
             
-            if current == 0 then
-                -- Empty cell: check if spores shoot into it
-                newGrid[y][x] = 0
-            elseif current == 1 then
+            if current == 1 then
                 -- Spore type A: try to shoot/spread
                 if math.random() < 0.1 then  -- 10% chance to shoot
                     -- Pick random direction
@@ -51,7 +54,7 @@ function spore:OnUpdate()
                     end
                 end
                 newGrid[y][x] = current  -- Original stays alive
-            else
+            elseif current ~= 0 then
                 newGrid[y][x] = current
             end
         end
