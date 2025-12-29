@@ -49,8 +49,8 @@ local HEALTH_BUDGET = {
     perLevel = 14,
     levelSquaredFactor = 0.05,
     lateLevelThreshold = 13,
-    lateSquaredFactor = 1.6,
-    lateCubedFactor = 0.27,
+    lateSquaredFactor = 1.35,
+    lateCubedFactor = 0.05,
 }
 
 local TIMER_CONFIG = {
@@ -168,7 +168,7 @@ local ENEMY_TEMPLATES = {
         healthMax = 350,
         maxPerLevel = 1,
         spaceRequirement = 2,
-        weight = 3,
+        weight = 1,
         baseSize = 40,
         healthScaling = false,
         generate = function(health, level, windowW, windowH)
