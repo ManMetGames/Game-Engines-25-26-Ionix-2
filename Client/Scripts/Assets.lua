@@ -8,6 +8,8 @@ return {
         FlappyPipe2 = 2484853856,
         Ghast_Tear = 3650266058,
         MapBox = 643312642,
+        MapEdge1 = 2313193932,
+        MapEdge2 = 3833018994,
         PacMan = 2199143984,
         PimBall = 3518613816,
         Sand = 2995081222,

@@ -2,15 +2,16 @@ local ExampleScript = {}
 local assets = require("Scripts.Assets")
 local enums = require("Scripts.Enums")
 local player1
-local x = 200
-local y = 300
+local x = 295
+local y = Window.get_height()/5 - 5
+local tileGapFactor = 0.85
 
 ----------------------------------------------------------
 -- OnStart
 ----------------------------------------------------------
 function ExampleScript:OnStart()
     local tileSize = 128
-    local YPos = Window.get_height()/6
+    local YPos = Window.get_height()/5
 
     	------------------------------------------------------
 		-- makes map by looping through and making a 3x3 map grid, can be easily adjustable
@@ -18,21 +19,50 @@ function ExampleScript:OnStart()
 	for i = 1, 3 do
         for j = 1, 3 do
 		local tile = Entity.create_entity()
-        local xPos = (j * tileSize) + 128
+        local xPos = (j * (tileSize * tileGapFactor)) + 192
 		------------------------------------------------------
 		-- place sprite
 		------------------------------------------------------
 		Entity.set_global_pos(tile, xPos, YPos)
 		local s = Entity.add_sprite_component(tile, assets.textures.MapBox, tileSize, tileSize, 1)
-        Sprite.set_columns(s,1)
 		------------------------------------------------------
 		-- add physics body + collider
 		------------------------------------------------------
 		Entity.add_fysics_component(tile, enums.bodytype.staticBody, false)  -- static
-		Fysics.add_sprite_collider(tile, true, 1)
+		Fysics.add_sprite_collider(tile, false, 0.5)
         end
-        YPos = YPos + tileSize
+        YPos = YPos + (tileSize * tileGapFactor)
 	end
+      
+    	------------------------------------------------------
+		-- creates map border and adds colliders to it
+		------------------------------------------------------
+        local tile1 = Entity.create_entity() --UP
+        local tile2 = Entity.create_entity() --DOWN
+        local tile3 = Entity.create_entity() --LEFT
+        local tile4 = Entity.create_entity() --RIGHT
+
+        local up = Entity.add_sprite_component(tile1, assets.textures.MapEdge1, 368, 4, 1)
+        local left = Entity.add_sprite_component(tile3, assets.textures.MapEdge2, 4, 368, 1)
+        local down = Entity.add_sprite_component(tile2, assets.textures.MapEdge1, 368, 4, 1)
+        local right = Entity.add_sprite_component(tile4, assets.textures.MapEdge2, 4, 368, 1)
+
+        Entity.set_global_pos(tile1, 285,115)
+        Entity.set_global_pos(tile3, 285,115)
+        Entity.set_global_pos(tile2, 285,480)
+        Entity.set_global_pos(tile4, 650,115)
+
+        Entity.add_fysics_component(tile1, enums.bodytype.staticBody, false)  -- static
+        Entity.add_fysics_component(tile3, enums.bodytype.staticBody, false)  -- static
+        Entity.add_fysics_component(tile2, enums.bodytype.staticBody, false)  -- static
+        Entity.add_fysics_component(tile4, enums.bodytype.staticBody, false)  -- static
+
+        Fysics.add_sprite_collider(tile1, false, 1)
+        Fysics.add_sprite_collider(tile3, false, 1)
+        Fysics.add_sprite_collider(tile2, false, 1)
+        Fysics.add_sprite_collider(tile4, false, 1)
+
+
         ------------------------------------------------------
     -- Create player1
     ------------------------------------------------------
