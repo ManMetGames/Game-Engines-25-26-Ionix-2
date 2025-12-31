@@ -18,8 +18,8 @@ namespace IonixEngine
         unsigned int Height;
 
         WindowDetails(const std::string& title = "Ionix Engine 2",
-            unsigned int width = 960,
-            unsigned int height = 640)
+            unsigned int width = 1920,
+            unsigned int height = 1080)
             : Title(title), Width(width), Height(height)
         {
         }

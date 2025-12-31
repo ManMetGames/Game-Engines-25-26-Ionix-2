@@ -37,19 +37,22 @@ namespace IonixEngine
 
     void LayerUI::OnAttach() 
     {
+        m_UIManager = new UIManager();
         m_UI = new UI();
         //Get window and renderer
         SDL_Window* window = Application::Get().GetWindow().GetSdlWindow();
         SDL_Renderer* renderer = Application::Get().GetWindow().GetSdlRenderer();
-
+        //UI = new m_UiManager;
         // Setup Dear ImGui context
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
         ImGuiIO& io = ImGui::GetIO(); (void)io;
-        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-        io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
         /*
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+        io.ConfigFlags |= ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize;
+
         for (auto ui : uiDrawData)
         {
             if (ui.type == UIType::Label)
@@ -58,7 +61,8 @@ namespace IonixEngine
             }
         }
         */
-
+        m_UIManager->setUIRenderer(m_UI);
+        m_UIManager->fontLoader.LoadFonts();
         // Setup Dear ImGui style
         ImGui::StyleColorsDark();
         //ImGui::StyleColorsLight();
@@ -66,32 +70,38 @@ namespace IonixEngine
         // Setup Platform/Renderer backends
         ImGui_ImplSDL2_InitForSDLRenderer(window, renderer);
         ImGui_ImplSDLRenderer2_Init(renderer);
-
         std::cout << "ImGui Initialised " << std::endl;
     }
 
-    void LayerUI::OnDetach() {}
+    void LayerUI::OnDetach() 
+    {
+    }
 
     void LayerUI::OnUpdate()    
     {
+
         // Start the Dear ImGui frame. Immediate mode rendering - UI gets rebuilt each frame
          ImGui_ImplSDLRenderer2_NewFrame();
-
+         ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
          ImGui_ImplSDL2_NewFrame();
          ImGui::NewFrame();
-
-        
-         std::vector<std::string> dropdownOptions = { "Option 1", "Option 2", "Option 3" };
-         int dropdownIndex = 0;
-         bool checkboxValue = true;
-         int radioValue = 0;
-         static float sliderValue = 0.5f;
-         
-         
-         uiManager.BeginPanel("Test Panel");
-
-         /*uiManager.AddLabel(10, 10, 100, 20, "Test Label");
-         uiManager.AddButton(10, 40, 100, 25, "Click Me", []() { printf("Button clicked!\n"); });
+         ImGui::Begin("null", nullptr, window_flags);
+         Window& window = Application::Get().GetWindow();
+         ImGui::SetWindowSize(ImVec2(window.m_Data.Width, window.m_Data.Height));
+		 ImGui::SetWindowPos(ImVec2(0, 0));
+         // Render the UI
+         m_UIManager->RenderUI();
+         //std::string name = Application::Get().layerUI->m_UIManager->GetCommittedText("player_name");
+		 //cout << "Player name: " << name << std::endl;
+         ImGui::End();
+         //m_UIManager->ClearElements();
+         //std::vector<std::string> dropdownOptions = { "Option 1", "Option 2", "Option 3" };
+         //int dropdownIndex = 0;
+         //bool checkboxValue = true;
+         // int radioValue = 0;
+         //static float sliderValue = 0.5f;
+         //m_UIManager->AddLabel(10, 10, 100, 20, "Test Label");
+         /*uiManager.AddButton(10, 40, 100, 25, "Click Me", []() { printf("Button clicked!\n"); });
          uiManager.AddCheckbox(10, 70, 120, 25, "Enable", &checkboxValue);
          uiManager.AddSliderFloat(10, 100, 150, 25, "Slider", &sliderValue, 0.0f, 1.0f);
          uiManager.AddRadioButton(10, 130, 100, 25, "Option 1", &radioValue, 0,true);
@@ -100,8 +110,8 @@ namespace IonixEngine
          uiManager.AddColorPicker(10, 190, 150, 150, "Pick Color", m_UI->myColor);*/
 
          // Render the UI
-         uiManager.RenderUI();
-         uiManager.EndPanel();
+         //uiManager.RenderUI();
+         //uiManager.EndPanel();
         
 		
          // Rendering

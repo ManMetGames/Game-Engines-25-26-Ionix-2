@@ -2,65 +2,83 @@
 #include <Graphics/QueueRenderer.h>
 #include "Fysics/FysicsBody.h"
 
+#include "Fysics/FysicsBody.h"
+
 namespace IonixEngine {
 
 	//Constructors
 
-	SpriteComponent::SpriteComponent(Entity* entity, std::string alias, int x, int y, int zedOrder) : Component(entity, false, true, false) {
-		texture = IonixEngine::TextureManager::Get().GetTexture(alias).GetTexture(); //adding sprite image file to the texture manager
+	SpriteComponent::SpriteComponent(Entity* entity, std::string alias, int x, int y, int zedOrder)
+		: Component(entity, false, true, false)
+	{
+		texture = IonixEngine::TextureManager::Get().GetTexture(alias).GetTexture();
 		zOrder = zedOrder;
+
 		isReversing = false;
 		playbackMode = playbackOptions::FORWARD;
-		boxColliderSize = b2Vec2{1 + (0.02f * (width - 75)), 1 + (0.02f * (height - 75))};
-		rows = 1; //default spritesheet size, can be changed in appropriate setters
-		cols = 1;
+		tickRate = 0.2f;
 
-
-		SDL_QueryTexture(texture, NULL, NULL, &size.x, &size.y);
-
-		// Auto-size width/height from texture if 0 is passed
-		width = (x == 0) ? size.x : x;
-		height = (y == 0) ? size.y : y;
-
-		// Also set sprite frame size to match (for single-image textures)
-		spriteWidth = (x == 0) ? size.x : 32;
-		spriteHeight = (y == 0) ? size.y : 32;
-
-		calculateTotalFrames();
-
-		initialiseSpritesheet();
-	}
-
-	SpriteComponent::SpriteComponent(Entity* entity, uint32_t hash, int x, int y, int zedOrder) : Component(entity, false, true, false) {
-		texture = IonixEngine::TextureManager::Get().GetTexture(hash).GetTexture(); //adding sprite image file to the texture manager
-		//std::cout << texture << std::endl;
-		IonixEngine::TextureManager::Get().GetTexture(hash);
-		zOrder = zedOrder;
-		isReversing = false;
-		playbackMode = playbackOptions::FORWARD;
-
-		//setRowsAndCols(2, 8);
-		cols = 1;
 		rows = 1;
+		cols = 1;
 
+		renderLayer = entity->renderLayer;
 
 		SDL_QueryTexture(texture, NULL, NULL, &size.x, &size.y);
-	/*
-		// Auto-size width/height from texture if 0 is passed
-		width = (x == 0) ? size.x : x;
-		height = (y == 0) ? size.y : y;
-	*/
-		width = x;
-		height = y;
-		// Also set sprite frame size to match (for single-image textures)
-		spriteWidth = (x == 0) ? 32 : size.x;
-		spriteHeight = (y == 0) ? 32 : size.y;
-		
+
+		// Auto-size if 0 passed in
+		width = (x == 0) ? (float)size.x : (float)x;
+		height = (y == 0) ? (float)size.y : (float)y;
+
+		// Frame size (for non-spritesheets)
+		RecalcFrameSize();
+
+		// IMPORTANT: init angle
+		spriteAngle = 0.0f;
+
+		// IMPORTANT: collider calc AFTER width/height set
+		boxColliderSize = b2Vec2{
+			1 + (0.02f * (width - 75)),
+			1 + (0.02f * (height - 75))
+		};
 
 		calculateTotalFrames();
-
 		initialiseSpritesheet();
 	}
+
+
+	SpriteComponent::SpriteComponent(Entity* entity, uint32_t hash, int x, int y, int zedOrder)
+		: Component(entity, false, true, false)
+	{
+		texture = IonixEngine::TextureManager::Get().GetTexture(hash).GetTexture();
+		zOrder = zedOrder;
+
+		isReversing = false;
+		playbackMode = playbackOptions::FORWARD;
+		tickRate = 0.2f;
+
+		rows = 1;
+		cols = 1;
+
+		renderLayer = entity->renderLayer;
+
+		SDL_QueryTexture(texture, NULL, NULL, &size.x, &size.y);
+
+		width = (x == 0) ? (float)size.x : (float)x;
+		height = (y == 0) ? (float)size.y : (float)y;
+
+		RecalcFrameSize();
+
+		spriteAngle = 0.0f;
+
+		boxColliderSize = b2Vec2{
+			1 + (0.02f * (width - 75)),
+			1 + (0.02f * (height - 75))
+		};
+
+		calculateTotalFrames();
+		initialiseSpritesheet();
+	}
+
 
 	void SpriteComponent::Render(RenderData* data)
 	{
@@ -89,23 +107,28 @@ namespace IonixEngine {
 			position.x = pos.x;
 			position.y = pos.y;
 			angleDegrees = angleRadians * (180.0 / 3.14159265358979323846);
-		} else {
+		}
+		else {
 			// Transform rotation is in degrees
 		}
 		angleDegrees = entity->transform.GetGlobalRotation();
 
-		printf("Position: [ %.1f, %.1f ], rot: %.1f\n" , position.x, position.y, angleDegrees);
+
+		//printf("Position: [ %.1f, %.1f ], rot: %.1f\n" , position.x, position.y, angleDegrees);
 
 		//create and send render data to the render queue
 		data->queue->AddToQueue(RenderCall{
 			texture,
 			SDL_Rect { (int)(position.x - width / 2.0f), (int)(position.y - height / 2.0f), (int)width, (int)height },
 			SDL_Rect { spriteWidth * currentCol, spriteHeight * currentRow, spriteWidth, spriteHeight },
-			0,  // z-order (not being used in current RenderCall)
+			zOrder,
 			angleDegrees,
 			colorR,
 			colorG,
-			colorB
+			colorB,
+			static_cast<Uint8>(255),
+			spriteAngle,
+			renderLayer
 			});
 
 
@@ -159,8 +182,8 @@ namespace IonixEngine {
 	{
 		timer += deltaTime;
 
-		while (timer > 0.2f) {
-			timer -= 0.2f;
+		while (timer > tickRate) {
+			timer -= tickRate;
 
 			currentCol++;
 			if (currentCol == cols) {
@@ -181,26 +204,40 @@ namespace IonixEngine {
 		endFrame = totalFrames - 1;
 	}
 
-	void SpriteComponent::changeTexture(std::string alias)
+	void SpriteComponent::changeTexture(std::string alias, int iRows, int iCols, int iSpriteWidth, int iSpriteHeight)
 	{
 		texture = IonixEngine::TextureManager::Get().GetTexture(alias).GetTexture();
+
+		setAnimation(iRows, iCols, iSpriteWidth, iSpriteHeight);
 	}
+
+	void SpriteComponent::setTexture(uint32_t hash)
+	{
+		SDL_Texture* newTex = IonixEngine::TextureManager::Get().GetTexture(hash).GetTexture();
+		if (!newTex) {
+			std::cout << "[SpriteComponent] setTexture failed: missing texture hash " << hash << std::endl;
+			return;
+		}
+
+		texture = newTex;
+		SDL_QueryTexture(texture, NULL, NULL, &size.x, &size.y);
+
+		// Keep current rows/cols, but refresh frame sizing from the new texture.
+		RecalcFrameSize();
+		calculateTotalFrames();
+		initialiseSpritesheet();
+	}
+
 
 	void SpriteComponent::initialiseSpritesheet()
 	{
 		switch (playbackMode) {
-		case playbackOptions::FORWARD: case playbackOptions::FORWARDANDBACKWARD: case playbackOptions::PLAYONCE:
+			//only forward and oneframe work for now, im sorry :(
+		case playbackOptions::FORWARD: case playbackOptions::FORWARDANDBACKWARD: case playbackOptions::PLAYONCE: case playbackOptions::BACKWARD:
 			endFrame = totalFrames;
 			currentFrame = 0;
 			currentRow = 0; //0 indexed
 			currentCol = 0; //0 indexed
-			break;
-		case playbackOptions::BACKWARD:
-			isReversing = true;
-			endFrame = 0;
-			currentFrame = totalFrames;
-			currentCol = cols - 1;
-			currentRow = rows - 1;
 			break;
 		case playbackOptions::ONEFRAME:
 			currentFrame = 0;
@@ -216,22 +253,48 @@ namespace IonixEngine {
 		spriteHeight = spriteY;
 	}
 
+	void SpriteComponent::RecalcFrameSize()
+	{
+		if (cols <= 0) cols = 1;
+		if (rows <= 0) rows = 1;
+
+		spriteWidth = size.x / cols;
+		spriteHeight = size.y / rows;
+	}
+
 	//setters
 	void SpriteComponent::setEndFrame(int x) { endFrame = x; }
 	void SpriteComponent::setPlaybackMode(enum playbackOptions x) { playbackMode = x; }
 	void SpriteComponent::setCurrentFrame(int x) { if (!(x > totalFrames)) { currentFrame = x; } }
-	void SpriteComponent::setRows(int x) { rows = x; }
-	void SpriteComponent::setCols(int x) { cols = x; }
+	void SpriteComponent::setRows(int x)
+	{
+		rows = x;
+		RecalcFrameSize();
+		calculateTotalFrames();
+		initialiseSpritesheet();
+	}
+	void SpriteComponent::setCols(int x)
+	{
+		cols = x;
+		RecalcFrameSize();
+		calculateTotalFrames();
+		initialiseSpritesheet();
+	}
 	void SpriteComponent::setRowsAndCols(int Rows, int Cols)
 	{
-		if (Rows > Cols && Rows > 1) { rows = Rows - 1; cols = Cols; }
-		else { rows = Rows; cols = Cols - 1; }
+		rows = Rows;
+		cols = Cols;
+		RecalcFrameSize();
+		calculateTotalFrames();
+		initialiseSpritesheet();
 	}
 	void SpriteComponent::setSpriteWidth(int x) { spriteWidth = x; }
 	void SpriteComponent::setSpriteHeight(int x) { spriteHeight = x; }
 	void SpriteComponent::setZedOrder(int x) { zOrder = x; }
 	void SpriteComponent::setWidth(int x) { width = x; }
 	void SpriteComponent::setHeight(int x) { height = x; }
+	void SpriteComponent::setAngle(float angle) { spriteAngle = angle; }
+	void SpriteComponent::setTickRate(float x) { tickRate = x; }
 
 	void SpriteComponent::setBoxColliderSize(b2Vec2 newSize) { boxColliderSize = newSize; }
 	void SpriteComponent::setColor(Uint8 r, Uint8 g, Uint8 b) { colorR = r; colorG = g; colorB = b; }
@@ -250,5 +313,7 @@ namespace IonixEngine {
 	int SpriteComponent::getCurrentRow() { return currentRow; }
 	int SpriteComponent::getWidth() { return width; }
 	int SpriteComponent::getHeight() { return height; }
+	float SpriteComponent::getAngle() { return spriteAngle; }
+	int SpriteComponent::getTickRate() { return tickRate; }
 	b2Vec2 SpriteComponent::getBoxColliderSize() { return boxColliderSize; }
 }
