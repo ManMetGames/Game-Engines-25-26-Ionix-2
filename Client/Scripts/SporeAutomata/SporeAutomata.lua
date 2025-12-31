@@ -1,16 +1,15 @@
 local spore = {}
 
 function spore:OnStart()    
-    -- Initialize grid (example: 64x64)
-    
+    -- Initialize grid (example: 16x16)
     self.gridSize = 16
+    
     self.EMPTY  = 0
     self.RED    = 1
     self.BLUE   = 2
     self.GREEN  = 3
     self.PURPLE = 4
     self.YELLOW = 5
-
     
     self.grid = {}
     for y = 1, self.gridSize do
@@ -22,10 +21,13 @@ function spore:OnStart()
     end
     
     -- Place some initial spores
-    for i = 1, 10 do
+    for i = 1, 50 do  -- More spores to fill the space better
         local x = math.random(1, self.gridSize)
         local y = math.random(1, self.gridSize)
-        self.grid[y][x] = 1  -- Type A spore
+        if self.grid[y][x] == 0 then  -- Only place if empty
+            local sporeType = math.random(1, 5)  -- Random type 1-5
+            self.grid[y][x] = sporeType
+        end
     end
 
     self.tileSize = 32
@@ -60,10 +62,20 @@ end
 function spore:RenderGrid()
     for y = 1, self.gridSize do 
         for x = 1, self.gridSize do
-            if self.grid[y][x] == 1 then
-                Sprite.set_color(self.tileSprites[y][x], 255, 0, 0) -- red spore
+            local type = self.grid[y][x]
+
+            if type == self.RED then
+                Sprite.set_color(self.tileSprites[y][x], 255, 0, 0)     -- Red
+            elseif type == self.BLUE then
+                Sprite.set_color(self.tileSprites[y][x], 0, 100, 255)   -- Blue
+            elseif type == self.GREEN then
+                Sprite.set_color(self.tileSprites[y][x], 0, 255, 0)     -- Green
+            elseif type == self.PURPLE then
+                Sprite.set_color(self.tileSprites[y][x], 150, 0, 255)   -- Purple
+            elseif type == self.YELLOW then
+                Sprite.set_color(self.tileSprites[y][x], 255, 255, 0)   -- Yellow
             else
-                Sprite.set_color(self.tileSprites[y][x], 25, 0, 0) -- Black tile
+                Sprite.set_color(self.tileSprites[y][x], 0, 0, 0)       -- Black (Empty)
             end
             
         end
@@ -95,23 +107,83 @@ function spore:OnUpdate()
             local current = self.grid[y][x]
             
             if current == 1 then
-                -- Spore type A: try to shoot/spread
-                if math.random() < 0.1 then  -- 10% chance to shoot
-                    -- Pick random direction
+                -- RED spore: aggressive spreader
+                if math.random() < 0.15 then  -- 15% chance to shoot
                     local dx = math.random(-1, 1)
                     local dy = math.random(-1, 1)
                     local nx = x + dx
                     local ny = y + dy
                     
-                    -- Check bounds
                     if nx >= 1 and nx <= self.gridSize and ny >= 1 and ny <= self.gridSize then
                         if self.grid[ny][nx] == 0 then
-                            newGrid[ny][nx] = 1  -- Shoot new spore
+                            newGrid[ny][nx] = 1
                         end
                     end
                 end
-                newGrid[y][x] = current  -- Original stays alive
-            elseif current ~= 0 then
+                newGrid[y][x] = current
+                
+            elseif current == 2 then
+                -- BLUE spore: slow spreader
+                if math.random() < 0.05 then  -- 5% chance to shoot
+                    local dx = math.random(-1, 1)
+                    local dy = math.random(-1, 1)
+                    local nx = x + dx
+                    local ny = y + dy
+                    
+                    if nx >= 1 and nx <= self.gridSize and ny >= 1 and ny <= self.gridSize then
+                        if self.grid[ny][nx] == 0 then
+                            newGrid[ny][nx] = 2
+                        end
+                    end
+                end
+                newGrid[y][x] = current
+                
+            elseif current == 3 then
+                -- GREEN spore: moderate spreader
+                if math.random() < 0.08 then  -- 8% chance to shoot
+                    local dx = math.random(-1, 1)
+                    local dy = math.random(-1, 1)
+                    local nx = x + dx
+                    local ny = y + dy
+                    
+                    if nx >= 1 and nx <= self.gridSize and ny >= 1 and ny <= self.gridSize then
+                        if self.grid[ny][nx] == 0 then
+                            newGrid[ny][nx] = 3
+                        end
+                    end
+                end
+                newGrid[y][x] = current
+                
+            elseif current == 4 then
+                -- PURPLE spore: fast spreader
+                if math.random() < 0.12 then  -- 12% chance to shoot
+                    local dx = math.random(-1, 1)
+                    local dy = math.random(-1, 1)
+                    local nx = x + dx
+                    local ny = y + dy
+                    
+                    if nx >= 1 and nx <= self.gridSize and ny >= 1 and ny <= self.gridSize then
+                        if self.grid[ny][nx] == 0 then
+                            newGrid[ny][nx] = 4
+                        end
+                    end
+                end
+                newGrid[y][x] = current
+                
+            elseif current == 5 then
+                -- YELLOW spore: very slow spreader
+                if math.random() < 0.03 then  -- 3% chance to shoot
+                    local dx = math.random(-1, 1)
+                    local dy = math.random(-1, 1)
+                    local nx = x + dx
+                    local ny = y + dy
+                    
+                    if nx >= 1 and nx <= self.gridSize and ny >= 1 and ny <= self.gridSize then
+                        if self.grid[ny][nx] == 0 then
+                            newGrid[ny][nx] = 5
+                        end
+                    end
+                end
                 newGrid[y][x] = current
             end
         end
