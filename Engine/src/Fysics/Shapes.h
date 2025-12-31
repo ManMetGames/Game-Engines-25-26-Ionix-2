@@ -84,6 +84,11 @@ namespace IonixEngine
             return fixture;
         }
 
+        bool GetIsTrigger()
+        {
+            return isTrigger;
+        }
+
         void SetFixture(b2Fixture* newFixture)
         {
             fixture = newFixture;
@@ -105,6 +110,7 @@ namespace IonixEngine
         float angle,
         bool isTrigger);
         void AddSpriteCollider(Entity* entity, bool isTrigger, float scaleFactor);//This will add a box collider of the correct size and position as long as the entity also has a sprite component
+        void AddEdgeCollider(Entity* entity, b2Vec2 v1, b2Vec2 v2, b2Vec2 v0, b2Vec2 v3, bool isTrigger);
         void AddPolygon(Entity* entity, float tileSize, std::vector<b2Vec2>& vertices);
 
        

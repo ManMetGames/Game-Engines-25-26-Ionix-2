@@ -14,6 +14,8 @@
 #include "Scripting/Graphics/GraphicsScripting.h"
 #include "Scripting/Entity/EntityScripting.h"
 #include "Scripting/UI/UIScripting.h"
+#include "Scripting/Json/JsonScripting.h"
+#include "Scripting/Firebase/FirebaseScripting.h"
 
 namespace IonixEngine
 {
@@ -26,6 +28,7 @@ namespace IonixEngine
         void RegisterEngineBindings();
         void ExecuteScript(const std::string& scriptName);
         void CallHook(const std::string& hookName);
+        void CallHook(const std::string& hookName, Entity* entityA, Entity* entityB);
 
         sol::state& GetLuaState() { return m_LuaState; }
 
