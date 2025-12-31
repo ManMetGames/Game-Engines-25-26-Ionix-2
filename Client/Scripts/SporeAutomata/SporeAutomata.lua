@@ -11,6 +11,9 @@ function spore:OnStart()
     self.PURPLE = 4
     self.WHITE  = 5
     
+    
+
+
     self.grid = {}
     for y = 1, self.gridSize do
         self.grid[y] = {}
@@ -83,7 +86,7 @@ function spore:RenderGrid()
                 Sprite.set_color(self.tileSprites[y][x], 255, 0, 0)
                 colorCounts[self.RED] = colorCounts[self.RED] + 1
             elseif type == self.BLUE then
-                Sprite.set_color(self.tileSprites[y][x], 0, 100, 255)
+                Sprite.set_color(self.tileSprites[y][x], 0, 0, 200)
                 colorCounts[self.BLUE] = colorCounts[self.BLUE] + 1
             elseif type == self.CYAN then
                 Sprite.set_color(self.tileSprites[y][x], 0, 255, 255)
