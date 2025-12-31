@@ -3,6 +3,8 @@
 #include "Architecture/Macros.h"
 #include "EventSystem/Event.h"
 #include "Architecture/ECS/Entity.hpp"
+#include "Graphics/ParticleSystem.h"
+#include "Graphics/VFXSystem.h"
 #include <vector>
 #include <cstdint>
 #include <unordered_map>
@@ -27,7 +29,7 @@ namespace IonixEngine
 
         void Reserve(std::size_t count); // Pre-allocate storage for entities 
 
-        EntityID CreateEntity();  // Create a new entity and return its unique ID
+        EntityID CreateEntity(int renderLayer);  // Create a new entity and return its unique ID
         
         bool DestroyEntity(EntityID entityId);
         
@@ -37,9 +39,16 @@ namespace IonixEngine
         
         Entity* GetEntityFromID(EntityID id);
 
+        std::vector<Entity>& GetEntities() { return m_Entities; }
+
+        ParticleSystem& GetParticleSystem() { return m_ParticleSystem; }
+        VFXSystem& GetVFXSystem() { return m_VFXSystem; }
+
     private:
         std::vector<Entity> m_Entities;
         std::unordered_map<EntityID, std::size_t> m_IdToIndex;
         EntityID m_NextId{ 0 };
+        ParticleSystem m_ParticleSystem;
+        VFXSystem m_VFXSystem;
     };
 }

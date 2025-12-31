@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>System Shooter Health Budget Calculator</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; max-width: 900px; margin: 0 auto; }
+        .container { display: flex; gap: 20px; }
+        .controls { display: flex; flex-direction: column; gap: 10px; min-width: 200px; padding: 20px; background: #f5f5f5; border-radius: 8px; height: fit-content; }
+        .control-group { display: flex; flex-direction: column; }
+        label { font-weight: bold; margin-bottom: 5px; font-size: 0.9em; color: #333; }
+        input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        button { padding: 10px; background-color: #2c3e50; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        button:hover { background-color: #34495e; }
+        table { border-collapse: collapse; width: 100%; font-size: 0.9em; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: right; }
+        th:first-child, td:first-child { text-align: center; }
+        th { background-color: #2c3e50; color: white; position: sticky; top: 0; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        tr:hover { background-color: #f0f0f0; }
+        .diff-pos { color: green; font-weight: bold; }
+        .diff-neg { color: red; font-weight: bold; }
+        .table-container { flex-grow: 1; max-height: 80vh; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <h2>System Shooter Health Budget Calculator</h2>
+    <p>Edit values to see comparison. Press <strong>Save Baseline</strong> to set the current values as the new comparison point.</p>
+    
+    <div class="container">
+        <div class="controls">
+            <div class="control-group">
+                <label>Base</label>
+                <input type="number" id="base" value="60" step="1">
+            </div>
+            <div class="control-group">
+                <label>Per Level</label>
+                <input type="number" id="perLevel" value="14" step="1">
+            </div>
+            <div class="control-group">
+                <label>Level Squared Factor</label>
+                <input type="number" id="levelSquaredFactor" value="0.05" step="0.01">
+            </div>
+            <div class="control-group">
+                <label>Late Level Threshold</label>
+                <input type="number" id="lateLevelThreshold" value="13" step="1">
+            </div>
+            <div class="control-group">
+                <label>Late Squared Factor</label>
+                <input type="number" id="lateSquaredFactor" value="1.6" step="0.01">
+            </div>
+            <div class="control-group">
+                <label>Late Cubed Factor</label>
+                <input type="number" id="lateCubedFactor" value="0.27" step="0.01">
+            </div>
+            <div class="control-group">
+                <label>Procedural Start Level</label>
+                <input type="number" id="startLevel" value="6" step="1">
+            </div>
+            <button id="saveBtn">Save Baseline</button>
+            <button id="copyBtn" style="background-color: #2980b9;">Copy Lua Code</button>
+            <button id="importBtn" style="background-color: #e67e22;">Import from Clipboard</button>
+            
+            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd;">
+                <label style="color: #8e44ad;">Direct Update (Chrome/Edge)</label>
+                <button id="connectBtn" style="background-color: #8e44ad; margin-top: 5px;">1. Select & Load SystemShooterLevels.lua</button>
+                <button id="directUpdateBtn" style="background-color: #c0392b; margin-top: 5px;" disabled>2. Overwrite File</button>
+            </div>
+
+            <div id="exportStatus" style="margin-top: 10px; font-size: 0.85em; color: #27ae60; font-weight: bold;"></div>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Stage</th>
+                        <th>Saved</th>
+                        <th>Current</th>
+                        <th>Diff</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- Rows generated here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const inputs = document.querySelectorAll('input');
+        const saveBtn = document.getElementById('saveBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const importBtn = document.getElementById('importBtn');
+        const exportStatus = document.getElementById('exportStatus');
+        const connectBtn = document.getElementById('connectBtn');
+        const directUpdateBtn = document.getElementById('directUpdateBtn');
+        
+        // Store the "Saved" state
+        let savedParams = {};
+
+        // --- Persistence (LocalStorage) ---
+        function saveToLocalStorage() {
+            const currentParams = getParamsFromInputs();
+            localStorage.setItem('sysShooter_currentParams', JSON.stringify(currentParams));
+            localStorage.setItem('sysShooter_baselineParams', JSON.stringify(savedParams));
+        }
+
+        function loadFromLocalStorage() {
+            const storedCurrent = localStorage.getItem('sysShooter_currentParams');
+            const storedBaseline = localStorage.getItem('sysShooter_baselineParams');
+
+            if (storedCurrent) {
+                const params = JSON.parse(storedCurrent);
+                setInputsFromParams(params);
+            }
+            
+            if (storedBaseline) {
+                savedParams = JSON.parse(storedBaseline);
+            } else {
+                // Default baseline if nothing saved
+                savedParams = getParamsFromInputs();
+            }
+        }
+
+        function setInputsFromParams(params) {
+            if (params.base !== undefined) document.getElementById('base').value = params.base;
+            if (params.perLevel !== undefined) document.getElementById('perLevel').value = params.perLevel;
+            if (params.levelSquaredFactor !== undefined) document.getElementById('levelSquaredFactor').value = params.levelSquaredFactor;
+            if (params.lateLevelThreshold !== undefined) document.getElementById('lateLevelThreshold').value = params.lateLevelThreshold;
+            if (params.lateSquaredFactor !== undefined) document.getElementById('lateSquaredFactor').value = params.lateSquaredFactor;
+            if (params.lateCubedFactor !== undefined) document.getElementById('lateCubedFactor').value = params.lateCubedFactor;
+            if (params.startLevel !== undefined) document.getElementById('startLevel').value = params.startLevel;
+        }
+
+        function getParamsFromInputs() {
+            return {
+                base: parseFloat(document.getElementById('base').value) || 0,
+                perLevel: parseFloat(document.getElementById('perLevel').value) || 0,
+                levelSquaredFactor: parseFloat(document.getElementById('levelSquaredFactor').value) || 0,
+                lateLevelThreshold: parseFloat(document.getElementById('lateLevelThreshold').value) || 0,
+                lateSquaredFactor: parseFloat(document.getElementById('lateSquaredFactor').value) || 0,
+                lateCubedFactor: parseFloat(document.getElementById('lateCubedFactor').value) || 0,
+                startLevel: parseFloat(document.getElementById('startLevel').value) || 0
+            };
+        }
+
+        function saveBaseline() {
+            savedParams = getParamsFromInputs();
+            calculate(); // This will trigger saveToLocalStorage
+        }
+
+        function calculateBudget(level, params) {
+            let n = level - params.startLevel;
+            let budget = params.base + (n * params.perLevel) + (n * n * params.levelSquaredFactor);
+
+            if (level > params.lateLevelThreshold) {
+                let lateN = level - params.lateLevelThreshold;
+                budget = budget + (lateN * lateN * params.lateSquaredFactor);
+                budget = budget + (lateN * lateN * lateN * params.lateCubedFactor);
+            }
+            return Math.floor(budget);
+        }
+
+        function calculate() {
+            const currentParams = getParamsFromInputs();
+            
+            // Save state on every calculation/update
+            saveToLocalStorage();
+
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            for (let level = 10; level <= 50; level++) {
+                const savedVal = calculateBudget(level, savedParams);
+                const currentVal = calculateBudget(level, currentParams);
+                const diff = currentVal - savedVal;
+
+                const tr = document.createElement('tr');
+                
+                let diffClass = '';
+                if (diff > 0) diffClass = 'diff-pos';
+                if (diff < 0) diffClass = 'diff-neg';
+                
+                let diffDisplay = diff === 0 ? '-' : (diff > 0 ? '+' + diff : diff);
+
+                tr.innerHTML = `
+                    <td>${level}</td>
+                    <td>${savedVal}</td>
+                    <td><strong>${currentVal}</strong></td>
+                    <td class="${diffClass}">${diffDisplay}</td>
+                `;
+                tbody.appendChild(tr);
+            }
+        }
+
+        function generateLuaCode() {
+            const params = getParamsFromInputs();
+            return `local HEALTH_BUDGET = {
+    base = ${params.base},
+    perLevel = ${params.perLevel},
+    levelSquaredFactor = ${params.levelSquaredFactor},
+    lateLevelThreshold = ${params.lateLevelThreshold},
+    lateSquaredFactor = ${params.lateSquaredFactor},
+    lateCubedFactor = ${params.lateCubedFactor},
+}`;
+        }
+
+        function copyToClipboard() {
+            const luaCode = generateLuaCode();
+            navigator.clipboard.writeText(luaCode).then(() => {
+                showExportStatus('Copied to clipboard! Paste into SystemShooterLevels.lua');
+            }).catch(err => {
+                showExportStatus('Failed to copy: ' + err);
+            });
+        }
+
+        async function importFromClipboard() {
+            try {
+                const text = await navigator.clipboard.readText();
+                parseLuaAndPopulate(text);
+            } catch (err) {
+                alert('Failed to read clipboard: ' + err);
+            }
+        }
+
+        function parseLuaAndPopulate(text) {
+            const regexMap = {
+                base: /base\s*=\s*([\d\.]+)/,
+                perLevel: /perLevel\s*=\s*([\d\.]+)/,
+                levelSquaredFactor: /levelSquaredFactor\s*=\s*([\d\.]+)/,
+                lateLevelThreshold: /lateLevelThreshold\s*=\s*([\d\.]+)/,
+                lateSquaredFactor: /lateSquaredFactor\s*=\s*([\d\.]+)/,
+                lateCubedFactor: /lateCubedFactor\s*=\s*([\d\.]+)/,
+                startLevel: /PROCEDURAL_START_LEVEL\s*=\s*(\d+)/
+            };
+
+            let updates = {};
+            let foundAny = false;
+
+            for (const [key, regex] of Object.entries(regexMap)) {
+                const match = text.match(regex);
+                if (match) {
+                    updates[key] = parseFloat(match[1]);
+                    foundAny = true;
+                }
+            }
+
+            if (foundAny) {
+                setInputsFromParams(updates);
+                calculate();
+                showExportStatus('Values imported from code!');
+            } else {
+                alert('No matching values found in the text. Make sure you copied the HEALTH_BUDGET table.');
+            }
+        }
+
+        function showExportStatus(message) {
+            exportStatus.textContent = message;
+            setTimeout(() => {
+                exportStatus.textContent = '';
+            }, 3000);
+        }
+
+        // --- Direct File Access (File System Access API) ---
+        let fileHandle;
+
+        // --- IndexedDB for File Handle Persistence ---
+        const DB_NAME = 'SystemShooterDB';
+        const STORE_NAME = 'FileHandles';
+
+        function openDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, 1);
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => resolve(request.result);
+                request.onupgradeneeded = (event) => {
+                    event.target.result.createObjectStore(STORE_NAME);
+                };
+            });
+        }
+
+        async function saveFileHandle(handle) {
+            const db = await openDB();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(STORE_NAME, 'readwrite');
+                const store = tx.objectStore(STORE_NAME);
+                const request = store.put(handle, 'levelsScript');
+                request.onsuccess = () => resolve();
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        async function getSavedFileHandle() {
+            const db = await openDB();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(STORE_NAME, 'readonly');
+                const store = tx.objectStore(STORE_NAME);
+                const request = store.get('levelsScript');
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        async function verifyPermission(fileHandle, readWrite) {
+            const options = {};
+            if (readWrite) {
+                options.mode = 'readwrite';
+            }
+            if ((await fileHandle.queryPermission(options)) === 'granted') {
+                return true;
+            }
+            if ((await fileHandle.requestPermission(options)) === 'granted') {
+                return true;
+            }
+            return false;
+        }
+
+        async function connectFile() {
+            if (!window.showOpenFilePicker) {
+                alert("Your browser doesn't support the File System Access API. Please use Chrome, Edge, or Opera.");
+                return;
+            }
+
+            // 1. Try to use saved handle first
+            if (!fileHandle) {
+                 try {
+                    const savedHandle = await getSavedFileHandle();
+                    if (savedHandle) {
+                        // Ask for permission to use the saved handle
+                        if (await verifyPermission(savedHandle, true)) {
+                            fileHandle = savedHandle;
+                            await loadFromFileHandle(fileHandle);
+                            return;
+                        }
+                        // If permission denied (user clicked 'No'), fall through to picker
+                    }
+                 } catch (e) {
+                     console.log("No saved handle or error retrieving:", e);
+                 }
+            }
+
+            // 2. Fallback to picker if no saved handle or permission denied
+            try {
+                [fileHandle] = await window.showOpenFilePicker({
+                    types: [{
+                        description: 'Lua Script',
+                        accept: {
+                            'text/x-lua': ['.lua'],
+                            'text/plain': ['.lua', '.txt']
+                        }
+                    }],
+                });
+                
+                await saveFileHandle(fileHandle); // Save for next time
+                await loadFromFileHandle(fileHandle);
+
+            } catch (err) {
+                console.error(err);
+                // User probably cancelled
+            }
+        }
+
+        async function loadFromFileHandle(handle) {
+            // Read and populate immediately
+            const file = await handle.getFile();
+            const contents = await file.text();
+            parseLuaAndPopulate(contents);
+
+            directUpdateBtn.disabled = false;
+            connectBtn.textContent = "File Selected: " + handle.name;
+            connectBtn.style.backgroundColor = "#7f8c8d";
+            showExportStatus('Connected & Loaded from ' + handle.name);
+        }
+
+        async function updateFileDirectly() {
+            if (!fileHandle) return;
+
+            try {
+                const file = await fileHandle.getFile();
+                const contents = await file.text();
+                
+                const newBudgetCode = generateLuaCode();
+                
+                // Regex to find the HEALTH_BUDGET block
+                // Matches: local HEALTH_BUDGET = { ... }
+                const regex = /local HEALTH_BUDGET = \{[\s\S]*?\}/;
+                
+                if (!regex.test(contents)) {
+                    alert('Could not find "local HEALTH_BUDGET = { ... }" block in the selected file.');
+                    return;
+                }
+                
+                const newContents = contents.replace(regex, newBudgetCode);
+                
+                // Create a writable stream
+                const writable = await fileHandle.createWritable();
+                await writable.write(newContents);
+                await writable.close();
+                
+                showExportStatus('Successfully updated ' + fileHandle.name + '!');
+                
+                // Flash success
+                const originalText = directUpdateBtn.textContent;
+                const originalColor = directUpdateBtn.style.backgroundColor;
+                directUpdateBtn.textContent = "Saved!";
+                directUpdateBtn.style.backgroundColor = "#27ae60";
+                setTimeout(() => {
+                    directUpdateBtn.textContent = originalText;
+                    directUpdateBtn.style.backgroundColor = originalColor;
+                }, 2000);
+                
+            } catch (err) {
+                console.error(err);
+                alert('Error updating file: ' + err.message);
+            }
+        }
+
+        // Event Listeners
+        inputs.forEach(input => input.addEventListener('input', calculate));
+        saveBtn.addEventListener('click', saveBaseline);
+        copyBtn.addEventListener('click', copyToClipboard);
+        importBtn.addEventListener('click', importFromClipboard);
+        connectBtn.addEventListener('click', connectFile);
+        directUpdateBtn.addEventListener('click', updateFileDirectly);
+
+        // Initialize
+        loadFromLocalStorage();
+        calculate();
+
+        // Check for saved handle to update UI hint
+        getSavedFileHandle().then(handle => {
+            if (handle) {
+                connectBtn.textContent = "Reconnect to " + handle.name;
+                connectBtn.style.backgroundColor = "#e67e22"; // Orange to indicate action needed but path known
+            }
+        }).catch(() => {}); 
+    </script>
+</body>
+</html>

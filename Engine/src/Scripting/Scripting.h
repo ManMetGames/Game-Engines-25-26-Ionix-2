@@ -12,6 +12,7 @@
 #include "Scripting/Mafs/MafsScripting.h"
 #include "Scripting/Fysics/FysicsScripting.h"
 #include "Scripting/Graphics/GraphicsScripting.h"
+#include "Scripting/Graphics/VFXScripting.h"
 #include "Scripting/Entity/EntityScripting.h"
 #include "Scripting/UI/UIScripting.h"
 

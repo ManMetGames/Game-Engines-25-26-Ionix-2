@@ -52,7 +52,7 @@ namespace IonixEngine
         auto& transformMap = fysicsManager->GetTransformMap();
         
         // interpolate visual positions for all physics bodies
-        /*for (auto& [body, entity] : bodyMap)
+        for (auto& [body, entity] : bodyMap)
         {
             // skip if no transform data exists yet
             if (transformMap.find(body) == transformMap.end()) continue;
@@ -67,10 +67,9 @@ namespace IonixEngine
             float lerpedRotation = Maf::mafLerp(transform.previousRotation, transform.currentRotation, alpha);
             
             // apply interpolated values to entity (convert from meters to pixels)
-            entity->position.x = lerpedX * ppm;
-            entity->position.y = lerpedY * ppm;
-            entity->rotation = lerpedRotation;
-        }*/
+            entity->transform.SetLocalPosition({ lerpedX * ppm, lerpedY * ppm });
+            entity->transform.SetLocalRotation(lerpedRotation);
+        }
 
 
     }

@@ -1,7 +1,10 @@
 #include "Scripting/Graphics/GraphicsScripting.h"
 #include "Architecture/TextureManager/TextureManager.h"
 #include "GraphicsScripting.h"
+#include "Architecture/Application.h"
+#include "Architecture/Scene.h"
 #include <Graphics/SpriteComponent.h>
+#include <Graphics/Camera.h>
 
 namespace IonixEngine {
 
@@ -19,9 +22,9 @@ namespace IonixEngine {
             TextureManager::Get().AddTexture(filePath, alias);
             };
 
-        auto getCurrentFrame = [](SpriteComponent* spriteComponent ) -> int{
+        auto getCurrentFrame = [](SpriteComponent* spriteComponent) -> int {
             return spriteComponent->getCurrentFrame();
-        };
+            };
 
         auto getEndFrame = [](SpriteComponent* spriteComponent) -> int {
             return spriteComponent->getEndFrame();
@@ -105,9 +108,17 @@ namespace IonixEngine {
             spriteComponent->setZedOrder(x);
             };
 
-        auto getPlaybackMode = [](SpriteComponent* spriteComponent) -> int{
+        auto setAngle = [](SpriteComponent* spriteComponent, float angle) {
+            spriteComponent->setAngle(angle);
+            };
+
+        auto getAngle = [](SpriteComponent* spriteComponent) -> float {
+            return spriteComponent->getAngle();
+            };
+
+        auto getPlaybackMode = [](SpriteComponent* spriteComponent) -> int {
             return spriteComponent->getPlaybackMode();
-        };
+            };
 
         auto setPlaybackMode = [](SpriteComponent* spriteComponent, int playbackMode) {
             spriteComponent->setPlaybackMode(static_cast<IonixEngine::playbackOptions>(playbackMode));
@@ -117,7 +128,110 @@ namespace IonixEngine {
             spriteComponent->setColor(static_cast<Uint8>(r), static_cast<Uint8>(g), static_cast<Uint8>(b));
             };
 
-        
+        auto setTexture = [](SpriteComponent* spriteComponent, uint32_t textureHash) {
+            spriteComponent->setTexture(textureHash);
+            };
+
+
+        auto emitParticle = [](uint32_t textureHash,
+            int renderLayer,
+            float x,
+            float y,
+            float vx,
+            float vy,
+            float lifetime,
+            sol::optional<float> startSize,
+            sol::optional<float> endSize,
+            sol::optional<bool> useRainbow,
+            sol::optional<int> startR,
+            sol::optional<int> startG,
+            sol::optional<int> startB,
+            sol::optional<int> startA,
+            sol::optional<int> endR,
+            sol::optional<int> endG,
+            sol::optional<int> endB,
+            sol::optional<int> endA) {
+                if (!Application::Get().layerScene || !Application::Get().layerScene->GetScene()) {
+                    return;
+                }
+
+                Scene* scene = Application::Get().layerScene->GetScene();
+                scene->GetParticleSystem().Emit(
+                    textureHash,
+                    renderLayer,
+                    x,
+                    y,
+                    vx,
+                    vy,
+                    lifetime,
+                    startSize.value_or(32.0f),
+                    endSize.value_or(8.0f),
+                    static_cast<Uint8>(startR.value_or(255)),
+                    static_cast<Uint8>(startG.value_or(255)),
+                    static_cast<Uint8>(startB.value_or(255)),
+                    static_cast<Uint8>(startA.value_or(255)),
+                    static_cast<Uint8>(endR.value_or(255)),
+                    static_cast<Uint8>(endG.value_or(255)),
+                    static_cast<Uint8>(endB.value_or(255)),
+                    static_cast<Uint8>(endA.value_or(0)),
+                    7,
+                    0.0f, 0.0f,
+                    0.0f,
+                    useRainbow.value_or(false)
+                );
+            };
+
+        //camera
+        auto Camera = [](float startX, float startY, int renderLayer) {
+            return new IonixEngine::Camera(startX, startY, renderLayer);
+            };
+
+        auto initializeCamera = [](IonixEngine::Camera* camera) {
+            camera->Init();
+            };
+
+        auto SetZoom = [](SDL_Renderer* renderer, int zoom) {
+            Application::Get().currentCam->SetZoom(renderer, zoom);
+            };
+
+        auto ClearBackground = [](SDL_Renderer* renderer) {
+            Application::Get().currentCam->ClearBackground(renderer);
+            };
+
+        auto SetColor = [](Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
+            Application::Get().currentCam->SetColor(r, g, b, a);
+            };
+        auto MoveCamera = [](float deltaX, float deltaY, bool moveCamDelta) {
+            Application::Get().currentCam->MoveCamera(deltaX, deltaY, moveCamDelta);
+            };
+        auto switchcamera = []() {
+            Application::Get().currentCam->SwitchCamera();
+            };
+        auto rotateCamera = [](float angle) {
+            Application::Get().currentCam->Rotate(angle);
+            };
+        auto rotateEnity = [](Entity* e, float angle) {
+            Application::Get().currentCam->RotateEntity(e, angle);
+            };
+        auto renderToScreen = [](SDL_Renderer* renderer, float posX, float posY, float sizeX, float sizeY) {
+            Application::Get().currentCam->RenderToScreen(renderer, posX, posY, sizeX, sizeY);
+            };
+
+
+
+        auto setAnimation = [](SpriteComponent* spriteComponent, int rows, int cols, int spriteW, int spriteH) {
+            spriteComponent->setAnimation(rows, cols, spriteW, spriteH);
+            };
+
+        auto setTickRate = [](SpriteComponent* spriteComponent, float x) {
+            spriteComponent->setTickRate(x);
+            };
+
+        auto getTickRate = [](SpriteComponent* spriteComponent) -> float {
+            return spriteComponent->getTickRate();
+            };
+
+
         lua["Texture"] = lua.create_table_with(
             "add_texture", texture
         );
@@ -129,20 +243,47 @@ namespace IonixEngine {
             "columns", getColumns,
             "width", getWidth,
             "height", getHeight,
+            "image_width", getImageWidth,
+            "image_height", getImageHeight,
             "zed_order", getZedOrder,
             "total_frames", getTotalFrames,
             "current_column", getCurrentColumn,
             "current_row", getCurrentRow,
+            "get_tick_rate", getTickRate,
             "set_current_frame", setCurrentFrame,
             "set_end_frame", setEndFrame,
             "set_rows", setRows,
             "set_columns", setColumns,
             "set_width", setWidth,
             "set_height", setHeight,
+            "set_image_width", setImageWidth,
+            "set_image_height", setImageHeight,
             "set_zed_order", setZedOrder,
+            "set_angle", setAngle,
+            "get_angle", getAngle,
             "get_playback_mode", getPlaybackMode,
             "set_playback_mode", setPlaybackMode,
-            "set_color", setColor
+            "set_color", setColor,
+            "set_animation", setAnimation,
+            "set_texture", setTexture,
+            "set_tick_rate", setTickRate
+        );
+
+        lua["Particles"] = lua.create_table_with(
+            "emit", emitParticle
+        );
+
+        lua["Camera"] = lua.create_table_with(
+            "create_camera", Camera,
+            "initialize_camera", initializeCamera,
+            "set_zoom", SetZoom,
+            "clear_background", ClearBackground,
+            "Set_color", SetColor,
+            "move_camera", MoveCamera,
+            "switch_camera", switchcamera,
+            "rotate_camera", rotateCamera,
+            "rotate_entity", rotateEnity,
+            "render_to_screen", renderToScreen
         );
     }
 
