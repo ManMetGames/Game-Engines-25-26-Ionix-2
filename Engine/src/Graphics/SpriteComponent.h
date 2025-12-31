@@ -15,7 +15,6 @@ namespace IonixEngine {
 		PLAYONCE,
 		ONEFRAME
 	};
-
 	class SpriteComponent : public Component {
 		// for now we will assume all spritesheets are 1 row	and of uniform size (32x32, 64x64 etc.)
 		// will improve later on	
@@ -23,28 +22,23 @@ namespace IonixEngine {
 		SDL_Point size;
 		SDL_Rect src;
 		int zOrder;
-		float width = 0.0f;
-		float height = 0.0f;
+		float width, height;
 		int totalFrames;
 		int currentFrame;
 		int endFrame;
-		bool isReversing; // kai is smelly (its true)
+		bool isReversing;
 		int rows, cols;
 		int spriteWidth, spriteHeight;
-		int currentRow = 0, currentCol = 0;
-		float spriteAngle = 0.0f;
-		int renderLayer;
-		float timer = 0.0f;
-		float tickRate;
+		int currentRow, currentCol;
+		float timer;
 		b2Vec2 boxColliderSize;
-
+		
 		// Color tint (default white = no tint)
 		Uint8 colorR = 255;
 		Uint8 colorG = 255;
 		Uint8 colorB = 255;
 
 		enum playbackOptions playbackMode;
-		void RecalcFrameSize();
 
 	public:
 		SpriteComponent(Entity* entity, std::string alias, int width, int height, int zedOrder);
@@ -56,7 +50,7 @@ namespace IonixEngine {
 
 		//utility functions
 
-		void changeTexture(std::string alias, int rows, int cols, int spriteWidth, int spriteHeight);
+		void changeTexture(std::string alias);
 		void initialiseSpritesheet();
 		void setAnimation(int rows, int cols, int spriteWidth, int spriteHeight);
 
@@ -72,12 +66,9 @@ namespace IonixEngine {
 		void setZedOrder(int x);
 		void setWidth(int x);
 		void setHeight(int x);
-		void setAngle(float angle);
-		void setTickRate(float x);
 		void setBoxColliderSize(b2Vec2 newSize);
 		void setColor(Uint8 r, Uint8 g, Uint8 b);
 
-		void setTexture(uint32_t hash);
 		//Getters
 		IonixEngine::playbackOptions getPlaybackMode();
 		int getCurrentFrame();
@@ -92,8 +83,6 @@ namespace IonixEngine {
 		int getCurrentRow();
 		int getWidth();
 		int getHeight();
-		float getAngle();
-		int getTickRate();
 		b2Vec2 getBoxColliderSize();
 	};
 }

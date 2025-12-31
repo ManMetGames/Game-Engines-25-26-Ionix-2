@@ -56,9 +56,7 @@ namespace IonixEngine
 
         int GetPositionInMesh(b2Vec2 position);
 
-        //also Olesya gonna make a funnel that is fun *for* all! *Yessss
-
-        std::vector<b2Vec2> Funnel(const std::vector<int>& cellPath);
+        //also Olesya gonna make a funnel that is fun *for* all!
 
 
     };

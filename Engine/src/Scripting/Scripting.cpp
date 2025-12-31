@@ -20,9 +20,7 @@ namespace IonixEngine {
             sol::lib::math,
             sol::lib::table,
             sol::lib::io,
-            sol::lib::package,
-            sol::lib::coroutine,
-            sol::lib::os
+            sol::lib::package
         );
 
 
@@ -39,9 +37,7 @@ namespace IonixEngine {
         AudioScripting::Get().Init(m_LuaState);
         GraphicsScripting::Get().Init(m_LuaState);
         EntityScripting::Get().Init(m_LuaState);
-        UIScripting::Get().Init(m_LuaState); 
-        JsonScripting::Get().Init(m_LuaState);
-		FirebaseScripting::Get().Init(m_LuaState);
+        UIScripting::Get().Init(m_LuaState);       
     }
 
     void Scripting::ExecuteScript(const std::string& scriptName) {
@@ -83,23 +79,6 @@ namespace IonixEngine {
         catch (...) {
             std::cerr << "Unknown exception while calling hook '"
                       << hookName << "'\n";
-        }
-    }
-
-    //-----------Collision Hook----------------
-
-    void Scripting::CallHook(const std::string& hookName, Entity* entityA, Entity* entityB) {
-        sol::function hook = m_LuaState[hookName];
-        if (hook.valid()) {
-            try {
-                hook(entityA, entityB);
-            }
-            catch (const std::exception& e) {
-                std::cerr << "Error calling hook '" << hookName << "': " << e.what() << '\n';
-            }
-        }
-        else {
-            std::cerr << "Hook '" << hookName << "' is invalid\n";
         }
     }
 

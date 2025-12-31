@@ -41,14 +41,6 @@ namespace IonixEngine
                 return;
             }
 
-            // Calculate target volume
-            int vol = mute ? 0 : static_cast<int>(volume);
-            
-            // Don't play if volume is 0
-            if (vol <= 0)
-            {
-                return;
-            }
 
             // Choose fade in or instant start
             if (fadeMilliseconds > 0)
@@ -60,9 +52,10 @@ namespace IonixEngine
                 m_Channel = Mix_PlayChannel(-1, chunk, numOfLoops);
             }
 
-            // Apply volume to the channel
+            // Apply volume/mute
             if (m_Channel != -1)
             {
+                int vol = mute ? 0 : static_cast<int>(volume);
                 Mix_Volume(m_Channel, vol);
             }
 
@@ -76,8 +69,6 @@ namespace IonixEngine
         void ChangeVolume(float vol)
         {
             volume = vol;
-            
-            // Update the channel volume if currently playing
             if (m_Channel != -1 && !mute)
             {
                 Mix_Volume(m_Channel, static_cast<int>(volume));

@@ -1,9 +1,9 @@
 #pragma once
 #include <imgui.h>
 #include <string>
+#include <functional>
+#include <vector>
 #include <unordered_map>
-#include <utility>
- #include <filesystem>
 
 namespace IonixEngine
 {
@@ -12,115 +12,47 @@ namespace IonixEngine
     public:
         std::unordered_map<std::string, ImFont*> fontMap;
 
-        ImFont* GetFont(const std::string& fontName)
+        ImFont* GetFont(std::string fontName)
         {
-            auto it = fontMap.find(fontName);
-            return (it != fontMap.end()) ? it->second : nullptr;
+            return fontMap[fontName];
         }
 
         void AddMap(std::pair<std::string, ImFont*> newFont)
         {
-            fontMap.insert(std::move(newFont));
+            fontMap.insert(newFont);
         }
 
         void LoadFonts()
         {
             ImGuiIO& io = ImGui::GetIO();
+            // Load the default font
+            io.Fonts->AddFontDefault();
 
-            // IMPORTANT: set atlas size BEFORE adding fonts (esp. for JP/CJK glyph ranges)
-            io.Fonts->TexDesiredWidth = 4096;
 
-            ImFontConfig cfg;
-            cfg.OversampleH = 3;
-            cfg.OversampleV = 2;
-            cfg.PixelSnapH  = true;
+            
+           
 
-            // -------------------------
-            // ImGui default family (baked at multiple sizes to avoid blurry scaling)
-            // -------------------------
-            ImFontConfig def18 = cfg;
-            def18.SizePixels = 18.0f;
-            ImFont* imguiDefault = io.Fonts->AddFontDefault(&def18);
-            IM_ASSERT(imguiDefault != nullptr);
-            io.FontDefault = imguiDefault;
-            AddMap({ "ImGuiDefault", imguiDefault });
+            // Load the font in
+            ImFont* font_title = io.Fonts->AddFontFromFileTTF("TTT-Regular.otf", 23.0f, NULL, io.Fonts->GetGlyphRangesDefault());
+            IM_ASSERT(font_title != NULL);
+            AddMap({"Font1", font_title });
+            ImFont* font_body = io.Fonts->AddFontFromFileTTF("TTT-Bold.otf", 18.0f, NULL, io.Fonts->GetGlyphRangesDefault());
+            IM_ASSERT(font_body != NULL);
+            AddMap({ "Font1Bold",font_body });
 
-            // "Bold" variant for default font (fake bold via rasterizer multiply)
-            ImFontConfig bold18 = cfg;
-            bold18.SizePixels = 18.0f;
-            bold18.RasterizerMultiply = 1.65f; // tweak if needed
-            ImFont* imguiDefaultBold = io.Fonts->AddFontDefault(&bold18);
-            IM_ASSERT(imguiDefaultBold != nullptr);
-            AddMap({ "ImGuiDefaultBold", imguiDefaultBold });
+            ImFont* font_title2 = io.Fonts->AddFontFromFileTTF("CenturyGothic.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesDefault());
+            IM_ASSERT(font_title2 != NULL);
+            AddMap({ "Font2",font_title2 });
+            ImFont* font_title2bold = io.Fonts->AddFontFromFileTTF("CenturyGothicBold.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesDefault());
+            IM_ASSERT(font_title2bold != NULL);
+            AddMap({ "Font2Bold",font_title2bold });
+            ImFont* font_title2italic = io.Fonts->AddFontFromFileTTF("CenturyGothicItalic.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesDefault());
+            IM_ASSERT(font_title2italic != NULL);
+            AddMap({ "Font2Italic",font_title2italic });
 
-            // Sub / header / title sizes (use these instead of scaling)
-            ImFontConfig sub24 = cfg;
-            sub24.SizePixels = 24.0f;
-            ImFont* imguiSub = io.Fonts->AddFontDefault(&sub24);
-            IM_ASSERT(imguiSub != nullptr);
-            AddMap({ "ImGuiSub", imguiSub });
 
-            ImFontConfig header28 = cfg;
-            header28.SizePixels = 28.0f;
-            header28.RasterizerMultiply = 1.65f; // keep header weight similar to Bold
-            ImFont* imguiHeader = io.Fonts->AddFontDefault(&header28);
-            IM_ASSERT(imguiHeader != nullptr);
-            AddMap({ "ImGuiHeader", imguiHeader });
 
-            ImFontConfig title42 = cfg;
-            title42.SizePixels = 42.0f;
-            title42.RasterizerMultiply = 1.65f;
-            ImFont* imguiTitle = io.Fonts->AddFontDefault(&title42);
-            IM_ASSERT(imguiTitle != nullptr);
-            AddMap({ "ImGuiTitle", imguiTitle });
-
-            // -------------------------
-            // Japanese UI fonts (Noto Sans JP) - also baked at multiple sizes
-            // -------------------------
-            const ImWchar* jpRanges = io.Fonts->GetGlyphRangesJapanese();
-
-            auto AddFontFromFileIfExists = [&](
-                const char* filename,
-                float sizePixels,
-                const ImFontConfig* fontCfg,
-                const ImWchar* ranges,
-                ImFont* fallback,
-                const char* mapName
-            )
-            {
-                ImFont* font = fallback;
-                if (std::filesystem::exists(filename))
-                {
-                    font = io.Fonts->AddFontFromFileTTF(filename, sizePixels, fontCfg, ranges);
-                    if (!font)
-                        font = fallback;
-                }
-                AddMap({ mapName, font });
-                return font;
-            };
-
-            AddFontFromFileIfExists(
-                "Fonts/NotoSansJP-Regular.ttf", 23.0f, &cfg, jpRanges, imguiDefault, "ImGuiDefaultJP");
-
-            AddFontFromFileIfExists(
-                "Fonts/NotoSansJP-Bold.ttf", 23.0f, &cfg, jpRanges, imguiDefaultBold, "ImGuiDefaultBoldJP");
-
-            ImFontConfig jpSubCfg = cfg;
-            jpSubCfg.SizePixels = 29.0f;
-            AddFontFromFileIfExists(
-                "Fonts/NotoSansJP-Regular.ttf", 29.0f, &jpSubCfg, jpRanges, imguiSub, "ImGuiSubJP");
-
-            ImFontConfig jpHeaderCfg = cfg;
-            jpHeaderCfg.SizePixels = 33.0f;
-            AddFontFromFileIfExists(
-                "Fonts/NotoSansJP-Bold.ttf", 33.0f, &jpHeaderCfg, jpRanges, imguiHeader, "ImGuiHeaderJP");
-
-            ImFontConfig jpTitleCfg = cfg;
-            jpTitleCfg.SizePixels = 47.0f;
-            AddFontFromFileIfExists(
-                "Fonts/NotoSansJP-Bold.ttf", 47.0f, &jpTitleCfg, jpRanges, imguiTitle, "ImGuiTitleJP");
-
-            // Build font atlas
+            // Build the font atlas (this can take some time)
             io.Fonts->Build();
         }
     };

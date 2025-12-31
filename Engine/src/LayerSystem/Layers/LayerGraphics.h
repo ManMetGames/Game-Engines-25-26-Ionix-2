@@ -5,8 +5,6 @@
 
 namespace IonixEngine
 {
-    class Camera;
-
     class LayerGraphics : public Layer
     {
 
@@ -26,11 +24,6 @@ namespace IonixEngine
         virtual void OnUpdate() override;
         virtual void OnEvent(IonixEvent& e) override;
         QueueRenderer* GetQueue();
-
-        //Vector of all cameras in the scene
-        std::vector<Camera*> m_Cameras;
     private:
     };
 }
-
-

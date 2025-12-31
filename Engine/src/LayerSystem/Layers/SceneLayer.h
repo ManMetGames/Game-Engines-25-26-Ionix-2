@@ -30,8 +30,6 @@ namespace IonixEngine
 
         static Scene* CurrentScene();
 
-        std::vector<Entity>& GetEntities() { return GetScene()->GetEntities(); }
-
     private:
         std::unique_ptr<Scene> m_Current;
         static SceneHandle& Handle() {

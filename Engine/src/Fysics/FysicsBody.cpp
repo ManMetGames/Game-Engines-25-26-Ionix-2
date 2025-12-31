@@ -71,7 +71,6 @@ namespace IonixEngine
 
     b2Body* FysicsBody::GetBody() { return body; }
 
-
     b2Vec2 FysicsBody::GetPosition(Entity* entity) const
     {
         b2Body* body = Application::Get().layerFysics->GetFysicsManager()->GetBodyFromEntity(entity);

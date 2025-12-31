@@ -57,13 +57,7 @@ Desktop.ini
 # --- Project ---
 dependencies
 
-# --- Editor ---
-!Ionix 2 - Editor/
-!Ionix 2 - Editor/*
-!Ionix 2 - Editor/**/*
-
 # --- Misc ---
-
 .idea/
 imgui.ini
 dependencies/bin/imgui/obj/
@@ -77,24 +71,3 @@ Client/*
 !Client/Scripts/*.lua
 !Client/Assets/
 !Client/Assets/*.png
-!Client/Fonts/
-
-Client/Scripts/Settings.lua
-
-# --- Firebase C++ SDK (track only what we need) ---
-!/dependencies/
-!/dependencies/bin/
-!/dependencies/bin/firebase_cpp_sdk/
-!/dependencies/bin/firebase_cpp_sdk/include/**
-
-# Track only the libs we link against (avoid huge libs)
-!/dependencies/bin/firebase_cpp_sdk/libs/windows/VS2019/MD/x64/Release/firebase_app.lib
-!/dependencies/bin/firebase_cpp_sdk/libs/windows/VS2019/MD/x64/Release/firebase_database.lib
-
-# Ignore everything in Firebase SDK by default
-/dependencies/bin/firebase_cpp_sdk/**
-
-# But keep headers + the two libs we need
-!/dependencies/bin/firebase_cpp_sdk/include/**
-!/dependencies/bin/firebase_cpp_sdk/libs/windows/VS2019/MD/x64/Release/firebase_app.lib
-!/dependencies/bin/firebase_cpp_sdk/libs/windows/VS2019/MD/x64/Release/firebase_database.lib
