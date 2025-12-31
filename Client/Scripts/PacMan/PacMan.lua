@@ -94,23 +94,25 @@ function ExampleScript:OnUpdate()
     local vx = Mafs.get_vec_x(vel1);
     local vy1 = Mafs.get_vec_y(vel1)
     
-    --if Input.get_key_down(Kyes.ionix_d) then Fysics.set_linear_velocity(player1, 20, 0) end
-
 	if Input.get_key_down(Keys.ionix_w) then -- move up
         vy1 = -1
         vx = 0
+        Entity.set_global_rot(player1, 270)
 	end
     if Input.get_key_down(Keys.ionix_s) then -- move down
          vy1 = 1
           vx = 0
+        Entity.set_global_rot(player1, 90)
     end
     if Input.get_key_down(Keys.ionix_a) then -- move left
         vx = -1
         vy1 = 0
+        Entity.set_global_rot(player1, 180)
     end
     if Input.get_key_down(Keys.ionix_d) then -- move right
         vx = 1
         vy1 = 0
+        Entity.set_global_rot(player1, 0)
     end
     Fysics.set_linear_velocity(player1, vx, vy1)
 end

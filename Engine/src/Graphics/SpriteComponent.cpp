@@ -99,7 +99,7 @@ namespace IonixEngine {
 		//create and send render data to the render queue
 		data->queue->AddToQueue(RenderCall{
 			texture,
-			SDL_Rect { (int)(position.x), (int)(position.y), (int)width, (int)height },
+			SDL_Rect { (int)(position.x - width / 2.0f), (int)(position.y - height / 2.0f), (int)width, (int)height },
 			SDL_Rect { spriteWidth * currentCol, spriteHeight * currentRow, spriteWidth, spriteHeight },
 			0,  // z-order (not being used in current RenderCall)
 			angleDegrees,

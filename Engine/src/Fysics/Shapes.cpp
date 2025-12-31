@@ -63,8 +63,8 @@ namespace IonixEngine {
         b2Vec2 halfSize((size.x * 0.5f) * scaleFactor, (size.y * 0.5f) * scaleFactor);
 
         b2Vec2 offset;
-        offset.x = xScale / 2;
-        offset.y = yScale / 2;
+        offset.x = 0;
+        offset.y = 0;
 
         shape.SetAsBox(halfSize.x, halfSize.y, offset, angle);
 
