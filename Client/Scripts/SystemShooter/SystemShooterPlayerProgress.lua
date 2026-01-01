@@ -145,10 +145,10 @@ local UPGRADE_CONFIG = {
         weight       = 4,
         -- Chain hits configuration
         chainRadius  = 200,       -- Radius to search for next target (pixels)
-        maxBounces   = 3,         -- Maximum chain bounces
+        maxBounces   = 2,         -- Maximum chain bounces
         -- Damage percentages per bounce (of enemy current health)
-        bounceDamagePercent = { 0.03, 0.02, 0.01 },  -- 3%, 2%, 1%
-        minDamage    = 2,         -- Minimum damage per bounce
+        bounceDamagePercent = { 0.02, 0.01 },  -- 2%, 1%
+        minDamage    = 3,         -- Minimum damage per bounce
         -- Lightning VFX configuration (yellow, different from overhealth)
         lightningLifetime = 0.30,
         lightningColor = { r = 255, g = 220, b = 50, a = 255 },  -- Yellow/gold

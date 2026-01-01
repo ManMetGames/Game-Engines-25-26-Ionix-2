@@ -206,6 +206,12 @@ local ProcessChainHits  -- Forward declaration for chain hits function
 local overhealthRingId = nil  -- VFX ring ID for overhealth effect
 local wasOverhealthActive = false  -- Track previous state to detect transitions    
 
+-- Overhealth lightning tracking (for following source position)
+local overhealthLightnings = {}  -- Array of { lightningId, targetEnemy }
+
+-- Chain lightning tracking (for following source position)
+local chainLightnings = {}  -- Array of { lightningId, sourceEnemy, targetEnemy }
+
 local function GetActiveEnemyCount()
     local count = 0
     for i = 1, #enemies do
@@ -394,6 +400,10 @@ local function ResetRunStateForMenu()
         overhealthRingId = nil
     end
     wasOverhealthActive = false
+    
+    -- Clean up lightning VFX tracking
+    overhealthLightnings = {}
+    chainLightnings = {}
 
     -- Reset player state via module
     SystemShooterPlayer.resetForRun()
@@ -2136,6 +2146,8 @@ function SystemShooter:OnUpdate()
                 VFX.destroy_ring(overhealthRingId)
                 overhealthRingId = nil
             end
+            -- Clear any remaining overhealth lightnings (they should be expired by now)
+            overhealthLightnings = {}
         end
         wasOverhealthActive = overhealthActive
         
@@ -2205,6 +2217,9 @@ function SystemShooter:OnUpdate()
                         VFX.set_lightning_flicker(lightningId, true, 0.03)  -- Fast flicker for electric effect
                         VFX.set_lightning_render_layer(lightningId, 0, 20)  -- High z-order, above ring
                         VFX.set_lightning_fade_out(lightningId, true)
+                        
+                        -- Track lightning so we can update its start position to follow the player
+                        table.insert(overhealthLightnings, { lightningId = lightningId, targetEnemy = enemy })
                     end
                     
                     -- Calculate damage as configured percentage of enemy max health, with a minimum
@@ -2247,6 +2262,58 @@ function SystemShooter:OnUpdate()
         
         -- Update enemy movement
         UpdateEnemyMovement()
+        
+        -- Update overhealth lightning positions to follow player and target enemies
+        local pX, pY = SystemShooterPlayer.getPosition()
+        local pSize = SystemShooterPlayer.getSize()
+        local playerCenterX = pX + pSize / 2
+        local playerCenterY = pY + pSize / 2
+        
+        -- Update and cleanup overhealth lightnings
+        local i = 1
+        while i <= #overhealthLightnings do
+            local lightning = overhealthLightnings[i]
+            if VFX.is_lightning_active(lightning.lightningId) then
+                local enemy = lightning.targetEnemy
+                if enemy and not enemy.isDead then
+                    local eSize = enemy.displaySize or enemy.size or enemySize
+                    local enemyCenterX = enemy.x
+                    local enemyCenterY = enemy.y
+                    VFX.set_lightning_position(lightning.lightningId, playerCenterX, playerCenterY, enemyCenterX, enemyCenterY)
+                    i = i + 1
+                else
+                    -- Enemy died or lightning expired, remove from tracking
+                    table.remove(overhealthLightnings, i)
+                end
+            else
+                -- Lightning expired, remove from tracking
+                table.remove(overhealthLightnings, i)
+            end
+        end
+        
+        -- Update and cleanup chain lightnings
+        i = 1
+        while i <= #chainLightnings do
+            local lightning = chainLightnings[i]
+            if VFX.is_lightning_active(lightning.lightningId) then
+                local source = lightning.sourceEnemy
+                local target = lightning.targetEnemy
+                if source and target and not source.isDead and not target.isDead then
+                    local sourceCenterX = source.x
+                    local sourceCenterY = source.y
+                    local targetCenterX = target.x
+                    local targetCenterY = target.y
+                    VFX.set_lightning_position(lightning.lightningId, sourceCenterX, sourceCenterY, targetCenterX, targetCenterY)
+                    i = i + 1
+                else
+                    -- Enemy died or lightning expired, remove from tracking
+                    table.remove(chainLightnings, i)
+                end
+            else
+                -- Lightning expired, remove from tracking
+                table.remove(chainLightnings, i)
+            end
+        end
     end
 
     ParticleSystem.update(dt)
@@ -2778,6 +2845,9 @@ ProcessChainHits = function(sourceEnemy, alreadyHit)
             VFX.set_lightning_flicker(lightningId, true, 0.02)
             VFX.set_lightning_render_layer(lightningId, 0, 18)  -- Slightly below overhealth zap
             VFX.set_lightning_fade_out(lightningId, true)
+            
+            -- Track lightning so we can update its position to follow source and target enemies
+            table.insert(chainLightnings, { lightningId = lightningId, sourceEnemy = currentEnemy, targetEnemy = closestEnemy })
         end
         
         -- Calculate damage as percentage of current health
