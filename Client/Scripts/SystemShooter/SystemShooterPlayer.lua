@@ -509,8 +509,8 @@ local function spawnProjectile(onShotFired)
         local dirX = s.dirX or aimDirX
         local dirY = s.dirY or aimDirY
 
-        local spawnX = tipX + offsetX - projectileSize/2
-        local spawnY = tipY + offsetY - projectileSize/2
+        local spawnX = tipX + offsetX
+        local spawnY = tipY + offsetY
         SystemShooterProjectiles.spawnPlayerProjectile(spawnX, spawnY, dirX, dirY, pierceCount, bounceCount, s)
     end
 end

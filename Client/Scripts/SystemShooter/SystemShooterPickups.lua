@@ -103,9 +103,7 @@ function SystemShooterPickups.applyBeatBop(bopT)
             local scaledSize = math.floor(baseSize * scale)
             Sprite.set_image_width(pickup.sprite, scaledSize)
             Sprite.set_image_height(pickup.sprite, scaledSize)
-            
-            local offset = (scaledSize - baseSize) / 2
-            Entity.set_global_pos(pickup.entity, pickup.x - offset, pickup.y - offset)
+            -- No position adjustment needed - sprite scaling is centered automatically
         end
     end
 end
@@ -120,7 +118,7 @@ function SystemShooterPickups.resetBop()
             local baseSize = pickup.baseSize or CONFIG.ORB_SIZE
             Sprite.set_image_width(pickup.sprite, baseSize)
             Sprite.set_image_height(pickup.sprite, baseSize)
-            Entity.set_global_pos(pickup.entity, pickup.x, pickup.y)
+            -- No position reset needed - position should remain unchanged
         end
     end
 end

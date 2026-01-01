@@ -195,18 +195,14 @@ function SystemShooterProjectiles.spawnPlayerProjectile(spawnX, spawnY, dirX, di
         projData = { entity = proj }
     end
 
-    -- Adjust spawn position for larger projectiles
-    local adjustedSpawnX = spawnX - (actualSize - cfg.size) / 2
-    local adjustedSpawnY = spawnY - (actualSize - cfg.size) / 2
-
-    -- Set position and rotation
-    Entity.set_global_pos(projData.entity, adjustedSpawnX, adjustedSpawnY)
+    -- Set position and rotation (no adjustment needed - sprites scale from center)
+    Entity.set_global_pos(projData.entity, spawnX, spawnY)
     local projAngle = math.deg(math.atan(dirY, dirX)) + 90
     Entity.set_global_rot(projData.entity, projAngle)
 
     -- Initialize projectile data
-    projData.x = adjustedSpawnX
-    projData.y = adjustedSpawnY
+    projData.x = spawnX
+    projData.y = spawnY
     projData.vx = dirX * cfg.speed
     projData.vy = dirY * cfg.speed
     projData.age = 0
@@ -459,8 +455,8 @@ local function spawnEnemySingleProjectile(enemy, dirX, dirY)
     local eSize = enemy.displaySize or enemy.size or 48
     local enemyCenterX = enemy.x + eSize/2
     local enemyCenterY = enemy.y + eSize/2
-    local spawnX = enemyCenterX - cfg.size/2
-    local spawnY = enemyCenterY - cfg.size/2
+    local spawnX = enemyCenterX
+    local spawnY = enemyCenterY
     
     Entity.set_global_pos(projData.entity, spawnX, spawnY)
     local projAngle = math.deg(math.atan(dirY, dirX)) + 90
