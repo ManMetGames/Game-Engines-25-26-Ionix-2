@@ -200,6 +200,7 @@ local enemySize = 48
 local enemies = {}
 local levelEnemyHealth = 50
 local StartLevel
+local ProcessChainHits  -- Forward declaration for chain hits function
 
 -- Overhealth ring VFX
 local overhealthRingId = nil  -- VFX ring ID for overhealth effect
@@ -2701,7 +2702,7 @@ end
  --=====================================================================
  --  [CHAIN HITS] Process chain lightning when enemy is hit
  --=====================================================================
-local function ProcessChainHits(sourceEnemy, alreadyHit)
+ProcessChainHits = function(sourceEnemy, alreadyHit)
     if not SystemShooterPlayerProgress.isChainHitsEnabled() then return end
     
     local cfg = SystemShooterPlayerProgress.getChainHitsConfig()
@@ -3184,8 +3185,7 @@ function UpdateBeatBop()
                 local scaledSize = math.floor(currentSize * scale)
                 Sprite.set_image_width(enemy.sprite, scaledSize)
                 Sprite.set_image_height(enemy.sprite, scaledSize)
-                local offset = (scaledSize - currentSize) / 2
-                Entity.set_global_pos(enemy.entity, enemy.x - offset, enemy.y - offset)
+                -- No position adjustment needed - sprite scaling should be centered automatically
             end
             ::continue_bop1::
         end
@@ -3205,7 +3205,7 @@ function UpdateBeatBop()
                 local currentSize = enemy.displaySize or enemy.baseSize or enemy.size or enemyBaseImageSize
                 Sprite.set_image_width(enemy.sprite, math.floor(currentSize))
                 Sprite.set_image_height(enemy.sprite, math.floor(currentSize))
-                Entity.set_global_pos(enemy.entity, enemy.x, enemy.y)
+                -- No position reset needed - position should remain unchanged
             end
             ::continue_bop2::
         end
