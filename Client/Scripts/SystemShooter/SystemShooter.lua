@@ -24,7 +24,7 @@ local SystemShooterDifficulty = require("Scripts.SystemShooter.SystemShooterDiff
 local GAME_ID = "SYSTEM_SHOOTER"
 
 -- Highest stage reached (persisted locally per-game)
-local bestStage = Json.load_high_score(GAME_ID) or 0
+local bestScore = Json.load_high_score(GAME_ID) or 0
 
 -- Persistent player name (shared across games)
 local playerName = Json.load_player_name()
@@ -135,12 +135,12 @@ local function GetPlayerNameForLeaderboard()
     return "Anon"
 end
 
-local function TryUpdateBestStage(stage)
-    if stage == nil then return end
-    stage = math.floor(stage)
-    if stage > (bestStage or 0) then
-        bestStage = stage
-        Json.save_high_score(GAME_ID, bestStage)
+local function TryUpdateBestScore(score)
+    if score == nil then return end
+    score = math.floor(score)
+    if score > (bestScore or 0) then
+        bestScore = score
+        Json.save_high_score(GAME_ID, bestScore)
     end
 end
 
@@ -493,13 +493,27 @@ local function CaptureEndRunSummary()
     local bounce  = SystemShooterPlayerProgress.getBounceCount()
     local fireI   = SystemShooterPlayerProgress.getCurrentFireInterval()
     local maxHP   = SystemShooterPlayerProgress.getMaxHealth()
+    local noWitnesses = SystemShooterPlayerProgress.getLowEnemyDamageStacks()
+    local healingOrbUpgrades = SystemShooterPlayerProgress.getHealingOrbSpawnUpgrade()
+    local antivirusUpgrade = SystemShooterPlayerProgress.getAntivirusUpgrade()
+    local overhealthUpgrade = SystemShooterPlayerProgress.getOverhealthUpgrade()
+    local chainHitsUpgrade = SystemShooterPlayerProgress.getChainHitsUpgrade()
+    local totalXp = SystemShooterPlayerProgress.getTotalXpEarned()
 
     local pLevel, pXp, pXpToNext = SystemShooterPlayerProgress.getProgress()
+    
+    -- Calculate score: Total XP * difficulty multiplier
+    local scoreMultiplier = SystemShooterDifficulty.getScoreMultiplier()
+    local score = math.floor(totalXp * scoreMultiplier)
+    local difficultyName = SystemShooterDifficulty.getConfig().name or "Medium"
 
     return {
         stageReached = currentLevel or 1,
         playerLevel = pLevel or 1,
         xp = pXp or 0,
+        totalXp = totalXp or 0,
+        score = score,
+        difficulty = difficultyName,
         timeSurvived = runTimeSeconds or 0,
         enemiesKilled = runEnemiesKilled or 0,
         shotsFired = runShotsFired or 0,
@@ -513,6 +527,11 @@ local function CaptureEndRunSummary()
             bounce = bounce or 0,
             fireInterval = fireI or 0.5,
             maxHealth = maxHP or 100,
+            noWitnesses = noWitnesses or 0,
+            healingOrbUpgrades = healingOrbUpgrades or 0,
+            antivirus = antivirusUpgrade or 0,
+            overhealth = overhealthUpgrade or 0,
+            chainHits = chainHitsUpgrade or 0,
         }
     }
 end
@@ -666,8 +685,7 @@ LoadLevel = function(index, resetPlayerState)
 
     currentLevel = index
 
-    -- Persist best stage + submit to leaderboard (only if higher stage than last time)
-    TryUpdateBestStage(currentLevel)
+    -- Note: Best score is now updated at game over, not per-level
     levelTimerSeconds = cfg.timeLimitSeconds or 0
     levelXpGained = 0
     notificationMessage = ""
@@ -750,7 +768,7 @@ end
 
 local function OnEnemyKilled()
     local nextIndex = currentLevel + 1
-    TryUpdateBestStage(nextIndex)
+    -- Note: Best score is now updated at game over, not per-level
     SystemShooterLevels.regenerateLevel(nextIndex)
     if SystemShooterLevels.getLevelConfig(nextIndex) then
         StartLevel(nextIndex, false)
@@ -1151,7 +1169,7 @@ local function DrawMainMenu(screenW, screenH, dt)
     UI.add_centered_label(panelW*0.9, titleY + math.floor(panelH * 0.0), playerName, "ImGuiDefault", 1.2)
 
     -- Best stage
-    UI.add_centered_label(cx, subY + math.floor(panelH * 0.08), T("menu.beststage") .. tostring(bestStage or 0), UI_FONT_SUB, 1)
+    UI.add_centered_label(cx, subY + math.floor(panelH * 0.08), T("menu.bestscore") .. tostring(bestScore or 0), UI_FONT_SUB, 1)
 
     -- Buttons
     local bw, bh = math.floor(math.min(panelW * 0.62, 560)), 60
@@ -1302,7 +1320,7 @@ local function DrawLeaderboardMenu(screenW, screenH, dt, context)
     local lineH = 26
 
     if topLeaderboard then
-        local stageX = math.floor(contentW * 0.68)
+        local scoreX = math.floor(contentW * 0.68)
 
         for i = 1, 10 do
             local e = topLeaderboard[i]
@@ -1310,9 +1328,9 @@ local function DrawLeaderboardMenu(screenW, screenH, dt, context)
 
             if e then
                 local name = tostring(e.name)
-                local stage = tonumber(e.score) or 0
+                local score = tonumber(e.score) or 0
                 UI.add_label(listX, y, 0, 0, string.format("%2d. %s", i, name), UI_FONT_REG, 1.1)
-                UI.add_label(stageX, y, 0, 0, string.format(T("leaderboard.stage"), stage), UI_FONT_REG, 1.1)
+                UI.add_label(scoreX, y, 0, 0, string.format(T("leaderboard.score"), score), UI_FONT_REG, 1.1)
             else
                 UI.add_label(listX, y, 0, 0, string.format("%2d. --", i), "ImGuiDefault", 1.1)
             end
@@ -1572,6 +1590,10 @@ local function SubmitLeaderboardScoreOnce(score)
     score = math.floor(tonumber(score) or 0)
     if score <= 0 then return end
 
+    -- Update local best score
+    TryUpdateBestScore(score)
+    
+    -- Submit to online leaderboard
     Firebase.submit_high_score(GAME_ID, playerName, score)
     runLeaderboardSubmitted = true
 end
@@ -1606,7 +1628,7 @@ local function DrawGameOverMenu(screenW, screenH, dt)
     UI_FONT_TITLE, 1)
 
     local summary = endRunSummary or CaptureEndRunSummary()
-    SubmitLeaderboardScoreOnce(summary.stageReached or 1)
+    SubmitLeaderboardScoreOnce(summary.score or 0)  -- Submit score instead of stage
     local shotsFired = tonumber(summary.shotsFired or 0) or 0
     local shotsHit = tonumber(summary.shotsHit or 0) or 0
 
@@ -1643,17 +1665,20 @@ local function DrawGameOverMenu(screenW, screenH, dt)
 
     -- Left column: results + combat
     UI.add_label(leftX, 10, 0, 0, T("summary.overall"), UI_FONT_HEADER, 0.8)
+    AddKV(leftX, y, T("summary.score"), summary.score or 0, true); y = y + lineH
     AddKV(leftX, y, T("summary.stage"), summary.stageReached or 1, true); y = y + lineH
     AddKV(leftX, y, T("summary.level"), summary.playerLevel or 1, true); y = y + lineH
+    AddKV(leftX, y, T("summary.difficulty"), summary.difficulty or "Medium", true); y = y + lineH
+    AddKV(leftX, y, T("summary.totalxp"), summary.totalXp or 0, true); y = y + lineH
     AddKV(leftX, y, T("summary.duration"), FormatTimeMMSS(summary.timeSurvived or 0), true); y = y + lineH
-    AddKV(leftX, y, T("summary.totalkilled"), summary.enemiesKilled or 0, true); y = y + (lineH*2)
+    AddKV(leftX, y, T("summary.totalkilled"), summary.enemiesKilled or 0, true); y = y + lineH
 
     y = y + 10
     UI.add_label(leftX, y - 5, 0, 0, T("summary.combat"), UI_FONT_HEADER, 0.8); y = y + lineH
     AddKV(leftX, y, T("summary.shotsfired"), shotsFired, false); y = y + lineH
     AddKV(leftX, y, T("summary.accuracy"), accuracyText, false); y = y + lineH
-    AddKV(leftX, y, T("summary.dmgdealt"), summary.damageDealt or 0, false); y = y + lineH
-    AddKV(leftX, y, T("summary.dmgtaken"), summary.damageTaken or 0, false); y = y + lineH
+    AddKV(leftX, y, T("summary.dmgdealt"), math.floor(summary.damageDealt or 0), false); y = y + lineH
+    AddKV(leftX, y, T("summary.dmgtaken"), math.floor(summary.damageTaken or 0), false); y = y + lineH
     AddKV(leftX, y, T("summary.hphealed"), summary.healingCollected or 0, false); y = y + lineH
 
     -- Right column: build recap
@@ -1663,8 +1688,13 @@ local function DrawGameOverMenu(screenW, screenH, dt)
     UI.add_label(rightX, ry, 0, 0, T("summary.firepower") .. tostring(b.firepower or 1), UI_FONT_REG, 1); ry = ry + lineH
     UI.add_label(rightX, ry, 0, 0, T("summary.pierce") .. tostring(b.pierce or 0), UI_FONT_REG, 1); ry = ry + lineH
     UI.add_label(rightX, ry, 0, 0, T("summary.bounce") .. tostring(b.bounce or 0), UI_FONT_REG, 1); ry = ry + lineH
-    UI.add_label(rightX, ry, 0, 0, string.format(T("summary.fireinterval"), tonumber(b.fireInterval or 0.5) or 0.5), UI_FONT_REG, 1); ry = ry + lineH
-    UI.add_label(rightX, ry, 0, 0, T("summary.maxhp") .. tostring(b.maxHealth or 100), UI_FONT_REG, 1)
+    UI.add_label(rightX, ry, 0, 0, T("summary.firerate") .. tostring(b.fireRateUpgrades or 0), UI_FONT_REG, 1); ry = ry + lineH
+    UI.add_label(rightX, ry, 0, 0, T("summary.maxhp") .. tostring(b.maxHealth or 100), UI_FONT_REG, 1); ry = ry + lineH
+    UI.add_label(rightX, ry, 0, 0, T("summary.nowitnesses") .. tostring(b.noWitnesses or 0), UI_FONT_REG, 1); ry = ry + lineH
+    UI.add_label(rightX, ry, 0, 0, T("summary.healingorbs") .. tostring(b.healingOrbUpgrades or 0), UI_FONT_REG, 1); ry = ry + lineH
+    UI.add_label(rightX, ry, 0, 0, T("summary.antivirus") .. (b.antivirus > 0 and "Yes" or "No"), UI_FONT_REG, 1); ry = ry + lineH
+    UI.add_label(rightX, ry, 0, 0, T("summary.overhealth") .. (b.overhealth > 0 and "Yes" or "No"), UI_FONT_REG, 1); ry = ry + lineH
+    UI.add_label(rightX, ry, 0, 0, T("summary.chainhits") .. (b.chainHits > 0 and "Yes" or "No"), UI_FONT_REG, 1)
 
     UI.end_child()
 

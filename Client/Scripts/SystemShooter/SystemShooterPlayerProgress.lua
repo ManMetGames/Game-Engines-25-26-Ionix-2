@@ -158,6 +158,7 @@ local UPGRADE_CONFIG = {
 local playerLevel = 1
 local xp = 0
 local xpToNextLevel = 100
+local totalXpEarned = 0  -- Total XP earned across the entire run (for score calculation)
 
 local playerStats = {
     firepower = 1,
@@ -388,6 +389,7 @@ end
 
 function SystemShooterPlayerProgress.addXp(amount)
     xp = xp + amount
+    totalXpEarned = totalXpEarned + amount  -- Track total XP for score
     while xp >= xpToNextLevel do
         xp = xp - xpToNextLevel
         OnLevelUp()
@@ -408,6 +410,10 @@ end
 
 function SystemShooterPlayerProgress.getProgress()
     return playerLevel, xp, xpToNextLevel
+end
+
+function SystemShooterPlayerProgress.getTotalXpEarned()
+    return totalXpEarned
 end
 
 function SystemShooterPlayerProgress.getFirepower()
@@ -446,6 +452,23 @@ end
 
 function SystemShooterPlayerProgress.getStats()
     return playerStats
+end
+
+-- Getter functions for summary display
+function SystemShooterPlayerProgress.getHealingOrbSpawnUpgrade()
+    return playerStats.healingOrbSpawnUpgrade or 0
+end
+
+function SystemShooterPlayerProgress.getAntivirusUpgrade()
+    return playerStats.antivirusUpgrade or 0
+end
+
+function SystemShooterPlayerProgress.getOverhealthUpgrade()
+    return playerStats.overhealthUpgrade or 0
+end
+
+function SystemShooterPlayerProgress.getChainHitsUpgrade()
+    return playerStats.chainHitsUpgrade or 0
 end
 
 function SystemShooterPlayerProgress.getTimeoutCount()
@@ -540,6 +563,7 @@ function SystemShooterPlayerProgress.reset()
     playerLevel = 1
     xp = 0
     xpToNextLevel = 100
+    totalXpEarned = 0  -- Reset total XP for new run
     pendingLevelUp = false
     timeoutCount = 0
     
