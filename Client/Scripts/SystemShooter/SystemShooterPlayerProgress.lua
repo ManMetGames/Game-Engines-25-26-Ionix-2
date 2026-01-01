@@ -37,7 +37,7 @@ local UPGRADE_CONFIG = {
         minLevel     = 1,
         maxValue     = 8,
         defaultValue = 1,
-        weight       = 10,  -- Higher weight = more common
+        weight       = 8,  -- Higher weight = more common
     },
     pierce = {
         statKey      = "pierceCount",
@@ -65,7 +65,7 @@ local UPGRADE_CONFIG = {
         maxValue     = 3,
         defaultValue = 0,
         customApply  = true,
-        weight       = 8,
+        weight       = 7,
         -- Delta values for each upgrade level
         levelDeltas  = { 0.1, 0.05, 0.025 },  -- [1] = first upgrade, [2] = second, etc.
     },
@@ -88,13 +88,13 @@ local UPGRADE_CONFIG = {
         maxValue     = 2,
         defaultValue = 100,
         increment    = 50,
-        weight       = 4,
+        weight       = 3,
     },
     healing_orb_spawn = {
         statKey      = "healingOrbSpawnUpgrade",
         label        = "upgradetype.healingorbspawn",
         desc         = "upgradedesc.healingorbspawn",
-        minLevel     = 6,
+        minLevel     = 7,
         maxValue     = 2,
         defaultValue = 0,
         customApply  = true,
@@ -118,7 +118,7 @@ local UPGRADE_CONFIG = {
         statKey      = "overhealthUpgrade",
         label        = "upgradetype.overhealth",
         desc         = "upgradedesc.overhealth",
-        minLevel     = 8,
+        minLevel     = 6,
         maxValue     = 1,
         defaultValue = 0,
         customApply  = true,
@@ -138,7 +138,7 @@ local UPGRADE_CONFIG = {
         statKey      = "chainHitsUpgrade",
         label        = "upgradetype.chain_hits",
         desc         = "upgradedesc.chain_hits",
-        minLevel     = 10,
+        minLevel     = 8,
         maxValue     = 1,
         defaultValue = 0,
         customApply  = true,
@@ -147,8 +147,8 @@ local UPGRADE_CONFIG = {
         chainRadius  = 200,       -- Radius to search for next target (pixels)
         maxBounces   = 3,         -- Maximum chain bounces
         -- Damage percentages per bounce (of enemy current health)
-        bounceDamagePercent = { 0.05, 0.04, 0.03 },  -- 5%, 4%, 3%
-        minDamage    = 8,         -- Minimum damage per bounce
+        bounceDamagePercent = { 0.03, 0.02, 0.01 },  -- 3%, 2%, 1%
+        minDamage    = 2,         -- Minimum damage per bounce
         -- Lightning VFX configuration (yellow, different from overhealth)
         lightningLifetime = 0.30,
         lightningColor = { r = 255, g = 220, b = 50, a = 255 },  -- Yellow/gold
