@@ -564,6 +564,21 @@ namespace IonixEngine {
         m_Lightnings[id].pathY.clear();
     }
 
+    void VFXSystem::SetLightningPosition(int id, float startX, float startY, float endX, float endY) {
+        if (id < 0 || static_cast<std::size_t>(id) >= m_Lightnings.size() || !m_Lightnings[id].active) {
+            return;
+        }
+        
+        LightningEffect& lightning = m_Lightnings[id];
+        lightning.x1 = startX;
+        lightning.y1 = startY;
+        lightning.x2 = endX;
+        lightning.y2 = endY;
+        
+        // Regenerate path with new positions
+        GenerateLightningPath(lightning);
+    }
+
     void VFXSystem::SetLightningColor(int id, Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
         if (id < 0 || static_cast<std::size_t>(id) >= m_Lightnings.size() || !m_Lightnings[id].active) {
             return;
