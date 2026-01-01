@@ -868,6 +868,9 @@ function SystemShooter:OnStart()
                 local color = enemy.color or {255, 255, 255}
                 ParticleSystem.emitHitBurst(enemyCenterX, enemyCenterY, color[1], color[2], color[3])
                 SystemShooterAudio.playImpact()
+                
+                -- Trigger chain hits if enabled (chains from the hit enemy to nearby enemies)
+                ProcessChainHits(enemy, { [enemy] = true })
             end,
             onEnemyKilled = function(enemy, allEnemies)
                 local eSize = enemy.size or enemySize
@@ -2662,6 +2665,162 @@ if levelCfg.timeLimitSeconds ~= nil and levelCfg.timeLimitSeconds > 0 then
         end
     elseif levelTimerSeconds <= 0 and enemiesAlive and not SystemShooterRewind.isActive() then
         OnLevelTimeout()
+    end
+end
+
+ --=====================================================================
+ --  [CHAIN HITS] Process chain lightning when enemy is hit
+ --=====================================================================
+local function ProcessChainHits(sourceEnemy, alreadyHit)
+    if not SystemShooterPlayerProgress.isChainHitsEnabled() then return end
+    
+    local cfg = SystemShooterPlayerProgress.getChainHitsConfig()
+    if not cfg then return end
+    
+    local chainRadius = cfg.chainRadius or 200
+    local maxBounces = cfg.maxBounces or 3
+    local bounceDamagePercent = cfg.bounceDamagePercent or { 0.05, 0.04, 0.03 }
+    local minDamage = cfg.minDamage or 3
+    local lightningLifetime = cfg.lightningLifetime or 0.30
+    local lightningColor = cfg.lightningColor or { r = 255, g = 220, b = 50, a = 255 }
+    
+    -- Track already hit enemies to avoid re-hitting
+    alreadyHit = alreadyHit or {}
+    alreadyHit[sourceEnemy] = true
+    
+    local currentEnemy = sourceEnemy
+    local bounceCount = 0
+    
+    -- Chain up to maxBounces times
+    while bounceCount < maxBounces do
+        local sourceSize = currentEnemy.displaySize or currentEnemy.size or enemySize
+        local sourceCenterX = currentEnemy.x + sourceSize / 2
+        local sourceCenterY = currentEnemy.y + sourceSize / 2
+        
+        -- Find closest enemy within chain radius that hasn't been hit
+        local closestEnemy = nil
+        local closestDistSq = chainRadius * chainRadius
+        
+        for i = 1, #enemies do
+            local enemy = enemies[i]
+            if not enemy.isDead and not enemy.disabled and not alreadyHit[enemy] then
+                local isVisible = enemy.teleportVisible == nil or enemy.teleportVisible
+                if isVisible then
+                    local eSize = enemy.displaySize or enemy.size or enemySize
+                    local enemyCenterX = enemy.x + eSize / 2
+                    local enemyCenterY = enemy.y + eSize / 2
+                    local dx = enemyCenterX - sourceCenterX
+                    local dy = enemyCenterY - sourceCenterY
+                    local distSq = dx * dx + dy * dy
+                    
+                    if distSq < closestDistSq then
+                        closestDistSq = distSq
+                        closestEnemy = enemy
+                    end
+                end
+            end
+        end
+        
+        -- No valid target found, stop chaining
+        if not closestEnemy then break end
+        
+        -- Mark as hit
+        alreadyHit[closestEnemy] = true
+        bounceCount = bounceCount + 1
+        
+        -- Get target position
+        local targetSize = closestEnemy.displaySize or closestEnemy.size or enemySize
+        local targetCenterX = closestEnemy.x + targetSize / 2
+        local targetCenterY = closestEnemy.y + targetSize / 2
+        
+        -- Create lightning bolt VFX from source to target (yellow chain lightning)
+        local lightningId = VFX.create_lightning(sourceCenterX, sourceCenterY, targetCenterX, targetCenterY, lightningLifetime)
+        if lightningId and lightningId >= 0 then
+            VFX.set_lightning_color(lightningId, lightningColor.r, lightningColor.g, lightningColor.b, lightningColor.a)
+            -- Faster flicker for chain hits to differentiate from overhealth lightning
+            VFX.set_lightning_flicker(lightningId, true, 0.02)
+            VFX.set_lightning_render_layer(lightningId, 0, 18)  -- Slightly below overhealth zap
+            VFX.set_lightning_fade_out(lightningId, true)
+        end
+        
+        -- Calculate damage as percentage of current health
+        local damagePercent = bounceDamagePercent[bounceCount] or 0.03
+        local currentHealth = closestEnemy.health or 0
+        local percentDamage = currentHealth * damagePercent
+        local actualDamage = math.max(percentDamage, minDamage)
+        
+        -- Apply damage
+        closestEnemy.health = closestEnemy.health - actualDamage
+        
+        -- Flash enemy
+        FlashEnemy(closestEnemy)
+        SystemShooterEnemy.updateDisplaySize(closestEnemy)
+        
+        -- Emit hit particles
+        local color = closestEnemy.color or {255, 255, 255}
+        ParticleSystem.emitHitBurst(targetCenterX, targetCenterY, color[1], color[2], color[3])
+        
+        -- Track damage dealt
+        runDamageDealt = runDamageDealt + actualDamage
+        
+        -- Grant XP for damage dealt
+        local xpFromDamage = math.floor(actualDamage)
+        if xpFromDamage > 0 then
+            levelXpGained = levelXpGained + xpFromDamage
+            SystemShooterPlayerProgress.addXp(xpFromDamage)
+        end
+        
+        -- Check if enemy died
+        if closestEnemy.health <= 0 and not closestEnemy.isDead then
+            closestEnemy.isDead = true
+            Entity.set_global_pos(closestEnemy.entity, -1000, -1000)
+            
+            -- Try to spawn healing orb at enemy death location
+            SystemShooterPickups.trySpawnHealingOrb(targetCenterX, targetCenterY)
+            
+            runEnemiesKilled = runEnemiesKilled + 1
+            
+            -- Check if all enemies are dead
+            local allDead = true
+            for _, e in ipairs(enemies) do
+                if not e.isDead then
+                    allDead = false
+                    break
+                end
+            end
+            if allDead then
+                local levelCfg = SystemShooterLevels.getLevelConfig(currentLevel)
+                local totalTime = levelCfg and levelCfg.timeLimitSeconds or 0
+                local timeBonusCfg = SystemShooterPlayerProgress.getTimeBonusConfig()
+                local difficultyXpPercent = SystemShooterDifficulty.getBonusXpPercent()
+                
+                local shouldAwardBonus = totalTime > 0 and levelTimerSeconds > 0
+                if timeBonusCfg.requireNonMutated then
+                    shouldAwardBonus = shouldAwardBonus and not mutatedLevels[currentLevel]
+                end
+                
+                if shouldAwardBonus then
+                    local bonusRatio = levelTimerSeconds / totalTime
+                    local bonusXp = math.floor(levelXpGained * difficultyXpPercent * bonusRatio)
+                    if bonusXp > 0 then
+                        SystemShooterPlayerProgress.addXp(bonusXp)
+                        notificationMessage = "Bonus XP: " .. bonusXp .. " (Time Left: " .. string.format("%.1f", levelTimerSeconds) .. "s)"
+                        notificationTimer = endLevelPeaceDuration
+                    end
+                end
+
+                peaceTimerSeconds = endLevelPeaceDuration
+                isStartLevelPeace = false
+            end
+        end
+        
+        -- Move to next enemy for potential further chaining
+        currentEnemy = closestEnemy
+    end
+    
+    -- Play lightning sound if we chained to any enemies
+    if bounceCount >= 1 then
+        SystemShooterAudio.playLightning1()
     end
 end
 

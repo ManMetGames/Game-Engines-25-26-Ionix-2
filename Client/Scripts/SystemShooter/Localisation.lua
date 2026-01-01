@@ -52,6 +52,8 @@ local STRINGS = {
             ["upgradedesc.antivirus"] = "Become invulnerable for %.1f seconds every %.0f seconds",
         ["upgradetype.overhealth"] = "Overhealth",
             ["upgradedesc.overhealth"] = "Healing past full HP creates Overhealth, which activates an electric circle that damages nearby enemies. Also heal +20hp now.",
+        ["upgradetype.chain_hits"] = "Chain Hits",
+            ["upgradedesc.chain_hits"] = "When you hit an enemy, lightning chains to nearby enemies (up to 3 bounces), dealing % of their current health.",
 
     ["pause.title"] = "PAUSED",
     ["pause.resume"] = "RESUME",
@@ -141,6 +143,8 @@ local STRINGS = {
             ["upgradedesc.antivirus"] = "%.0f秒ごとに%.1f秒間、無敵になる。",
         ["upgradetype.overhealth"] = "オーバーヘルス",
             ["upgradedesc.overhealth"] = "最大HPを超えて回復するとオーバーヘルスになり、周囲の敵にダメージを与える電気の輪が発生する。さらに回復量が+20HPになる。",
+        ["upgradetype.chain_hits"] = "連鎖攻撃",
+            ["upgradedesc.chain_hits"] = "敵に当たると、近くの敵に雷が連鎖する（最大3回）。現在HPの割合ダメージを与える。",
     ["pause.title"] = "一時停止",
     ["pause.resume"] = "再開",
     ["pause.quit"] = "メインメニューへ",
