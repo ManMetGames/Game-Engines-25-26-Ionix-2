@@ -218,8 +218,8 @@ end
      EmitBeamCharge
  )
      local dt = Mafs.delta_time()
-     local playerCenterX = playerX + playerSize/2
-     local playerCenterY = playerY + playerSize/2
+     local playerCenterX = playerX
+     local playerCenterY = playerY
 
      for i = 1, #enemies do
          local enemy = enemies[i]
@@ -271,13 +271,14 @@ end
  --=====================================================================
  updateBounceMovement = function(enemy, dt, playerCenterX, playerCenterY, screenW, screenH)
     local enemySize = enemy.size
-    local minX, minY = 0, 0
-    local maxX = screenW - enemySize
-    local maxY = screenH - enemySize
+    local halfSize = enemySize / 2
+    local minX, minY = halfSize, halfSize
+    local maxX = screenW - halfSize
+    local maxY = screenH - halfSize
 
     if enemy.steerStrength > 0 then
-        local enemyCenterX = enemy.x + enemySize/2
-        local enemyCenterY = enemy.y + enemySize/2
+        local enemyCenterX = enemy.x
+        local enemyCenterY = enemy.y
         local dx = playerCenterX - enemyCenterX
         local dy = playerCenterY - enemyCenterY
         local distToPlayer = math.sqrt(dx * dx + dy * dy)
@@ -327,8 +328,8 @@ end
             enemy.dirY = enemy.dirY / len
         end
         
-        local enemyCenterX2 = enemy.x + enemySize/2
-        local enemyCenterY2 = enemy.y + enemySize/2
+        local enemyCenterX2 = enemy.x
+        local enemyCenterY2 = enemy.y
         local toPlayerX = playerCenterX - enemyCenterX2
         local toPlayerY = playerCenterY - enemyCenterY2
         local dist = math.sqrt(toPlayerX * toPlayerX + toPlayerY * toPlayerY)
@@ -362,8 +363,9 @@ end
     local eDisplaySize = enemy.displaySize or enemy.size
     
     enemy.orbitAngle = enemy.orbitAngle + enemy.orbitSpeed * dt
-    enemy.x = centerX + math.cos(enemy.orbitAngle) * enemy.orbitRadius - eDisplaySize/2
-    enemy.y = centerY + math.sin(enemy.orbitAngle) * enemy.orbitRadius - eDisplaySize/2
+    -- Position is center-based, so no need to subtract half size
+    enemy.x = centerX + math.cos(enemy.orbitAngle) * enemy.orbitRadius
+    enemy.y = centerY + math.sin(enemy.orbitAngle) * enemy.orbitRadius
 end
 
  --=====================================================================
@@ -412,8 +414,8 @@ local TELEPORT_GROW_DURATION = 0.25
     
     if enemy.teleportState == "charging" then
         local eDisplaySize = enemy.displaySize or enemy.size
-        local enemyCenterX = enemy.x + eDisplaySize/2
-        local enemyCenterY = enemy.y + eDisplaySize/2
+        local enemyCenterX = enemy.x
+        local enemyCenterY = enemy.y
         
         local lockTime = enemy.teleportChargeTime - 0.2
         if lockTime < 0 then lockTime = 0 end
@@ -448,8 +450,8 @@ local TELEPORT_GROW_DURATION = 0.25
         end
     elseif enemy.teleportState == "shooting" then
         local eDisplaySize = enemy.displaySize or enemy.size
-        local enemyCenterX = enemy.x + eDisplaySize/2
-        local enemyCenterY = enemy.y + eDisplaySize/2
+        local enemyCenterX = enemy.x
+        local enemyCenterY = enemy.y
         local dx = enemy.beamTargetX - enemyCenterX
         local dy = enemy.beamTargetY - enemyCenterY
         local dist = math.sqrt(dx * dx + dy * dy)
@@ -487,8 +489,8 @@ local TELEPORT_GROW_DURATION = 0.25
         Sprite.set_image_width(enemy.sprite, scaledSize)
         Sprite.set_image_height(enemy.sprite, scaledSize)
         if EmitTeleportBurst then
-            local cx = enemy.x + enemy.baseSize/2
-            local cy = enemy.y + enemy.baseSize/2
+            local cx = enemy.x
+            local cy = enemy.y
             EmitTeleportBurst(cx, cy, enemy.color[1], enemy.color[2], enemy.color[3], true)
         end
         if enemy.teleportTimer >= TELEPORT_SHRINK_DURATION then
@@ -516,8 +518,8 @@ local TELEPORT_GROW_DURATION = 0.25
         Sprite.set_image_width(enemy.sprite, scaledSize)
         Sprite.set_image_height(enemy.sprite, scaledSize)
         if EmitTeleportBurst then
-            local cx = enemy.x + enemy.baseSize/2
-            local cy = enemy.y + enemy.baseSize/2
+            local cx = enemy.x
+            local cy = enemy.y
             EmitTeleportBurst(cx, cy, enemy.color[1], enemy.color[2], enemy.color[3], false)
         end
         if enemy.teleportTimer >= TELEPORT_GROW_DURATION then

@@ -90,9 +90,9 @@ function SystemShooterPlayer.init(config)
     -- Create player triangle
     player = Entity.create_entity()
 
-    -- Start at center of screen
-    playerX = screenW / 2 - playerSize / 2
-    playerY = screenH / 2 - playerSize / 2
+    -- Start at center of screen (position is center-based)
+    playerX = screenW / 2
+    playerY = screenH / 2
     Entity.set_global_pos(player, playerX, playerY)
 
     -- Add sprite component 
@@ -427,8 +427,10 @@ function SystemShooterPlayer.updateMovement(dt, sensitivity)
     end
 
     -- Clamp to screen bounds
-    playerX = math.max(0, math.min(screenW - playerSize, playerX))
-    playerY = math.max(0, math.min(screenH - playerSize, playerY))
+    -- Clamp center position with half-size margin
+    local margin = playerSize / 2
+    playerX = math.max(margin, math.min(screenW - margin, playerX))
+    playerY = math.max(margin, math.min(screenH - margin, playerY))
 
     -- Update entity position (without recoil offset)
     Entity.set_global_pos(player, playerX, playerY)
@@ -440,8 +442,9 @@ end
 function SystemShooterPlayer.updateAiming(enemies, enemySize)
     local closestEnemy = nil
     local closestDistSq = nil
-    local playerCenterX = playerX + playerSize/2
-    local playerCenterY = playerY + playerSize/2
+    -- playerX/Y are already the center after API change
+    local playerCenterX = playerX
+    local playerCenterY = playerY
 
     for i = 1, #enemies do
         local e = enemies[i]
@@ -462,8 +465,8 @@ function SystemShooterPlayer.updateAiming(enemies, enemySize)
 
     if closestEnemy ~= nil then
         local eSize = closestEnemy.size or enemySize
-        local enemyCenterX = closestEnemy.x + eSize/2
-        local enemyCenterY = closestEnemy.y + eSize/2
+        local enemyCenterX = closestEnemy.x
+        local enemyCenterY = closestEnemy.y
         local dx = enemyCenterX - playerCenterX
         local dy = enemyCenterY - playerCenterY
         local angleRadians = math.atan(dy, dx)
@@ -483,8 +486,9 @@ end
  --=====================================================================
 local function spawnProjectile(onShotFired)
     -- Spawn at tip of triangle (offset in aim direction)
-    local centerX = playerX + playerSize/2
-    local centerY = playerY + playerSize/2
+    -- playerX/Y are already the center after API change
+    local centerX = playerX
+    local centerY = playerY
     local tipX = centerX + aimDirX * (playerSize/2)
     local tipY = centerY + aimDirY * (playerSize/2)
 
@@ -567,8 +571,8 @@ end
  --  [RESET] Reset player state for new level/run
  --=====================================================================
 function SystemShooterPlayer.resetForLevel(resetHealth)
-    playerX = screenW / 2 - playerSize / 2
-    playerY = screenH / 2 - playerSize / 2
+    playerX = screenW / 2
+    playerY = screenH / 2
     Entity.set_global_pos(player, playerX, playerY)
 
     -- Only reset sprite color if antivirus isn't currently active
@@ -591,8 +595,8 @@ function SystemShooterPlayer.resetForRun()
     knockbackTimer = 0
     playerFlashTimer = 0
     playerHealth = SystemShooterPlayerProgress.getMaxHealth()
-    playerX = screenW / 2 - playerSize / 2
-    playerY = screenH / 2 - playerSize / 2
+    playerX = screenW / 2
+    playerY = screenH / 2
     Entity.set_global_pos(player, playerX, playerY)
 
     -- Only reset sprite color if antivirus isn't currently active

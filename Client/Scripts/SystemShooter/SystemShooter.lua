@@ -590,8 +590,8 @@ local function SpawnEnemiesForLevel(spawnDisabled)
     -- Clear spawn positions for rewind system
     SystemShooterRewind.clearSpawnPositions()
 
-    local centerX = screenW / 2 - enemySize / 2
-    local centerY = screenH / 2 - enemySize / 2
+    local centerX = screenW / 2
+    local centerY = screenH / 2
 
     local enemyTemplates = SystemShooterLevels.getEnemyTemplates()
     
@@ -660,8 +660,8 @@ local function SpawnEnemiesForLevel(spawnDisabled)
             local playerCenterY = screenH / 2
             for i = 1, enemyCount do
                 local angle = (2 * math.pi * (i - 1)) / enemyCount
-                local ex = playerCenterX + math.cos(angle) * radius - enemySize / 2
-                local ey = playerCenterY + math.sin(angle) * radius - enemySize / 2
+                local ex = playerCenterX + math.cos(angle) * radius
+                local ey = playerCenterY + math.sin(angle) * radius
                 local e = CreateEnemy(ex, ey, defaultConfig)
                 if spawnDisabled then
                     SystemShooterEnemy.setEnemyDisabled(e, true)
@@ -768,6 +768,12 @@ StartLevel = function(index, resetPlayerState)
 end
 
 local function OnEnemyKilled()
+    -- Check if player just beat stage 50
+    if currentLevel >= 50 then
+        TriggerGameOver()
+        return
+    end
+    
     local nextIndex = currentLevel + 1
     -- Note: Best score is now updated at game over, not per-level
     SystemShooterLevels.regenerateLevel(nextIndex)
@@ -882,8 +888,8 @@ function SystemShooter:OnStart()
                 FlashEnemy(enemy)
                 SystemShooterEnemy.updateDisplaySize(enemy)
                 local eSize = enemy.size or enemySize
-                local enemyCenterX = enemy.x + eSize / 2
-                local enemyCenterY = enemy.y + eSize / 2
+                local enemyCenterX = enemy.x
+                local enemyCenterY = enemy.y
                 local color = enemy.color or {255, 255, 255}
                 ParticleSystem.emitHitBurst(enemyCenterX, enemyCenterY, color[1], color[2], color[3])
                 SystemShooterAudio.playImpact()
@@ -893,8 +899,8 @@ function SystemShooter:OnStart()
             end,
             onEnemyKilled = function(enemy, allEnemies)
                 local eSize = enemy.size or enemySize
-                local deathX = enemy.x + eSize / 2
-                local deathY = enemy.y + eSize / 2
+                local deathX = enemy.x
+                local deathY = enemy.y
                 SystemShooterPickups.trySpawnHealingOrb(deathX, deathY)
                 runEnemiesKilled = runEnemiesKilled + 1
                 enemy.isDead = true
@@ -2149,8 +2155,8 @@ function SystemShooter:OnUpdate()
                 for i = 1, #enemies do
                     local enemy = enemies[i]
                     if not enemy.isDead and not enemy.disabled then
-                        local enemyCenterX = enemy.x + enemySize / 2
-                        local enemyCenterY = enemy.y + enemySize / 2
+                        local enemyCenterX = enemy.x
+                        local enemyCenterY = enemy.y
                         local dx = enemyCenterX - playerCenterX
                         local dy = enemyCenterY - playerCenterY
                         local dist = math.sqrt(dx * dx + dy * dy)
@@ -2226,8 +2232,8 @@ function SystemShooter:OnUpdate()
                         
                         -- Try to spawn healing orb at enemy death location
                         local eSize = enemy.size or enemySize
-                        local deathX = enemy.x + eSize / 2
-                        local deathY = enemy.y + eSize / 2
+                        local deathX = enemy.x
+                        local deathY = enemy.y
                         SystemShooterPickups.trySpawnHealingOrb(deathX, deathY)
                         
                         runEnemiesKilled = runEnemiesKilled + 1
@@ -2725,8 +2731,8 @@ ProcessChainHits = function(sourceEnemy, alreadyHit)
     -- Chain up to maxBounces times
     while bounceCount < maxBounces do
         local sourceSize = currentEnemy.displaySize or currentEnemy.size or enemySize
-        local sourceCenterX = currentEnemy.x + sourceSize / 2
-        local sourceCenterY = currentEnemy.y + sourceSize / 2
+        local sourceCenterX = currentEnemy.x
+        local sourceCenterY = currentEnemy.y
         
         -- Find closest enemy within chain radius that hasn't been hit
         local closestEnemy = nil
@@ -2738,8 +2744,8 @@ ProcessChainHits = function(sourceEnemy, alreadyHit)
                 local isVisible = enemy.teleportVisible == nil or enemy.teleportVisible
                 if isVisible then
                     local eSize = enemy.displaySize or enemy.size or enemySize
-                    local enemyCenterX = enemy.x + eSize / 2
-                    local enemyCenterY = enemy.y + eSize / 2
+                    local enemyCenterX = enemy.x
+                    local enemyCenterY = enemy.y
                     local dx = enemyCenterX - sourceCenterX
                     local dy = enemyCenterY - sourceCenterY
                     local distSq = dx * dx + dy * dy
@@ -2761,8 +2767,8 @@ ProcessChainHits = function(sourceEnemy, alreadyHit)
         
         -- Get target position
         local targetSize = closestEnemy.displaySize or closestEnemy.size or enemySize
-        local targetCenterX = closestEnemy.x + targetSize / 2
-        local targetCenterY = closestEnemy.y + targetSize / 2
+        local targetCenterX = closestEnemy.x
+        local targetCenterY = closestEnemy.y
         
         -- Create lightning bolt VFX from source to target (yellow chain lightning)
         local lightningId = VFX.create_lightning(sourceCenterX, sourceCenterY, targetCenterX, targetCenterY, lightningLifetime)
@@ -2935,16 +2941,16 @@ function UpdateEnemyCollision()
     -- Check collision between enemies and player
     local pX, pY = SystemShooterPlayer.getPosition()
     local pSize = SystemShooterPlayer.getSize()
-    local playerCenterX = pX + pSize/2
-    local playerCenterY = pY + pSize/2
+    local playerCenterX = pX
+    local playerCenterY = pY
     for i = 1, #enemies do
         local enemy = enemies[i]
         -- Skip collision for disabled or dead enemies
         if enemy.disabled or enemy.isDead then
             goto continue_collision
         end
-        local enemyCenterX = enemy.x + enemySize/2
-        local enemyCenterY = enemy.y + enemySize/2
+        local enemyCenterX = enemy.x
+        local enemyCenterY = enemy.y
         local dx = playerCenterX - enemyCenterX
         local dy = playerCenterY - enemyCenterY
         local distSq = dx * dx + dy * dy

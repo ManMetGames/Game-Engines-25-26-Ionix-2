@@ -324,10 +324,10 @@ function SystemShooterRewind.update(dt, enemies, projectiles, enemyProjectiles, 
             local startPos = state.enemyProjStartPositions[i]
             local sourceEnemy = proj.sourceEnemy
             if startPos and sourceEnemy then
-                -- Target is the center of the source enemy
+                -- Target is the center of the source enemy (already center-based)
                 local eSize = sourceEnemy.displaySize or sourceEnemy.size or 48
-                local targetX = sourceEnemy.x + eSize/2 - 12  -- Adjust for projectile size (24/2)
-                local targetY = sourceEnemy.y + eSize/2 - 12
+                local targetX = sourceEnemy.x
+                local targetY = sourceEnemy.y
                 
                 local newX = startPos.x + (targetX - startPos.x) * easedProgress
                 local newY = startPos.y + (targetY - startPos.y) * easedProgress
