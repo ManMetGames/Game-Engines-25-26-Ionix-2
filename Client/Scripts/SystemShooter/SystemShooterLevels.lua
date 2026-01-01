@@ -47,10 +47,10 @@ local generatedLevelCache = {}
 local HEALTH_BUDGET = {
     base = 60,
     perLevel = 15,
-    levelSquaredFactor = 0.5,
-    lateLevelThreshold = 13,
-    lateSquaredFactor = 1.6,
-    lateCubedFactor = 0.3,
+    levelSquaredFactor = 0.7,
+    lateLevelThreshold = 15,
+    lateSquaredFactor = 1.75,
+    lateCubedFactor = 0.045,
 }
 
 local TIMER_CONFIG = {
@@ -168,7 +168,7 @@ local ENEMY_TEMPLATES = {
         healthMax = 350,
         maxPerLevel = 1,
         spaceRequirement = 2,
-        weight = 3,
+        weight = 2,
         baseSize = 40,
         healthScaling = false,
         generate = function(health, level, windowW, windowH)

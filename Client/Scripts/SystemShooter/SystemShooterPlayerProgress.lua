@@ -37,7 +37,7 @@ local UPGRADE_CONFIG = {
         minLevel     = 1,
         maxValue     = 8,
         defaultValue = 1,
-        weight       = 10,  -- Higher weight = more common
+        weight       = 8,  -- Higher weight = more common
     },
     pierce = {
         statKey      = "pierceCount",
@@ -65,7 +65,7 @@ local UPGRADE_CONFIG = {
         maxValue     = 3,
         defaultValue = 0,
         customApply  = true,
-        weight       = 8,
+        weight       = 7,
         -- Delta values for each upgrade level
         levelDeltas  = { 0.1, 0.05, 0.025 },  -- [1] = first upgrade, [2] = second, etc.
     },
@@ -84,17 +84,17 @@ local UPGRADE_CONFIG = {
         statKey      = "maxHealth",
         label        = "upgradetype.maxhp",
         desc         = "upgradedesc.maxhp",
-        minLevel     = 1,
+        minLevel     = 10,
         maxValue     = 2,
         defaultValue = 100,
         increment    = 50,
-        weight       = 1000,
+        weight       = 3,
     },
     healing_orb_spawn = {
         statKey      = "healingOrbSpawnUpgrade",
         label        = "upgradetype.healingorbspawn",
         desc         = "upgradedesc.healingorbspawn",
-        minLevel     = 4,
+        minLevel     = 7,
         maxValue     = 2,
         defaultValue = 0,
         customApply  = true,
@@ -106,7 +106,7 @@ local UPGRADE_CONFIG = {
         statKey      = "antivirusUpgrade",
         label        = "upgradetype.antivirus",
         desc         = "upgradedesc.antivirus",
-        minLevel     = 8,
+        minLevel     = 12,
         maxValue     = 1,
         defaultValue = 0,
         customApply  = true,
@@ -124,8 +124,8 @@ local UPGRADE_CONFIG = {
         customApply  = true,
         weight       = 5,
         -- Configuration for overhealth system
-        decayRate    = 0.65,      -- HP lost per second
-        damageRadius = 300,    -- Circle radius in pixels
+        decayRate    = 0.75,      -- HP lost per second
+        damageRadius = 315,    -- Circle radius in pixels
         -- Lightning zap configuration (replaces continuous DPS)
         zapInterval  = beatsToSeconds(2),    -- Every 2 beats
         zapDamagePercent = 0.075,  -- Percentage of enemy max HP dealt as damage 
@@ -134,11 +134,31 @@ local UPGRADE_CONFIG = {
         lightningLifetime = 0.35,  -- Lightning VFX duration
         lightningColor = { r = 100, g = 200, b = 255, a = 255 },  -- Electric blue
     },
+    chain_hits = {
+        statKey      = "chainHitsUpgrade",
+        label        = "upgradetype.chain_hits",
+        desc         = "upgradedesc.chain_hits",
+        minLevel     = 8,
+        maxValue     = 1,
+        defaultValue = 0,
+        customApply  = true,
+        weight       = 4,
+        -- Chain hits configuration
+        chainRadius  = 200,       -- Radius to search for next target (pixels)
+        maxBounces   = 2,         -- Maximum chain bounces
+        -- Damage percentages per bounce (of enemy current health)
+        bounceDamagePercent = { 0.02, 0.01 },  -- 2%, 1%
+        minDamage    = 3,         -- Minimum damage per bounce
+        -- Lightning VFX configuration (yellow, different from overhealth)
+        lightningLifetime = 0.30,
+        lightningColor = { r = 255, g = 220, b = 50, a = 255 },  -- Yellow/gold
+    },
 }
 
 local playerLevel = 1
 local xp = 0
 local xpToNextLevel = 100
+local totalXpEarned = 0  -- Total XP earned across the entire run (for score calculation)
 
 local playerStats = {
     firepower = 1,
@@ -151,12 +171,16 @@ local playerStats = {
     healingOrbSpawnUpgrade = 0,
     antivirusUpgrade = 0,
     overhealthUpgrade = 0,
+    chainHitsUpgrade = 0,
 }
 
 -- Overhealth tracking (runtime state, not saved)
 local currentOverhealth = 0
 local overhealthEnabled = false
 local overhealthZapTimer = 0  -- Timer for periodic lightning zaps
+
+-- Chain hits tracking
+local chainHitsEnabled = false
 
 local timeoutCount = 0
 
@@ -342,6 +366,12 @@ function SystemShooterPlayerProgress.applyUpgrade(upgradeType)
                 playerStats.overhealthUpgrade = count + 1
                 overhealthEnabled = true
             end
+        elseif upgradeType == "chain_hits" then
+            local count = playerStats.chainHitsUpgrade or 0
+            if count < cfg.maxValue then
+                playerStats.chainHitsUpgrade = count + 1
+                chainHitsEnabled = true
+            end
         end
     else
         local increment = cfg.increment or 1
@@ -359,6 +389,7 @@ end
 
 function SystemShooterPlayerProgress.addXp(amount)
     xp = xp + amount
+    totalXpEarned = totalXpEarned + amount  -- Track total XP for score
     while xp >= xpToNextLevel do
         xp = xp - xpToNextLevel
         OnLevelUp()
@@ -379,6 +410,10 @@ end
 
 function SystemShooterPlayerProgress.getProgress()
     return playerLevel, xp, xpToNextLevel
+end
+
+function SystemShooterPlayerProgress.getTotalXpEarned()
+    return totalXpEarned
 end
 
 function SystemShooterPlayerProgress.getFirepower()
@@ -417,6 +452,23 @@ end
 
 function SystemShooterPlayerProgress.getStats()
     return playerStats
+end
+
+-- Getter functions for summary display
+function SystemShooterPlayerProgress.getHealingOrbSpawnUpgrade()
+    return playerStats.healingOrbSpawnUpgrade or 0
+end
+
+function SystemShooterPlayerProgress.getAntivirusUpgrade()
+    return playerStats.antivirusUpgrade or 0
+end
+
+function SystemShooterPlayerProgress.getOverhealthUpgrade()
+    return playerStats.overhealthUpgrade or 0
+end
+
+function SystemShooterPlayerProgress.getChainHitsUpgrade()
+    return playerStats.chainHitsUpgrade or 0
 end
 
 function SystemShooterPlayerProgress.getTimeoutCount()
@@ -496,10 +548,22 @@ function SystemShooterPlayerProgress.updateOverhealth(dt)
     return false, 0, false, 0, 0
 end
 
+--=====================================================================
+--  CHAIN HITS SYSTEM
+--=====================================================================
+function SystemShooterPlayerProgress.isChainHitsEnabled()
+    return chainHitsEnabled
+end
+
+function SystemShooterPlayerProgress.getChainHitsConfig()
+    return UPGRADE_CONFIG.chain_hits
+end
+
 function SystemShooterPlayerProgress.reset()
     playerLevel = 1
     xp = 0
     xpToNextLevel = 100
+    totalXpEarned = 0  -- Reset total XP for new run
     pendingLevelUp = false
     timeoutCount = 0
     
@@ -513,11 +577,15 @@ function SystemShooterPlayerProgress.reset()
     playerStats.healingOrbSpawnUpgrade = 0
     playerStats.antivirusUpgrade = 0
     playerStats.overhealthUpgrade = 0
+    playerStats.chainHitsUpgrade = 0
     
     -- Reset overhealth
     currentOverhealth = 0
     overhealthEnabled = false
     overhealthZapTimer = 0
+    
+    -- Reset chain hits
+    chainHitsEnabled = false
     
     -- Reset healing orb spawn chance to base value from config
     local SystemShooterPickups = require("Scripts.SystemShooter.SystemShooterPickups")

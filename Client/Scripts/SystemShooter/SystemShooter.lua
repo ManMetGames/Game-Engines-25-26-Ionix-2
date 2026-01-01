@@ -24,7 +24,7 @@ local SystemShooterDifficulty = require("Scripts.SystemShooter.SystemShooterDiff
 local GAME_ID = "SYSTEM_SHOOTER"
 
 -- Highest stage reached (persisted locally per-game)
-local bestStage = Json.load_high_score(GAME_ID) or 0
+local bestScore = Json.load_high_score(GAME_ID) or 0
 
 -- Persistent player name (shared across games)
 local playerName = Json.load_player_name()
@@ -135,12 +135,12 @@ local function GetPlayerNameForLeaderboard()
     return "Anon"
 end
 
-local function TryUpdateBestStage(stage)
-    if stage == nil then return end
-    stage = math.floor(stage)
-    if stage > (bestStage or 0) then
-        bestStage = stage
-        Json.save_high_score(GAME_ID, bestStage)
+local function TryUpdateBestScore(score)
+    if score == nil then return end
+    score = math.floor(score)
+    if score > (bestScore or 0) then
+        bestScore = score
+        Json.save_high_score(GAME_ID, bestScore)
     end
 end
 
@@ -200,10 +200,17 @@ local enemySize = 48
 local enemies = {}
 local levelEnemyHealth = 50
 local StartLevel
+local ProcessChainHits  -- Forward declaration for chain hits function
 
 -- Overhealth ring VFX
 local overhealthRingId = nil  -- VFX ring ID for overhealth effect
 local wasOverhealthActive = false  -- Track previous state to detect transitions    
+
+-- Overhealth lightning tracking (for following source position)
+local overhealthLightnings = {}  -- Array of { lightningId, targetEnemy }
+
+-- Chain lightning tracking (for following source position)
+local chainLightnings = {}  -- Array of { lightningId, sourceEnemy, targetEnemy }
 
 local function GetActiveEnemyCount()
     local count = 0
@@ -261,14 +268,14 @@ function UpdateWindowTransition(dt)
             -- Skip first mouse delta to prevent spawn position snap
             SystemShooterPlayer.skipNextDelta()
             playerInitialized = true
-            
-            -- Start music after first window transition completes (synced with gameplay)
-            if musicEntity and not musicStartedThisLaunch then
-                MusicComponent.play(musicEntity, true, 2.0)  -- loop=true, fadeIn=2.0 seconds
-                musicStartedThisLaunch = true
-                -- Reset beat bop flag to sync with music start
-                beatBopHasStarted = false
-            end
+        end
+        
+        -- Start music after first window transition completes (synced with gameplay)
+        if musicEntity and not musicStartedThisLaunch then
+            MusicComponent.play(musicEntity, true, 2.0)  -- loop=true, fadeIn=2.0 seconds
+            musicStartedThisLaunch = true
+            -- Reset beat bop flag to sync with music start
+            beatBopHasStarted = false
         end
         
         -- Transition to post-phase (delay before loading level)
@@ -393,6 +400,10 @@ local function ResetRunStateForMenu()
         overhealthRingId = nil
     end
     wasOverhealthActive = false
+    
+    -- Clean up lightning VFX tracking
+    overhealthLightnings = {}
+    chainLightnings = {}
 
     -- Reset player state via module
     SystemShooterPlayer.resetForRun()
@@ -493,13 +504,27 @@ local function CaptureEndRunSummary()
     local bounce  = SystemShooterPlayerProgress.getBounceCount()
     local fireI   = SystemShooterPlayerProgress.getCurrentFireInterval()
     local maxHP   = SystemShooterPlayerProgress.getMaxHealth()
+    local noWitnesses = SystemShooterPlayerProgress.getLowEnemyDamageStacks()
+    local healingOrbUpgrades = SystemShooterPlayerProgress.getHealingOrbSpawnUpgrade()
+    local antivirusUpgrade = SystemShooterPlayerProgress.getAntivirusUpgrade()
+    local overhealthUpgrade = SystemShooterPlayerProgress.getOverhealthUpgrade()
+    local chainHitsUpgrade = SystemShooterPlayerProgress.getChainHitsUpgrade()
+    local totalXp = SystemShooterPlayerProgress.getTotalXpEarned()
 
     local pLevel, pXp, pXpToNext = SystemShooterPlayerProgress.getProgress()
+    
+    -- Calculate score: Total XP * difficulty multiplier
+    local scoreMultiplier = SystemShooterDifficulty.getScoreMultiplier()
+    local score = math.floor(totalXp * scoreMultiplier)
+    local difficultyName = SystemShooterDifficulty.getConfig().name or "Medium"
 
     return {
         stageReached = currentLevel or 1,
         playerLevel = pLevel or 1,
         xp = pXp or 0,
+        totalXp = totalXp or 0,
+        score = score,
+        difficulty = difficultyName,
         timeSurvived = runTimeSeconds or 0,
         enemiesKilled = runEnemiesKilled or 0,
         shotsFired = runShotsFired or 0,
@@ -513,6 +538,11 @@ local function CaptureEndRunSummary()
             bounce = bounce or 0,
             fireInterval = fireI or 0.5,
             maxHealth = maxHP or 100,
+            noWitnesses = noWitnesses or 0,
+            healingOrbUpgrades = healingOrbUpgrades or 0,
+            antivirus = antivirusUpgrade or 0,
+            overhealth = overhealthUpgrade or 0,
+            chainHits = chainHitsUpgrade or 0,
         }
     }
 end
@@ -570,8 +600,8 @@ local function SpawnEnemiesForLevel(spawnDisabled)
     -- Clear spawn positions for rewind system
     SystemShooterRewind.clearSpawnPositions()
 
-    local centerX = screenW / 2 - enemySize / 2
-    local centerY = screenH / 2 - enemySize / 2
+    local centerX = screenW / 2
+    local centerY = screenH / 2
 
     local enemyTemplates = SystemShooterLevels.getEnemyTemplates()
     
@@ -640,8 +670,8 @@ local function SpawnEnemiesForLevel(spawnDisabled)
             local playerCenterY = screenH / 2
             for i = 1, enemyCount do
                 local angle = (2 * math.pi * (i - 1)) / enemyCount
-                local ex = playerCenterX + math.cos(angle) * radius - enemySize / 2
-                local ey = playerCenterY + math.sin(angle) * radius - enemySize / 2
+                local ex = playerCenterX + math.cos(angle) * radius
+                local ey = playerCenterY + math.sin(angle) * radius
                 local e = CreateEnemy(ex, ey, defaultConfig)
                 if spawnDisabled then
                     SystemShooterEnemy.setEnemyDisabled(e, true)
@@ -666,8 +696,7 @@ LoadLevel = function(index, resetPlayerState)
 
     currentLevel = index
 
-    -- Persist best stage + submit to leaderboard (only if higher stage than last time)
-    TryUpdateBestStage(currentLevel)
+    -- Note: Best score is now updated at game over, not per-level
     levelTimerSeconds = cfg.timeLimitSeconds or 0
     levelXpGained = 0
     notificationMessage = ""
@@ -749,8 +778,14 @@ StartLevel = function(index, resetPlayerState)
 end
 
 local function OnEnemyKilled()
+    -- Check if player just beat stage 50
+    if currentLevel >= 50 then
+        TriggerGameOver()
+        return
+    end
+    
     local nextIndex = currentLevel + 1
-    TryUpdateBestStage(nextIndex)
+    -- Note: Best score is now updated at game over, not per-level
     SystemShooterLevels.regenerateLevel(nextIndex)
     if SystemShooterLevels.getLevelConfig(nextIndex) then
         StartLevel(nextIndex, false)
@@ -863,16 +898,19 @@ function SystemShooter:OnStart()
                 FlashEnemy(enemy)
                 SystemShooterEnemy.updateDisplaySize(enemy)
                 local eSize = enemy.size or enemySize
-                local enemyCenterX = enemy.x + eSize / 2
-                local enemyCenterY = enemy.y + eSize / 2
+                local enemyCenterX = enemy.x
+                local enemyCenterY = enemy.y
                 local color = enemy.color or {255, 255, 255}
                 ParticleSystem.emitHitBurst(enemyCenterX, enemyCenterY, color[1], color[2], color[3])
                 SystemShooterAudio.playImpact()
+                
+                -- Trigger chain hits if enabled (chains from the hit enemy to nearby enemies)
+                ProcessChainHits(enemy, { [enemy] = true })
             end,
             onEnemyKilled = function(enemy, allEnemies)
                 local eSize = enemy.size or enemySize
-                local deathX = enemy.x + eSize / 2
-                local deathY = enemy.y + eSize / 2
+                local deathX = enemy.x
+                local deathY = enemy.y
                 SystemShooterPickups.trySpawnHealingOrb(deathX, deathY)
                 runEnemiesKilled = runEnemiesKilled + 1
                 enemy.isDead = true
@@ -1148,7 +1186,7 @@ local function DrawMainMenu(screenW, screenH, dt)
     UI.add_centered_label(panelW*0.9, titleY + math.floor(panelH * 0.0), playerName, "ImGuiDefault", 1.2)
 
     -- Best stage
-    UI.add_centered_label(cx, subY + math.floor(panelH * 0.08), T("menu.beststage") .. tostring(bestStage or 0), UI_FONT_SUB, 1)
+    UI.add_centered_label(cx, subY + math.floor(panelH * 0.08), T("menu.bestscore") .. tostring(bestScore or 0), UI_FONT_SUB, 1)
 
     -- Buttons
     local bw, bh = math.floor(math.min(panelW * 0.62, 560)), 60
@@ -1299,7 +1337,7 @@ local function DrawLeaderboardMenu(screenW, screenH, dt, context)
     local lineH = 26
 
     if topLeaderboard then
-        local stageX = math.floor(contentW * 0.68)
+        local scoreX = math.floor(contentW * 0.68)
 
         for i = 1, 10 do
             local e = topLeaderboard[i]
@@ -1307,9 +1345,9 @@ local function DrawLeaderboardMenu(screenW, screenH, dt, context)
 
             if e then
                 local name = tostring(e.name)
-                local stage = tonumber(e.score) or 0
+                local score = tonumber(e.score) or 0
                 UI.add_label(listX, y, 0, 0, string.format("%2d. %s", i, name), UI_FONT_REG, 1.1)
-                UI.add_label(stageX, y, 0, 0, string.format(T("leaderboard.stage"), stage), UI_FONT_REG, 1.1)
+                UI.add_label(scoreX, y, 0, 0, string.format(T("leaderboard.score"), score), UI_FONT_REG, 1.1)
             else
                 UI.add_label(listX, y, 0, 0, string.format("%2d. --", i), "ImGuiDefault", 1.1)
             end
@@ -1569,6 +1607,10 @@ local function SubmitLeaderboardScoreOnce(score)
     score = math.floor(tonumber(score) or 0)
     if score <= 0 then return end
 
+    -- Update local best score
+    TryUpdateBestScore(score)
+    
+    -- Submit to online leaderboard
     Firebase.submit_high_score(GAME_ID, playerName, score)
     runLeaderboardSubmitted = true
 end
@@ -1603,7 +1645,7 @@ local function DrawGameOverMenu(screenW, screenH, dt)
     UI_FONT_TITLE, 1)
 
     local summary = endRunSummary or CaptureEndRunSummary()
-    SubmitLeaderboardScoreOnce(summary.stageReached or 1)
+    SubmitLeaderboardScoreOnce(summary.score or 0)  -- Submit score instead of stage
     local shotsFired = tonumber(summary.shotsFired or 0) or 0
     local shotsHit = tonumber(summary.shotsHit or 0) or 0
 
@@ -1640,17 +1682,20 @@ local function DrawGameOverMenu(screenW, screenH, dt)
 
     -- Left column: results + combat
     UI.add_label(leftX, 10, 0, 0, T("summary.overall"), UI_FONT_HEADER, 0.8)
+    AddKV(leftX, y, T("summary.score"), summary.score or 0, true); y = y + lineH
     AddKV(leftX, y, T("summary.stage"), summary.stageReached or 1, true); y = y + lineH
     AddKV(leftX, y, T("summary.level"), summary.playerLevel or 1, true); y = y + lineH
+    AddKV(leftX, y, T("summary.difficulty"), summary.difficulty or "Medium", true); y = y + lineH
+    AddKV(leftX, y, T("summary.totalxp"), summary.totalXp or 0, true); y = y + lineH
     AddKV(leftX, y, T("summary.duration"), FormatTimeMMSS(summary.timeSurvived or 0), true); y = y + lineH
-    AddKV(leftX, y, T("summary.totalkilled"), summary.enemiesKilled or 0, true); y = y + (lineH*2)
+    AddKV(leftX, y, T("summary.totalkilled"), summary.enemiesKilled or 0, true); y = y + lineH
 
     y = y + 10
     UI.add_label(leftX, y - 5, 0, 0, T("summary.combat"), UI_FONT_HEADER, 0.8); y = y + lineH
     AddKV(leftX, y, T("summary.shotsfired"), shotsFired, false); y = y + lineH
     AddKV(leftX, y, T("summary.accuracy"), accuracyText, false); y = y + lineH
-    AddKV(leftX, y, T("summary.dmgdealt"), summary.damageDealt or 0, false); y = y + lineH
-    AddKV(leftX, y, T("summary.dmgtaken"), summary.damageTaken or 0, false); y = y + lineH
+    AddKV(leftX, y, T("summary.dmgdealt"), math.floor(summary.damageDealt or 0), false); y = y + lineH
+    AddKV(leftX, y, T("summary.dmgtaken"), math.floor(summary.damageTaken or 0), false); y = y + lineH
     AddKV(leftX, y, T("summary.hphealed"), summary.healingCollected or 0, false); y = y + lineH
 
     -- Right column: build recap
@@ -1660,8 +1705,13 @@ local function DrawGameOverMenu(screenW, screenH, dt)
     UI.add_label(rightX, ry, 0, 0, T("summary.firepower") .. tostring(b.firepower or 1), UI_FONT_REG, 1); ry = ry + lineH
     UI.add_label(rightX, ry, 0, 0, T("summary.pierce") .. tostring(b.pierce or 0), UI_FONT_REG, 1); ry = ry + lineH
     UI.add_label(rightX, ry, 0, 0, T("summary.bounce") .. tostring(b.bounce or 0), UI_FONT_REG, 1); ry = ry + lineH
-    UI.add_label(rightX, ry, 0, 0, string.format(T("summary.fireinterval"), tonumber(b.fireInterval or 0.5) or 0.5), UI_FONT_REG, 1); ry = ry + lineH
-    UI.add_label(rightX, ry, 0, 0, T("summary.maxhp") .. tostring(b.maxHealth or 100), UI_FONT_REG, 1)
+    UI.add_label(rightX, ry, 0, 0, T("summary.firerate") .. tostring(b.fireRateUpgrades or 0), UI_FONT_REG, 1); ry = ry + lineH
+    UI.add_label(rightX, ry, 0, 0, T("summary.maxhp") .. tostring(b.maxHealth or 100), UI_FONT_REG, 1); ry = ry + lineH
+    UI.add_label(rightX, ry, 0, 0, T("summary.nowitnesses") .. tostring(b.noWitnesses or 0), UI_FONT_REG, 1); ry = ry + lineH
+    UI.add_label(rightX, ry, 0, 0, T("summary.healingorbs") .. tostring(b.healingOrbUpgrades or 0), UI_FONT_REG, 1); ry = ry + lineH
+    UI.add_label(rightX, ry, 0, 0, T("summary.antivirus") .. (b.antivirus > 0 and "Yes" or "No"), UI_FONT_REG, 1); ry = ry + lineH
+    UI.add_label(rightX, ry, 0, 0, T("summary.overhealth") .. (b.overhealth > 0 and "Yes" or "No"), UI_FONT_REG, 1); ry = ry + lineH
+    UI.add_label(rightX, ry, 0, 0, T("summary.chainhits") .. (b.chainHits > 0 and "Yes" or "No"), UI_FONT_REG, 1)
 
     UI.end_child()
 
@@ -2096,6 +2146,8 @@ function SystemShooter:OnUpdate()
                 VFX.destroy_ring(overhealthRingId)
                 overhealthRingId = nil
             end
+            -- Clear any remaining overhealth lightnings (they should be expired by now)
+            overhealthLightnings = {}
         end
         wasOverhealthActive = overhealthActive
         
@@ -2115,8 +2167,8 @@ function SystemShooter:OnUpdate()
                 for i = 1, #enemies do
                     local enemy = enemies[i]
                     if not enemy.isDead and not enemy.disabled then
-                        local enemyCenterX = enemy.x + enemySize / 2
-                        local enemyCenterY = enemy.y + enemySize / 2
+                        local enemyCenterX = enemy.x
+                        local enemyCenterY = enemy.y
                         local dx = enemyCenterX - playerCenterX
                         local dy = enemyCenterY - playerCenterY
                         local dist = math.sqrt(dx * dx + dy * dy)
@@ -2165,6 +2217,9 @@ function SystemShooter:OnUpdate()
                         VFX.set_lightning_flicker(lightningId, true, 0.03)  -- Fast flicker for electric effect
                         VFX.set_lightning_render_layer(lightningId, 0, 20)  -- High z-order, above ring
                         VFX.set_lightning_fade_out(lightningId, true)
+                        
+                        -- Track lightning so we can update its start position to follow the player
+                        table.insert(overhealthLightnings, { lightningId = lightningId, targetEnemy = enemy })
                     end
                     
                     -- Calculate damage as configured percentage of enemy max health, with a minimum
@@ -2192,8 +2247,8 @@ function SystemShooter:OnUpdate()
                         
                         -- Try to spawn healing orb at enemy death location
                         local eSize = enemy.size or enemySize
-                        local deathX = enemy.x + eSize / 2
-                        local deathY = enemy.y + eSize / 2
+                        local deathX = enemy.x
+                        local deathY = enemy.y
                         SystemShooterPickups.trySpawnHealingOrb(deathX, deathY)
                         
                         runEnemiesKilled = runEnemiesKilled + 1
@@ -2207,6 +2262,58 @@ function SystemShooter:OnUpdate()
         
         -- Update enemy movement
         UpdateEnemyMovement()
+        
+        -- Update overhealth lightning positions to follow player and target enemies
+        local pX, pY = SystemShooterPlayer.getPosition()
+        local pSize = SystemShooterPlayer.getSize()
+        local playerCenterX = pX + pSize / 2
+        local playerCenterY = pY + pSize / 2
+        
+        -- Update and cleanup overhealth lightnings
+        local i = 1
+        while i <= #overhealthLightnings do
+            local lightning = overhealthLightnings[i]
+            if VFX.is_lightning_active(lightning.lightningId) then
+                local enemy = lightning.targetEnemy
+                if enemy and not enemy.isDead then
+                    local eSize = enemy.displaySize or enemy.size or enemySize
+                    local enemyCenterX = enemy.x
+                    local enemyCenterY = enemy.y
+                    VFX.set_lightning_position(lightning.lightningId, playerCenterX, playerCenterY, enemyCenterX, enemyCenterY)
+                    i = i + 1
+                else
+                    -- Enemy died or lightning expired, remove from tracking
+                    table.remove(overhealthLightnings, i)
+                end
+            else
+                -- Lightning expired, remove from tracking
+                table.remove(overhealthLightnings, i)
+            end
+        end
+        
+        -- Update and cleanup chain lightnings
+        i = 1
+        while i <= #chainLightnings do
+            local lightning = chainLightnings[i]
+            if VFX.is_lightning_active(lightning.lightningId) then
+                local source = lightning.sourceEnemy
+                local target = lightning.targetEnemy
+                if source and target and not source.isDead and not target.isDead then
+                    local sourceCenterX = source.x
+                    local sourceCenterY = source.y
+                    local targetCenterX = target.x
+                    local targetCenterY = target.y
+                    VFX.set_lightning_position(lightning.lightningId, sourceCenterX, sourceCenterY, targetCenterX, targetCenterY)
+                    i = i + 1
+                else
+                    -- Enemy died or lightning expired, remove from tracking
+                    table.remove(chainLightnings, i)
+                end
+            else
+                -- Lightning expired, remove from tracking
+                table.remove(chainLightnings, i)
+            end
+        end
     end
 
     ParticleSystem.update(dt)
@@ -2219,6 +2326,11 @@ function SystemShooter:OnUpdate()
         local pSize = SystemShooterPlayer.getSize()
         local healAmount = SystemShooterPickups.checkPlayerCollision(pX, pY, pSize, maxHealth)
         if healAmount then
+            -- If player already has overhealth, halve the incoming healing
+            if SystemShooterPlayerProgress.getOverhealth() > 0 then
+                healAmount = math.floor(healAmount * 0.5)
+            end
+
             local before = SystemShooterPlayer.getHealth()
             local newHealth = before + healAmount
             
@@ -2661,6 +2773,165 @@ if levelCfg.timeLimitSeconds ~= nil and levelCfg.timeLimitSeconds > 0 then
 end
 
  --=====================================================================
+ --  [CHAIN HITS] Process chain lightning when enemy is hit
+ --=====================================================================
+ProcessChainHits = function(sourceEnemy, alreadyHit)
+    if not SystemShooterPlayerProgress.isChainHitsEnabled() then return end
+    
+    local cfg = SystemShooterPlayerProgress.getChainHitsConfig()
+    if not cfg then return end
+    
+    local chainRadius = cfg.chainRadius or 200
+    local maxBounces = cfg.maxBounces or 3
+    local bounceDamagePercent = cfg.bounceDamagePercent or { 0.05, 0.04, 0.03 }
+    local minDamage = cfg.minDamage or 3
+    local lightningLifetime = cfg.lightningLifetime or 0.30
+    local lightningColor = cfg.lightningColor or { r = 255, g = 220, b = 50, a = 255 }
+    
+    -- Track already hit enemies to avoid re-hitting
+    alreadyHit = alreadyHit or {}
+    alreadyHit[sourceEnemy] = true
+    
+    local currentEnemy = sourceEnemy
+    local bounceCount = 0
+    
+    -- Chain up to maxBounces times
+    while bounceCount < maxBounces do
+        local sourceSize = currentEnemy.displaySize or currentEnemy.size or enemySize
+        local sourceCenterX = currentEnemy.x
+        local sourceCenterY = currentEnemy.y
+        
+        -- Find closest enemy within chain radius that hasn't been hit
+        local closestEnemy = nil
+        local closestDistSq = chainRadius * chainRadius
+        
+        for i = 1, #enemies do
+            local enemy = enemies[i]
+            if not enemy.isDead and not enemy.disabled and not alreadyHit[enemy] then
+                local isVisible = enemy.teleportVisible == nil or enemy.teleportVisible
+                if isVisible then
+                    local eSize = enemy.displaySize or enemy.size or enemySize
+                    local enemyCenterX = enemy.x
+                    local enemyCenterY = enemy.y
+                    local dx = enemyCenterX - sourceCenterX
+                    local dy = enemyCenterY - sourceCenterY
+                    local distSq = dx * dx + dy * dy
+                    
+                    if distSq < closestDistSq then
+                        closestDistSq = distSq
+                        closestEnemy = enemy
+                    end
+                end
+            end
+        end
+        
+        -- No valid target found, stop chaining
+        if not closestEnemy then break end
+        
+        -- Mark as hit
+        alreadyHit[closestEnemy] = true
+        bounceCount = bounceCount + 1
+        
+        -- Get target position
+        local targetSize = closestEnemy.displaySize or closestEnemy.size or enemySize
+        local targetCenterX = closestEnemy.x
+        local targetCenterY = closestEnemy.y
+        
+        -- Create lightning bolt VFX from source to target (yellow chain lightning)
+        local lightningId = VFX.create_lightning(sourceCenterX, sourceCenterY, targetCenterX, targetCenterY, lightningLifetime)
+        if lightningId and lightningId >= 0 then
+            VFX.set_lightning_color(lightningId, lightningColor.r, lightningColor.g, lightningColor.b, lightningColor.a)
+            -- Faster flicker for chain hits to differentiate from overhealth lightning
+            VFX.set_lightning_flicker(lightningId, true, 0.02)
+            VFX.set_lightning_render_layer(lightningId, 0, 18)  -- Slightly below overhealth zap
+            VFX.set_lightning_fade_out(lightningId, true)
+            
+            -- Track lightning so we can update its position to follow source and target enemies
+            table.insert(chainLightnings, { lightningId = lightningId, sourceEnemy = currentEnemy, targetEnemy = closestEnemy })
+        end
+        
+        -- Calculate damage as percentage of current health
+        local damagePercent = bounceDamagePercent[bounceCount] or 0.03
+        local currentHealth = closestEnemy.health or 0
+        local percentDamage = currentHealth * damagePercent
+        local actualDamage = math.max(percentDamage, minDamage)
+        
+        -- Apply damage
+        closestEnemy.health = closestEnemy.health - actualDamage
+        
+        -- Flash enemy
+        FlashEnemy(closestEnemy)
+        SystemShooterEnemy.updateDisplaySize(closestEnemy)
+        
+        -- Emit hit particles
+        local color = closestEnemy.color or {255, 255, 255}
+        ParticleSystem.emitHitBurst(targetCenterX, targetCenterY, color[1], color[2], color[3])
+        
+        -- Track damage dealt
+        runDamageDealt = runDamageDealt + actualDamage
+        
+        -- Grant XP for damage dealt
+        local xpFromDamage = math.floor(actualDamage)
+        if xpFromDamage > 0 then
+            levelXpGained = levelXpGained + xpFromDamage
+            SystemShooterPlayerProgress.addXp(xpFromDamage)
+        end
+        
+        -- Check if enemy died
+        if closestEnemy.health <= 0 and not closestEnemy.isDead then
+            closestEnemy.isDead = true
+            Entity.set_global_pos(closestEnemy.entity, -1000, -1000)
+            
+            -- Try to spawn healing orb at enemy death location
+            SystemShooterPickups.trySpawnHealingOrb(targetCenterX, targetCenterY)
+            
+            runEnemiesKilled = runEnemiesKilled + 1
+            
+            -- Check if all enemies are dead
+            local allDead = true
+            for _, e in ipairs(enemies) do
+                if not e.isDead then
+                    allDead = false
+                    break
+                end
+            end
+            if allDead then
+                local levelCfg = SystemShooterLevels.getLevelConfig(currentLevel)
+                local totalTime = levelCfg and levelCfg.timeLimitSeconds or 0
+                local timeBonusCfg = SystemShooterPlayerProgress.getTimeBonusConfig()
+                local difficultyXpPercent = SystemShooterDifficulty.getBonusXpPercent()
+                
+                local shouldAwardBonus = totalTime > 0 and levelTimerSeconds > 0
+                if timeBonusCfg.requireNonMutated then
+                    shouldAwardBonus = shouldAwardBonus and not mutatedLevels[currentLevel]
+                end
+                
+                if shouldAwardBonus then
+                    local bonusRatio = levelTimerSeconds / totalTime
+                    local bonusXp = math.floor(levelXpGained * difficultyXpPercent * bonusRatio)
+                    if bonusXp > 0 then
+                        SystemShooterPlayerProgress.addXp(bonusXp)
+                        notificationMessage = "Bonus XP: " .. bonusXp .. " (Time Left: " .. string.format("%.1f", levelTimerSeconds) .. "s)"
+                        notificationTimer = endLevelPeaceDuration
+                    end
+                end
+
+                peaceTimerSeconds = endLevelPeaceDuration
+                isStartLevelPeace = false
+            end
+        end
+        
+        -- Move to next enemy for potential further chaining
+        currentEnemy = closestEnemy
+    end
+    
+    -- Play lightning sound if we chained to any enemies
+    if bounceCount >= 1 then
+        SystemShooterAudio.playLightning1()
+    end
+end
+
+ --=====================================================================
  --  [DAMAGE / FEEDBACK] Flash + Damage Cooldowns
  --=====================================================================
 function FlashEnemy(enemy)
@@ -2740,16 +3011,16 @@ function UpdateEnemyCollision()
     -- Check collision between enemies and player
     local pX, pY = SystemShooterPlayer.getPosition()
     local pSize = SystemShooterPlayer.getSize()
-    local playerCenterX = pX + pSize/2
-    local playerCenterY = pY + pSize/2
+    local playerCenterX = pX
+    local playerCenterY = pY
     for i = 1, #enemies do
         local enemy = enemies[i]
         -- Skip collision for disabled or dead enemies
         if enemy.disabled or enemy.isDead then
             goto continue_collision
         end
-        local enemyCenterX = enemy.x + enemySize/2
-        local enemyCenterY = enemy.y + enemySize/2
+        local enemyCenterX = enemy.x
+        local enemyCenterY = enemy.y
         local dx = playerCenterX - enemyCenterX
         local dy = playerCenterY - enemyCenterY
         local distSq = dx * dx + dy * dy
@@ -2990,8 +3261,7 @@ function UpdateBeatBop()
                 local scaledSize = math.floor(currentSize * scale)
                 Sprite.set_image_width(enemy.sprite, scaledSize)
                 Sprite.set_image_height(enemy.sprite, scaledSize)
-                local offset = (scaledSize - currentSize) / 2
-                Entity.set_global_pos(enemy.entity, enemy.x - offset, enemy.y - offset)
+                -- No position adjustment needed - sprite scaling should be centered automatically
             end
             ::continue_bop1::
         end
@@ -3011,7 +3281,7 @@ function UpdateBeatBop()
                 local currentSize = enemy.displaySize or enemy.baseSize or enemy.size or enemyBaseImageSize
                 Sprite.set_image_width(enemy.sprite, math.floor(currentSize))
                 Sprite.set_image_height(enemy.sprite, math.floor(currentSize))
-                Entity.set_global_pos(enemy.entity, enemy.x, enemy.y)
+                -- No position reset needed - position should remain unchanged
             end
             ::continue_bop2::
         end

@@ -49,22 +49,6 @@ namespace IonixEngine {
             return returnPos;
             };
 
-        auto getCenterPos = [](Entity* entity) -> b2Vec2 {
-            SpriteComponent* comp = nullptr;
-            if (!entity->TryGetComponent<SpriteComponent>(&comp))
-            {
-                std::cout << "Entity : " << entity->id << " has no sprite component, returning default position."<< std::endl;
-                Vec2 pos = entity->transform.GetGlobalPosition();
-                b2Vec2 nonCenterPos = b2Vec2{ pos.x, pos.y };
-                return nonCenterPos;
-            }
-            Vec2 pos = entity->transform.GetGlobalPosition();            
-            int entW = entity->GetComponent<SpriteComponent>()->getWidth() / 2;
-            int entH = entity->GetComponent<SpriteComponent>()->getHeight() / 2;
-            b2Vec2 returnPos = b2Vec2{ pos.x + entW, pos.y + entH};
-            return returnPos;
-        };
-
         auto getGlobalRot = [](Entity* entity) -> float {
             return entity->transform.GetGlobalRotation();
             };
@@ -270,11 +254,9 @@ namespace IonixEngine {
 
         
 
-        lua["Entity"] = lua.create_table_with(
-            "create_entity", entity,
-            "destroy_entity", destroy,
+        lua.new_usertype<Entity>("EntityType",
+            "destroy", destroy,
             "get_global_pos", getGlobalPos,
-            "get_center_pos", getCenterPos,
             "set_global_pos", setGlobalPos,
             "get_global_rot", getGlobalRot,
             "set_global_rot", setGlobalRot,
@@ -294,8 +276,48 @@ namespace IonixEngine {
             "add_sprite_component", addSpriteComponent,
             "add_audio_component", addAudioPlayerComponent,
             "add_music_component", addMusicComponent,
-            "add_fysics_component", addFysicsBodyComponent,
-            "add_fysics_component", addFysicsBodyComponentWithType,
+            "add_fysics_component", sol::overload(addFysicsBodyComponent, addFysicsBodyComponentWithType),
+            "get_sprite_component", getSpriteComponent,
+            "get_audio_component", getAudioPlayerComponent,
+            "get_music_component", getMusicComponent,
+            "get_fysics_component", getFysicsBodyComponent,
+            "try_get_sprite_component", tryGetSpriteComponent,
+            "try_get_audio_component", tryGetAudioComponent,
+            "try_get_music_component", tryGetMusicComponent,
+            "try_get_fysics_component", tryGetFysicsBodyComponent,
+            "has_sprite_component", hasSpriteComponent,
+            "has_audio_component", hasAudioComponent,
+            "has_music_component", hasMusicComponent,
+            "has_fysics_component", hasFysicsBodyComponent
+        );
+
+
+        //THIS WILL NEED REMOVING SOON, THE ABOVE ONE IS THE CORRECT WAY,
+        //I JUST KEPT THE ONE BELOW SO I DO NOT BREAK PEOPLE'S GAMES RIGHT NOW - Xandru
+        lua["Entity"] = lua.create_table_with(
+            "create_entity", entity,
+            "destroy_entity", destroy,
+            "get_global_pos", getGlobalPos,
+            "set_global_pos", setGlobalPos,
+            "get_global_rot", getGlobalRot,
+            "set_global_rot", setGlobalRot,
+            "get_global_scale", getGlobalScale,
+            "set_global_scale", setGlobalScale,
+            "get_local_pos", getLocalPos,
+            "set_local_pos", setLocalPos,
+            "get_local_rot", getLocalRot,
+            "set_local_rot", setLocalRot,
+            "get_local_scale", getLocalScale,
+            "set_local_scale", setLocalScale,
+            "set_parent", setParent,
+            "remove_parent", removeParent,
+            "add_child", addChild,
+            "remove_child", removeChild,
+            "remove_child_index", removeChildWithIndex,
+            "add_sprite_component", addSpriteComponent,
+            "add_audio_component", addAudioPlayerComponent,
+            "add_music_component", addMusicComponent,
+            "add_fysics_component", sol::overload(addFysicsBodyComponent, addFysicsBodyComponentWithType),
             "get_sprite_component", getSpriteComponent,
             "get_audio_component", getAudioPlayerComponent,
             "get_music_component", getMusicComponent,

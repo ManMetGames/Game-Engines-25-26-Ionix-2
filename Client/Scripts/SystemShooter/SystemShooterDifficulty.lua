@@ -24,6 +24,9 @@ local DIFFICULTY_PRESETS = {
         
         -- Number of times player can timeout
         playerTimeoutCount = 5,
+        
+        -- Score multiplier for leaderboard
+        scoreMultiplier = 0.5,
     },
     
     medium = {
@@ -43,6 +46,9 @@ local DIFFICULTY_PRESETS = {
         
         -- Number of times player can timeout
         playerTimeoutCount = 4,
+        
+        -- Score multiplier for leaderboard
+        scoreMultiplier = 1.0,
     },
     
     hard = {
@@ -62,6 +68,9 @@ local DIFFICULTY_PRESETS = {
         
         -- Number of times player can timeout
         playerTimeoutCount = 3,
+        
+        -- Score multiplier for leaderboard
+        scoreMultiplier = 1.5,
     },
 }
 
@@ -131,6 +140,10 @@ end
 
 function SystemShooterDifficulty.getPlayerTimeoutCount()
     return DIFFICULTY_PRESETS[currentDifficulty].playerTimeoutCount
+end
+
+function SystemShooterDifficulty.getScoreMultiplier()
+    return DIFFICULTY_PRESETS[currentDifficulty].scoreMultiplier
 end
 
 --=====================================================================

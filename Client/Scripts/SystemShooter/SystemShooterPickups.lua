@@ -103,9 +103,7 @@ function SystemShooterPickups.applyBeatBop(bopT)
             local scaledSize = math.floor(baseSize * scale)
             Sprite.set_image_width(pickup.sprite, scaledSize)
             Sprite.set_image_height(pickup.sprite, scaledSize)
-            
-            local offset = (scaledSize - baseSize) / 2
-            Entity.set_global_pos(pickup.entity, pickup.x - offset, pickup.y - offset)
+            -- No position adjustment needed - sprite scaling is centered automatically
         end
     end
 end
@@ -120,7 +118,7 @@ function SystemShooterPickups.resetBop()
             local baseSize = pickup.baseSize or CONFIG.ORB_SIZE
             Sprite.set_image_width(pickup.sprite, baseSize)
             Sprite.set_image_height(pickup.sprite, baseSize)
-            Entity.set_global_pos(pickup.entity, pickup.x, pickup.y)
+            -- No position reset needed - position should remain unchanged
         end
     end
 end
@@ -129,14 +127,14 @@ end
 --  [PUBLIC API] Check collision with player, returns heal amount or nil
 --=====================================================================
 function SystemShooterPickups.checkPlayerCollision(playerX, playerY, playerSize, maxHealth)
-    local playerCenterX = playerX + playerSize / 2
-    local playerCenterY = playerY + playerSize / 2
+    local playerCenterX = playerX
+    local playerCenterY = playerY
     local playerRadius = playerSize / 2
     
     for i = #activePickups, 1, -1 do
         local pickup = activePickups[i]
-        local pickupCenterX = pickup.x + CONFIG.ORB_SIZE / 2
-        local pickupCenterY = pickup.y + CONFIG.ORB_SIZE / 2
+        local pickupCenterX = pickup.x
+        local pickupCenterY = pickup.y
         
         local dx = playerCenterX - pickupCenterX
         local dy = playerCenterY - pickupCenterY
@@ -182,18 +180,19 @@ function SystemShooterPickups.constrainToScreen(screenW, screenH)
     for i = 1, #activePickups do
         local pickup = activePickups[i]
         local orbSize = CONFIG.ORB_SIZE
+        local halfSize = orbSize / 2
         
-        -- Clamp pickup position to stay within screen bounds
-        if pickup.x < 0 then
-            pickup.x = 0
-        elseif pickup.x + orbSize > screenW then
-            pickup.x = screenW - orbSize
+        -- Clamp pickup center position to stay within screen bounds with margin
+        if pickup.x - halfSize < 0 then
+            pickup.x = halfSize
+        elseif pickup.x + halfSize > screenW then
+            pickup.x = screenW - halfSize
         end
         
-        if pickup.y < 0 then
-            pickup.y = 0
-        elseif pickup.y + orbSize > screenH then
-            pickup.y = screenH - orbSize
+        if pickup.y - halfSize < 0 then
+            pickup.y = halfSize
+        elseif pickup.y + halfSize > screenH then
+            pickup.y = screenH - halfSize
         end
         
         -- Update entity position

@@ -126,6 +126,7 @@ namespace IonixEngine {
         void DestroyLightning(int id);
         
         // Lightning configuration
+        void SetLightningPosition(int id, float startX, float startY, float endX, float endY);
         void SetLightningColor(int id, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
         void SetLightningProperties(int id, float thickness, float jaggedness, int segments);
         void SetLightningFlicker(int id, bool enabled, float speed);

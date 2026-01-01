@@ -195,18 +195,14 @@ function SystemShooterProjectiles.spawnPlayerProjectile(spawnX, spawnY, dirX, di
         projData = { entity = proj }
     end
 
-    -- Adjust spawn position for larger projectiles
-    local adjustedSpawnX = spawnX - (actualSize - cfg.size) / 2
-    local adjustedSpawnY = spawnY - (actualSize - cfg.size) / 2
-
-    -- Set position and rotation
-    Entity.set_global_pos(projData.entity, adjustedSpawnX, adjustedSpawnY)
+    -- Set position and rotation (no adjustment needed - sprites scale from center)
+    Entity.set_global_pos(projData.entity, spawnX, spawnY)
     local projAngle = math.deg(math.atan(dirY, dirX)) + 90
     Entity.set_global_rot(projData.entity, projAngle)
 
     -- Initialize projectile data
-    projData.x = adjustedSpawnX
-    projData.y = adjustedSpawnY
+    projData.x = spawnX
+    projData.y = spawnY
     projData.vx = dirX * cfg.speed
     projData.vy = dirY * cfg.speed
     projData.age = 0
@@ -235,8 +231,8 @@ local function findClosestEnemy(fromX, fromY)
         local enemy = enemies[j]
         if not enemy.disabled and not enemy.isDead and (enemy.teleportVisible == nil or enemy.teleportVisible) then
             local eDisplaySize = enemy.displaySize or enemy.size or 48
-            local enemyCenterX = enemy.x + eDisplaySize/2
-            local enemyCenterY = enemy.y + eDisplaySize/2
+            local enemyCenterX = enemy.x
+            local enemyCenterY = enemy.y
             local dx = enemyCenterX - fromX
             local dy = enemyCenterY - fromY
             local distSq = dx * dx + dy * dy
@@ -289,8 +285,9 @@ function SystemShooterProjectiles.updatePlayerProjectiles(dt, runStats)
         
         -- Check collision with enemies
         local projSize = proj.size or cfg.size
-        local projCenterX = proj.x + projSize/2
-        local projCenterY = proj.y + projSize/2
+        -- proj.x/y are already the center after API change
+        local projCenterX = proj.x
+        local projCenterY = proj.y
         local hitEnemyIndex = nil
 
         for j = #enemies, 1, -1 do
@@ -301,8 +298,8 @@ function SystemShooterProjectiles.updatePlayerProjectiles(dt, runStats)
             local isVisible = enemy.teleportVisible == nil or enemy.teleportVisible
             if isVisible and not proj.hitEnemies[enemy] then
                 local eDisplaySize = enemy.displaySize or enemy.size or 48
-                local enemyCenterX = enemy.x + eDisplaySize/2
-                local enemyCenterY = enemy.y + eDisplaySize/2
+                local enemyCenterX = enemy.x
+                local enemyCenterY = enemy.y
                 local enemyHitRadius = eDisplaySize/2 + projSize/2
                 local dx = projCenterX - enemyCenterX
                 local dy = projCenterY - enemyCenterY
@@ -374,24 +371,25 @@ function SystemShooterProjectiles.updatePlayerProjectiles(dt, runStats)
                 local hitEdge = false
                 local edgeX, edgeY = nil, nil
 
-                if proj.x < 0 then
+                local halfSize = projSize / 2
+                if proj.x - halfSize < 0 then
                     hitEdge = true
                     edgeX = "left"
-                    proj.x = 0
-                elseif proj.x + projSize > screenW then
+                    proj.x = halfSize
+                elseif proj.x + halfSize > screenW then
                     hitEdge = true
                     edgeX = "right"
-                    proj.x = screenW - projSize
+                    proj.x = screenW - halfSize
                 end
 
-                if proj.y < 0 then
+                if proj.y - halfSize < 0 then
                     hitEdge = true
                     edgeY = "top"
-                    proj.y = 0
-                elseif proj.y + projSize > screenH then
+                    proj.y = halfSize
+                elseif proj.y + halfSize > screenH then
                     hitEdge = true
                     edgeY = "bottom"
-                    proj.y = screenH - projSize
+                    proj.y = screenH - halfSize
                 end
 
                 if hitEdge then
@@ -405,8 +403,8 @@ function SystemShooterProjectiles.updatePlayerProjectiles(dt, runStats)
 
                         if closestEnemy then
                             local ceDisplaySize = closestEnemy.displaySize or closestEnemy.size or 48
-                            local targetX = closestEnemy.x + ceDisplaySize/2
-                            local targetY = closestEnemy.y + ceDisplaySize/2
+                            local targetX = closestEnemy.x
+                            local targetY = closestEnemy.y
                             local dx = targetX - newProjCenterX
                             local dy = targetY - newProjCenterY
                             local len = math.sqrt(dx*dx + dy*dy)
@@ -457,10 +455,10 @@ local function spawnEnemySingleProjectile(enemy, dirX, dirY)
     end
     
     local eSize = enemy.displaySize or enemy.size or 48
-    local enemyCenterX = enemy.x + eSize/2
-    local enemyCenterY = enemy.y + eSize/2
-    local spawnX = enemyCenterX - cfg.size/2
-    local spawnY = enemyCenterY - cfg.size/2
+    local enemyCenterX = enemy.x
+    local enemyCenterY = enemy.y
+    local spawnX = enemyCenterX
+    local spawnY = enemyCenterY
     
     Entity.set_global_pos(projData.entity, spawnX, spawnY)
     local projAngle = math.deg(math.atan(dirY, dirX)) + 90
@@ -485,10 +483,10 @@ function SystemShooterProjectiles.spawnEnemyProjectile(enemy)
     local playerX, playerY, playerSize = callbacks.getPlayerPos()
     
     local eSize = enemy.displaySize or enemy.size or 48
-    local enemyCenterX = enemy.x + eSize/2
-    local enemyCenterY = enemy.y + eSize/2
-    local playerCenterX = playerX + playerSize/2
-    local playerCenterY = playerY + playerSize/2
+    local enemyCenterX = enemy.x
+    local enemyCenterY = enemy.y
+    local playerCenterX = playerX
+    local playerCenterY = playerY
     local dx = playerCenterX - enemyCenterX
     local dy = playerCenterY - enemyCenterY
     local dist = math.sqrt(dx * dx + dy * dy)
@@ -575,11 +573,11 @@ function SystemShooterProjectiles.updateEnemyProjectiles(dt, damageCooldown, run
         proj.y = proj.y + proj.vy * dt
         Entity.set_global_pos(proj.entity, proj.x, proj.y)
         
-        -- Check collision with player
-        local projCenterX = proj.x + cfg.size/2
-        local projCenterY = proj.y + cfg.size/2
-        local playerCenterX = playerX + playerSize/2
-        local playerCenterY = playerY + playerSize/2
+        -- Check collision with player (positions are already centers)
+        local projCenterX = proj.x
+        local projCenterY = proj.y
+        local playerCenterX = playerX
+        local playerCenterY = playerY
         
         local dx = projCenterX - playerCenterX
         local dy = projCenterY - playerCenterY

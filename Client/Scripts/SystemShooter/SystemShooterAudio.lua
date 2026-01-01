@@ -58,15 +58,15 @@ end
 function SystemShooterAudio.applyVolumes(masterVol, sfxVol)
     local sfxMul = masterVol * sfxVol
     if playerDamageSfxEntity then AudioComponent.change_volume(playerDamageSfxEntity, math.floor(48 * sfxMul + 0.5)) end
-    if gunshot3SfxEntity     then AudioComponent.change_volume(gunshot3SfxEntity,     math.floor(32 * sfxMul + 0.5)) end
+    if gunshot3SfxEntity     then AudioComponent.change_volume(gunshot3SfxEntity,     math.floor(26 * sfxMul + 0.5)) end
     if impact3SfxEntity      then AudioComponent.change_volume(impact3SfxEntity,      math.floor(64 * sfxMul + 0.5)) end
     if beamSfxEntity         then AudioComponent.change_volume(beamSfxEntity,         math.floor(64 * sfxMul + 0.5)) end
     if lightning1SfxEntity   then AudioComponent.change_volume(lightning1SfxEntity,   math.floor(64 * sfxMul + 0.5)) end
     if lightning2SfxEntity   then AudioComponent.change_volume(lightning2SfxEntity,   math.floor(64 * sfxMul + 0.5)) end
-    if powerUp1SfxEntity     then AudioComponent.change_volume(powerUp1SfxEntity,     math.floor(64 * sfxMul + 0.5)) end
-    if powerUp2SfxEntity     then AudioComponent.change_volume(powerUp2SfxEntity,     math.floor(64 * sfxMul + 0.5)) end
-    if powerDown1SfxEntity   then AudioComponent.change_volume(powerDown1SfxEntity,   math.floor(64 * sfxMul + 0.5)) end
-    if powerDown2SfxEntity   then AudioComponent.change_volume(powerDown2SfxEntity,   math.floor(64 * sfxMul + 0.5)) end
+    if powerUp1SfxEntity     then AudioComponent.change_volume(powerUp1SfxEntity,     math.floor(112 * sfxMul + 0.5)) end
+    if powerUp2SfxEntity     then AudioComponent.change_volume(powerUp2SfxEntity,     math.floor(112 * sfxMul + 0.5)) end
+    if powerDown1SfxEntity   then AudioComponent.change_volume(powerDown1SfxEntity,   math.floor(112 * sfxMul + 0.5)) end
+    if powerDown2SfxEntity   then AudioComponent.change_volume(powerDown2SfxEntity,   math.floor(112 * sfxMul + 0.5)) end
 end
 
  --=====================================================================

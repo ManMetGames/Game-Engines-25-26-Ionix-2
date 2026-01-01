@@ -201,6 +201,15 @@ namespace IonixEngine {
             scene->GetVFXSystem().DestroyLightning(id);
         };
 
+        // Set lightning position (start and end points)
+        auto setLightningPosition = [](int id, float startX, float startY, float endX, float endY) {
+            if (!Application::Get().layerScene || !Application::Get().layerScene->GetScene()) {
+                return;
+            }
+            Scene* scene = Application::Get().layerScene->GetScene();
+            scene->GetVFXSystem().SetLightningPosition(id, startX, startY, endX, endY);
+        };
+
         // Set lightning color (RGBA)
         auto setLightningColor = [](int id, int r, int g, int b, sol::optional<int> a) {
             if (!Application::Get().layerScene || !Application::Get().layerScene->GetScene()) {
@@ -296,6 +305,7 @@ namespace IonixEngine {
             "destroy_lightning", destroyLightning,
             
             // Lightning configuration
+            "set_lightning_position", setLightningPosition,
             "set_lightning_color", setLightningColor,
             "set_lightning_properties", setLightningProperties,
             "set_lightning_flicker", setLightningFlicker,
