@@ -234,8 +234,6 @@ local levels = {
         windowHeight = 800,
         enemies = {
             { movementType = "stationary", x = 400, y = 500, health = 45, shootPattern = "cone", projectileCount = 2, shootInterval = beatsToSeconds(2) },
-            { movementType = "orbit", x = 300, y = 300, health = 35, orbitCenter = {400, 300}, orbitRadius = 120, orbitSpeed = 1.0, shootPattern = "cone", projectileCount = 1, shootInterval = beatsToSeconds(2) },
-            { movementType = "shield", health = 60 },
         },
     },
     [2] = {
