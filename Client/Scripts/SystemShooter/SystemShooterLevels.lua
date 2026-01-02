@@ -188,6 +188,44 @@ local ENEMY_TEMPLATES = {
             }
         end,
     },
+    shield = {
+        minLevel = 12,
+        healthMin = 60,
+        healthMax = 120,
+        maxPerLevel = 2,
+        spaceRequirement = 1,
+        weight = 4,
+        baseSize = 28,
+        requiresAlly = true,  -- Only spawn if other enemies exist
+        generate = function(health, level, windowW, windowH)
+            -- Spawn at random edge position (will approach ally)
+            local margin = 80
+            local side = math.random(1, 4)
+            local x, y
+            if side == 1 then      -- Top
+                x = margin + math.random() * (windowW - 2 * margin)
+                y = margin
+            elseif side == 2 then  -- Bottom
+                x = margin + math.random() * (windowW - 2 * margin)
+                y = windowH - margin
+            elseif side == 3 then  -- Left
+                x = margin
+                y = margin + math.random() * (windowH - 2 * margin)
+            else                   -- Right
+                x = windowW - margin
+                y = margin + math.random() * (windowH - 2 * margin)
+            end
+            return {
+                movementType = "shield",
+                x = x,
+                y = y,
+                health = health,
+                size = 28,
+                healthScaling = true,
+                sizePerHp = 0.08,
+            }
+        end,
+    },
 }
 local levels = {
     [1] = {
@@ -196,7 +234,8 @@ local levels = {
         windowHeight = 800,
         enemies = {
             { movementType = "stationary", x = 400, y = 500, health = 45, shootPattern = "cone", projectileCount = 2, shootInterval = beatsToSeconds(2) },
-           
+            { movementType = "orbit", x = 300, y = 300, health = 35, orbitCenter = {400, 300}, orbitRadius = 120, orbitSpeed = 1.0, shootPattern = "cone", projectileCount = 1, shootInterval = beatsToSeconds(2) },
+            { movementType = "shield", health = 60 },
         },
     },
     [2] = {
@@ -314,7 +353,12 @@ local function weightedRandomPick(available, counts, totalEnemies, stage)
         local template = entry.template
         local currentCount = counts[name] or 0
         if currentCount < template.maxPerLevel then
-            totalWeight = totalWeight + template.weight
+            -- Shield enemies require at least one ally already spawned
+            if template.requiresAlly and totalEnemies == 0 then
+                -- Skip this template
+            else
+                totalWeight = totalWeight + template.weight
+            end
         end
     end
     if totalWeight <= 0 then return nil end
@@ -326,9 +370,14 @@ local function weightedRandomPick(available, counts, totalEnemies, stage)
         local template = entry.template
         local currentCount = counts[name] or 0
         if currentCount < template.maxPerLevel then
-            cumulative = cumulative + template.weight
-            if roll <= cumulative then
-                return entry
+            -- Shield enemies require at least one ally already spawned
+            if template.requiresAlly and totalEnemies == 0 then
+                -- Skip this template
+            else
+                cumulative = cumulative + template.weight
+                if roll <= cumulative then
+                    return entry
+                end
             end
         end
     end
@@ -389,6 +438,15 @@ local function repositionEnemies(enemies, windowW, windowH)
             local maxRadius = math.min(windowW, windowH) / 2 - 80
             if enemy.orbitRadius > maxRadius then
                 enemy.orbitRadius = maxRadius
+            end
+        elseif enemy.movementType == "shield" then
+            -- Shield enemies spawn at edges and will approach their ally
+            local margin = (enemy.size or 28) + 50
+            if enemy.x then
+                enemy.x = math.max(margin, math.min(windowW - margin, enemy.x))
+            end
+            if enemy.y then
+                enemy.y = math.max(margin, math.min(windowH - margin, enemy.y))
             end
         end
     end

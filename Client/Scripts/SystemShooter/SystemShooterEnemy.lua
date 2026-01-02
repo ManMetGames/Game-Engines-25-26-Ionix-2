@@ -5,6 +5,7 @@ local SystemShooterEnemy = {}
  --=====================================================================
 local assets = require("Scripts.Assets")
 local SystemShooterDifficulty = require("Scripts.SystemShooter.SystemShooterDifficulty")
+local SystemShooterShieldEnemy = require("Scripts.SystemShooter.SystemShooterShieldEnemy")
 
  --=====================================================================
  --  [TUNING] ENEMY STATS / TYPES
@@ -38,6 +39,7 @@ local ENEMY_TYPE_COLORS = {
     stationary_boss = {255, 100, 100},
     orbit = {200, 100, 255},
     teleporter = nil,
+    shield = {0, 200, 200},
 }
 
 SystemShooterEnemy.DEFAULTS = DEFAULTS
@@ -146,6 +148,11 @@ function SystemShooterEnemy.createEnemy(x, y, config)
     Sprite.set_image_width(sprite, math.floor(displaySize))
     Sprite.set_image_height(sprite, math.floor(displaySize))
 
+    -- Initialize shield enemy specific data
+    if movementType == "shield" then
+        SystemShooterShieldEnemy.initShieldEnemy(enemy, 1920, 1080)  -- Screen size will be updated
+    end
+
     return enemy
 end
 
@@ -161,6 +168,10 @@ end
 function SystemShooterEnemy.clearEnemies(enemies)
     for i = 1, #enemies do
         local enemy = enemies[i]
+        -- Cleanup shield enemy VFX
+        if enemy.movementType == "shield" then
+            SystemShooterShieldEnemy.destroyShieldEnemy(enemy)
+        end
         if enemy.entity then
             Entity.set_global_pos(enemy.entity, -1000, -1000)
         end
@@ -241,9 +252,12 @@ end
              -- No movement
          elseif movementType == "teleporter" then
              updateTeleporterMovement(enemy, dt, playerCenterX, playerCenterY, screenW, screenH, SpawnBeam, EmitTeleportBurst, EmitBeamCharge)
+         elseif movementType == "shield" then
+             -- Shield enemies have their own update logic
+             SystemShooterShieldEnemy.updateShieldEnemy(enemy, enemies, i, playerCenterX, playerCenterY, screenW, screenH, dt)
          end
 
-         if movementType ~= "teleporter" and movementType ~= "bounce" then
+         if movementType ~= "teleporter" and movementType ~= "bounce" and movementType ~= "shield" then
              local shootInterval = enemy.shootInterval
              if shootInterval and shootInterval > 0 then
                  enemy.shootTimer = (enemy.shootTimer or 0) + dt

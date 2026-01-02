@@ -16,6 +16,7 @@ local SystemShooterPlayer = require("Scripts.SystemShooter.SystemShooterPlayer")
 local Localisation = require("Scripts.SystemShooter.Localisation")
 local SystemShooterAudio = require("Scripts.SystemShooter.SystemShooterAudio")
 local SystemShooterDifficulty = require("Scripts.SystemShooter.SystemShooterDifficulty")
+local SystemShooterShieldEnemy = require("Scripts.SystemShooter.SystemShooterShieldEnemy")
 
 
  --=====================================================================
@@ -894,6 +895,22 @@ function SystemShooter:OnStart()
             getNoWitnessesDamageMultiplier = function() return SystemShooterPlayerProgress.getNoWitnessesDamageMultiplier() end,
             getLowEnemyDamageStacks = function() return SystemShooterPlayerProgress.getLowEnemyDamageStacks() end,
             getActiveEnemyCount = GetActiveEnemyCount,
+            isProjectileBlocked = function(projX, projY, projVx, projVy, allEnemies)
+                -- Check if any shield enemy is blocking this projectile
+                for _, enemy in ipairs(allEnemies) do
+                    if enemy.movementType == "shield" and not enemy.isDead and not enemy.disabled then
+                        if SystemShooterShieldEnemy.isProjectileBlocked(enemy, projX, projY, projVx, projVy) then
+                            return true
+                        end
+                    end
+                end
+                return false
+            end,
+            onProjectileBlocked = function(proj)
+                -- Play blocked sound / emit particles
+                ParticleSystem.emitHitBurst(proj.x, proj.y, 0, 200, 200)
+                SystemShooterAudio.playImpact()
+            end,
             onEnemyHit = function(enemy, damage, proj)
                 FlashEnemy(enemy)
                 SystemShooterEnemy.updateDisplaySize(enemy)
@@ -914,6 +931,10 @@ function SystemShooter:OnStart()
                 SystemShooterPickups.trySpawnHealingOrb(deathX, deathY)
                 runEnemiesKilled = runEnemiesKilled + 1
                 enemy.isDead = true
+                -- Cleanup shield enemy VFX
+                if enemy.movementType == "shield" then
+                    SystemShooterShieldEnemy.destroyShieldEnemy(enemy)
+                end
                 Entity.set_global_pos(enemy.entity, -1000, -1000)
                 local allDead = true
                 for _, e in ipairs(allEnemies) do

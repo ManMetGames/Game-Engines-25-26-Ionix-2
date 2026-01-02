@@ -74,6 +74,8 @@ local callbacks = {
     onEnemyKilled = nil,        -- called when enemy dies
     onPlayerHit = nil,          -- called when player is hit by enemy projectile
     addXp = nil,                -- add xp to player
+    isProjectileBlocked = nil,  -- returns bool, checks if projectile is blocked by shield
+    onProjectileBlocked = nil,  -- called when projectile is blocked by shield
 }
 
 --=====================================================================
@@ -305,6 +307,24 @@ function SystemShooterProjectiles.updatePlayerProjectiles(dt, runStats)
                 local dy = projCenterY - enemyCenterY
                 local distSq = dx * dx + dy * dy
                 if distSq < enemyHitRadius * enemyHitRadius then
+                    -- Check if projectile is blocked by a shield enemy
+                    local blocked = false
+                    if callbacks.isProjectileBlocked then
+                        blocked = callbacks.isProjectileBlocked(projCenterX, projCenterY, proj.vx, proj.vy, enemies)
+                    end
+                    
+                    if blocked then
+                        -- Projectile was blocked by shield
+                        if callbacks.onProjectileBlocked then
+                            callbacks.onProjectileBlocked(proj)
+                        end
+                        -- Remove projectile
+                        Entity.set_global_pos(proj.entity, -1000, -1000)
+                        table.insert(playerProjectilePool, proj)
+                        table.remove(playerProjectiles, i)
+                        goto continue_proj_collision
+                    end
+                    
                     hitEnemyIndex = j
                     break
                 end
