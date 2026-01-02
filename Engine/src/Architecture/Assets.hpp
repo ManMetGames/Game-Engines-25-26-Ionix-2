@@ -118,6 +118,10 @@ struct Textures {
     uint32_t On__38x38_ = 2396822420u;
     uint32_t Orange = 3725847912u;
     uint32_t PacMan = 2199143984u;
+    uint32_t MapBox = 643312642u;
+    uint32_t MapEdge1 = 2313193932u;
+    uint32_t MapEdge2 = 3833018994u;
+    uint32_t PacManScore = 2564662744u;
     uint32_t Part_1__22x22_ = 3402242302u;
     uint32_t Part_2__22x22_ = 1294351574u;
     uint32_t PimBall = 3518613816u;
@@ -339,6 +343,10 @@ struct Textures {
         map["On__38x38_"] = "./Assets/Jimmy Demo/Traps/Saw/On (38x38).png";
         map["Orange"] = "./Assets/Jimmy Demo/Items/Fruits/Orange.png";
         map["PacMan"] = "./Assets/PacMan.png";
+        map["MapBox"] = "./Assets/MapBox.png";
+        map["MapEdge1"] = "./Assets/MapEdge1.png";
+        map["MapEdge2"] = "./Assets/MapEdge2.png";
+        map["PacManScore"] = "./Assets/PacManScore.png";
         map["Part_1__22x22_"] = "./Assets/Jimmy Demo/Traps/Blocks/Part 1 (22x22).png";
         map["Part_2__22x22_"] = "./Assets/Jimmy Demo/Traps/Blocks/Part 2 (22x22).png";
         map["PimBall"] = "./Assets/PimBall.png";
