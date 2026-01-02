@@ -34,6 +34,24 @@ function ExampleScript:OnStart()
         YPos = YPos + (tileSize * tileGapFactor)
 	end
       
+         ------------------------------------------------------
+		-- adds all score dots pacman can eat to gain score
+		------------------------------------------------------
+    local initialX = 245
+    local initialY = 166
+    for i = 0, 6 do
+        for j = 0, 6 do
+            local score = Entity.create_entity()
+            local scoreXPos = initialX + ((j * 55)) 
+            Entity.set_global_pos(score, scoreXPos, initialY)
+            local s = Entity.add_sprite_component(score, assets.textures.PacManScore, 8, 8, 2)
+
+            --Entity.add_fysics_component(score, enums,bodytype.staticBody, false)
+            --Fysics.add_sprite_collider(tile, false, 1)
+
+    end
+    initialY = initialY + 52
+end
     	------------------------------------------------------
 		-- creates map border and adds colliders to it
 		------------------------------------------------------
@@ -88,6 +106,10 @@ end
 -- OnUpdate
 ----------------------------------------------------------
 function ExampleScript:OnUpdate()
+    --Get player positions
+    local pos = Entity.get_global_pos(player1)
+    local playerX = Mafs.get_vec_x(pos)
+    local playerY = Mafs.get_vec_y(pos)
     -- get current velocity
     local vel1 = Fysics.get_linear_velocity(player1)
     -- Constant rightward movement
