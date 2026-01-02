@@ -48,6 +48,53 @@ namespace IonixEngine {
         int zOrder = 0;
     };
 
+    // Shield effect configuration (180° quarter-moon arc)
+    struct ShieldEffect {
+        bool active = false;
+        
+        // Position & Orientation
+        float x = 0.0f;
+        float y = 0.0f;
+        float rotationRadians = 0.0f;  // Shield facing direction (0 = right, π/2 = down, π = left, 3π/2 = up)
+        
+        // Shield Shape (quarter-moon: 180° arc)
+        float outerRadius = 60.0f;     // Shield outer arc radius
+        float innerRadius = 42.0f;     // Shield inner arc radius (creates thickness)
+        int segments = 32;             // Geometry detail (per half-circle)
+        
+        // Primary color (cyan base)
+        Uint8 primaryR = 0;
+        Uint8 primaryG = 255;
+        Uint8 primaryB = 255;
+        
+        // Secondary color (dark blue for cloud effect)
+        Uint8 secondaryR = 0;
+        Uint8 secondaryG = 50;
+        Uint8 secondaryB = 150;
+        
+        Uint8 alpha = 220;
+        
+        // Cloud/Swirl Animation (color shifting)
+        float cloudSpeed = 1.2f;       // How fast colors shift (cycles/second)
+        float cloudTime = 0.0f;        // Animation accumulator
+        float cloudFrequency = 2.5f;   // Wave frequency around shield arc
+        float cloudAmplitude = 0.4f;   // Intensity of color mixing (0-1)
+        
+        // Glow effect
+        bool hasGlow = true;
+        float glowSize = 6.0f;         // Glow stroke width beyond outer edge
+        Uint8 glowAlpha = 100;         // Glow transparency
+        
+        // Entity following
+        int entityId = -1;             // Shield_Enemy entity this belongs to
+        float offsetX = 0.0f;
+        float offsetY = 0.0f;
+        
+        // Render settings
+        int renderLayer = 5;
+        int zOrder = 0;
+    };
+
     // Ring effect configuration
     struct RingEffect {
         bool active = false;
@@ -136,12 +183,37 @@ namespace IonixEngine {
         // Lightning getters
         bool IsLightningActive(int id) const;
 
+        // Shield effect management (180° quarter-moon arc)
+        int CreateShield(float x, float y, float outerRadius, float innerRadius = 42.0f);
+        void DestroyShield(int id);
+        
+        // Shield configuration
+        void SetShieldPosition(int id, float x, float y);
+        void SetShieldRotation(int id, float rotationRadians);
+        void SetShieldRadii(int id, float outerRadius, float innerRadius);
+        void SetShieldPrimaryColor(int id, Uint8 r, Uint8 g, Uint8 b);
+        void SetShieldSecondaryColor(int id, Uint8 r, Uint8 g, Uint8 b);
+        void SetShieldAlpha(int id, Uint8 alpha);
+        void SetShieldCloudAnimation(int id, float speed, float frequency, float amplitude);
+        void SetShieldGlow(int id, bool enabled, float size = 6.0f, Uint8 alpha = 100);
+        void SetShieldFollowEntity(int id, int entityId, float offsetX = 0.0f, float offsetY = 0.0f);
+        void SetShieldRenderLayer(int id, int layer, int zOrder = 0);
+        void SetShieldSegments(int id, int segments);
+        
+        // Shield getters
+        bool IsShieldActive(int id) const;
+        float GetShieldRotation(int id) const;
+        float GetShieldOuterRadius(int id) const;
+
     private:
         std::vector<RingEffect> m_Rings;
         std::size_t m_MaxRings;
         
         std::vector<LightningEffect> m_Lightnings;
         std::size_t m_MaxLightnings;
+        
+        std::vector<ShieldEffect> m_Shields;
+        std::size_t m_MaxShields;
 
         std::size_t GetFreeRingIndex();
         void DrawRing(SDL_Renderer* renderer, const RingEffect& ring);
@@ -159,5 +231,9 @@ namespace IonixEngine {
         void DrawLightning(SDL_Renderer* renderer, const LightningEffect& lightning);
         void DrawThickLine(SDL_Renderer* renderer, float x1, float y1, float x2, float y2,
                           float thickness, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+        
+        // Shield helpers
+        std::size_t GetFreeShieldIndex();
+        void DrawShield(SDL_Renderer* renderer, const ShieldEffect& shield);
     };
 }
