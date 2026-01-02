@@ -36,7 +36,7 @@ local UPGRADE_CONFIG = {
         desc         = "upgradedesc.firepower",
         minLevel     = 1,
         maxValue     = 8,
-        defaultValue = 2,  -- Start with 2 for testing
+        defaultValue = 1, 
         weight       = 8,  -- Higher weight = more common
     },
     pierce = {

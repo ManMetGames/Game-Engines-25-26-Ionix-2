@@ -188,6 +188,56 @@ local ENEMY_TEMPLATES = {
             }
         end,
     },
+    shielder = {
+        minLevel = 10,
+        healthMin = 40,
+        healthMax = 80,
+        maxPerLevel = 2,
+        spaceRequirement = 1,
+        weight = 3,
+        baseSize = 28,
+        generate = function(health, level, windowW, windowH)
+            -- Shielder spawns at a random position, will find ally to protect
+            local margin = 80
+            local x = margin + math.random() * (windowW - 2 * margin)
+            local y = margin + math.random() * (windowH - 2 * margin)
+            local speedBase = 400 + (level - 10) * 5
+            local speedFast = 650 + (level - 10) * 8
+            return {
+                movementType = "shielder",
+                x = x,
+                y = y,
+                health = health,
+                shielderSpeed = speedBase,
+                shielderSpeedFast = speedFast,
+                shielderSpeedSlow = 200,
+                shielderRotationSpeed = 2.25,  -- Rotation speed around ally (radians/sec)
+                -- Orbit radius from center-to-center (should be at least sum of half-sizes to prevent overlap)
+                shielderOrbitRadius = 90,
+                -- Lightning shield config for the shielder itself (ALWAYS enabled for shielder)
+                lightningShield = {
+                    enabled = true,
+                    radius = 90,
+                    spreadAngle = math.rad(100),
+                    facingAngle = -math.pi / 2,
+                    maxRotationSpeed = 1.75,
+                    thickness = 6.5,
+                    jaggedness = 0.04,
+                    segments = 6,
+                    color = { r = 50, g = 200, b = 200, a = 255 },
+                    flickerSpeed = 0.12,
+                    corruption = {
+                        enabled = true,
+                        targetColor = { r = 255, g = 255, b = 255 },
+                        decayRate = 0.075,
+                        spreadRate = 0.25,
+                        hitAmount = 0.20,
+                        breakThreshold = 0.925,
+                    },
+                }
+            }
+        end,
+    },
 }
 local levels = {
     [1] = {
@@ -203,33 +253,6 @@ local levels = {
                 shootPattern = "cone", 
                 projectileCount = 2, 
                 shootInterval = beatsToSeconds(2),
-                -- Lightning shield: two bolts forming a V-shape in front of the enemy
-                lightningShield = {
-                    enabled = true,
-                    -- Distance from enemy center to the outer tips of the V
-                    radius = 85,
-                    -- Angle spread (how wide the V opens) in radians
-                    spreadAngle = math.rad(100),
-                    -- Direction the shield faces (0 = right, -math.pi/2 = up toward player)
-                    facingAngle = -math.pi / 2,
-                    -- Maximum rotation speed in radians per second (limits how fast shield can track player)
-                    maxRotationSpeed = 2.0,
-                    -- Visual properties
-                    thickness = 5.5,
-                    jaggedness = 0.06,
-                    segments = 4,
-                    color = { r = 0, g = 220, b = 255, a = 255 },  -- Cyan base color
-                    flickerSpeed = 0.15,
-                    -- Corruption system (shield breaking mechanic)
-                    corruption = {
-                        enabled = true,
-                        targetColor = { r = 255, g = 255, b = 255 },  -- White when corrupted
-                        decayRate = 0.12,      -- How fast corruption fades per second
-                        spreadRate = 0.25,     -- How fast corruption spreads to neighbors
-                        hitAmount = 0.35,      -- Corruption applied per bullet hit
-                        breakThreshold = 0.85, -- Average corruption needed to break shield (0-1)
-                    },
-                },
             },
         },
     },
@@ -239,6 +262,7 @@ local levels = {
         windowHeight = 400,
         enemies = {
             { movementType = "orbit", x = 506, y = 186, health = 35, orbitCenter = {400, 200}, orbitRadius = 120, orbitSpeed = 1.0, shootPattern = "cone", projectileCount = 1, shootInterval = beatsToSeconds(2) },
+            
         },
     },
     [3] = {

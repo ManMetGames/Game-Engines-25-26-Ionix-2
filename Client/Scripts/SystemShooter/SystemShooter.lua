@@ -628,8 +628,8 @@ local function SpawnEnemiesForLevel(spawnDisabled)
             if not enemyCfg.x and not enemyCfg.y and #cfg.enemies > 1 then
                 local radius = 120
                 local angle = (2 * math.pi * (i - 1)) / #cfg.enemies
-                spawnX = screenW / 2 + math.cos(angle) * radius - templateSize / 2
-                spawnY = screenH / 2 + math.sin(angle) * radius - templateSize / 2
+                spawnX = screenW / 2 + math.cos(angle) * radius
+                spawnY = screenH / 2 + math.sin(angle) * radius
             end
             
             local config = {
@@ -649,6 +649,12 @@ local function SpawnEnemiesForLevel(spawnDisabled)
                 orbitCenter = enemyCfg.orbitCenter,
                 orbitRadius = enemyCfg.orbitRadius,
                 orbitSpeed = enemyCfg.orbitSpeed,
+                -- Shielder-specific parameters
+                shielderSpeed = enemyCfg.shielderSpeed,
+                shielderSpeedFast = enemyCfg.shielderSpeedFast,
+                shielderSpeedSlow = enemyCfg.shielderSpeedSlow,
+                shielderOrbitRadius = enemyCfg.shielderOrbitRadius,
+                shielderRotationSpeed = enemyCfg.shielderRotationSpeed,
             }
             
             local e = CreateEnemy(spawnX, spawnY, config)
@@ -659,8 +665,8 @@ local function SpawnEnemiesForLevel(spawnDisabled)
             -- Store spawn position for rewind system
             SystemShooterRewind.setSpawnPosition(#enemies, spawnX, spawnY)
             
-            -- Create lightning shield VFX if configured
-            if enemyCfg.lightningShield and enemyCfg.lightningShield.enabled then
+            -- Create lightning shield VFX if configured AND enemy is not disabled
+            if not spawnDisabled and enemyCfg.lightningShield and enemyCfg.lightningShield.enabled then
                 local shield = enemyCfg.lightningShield
                 local radius = shield.radius or 100
                 local spread = shield.spreadAngle or math.rad(90)
@@ -681,10 +687,9 @@ local function SpawnEnemiesForLevel(spawnDisabled)
                 local apexOffsetX = math.cos(facing) * radius
                 local apexOffsetY = math.sin(facing) * radius
                 
-                -- Get initial enemy center position
-                local eSize = e.displaySize or e.size or 32
-                local enemyCenterX = spawnX + eSize / 2
-                local enemyCenterY = spawnY + eSize / 2
+                -- Get initial enemy center position (enemy.x/y are already center-based)
+                local enemyCenterX = spawnX
+                local enemyCenterY = spawnY
                 
                 -- Get corruption config if present
                 local corruptionCfg = shield.corruption
@@ -711,6 +716,8 @@ local function SpawnEnemiesForLevel(spawnDisabled)
                         local targetColor = corruptionCfg.targetColor or { r = 255, g = 255, b = 255 }
                         VFX.set_lightning_corruption_color(leftId, targetColor.r, targetColor.g, targetColor.b)
                         VFX.set_lightning_corruption_rates(leftId, corruptionCfg.decayRate or 0.15, corruptionCfg.spreadRate or 0.3)
+                        -- Reset corruption to 0 for new shield
+                        VFX.set_lightning_corruption(leftId, 0.0)
                     end
                     
                     table.insert(shieldLightnings, {
@@ -750,6 +757,8 @@ local function SpawnEnemiesForLevel(spawnDisabled)
                         local targetColor = corruptionCfg.targetColor or { r = 255, g = 255, b = 255 }
                         VFX.set_lightning_corruption_color(rightId, targetColor.r, targetColor.g, targetColor.b)
                         VFX.set_lightning_corruption_rates(rightId, corruptionCfg.decayRate or 0.15, corruptionCfg.spreadRate or 0.3)
+                        -- Reset corruption to 0 for new shield
+                        VFX.set_lightning_corruption(rightId, 0.0)
                     end
                     
                     table.insert(shieldLightnings, {
@@ -2504,9 +2513,9 @@ function SystemShooter:OnUpdate()
             if VFX.is_lightning_active(shield.lightningId) then
                 local enemy = shield.enemy
                 if enemy and not enemy.isDead then
-                    local eSize = enemy.displaySize or enemy.size or 32
-                    local enemyCenterX = enemy.x + eSize / 2
-                    local enemyCenterY = enemy.y + eSize / 2
+                    -- enemy.x/y are already center-based
+                    local enemyCenterX = enemy.x
+                    local enemyCenterY = enemy.y
                     
                     -- Calculate angle from enemy to player
                     local playerX, playerY = SystemShooterPlayer.getPosition()
