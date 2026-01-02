@@ -958,7 +958,7 @@ namespace IonixEngine {
                                 
                                 // Radius of influence (overlap factor)
                                 float kLen = std::sqrt((kX2-kX1)*(kX2-kX1) + (kY2-kY1)*(kY2-kY1));
-                                float radius = kLen * 0.8f; // 0.8 overlap factor
+                                float radius = kLen * 1.5f; // 1.5 overlap factor for wider spread (Venn diagram style)
                                 
                                 if (dist < radius) {
                                     // Radial falloff (circle shape)
