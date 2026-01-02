@@ -12,7 +12,7 @@
 namespace IonixEngine {
 
     VFXSystem::VFXSystem()
-        : m_MaxRings(64), m_MaxLightnings(64), m_MaxShields(32) {
+        : m_MaxRings(64), m_MaxLightnings(64) {
     }
 
     void VFXSystem::Init() {
@@ -20,8 +20,6 @@ namespace IonixEngine {
         m_Rings.reserve(m_MaxRings);
         m_Lightnings.clear();
         m_Lightnings.reserve(m_MaxLightnings);
-        m_Shields.clear();
-        m_Shields.reserve(m_MaxShields);
     }
 
     void VFXSystem::Shutdown() {
@@ -31,7 +29,6 @@ namespace IonixEngine {
     void VFXSystem::Clear() {
         m_Rings.clear();
         m_Lightnings.clear();
-        m_Shields.clear();
     }
 
     std::size_t VFXSystem::GetFreeRingIndex() {
@@ -265,44 +262,6 @@ namespace IonixEngine {
                 }
             }
         }
-        
-        // Update shield effects
-        for (std::size_t i = 0; i < m_Shields.size(); ++i) {
-            ShieldEffect& shield = m_Shields[i];
-            if (!shield.active) {
-                continue;
-            }
-            
-            // Update cloud animation timer
-            shield.cloudTime += dt * shield.cloudSpeed;
-            if (shield.cloudTime > 2.0f * static_cast<float>(M_PI)) {
-                shield.cloudTime -= 2.0f * static_cast<float>(M_PI);
-            }
-            
-            // Update position from entity if following
-            if (shield.entityId >= 0) {
-                Scene* scene = Application::Get().layerScene ? Application::Get().layerScene->GetScene() : nullptr;
-                if (scene) {
-                    Entity* entity = scene->GetEntityFromID(static_cast<EntityID>(shield.entityId));
-                    if (entity) {
-                        Vec2 entityPos = entity->transform.GetGlobalPosition();
-                        float entityX = entityPos.x;
-                        float entityY = entityPos.y;
-                        
-                        float halfWidth = 0.0f;
-                        float halfHeight = 0.0f;
-                        SpriteComponent* sprite = entity->GetComponent<SpriteComponent>();
-                        if (sprite) {
-                            halfWidth = sprite->getSpriteWidth() / 2.0f;
-                            halfHeight = sprite->getSpriteHeight() / 2.0f;
-                        }
-                        
-                        shield.x = entityX + halfWidth + shield.offsetX;
-                        shield.y = entityY + halfHeight + shield.offsetY;
-                    }
-                }
-            }
-        }
     }
 
     void VFXSystem::Render(SDL_Renderer* renderer, int currentRenderLayer) {
@@ -326,16 +285,8 @@ namespace IonixEngine {
             }
             DrawLightning(renderer, lightning);
         }
-        
-        // Render shield effects
-        for (std::size_t i = 0; i < m_Shields.size(); ++i) {
-            const ShieldEffect& shield = m_Shields[i];
-            if (!shield.active || shield.renderLayer != currentRenderLayer) {
-                continue;
-            }
-            DrawShield(renderer, shield);
-        }
     }
+
     void VFXSystem::DrawRing(SDL_Renderer* renderer, const RingEffect& ring) {
         Uint8 finalAlpha = ring.a;
         
@@ -790,343 +741,6 @@ namespace IonixEngine {
                                       static_cast<int>(x2 + offsetX), static_cast<int>(y2 + offsetY));
                 }
             }
-        }
-
-        // Restore previous renderer state
-        SDL_SetRenderDrawBlendMode(renderer, previousBlendMode);
-        SDL_SetRenderDrawColor(renderer, prevR, prevG, prevB, prevA);
-    }
-
-    // =========================================================================
-    // SHIELD EFFECT IMPLEMENTATION
-    // =========================================================================
-
-    std::size_t VFXSystem::GetFreeShieldIndex() {
-        for (std::size_t i = 0; i < m_Shields.size(); ++i) {
-            if (!m_Shields[i].active) {
-                return i;
-            }
-        }
-
-        if (m_Shields.size() < m_MaxShields) {
-            m_Shields.push_back(ShieldEffect{});
-            return m_Shields.size() - 1;
-        }
-
-        return m_MaxShields;
-    }
-
-    int VFXSystem::CreateShield(float x, float y, float outerRadius, float innerRadius) {
-        std::size_t index = GetFreeShieldIndex();
-        if (index >= m_MaxShields) {
-            return -1;
-        }
-
-        if (index >= m_Shields.size()) {
-            m_Shields.push_back(ShieldEffect{});
-        }
-
-        ShieldEffect& shield = m_Shields[index];
-        shield.active = true;
-        shield.x = x;
-        shield.y = y;
-        shield.outerRadius = outerRadius;
-        shield.innerRadius = innerRadius;
-        shield.rotationRadians = 0.0f;
-        shield.segments = 32;
-        
-        // Default cyan/dark blue color scheme
-        shield.primaryR = 0;
-        shield.primaryG = 255;
-        shield.primaryB = 255;
-        shield.secondaryR = 0;
-        shield.secondaryG = 50;
-        shield.secondaryB = 150;
-        shield.alpha = 220;
-        
-        // Cloud animation defaults
-        shield.cloudSpeed = 1.2f;
-        shield.cloudTime = 0.0f;
-        shield.cloudFrequency = 2.5f;
-        shield.cloudAmplitude = 0.4f;
-        
-        // Glow defaults
-        shield.hasGlow = true;
-        shield.glowSize = 6.0f;
-        shield.glowAlpha = 100;
-        
-        shield.entityId = -1;
-        shield.offsetX = 0.0f;
-        shield.offsetY = 0.0f;
-        shield.renderLayer = 5;
-        shield.zOrder = 0;
-
-        return static_cast<int>(index);
-    }
-
-    void VFXSystem::DestroyShield(int id) {
-        if (id < 0 || static_cast<std::size_t>(id) >= m_Shields.size()) {
-            return;
-        }
-        m_Shields[id].active = false;
-    }
-
-    void VFXSystem::SetShieldPosition(int id, float x, float y) {
-        if (id < 0 || static_cast<std::size_t>(id) >= m_Shields.size() || !m_Shields[id].active) {
-            return;
-        }
-        m_Shields[id].x = x;
-        m_Shields[id].y = y;
-    }
-
-    void VFXSystem::SetShieldRotation(int id, float rotationRadians) {
-        if (id < 0 || static_cast<std::size_t>(id) >= m_Shields.size() || !m_Shields[id].active) {
-            return;
-        }
-        m_Shields[id].rotationRadians = rotationRadians;
-    }
-
-    void VFXSystem::SetShieldRadii(int id, float outerRadius, float innerRadius) {
-        if (id < 0 || static_cast<std::size_t>(id) >= m_Shields.size() || !m_Shields[id].active) {
-            return;
-        }
-        m_Shields[id].outerRadius = outerRadius;
-        m_Shields[id].innerRadius = innerRadius;
-    }
-
-    void VFXSystem::SetShieldPrimaryColor(int id, Uint8 r, Uint8 g, Uint8 b) {
-        if (id < 0 || static_cast<std::size_t>(id) >= m_Shields.size() || !m_Shields[id].active) {
-            return;
-        }
-        m_Shields[id].primaryR = r;
-        m_Shields[id].primaryG = g;
-        m_Shields[id].primaryB = b;
-    }
-
-    void VFXSystem::SetShieldSecondaryColor(int id, Uint8 r, Uint8 g, Uint8 b) {
-        if (id < 0 || static_cast<std::size_t>(id) >= m_Shields.size() || !m_Shields[id].active) {
-            return;
-        }
-        m_Shields[id].secondaryR = r;
-        m_Shields[id].secondaryG = g;
-        m_Shields[id].secondaryB = b;
-    }
-
-    void VFXSystem::SetShieldAlpha(int id, Uint8 alpha) {
-        if (id < 0 || static_cast<std::size_t>(id) >= m_Shields.size() || !m_Shields[id].active) {
-            return;
-        }
-        m_Shields[id].alpha = alpha;
-    }
-
-    void VFXSystem::SetShieldCloudAnimation(int id, float speed, float frequency, float amplitude) {
-        if (id < 0 || static_cast<std::size_t>(id) >= m_Shields.size() || !m_Shields[id].active) {
-            return;
-        }
-        m_Shields[id].cloudSpeed = speed;
-        m_Shields[id].cloudFrequency = frequency;
-        m_Shields[id].cloudAmplitude = amplitude;
-    }
-
-    void VFXSystem::SetShieldGlow(int id, bool enabled, float size, Uint8 alpha) {
-        if (id < 0 || static_cast<std::size_t>(id) >= m_Shields.size() || !m_Shields[id].active) {
-            return;
-        }
-        m_Shields[id].hasGlow = enabled;
-        m_Shields[id].glowSize = size;
-        m_Shields[id].glowAlpha = alpha;
-    }
-
-    void VFXSystem::SetShieldFollowEntity(int id, int entityId, float offsetX, float offsetY) {
-        if (id < 0 || static_cast<std::size_t>(id) >= m_Shields.size() || !m_Shields[id].active) {
-            return;
-        }
-        m_Shields[id].entityId = entityId;
-        m_Shields[id].offsetX = offsetX;
-        m_Shields[id].offsetY = offsetY;
-    }
-
-    void VFXSystem::SetShieldRenderLayer(int id, int layer, int zOrder) {
-        if (id < 0 || static_cast<std::size_t>(id) >= m_Shields.size() || !m_Shields[id].active) {
-            return;
-        }
-        m_Shields[id].renderLayer = layer;
-        m_Shields[id].zOrder = zOrder;
-    }
-
-    void VFXSystem::SetShieldSegments(int id, int segments) {
-        if (id < 0 || static_cast<std::size_t>(id) >= m_Shields.size() || !m_Shields[id].active) {
-            return;
-        }
-        m_Shields[id].segments = segments > 8 ? segments : 8;
-    }
-
-    bool VFXSystem::IsShieldActive(int id) const {
-        if (id < 0 || static_cast<std::size_t>(id) >= m_Shields.size()) {
-            return false;
-        }
-        return m_Shields[id].active;
-    }
-
-    float VFXSystem::GetShieldRotation(int id) const {
-        if (id < 0 || static_cast<std::size_t>(id) >= m_Shields.size()) {
-            return 0.0f;
-        }
-        return m_Shields[id].rotationRadians;
-    }
-
-    float VFXSystem::GetShieldOuterRadius(int id) const {
-        if (id < 0 || static_cast<std::size_t>(id) >= m_Shields.size()) {
-            return 0.0f;
-        }
-        return m_Shields[id].outerRadius;
-    }
-
-    void VFXSystem::DrawShield(SDL_Renderer* renderer, const ShieldEffect& shield) {
-        // Save current renderer state
-        SDL_BlendMode previousBlendMode;
-        SDL_GetRenderDrawBlendMode(renderer, &previousBlendMode);
-        Uint8 prevR, prevG, prevB, prevA;
-        SDL_GetRenderDrawColor(renderer, &prevR, &prevG, &prevB, &prevA);
-
-        // Enable blending for alpha
-        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-
-        float centerX = shield.x;
-        float centerY = shield.y;
-        float rotation = shield.rotationRadians;
-        
-        // 180° arc: from (rotation - 90°) to (rotation + 90°)
-        float startAngle = rotation - static_cast<float>(M_PI) / 2.0f;
-        float endAngle = rotation + static_cast<float>(M_PI) / 2.0f;
-        float angleRange = endAngle - startAngle;
-        
-        // Draw glow first (behind main shield)
-        if (shield.hasGlow && shield.glowSize > 0.0f) {
-            float glowOuterRadius = shield.outerRadius + shield.glowSize;
-            float glowInnerRadius = shield.innerRadius - shield.glowSize * 0.5f;
-            if (glowInnerRadius < 0) glowInnerRadius = 0;
-            
-            for (int i = 0; i < shield.segments; ++i) {
-                float t1 = static_cast<float>(i) / static_cast<float>(shield.segments);
-                float t2 = static_cast<float>(i + 1) / static_cast<float>(shield.segments);
-                
-                float angle1 = startAngle + angleRange * t1;
-                float angle2 = startAngle + angleRange * t2;
-                
-                float cos1 = std::cos(angle1);
-                float sin1 = std::sin(angle1);
-                float cos2 = std::cos(angle2);
-                float sin2 = std::sin(angle2);
-                
-                // Calculate color blend for this segment using cloud animation
-                float segmentAngle = (angle1 + angle2) * 0.5f;
-                float wave1 = std::sin(segmentAngle * shield.cloudFrequency + shield.cloudTime);
-                float wave2 = std::sin(segmentAngle * shield.cloudFrequency * 0.5f + shield.cloudTime * 1.3f);
-                float blendFactor = ((wave1 + wave2) * 0.5f + 1.0f) * 0.5f * shield.cloudAmplitude;
-                
-                // Interpolate between primary and secondary colors
-                Uint8 r = static_cast<Uint8>(shield.primaryR + (shield.secondaryR - shield.primaryR) * blendFactor);
-                Uint8 g = static_cast<Uint8>(shield.primaryG + (shield.secondaryG - shield.primaryG) * blendFactor);
-                Uint8 b = static_cast<Uint8>(shield.primaryB + (shield.secondaryB - shield.primaryB) * blendFactor);
-                
-                SDL_SetRenderDrawColor(renderer, r, g, b, shield.glowAlpha);
-                
-                // Draw glow arc segment
-                int numThicknessLines = static_cast<int>(shield.glowSize) + 1;
-                for (int t = 0; t <= numThicknessLines; ++t) {
-                    float tFactor = static_cast<float>(t) / static_cast<float>(numThicknessLines);
-                    float currentRadius = glowInnerRadius + tFactor * (glowOuterRadius - glowInnerRadius);
-                    
-                    int x1 = static_cast<int>(centerX + currentRadius * cos1);
-                    int y1 = static_cast<int>(centerY + currentRadius * sin1);
-                    int x2 = static_cast<int>(centerX + currentRadius * cos2);
-                    int y2 = static_cast<int>(centerY + currentRadius * sin2);
-                    
-                    SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
-                }
-            }
-        }
-        
-        // Draw main shield body (180° arc with color-shifting cloud effect)
-        float thickness = shield.outerRadius - shield.innerRadius;
-        
-        for (int i = 0; i < shield.segments; ++i) {
-            float t1 = static_cast<float>(i) / static_cast<float>(shield.segments);
-            float t2 = static_cast<float>(i + 1) / static_cast<float>(shield.segments);
-            
-            float angle1 = startAngle + angleRange * t1;
-            float angle2 = startAngle + angleRange * t2;
-            
-            float cos1 = std::cos(angle1);
-            float sin1 = std::sin(angle1);
-            float cos2 = std::cos(angle2);
-            float sin2 = std::sin(angle2);
-            
-            // Calculate color blend for this segment using cloud animation
-            // Multiple waves create turbulent cloud-like effect
-            float segmentAngle = (angle1 + angle2) * 0.5f;
-            float wave1 = std::sin(segmentAngle * shield.cloudFrequency + shield.cloudTime);
-            float wave2 = std::sin(segmentAngle * shield.cloudFrequency * 0.5f + shield.cloudTime * 1.3f);
-            float wave3 = std::sin(segmentAngle * shield.cloudFrequency * 2.0f + shield.cloudTime * 0.7f);
-            float blendFactor = ((wave1 + wave2 + wave3 * 0.5f) / 2.5f + 1.0f) * 0.5f * shield.cloudAmplitude;
-            
-            // Clamp blend factor
-            if (blendFactor < 0.0f) blendFactor = 0.0f;
-            if (blendFactor > 1.0f) blendFactor = 1.0f;
-            
-            // Interpolate between primary (cyan) and secondary (dark blue) colors
-            Uint8 r = static_cast<Uint8>(shield.primaryR + (shield.secondaryR - shield.primaryR) * blendFactor);
-            Uint8 g = static_cast<Uint8>(shield.primaryG + (shield.secondaryG - shield.primaryG) * blendFactor);
-            Uint8 b = static_cast<Uint8>(shield.primaryB + (shield.secondaryB - shield.primaryB) * blendFactor);
-            
-            SDL_SetRenderDrawColor(renderer, r, g, b, shield.alpha);
-            
-            // Draw thick arc segment by drawing multiple lines at different radii
-            int numThicknessLines = static_cast<int>(thickness / 1.0f) + 1;
-            for (int t = 0; t <= numThicknessLines; ++t) {
-                float tFactor = static_cast<float>(t) / static_cast<float>(numThicknessLines);
-                float currentRadius = shield.innerRadius + tFactor * (shield.outerRadius - shield.innerRadius);
-                
-                int x1 = static_cast<int>(centerX + currentRadius * cos1);
-                int y1 = static_cast<int>(centerY + currentRadius * sin1);
-                int x2 = static_cast<int>(centerX + currentRadius * cos2);
-                int y2 = static_cast<int>(centerY + currentRadius * sin2);
-                
-                SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
-            }
-        }
-        
-        // Draw end caps (fill the gap at the shield edges for a clean look)
-        // Left cap (at startAngle)
-        {
-            float capAngle = startAngle;
-            float cos_cap = std::cos(capAngle);
-            float sin_cap = std::sin(capAngle);
-            
-            int innerX = static_cast<int>(centerX + shield.innerRadius * cos_cap);
-            int innerY = static_cast<int>(centerY + shield.innerRadius * sin_cap);
-            int outerX = static_cast<int>(centerX + shield.outerRadius * cos_cap);
-            int outerY = static_cast<int>(centerY + shield.outerRadius * sin_cap);
-            
-            // Use primary color for caps
-            SDL_SetRenderDrawColor(renderer, shield.primaryR, shield.primaryG, shield.primaryB, shield.alpha);
-            SDL_RenderDrawLine(renderer, innerX, innerY, outerX, outerY);
-        }
-        
-        // Right cap (at endAngle)
-        {
-            float capAngle = endAngle;
-            float cos_cap = std::cos(capAngle);
-            float sin_cap = std::sin(capAngle);
-            
-            int innerX = static_cast<int>(centerX + shield.innerRadius * cos_cap);
-            int innerY = static_cast<int>(centerY + shield.innerRadius * sin_cap);
-            int outerX = static_cast<int>(centerX + shield.outerRadius * cos_cap);
-            int outerY = static_cast<int>(centerY + shield.outerRadius * sin_cap);
-            
-            SDL_SetRenderDrawColor(renderer, shield.primaryR, shield.primaryG, shield.primaryB, shield.alpha);
-            SDL_RenderDrawLine(renderer, innerX, innerY, outerX, outerY);
         }
 
         // Restore previous renderer state
