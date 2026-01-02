@@ -29,6 +29,15 @@ namespace IonixEngine {
         Uint8 b = 255;
         Uint8 a = 255;
         
+        // Corruption system (for shield effect)
+        bool corruptionEnabled = false;
+        std::vector<float> segmentCorruption;  // Per-segment corruption (0.0 = base color, 1.0 = fully corrupted/white)
+        Uint8 corruptR = 255;                  // Corruption target color (default white)
+        Uint8 corruptG = 255;
+        Uint8 corruptB = 255;
+        float corruptionDecayRate = 0.15f;     // How fast corruption fades per second
+        float corruptionSpreadRate = 0.3f;    // How fast corruption spreads to neighbors per second
+        
         // Lifetime (auto-destroy)
         float lifetime = 0.5f;       // Total lifetime in seconds
         float timeAlive = 0.0f;      // Time elapsed since creation
@@ -132,6 +141,17 @@ namespace IonixEngine {
         void SetLightningFlicker(int id, bool enabled, float speed);
         void SetLightningRenderLayer(int id, int layer, int zOrder = 0);
         void SetLightningFadeOut(int id, bool enabled);
+        
+        // Lightning corruption system (shield effect)
+        void SetLightningCorruptionEnabled(int id, bool enabled);
+        void SetLightningCorruptionColor(int id, Uint8 r, Uint8 g, Uint8 b);
+        void SetLightningCorruptionRates(int id, float decayRate, float spreadRate);
+        void ApplyLightningCorruption(int id, int segmentIndex, float amount);  // Apply corruption to specific segment
+        void ApplyLightningCorruptionAtPoint(int id, float x, float y, float amount);  // Apply corruption at nearest segment to point
+        float GetLightningTotalCorruption(int id) const;  // Get average corruption across all segments (0-1)
+        float GetLightningSegmentCorruption(int id, int segmentIndex) const;
+        int GetLightningSegmentCount(int id) const;
+        bool GetLightningSegmentPosition(int id, int segmentIndex, float& outX, float& outY) const;  // Get midpoint of segment
         
         // Lightning getters
         bool IsLightningActive(int id) const;

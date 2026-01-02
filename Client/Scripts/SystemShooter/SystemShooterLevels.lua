@@ -210,14 +210,25 @@ local levels = {
                     radius = 85,
                     -- Angle spread (how wide the V opens) in radians
                     spreadAngle = math.rad(100),
-                    -- Direction the shield faces (0 = right, math.pi/2 = down toward player spawn)
-                    facingAngle = math.pi / 2,
+                    -- Direction the shield faces (0 = right, -math.pi/2 = up toward player)
+                    facingAngle = -math.pi / 2,
+                    -- Maximum rotation speed in radians per second (limits how fast shield can track player)
+                    maxRotationSpeed = 2.0,
                     -- Visual properties
                     thickness = 5.5,
-                    jaggedness = 0.06,  -- Subtle variation, mostly smooth
-                    segments = 4,       -- Very sparse segments
-                    color = { r = 80, g = 120, b = 255, a = 255 },
-                    flickerSpeed = 0.15,  -- Slower flicker for calmer effect
+                    jaggedness = 0.06,
+                    segments = 4,
+                    color = { r = 0, g = 220, b = 255, a = 255 },  -- Cyan base color
+                    flickerSpeed = 0.15,
+                    -- Corruption system (shield breaking mechanic)
+                    corruption = {
+                        enabled = true,
+                        targetColor = { r = 255, g = 255, b = 255 },  -- White when corrupted
+                        decayRate = 0.12,      -- How fast corruption fades per second
+                        spreadRate = 0.25,     -- How fast corruption spreads to neighbors
+                        hitAmount = 0.35,      -- Corruption applied per bullet hit
+                        breakThreshold = 0.85, -- Average corruption needed to break shield (0-1)
+                    },
                 },
             },
         },

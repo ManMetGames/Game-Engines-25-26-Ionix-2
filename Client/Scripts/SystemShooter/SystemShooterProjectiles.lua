@@ -74,6 +74,7 @@ local callbacks = {
     onEnemyKilled = nil,        -- called when enemy dies
     onPlayerHit = nil,          -- called when player is hit by enemy projectile
     addXp = nil,                -- add xp to player
+    checkShieldCollision = nil, -- check if projectile hit a shield, returns true if absorbed
 }
 
 --=====================================================================
@@ -283,11 +284,27 @@ function SystemShooterProjectiles.updatePlayerProjectiles(dt, runStats)
         proj.y = proj.y + proj.vy * dt
         Entity.set_global_pos(proj.entity, proj.x, proj.y)
         
-        -- Check collision with enemies
+        -- Check collision with shields first (shields absorb projectiles)
         local projSize = proj.size or cfg.size
-        -- proj.x/y are already the center after API change
         local projCenterX = proj.x
         local projCenterY = proj.y
+        
+        local shieldAbsorbed = false
+        if callbacks.checkShieldCollision then
+            shieldAbsorbed = callbacks.checkShieldCollision(projCenterX, projCenterY, projSize)
+        end
+        
+        if shieldAbsorbed then
+            -- Shield absorbed the projectile, destroy it and continue to next projectile
+            if proj.entity then
+                Entity.set_global_pos(proj.entity, -1000, -1000)
+            end
+            table.remove(playerProjectiles, i)
+            goto continue_proj
+        end
+        
+        -- Check collision with enemies
+        -- proj.x/y are already the center after API change
         local hitEnemyIndex = nil
 
         for j = #enemies, 1, -1 do
@@ -432,6 +449,8 @@ function SystemShooterProjectiles.updatePlayerProjectiles(dt, runStats)
         if shouldRemove then
             returnPlayerProjectileToPool(proj, i)
         end
+        
+        ::continue_proj::
     end
 end
 
