@@ -212,6 +212,9 @@ local overhealthLightnings = {}  -- Array of { lightningId, targetEnemy }
 -- Chain lightning tracking (for following source position)
 local chainLightnings = {}  -- Array of { lightningId, sourceEnemy, targetEnemy }
 
+-- Enemy shield lightnings (V-shape shield effect attached to enemies)
+local shieldLightnings = {}  -- Array of { lightningId, enemy, offsetStartX, offsetStartY, offsetEndX, offsetEndY }
+
 local function GetActiveEnemyCount()
     local count = 0
     for i = 1, #enemies do
@@ -404,6 +407,14 @@ local function ResetRunStateForMenu()
     -- Clean up lightning VFX tracking
     overhealthLightnings = {}
     chainLightnings = {}
+    
+    -- Clean up enemy shield lightnings
+    for _, shield in ipairs(shieldLightnings) do
+        if shield.lightningId and shield.lightningId >= 0 then
+            VFX.destroy_lightning(shield.lightningId)
+        end
+    end
+    shieldLightnings = {}
 
     -- Reset player state via module
     SystemShooterPlayer.resetForRun()
@@ -647,6 +658,86 @@ local function SpawnEnemiesForLevel(spawnDisabled)
             table.insert(enemies, e)
             -- Store spawn position for rewind system
             SystemShooterRewind.setSpawnPosition(#enemies, spawnX, spawnY)
+            
+            -- Create lightning shield VFX if configured
+            if enemyCfg.lightningShield and enemyCfg.lightningShield.enabled then
+                local shield = enemyCfg.lightningShield
+                local radius = shield.radius or 100
+                local spread = shield.spreadAngle or math.rad(90)
+                local facing = shield.facingAngle or (math.pi / 2)  -- Default: facing down
+                
+                -- Calculate the two arms of the V-shape
+                -- Left arm: from enemy center to left tip
+                local leftAngle = facing - spread / 2
+                local rightAngle = facing + spread / 2
+                
+                -- Offsets from enemy center to the V tips
+                local leftTipOffsetX = math.cos(leftAngle) * radius
+                local leftTipOffsetY = math.sin(leftAngle) * radius
+                local rightTipOffsetX = math.cos(rightAngle) * radius
+                local rightTipOffsetY = math.sin(rightAngle) * radius
+                
+                -- The apex of the V (center point where both bolts meet)
+                local apexOffsetX = math.cos(facing) * (radius * 0.3)
+                local apexOffsetY = math.sin(facing) * (radius * 0.3)
+                
+                -- Get initial enemy center position
+                local eSize = e.displaySize or e.size or 32
+                local enemyCenterX = spawnX + eSize / 2
+                local enemyCenterY = spawnY + eSize / 2
+                
+                -- Create left lightning bolt (from left tip to apex)
+                local leftId = VFX.create_lightning(
+                    enemyCenterX + leftTipOffsetX,
+                    enemyCenterY + leftTipOffsetY,
+                    enemyCenterX + apexOffsetX,
+                    enemyCenterY + apexOffsetY,
+                    999999  -- Very long lifetime (permanent until destroyed)
+                )
+                if leftId and leftId >= 0 then
+                    local color = shield.color or { r = 80, g = 120, b = 255, a = 255 }
+                    VFX.set_lightning_color(leftId, color.r, color.g, color.b, color.a)
+                    VFX.set_lightning_properties(leftId, shield.thickness or 3.0, shield.jaggedness or 0.02, shield.segments or 12)
+                    VFX.set_lightning_flicker(leftId, true, shield.flickerSpeed or 0.08)
+                    VFX.set_lightning_fade_out(leftId, false)
+                    VFX.set_lightning_render_layer(leftId, 0, 15)
+                    
+                    table.insert(shieldLightnings, {
+                        lightningId = leftId,
+                        enemy = e,
+                        offsetStartX = leftTipOffsetX,
+                        offsetStartY = leftTipOffsetY,
+                        offsetEndX = apexOffsetX,
+                        offsetEndY = apexOffsetY,
+                    })
+                end
+                
+                -- Create right lightning bolt (from right tip to apex)
+                local rightId = VFX.create_lightning(
+                    enemyCenterX + rightTipOffsetX,
+                    enemyCenterY + rightTipOffsetY,
+                    enemyCenterX + apexOffsetX,
+                    enemyCenterY + apexOffsetY,
+                    999999  -- Very long lifetime (permanent until destroyed)
+                )
+                if rightId and rightId >= 0 then
+                    local color = shield.color or { r = 80, g = 120, b = 255, a = 255 }
+                    VFX.set_lightning_color(rightId, color.r, color.g, color.b, color.a)
+                    VFX.set_lightning_properties(rightId, shield.thickness or 3.0, shield.jaggedness or 0.02, shield.segments or 12)
+                    VFX.set_lightning_flicker(rightId, true, shield.flickerSpeed or 0.08)
+                    VFX.set_lightning_fade_out(rightId, false)
+                    VFX.set_lightning_render_layer(rightId, 0, 15)
+                    
+                    table.insert(shieldLightnings, {
+                        lightningId = rightId,
+                        enemy = e,
+                        offsetStartX = rightTipOffsetX,
+                        offsetStartY = rightTipOffsetY,
+                        offsetEndX = apexOffsetX,
+                        offsetEndY = apexOffsetY,
+                    })
+                end
+            end
         end
     else
         local enemyCount = cfg.enemyCount or 1
@@ -2312,6 +2403,36 @@ function SystemShooter:OnUpdate()
             else
                 -- Lightning expired, remove from tracking
                 table.remove(chainLightnings, i)
+            end
+        end
+        
+        -- Update and cleanup enemy shield lightnings
+        i = 1
+        while i <= #shieldLightnings do
+            local shield = shieldLightnings[i]
+            if VFX.is_lightning_active(shield.lightningId) then
+                local enemy = shield.enemy
+                if enemy and not enemy.isDead then
+                    local eSize = enemy.displaySize or enemy.size or 32
+                    local enemyCenterX = enemy.x + eSize / 2
+                    local enemyCenterY = enemy.y + eSize / 2
+                    
+                    -- Update lightning position based on enemy center + offsets
+                    local startX = enemyCenterX + shield.offsetStartX
+                    local startY = enemyCenterY + shield.offsetStartY
+                    local endX = enemyCenterX + shield.offsetEndX
+                    local endY = enemyCenterY + shield.offsetEndY
+                    
+                    VFX.set_lightning_position(shield.lightningId, startX, startY, endX, endY)
+                    i = i + 1
+                else
+                    -- Enemy died, destroy the shield lightning
+                    VFX.destroy_lightning(shield.lightningId)
+                    table.remove(shieldLightnings, i)
+                end
+            else
+                -- Lightning no longer active, remove from tracking
+                table.remove(shieldLightnings, i)
             end
         end
     end

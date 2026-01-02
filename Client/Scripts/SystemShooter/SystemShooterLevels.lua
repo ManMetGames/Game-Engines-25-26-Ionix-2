@@ -195,8 +195,31 @@ local levels = {
         windowWidth = 640,
         windowHeight = 800,
         enemies = {
-            { movementType = "stationary", x = 400, y = 500, health = 45, shootPattern = "cone", projectileCount = 2, shootInterval = beatsToSeconds(2) },
-           
+            { 
+                movementType = "stationary", 
+                x = 400, 
+                y = 500, 
+                health = 45, 
+                shootPattern = "cone", 
+                projectileCount = 2, 
+                shootInterval = beatsToSeconds(2),
+                -- Lightning shield: two bolts forming a V-shape in front of the enemy
+                lightningShield = {
+                    enabled = true,
+                    -- Distance from enemy center to the outer tips of the V
+                    radius = 85,
+                    -- Angle spread (how wide the V opens) in radians
+                    spreadAngle = math.rad(100),
+                    -- Direction the shield faces (0 = right, math.pi/2 = down toward player spawn)
+                    facingAngle = math.pi / 2,
+                    -- Visual properties
+                    thickness = 5.5,
+                    jaggedness = 0.06,  -- Subtle variation, mostly smooth
+                    segments = 4,       -- Very sparse segments
+                    color = { r = 80, g = 120, b = 255, a = 255 },
+                    flickerSpeed = 0.15,  -- Slower flicker for calmer effect
+                },
+            },
         },
     },
     [2] = {
