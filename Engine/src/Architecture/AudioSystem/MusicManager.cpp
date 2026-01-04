@@ -40,11 +40,11 @@ namespace IonixEngine {
         SDL_Log("[MusicManager] Successfully initialized SoLoud");
 
         // Auto-load music from Assets
-        for (const auto& pair : Assets::Get().music.GetMusic()) {
+        /*for (const auto& pair : Assets::Get().music.GetMusic()) {
             LoadMusic(pair.first, pair.second);
-        }
+       }
         
-        return true;
+        return true;*/
     }
 
     void MusicManager::Shutdown() {
