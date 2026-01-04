@@ -583,6 +583,11 @@ end
  end
  
  updateShielderMovement = function(enemy, enemies, dt, playerCenterX, playerCenterY, screenW, screenH)
+    -- If shield has been launched, stop all movement
+    if enemy.shieldLaunched then
+        return
+    end
+    
     local shielderSpeed = enemy.shielderSpeed or 400
     local shielderSpeedFast = enemy.shielderSpeedFast or 650  -- Fast speed when switching allies
     local shielderSpeedSlow = enemy.shielderSpeedSlow or 200  -- Slow speed when chasing player
@@ -607,9 +612,10 @@ end
         if currentAlly then
             enemy.isWalkingToAlly = true  -- Start walking to new ally (don't snap)
             -- Initialize target angle for when we arrive
+            -- Use math.atan(y, x) instead of deprecated math.atan2(y, x) for Lua 5.4 compatibility
             local allyCenterX = currentAlly.x
             local allyCenterY = currentAlly.y
-            enemy.shielderCurrentAngle = math.atan2(enemy.y - allyCenterY, enemy.x - allyCenterX)
+            enemy.shielderCurrentAngle = math.atan(enemy.y - allyCenterY, enemy.x - allyCenterX)
         end
     end
     
@@ -645,13 +651,15 @@ end
             enemy.y = shielderCenterY + moveY
             
             -- Update angle as we approach
-            enemy.shielderCurrentAngle = math.atan2(enemy.y - allyCenterY, enemy.x - allyCenterX)
+            -- Use math.atan(y, x) instead of deprecated math.atan2(y, x) for Lua 5.4 compatibility
+            enemy.shielderCurrentAngle = math.atan(enemy.y - allyCenterY, enemy.x - allyCenterX)
         else
             -- We're close enough, start/continue orbiting
             enemy.isWalkingToAlly = false
             
             -- Calculate target angle from ally to player
-            local targetAngle = math.atan2(playerCenterY - allyCenterY, playerCenterX - allyCenterX)
+            -- Use math.atan(y, x) instead of deprecated math.atan2(y, x) for Lua 5.4 compatibility
+            local targetAngle = math.atan(playerCenterY - allyCenterY, playerCenterX - allyCenterX)
             
             -- Get rotation speed limit (radians per second around the ally)
             local rotationSpeed = enemy.shielderRotationSpeed or 2.5

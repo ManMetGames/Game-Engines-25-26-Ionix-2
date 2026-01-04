@@ -70,7 +70,7 @@ local WINDOW_CONFIG = {
 
 local ENEMY_TEMPLATES = {
     bounce = {
-        minLevel = 1,
+        minLevel = 12,
         healthMin = 25,
         healthMax = 70,
         budgetPercentCap = 0.35,
@@ -189,9 +189,9 @@ local ENEMY_TEMPLATES = {
         end,
     },
     shielder = {
-        minLevel = 10,
-        healthMin = 40,
-        healthMax = 80,
+        minLevel = 6,
+        healthMin = 20,
+        healthMax = 120,
         maxPerLevel = 2,
         spaceRequirement = 1,
         weight = 3,
@@ -201,8 +201,10 @@ local ENEMY_TEMPLATES = {
             local margin = 80
             local x = margin + math.random() * (windowW - 2 * margin)
             local y = margin + math.random() * (windowH - 2 * margin)
-            local speedBase = 400 + (level - 10) * 5
-            local speedFast = 650 + (level - 10) * 8
+            local speedBase = 400 + (level - 6) * 5
+            local speedFast = 650 + (level - 6) * 8
+            -- Corruption threshold scales with health: 35% at 20hp, 95% at 120hp
+            local corruptionThreshold = 0.35 + (health - 20) * 0.006
             return {
                 movementType = "shielder",
                 x = x,
@@ -232,7 +234,7 @@ local ENEMY_TEMPLATES = {
                         decayRate = 0.075,
                         spreadRate = 0.25,
                         hitAmount = 0.20,
-                        breakThreshold = 0.925,
+                        breakThreshold = corruptionThreshold,
                     },
                 }
             }
@@ -246,14 +248,32 @@ local levels = {
         windowHeight = 800,
         enemies = {
             { 
-                movementType = "stationary", 
+                movementType = "shielder", 
                 x = 400, 
                 y = 500, 
-                health = 45, 
-                shootPattern = "cone", 
-                projectileCount = 2, 
-                shootInterval = beatsToSeconds(2),
+                health = 20,
+                lightningShield = {
+                    enabled = true,
+                    radius = 90,
+                    spreadAngle = math.rad(100),
+                    facingAngle = -math.pi / 2,
+                    maxRotationSpeed = 1.75,
+                    thickness = 6.5,
+                    jaggedness = 0.04,
+                    segments = 6,
+                    color = { r = 50, g = 200, b = 200, a = 255 },
+                    flickerSpeed = 0.12,
+                    corruption = {
+                        enabled = true,
+                        targetColor = { r = 255, g = 255, b = 255 },
+                        decayRate = 0.075,
+                        spreadRate = 0.25,
+                        hitAmount = 0.20,
+                        breakThreshold = 0.35,
+                    },
+                },
             },
+            { movementType = "stationary", x = 500, y = 300, health = 30, shootPattern = "cone", projectileCount = 2, shootInterval = beatsToSeconds(2) },
         },
     },
     [2] = {
