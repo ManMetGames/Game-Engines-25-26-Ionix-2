@@ -13,6 +13,7 @@ namespace IonixEngine {
         renderData.queue = Application::Get().layerGraphics->GetQueue();
 
         m_ParticleSystem.Init();
+        m_VFXSystem.Init();
 
         //EntityID first = CreateEntity();
         //Entity* firstEntity = GetEntityFromID(first);
@@ -65,6 +66,11 @@ namespace IonixEngine {
 
         m_ParticleSystem.Update(dt);
         m_ParticleSystem.Render(&renderData);
+
+        m_VFXSystem.Update(dt);
+        // VFX rendering is done at the end to draw on top of entities
+        int currentRenderLayer = Application::Get().currentCam ? Application::Get().currentCam->renderLayer : 0;
+        m_VFXSystem.Render(renderData.renderer, currentRenderLayer);
     }
 
     void Scene::OnEvent(IonixEvent& event) {}
@@ -76,6 +82,7 @@ namespace IonixEngine {
         m_Entities.clear();
 
         m_ParticleSystem.Shutdown();
+        m_VFXSystem.Shutdown();
     }
 
     void Scene::Reserve(std::size_t count) {

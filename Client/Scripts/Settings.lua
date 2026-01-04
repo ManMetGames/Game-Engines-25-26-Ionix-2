@@ -22,16 +22,15 @@ end
 --LoadModule("EntityPlayer", "Scripts/EntityPlayer.lua")
 --LoadModule("Assets", "Scripts/Assets.lua")
 --LoadModule("Enums", "Scripts/Enums.lua")
-LoadModule("FlappyBird", "Scripts/FlappyBird/FlappyBird.lua")
+--LoadModule("FlappyBird", "Scripts/FlappyBird/FlappyBird.lua")
 --LoadModule("CorutineTest", "Scripts/TestingCoroutine/CoroutineTest.lua")
 --LoadModule("ExampleScript", "Scripts/ExampleScript.lua")
 --LoadModule("Ball", "Scripts/Ball.lua")
---LoadModule("FlappyBird", "Scripts/FlappyBird/FlappyBird.lua")
+LoadModule("FlappyBird", "Scripts/FlappyBird/FlappyBird.lua")
 --LoadModule("ExampleScript", "Scripts/ExampleScript.lua")
 --LoadModule("Ball","Scripts/Ball.lua")
---LoadModule("TriangleShooter", "Scripts/TriangleShooter/TriangleShooter.lua")
---LoadModule("TriangleShooter", "Scripts/TriangleShooter/TriangleShooter.lua")
---LoadModule("TriangleShooter", "Scripts/TriangleShooter/TriangleShooterTrip.lua")
+--LoadModule("SystemShooter", "Scripts/SystemShooter/SystemShooter.lua")
+
 -- Lifecycle hooks
 function OnStart()
     for name, module in pairs(modules) do

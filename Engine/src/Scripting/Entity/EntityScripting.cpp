@@ -3,6 +3,7 @@
 #include "Architecture/ECS/Entity.hpp"
 #include "Fysics/FysicsBody.h"
 #include "Fysics/FysicsManager.h"
+#include "Audio/MusicComponent.h"
 namespace IonixEngine {
 
     EntityScripting* EntityScripting::s_Instance = nullptr;
@@ -182,6 +183,10 @@ namespace IonixEngine {
         auto addAudioPlayerComponent = [](Entity* entity, std::string clip = "", bool playOnAwake = false) {
             entity->AddComponent(new AudioPlayer(entity, clip, playOnAwake));
             };
+
+        auto addMusicComponent = [](Entity* entity, std::string musicTrack = "", bool playOnAwake = false) {
+            entity->AddComponent(new MusicComponent(entity, musicTrack, playOnAwake));
+            };
         
         auto addFysicsBodyComponent = [](Entity* entity) {
             entity->AddComponent(new FysicsBody(entity, "", Application::Get().layerFysics->GetWorld()));
@@ -197,6 +202,10 @@ namespace IonixEngine {
 
         auto getAudioPlayerComponent = [](Entity* entity) {
             return entity->GetComponent<AudioPlayer>();
+            };
+
+        auto getMusicComponent = [](Entity* entity) {
+            return entity->GetComponent<MusicComponent>();
             };
 
         auto getFysicsBodyComponent = [](Entity* entity) {
@@ -223,6 +232,16 @@ namespace IonixEngine {
             return result;
             };
 
+        auto tryGetMusicComponent = [](Entity* entity) -> auto {
+            MusicComponent* comp = nullptr;
+            std::pair<bool, MusicComponent*> result;
+            bool hasComp = entity->TryGetComponent<MusicComponent>(&comp);
+
+            result = std::make_pair(hasComp, comp);
+
+            return result;
+            };
+
         auto tryGetFysicsBodyComponent = [](Entity* entity) -> auto {
             FysicsBody* comp = nullptr;
             std::pair<bool, FysicsBody*> result;
@@ -239,6 +258,10 @@ namespace IonixEngine {
 
         auto hasAudioComponent = [](Entity* entity) -> bool {
             return entity->HasComponent<AudioPlayer>();
+            };
+
+        auto hasMusicComponent = [](Entity* entity) -> bool {
+            return entity->HasComponent<MusicComponent>();
             };
 
         auto hasFysicsBodyComponent = [](Entity* entity) -> bool {
@@ -270,16 +293,20 @@ namespace IonixEngine {
             "remove_child_index", removeChildWithIndex,
             "add_sprite_component", addSpriteComponent,
             "add_audio_component", addAudioPlayerComponent,
+            "add_music_component", addMusicComponent,
             "add_fysics_component", addFysicsBodyComponent,
             "add_fysics_component", addFysicsBodyComponentWithType,
             "get_sprite_component", getSpriteComponent,
             "get_audio_component", getAudioPlayerComponent,
+            "get_music_component", getMusicComponent,
             "get_fysics_component", getFysicsBodyComponent,
             "try_get_sprite_component", tryGetSpriteComponent,
             "try_get_audio_component", tryGetAudioComponent,
+            "try_get_music_component", tryGetMusicComponent,
             "try_get_fysics_component", tryGetFysicsBodyComponent,
             "has_sprite_component", hasSpriteComponent,
             "has_audio_component", hasAudioComponent,
+            "has_music_component", hasMusicComponent,
             "has_fysics_component", hasFysicsBodyComponent
 
         );

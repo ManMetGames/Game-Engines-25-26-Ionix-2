@@ -8,6 +8,7 @@ struct Textures {
     uint32_t Apple = 3562895354u;
     uint32_t Back = 679751378u;
     uint32_t Background = 2667361274u;
+    uint32_t Background_Mountains = 563280238u;
     uint32_t Bananas = 280088504u;
     uint32_t Blink__42x42_ = 4197074976u;
     uint32_t Blink__54x52_ = 2510351194u;
@@ -38,6 +39,8 @@ struct Textures {
     uint32_t Double_Jump__32x32__1 = 2620560242u;
     uint32_t Double_Jump__32x32__1_2 = 2905950182u;
     uint32_t Double_Jump__32x32__1_2_3 = 541522250u;
+    uint32_t DuckLeft = 367995890u;
+    uint32_t DuckRight = 4029090160u;
     uint32_t Dust_Particle = 3860065720u;
     uint32_t End__Idle_ = 1090496402u;
     uint32_t End__Pressed___64x64_ = 1747199472u;
@@ -46,8 +49,19 @@ struct Textures {
     uint32_t Fall__32x32__1_2 = 730365616u;
     uint32_t Fall__32x32__1_2_3 = 2227305082u;
     uint32_t FlappyBird = 2136167952u;
+    uint32_t FlappyBlaze = 658862684u;
+    uint32_t FlappyHologram = 3578524862u;
+    uint32_t FlappyIce = 1879486528u;
+    uint32_t FlappyJuice = 746333232u;
     uint32_t FlappyPipe = 1290161702u;
     uint32_t FlappyPipe2 = 2484853856u;
+    uint32_t FlappyPurple = 4063090336u;
+    uint32_t FlappyGui = 1627424584u;
+    uint32_t Flappy_Crystal = 539763344u;
+    uint32_t FlappyGlitch = 3619484804u;
+    uint32_t Flappy_Origami = 379557468u;
+    uint32_t FlappySandy = 2268662876u;
+    uint32_t FlappySpace = 906825536u;
     uint32_t Ghast_Tear = 3650266058u;
     uint32_t Gray = 220346788u;
     uint32_t Green = 1896123910u;
@@ -92,6 +106,7 @@ struct Textures {
     uint32_t Levels = 4207048006u;
     uint32_t Melon = 2988198104u;
     uint32_t Mud_Particle = 1923432266u;
+    uint32_t NEWcrosshair = 1079046746u;
     uint32_t Next = 1958711472u;
     uint32_t Off = 891709858u;
     uint32_t Off_1 = 518608092u;
@@ -102,6 +117,7 @@ struct Textures {
     uint32_t On__32x10_ = 1098933380u;
     uint32_t On__38x38_ = 2396822420u;
     uint32_t Orange = 3725847912u;
+    uint32_t PacMan = 2199143984u;
     uint32_t Part_1__22x22_ = 3402242302u;
     uint32_t Part_2__22x22_ = 1294351574u;
     uint32_t PimBall = 3518613816u;
@@ -119,6 +135,7 @@ struct Textures {
     uint32_t Run__32x32__1 = 129598374u;
     uint32_t Run__32x32__1_2 = 2552516020u;
     uint32_t Run__32x32__1_2_3 = 2171291920u;
+    uint32_t SMOLcrosshair = 4171525044u;
     uint32_t Sand = 2995081222u;
     uint32_t Sand_Mud_Ice__16x6_ = 259244214u;
     uint32_t Sand_Particle = 383235570u;
@@ -193,12 +210,17 @@ struct Textures {
     uint32_t _48 = 3331315088u;
     uint32_t _49 = 52203812u;
     uint32_t _50 = 2779066472u;
+    uint32_t backgroundDuckHunt = 2360523392u;
     uint32_t ball = 369994598u;
     uint32_t ball2 = 1354646532u;
     uint32_t balls = 2771258852u;
+    uint32_t bottomPanel = 3898366832u;
+    uint32_t crosshair2 = 99284478u;
     uint32_t hermer = 242799782u;
     uint32_t horse_fat = 963803500u;
     uint32_t office = 2084752704u;
+    uint32_t pew = 1466443448u;
+    uint32_t shootypointer = 3014932692u;
 
     inline std::map<std::string, std::string> GetTextures() {
         std::map<std::string, std::string> map;
@@ -207,6 +229,7 @@ struct Textures {
         map["Apple"] = "./Assets/Jimmy Demo/Items/Fruits/Apple.png";
         map["Back"] = "./Assets/Jimmy Demo/Menu/Buttons/Back.png";
         map["Background"] = "./Assets/Background.png";
+        map["Background_Mountains"] = "./Assets/Background_Mountains.png";
         map["Bananas"] = "./Assets/Jimmy Demo/Items/Fruits/Bananas.png";
         map["Blink__42x42_"] = "./Assets/Jimmy Demo/Traps/Rock Head/Blink (42x42).png";
         map["Blink__54x52_"] = "./Assets/Jimmy Demo/Traps/Spike Head/Blink (54x52).png";
@@ -237,6 +260,8 @@ struct Textures {
         map["Double_Jump__32x32__1"] = "./Assets/Jimmy Demo/Main Characters/Ninja Frog/Double Jump (32x32).png";
         map["Double_Jump__32x32__1_2"] = "./Assets/Jimmy Demo/Main Characters/Pink Man/Double Jump (32x32).png";
         map["Double_Jump__32x32__1_2_3"] = "./Assets/Jimmy Demo/Main Characters/Virtual Guy/Double Jump (32x32).png";
+        map["DuckLeft"] = "./Assets/DuckLeft.png";
+        map["DuckRight"] = "./Assets/DuckRight.png";
         map["Dust_Particle"] = "./Assets/Jimmy Demo/Other/Dust Particle.png";
         map["End__Idle_"] = "./Assets/Jimmy Demo/Items/Checkpoints/End/End (Idle).png";
         map["End__Pressed___64x64_"] = "./Assets/Jimmy Demo/Items/Checkpoints/End/End (Pressed) (64x64).png";
@@ -245,8 +270,19 @@ struct Textures {
         map["Fall__32x32__1_2"] = "./Assets/Jimmy Demo/Main Characters/Pink Man/Fall (32x32).png";
         map["Fall__32x32__1_2_3"] = "./Assets/Jimmy Demo/Main Characters/Virtual Guy/Fall (32x32).png";
         map["FlappyBird"] = "./Assets/FlappyBird.png";
+        map["FlappyBlaze"] = "./Assets/FlappyBlaze.png";
+        map["FlappyHologram"] = "./Assets/FlappyHologram.png";
+        map["FlappyIce"] = "./Assets/FlappyIce.png";   
+        map["FlappyJuice"] = "./Assets/FlappyJuice.png";
         map["FlappyPipe"] = "./Assets/FlappyPipe.png";
         map["FlappyPipe2"] = "./Assets/FlappyPipe2.png";
+        map["FlappyPurple"] = "./Assets/FlappyPurple.png";
+        map["FlappyGui"] = "./Assets/FlappyGui.png";
+        map["Flappy_Crystal"] = "./Assets/Flappy_Crystal.png";
+        map["FlappyGlitch"] = "./Assets/FlappyGlitch.png";
+        map["FlappySandy"] = "./Assets/FlappySandy.png";
+        map["FlappySpace"] = "./Assets/FlappySpace.png";
+        map["Flappy_Origami"] = "./Assets/Flappy_Origami.png";
         map["Ghast_Tear"] = "./Assets/Ghast_Tear.png";
         map["Gray"] = "./Assets/Jimmy Demo/Background/Gray.png";
         map["Green"] = "./Assets/Jimmy Demo/Background/Green.png";
@@ -291,6 +327,7 @@ struct Textures {
         map["Levels"] = "./Assets/Jimmy Demo/Menu/Buttons/Levels.png";
         map["Melon"] = "./Assets/Jimmy Demo/Items/Fruits/Melon.png";
         map["Mud_Particle"] = "./Assets/Jimmy Demo/Traps/Sand Mud Ice/Mud Particle.png";
+        map["NEWcrosshair"] = "./Assets/NEWcrosshair.png";
         map["Next"] = "./Assets/Jimmy Demo/Menu/Buttons/Next.png";
         map["Off"] = "./Assets/Jimmy Demo/Traps/Falling Platforms/Off.png";
         map["Off_1"] = "./Assets/Jimmy Demo/Traps/Fan/Off.png";
@@ -301,6 +338,7 @@ struct Textures {
         map["On__32x10_"] = "./Assets/Jimmy Demo/Traps/Falling Platforms/On (32x10).png";
         map["On__38x38_"] = "./Assets/Jimmy Demo/Traps/Saw/On (38x38).png";
         map["Orange"] = "./Assets/Jimmy Demo/Items/Fruits/Orange.png";
+        map["PacMan"] = "./Assets/PacMan.png";
         map["Part_1__22x22_"] = "./Assets/Jimmy Demo/Traps/Blocks/Part 1 (22x22).png";
         map["Part_2__22x22_"] = "./Assets/Jimmy Demo/Traps/Blocks/Part 2 (22x22).png";
         map["PimBall"] = "./Assets/PimBall.png";
@@ -318,6 +356,7 @@ struct Textures {
         map["Run__32x32__1"] = "./Assets/Jimmy Demo/Main Characters/Ninja Frog/Run (32x32).png";
         map["Run__32x32__1_2"] = "./Assets/Jimmy Demo/Main Characters/Pink Man/Run (32x32).png";
         map["Run__32x32__1_2_3"] = "./Assets/Jimmy Demo/Main Characters/Virtual Guy/Run (32x32).png";
+        map["SMOLcrosshair"] = "./Assets/SMOLcrosshair.png";
         map["Sand"] = "./Assets/Sand.png";
         map["Sand_Mud_Ice__16x6_"] = "./Assets/Jimmy Demo/Traps/Sand Mud Ice/Sand Mud Ice (16x6).png";
         map["Sand_Particle"] = "./Assets/Jimmy Demo/Traps/Sand Mud Ice/Sand Particle.png";
@@ -392,33 +431,60 @@ struct Textures {
         map["_48"] = "./Assets/Jimmy Demo/Menu/Levels/48.png";
         map["_49"] = "./Assets/Jimmy Demo/Menu/Levels/49.png";
         map["_50"] = "./Assets/Jimmy Demo/Menu/Levels/50.png";
+        map["backgroundDuckHunt"] = "./Assets/backgroundDuckHunt.png";
         map["ball"] = "./Assets/ball.png";
         map["ball2"] = "./Assets/ball2.png";
         map["balls"] = "./Assets/balls.png";
+        map["bottomPanel"] = "./Assets/bottomPanel.png";
+        map["crosshair2"] = "./Assets/crosshair2.png";
         map["hermer"] = "./Assets/hermer.png";
         map["horse_fat"] = "./Assets/horse-fat.gif";
         map["office"] = "./Assets/office.png";
+        map["pew"] = "./Assets/pew.png";
+        map["shootypointer"] = "./Assets/shootypointer.png";
         return map;
     };
 };
 
 struct Sounds {
+    uint32_t Hit = 2134794416u;
+    uint32_t Jump = 3884640712u;
+    uint32_t beam = 2668643436u;
+    uint32_t coin = 1941127746u;
+    uint32_t gameOver = 3624654154u;
     uint32_t gunshot1 = 1107995564u;
     uint32_t gunshot2 = 1286261536u;
     uint32_t gunshot3 = 3098717796u;
     uint32_t impact3 = 2700059400u;
+    uint32_t lightning1 = 3999073294u;
+    uint32_t lightning2 = 2542704150u;
     uint32_t playerDamage = 738334250u;
+    uint32_t powerDown1 = 1u;
+    uint32_t powerDown2 = 2u;
+    uint32_t powerUp1 = 3u;
+    uint32_t powerUp2 = 4u;
     uint32_t technoSong = 1268943446u;
     uint32_t test = 1642075152u;
     uint32_t test_1 = 1449390318u;
 
     inline std::map<std::string, std::string> GetSounds() {
         std::map<std::string, std::string> map;
+        map["Hit"] = "./Assets/FlappyBird Audio/Hit.wav";
+        map["Jump"] = "./Assets/FlappyBird Audio/Jump.mp3";
+        map["beam"] = "./Assets/Audio/beam.wav";
+        map["coin"] = "./Assets/FlappyBird Audio/coin.mp3";
+        map["gameOver"] = "./Assets/FlappyBird Audio/gameOver.wav";
         map["gunshot1"] = "./Assets/Audio/gunshot1.mp3";
         map["gunshot2"] = "./Assets/Audio/gunshot2.mp3";
         map["gunshot3"] = "./Assets/Audio/gunshot3.mp3";
         map["impact3"] = "./Assets/Audio/impact3.mp3";
+        map["lightning1"] = "./Assets/Audio/lightning1.wav";
+        map["lightning2"] = "./Assets/Audio/lightning2.wav";
         map["playerDamage"] = "./Assets/Audio/playerDamage.mp3";
+        map["powerDown1"] = "./Assets/Audio/powerDown1.mp3";
+        map["powerDown2"] = "./Assets/Audio/powerDown2.mp3";
+        map["powerUp1"] = "./Assets/Audio/powerUp1.mp3";
+        map["powerUp2"] = "./Assets/Audio/powerUp2.mp3";
         map["technoSong"] = "./Assets/technoSong.mp3";
         map["test"] = "./Assets/test.mp3";
         map["test_1"] = "./Assets/test.wav";
@@ -509,11 +575,21 @@ struct Fonts {
         return map;
     };
 };
+struct Music {
+    uint32_t technoSong = 3284719502u;
+
+    inline std::map<std::string, std::string> GetMusic() {
+        std::map<std::string, std::string> map;
+        map["technoSong"] = "./Assets/technoSong.mp3";
+        return map;
+    };
+};
 
 struct Assets {
     Textures textures;
     Sounds sounds;
     Fonts fonts;
+    Music music;
 
     static Assets& Get() {
         static Assets assets;
