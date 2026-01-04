@@ -665,8 +665,13 @@ local function SpawnEnemiesForLevel(spawnDisabled)
             -- Store spawn position for rewind system
             SystemShooterRewind.setSpawnPosition(#enemies, spawnX, spawnY)
             
-            -- Create lightning shield VFX if configured AND enemy is not disabled
-            if not spawnDisabled and enemyCfg.lightningShield and enemyCfg.lightningShield.enabled then
+            -- Store lightning shield config on enemy for reference
+            if enemyCfg.lightningShield then
+                e.lightningShieldConfig = enemyCfg.lightningShield
+            end
+            
+            -- Create lightning shield VFX if configured (always create, even when disabled - VFX follows enemy)
+            if enemyCfg.lightningShield and enemyCfg.lightningShield.enabled then
                 local shield = enemyCfg.lightningShield
                 local radius = shield.radius or 100
                 local spread = shield.spreadAngle or math.rad(90)
