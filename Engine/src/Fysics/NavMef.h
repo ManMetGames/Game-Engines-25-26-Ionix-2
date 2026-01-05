@@ -42,7 +42,6 @@ namespace IonixEngine
 
 
     public:
-        //static NavMef* GetNavMef();
         // load vertices and indices
         void Load(const std::vector<b2Vec2>& corners, const std::vector<int>& indices);
 

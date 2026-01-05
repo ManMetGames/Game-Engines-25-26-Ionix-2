@@ -480,6 +480,27 @@ namespace IonixEngine
 			return false;
 		};
 
+		//------------------------Nav Mef----------------------------
+		auto loadNavMef = [](float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4)
+		{
+			std::vector<b2Vec2> corners;
+			corners.push_back(b2Vec2(y1, y1));
+			corners.push_back(b2Vec2(y2, y2));
+			corners.push_back(b2Vec2(y3, y3));
+			corners.push_back(b2Vec2(y4, y4));
+
+			std::vector<int> indices = {0, 1, 2, 3};
+			
+			Application::Get().layerNavigation->GetNavMef()->Load(corners, indices);
+		};
+		
+		auto createNavAgent = [](Entity* entity, float speed)
+		{
+			//Application::Get().layerNavigation->CreateAgent()
+		};
+		
+		
+
 		lua["Raycast"] = lua.create_table_with(
 					"entity", getRaycastEntity
 
@@ -563,7 +584,8 @@ namespace IonixEngine
 			"col", checkActiveCollisions,
 			"add_to_collision_map", addToCollisionMap,
 			"raycast", raycast,
-			"draw_raycast", drawRaycast
+			"draw_raycast", drawRaycast,
+			"load_nav_mef", loadNavMef
 		);
 	}
 }

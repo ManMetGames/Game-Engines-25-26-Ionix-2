@@ -13,6 +13,7 @@
 #include "LayerSystem/Layers/SceneLayer.h"
 #include "LayerSystem/Layers/LayerFysics.h"
 #include "LayerSystem/Layers/LayerInput.h"
+#include "LayerSystem/Layers/LayerNavigation.h"
 #include"Scripting/Scripting.h"
 // #include "Scripting/Audio/AudioScripting.h"
 #include "LayerSystem/Layers/LayerSound.h"
@@ -59,6 +60,7 @@ namespace IonixEngine {
         LayerFysics* layerFysics;
         LayerInput* layerInput;
         LayerSound* layerSound;
+        LayerNavigation* layerNavigation;
         FirebaseLeaderboard* firebaseLeaderboard;
 
     private:

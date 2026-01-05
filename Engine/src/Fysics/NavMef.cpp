@@ -4,7 +4,8 @@
 
 namespace IonixEngine
 {
-	/*NavMef NavMef::GetNavMef() {
+    /*
+	NavMef NavMef::GetNavMef() {
 		return Application::Get().layerNavigation->GetNavMef();
 	}*/
 
@@ -46,6 +47,8 @@ namespace IonixEngine
 				}
 			}
 		}
+
+	    std::cout << "NavMef Loaded" << endl;
 	}
 	const std::vector<Cell>& NavMef::GetCells() const { return m_cells; }
 	b2Vec2 NavMef::GetCellCentre(const Cell& cell) const {

@@ -17,7 +17,7 @@ namespace IonixEngine
     public:
         static LayerNavigation* instance;
 
-        //NavMef& GetNavMef() { return nav; }
+        NavMef* GetNavMef() { return nav; }
         std::vector<int> RequestPath(int startCell, int goalCell);
         NavAgent* CreateAgent(const b2Vec2 endPosition);
 
