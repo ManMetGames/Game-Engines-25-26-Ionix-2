@@ -60,8 +60,8 @@ namespace IonixEngine
         //FirebaseLeaderboard::SubmitScore("Zulfaqaar", 90);
         //FirebaseLeaderboard::RetrieveTopScores(5);
         
-        //layerNavigation = new LayerNavigation();  
-        //AddLayer(layerNavigation);
+        layerNavigation = new LayerNavigation();  
+        AddLayer(layerNavigation);
 
         Scripting::Get().Init();
         // Safely load the Lua settings file

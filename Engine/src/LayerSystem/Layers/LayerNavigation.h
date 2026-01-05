@@ -9,13 +9,14 @@ namespace IonixEngine
     class LayerNavigation : public Layer
     {
     private:
-        NavMef* nav;
+        NavMef* nav { nullptr };
         Entity* ent;
         std::vector<std::unique_ptr<NavAgent>> agents;
         int m_nextId;
 
     public:
         static LayerNavigation* instance;
+        static LayerNavigation* GetInstance();
 
         NavMef* GetNavMef() { return nav; }
         std::vector<int> RequestPath(int startCell, int goalCell);

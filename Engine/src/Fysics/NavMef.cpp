@@ -25,6 +25,7 @@ namespace IonixEngine
         return shared >= 2;
     }
 	void NavMef::Load(const std::vector<b2Vec2>& corners, const std::vector<int>& indices) {
+        auto nav = Application::Get().layerNavigation->GetNavMef();
 		m_corners = corners;
 		const int fourCount = indices.size() / 4;
         m_cells.clear();

@@ -1,12 +1,19 @@
 #include "LayerNavigation.h"
 
+#include "Architecture/Application.h"
+
 namespace IonixEngine
 {
     LayerNavigation* LayerNavigation::instance = nullptr;
 
+    LayerNavigation* LayerNavigation::GetInstance()
+    {
+        return Application::Get().layerNavigation;
+    }
     void LayerNavigation::OnAttach()
     {
         instance = this;
+        nav = new NavMef();
     }
 
     void LayerNavigation::OnDetach()
@@ -22,6 +29,7 @@ namespace IonixEngine
             agent->Update(1.0f);
         }
     }
+
 
     
     
