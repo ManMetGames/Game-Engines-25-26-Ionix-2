@@ -49,6 +49,9 @@ namespace IonixEngine
 			}
 		}
 
+        m_blockedCells.clear();
+        m_blockedCells.resize(fourCount, false);
+
 	    std::cout << "NavMef Loaded" << endl;
 	}
 	const std::vector<Cell>& NavMef::GetCells() const { return m_cells; }
@@ -75,6 +78,11 @@ namespace IonixEngine
         //}
         if (startCell < 0 || goalCell < 0 ||
             startCell >= m_cells.size() || goalCell >= m_cells.size())
+        {
+            return {};
+        }
+
+        if (IsCellBlocked(startCell) || IsCellBlocked(goalCell))
         {
             return {};
         }
@@ -112,6 +120,14 @@ namespace IonixEngine
             }
             //find adjacencys of cell
             for (int adjacencyIndex : m_cells[currentIndex].neighbors) {
+                //added adjacence check for obstactle handling
+                if (IsCellBlocked(adjacencyIndex))
+                {
+                    continue;
+                }
+
+
+
                 if (closeList[adjacencyIndex]) {
                     continue;
                 }
@@ -175,6 +191,8 @@ namespace IonixEngine
     //get position function get the sprite or entity or agent maybe a shape IDK - then get its position check position in the navmesh using an in point polygon test to check if in rectangle then get the cell to use and place agent.
 
 
+
+    //Olesya's funnel algorithm <3
     std::vector<b2Vec2> NavMef::Funnel(const std::vector<int>& cellPath)
     {
         // get waypoints through shared edges
@@ -285,6 +303,70 @@ namespace IonixEngine
 
 
 
+
+    // obstactles implemented 
+    bool NavMef::CellOverlaps(const Cell& cell, const b2Vec2& min, const b2Vec2& max) const
+    {
+
+        // compute cell corners
+        b2Vec2 c0 = m_corners[cell.corns[0]];
+        b2Vec2 c1 = m_corners[cell.corns[1]];
+        b2Vec2 c2 = m_corners[cell.corns[2]];
+        b2Vec2 c3 = m_corners[cell.corns[3]];
+
+        float cellMinX = std::min({ c0.x, c1.x, c2.x, c3.x });
+        float cellMaxX = std::max({ c0.x, c1.x, c2.x, c3.x });
+        float cellMinY = std::min({ c0.y, c1.y, c2.y, c3.y });
+        float cellMaxY = std::max({ c0.y, c1.y, c2.y, c3.y });
+
+        // test the overlap
+        if (cellMaxX < min.x || cellMinX > max.x)
+        {
+
+            return false;
+        }
+
+        if (cellMaxY < min.y || cellMinY > max.y)
+        {
+
+            return false;
+        }
+
+        return true;
+    }
+
+    void NavMef::ClearObstacles()
+    {
+        for (int i = 0; i < m_blockedCells.size(); i++)
+        {
+
+            m_blockedCells[i] = false;
+        }
+    }
+
+    void NavMef::AddObstacle(const b2Vec2& min, const b2Vec2& max)
+    {
+        for (int i = 0; i < m_cells.size(); i++)
+        {
+
+            if (CellOverlaps(m_cells[i], min, max))
+            {
+                m_blockedCells[i] = true;
+            }
+
+        }
+    }
+
+    bool NavMef::IsCellBlocked(int cellIndex) const
+    {
+        if (cellIndex < 0 || cellIndex >= m_blockedCells.size())
+        {
+
+            return true;
+        }
+
+        return m_blockedCells[cellIndex];
+    }
 
 
 

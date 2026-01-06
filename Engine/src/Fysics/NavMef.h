@@ -41,6 +41,14 @@ namespace IonixEngine
         bool ShareEdge(const Cell& a, const Cell& b);
 
 
+
+        //check if the cell is blocked by an obstacle
+        std::vector<bool> m_blockedCells;
+
+        //checks if thr cell overlaps an obstacle
+        bool CellOverlaps(const Cell& cell, const b2Vec2& min, const b2Vec2& max) const;
+
+
     public:
         // load vertices and indices
         void Load(const std::vector<b2Vec2>& corners, const std::vector<int>& indices);
@@ -60,6 +68,16 @@ namespace IonixEngine
         std::vector<b2Vec2> Funnel(const std::vector<int>& cellPath);
 
 
+
+
+        //added obstactle handling  by Olesya
+        void ClearObstacles();
+
+        //adds an obstacle
+        void AddObstacle(const b2Vec2& min, const b2Vec2& max);
+
+        // check to see if a cell is unnavailable and blocked 
+        bool IsCellBlocked(int cellIndex) const;
     };
 }
 
