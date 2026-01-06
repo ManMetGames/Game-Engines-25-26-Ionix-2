@@ -110,9 +110,19 @@ function ExampleScript:OnUpdate()
     local pos = Entity.get_global_pos(player1)
     local playerX = Mafs.get_vec_x(pos)
     local playerY = Mafs.get_vec_y(pos)
+
+    local upEndPos = {
+    x = pos.x,
+    y = pos.y
+    }
+    local hit, info = Fysics.raycast(pos, upEndPos) 
+
+    --Fysics.draw_raycast(playerPos, upEndPos, false)
+
+
     -- get current velocity
-    local vel1 = Fysics.get_linear_velocity(player1)
     -- Constant rightward movement
+    local vel1 = Fysics.get_linear_velocity(player1)
     local vx = Mafs.get_vec_x(vel1);
     local vy1 = Mafs.get_vec_y(vel1)
     
