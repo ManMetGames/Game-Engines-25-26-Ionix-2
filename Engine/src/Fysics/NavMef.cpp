@@ -24,8 +24,51 @@ namespace IonixEngine
         // if 2 vertices are shared between the rectangles, they touch with an edge and are adjacent
         return shared >= 2;
     }
+    void NavMef::BuildGrid(b2Vec2 origin, b2Vec2 size, float cellSize) {
+        std::vector<b2Vec2> corners;
+        std::vector<int> indices;
+
+        int cols = static_cast<int>(size.x / cellSize);
+        int rows = static_cast<int>(size.y / cellSize);
+
+        //calc corners
+        for (int y = 0; y <= rows; y++)
+        {
+            for (int x = 0; x <= cols; x++)
+            {
+                corners.push_back({
+                    origin.x + x * cellSize,
+                    origin.y + y * cellSize
+                    });
+            }
+        }
+
+        auto CornerIndex = [&](int x, int y)
+            {
+                return y * (cols + 1) + x;
+            };
+
+        //calc cell indices
+        for (int y = 0; y < rows; y++)
+        {
+            for (int x = 0; x < cols; x++)
+            {
+                int bl = CornerIndex(x, y);
+                int br = CornerIndex(x + 1, y);
+                int tl = CornerIndex(x, y + 1);
+                int tr = CornerIndex(x + 1, y + 1);
+
+                indices.push_back(bl);
+                indices.push_back(br);
+                indices.push_back(tr);
+                indices.push_back(tl);
+            }
+        }
+
+        //load mesh
+        Load(corners, indices);
+    }
 	void NavMef::Load(const std::vector<b2Vec2>& corners, const std::vector<int>& indices) {
-        auto nav = Application::Get().layerNavigation->GetNavMef();
 		m_corners = corners;
 		const int fourCount = indices.size() / 4;
         m_cells.clear();

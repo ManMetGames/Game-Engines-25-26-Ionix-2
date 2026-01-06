@@ -50,6 +50,7 @@ namespace IonixEngine
 
 
     public:
+        void BuildGrid(b2Vec2 origin, b2Vec2 size, float cellSize);
         // load vertices and indices
         void Load(const std::vector<b2Vec2>& corners, const std::vector<int>& indices);
 

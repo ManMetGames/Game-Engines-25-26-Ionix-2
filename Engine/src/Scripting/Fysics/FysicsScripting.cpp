@@ -481,17 +481,11 @@ namespace IonixEngine
 		};
 
 		//------------------------Nav Mef----------------------------
-		auto loadNavMef = [](float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4)
+		auto loadNavMef = [](float x, float y, float width, float height,  float cellSize)
 		{
-			std::vector<b2Vec2> corners;
-			corners.push_back(b2Vec2(y1, y1));
-			corners.push_back(b2Vec2(y2, y2));
-			corners.push_back(b2Vec2(y3, y3));
-			corners.push_back(b2Vec2(y4, y4));
-
-			std::vector<int> indices = {0, 1, 2, 3};
 			
-			Application::Get().layerNavigation->GetNavMef()->Load(corners, indices);
+			
+			Application::Get().layerNavigation->GetNavMef()->BuildGrid({ x, y }, { width, height }, cellSize);
 		};
 		
 		auto createNavAgent = [](Entity* entity, float speed)

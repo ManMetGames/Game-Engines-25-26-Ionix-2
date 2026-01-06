@@ -9,7 +9,7 @@ namespace IonixEngine
 {
 	NavAgent::NavAgent(NavMef* nav, Entity* ent, float speed) : m_NavMef(nav), m_entity(ent), m_speed(speed) {}
 
-	void NavAgent::PlaceAgent(b2Vec2 endPosition) // this is currently a bit wrong because dont have a funell yet 
+	void NavAgent::PlaceAgent(b2Vec2 endPosition) 
 	{
 		b2Body* body = FysicsManager::GetManager()->GetBodyFromEntity(m_entity);
 		b2Vec2 position = body->GetPosition();

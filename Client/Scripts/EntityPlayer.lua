@@ -26,7 +26,7 @@ function EntityPlayer:OnStart()
 		Sprite.set_columns(sprite1, 1)
 	end
 
-	Fysics.load_nav_mef(0, 0, 500, 0, 0, 200, 500, 200)
+	Fysics.load_nav_mef(0, 0, 500, 200, 25)
 end
 
 function EntityPlayer:OnUpdate()
