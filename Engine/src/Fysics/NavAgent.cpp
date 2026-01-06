@@ -57,4 +57,8 @@ namespace IonixEngine
 			return;
 		}
 	}
+	void NavAgent::MoveTo(const b2Vec2& endPosition)
+	{
+		PlaceAgent(endPosition);
+	}
 }

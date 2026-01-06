@@ -25,6 +25,7 @@ namespace IonixEngine
         NavAgent(NavMef* nav, Entity* ent, float speed);
         void PlaceAgent(b2Vec2 endPosition);  //kkkkkk
         void Update(float dt); // to move agent
+        void MoveTo(const b2Vec2& target);
 
     };
 }

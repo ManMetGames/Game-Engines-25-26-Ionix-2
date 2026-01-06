@@ -30,20 +30,17 @@ namespace IonixEngine
         }
     }
 
-
     
     
     std::vector<int> LayerNavigation::RequestPath(int startCell, int goalCell)
     {
         return nav->FindPath(startCell, goalCell);
     }
-    NavAgent* LayerNavigation::CreateAgent(const b2Vec2 endPosition)
+    NavAgent* LayerNavigation::CreateAgent(Entity* ent, float speed)
     {
-        auto agent = std::make_unique<NavAgent>(nav, ent, 3.0f);
+        auto agent = std::make_unique<NavAgent>(nav, ent, speed);
         NavAgent* agentPtr = agent.get();
-        agent->PlaceAgent(endPosition);
         agents.push_back(std::move(agent));
-
         return agentPtr;
     }
 }

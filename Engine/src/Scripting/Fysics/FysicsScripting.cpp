@@ -479,19 +479,6 @@ namespace IonixEngine
 
 			return false;
 		};
-
-		//------------------------Nav Mef----------------------------
-		auto loadNavMef = [](float x, float y, float width, float height,  float cellSize)
-		{
-			
-			
-			Application::Get().layerNavigation->GetNavMef()->BuildGrid({ x, y }, { width, height }, cellSize);
-		};
-		
-		auto createNavAgent = [](Entity* entity, float speed)
-		{
-			//Application::Get().layerNavigation->CreateAgent()
-		};
 		
 		
 
@@ -578,8 +565,7 @@ namespace IonixEngine
 			"col", checkActiveCollisions,
 			"add_to_collision_map", addToCollisionMap,
 			"raycast", raycast,
-			"draw_raycast", drawRaycast,
-			"load_nav_mef", loadNavMef
+			"draw_raycast", drawRaycast
 		);
 	}
 }

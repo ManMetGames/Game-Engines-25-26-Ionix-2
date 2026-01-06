@@ -20,7 +20,7 @@ namespace IonixEngine
 
         NavMef* GetNavMef() { return nav; }
         std::vector<int> RequestPath(int startCell, int goalCell);
-        NavAgent* CreateAgent(const b2Vec2 endPosition);
+        NavAgent* CreateAgent(Entity* ent, float speed);
 
         virtual void OnAttach() override;
         virtual void OnDetach() override;
