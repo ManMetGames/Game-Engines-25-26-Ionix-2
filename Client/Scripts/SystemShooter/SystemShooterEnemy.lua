@@ -146,13 +146,18 @@ function SystemShooterEnemy.createEnemy(x, y, config)
         
         -- Shielder-specific properties
         shielderSpeed = config.shielderSpeed or 400,
-        shielderSpeedFast = config.shielderSpeedFast or 650,
+        shielderSpeedFast = config.shielderSpeedFast or 550,
         shielderSpeedSlow = config.shielderSpeedSlow or 200,
         shielderOrbitRadius = config.shielderOrbitRadius or 80,
         shielderRotationSpeed = config.shielderRotationSpeed or 2.5,  -- Radians per second around ally
         shielderCurrentAngle = 0,  -- Track current orbital angle
         protectedAlly = nil,
         isWalkingToAlly = true,  -- Start in walking state to find initial ally
+        
+        -- Shield state flags (always initialize to ensure they're never nil)
+        hasShield = false,  -- Set to true during spawn if shields are successfully created
+        shieldBroken = false,  -- Set to true if shield is destroyed or creation fails
+        shieldLaunched = false,  -- Set to true when shield is launched (stops movement)
     }
 
     Sprite.set_image_width(sprite, math.floor(displaySize))
@@ -589,7 +594,7 @@ end
     end
     
     local shielderSpeed = enemy.shielderSpeed or 400
-    local shielderSpeedFast = enemy.shielderSpeedFast or 650  -- Fast speed when switching allies
+    local shielderSpeedFast = enemy.shielderSpeedFast or 550  -- Speed when moving to new ally (reduced from 650 for better gameplay)
     local shielderSpeedSlow = enemy.shielderSpeedSlow or 200  -- Slow speed when chasing player
     local orbitRadius = enemy.shielderOrbitRadius or 80       -- Distance to maintain from protected ally
     

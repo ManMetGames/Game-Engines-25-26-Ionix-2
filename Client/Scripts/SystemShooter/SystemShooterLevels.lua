@@ -202,7 +202,7 @@ local ENEMY_TEMPLATES = {
             local x = margin + math.random() * (windowW - 2 * margin)
             local y = margin + math.random() * (windowH - 2 * margin)
             local speedBase = 400 + (level - 6) * 5
-            local speedFast = 650 + (level - 6) * 8
+            local speedFast = 550 + (level - 6) * 8  -- Reduced from 650 for better gameplay
             -- Corruption threshold scales with health: 35% at 20hp, 95% at 120hp
             local corruptionThreshold = 0.35 + (health - 20) * 0.006
             return {
@@ -247,35 +247,10 @@ local levels = {
         windowWidth = 640,
         windowHeight = 800,
         enemies = {
-            { 
-                movementType = "shielder", 
-                x = 400, 
-                y = 500, 
-                health = 20,
-                lightningShield = {
-                    enabled = true,
-                    radius = 90,
-                    spreadAngle = math.rad(100),
-                    facingAngle = -math.pi / 2,
-                    maxRotationSpeed = 1.75,
-                    thickness = 6.5,
-                    jaggedness = 0.04,
-                    segments = 6,
-                    color = { r = 50, g = 200, b = 200, a = 255 },
-                    flickerSpeed = 0.12,
-                    corruption = {
-                        enabled = true,
-                        targetColor = { r = 255, g = 255, b = 255 },
-                        decayRate = 0.075,
-                        spreadRate = 0.25,
-                        hitAmount = 0.20,
-                        breakThreshold = 0.35,
-                    },
-                },
-            },
-            { movementType = "stationary", x = 500, y = 300, health = 30, shootPattern = "cone", projectileCount = 2, shootInterval = beatsToSeconds(2) },
+ { movementType = "stationary", x = 500, y = 300, health = 30, shootPattern = "cone", projectileCount = 2, shootInterval = beatsToSeconds(2) },
         },
-    },
+        
+        },
     [2] = {
         timeLimitSeconds = 20,
         windowWidth = 800,

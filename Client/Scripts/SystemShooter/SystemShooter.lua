@@ -807,9 +807,14 @@ local function SpawnEnemiesForLevel(spawnDisabled)
                     })
                 end
                 
-                -- Store shield reference on enemy for collision checks
-                e.hasShield = true
-                e.shieldBroken = false
+                -- Store shield reference on enemy for collision checks only if BOTH lightning bolts were created successfully
+                if (leftId and leftId >= 0) and (rightId and rightId >= 0) then
+                    e.hasShield = true
+                    e.shieldBroken = false
+                else
+                    e.hasShield = false
+                    e.shieldBroken = true
+                end
             end
         end
     else
