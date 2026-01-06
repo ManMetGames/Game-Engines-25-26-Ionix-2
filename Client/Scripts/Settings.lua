@@ -29,7 +29,7 @@ end
 --LoadModule("FlappyBird", "Scripts/FlappyBird/FlappyBird.lua")
 --LoadModule("ExampleScript", "Scripts/ExampleScript.lua")
 --LoadModule("Ball","Scripts/Ball.lua")
-LoadModule("SystemShooter", "Scripts/SystemShooter/SystemShooter.lua")
+LoadModule("Pong But Better", "Scripts/Pong But Better/Pong But Better.lua")
 
 -- Lifecycle hooks
 function OnStart()
