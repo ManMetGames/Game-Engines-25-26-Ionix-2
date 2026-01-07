@@ -192,7 +192,7 @@ local ENEMY_TEMPLATES = {
         minLevel = 6,
         healthMin = 20,
         healthMax = 120,
-        maxPerLevel = 2,
+        maxPerLevel = 1,  -- Reduced from 2 to ensure only 1 shielder per level
         spaceRequirement = 1,
         weight = 3,
         baseSize = 28,
@@ -202,7 +202,7 @@ local ENEMY_TEMPLATES = {
             local x = margin + math.random() * (windowW - 2 * margin)
             local y = margin + math.random() * (windowH - 2 * margin)
             local speedBase = 400 + (level - 6) * 5
-            local speedFast = 550 + (level - 6) * 8  -- Reduced from 650 for better gameplay
+            local speedFast = math.floor((550 + (level - 6) * 8) * 0.3)  -- Reduced by 70% when moving to ally
             -- Corruption threshold scales with health: 35% at 20hp, 95% at 120hp
             local corruptionThreshold = 0.35 + (health - 20) * 0.006
             return {
@@ -248,6 +248,7 @@ local levels = {
         windowHeight = 800,
         enemies = {
  { movementType = "stationary", x = 500, y = 300, health = 30, shootPattern = "cone", projectileCount = 2, shootInterval = beatsToSeconds(2) },
+            { movementType = "shielder", x = 320, y = 200, health = 25, shielderSpeed = 405, shielderSpeedFast = 165, shielderSpeedSlow = 200, shielderRotationSpeed = 2.25, shielderOrbitRadius = 90, lightningShield = { enabled = true, radius = 90, spreadAngle = math.rad(100), facingAngle = -math.pi / 2, maxRotationSpeed = 1.75, thickness = 6.5, jaggedness = 0.04, segments = 6, color = { r = 50, g = 200, b = 200, a = 255 }, flickerSpeed = 0.12, corruption = { enabled = true, targetColor = { r = 255, g = 255, b = 255 }, decayRate = 0.075, spreadRate = 0.25, hitAmount = 0.20, breakThreshold = 0.35 } } },
         },
         
         },
@@ -257,7 +258,7 @@ local levels = {
         windowHeight = 400,
         enemies = {
             { movementType = "orbit", x = 506, y = 186, health = 35, orbitCenter = {400, 200}, orbitRadius = 120, orbitSpeed = 1.0, shootPattern = "cone", projectileCount = 1, shootInterval = beatsToSeconds(2) },
-            
+            { movementType = "shielder", x = 650, y = 300, health = 30, shielderSpeed = 410, shielderSpeedFast = 168, shielderSpeedSlow = 200, shielderRotationSpeed = 2.25, shielderOrbitRadius = 90, lightningShield = { enabled = true, radius = 90, spreadAngle = math.rad(100), facingAngle = -math.pi / 2, maxRotationSpeed = 1.75, thickness = 6.5, jaggedness = 0.04, segments = 6, color = { r = 50, g = 200, b = 200, a = 255 }, flickerSpeed = 0.12, corruption = { enabled = true, targetColor = { r = 255, g = 255, b = 255 }, decayRate = 0.075, spreadRate = 0.25, hitAmount = 0.20, breakThreshold = 0.38 } } },
         },
     },
     [3] = {
@@ -267,6 +268,7 @@ local levels = {
         enemies = {
             { movementType = "stationary", x = 500, y = 300, health = 30, shootPattern = "cone", projectileCount = 2, shootInterval = beatsToSeconds(2) },
             { movementType = "orbit", x = 659, y = 306, health = 30, orbitCenter = {513, 320}, orbitRadius = 160, orbitSpeed = -1.0, shootPattern = "cone", projectileCount = 1, shootInterval = beatsToSeconds(2) },
+            { movementType = "shielder", x = 800, y = 150, health = 35, shielderSpeed = 415, shielderSpeedFast = 171, shielderSpeedSlow = 200, shielderRotationSpeed = 2.25, shielderOrbitRadius = 90, lightningShield = { enabled = true, radius = 90, spreadAngle = math.rad(100), facingAngle = -math.pi / 2, maxRotationSpeed = 1.75, thickness = 6.5, jaggedness = 0.04, segments = 6, color = { r = 50, g = 200, b = 200, a = 255 }, flickerSpeed = 0.12, corruption = { enabled = true, targetColor = { r = 255, g = 255, b = 255 }, decayRate = 0.075, spreadRate = 0.25, hitAmount = 0.20, breakThreshold = 0.41 } } },
         },
     },
     [4] = {
@@ -276,6 +278,7 @@ local levels = {
         enemies = {
             { movementType = "stationary", x = 400, y = 260, health = 30, shootPattern = "cone", projectileCount = 2, shootInterval = beatsToSeconds(2) },
             { movementType = "bounce", x = 400, y = 540, health = 30 },
+            { movementType = "shielder", x = 200, y = 400, health = 40, shielderSpeed = 420, shielderSpeedFast = 174, shielderSpeedSlow = 200, shielderRotationSpeed = 2.25, shielderOrbitRadius = 90, lightningShield = { enabled = true, radius = 90, spreadAngle = math.rad(100), facingAngle = -math.pi / 2, maxRotationSpeed = 1.75, thickness = 6.5, jaggedness = 0.04, segments = 6, color = { r = 50, g = 200, b = 200, a = 255 }, flickerSpeed = 0.12, corruption = { enabled = true, targetColor = { r = 255, g = 255, b = 255 }, decayRate = 0.075, spreadRate = 0.25, hitAmount = 0.20, breakThreshold = 0.44 } } },
         },
     },
     [5] = {
@@ -285,6 +288,7 @@ local levels = {
         enemies = {
             { movementType = "stationary", x = 500, y = 300, health = 35, shootPattern = "cone", projectileCount = 1, shootInterval = beatsToSeconds(2) },
             { movementType = "stationary", x = 350, y = 200, health = 50, shootPattern = "cone", projectileCount = 2, shootInterval = beatsToSeconds(2.5) },
+            { movementType = "shielder", x = 450, y = 600, health = 45, shielderSpeed = 425, shielderSpeedFast = 177, shielderSpeedSlow = 200, shielderRotationSpeed = 2.25, shielderOrbitRadius = 90, lightningShield = { enabled = true, radius = 90, spreadAngle = math.rad(100), facingAngle = -math.pi / 2, maxRotationSpeed = 1.75, thickness = 6.5, jaggedness = 0.04, segments = 6, color = { r = 50, g = 200, b = 200, a = 255 }, flickerSpeed = 0.12, corruption = { enabled = true, targetColor = { r = 255, g = 255, b = 255 }, decayRate = 0.075, spreadRate = 0.25, hitAmount = 0.20, breakThreshold = 0.47 } } },
         },
     },
 }

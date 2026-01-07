@@ -872,6 +872,21 @@ LoadLevel = function(index, resetPlayerState)
     notificationTimer = 0
 
     ClearEnemies()
+    
+    -- Clear launched shields from previous level to prevent health orb issues
+    for _, shield in ipairs(launchedShields) do
+        if shield.lightnings then
+            for _, lightning in ipairs(shield.lightnings) do
+                if lightning.id and VFX.is_lightning_active(lightning.id) then
+                    VFX.destroy_lightning(lightning.id)
+                end
+            end
+        end
+        if shield.anchorEntity then
+            Entity.destroy_entity(shield.anchorEntity)
+        end
+    end
+    launchedShields = {}
 
     levelEnemyHealth = cfg.enemyHealth or levelEnemyHealth
     enemyShootIntervalSeconds = cfg.enemyShootIntervalSeconds or enemyShootIntervalSeconds
@@ -2809,13 +2824,19 @@ function SystemShooter:OnUpdate()
                             if enemy.health <= 0 then
                                 enemy.isDead = true
                                 enemy.health = 0
+                                
+                                -- Store death position BEFORE moving entity off-screen
+                                -- This ensures health orbs spawn at the correct static location
+                                local deathX = enemy.x
+                                local deathY = enemy.y
+                                
                                 Entity.set_global_pos(enemy.entity, -1000, -1000)
                                 
                                 -- Update display size before death for particles
                                 SystemShooterEnemy.updateDisplaySize(enemy)
                                 
-                                -- Try to spawn healing orb (same as regular kills)
-                                SystemShooterPickups.trySpawnHealingOrb(enemy.x, enemy.y)
+                                -- Try to spawn healing orb at the stored death position (not enemy reference)
+                                SystemShooterPickups.trySpawnHealingOrb(deathX, deathY)
                                 
                                 -- Track kill for stats
                                 runEnemiesKilled = runEnemiesKilled + 1
