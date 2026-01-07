@@ -24,7 +24,7 @@ function NavTest:OnStart()
     
     --Nav.add_obstacle(terrainEntity)
 
-    Nav.load_nav_mef(0, 0, 960, 600, 25/4)
+    Nav.load_nav_mef(0, 0, 960 / 100, 600 / 100, 25 / 100)
     agent = Nav.create_agent(agentEntity, 4.0)
 
     print("[NavTest] NavMesh + Agent initialised")
