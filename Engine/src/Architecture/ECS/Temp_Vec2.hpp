@@ -96,3 +96,216 @@ inline Vec2 Vec2Rotate(Vec2 v, float angle) {
 
     return result;
 }
+
+
+
+
+//additional vector functionality from Olesya below 
+
+// normalize a vector
+//returns zero vector if its too small
+inline Vec2 Vec2Normalize(Vec2 v)
+{
+    float length = sqrtf(v.x * v.x + v.y * v.y);
+
+    if (length < 0.000001f)
+    {
+        return Vec2{ 0.0f, 0.0f };
+    }
+
+    return Vec2{ v.x / length, v.y / length };
+}
+
+// scale  vector
+inline Vec2 Vec2Scale(Vec2 v, float scalar)
+{
+    return Vec2{ v.x * scalar, v.y * scalar };
+}
+
+// angle between two vectors ( in radians)
+inline float Vec2Angle(Vec2 from, Vec2 to)
+{
+
+    float magA = sqrtf(from.x * from.x + from.y * from.y);
+    float magB = sqrtf(to.x * to.x + to.y * to.y);
+
+    if (magA < 0.000001f || magB < 0.000001f)
+    {
+        return 0.0f;
+    }
+
+
+    float dot = from.x * to.x + from.y * to.y;
+    float v = dot / (magA * magB);
+
+    if (v < -1.0f)
+    {
+        v = -1.0f;
+    }
+
+    else if (v > 1.0f)
+
+    {
+        v = 1.0f;
+    }
+
+    return acosf(v);
+}
+
+// clockwise angle (in radians)
+inline float CWAngle(Vec2 v)
+{
+    if (fabsf(v.x) < 0.000001f && fabsf(v.y) < 0.000001f)
+    {
+
+        return 0.0f;
+    }
+
+    float angle = atan2f(v.x, v.y);
+
+
+    if (angle < 0.0f)
+    {
+
+        angle += 2.0f * PI;
+    }
+
+    return angle;
+}
+
+// move the vector towards a target 
+inline Vec2 MoveTowards(Vec2 current, Vec2 target, float maxDelta)
+{
+    Vec2 diff = {
+
+        target.x - current.x,
+        target.y - current.y
+    };
+
+    float dist = sqrtf(diff.x * diff.x + diff.y * diff.y);
+
+
+
+    if (dist < 0.000001f || dist <= maxDelta)
+    {
+        return target;
+    }
+
+    float scale = maxDelta / dist;
+
+    return Vec2{
+
+        current.x + diff.x * scale,
+        current.y + diff.y * scale
+    };
+}
+
+// lerp!
+inline Vec2 Vec2Lerp(Vec2 from, Vec2 to, float delta)
+{
+    if (delta < 0.0f)
+    {
+        delta = 0.0f;
+    }
+
+    else if (delta > 1.0f)
+    {
+        delta = 1.0f;
+    }
+
+    return Vec2{
+
+        from.x + (to.x - from.x) * delta,
+        from.y + (to.y - from.y) * delta
+    };
+}
+
+
+// smooth interpolation
+inline Vec2 Vec2Smooth(Vec2 from, Vec2 to, float delta)
+{
+    if (delta < 0.0f)
+    {
+        delta = 0.0f;
+    }
+
+    else if (delta > 1.0f)
+    {
+        delta = 1.0f;
+    }
+
+    float smooth = 0.5f + 0.5f * sinf(PI * delta - PI * 0.5f);
+
+    return Vec2{
+
+        from.x + (to.x - from.x) * smooth,
+        from.y + (to.y - from.y) * smooth
+    };
+}
+
+// clamp vector magnitude
+inline Vec2 Vec2ClampMagnitude(Vec2 v, float maxMagnitude)
+{
+    float mag = sqrtf(v.x * v.x + v.y * v.y);
+
+    if (mag < 0.000001f)
+    {
+
+        return Vec2{ 0.0f, 0.0f };
+    }
+
+    if (mag > maxMagnitude)
+    {
+        float scale = maxMagnitude / mag;
+
+        return Vec2{ v.x * scale, v.y * scale };
+    }
+
+    return v;
+}
+
+// clamp vector min and max component values
+inline Vec2 Vec2Clamp(Vec2 v, Vec2 min, Vec2 max)
+{
+    if (v.x < min.x)
+    {
+        v.x = min.x;
+    }
+
+    else if (v.x > max.x)
+    {
+        v.x = max.x;
+    }
+
+
+    if (v.y < min.y)
+    {
+        v.y = min.y;
+    }
+
+    else if (v.y > max.y)
+    {
+        v.y = max.y;
+    }
+
+    return v;
+}
+
+inline Vec2 Min(Vec2 a, Vec2 b)
+{
+    return Vec2{
+
+        (a.x < b.x) ? a.x : b.x,
+        (a.y < b.y) ? a.y : b.y
+
+    };
+}
+
+inline Vec2 Max(Vec2 a, Vec2 b)
+{
+    return Vec2{
+
+        (a.x > b.x) ? a.x : b.x,
+        (a.y > b.y) ? a.y : b.y
+    };
+}
