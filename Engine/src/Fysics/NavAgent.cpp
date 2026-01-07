@@ -3,49 +3,44 @@
 #include "NavMef.h"
 #include "Architecture/ECS/Entity.hpp"
 #include "Fysics/FysicsManager.h"
-//#include <Testing/Box2D/DebugDraw.h>
 
 namespace IonixEngine
 {
-	NavAgent::NavAgent(NavMef* nav, Entity* ent, float speed) : m_NavMef(nav), m_entity(ent), m_speed(speed) {}
+	NavAgent::NavAgent(NavMef* nav, Entity* ent, float speed)
+		: m_NavMef(nav), m_entity(ent), m_speed(speed) {
+	}
 
-	void NavAgent::PlaceAgent(b2Vec2 endPosition) 
+	void NavAgent::PlaceAgent(b2Vec2 endPosition)
 	{
 		b2Body* body = FysicsManager::GetManager()->GetBodyFromEntity(m_entity);
-		b2Vec2 position = body->GetPosition();
-		int currentCell;
-		int goalCell;
-		currentCell = m_NavMef->GetPositionInMesh(position);
-		goalCell = m_NavMef->GetPositionInMesh(endPosition);
-		if (currentCell == -1 || goalCell == -1) {
+
+		b2Vec2 agentCentre = body->GetWorldCenter();
+
+		int currentCell = m_NavMef->GetPositionInMesh(agentCentre);
+		int goalCell = m_NavMef->GetPositionInMesh(endPosition);
+
+		if (currentCell == -1 || goalCell == -1)
+		{
 			body->SetLinearVelocity(b2Vec2_zero);
 			m_path.clear();
 			return;
 		}
-		//std::cout << "X Pos: " <<position.x << " " << "Y Pos: " << position.y << std::endl;
+
 		std::vector<int> path = m_NavMef->FindPath(currentCell, goalCell);
 		m_path = m_NavMef->Funnel(path);
+
 		if (m_path.empty())
 		{
 			body->SetLinearVelocity(b2Vec2_zero);
 			return;
 		}
-		m_path[0] = body->GetPosition();
 
+		m_path[0] = agentCentre;
 		m_path.back() = endPosition;
-		/*std::cout << "Agent pos: "
-			<< position.x << ", " << position.y << std::endl;
 
-		std::cout << "Target pos: "
-			<< endPosition.x << ", " << endPosition.y << std::endl;
-
-		std::cout << "Start cell: " << currentCell
-			<< " Goal cell: " << goalCell << std::endl;*/
-
-		// Incorrect args passed to FindPath - commented out
-		//path = m_NavMef->FindPath(position, endPosition);
 		m_pathIndex = 0;
 	}
+
 	void NavAgent::Update(float dt)
 	{
 		b2Body* body = FysicsManager::GetManager()->GetBodyFromEntity(m_entity);
@@ -56,15 +51,19 @@ namespace IonixEngine
 			return;
 		}
 
+		b2Vec2 agentCentre = body->GetWorldCenter();
 		b2Vec2 target = m_path[m_pathIndex];
-		b2Vec2 toTarget = target - body->GetPosition();
+
+		b2Vec2 toTarget = target - agentCentre;
 		float distance = toTarget.Length();
 
 		const float arriveRadius = 0.25f;
 
 		if (distance <= arriveRadius)
 		{
-			body->SetTransform(target, body->GetAngle());
+			b2Vec2 offset = agentCentre - body->GetPosition();
+			body->SetTransform(target - offset, body->GetAngle());
+
 			m_pathIndex++;
 
 			if (m_pathIndex >= m_path.size())
