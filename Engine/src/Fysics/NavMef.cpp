@@ -1,4 +1,6 @@
 #include "NavMef.h"
+
+#include "FysicsManager.h"
 #include "Architecture/Application.h"
 //#include <Testing/Box2D/DebugDraw.h>
 
@@ -387,8 +389,14 @@ namespace IonixEngine
         }
     }
 
-    void NavMef::AddObstacle(const b2Vec2& min, const b2Vec2& max)
+    void NavMef::AddObstacle(Entity* entity)
     {
+        FysicsManager* fysicsManager = Application::Get().layerFysics->GetFysicsManager();
+        b2Body* body = fysicsManager->GetBodyFromEntity(entity);
+        b2Vec2 position = body->GetPosition();
+        b2Vec2 min = position;
+        b2Vec2 max = b2Vec2(min.x + 64, min.y + 64);
+        
         for (int i = 0; i < m_cells.size(); i++)
         {
 

@@ -75,7 +75,7 @@ namespace IonixEngine
         void ClearObstacles();
 
         //adds an obstacle
-        void AddObstacle(const b2Vec2& min, const b2Vec2& max);
+        void AddObstacle(Entity* entity);
 
         // check to see if a cell is unnavailable and blocked 
         bool IsCellBlocked(int cellIndex) const;

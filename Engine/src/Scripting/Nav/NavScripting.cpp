@@ -19,14 +19,13 @@ namespace IonixEngine
 		//------------------------Nav Mef----------------------------
 		auto loadNavMef = [](float x, float y, float width, float height,  float cellSize)
 		{
-			
-			
 			Application::Get().layerNavigation->GetNavMef()->BuildGrid({ x, y }, { width, height }, cellSize);
 		};
 
-		auto addNavObstacle = [](float minX, float minY, float maxX, float maxY)
+		auto addNavObstacle = [](Entity* entity)
 		{
-				Application::Get().layerNavigation->GetNavMef()->AddObstacle({ minX, minY }, { maxX, maxY });
+			
+				Application::Get().layerNavigation->GetNavMef()->AddObstacle(entity);
 		};
 		
 		auto createNavAgent = [](Entity* entity, float speed)
