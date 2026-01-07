@@ -35,17 +35,12 @@ end
 
 function NavTest:OnUpdate()
     Nav.draw_nav_grid(0, 0, 960, 600, 25)
-    local function screen_to_world(x, y)
-        local ppm = 4.0 
-        return x / ppm, y / ppm
-    end
     if agent == nil then
         return
     end
     if Input.get_mouse_button_down(1) then
         local mx, my = Input.get_mouse_x(), Input.get_mouse_y()
-        local wx, wy = screen_to_world(mx, my)
-        agent:move_to(mx / 100, my / 100)
+        Nav.agent_move_to(agent, mx / 100, my / 100)
         print("[NavTest] Move request:", mx / 100, my / 100)
     end
 end
