@@ -25,9 +25,9 @@ function NavTest:OnStart()
 
     
 
-    Nav.load_nav_mef(0, 0, 960 / 100, 600 / 100, 15 / 100)
+    Nav.load_nav_mef(0, 0, 960 / 100, 600 / 100, 10 / 100)
     agent = Nav.create_agent(agentEntity, 4.0)
-    Nav.add_obstacle(400, 400, 500, 500)
+    --Nav.add_obstacle(400, 400, 500, 500)
 
     print("[NavTest] NavMesh + Agent initialised")
 
@@ -38,15 +38,12 @@ end
 function NavTest:OnUpdate()
 
     if showNavMesh == true then
-        Nav.draw_nav_grid(0, 0, 960, 600, 15)
+        Nav.draw_nav_grid(0, 0, 960, 600, 10)
     end
 
-    if Input.get_key_down(Keys.ionix_e) and showNavMesh == true then
-        showNavMesh = false
-    end
-        if Input.get_key_down(Keys.ionix_e) and showNavMesh == false then
-        showNavMesh = true
-    end
+    if Input.get_key_down(Keys.ionix_e) then
+    showNavMesh = not showNavMesh
+end
     
     if agent == nil then
         return
@@ -61,8 +58,8 @@ function NavTest:OnUpdate()
         local mx, my = Input.get_mouse_x(), Input.get_mouse_y()
         Nav.add_obstacle(mx, my, mx + 120, my + 120)
         terrainEntity = Entity.create_entity()
-        Entity.set_global_pos(terrainEntity, mx, my)
-        Entity.add_sprite_component(terrainEntity, assets.textures.Sand, 120, 120, 10)
+        Entity.set_global_pos(terrainEntity, mx - 2, my - 2)
+        Entity.add_sprite_component(terrainEntity, assets.textures.Sand, 110, 110, 10)
     end
 end
 
