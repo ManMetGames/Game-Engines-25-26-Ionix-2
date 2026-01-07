@@ -100,38 +100,37 @@ namespace IonixEngine {
 		}
 	}
 
-	void QueueRenderer::Sort()
+	void QueueRenderer::OrderQueueByZ(queue<RenderCall>& sprites)
 	{
-		if (sprites.empty()) return;
+		std::vector<RenderCall> temp(sprites.size());
+		//int temp[(sprites.size())]; //Creates temporary array from queue
 
-		std::vector<RenderCall> temp;
-		temp.reserve(sprites.size());
-
-		while (!sprites.empty())
+		for (int i = 0; i < sprites.size(); i++)
 		{
-			temp.push_back(sprites.front());
-			sprites.pop();
+			temp[i] = sprites.front();
 		}
 
-		MergeSort(temp, 0, temp.size() - 1);
-
-		for (const auto& call : temp)
-		{
-			sprites.push(call);
-		}
+		MergeCaller(sprites, temp, 0, sprites.size() - 1);
+		ArrToQueueConverter(temp, sprites);
 	}
 
-	void QueueRenderer::MergeSort(std::vector<RenderCall>& temp, int left, int right)
+	void QueueRenderer::MergeCaller(queue<RenderCall>& sprites, std::vector<RenderCall>& temp, int left, int right)
 	{
+
 		if (left >= right) {
 			return;
 		}
 
+		int length = sprites.size(); //Returns queue length
+		/*left = 0;
+		right = sprites.size() - 1;*/
 		int mid = left + (right - left) / 2;
 
-		MergeSort(temp, left, mid);
-		MergeSort(temp, mid + 1, right);
+		MergeCaller(sprites, temp, left, mid);
+		MergeCaller(sprites, temp, mid + 1, right);
 		Merger(temp, left, mid, right);
+
+		ArrToQueueConverter(temp, sprites); //Convert vector to queue at the end!
 	}
 
 	void QueueRenderer::ClearQueue(queue<RenderCall>& sprites)
@@ -140,4 +139,13 @@ namespace IonixEngine {
 		swap(sprites, emptyQueue);
 	}
 
+	void QueueRenderer::ArrToQueueConverter(std::vector<RenderCall> temp, queue<RenderCall>& sprites)
+	{
+		ClearQueue(sprites);
+		//std::queue<int> orderedQueue;
+		for (int i = 0; i < temp.size(); i++)
+		{
+			sprites.push(temp[i]);
+		}
+	}
 }

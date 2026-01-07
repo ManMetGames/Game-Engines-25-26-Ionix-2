@@ -20,7 +20,6 @@ namespace IonixEngine {
     class Entity {
     private:
         bool remove;
-        bool m_Active;  // Entity is active and should be updated/rendered
 
     public:
         Vec2 position;
@@ -32,16 +31,6 @@ namespace IonixEngine {
         
         Entity(EntityID id, int renderLayer);
         
-        // move constructor for ownership transfer
-        Entity(Entity&& other) noexcept;
-        
-        // move assignment for proper ownership transfer
-        Entity& operator=(Entity&& other) noexcept;
-        
-        // disable copy operations to prevent accidental component pointer duplication
-        Entity(const Entity&) = delete;
-        Entity& operator=(const Entity&) = delete;
-        
         std::vector<Component*> components;
 
         // May want to add a pointer to scene entity belongs to?
@@ -51,10 +40,6 @@ namespace IonixEngine {
         void Update(float dt);
         void Collision(Entity* other);
         void Destroy(Scene* scene);
-        
-        // Active state management
-        bool IsActive() const { return m_Active; }
-        void SetActive(bool active) { m_Active = active; }
 
         template<typename T> T* GetComponent() {
             static_assert(std::is_base_of<Component, T>::value, "Type does not inherit component");

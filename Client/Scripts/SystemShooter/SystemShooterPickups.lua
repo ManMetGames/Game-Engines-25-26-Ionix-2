@@ -7,8 +7,7 @@ local assets = require("Scripts.Assets")
 --=====================================================================
 local CONFIG = {
 
-    BASE_HEALING_ORB_DROP_CHANCE = 0.15,  -- Base spawn chance (never modified)
-    HEALING_ORB_DROP_CHANCE = 0.15,       -- Active spawn chance (gets modified by upgrades)
+    HEALING_ORB_DROP_CHANCE = 0.15,
     
     HEALING_ORB_HEAL_PERCENT = 0.25,
     
@@ -35,9 +34,6 @@ local pickupPool = {}
 
 --=====================================================================
 --  [PUBLIC API] Spawn healing orb at position
---  NOTE: Health orbs are stationary - they spawn at a fixed position
---  and never move. The x,y coordinates are stored as simple values,
---  not references to enemy positions.
 --=====================================================================
 function SystemShooterPickups.trySpawnHealingOrb(x, y)
     local roll = math.random()
@@ -63,12 +59,8 @@ function SystemShooterPickups.trySpawnHealingOrb(x, y)
         }
     end
     
-    -- Store spawn position as local values (not references)
-    -- These coordinates never change after spawning
-    local spawnX = x - CONFIG.ORB_SIZE / 2
-    local spawnY = y - CONFIG.ORB_SIZE / 2
-    pickup.x = spawnX
-    pickup.y = spawnY
+    pickup.x = x - CONFIG.ORB_SIZE / 2
+    pickup.y = y - CONFIG.ORB_SIZE / 2
     pickup.age = 0
     pickup.pickupType = "healing"
     pickup.baseSize = CONFIG.ORB_SIZE
@@ -110,7 +102,9 @@ function SystemShooterPickups.applyBeatBop(bopT)
             local scaledSize = math.floor(baseSize * scale)
             Sprite.set_image_width(pickup.sprite, scaledSize)
             Sprite.set_image_height(pickup.sprite, scaledSize)
-            -- No position adjustment needed - sprite scaling is centered automatically
+            
+            local offset = (scaledSize - baseSize) / 2
+            Entity.set_global_pos(pickup.entity, pickup.x - offset, pickup.y - offset)
         end
     end
 end
@@ -125,7 +119,7 @@ function SystemShooterPickups.resetBop()
             local baseSize = pickup.baseSize or CONFIG.ORB_SIZE
             Sprite.set_image_width(pickup.sprite, baseSize)
             Sprite.set_image_height(pickup.sprite, baseSize)
-            -- No position reset needed - position should remain unchanged
+            Entity.set_global_pos(pickup.entity, pickup.x, pickup.y)
         end
     end
 end
@@ -134,14 +128,14 @@ end
 --  [PUBLIC API] Check collision with player, returns heal amount or nil
 --=====================================================================
 function SystemShooterPickups.checkPlayerCollision(playerX, playerY, playerSize, maxHealth)
-    local playerCenterX = playerX
-    local playerCenterY = playerY
+    local playerCenterX = playerX + playerSize / 2
+    local playerCenterY = playerY + playerSize / 2
     local playerRadius = playerSize / 2
     
     for i = #activePickups, 1, -1 do
         local pickup = activePickups[i]
-        local pickupCenterX = pickup.x
-        local pickupCenterY = pickup.y
+        local pickupCenterX = pickup.x + CONFIG.ORB_SIZE / 2
+        local pickupCenterY = pickup.y + CONFIG.ORB_SIZE / 2
         
         local dx = playerCenterX - pickupCenterX
         local dy = playerCenterY - pickupCenterY
@@ -178,33 +172,6 @@ end
 --=====================================================================
 function SystemShooterPickups.getActiveCount()
     return #activePickups
-end
-
---=====================================================================
---  [PUBLIC API] Constrain all pickups to screen bounds
---=====================================================================
-function SystemShooterPickups.constrainToScreen(screenW, screenH)
-    for i = 1, #activePickups do
-        local pickup = activePickups[i]
-        local orbSize = CONFIG.ORB_SIZE
-        local halfSize = orbSize / 2
-        
-        -- Clamp pickup center position to stay within screen bounds with margin
-        if pickup.x - halfSize < 0 then
-            pickup.x = halfSize
-        elseif pickup.x + halfSize > screenW then
-            pickup.x = screenW - halfSize
-        end
-        
-        if pickup.y - halfSize < 0 then
-            pickup.y = halfSize
-        elseif pickup.y + halfSize > screenH then
-            pickup.y = screenH - halfSize
-        end
-        
-        -- Update entity position
-        Entity.set_global_pos(pickup.entity, pickup.x, pickup.y)
-    end
 end
 
 return SystemShooterPickups

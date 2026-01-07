@@ -2,7 +2,6 @@
 #include "EventSystem/EventSDL.h"
 #include "EventSystem/Event.h"
 #include "Architecture/Application.h"
-#include "Architecture/AudioSystem/MusicManager.h"
 #include "SDL_image.h"
 #include <iostream>
 #include <SDL_mixer.h>
@@ -49,11 +48,6 @@ namespace IonixEngine
             //return;
         }
 
-        // Initialize MusicManager (SoLoud) for music playback
-        if (!MusicManager::GetInstance().Init()) {
-            SDL_Log("Failed to initialize MusicManager");
-        }
-
         // Initialise Controller
         if (SDL_Init(SDL_INIT_GAMECONTROLLER) != 0)
         {
@@ -92,9 +86,6 @@ namespace IonixEngine
 
     void Window::ShutDown()
     {
-        // Shutdown MusicManager before closing audio
-        MusicManager::GetInstance().Shutdown();
-        
         if (m_Renderer) {
             SDL_DestroyRenderer(m_Renderer);
             m_Renderer = nullptr;

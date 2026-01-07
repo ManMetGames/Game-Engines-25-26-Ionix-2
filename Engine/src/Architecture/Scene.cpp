@@ -13,7 +13,6 @@ namespace IonixEngine {
         renderData.queue = Application::Get().layerGraphics->GetQueue();
 
         m_ParticleSystem.Init();
-        m_VFXSystem.Init();
 
         //EntityID first = CreateEntity();
         //Entity* firstEntity = GetEntityFromID(first);
@@ -57,8 +56,6 @@ namespace IonixEngine {
         // SDL_Log("[DEBUG TEST] Scene OnUpdate running...");
         for (size_t i = 0; i < m_Entities.size(); i++) {
             Entity* entity = &m_Entities[i];
-            // Skip inactive (destroyed) entities
-            if (!entity->IsActive()) { continue; }
             // SDL_Log("[DEBUG TEST] Updating entity %zu",i);
             entity->Update(dt);
             // SDL_Log("[DEBUG TEST] Rendering entity %zu", i);
@@ -68,24 +65,17 @@ namespace IonixEngine {
 
         m_ParticleSystem.Update(dt);
         m_ParticleSystem.Render(&renderData);
-
-        m_VFXSystem.Update(dt);
-        // VFX rendering is done at the end to draw on top of entities
-        int currentRenderLayer = Application::Get().currentCam ? Application::Get().currentCam->renderLayer : 0;
-        m_VFXSystem.Render(renderData.renderer, currentRenderLayer);
     }
 
     void Scene::OnEvent(IonixEvent& event) {}
 
     void Scene::OnExit() {
         for (Entity& entity : m_Entities) {
-            if (!entity.IsActive()) { continue; }  // Skip already destroyed entities
             entity.Destroy(this);
         }
         m_Entities.clear();
 
         m_ParticleSystem.Shutdown();
-        m_VFXSystem.Shutdown();
     }
 
     void Scene::Reserve(std::size_t count) {
@@ -107,24 +97,18 @@ namespace IonixEngine {
             return false; // if id does not exist in the map, return false
 
         const std::size_t index = mapIt->second; // get the vector index of the entity
+        const std::size_t lastIndex = m_Entities.size() - 1; // get index of last element in the vector
 
-        // Destroy and clean up the entity's components
-        // This prevents memory leaks and dangling component pointers
-        Entity& entityToDestroy = m_Entities[index];
-        for (Component* component : entityToDestroy.components) {
-            if (component) {
-                component->Destroy();
-                delete component;
-            }
+        if (index != lastIndex) // if entity deleted is not already the last one
+        {
+            // Move last entity into the removed slot and fix mapping
+            Entity& movedEntity = m_Entities[lastIndex]; // reference to the last entity in the vector
+            m_Entities[index] = movedEntity; // move last entity into the removed slot
+            m_IdToIndex[movedEntity.id] = index; // update the map
         }
-        entityToDestroy.components.clear();
-        
-        // Mark entity as inactive instead of removing it from the vector
-        // This keeps all Entity* pointers valid (crucial for Lua scripts)
-        entityToDestroy.SetActive(false);
-        
-        // Remove from ID map so it can't be looked up anymore
-        m_IdToIndex.erase(mapIt);
+
+        m_Entities.pop_back(); // remove last element from the vector
+        m_IdToIndex.erase(mapIt); // remove id from the map
         return true;
     }
 

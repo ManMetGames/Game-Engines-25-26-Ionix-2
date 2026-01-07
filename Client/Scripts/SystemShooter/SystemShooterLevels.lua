@@ -47,10 +47,10 @@ local generatedLevelCache = {}
 local HEALTH_BUDGET = {
     base = 60,
     perLevel = 15,
-    levelSquaredFactor = 0.7,
-    lateLevelThreshold = 15,
+    levelSquaredFactor = 0.5,
+    lateLevelThreshold = 12,
     lateSquaredFactor = 1.75,
-    lateCubedFactor = 0.045,
+    lateCubedFactor = 0.35,
 }
 
 local TIMER_CONFIG = {
@@ -70,7 +70,7 @@ local WINDOW_CONFIG = {
 
 local ENEMY_TEMPLATES = {
     bounce = {
-        minLevel = 12,
+        minLevel = 1,
         healthMin = 25,
         healthMax = 70,
         budgetPercentCap = 0.35,
@@ -140,7 +140,7 @@ local ENEMY_TEMPLATES = {
         end,
     },
     stationary_boss = {
-        minLevel = 20,
+        minLevel = 12,
         healthMin = 150,
         healthMax = 300,
         maxPerLevel = 1,
@@ -163,12 +163,12 @@ local ENEMY_TEMPLATES = {
         end,
     },
     teleporter = {
-        minLevel = 35,
+        minLevel = 15,
         healthMin = 180,
         healthMax = 350,
         maxPerLevel = 1,
         spaceRequirement = 2,
-        weight = 2,
+        weight = 3,
         baseSize = 40,
         healthScaling = false,
         generate = function(health, level, windowW, windowH)
@@ -182,61 +182,9 @@ local ENEMY_TEMPLATES = {
                 health = health,
                 healthScaling = false,
                 size = 40,
-                teleportChargeTime = beatsToSeconds(4),      -- 4 beats to charge
-                beamDuration = beatsToSeconds(0.5),          -- 0.5 beats beam
-                teleportCooldown = beatsToSeconds(5.5),      -- 5.5 beats cooldown
-            }
-        end,
-    },
-    shielder = {
-        minLevel = 6,
-        healthMin = 20,
-        healthMax = 120,
-        maxPerLevel = 1,  -- Reduced from 2 to ensure only 1 shielder per level
-        spaceRequirement = 1,
-        weight = 3,
-        baseSize = 28,
-        generate = function(health, level, windowW, windowH)
-            -- Shielder spawns at a random position, will find ally to protect
-            local margin = 80
-            local x = margin + math.random() * (windowW - 2 * margin)
-            local y = margin + math.random() * (windowH - 2 * margin)
-            local speedBase = 400 + (level - 6) * 5
-            local speedFast = math.floor((550 + (level - 6) * 8) * 0.3)  -- Reduced by 70% when moving to ally
-            -- Corruption threshold scales with health: 35% at 20hp, 95% at 120hp
-            local corruptionThreshold = 0.35 + (health - 20) * 0.006
-            return {
-                movementType = "shielder",
-                x = x,
-                y = y,
-                health = health,
-                shielderSpeed = speedBase,
-                shielderSpeedFast = speedFast,
-                shielderSpeedSlow = 200,
-                shielderRotationSpeed = 2.25,  -- Rotation speed around ally (radians/sec)
-                -- Orbit radius from center-to-center (should be at least sum of half-sizes to prevent overlap)
-                shielderOrbitRadius = 90,
-                -- Lightning shield config for the shielder itself (ALWAYS enabled for shielder)
-                lightningShield = {
-                    enabled = true,
-                    radius = 90,
-                    spreadAngle = math.rad(100),
-                    facingAngle = -math.pi / 2,
-                    maxRotationSpeed = 1.75,
-                    thickness = 6.5,
-                    jaggedness = 0.04,
-                    segments = 6,
-                    color = { r = 50, g = 200, b = 200, a = 255 },
-                    flickerSpeed = 0.12,
-                    corruption = {
-                        enabled = true,
-                        targetColor = { r = 255, g = 255, b = 255 },
-                        decayRate = 0.075,
-                        spreadRate = 0.25,
-                        hitAmount = 0.20,
-                        breakThreshold = corruptionThreshold,
-                    },
-                }
+                teleportChargeTime = 0.7 + math.random() * 0.3,
+                beamDuration = 0.25 + math.random() * 0.15,
+                teleportCooldown = 1.2 + math.random() * 0.6,
             }
         end,
     },
@@ -247,18 +195,16 @@ local levels = {
         windowWidth = 640,
         windowHeight = 800,
         enemies = {
- { movementType = "stationary", x = 500, y = 300, health = 30, shootPattern = "cone", projectileCount = 2, shootInterval = beatsToSeconds(2) },
-            { movementType = "shielder", x = 320, y = 200, health = 25, shielderSpeed = 405, shielderSpeedFast = 165, shielderSpeedSlow = 200, shielderRotationSpeed = 2.25, shielderOrbitRadius = 90, lightningShield = { enabled = true, radius = 90, spreadAngle = math.rad(100), facingAngle = -math.pi / 2, maxRotationSpeed = 1.75, thickness = 6.5, jaggedness = 0.04, segments = 6, color = { r = 50, g = 200, b = 200, a = 255 }, flickerSpeed = 0.12, corruption = { enabled = true, targetColor = { r = 255, g = 255, b = 255 }, decayRate = 0.075, spreadRate = 0.25, hitAmount = 0.20, breakThreshold = 0.35 } } },
+            { movementType = "stationary", x = 400, y = 500, health = 45, shootPattern = "cone", projectileCount = 2, shootInterval = beatsToSeconds(2) },
+           
         },
-        
-        },
+    },
     [2] = {
         timeLimitSeconds = 20,
         windowWidth = 800,
         windowHeight = 400,
         enemies = {
             { movementType = "orbit", x = 506, y = 186, health = 35, orbitCenter = {400, 200}, orbitRadius = 120, orbitSpeed = 1.0, shootPattern = "cone", projectileCount = 1, shootInterval = beatsToSeconds(2) },
-            { movementType = "shielder", x = 650, y = 300, health = 30, shielderSpeed = 410, shielderSpeedFast = 168, shielderSpeedSlow = 200, shielderRotationSpeed = 2.25, shielderOrbitRadius = 90, lightningShield = { enabled = true, radius = 90, spreadAngle = math.rad(100), facingAngle = -math.pi / 2, maxRotationSpeed = 1.75, thickness = 6.5, jaggedness = 0.04, segments = 6, color = { r = 50, g = 200, b = 200, a = 255 }, flickerSpeed = 0.12, corruption = { enabled = true, targetColor = { r = 255, g = 255, b = 255 }, decayRate = 0.075, spreadRate = 0.25, hitAmount = 0.20, breakThreshold = 0.38 } } },
         },
     },
     [3] = {
@@ -268,7 +214,6 @@ local levels = {
         enemies = {
             { movementType = "stationary", x = 500, y = 300, health = 30, shootPattern = "cone", projectileCount = 2, shootInterval = beatsToSeconds(2) },
             { movementType = "orbit", x = 659, y = 306, health = 30, orbitCenter = {513, 320}, orbitRadius = 160, orbitSpeed = -1.0, shootPattern = "cone", projectileCount = 1, shootInterval = beatsToSeconds(2) },
-            { movementType = "shielder", x = 800, y = 150, health = 35, shielderSpeed = 415, shielderSpeedFast = 171, shielderSpeedSlow = 200, shielderRotationSpeed = 2.25, shielderOrbitRadius = 90, lightningShield = { enabled = true, radius = 90, spreadAngle = math.rad(100), facingAngle = -math.pi / 2, maxRotationSpeed = 1.75, thickness = 6.5, jaggedness = 0.04, segments = 6, color = { r = 50, g = 200, b = 200, a = 255 }, flickerSpeed = 0.12, corruption = { enabled = true, targetColor = { r = 255, g = 255, b = 255 }, decayRate = 0.075, spreadRate = 0.25, hitAmount = 0.20, breakThreshold = 0.41 } } },
         },
     },
     [4] = {
@@ -278,7 +223,6 @@ local levels = {
         enemies = {
             { movementType = "stationary", x = 400, y = 260, health = 30, shootPattern = "cone", projectileCount = 2, shootInterval = beatsToSeconds(2) },
             { movementType = "bounce", x = 400, y = 540, health = 30 },
-            { movementType = "shielder", x = 200, y = 400, health = 40, shielderSpeed = 420, shielderSpeedFast = 174, shielderSpeedSlow = 200, shielderRotationSpeed = 2.25, shielderOrbitRadius = 90, lightningShield = { enabled = true, radius = 90, spreadAngle = math.rad(100), facingAngle = -math.pi / 2, maxRotationSpeed = 1.75, thickness = 6.5, jaggedness = 0.04, segments = 6, color = { r = 50, g = 200, b = 200, a = 255 }, flickerSpeed = 0.12, corruption = { enabled = true, targetColor = { r = 255, g = 255, b = 255 }, decayRate = 0.075, spreadRate = 0.25, hitAmount = 0.20, breakThreshold = 0.44 } } },
         },
     },
     [5] = {
@@ -288,7 +232,6 @@ local levels = {
         enemies = {
             { movementType = "stationary", x = 500, y = 300, health = 35, shootPattern = "cone", projectileCount = 1, shootInterval = beatsToSeconds(2) },
             { movementType = "stationary", x = 350, y = 200, health = 50, shootPattern = "cone", projectileCount = 2, shootInterval = beatsToSeconds(2.5) },
-            { movementType = "shielder", x = 450, y = 600, health = 45, shielderSpeed = 425, shielderSpeedFast = 177, shielderSpeedSlow = 200, shielderRotationSpeed = 2.25, shielderOrbitRadius = 90, lightningShield = { enabled = true, radius = 90, spreadAngle = math.rad(100), facingAngle = -math.pi / 2, maxRotationSpeed = 1.75, thickness = 6.5, jaggedness = 0.04, segments = 6, color = { r = 50, g = 200, b = 200, a = 255 }, flickerSpeed = 0.12, corruption = { enabled = true, targetColor = { r = 255, g = 255, b = 255 }, decayRate = 0.075, spreadRate = 0.25, hitAmount = 0.20, breakThreshold = 0.47 } } },
         },
     },
 }
@@ -343,28 +286,7 @@ local function getAvailableTemplates(level)
     return available
 end
 
-local MAX_ENEMIES_CONFIG = {
-    { stage = 35, max = 7 },
-    { stage = 30, max = 6 },
-    { stage = 22, max = 5 },
-    { stage = 16, max = 4 },
-    { stage = 8,  max = 3 },
-    { stage = 1,  max = 2 }, -- Default/fallback
-}
-
-local function getMaxEnemiesForStage(stage)
-    for _, cfg in ipairs(MAX_ENEMIES_CONFIG) do
-        if stage >= cfg.stage then
-            return cfg.max
-        end
-    end
-    return 2
-end
-
-local function weightedRandomPick(available, counts, totalEnemies, stage)
-    local maxEnemies = getMaxEnemiesForStage(stage)
-    if totalEnemies >= maxEnemies then return nil end
-
+local function weightedRandomPick(available, counts)
     local totalWeight = 0
     for _, entry in ipairs(available) do
         local name = entry.name
@@ -468,15 +390,16 @@ local function generateProceduralLevel(levelIndex)
         end
     end
     
+    local maxEnemies = 6
     local minEnemies = 2
     
     local attempts = 0
     local maxAttempts = 20
     
-    while attempts < maxAttempts do
+    while #enemies < maxEnemies and attempts < maxAttempts do
         attempts = attempts + 1
         
-        local picked = weightedRandomPick(available, counts, #enemies, levelIndex)
+        local picked = weightedRandomPick(available, counts)
         if not picked then break end
         
         local template = picked.template

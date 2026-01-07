@@ -2,8 +2,6 @@ local SystemShooterPlayer = {}
 
 local SystemShooterPlayerProgress = require("Scripts.SystemShooter.SystemShooterPlayerProgress")
 local SystemShooterProjectiles = require("Scripts.SystemShooter.SystemShooterProjectiles")
-local SystemShooterDifficulty = require("Scripts.SystemShooter.SystemShooterDifficulty")
-local SystemShooterAudio = require("Scripts.SystemShooter.SystemShooterAudio")
 
  --=====================================================================
  --  [STATE] Player (Triangle)
@@ -52,20 +50,6 @@ local screenH = 1080
 -- Skip first mouse delta after resume (prevents teleport on unpause)
 local skipNextMouseDelta = false
 
--- ANTIVIRUS SYSTEM
-local antivirusEnabled = false
-local antivirusActive = false
-local antivirusCycleTimer = 0
-local antivirusCycleDuration
-local antivirusActiveDuration
-
--- Beat-synced timing for antivirus
-local beatTimer = 0           -- Current position within the beat (0 to secondsPerBeat)
-local secondsPerBeat = 0.451  -- Default: 60/133 BPM, updated via setBeatInfo()
-local beatIndex = 0          -- Absolute beat counter (increments each beat)
-local rewindActive = false   -- Whether rewind is active (pause antivirus)
-local musicTimeSinceDrop = nil -- music-derived time since drop (optional)
-
 -- Callbacks (set via init)
 local callbacks = {
     getEnemies = nil,
@@ -82,23 +66,23 @@ function SystemShooterPlayer.init(config)
     local assets = config.assets
     screenW = config.screenW or 1920
     screenH = config.screenH or 1080
-
+    
     if config.callbacks then
         callbacks = config.callbacks
     end
-
+    
     -- Create player triangle
     player = Entity.create_entity()
-
-    -- Start at center of screen (position is center-based)
-    playerX = screenW / 2
-    playerY = screenH / 2
+    
+    -- Start at center of screen
+    playerX = screenW / 2 - playerSize / 2
+    playerY = screenH / 2 - playerSize / 2
     Entity.set_global_pos(player, playerX, playerY)
-
+    
     -- Add sprite component 
     playerSprite = Entity.add_sprite_component(player, assets.textures.Triangle, playerSize, playerSize, 10)
     Sprite.set_columns(playerSprite, 1)
-
+    
     playerHealth = SystemShooterPlayerProgress.getMaxHealth()
 end
 
@@ -148,61 +132,7 @@ function SystemShooterPlayer.setDamageCooldown(cd)
 end
 
 function SystemShooterPlayer.getDamageCooldownDuration()
-    return SystemShooterDifficulty.getPlayerInvulnerabilityTime()
-end
-
-function SystemShooterPlayer.enableAntivirus(cycleDuration, activeDuration)
-    antivirusEnabled = true
-    antivirusCycleTimer = 0
-    antivirusActive = false
-
-    -- Use provided config values or keep defaults
-    if cycleDuration then
-        antivirusCycleDuration = cycleDuration
-    end
-    if activeDuration then
-        antivirusActiveDuration = activeDuration
-    end
-
-    print(string.format("[Antivirus] ENABLED | Cycle: %.3fs | Active: %.3fs | Cooldown: %.3fs",
-        antivirusCycleDuration, antivirusActiveDuration, antivirusCycleDuration - antivirusActiveDuration))
-    -- Align first activation to start of next bar (4 beats) if beat info is available
-    if secondsPerBeat and secondsPerBeat > 0 then
-        local beatsPerBar = 4
-        local currentBeatInBar = beatIndex % beatsPerBar
-        local timeUntilNextBar = (beatsPerBar - currentBeatInBar) * secondsPerBeat - beatTimer
-        if timeUntilNextBar < 0 then timeUntilNextBar = timeUntilNextBar + beatsPerBar * secondsPerBeat end
-        -- Compute timer value so that after timeUntilNextBar seconds the cycle will reset to 0 and activate
-        local offset = antivirusCycleDuration - (timeUntilNextBar % antivirusCycleDuration)
-        if offset >= antivirusCycleDuration then offset = offset - antivirusCycleDuration end
-        antivirusCycleTimer = offset
-        print(string.format("[Antivirus] Aligning first activation: timeUntilNextBar=%.3fs | setting cycleTimer=%.3fs", timeUntilNextBar, antivirusCycleTimer))
-    end
-end
-
-function SystemShooterPlayer.disableAntivirus()
-    antivirusEnabled = false
-    antivirusActive = false
-    antivirusCycleTimer = 0
-    -- Reset sprite color to white
-    if playerSprite then
-        Sprite.set_color(playerSprite, 255, 255, 255)
-    end
-end
-
--- Update beat timing info from main game (called each frame)
--- beatTimerValue: current position within the beat (0 to secondsPerBeat)
--- secondsPerBeatValue: duration of one beat in seconds
-function SystemShooterPlayer.setBeatInfo(beatTimerValue, secondsPerBeatValue, beatIndexValue, rewindFlag, timeSinceDropValue)
-    beatTimer = beatTimerValue or 0
-    secondsPerBeat = secondsPerBeatValue or 0.451
-    beatIndex = beatIndexValue or 0
-    rewindActive = rewindFlag and true or false
-    musicTimeSinceDrop = timeSinceDropValue
-end
-
-function SystemShooterPlayer.isAntivirusActive()
-    return antivirusActive
+    return damageCooldownDuration
 end
 
 function SystemShooterPlayer.isFiring()
@@ -249,11 +179,6 @@ end
  --  [FLASH] Player damage flash
  --=====================================================================
 function SystemShooterPlayer.flash()
-    -- Don't flash if antivirus is active
-    if antivirusActive then
-        return
-    end
-
     Sprite.set_color(playerSprite, 255, 0, 0)
     playerFlashTimer = playerFlashDuration
     if playerHealth <= 0 then
@@ -273,73 +198,12 @@ function SystemShooterPlayer.updateFlash(dt)
         local r = 255
         local g = math.floor(255 * (1.0 - t) + 0.5)
         local b = math.floor(255 * (1.0 - t) + 0.5)
-
-        -- Don't override antivirus yellow color
-        if not antivirusActive then
-            Sprite.set_color(playerSprite, r, g, b)
-        end
+        Sprite.set_color(playerSprite, r, g, b)
     end
-
+    
     -- Damage cooldown
     if damageCooldown > 0 then
         damageCooldown = damageCooldown - dt
-    end
-
-    -- Antivirus system (beat-synced)
-    if antivirusEnabled then
-        -- If we have authoritative music time (time since drop), derive cycle timer from music so
-        -- the antivirus stays synced even if gameplay is paused (e.g. upgrade menu)
-        if musicTimeSinceDrop and antivirusCycleDuration and antivirusCycleDuration > 0 and not rewindActive then
-            antivirusCycleTimer = musicTimeSinceDrop % antivirusCycleDuration
-        else
-            -- Normal progression, but pause during rewind
-            if not rewindActive then
-                antivirusCycleTimer = antivirusCycleTimer + dt
-            end
-        end
-        
-        if antivirusCycleTimer >= antivirusCycleDuration then
-            antivirusCycleTimer = 0
-        end
-
-        -- Check if we should be in active phase (with beat snapping)
-        local wasActive = antivirusActive
-        local shouldBeActive = (antivirusCycleTimer < antivirusActiveDuration)
-
-        -- Beat snapping: only allow state transitions near beat boundaries
-        -- "Near" means within half a beat of the transition point
-        local timeToNextBeat = secondsPerBeat - beatTimer
-        local timeSinceLastBeat = beatTimer
-        local nearBeat = (timeToNextBeat < secondsPerBeat * 0.5) or (timeSinceLastBeat < secondsPerBeat * 0.5)
-
-        -- Allow state change if:
-        -- 1. Near a beat boundary, OR
-        -- 2. State hasn't changed yet (first frame of activation)
-        if shouldBeActive ~= wasActive then
-            if nearBeat then
-                antivirusActive = shouldBeActive
-            end
-            -- If not near a beat, keep the previous state until we hit a beat
-        else
-            antivirusActive = shouldBeActive
-        end
-
-        -- Handle state changes (visual feedback)
-        if antivirusActive and not wasActive then
-            -- Just activated - set yellow sprite
-            Sprite.set_color(playerSprite, 255, 255, 0)
-            -- Play power up sound
-            SystemShooterAudio.playPowerUpRandom()
-            print(string.format("[Antivirus] ACTIVATED at cycle=%.3fs | beatTimer=%.3fs | secondsPerBeat=%.3fs",
-                antivirusCycleTimer, beatTimer, secondsPerBeat))
-        elseif not antivirusActive and wasActive then
-            -- Just deactivated - set white sprite
-            Sprite.set_color(playerSprite, 255, 255, 255)
-            -- Play power down sound
-            SystemShooterAudio.playPowerDownRandom()
-            print(string.format("[Antivirus] DEACTIVATED at cycle=%.3fs | beatTimer=%.3fs | secondsPerBeat=%.3fs",
-                antivirusCycleTimer, beatTimer, secondsPerBeat))
-        end
     end
 end
 
@@ -400,7 +264,7 @@ function SystemShooterPlayer.updateMovement(dt, sensitivity)
     local delta = Input.get_mouse_delta()
     local deltaX = 0
     local deltaY = 0
-
+    
     -- Skip first delta after resume to prevent teleport
     if skipNextMouseDelta then
         skipNextMouseDelta = false
@@ -408,12 +272,12 @@ function SystemShooterPlayer.updateMovement(dt, sensitivity)
         deltaX = delta.x
         deltaY = delta.y
     end
-
+    
     -- Move player by delta (allows knockback since not snapping to cursor)
     local sens = sensitivity or 1.0
     playerX = playerX + deltaX * playerSpeed * sens
     playerY = playerY + deltaY * playerSpeed * sens
-
+    
     if knockbackTimer > 0 then
         local tNorm = 1.0 - (knockbackTimer / knockbackDuration)
         if tNorm < 0 then tNorm = 0 end
@@ -422,16 +286,14 @@ function SystemShooterPlayer.updateMovement(dt, sensitivity)
         local speed = knockbackBaseSpeed * factor * dt
         playerX = playerX + knockbackDirX * speed
         playerY = playerY + knockbackDirY * speed
-
+        
         knockbackTimer = knockbackTimer - dt
     end
-
+    
     -- Clamp to screen bounds
-    -- Clamp center position with half-size margin
-    local margin = playerSize / 2
-    playerX = math.max(margin, math.min(screenW - margin, playerX))
-    playerY = math.max(margin, math.min(screenH - margin, playerY))
-
+    playerX = math.max(0, math.min(screenW - playerSize, playerX))
+    playerY = math.max(0, math.min(screenH - playerSize, playerY))
+    
     -- Update entity position (without recoil offset)
     Entity.set_global_pos(player, playerX, playerY)
 end
@@ -442,17 +304,16 @@ end
 function SystemShooterPlayer.updateAiming(enemies, enemySize)
     local closestEnemy = nil
     local closestDistSq = nil
-    -- playerX/Y are already the center after API change
-    local playerCenterX = playerX
-    local playerCenterY = playerY
-
+    local playerCenterX = playerX + playerSize/2
+    local playerCenterY = playerY + playerSize/2
+    
     for i = 1, #enemies do
         local e = enemies[i]
         -- Skip dead enemies for auto-aim (but allow disabled enemies for pre-fire)
         if not e.isDead then
-            -- enemy.x/y are already center-based after API change
-            local enemyCenterX = e.x
-            local enemyCenterY = e.y
+            local eSize = e.size or enemySize
+            local enemyCenterX = e.x + eSize/2
+            local enemyCenterY = e.y + eSize/2
             local dx = enemyCenterX - playerCenterX
             local dy = enemyCenterY - playerCenterY
             local distSq = dx * dx + dy * dy
@@ -464,9 +325,9 @@ function SystemShooterPlayer.updateAiming(enemies, enemySize)
     end
 
     if closestEnemy ~= nil then
-        -- enemy.x/y are already center-based after API change
-        local enemyCenterX = closestEnemy.x
-        local enemyCenterY = closestEnemy.y
+        local eSize = closestEnemy.size or enemySize
+        local enemyCenterX = closestEnemy.x + eSize/2
+        local enemyCenterY = closestEnemy.y + eSize/2
         local dx = enemyCenterX - playerCenterX
         local dy = enemyCenterY - playerCenterY
         local angleRadians = math.atan(dy, dx)
@@ -486,9 +347,8 @@ end
  --=====================================================================
 local function spawnProjectile(onShotFired)
     -- Spawn at tip of triangle (offset in aim direction)
-    -- playerX/Y are already the center after API change
-    local centerX = playerX
-    local centerY = playerY
+    local centerX = playerX + playerSize/2
+    local centerY = playerY + playerSize/2
     local tipX = centerX + aimDirX * (playerSize/2)
     local tipY = centerY + aimDirY * (playerSize/2)
 
@@ -501,7 +361,7 @@ local function spawnProjectile(onShotFired)
     if not shots then
         return
     end
-
+    
     if onShotFired then
         onShotFired(#shots)
     end
@@ -513,8 +373,8 @@ local function spawnProjectile(onShotFired)
         local dirX = s.dirX or aimDirX
         local dirY = s.dirY or aimDirY
 
-        local spawnX = tipX + offsetX
-        local spawnY = tipY + offsetY
+        local spawnX = tipX + offsetX - projectileSize/2
+        local spawnY = tipY + offsetY - projectileSize/2
         SystemShooterProjectiles.spawnPlayerProjectile(spawnX, spawnY, dirX, dirY, pierceCount, bounceCount, s)
     end
 end
@@ -524,7 +384,7 @@ function SystemShooterPlayer.updateShooting(dt, isNoWitnessesActive, playGunshot
     if fireCooldownTimer > 0 then
         fireCooldownTimer = fireCooldownTimer - dt
     end
-
+    
     if Input.get_mouse_button_down(1) then
         isFiring = true
         if fireCooldownTimer <= 0 then
@@ -571,18 +431,13 @@ end
  --  [RESET] Reset player state for new level/run
  --=====================================================================
 function SystemShooterPlayer.resetForLevel(resetHealth)
-    playerX = screenW / 2
-    playerY = screenH / 2
+    playerX = screenW / 2 - playerSize / 2
+    playerY = screenH / 2 - playerSize / 2
     Entity.set_global_pos(player, playerX, playerY)
-
-    -- Only reset sprite color if antivirus isn't currently active
-    if not antivirusActive then
-        Sprite.set_color(playerSprite, 255, 255, 255)
-    end
-
+    Sprite.set_color(playerSprite, 255, 255, 255)
     playerFlashTimer = 0
     damageCooldown = 0
-
+    
     if resetHealth then
         playerHealth = SystemShooterPlayerProgress.getMaxHealth()
     end
@@ -595,14 +450,10 @@ function SystemShooterPlayer.resetForRun()
     knockbackTimer = 0
     playerFlashTimer = 0
     playerHealth = SystemShooterPlayerProgress.getMaxHealth()
-    playerX = screenW / 2
-    playerY = screenH / 2
+    playerX = screenW / 2 - playerSize / 2
+    playerY = screenH / 2 - playerSize / 2
     Entity.set_global_pos(player, playerX, playerY)
-
-    -- Only reset sprite color if antivirus isn't currently active
-    if not antivirusActive then
-        Sprite.set_color(playerSprite, 255, 255, 255)
-    end
+    Sprite.set_color(playerSprite, 255, 255, 255)
 end
 
 function SystemShooterPlayer.stopFiring()

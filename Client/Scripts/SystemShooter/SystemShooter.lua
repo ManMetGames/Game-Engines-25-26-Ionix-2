@@ -14,8 +14,6 @@ local SystemShooterRewind = require("Scripts.SystemShooter.SystemShooterRewind")
 local SystemShooterProjectiles = require("Scripts.SystemShooter.SystemShooterProjectiles")
 local SystemShooterPlayer = require("Scripts.SystemShooter.SystemShooterPlayer")
 local Localisation = require("Scripts.SystemShooter.Localisation")
-local SystemShooterAudio = require("Scripts.SystemShooter.SystemShooterAudio")
-local SystemShooterDifficulty = require("Scripts.SystemShooter.SystemShooterDifficulty")
 
 
  --=====================================================================
@@ -24,7 +22,7 @@ local SystemShooterDifficulty = require("Scripts.SystemShooter.SystemShooterDiff
 local GAME_ID = "SYSTEM_SHOOTER"
 
 -- Highest stage reached (persisted locally per-game)
-local bestScore = Json.load_high_score(GAME_ID) or 0
+local bestStage = Json.load_high_score(GAME_ID) or 0
 
 -- Persistent player name (shared across games)
 local playerName = Json.load_player_name()
@@ -53,11 +51,11 @@ end
 
 local function ApplyLanguageFonts()
     if language == "ja" then
-      UI_FONT_REG   = "JFDotJP"
-      UI_FONT_BOLD  = "JFDotBoldJP"
-      UI_FONT_SUB = "JFDotSubJP"
-      UI_FONT_HEADER = "JFDotHeaderJP"
-      UI_FONT_TITLE = "JFDotTitleJP"
+      UI_FONT_REG   = "ImGuiDefaultJP"
+      UI_FONT_BOLD  = "ImGuiDefaultBoldJP"
+      UI_FONT_SUB = "ImGuiSubJP"
+      UI_FONT_HEADER = "ImGuiHeaderJP"
+      UI_FONT_TITLE = "ImGuiTitleJP"
     else
       UI_FONT_REG   = "ImGuiDefault"
       UI_FONT_BOLD  = "ImGuiDefaultBold"
@@ -85,18 +83,11 @@ local musicMuted = false
 local bpm = 133 
 local secondsPerBeat = 60.0 / bpm
 local beatTimer = 0
-local beatIndex = 0  -- Absolute beat counter since beatBop started
 local bopDurationSeconds = 8 / 60.0
 local bopTimer = 0
 local bopScale = 0.25
-local beatStartDelaySeconds = 14.4  -- Drop happens at 14.4 seconds (start of 9th bar)
-local beatBopHasStarted = false
-
--- Music rewind sync
-local rememberedMusicPosition = 0    -- Position to restore after rewind
-local musicRewindStartPosition = 0   -- Position when rewind starts
-local musicBaseVolume = 1.0          -- Base volume before rewind effects
-local lastRewindPhase = nil          -- Track phase changes to avoid re-setting speed every frame
+local beatStartDelaySeconds = (8 * 4) * secondsPerBeat
+local beatStartDelayCounter = 0
 
 -- Controls
 local sensitivitySetting = Json.load_setting(GAME_ID, "controls.sensitivity", 1.0) or 1.0
@@ -115,8 +106,7 @@ local UI__COLOUR_THEME = { 44, 8, 160 }
 local menuScreen = "main"
 local topLeaderboard = nil
 local leaderboardFetched = false
-local showDifficultyMenu = false
-local diffChosen = false
+
 local isPaused = false
 local pauseScreen = "pause" -- "pause" | "settings" | "leaderboard"
 
@@ -135,12 +125,12 @@ local function GetPlayerNameForLeaderboard()
     return "Anon"
 end
 
-local function TryUpdateBestScore(score)
-    if score == nil then return end
-    score = math.floor(score)
-    if score > (bestScore or 0) then
-        bestScore = score
-        Json.save_high_score(GAME_ID, bestScore)
+local function TryUpdateBestStage(stage)
+    if stage == nil then return end
+    stage = math.floor(stage)
+    if stage > (bestStage or 0) then
+        bestStage = stage
+        Json.save_high_score(GAME_ID, bestStage)
     end
 end
 
@@ -199,36 +189,7 @@ local enemySize = 48
 
 local enemies = {}
 local levelEnemyHealth = 50
-local StartLevel
-local ProcessChainHits  -- Forward declaration for chain hits function
-
--- Overhealth ring VFX
-local overhealthRingId = nil  -- VFX ring ID for overhealth effect
-local wasOverhealthActive = false  -- Track previous state to detect transitions    
-
--- Overhealth lightning tracking (for following source position)
-local overhealthLightnings = {}  -- Array of { lightningId, targetEnemy }
-
--- Chain lightning tracking (for following source position)
-local chainLightnings = {}  -- Array of { lightningId, sourceEnemy, targetEnemy }
-
--- Enemy shield lightnings (V-shape shield effect attached to enemies)
-local shieldLightnings = {}  -- Array of { lightningId, enemy, offsetStartX, offsetStartY, offsetEndX, offsetEndY }
-
--- Launched shields (when shield breaks, it flips and launches toward enemy)
--- Now uses the actual lightning VFX instead of a sprite
-local launchedShields = {}  -- Array of { lightnings, x, y, dirX, dirY, damage, state, stateTimer, ... }
-local LAUNCHED_SHIELD_STATES = {
-    BOUNCE_BACK = "bounce",  -- Brief bounce back toward player (wind-up)
-    LAUNCH = "launch",       -- Flying toward/past enemy
-}
-local LAUNCHED_SHIELD_CONFIG = {
-    bounceBackDuration = 0.75,  -- How long the bounce back lasts
-    bounceBackSpeed = 50,      -- Speed of bounce back
-    launchSpeed = 500,          -- Speed when launching forward
-    lifetime = 4.0,             -- Max lifetime before despawn
-    hitRadius = 40,             -- Collision radius for hitting enemies
-}
+local StartLevel    
 
 local function GetActiveEnemyCount()
     local count = 0
@@ -244,14 +205,10 @@ local function IsNoWitnessesActive()
     local stacks = SystemShooterPlayerProgress.getLowEnemyDamageStacks()
     if stacks <= 0 then return false end
     local activeCount = GetActiveEnemyCount()
-    -- NoWitnesses only active when enemies are alive
+    -- NoWitnesses only active when enemies are alive (0 < count <= threshold)
     if activeCount <= 0 then return false end
-    
-    if stacks == 1 then
-        return activeCount == 1
-    else -- stacks >= 2
-        return activeCount <= 3
-    end
+    local threshold = stacks >= 2 and 2 or 1
+    return activeCount <= threshold
 end
 
 local LoadLevel
@@ -286,14 +243,6 @@ function UpdateWindowTransition(dt)
             -- Skip first mouse delta to prevent spawn position snap
             SystemShooterPlayer.skipNextDelta()
             playerInitialized = true
-        end
-        
-        -- Start music after first window transition completes (synced with gameplay)
-        if musicEntity and not musicStartedThisLaunch then
-            MusicComponent.play(musicEntity, true, 2.0)  -- loop=true, fadeIn=2.0 seconds
-            musicStartedThisLaunch = true
-            -- Reset beat bop flag to sync with music start
-            beatBopHasStarted = false
         end
         
         -- Transition to post-phase (delay before loading level)
@@ -352,13 +301,6 @@ function UpdateWindowTransition(dt)
         local newPY = relY * screenH - pSize/2
         SystemShooterPlayer.setScreenBounds(screenW, screenH)
         SystemShooterPlayer.setPosition(newPX, newPY)
-        
-        -- Update overhealth ring position if active
-        if overhealthRingId and overhealthRingId >= 0 then
-            local playerCenterX = newPX + pSize / 2
-            local playerCenterY = newPY + pSize / 2
-            VFX.set_ring_position(overhealthRingId, playerCenterX, playerCenterY)
-        end
     end
     
     return true  -- Transition still active
@@ -411,40 +353,6 @@ local function ResetRunStateForMenu()
     ClearEnemies()
     ClearAllPlayerProjectiles()
     ClearAllEnemyProjectiles()
-    
-    -- Clean up overhealth ring VFX
-    if overhealthRingId and overhealthRingId >= 0 then
-        VFX.destroy_ring(overhealthRingId)
-        overhealthRingId = nil
-    end
-    wasOverhealthActive = false
-    
-    -- Clean up lightning VFX tracking
-    overhealthLightnings = {}
-    chainLightnings = {}
-    
-    -- Clean up enemy shield lightnings
-    for _, shield in ipairs(shieldLightnings) do
-        if shield.lightningId and shield.lightningId >= 0 then
-            VFX.destroy_lightning(shield.lightningId)
-        end
-    end
-    shieldLightnings = {}
-    
-    -- Clean up launched shields (destroy their lightning VFX and anchor entities)
-    for _, shield in ipairs(launchedShields) do
-        if shield.lightnings then
-            for _, lightning in ipairs(shield.lightnings) do
-                if lightning.id and VFX.is_lightning_active(lightning.id) then
-                    VFX.destroy_lightning(lightning.id)
-                end
-            end
-        end
-        if shield.anchorEntity then
-            Entity.destroy_entity(shield.anchorEntity)
-        end
-    end
-    launchedShields = {}
 
     -- Reset player state via module
     SystemShooterPlayer.resetForRun()
@@ -481,17 +389,19 @@ local enemyBaseImageSize = enemySize
 local globalFrame = 0
 local peaceTimerSeconds = 0
 local startLevelPeaceDuration = 3
-local endLevelPeaceDuration = 4.0
+local endLevelPeaceDuration = 2.5
 local levelupPeaceDuration = 2.0
 local isStartLevelPeace = false  -- true = waiting before enemies spawn, false = end-of-level peace
 local isLevelupPeace = false     -- true = peace period after selecting a levelup upgrade
 
+-- SFX
+local playerDamageSfxEntity
+local gunshot3SfxEntity
+local impact3SfxEntity
+
 -- LEVEL SETTINGS
 local currentLevel = 1
 local levelTimerSeconds = 0
-local levelXpGained = 0
-local notificationMessage = ""
-local notificationTimer = 0
 
 -- Run stats (per attempt; used for Game Over summary)
 local runTimeSeconds = 0
@@ -545,27 +455,13 @@ local function CaptureEndRunSummary()
     local bounce  = SystemShooterPlayerProgress.getBounceCount()
     local fireI   = SystemShooterPlayerProgress.getCurrentFireInterval()
     local maxHP   = SystemShooterPlayerProgress.getMaxHealth()
-    local noWitnesses = SystemShooterPlayerProgress.getLowEnemyDamageStacks()
-    local healingOrbUpgrades = SystemShooterPlayerProgress.getHealingOrbSpawnUpgrade()
-    local antivirusUpgrade = SystemShooterPlayerProgress.getAntivirusUpgrade()
-    local overhealthUpgrade = SystemShooterPlayerProgress.getOverhealthUpgrade()
-    local chainHitsUpgrade = SystemShooterPlayerProgress.getChainHitsUpgrade()
-    local totalXp = SystemShooterPlayerProgress.getTotalXpEarned()
 
     local pLevel, pXp, pXpToNext = SystemShooterPlayerProgress.getProgress()
-    
-    -- Calculate score: Total XP * difficulty multiplier
-    local scoreMultiplier = SystemShooterDifficulty.getScoreMultiplier()
-    local score = math.floor(totalXp * scoreMultiplier)
-    local difficultyName = SystemShooterDifficulty.getConfig().name or "Medium"
 
     return {
         stageReached = currentLevel or 1,
         playerLevel = pLevel or 1,
         xp = pXp or 0,
-        totalXp = totalXp or 0,
-        score = score,
-        difficulty = difficultyName,
         timeSurvived = runTimeSeconds or 0,
         enemiesKilled = runEnemiesKilled or 0,
         shotsFired = runShotsFired or 0,
@@ -579,11 +475,6 @@ local function CaptureEndRunSummary()
             bounce = bounce or 0,
             fireInterval = fireI or 0.5,
             maxHealth = maxHP or 100,
-            noWitnesses = noWitnesses or 0,
-            healingOrbUpgrades = healingOrbUpgrades or 0,
-            antivirus = antivirusUpgrade or 0,
-            overhealth = overhealthUpgrade or 0,
-            chainHits = chainHitsUpgrade or 0,
         }
     }
 end
@@ -596,11 +487,6 @@ local function TriggerGameOver()
     Input.set_relative_mouse_mode(false)
     -- stop firing immediately
     SystemShooterPlayer.stopFiring()
-    -- Stop music when run ends
-    if musicEntity then
-        MusicComponent.stop(musicEntity, 0)  -- fadeOut=0
-        musicStartedThisLaunch = false
-    end
 end
 
  --=====================================================================
@@ -618,14 +504,17 @@ local function ApplyAudioVolumes()
     musicVol  = Clamp01(musicVol  or 0.8)
     sfxVol    = Clamp01(sfxVol    or 0.8)
 
-    -- MUSIC (SoLoud uses 0.0..1.0 range)
-    local musicOut = masterVol * musicVol
+    -- MUSIC (base 0..128)
+    local musicOut = math.floor(128 * masterVol * musicVol + 0.5)
     if musicEntity then
-        MusicComponent.set_volume(musicEntity, musicMuted and 0 or musicOut)
+        AudioComponent.change_volume(musicEntity, musicMuted and 0 or musicOut)
     end
 
     -- SFX (scale your existing base volumes)
-    SystemShooterAudio.applyVolumes(masterVol, sfxVol)
+    local sfxMul = masterVol * sfxVol
+    if playerDamageSfxEntity then AudioComponent.change_volume(playerDamageSfxEntity, math.floor(48 * sfxMul + 0.5)) end
+    if gunshot3SfxEntity     then AudioComponent.change_volume(gunshot3SfxEntity,     math.floor(32 * sfxMul + 0.5)) end
+    if impact3SfxEntity      then AudioComponent.change_volume(impact3SfxEntity,      math.floor(32 * sfxMul + 0.5)) end
 end
 
 
@@ -641,8 +530,8 @@ local function SpawnEnemiesForLevel(spawnDisabled)
     -- Clear spawn positions for rewind system
     SystemShooterRewind.clearSpawnPositions()
 
-    local centerX = screenW / 2
-    local centerY = screenH / 2
+    local centerX = screenW / 2 - enemySize / 2
+    local centerY = screenH / 2 - enemySize / 2
 
     local enemyTemplates = SystemShooterLevels.getEnemyTemplates()
     
@@ -658,8 +547,8 @@ local function SpawnEnemiesForLevel(spawnDisabled)
             if not enemyCfg.x and not enemyCfg.y and #cfg.enemies > 1 then
                 local radius = 120
                 local angle = (2 * math.pi * (i - 1)) / #cfg.enemies
-                spawnX = screenW / 2 + math.cos(angle) * radius
-                spawnY = screenH / 2 + math.sin(angle) * radius
+                spawnX = screenW / 2 + math.cos(angle) * radius - templateSize / 2
+                spawnY = screenH / 2 + math.sin(angle) * radius - templateSize / 2
             end
             
             local config = {
@@ -679,12 +568,6 @@ local function SpawnEnemiesForLevel(spawnDisabled)
                 orbitCenter = enemyCfg.orbitCenter,
                 orbitRadius = enemyCfg.orbitRadius,
                 orbitSpeed = enemyCfg.orbitSpeed,
-                -- Shielder-specific parameters
-                shielderSpeed = enemyCfg.shielderSpeed,
-                shielderSpeedFast = enemyCfg.shielderSpeedFast,
-                shielderSpeedSlow = enemyCfg.shielderSpeedSlow,
-                shielderOrbitRadius = enemyCfg.shielderOrbitRadius,
-                shielderRotationSpeed = enemyCfg.shielderRotationSpeed,
             }
             
             local e = CreateEnemy(spawnX, spawnY, config)
@@ -694,128 +577,6 @@ local function SpawnEnemiesForLevel(spawnDisabled)
             table.insert(enemies, e)
             -- Store spawn position for rewind system
             SystemShooterRewind.setSpawnPosition(#enemies, spawnX, spawnY)
-            
-            -- Store lightning shield config on enemy for reference
-            if enemyCfg.lightningShield then
-                e.lightningShieldConfig = enemyCfg.lightningShield
-            end
-            
-            -- Create lightning shield VFX if configured (always create, even when disabled - VFX follows enemy)
-            if enemyCfg.lightningShield and enemyCfg.lightningShield.enabled then
-                local shield = enemyCfg.lightningShield
-                local radius = shield.radius or 100
-                local spread = shield.spreadAngle or math.rad(90)
-                local facing = shield.facingAngle or (math.pi / 2)  -- Default: facing down
-                
-                -- Calculate the two arms of the V-shape
-                -- Left arm: from enemy center to left tip (swapped to flip the V)
-                local leftAngle = facing + spread / 2
-                local rightAngle = facing - spread / 2
-                
-                -- Offsets from enemy center to the V tips
-                local leftTipOffsetX = math.cos(leftAngle) * radius
-                local leftTipOffsetY = math.sin(leftAngle) * radius
-                local rightTipOffsetX = math.cos(rightAngle) * radius
-                local rightTipOffsetY = math.sin(rightAngle) * radius
-                
-                -- The apex of the V (center point where both bolts meet)
-                local apexOffsetX = math.cos(facing) * radius
-                local apexOffsetY = math.sin(facing) * radius
-                
-                -- Get initial enemy center position (enemy.x/y are already center-based)
-                local enemyCenterX = spawnX
-                local enemyCenterY = spawnY
-                
-                -- Get corruption config if present
-                local corruptionCfg = shield.corruption
-                
-                -- Create left lightning bolt (from left tip to apex)
-                local leftId = VFX.create_lightning(
-                    enemyCenterX + leftTipOffsetX,
-                    enemyCenterY + leftTipOffsetY,
-                    enemyCenterX + apexOffsetX,
-                    enemyCenterY + apexOffsetY,
-                    999999  -- Very long lifetime (permanent until destroyed)
-                )
-                if leftId and leftId >= 0 then
-                    local color = shield.color or { r = 0, g = 220, b = 255, a = 255 }
-                    VFX.set_lightning_color(leftId, color.r, color.g, color.b, color.a)
-                    VFX.set_lightning_properties(leftId, shield.thickness or 3.0, shield.jaggedness or 0.02, shield.segments or 12)
-                    VFX.set_lightning_flicker(leftId, true, shield.flickerSpeed or 0.08)
-                    VFX.set_lightning_fade_out(leftId, false)
-                    VFX.set_lightning_render_layer(leftId, 0, 15)
-                    
-                    -- Enable corruption system if configured
-                    if corruptionCfg and corruptionCfg.enabled then
-                        VFX.set_lightning_corruption_enabled(leftId, true)
-                        local targetColor = corruptionCfg.targetColor or { r = 255, g = 255, b = 255 }
-                        VFX.set_lightning_corruption_color(leftId, targetColor.r, targetColor.g, targetColor.b)
-                        VFX.set_lightning_corruption_rates(leftId, corruptionCfg.decayRate or 0.15, corruptionCfg.spreadRate or 0.3)
-                    end
-                    
-                    table.insert(shieldLightnings, {
-                        lightningId = leftId,
-                        enemy = e,
-                        baseOffsetStartX = leftTipOffsetX,
-                        baseOffsetStartY = leftTipOffsetY,
-                        baseOffsetEndX = apexOffsetX,
-                        baseOffsetEndY = apexOffsetY,
-                        baseFacingAngle = facing,
-                        currentRotation = 0,
-                        maxRotationSpeed = shield.maxRotationSpeed or 2.0,
-                        corruptionConfig = corruptionCfg,
-                        broken = false,
-                    })
-                end
-                
-                -- Create right lightning bolt (from right tip to apex)
-                local rightId = VFX.create_lightning(
-                    enemyCenterX + rightTipOffsetX,
-                    enemyCenterY + rightTipOffsetY,
-                    enemyCenterX + apexOffsetX,
-                    enemyCenterY + apexOffsetY,
-                    999999  -- Very long lifetime (permanent until destroyed)
-                )
-                if rightId and rightId >= 0 then
-                    local color = shield.color or { r = 0, g = 220, b = 255, a = 255 }
-                    VFX.set_lightning_color(rightId, color.r, color.g, color.b, color.a)
-                    VFX.set_lightning_properties(rightId, shield.thickness or 3.0, shield.jaggedness or 0.02, shield.segments or 12)
-                    VFX.set_lightning_flicker(rightId, true, shield.flickerSpeed or 0.08)
-                    VFX.set_lightning_fade_out(rightId, false)
-                    VFX.set_lightning_render_layer(rightId, 0, 15)
-                    
-                    -- Enable corruption system if configured
-                    if corruptionCfg and corruptionCfg.enabled then
-                        VFX.set_lightning_corruption_enabled(rightId, true)
-                        local targetColor = corruptionCfg.targetColor or { r = 255, g = 255, b = 255 }
-                        VFX.set_lightning_corruption_color(rightId, targetColor.r, targetColor.g, targetColor.b)
-                        VFX.set_lightning_corruption_rates(rightId, corruptionCfg.decayRate or 0.15, corruptionCfg.spreadRate or 0.3)
-                    end
-                    
-                    table.insert(shieldLightnings, {
-                        lightningId = rightId,
-                        enemy = e,
-                        baseOffsetStartX = rightTipOffsetX,
-                        baseOffsetStartY = rightTipOffsetY,
-                        baseOffsetEndX = apexOffsetX,
-                        baseOffsetEndY = apexOffsetY,
-                        baseFacingAngle = facing,
-                        currentRotation = 0,
-                        maxRotationSpeed = shield.maxRotationSpeed or 2.0,
-                        corruptionConfig = corruptionCfg,
-                        broken = false,
-                    })
-                end
-                
-                -- Store shield reference on enemy for collision checks only if BOTH lightning bolts were created successfully
-                if (leftId and leftId >= 0) and (rightId and rightId >= 0) then
-                    e.hasShield = true
-                    e.shieldBroken = false
-                else
-                    e.hasShield = false
-                    e.shieldBroken = true
-                end
-            end
         end
     else
         local enemyCount = cfg.enemyCount or 1
@@ -839,8 +600,8 @@ local function SpawnEnemiesForLevel(spawnDisabled)
             local playerCenterY = screenH / 2
             for i = 1, enemyCount do
                 local angle = (2 * math.pi * (i - 1)) / enemyCount
-                local ex = playerCenterX + math.cos(angle) * radius
-                local ey = playerCenterY + math.sin(angle) * radius
+                local ex = playerCenterX + math.cos(angle) * radius - enemySize / 2
+                local ey = playerCenterY + math.sin(angle) * radius - enemySize / 2
                 local e = CreateEnemy(ex, ey, defaultConfig)
                 if spawnDisabled then
                     SystemShooterEnemy.setEnemyDisabled(e, true)
@@ -865,39 +626,17 @@ LoadLevel = function(index, resetPlayerState)
 
     currentLevel = index
 
-    -- Note: Best score is now updated at game over, not per-level
+    -- Persist best stage + submit to leaderboard (only if higher stage than last time)
+    TryUpdateBestStage(currentLevel)
     levelTimerSeconds = cfg.timeLimitSeconds or 0
-    levelXpGained = 0
-    notificationMessage = ""
-    notificationTimer = 0
 
     ClearEnemies()
-    
-    -- Clear launched shields from previous level to prevent health orb issues
-    for _, shield in ipairs(launchedShields) do
-        if shield.lightnings then
-            for _, lightning in ipairs(shield.lightnings) do
-                if lightning.id and VFX.is_lightning_active(lightning.id) then
-                    VFX.destroy_lightning(lightning.id)
-                end
-            end
-        end
-        if shield.anchorEntity then
-            Entity.destroy_entity(shield.anchorEntity)
-        end
-    end
-    launchedShields = {}
 
     levelEnemyHealth = cfg.enemyHealth or levelEnemyHealth
     enemyShootIntervalSeconds = cfg.enemyShootIntervalSeconds or enemyShootIntervalSeconds
 
     -- Spawn enemies as disabled (preview state) during start-level peace
     SpawnEnemiesForLevel(true)
-    
-    -- Remember music position for rewind restoration
-    if musicEntity and MusicComponent.is_playing(musicEntity) then
-        rememberedMusicPosition = MusicComponent.get_position(musicEntity)
-    end
     
     -- Start the start-level peace timer (enemies will be enabled when it expires)
     peaceTimerSeconds = startLevelPeaceDuration
@@ -962,14 +701,8 @@ StartLevel = function(index, resetPlayerState)
 end
 
 local function OnEnemyKilled()
-    -- Check if player just beat stage 50
-    if currentLevel >= 50 then
-        TriggerGameOver()
-        return
-    end
-    
     local nextIndex = currentLevel + 1
-    -- Note: Best score is now updated at game over, not per-level
+    TryUpdateBestStage(nextIndex)
     SystemShooterLevels.regenerateLevel(nextIndex)
     if SystemShooterLevels.getLevelConfig(nextIndex) then
         StartLevel(nextIndex, false)
@@ -981,6 +714,7 @@ end
 local function StartRewindSequence()
     -- Get level config for time limit and enemy target health
     local cfg = SystemShooterLevels.getLevelConfig(currentLevel)
+    local maxHealth = SystemShooterPlayerProgress.getMaxHealth()
     local levelTimeLimit = cfg and cfg.timeLimitSeconds or 0
     
     -- Build target health list from level config (these are the reduced values after timeout)
@@ -997,17 +731,11 @@ local function StartRewindSequence()
     end
     
     -- Start the rewind sequence via the module
-    SystemShooterRewind.start(enemies, levelTimeLimit, enemyTargetHealthList)
+    SystemShooterRewind.start(enemies, SystemShooterPlayer.getHealth(), maxHealth, levelTimeLimit, enemyTargetHealthList)
     
-    -- Start music slowdown effect
-    if musicEntity and MusicComponent.is_playing(musicEntity) then
-        musicRewindStartPosition = MusicComponent.get_position(musicEntity)
-        musicBaseVolume = masterVol * musicVol
-        -- Seek back 10 seconds before starting rewind for smoother effect
-        local newPosition = math.max(0, musicRewindStartPosition - 10.0)
-        MusicComponent.seek(musicEntity, newPosition)
-        print("[Rewind Music] Seeking back 10 seconds: " .. tostring(musicRewindStartPosition) .. " -> " .. tostring(newPosition))
-        -- Music will slow down and fade out during the "slowing" phase (handled in update)
+    -- Pause music
+    if musicEntity then
+        AudioComponent.pause(musicEntity)
     end
 end
 
@@ -1082,19 +810,18 @@ function SystemShooter:OnStart()
                 FlashEnemy(enemy)
                 SystemShooterEnemy.updateDisplaySize(enemy)
                 local eSize = enemy.size or enemySize
-                local enemyCenterX = enemy.x
-                local enemyCenterY = enemy.y
+                local enemyCenterX = enemy.x + eSize / 2
+                local enemyCenterY = enemy.y + eSize / 2
                 local color = enemy.color or {255, 255, 255}
                 ParticleSystem.emitHitBurst(enemyCenterX, enemyCenterY, color[1], color[2], color[3])
-                SystemShooterAudio.playImpact()
-                
-                -- Trigger chain hits if enabled (chains from the hit enemy to nearby enemies)
-                ProcessChainHits(enemy, { [enemy] = true })
+                if impact3SfxEntity then
+                    AudioComponent.play(impact3SfxEntity)
+                end
             end,
             onEnemyKilled = function(enemy, allEnemies)
                 local eSize = enemy.size or enemySize
-                local deathX = enemy.x
-                local deathY = enemy.y
+                local deathX = enemy.x + eSize / 2
+                local deathY = enemy.y + eSize / 2
                 SystemShooterPickups.trySpawnHealingOrb(deathX, deathY)
                 runEnemiesKilled = runEnemiesKilled + 1
                 enemy.isDead = true
@@ -1107,222 +834,17 @@ function SystemShooter:OnStart()
                     end
                 end
                 if allDead then
-                    -- Calculate bonus XP based on remaining time
-                    local cfg = SystemShooterLevels.getLevelConfig(currentLevel)
-                    local totalTime = cfg and cfg.timeLimitSeconds or 0
-                    local timeBonusCfg = SystemShooterPlayerProgress.getTimeBonusConfig()
-                    local difficultyXpPercent = SystemShooterDifficulty.getBonusXpPercent()
-                    
-                    -- Award bonus XP based on configuration
-                    local shouldAwardBonus = totalTime > 0 and levelTimerSeconds > 0
-                    if timeBonusCfg.requireNonMutated then
-                        shouldAwardBonus = shouldAwardBonus and not mutatedLevels[currentLevel]
-                    end
-                    
-                    if shouldAwardBonus then
-                        local bonusRatio = levelTimerSeconds / totalTime
-                        local bonusXp = math.floor(levelXpGained * difficultyXpPercent * bonusRatio)
-                        if bonusXp > 0 then
-                            SystemShooterPlayerProgress.addXp(bonusXp)
-                            notificationMessage = "Bonus XP: " .. bonusXp .. " (Time Left: " .. string.format("%.1f", levelTimerSeconds) .. "s)"
-                            notificationTimer = endLevelPeaceDuration
-                        end
-                    end
-
                     peaceTimerSeconds = endLevelPeaceDuration
                     isStartLevelPeace = false
                 end
             end,
             onPlayerHit = function(damage)
                 local currentHealth = SystemShooterPlayer.getHealth()
-                local currentOverhealth = SystemShooterPlayerProgress.getOverhealth()
-                
-                -- Damage overhealth first if present
-                if currentOverhealth > 0 then
-                    if currentOverhealth >= damage then
-                        -- Overhealth absorbs all damage
-                        SystemShooterPlayerProgress.setOverhealth(currentOverhealth - damage)
-                    else
-                        -- Overhealth partially absorbs, remaining damage goes to health
-                        local remainingDamage = damage - currentOverhealth
-                        SystemShooterPlayerProgress.setOverhealth(0)
-                        SystemShooterPlayer.setHealth(currentHealth - remainingDamage)
-                    end
-                else
-                    -- No overhealth, damage health directly
-                    SystemShooterPlayer.setHealth(currentHealth - damage)
-                end
-                
+                SystemShooterPlayer.setHealth(currentHealth - damage)
                 SystemShooterPlayer.flash()
                 SystemShooterPlayer.setDamageCooldown(SystemShooterPlayer.getDamageCooldownDuration())
-                SystemShooterAudio.playPlayerDamage()
             end,
-            isAntivirusActive = function() return SystemShooterPlayer.isAntivirusActive() end,
-            addXp = function(amount) 
-                levelXpGained = levelXpGained + amount
-                SystemShooterPlayerProgress.addXp(amount) 
-            end,
-            checkShieldCollision = function(projX, projY, projSize)
-                -- Check collision with all active shield lightnings
-                for _, shield in ipairs(shieldLightnings) do
-                    if not shield.broken and VFX.is_lightning_active(shield.lightningId) then
-                        local enemy = shield.enemy
-                        if enemy and not enemy.isDead and not enemy.shieldBroken then
-                            -- Get segment count and check collision with each segment
-                            local segCount = VFX.get_lightning_segment_count(shield.lightningId)
-                            for seg = 0, segCount - 1 do
-                                local segX, segY, success = VFX.get_lightning_segment_position(shield.lightningId, seg)
-                                if success then
-                                    -- Check distance from projectile to segment midpoint
-                                    local dx = projX - segX
-                                    local dy = projY - segY
-                                    local distSq = dx * dx + dy * dy
-                                    local hitRadius = projSize / 2 + 15  -- 15 pixel collision radius for segments
-                                    
-                                    if distSq < hitRadius * hitRadius then
-                                        -- Emit white particles on shield hit (always, even if not breaking)
-                                        ParticleSystem.emitHitBurst(segX, segY, 255, 255, 255)
-                                        
-                                        -- Hit! Apply corruption to this segment
-                                        local corruptionCfg = shield.corruptionConfig
-                                        if corruptionCfg and corruptionCfg.enabled then
-                                            local hitAmount = corruptionCfg.hitAmount or 0.35
-                                            VFX.apply_lightning_corruption(shield.lightningId, seg, hitAmount)
-                                            
-                                            -- Check if shield is broken (total corruption exceeds threshold)
-                                            local totalCorruption = VFX.get_lightning_total_corruption(shield.lightningId)
-                                            local breakThreshold = corruptionCfg.breakThreshold or 0.85
-                                            
-                                            if totalCorruption >= breakThreshold then
-                                                -- Shield is broken! Launch it toward the shielder!
-                                                shield.broken = true
-                                                enemy.shieldBroken = true
-                                                
-                                                -- Stop the shield enemy from moving permanently
-                                                enemy.shieldLaunched = true
-                                                
-                                                -- Calculate the current shield apex position in WORLD coordinates
-                                                -- The apex is where the two lightnings meet (the point of the V that faces the player)
-                                                local cosRot = math.cos(shield.currentRotation)
-                                                local sinRot = math.sin(shield.currentRotation)
-                                                local rotatedApexX = shield.baseOffsetEndX * cosRot - shield.baseOffsetEndY * sinRot
-                                                local rotatedApexY = shield.baseOffsetEndX * sinRot + shield.baseOffsetEndY * cosRot
-                                                
-                                                local enemyCenterX = enemy.x
-                                                local enemyCenterY = enemy.y
-                                                local apexWorldX = enemyCenterX + rotatedApexX
-                                                local apexWorldY = enemyCenterY + rotatedApexY
-                                                
-                                                -- Launch direction: from apex TOWARD the shielder
-                                                local dxToShielder = enemyCenterX - apexWorldX
-                                                local dyToShielder = enemyCenterY - apexWorldY
-                                                local distToShielder = math.sqrt(dxToShielder * dxToShielder + dyToShielder * dyToShielder)
-                                                local launchDirX, launchDirY
-                                                if distToShielder > 0.001 then
-                                                    launchDirX = dxToShielder / distToShielder
-                                                    launchDirY = dyToShielder / distToShielder
-                                                else
-                                                    -- Fallback: use inverted facing direction
-                                                    local facingAngle = shield.baseFacingAngle + shield.currentRotation
-                                                    launchDirX = -math.cos(facingAngle)
-                                                    launchDirY = -math.sin(facingAngle)
-                                                end
-                                                
-                                                -- Collect ALL lightning IDs for this enemy (both left and right bolts)
-                                                -- and recalculate offsets relative to the APEX (not the shielder)
-                                                -- Also track which indices to remove from shieldLightnings
-                                                local lightningData = {}
-                                                local indicesToRemove = {}
-                                                for idx, otherShield in ipairs(shieldLightnings) do
-                                                    if otherShield.enemy == enemy and VFX.is_lightning_active(otherShield.lightningId) then
-                                                        -- Mark index for removal from shieldLightnings
-                                                        table.insert(indicesToRemove, idx)
-                                                        
-                                                        -- Disable corruption system - shield is already broken, don't let VFX auto-destroy
-                                                        VFX.set_lightning_corruption_enabled(otherShield.lightningId, false)
-                                                        
-                                                        -- Recalculate offsets relative to apex instead of enemy center
-                                                        -- Original: start = enemy + rotatedStart, end = enemy + rotatedEnd (apex)
-                                                        -- New: we want offsets from apex, so newStart = start - apex, newEnd = 0
-                                                        local newStartOffsetX = otherShield.baseOffsetStartX - shield.baseOffsetEndX
-                                                        local newStartOffsetY = otherShield.baseOffsetStartY - shield.baseOffsetEndY
-                                                        -- The apex itself is now at (0,0) in local space
-                                                        local newEndOffsetX = 0
-                                                        local newEndOffsetY = 0
-                                                        
-                                                        table.insert(lightningData, {
-                                                            id = otherShield.lightningId,
-                                                            baseOffsetStartX = newStartOffsetX,
-                                                            baseOffsetStartY = newStartOffsetY,
-                                                            baseOffsetEndX = newEndOffsetX,
-                                                            baseOffsetEndY = newEndOffsetY,
-                                                        })
-                                                    end
-                                                end
-                                                
-                                                -- Remove the lightnings from shieldLightnings (in reverse order to preserve indices)
-                                                for removeIdx = #indicesToRemove, 1, -1 do
-                                                    table.remove(shieldLightnings, indicesToRemove[removeIdx])
-                                                end
-                                                
-                                                -- Flip the rotation by 180 degrees so the apex now faces the shielder
-                                                local flippedRotation = shield.currentRotation + math.pi
-                                                
-                                                -- Create an invisible anchor entity for the launched shield
-                                                -- This entity controls the shield's position and lifetime
-                                                local anchorEntity = Entity.create_entity()
-                                                Entity.set_global_pos(anchorEntity, apexWorldX, apexWorldY)
-                                                
-                                                -- Store launched shield data - positioned at the APEX via the anchor entity
-                                                table.insert(launchedShields, {
-                                                    lightnings = lightningData,
-                                                    anchorEntity = anchorEntity,  -- Invisible entity that controls position
-                                                    x = apexWorldX,
-                                                    y = apexWorldY,
-                                                    dirX = launchDirX,
-                                                    dirY = launchDirY,
-                                                    rotation = flippedRotation,
-                                                    damage = enemy.health,  -- Damage equals shielder's current health
-                                                    state = LAUNCHED_SHIELD_STATES.BOUNCE_BACK,
-                                                    stateTimer = 0,
-                                                    lifetime = 0,
-                                                    sourceEnemy = enemy,  -- Track source (shielder stays frozen)
-                                                    hitEnemies = {},  -- Track enemies already hit
-                                                })
-                                                
-                                                -- Immediately update VFX positions to the new apex-relative positions
-                                                -- This prevents a 1-frame delay where VFX might be at wrong position
-                                                local cosRotImmediate = math.cos(flippedRotation)
-                                                local sinRotImmediate = math.sin(flippedRotation)
-                                                for _, lightning in ipairs(lightningData) do
-                                                    -- Set to fully white since the shield is fully corrupted
-                                                    VFX.set_lightning_color(lightning.id, 255, 255, 255, 255)
-                                                    
-                                                    local rotStartX = lightning.baseOffsetStartX * cosRotImmediate - lightning.baseOffsetStartY * sinRotImmediate
-                                                    local rotStartY = lightning.baseOffsetStartX * sinRotImmediate + lightning.baseOffsetStartY * cosRotImmediate
-                                                    local rotEndX = lightning.baseOffsetEndX * cosRotImmediate - lightning.baseOffsetEndY * sinRotImmediate
-                                                    local rotEndY = lightning.baseOffsetEndX * sinRotImmediate + lightning.baseOffsetEndY * cosRotImmediate
-                                                    VFX.set_lightning_position(lightning.id, 
-                                                        apexWorldX + rotStartX, apexWorldY + rotStartY,
-                                                        apexWorldX + rotEndX, apexWorldY + rotEndY)
-                                                end
-                                                
-                                                -- Emit larger particle burst at the apex (break position)
-                                                ParticleSystem.emitHitBurst(apexWorldX, apexWorldY, 50, 200, 200)
-                                                ParticleSystem.emitHitBurst(apexWorldX, apexWorldY, 255, 255, 255)
-                                            end
-                                        end
-                                        
-                                        -- Projectile is absorbed
-                                        return true
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end
-                return false
-            end,
+            addXp = function(amount) SystemShooterPlayerProgress.addXp(amount) end,
         }
     })
 
@@ -1339,10 +861,19 @@ function SystemShooter:OnStart()
     StartLevel(1, true)
 
     musicEntity = Entity.create_entity()
-    Entity.add_music_component(musicEntity, "technoSong", false)
-    -- Music will start when player presses START GAME (now using SoLoud)
+    Entity.add_audio_component(musicEntity, "technoSong", false)
+    -- Music will start when player presses START GAME
 
-    SystemShooterAudio.init()
+    playerDamageSfxEntity = Entity.create_entity()
+    Entity.add_audio_component(playerDamageSfxEntity, "playerDamage", false)
+    -- Set player damage SFX volume to half (range is 0-128)
+
+    gunshot3SfxEntity = Entity.create_entity()
+    Entity.add_audio_component(gunshot3SfxEntity, "gunshot3", false)
+
+    impact3SfxEntity = Entity.create_entity()
+    Entity.add_audio_component(impact3SfxEntity, "impact3", false)
+
     ApplyAudioVolumes()
 
 end
@@ -1413,7 +944,8 @@ local function DrawNamePrompt(screenW, screenH)
             UI.clear_input("ts_player_name")
             if pendingStartAfterName then
                 pendingStartAfterName = false
-                showDifficultyMenu = true
+                menuStarting = true
+                menuStartTimer = menuStartDelay
             end
         end
     end
@@ -1421,86 +953,6 @@ local function DrawNamePrompt(screenW, screenH)
 
     UI.end_child()
 end
-
-local function DrawDifficultyPrompt(screenW, screenH)
-    -- Dim background
-    UI.add_panel(0, 0, screenW, screenH, 0.65, 0, 0, 0, 0)
-
-    local panelW = 610
-    local panelH = 420
-    local panelX = math.floor((screenW - panelW) / 2)
-    local panelY = math.floor((screenH - panelH) / 2+10)
-
-    UI.begin_child(panelX, panelY, panelW, panelH, "TS_Difficulty",
-        true, 0,
-        true, 1, 12, 25, 25, 25,
-        5, true, 1.35
-    )
-
-    local cx = panelW / 2
-    UI.add_centered_label(cx, 34, T("play.difficulty"), UI_FONT_HEADER, 1.0)
-
-    local bw, bh = math.floor(panelW * 0.62), 56
-    local bx = math.floor((panelW - bw) / 2)
-    local gap = 16
-
-    -- Reserve space for Back button (and a little padding)
-    local backH = 52
-    local backY = panelH - 76
-    local bottomPadding = 18
-
-    -- Child area for the difficulty buttons
-    local listX = bx
-    local listY = 90
-    local listW = bw
-    local listH = (backY - bottomPadding) - listY
-
-    UI.begin_child(listX, listY, listW, listH, "TS_Difficulty_List",
-        false, 0,
-        true, 0.0, 0, 0, 0, 0,
-        0, false, 1.0
-    )
-
-    local by = 20 -- inside the child
-    UI.add_button(0, by + 0*(bh + gap), listW, bh, T("difficulty.easy"),   "ts_diff_easy", UI_FONT_HEADER, 1, 12, true, 0,   170, 110, 0.95)
-    UI.add_button(0, by + 1*(bh + gap), listW, bh, T("difficulty.medium"), "ts_diff_med",  UI_FONT_HEADER, 1, 12, true, 220, 140, 0,   0.95)
-    UI.add_button(0, by + 2*(bh + gap), listW, bh, T("difficulty.hard"),   "ts_diff_hard", UI_FONT_HEADER, 1, 12, true, 200, 60,  60,  0.95)
-
-    UI.end_child()
-
-    if not diffChosen then
-        if UI.was_button_pressed("ts_diff_easy") then
-            SystemShooterDifficulty.setDifficulty("easy")
-            diffChosen = true
-            menuStarting = true
-            menuStartTimer = menuStartDelay
-
-        elseif UI.was_button_pressed("ts_diff_med") then
-            SystemShooterDifficulty.setDifficulty("medium")
-            diffChosen = true
-            menuStarting = true
-            menuStartTimer = menuStartDelay
-
-        elseif UI.was_button_pressed("ts_diff_hard") then
-            SystemShooterDifficulty.setDifficulty("hard")
-            diffChosen = true
-            menuStarting = true
-            menuStartTimer = menuStartDelay
-        end
-
-        UI.add_button(bx, backY, bw, backH, T("menu.back"), "ts_diff_back",
-            UI_FONT_HEADER, 1, 12, true, 120, 120, 120, 0.95
-        )
-
-        if UI.was_button_pressed("ts_diff_back") then
-            showDifficultyMenu = false
-        end
-    end
-
-    UI.end_child()
-end
-
-
 
 local function DrawMainMenu(screenW, screenH, dt)
     UI.add_panel(0, 0, screenW, screenH, 0.65, 0, 0, 0, 0)
@@ -1531,7 +983,7 @@ local function DrawMainMenu(screenW, screenH, dt)
     UI.add_centered_label(panelW*0.9, titleY + math.floor(panelH * 0.0), playerName, "ImGuiDefault", 1.2)
 
     -- Best stage
-    UI.add_centered_label(cx, subY + math.floor(panelH * 0.08), T("menu.bestscore") .. tostring(bestScore or 0), UI_FONT_SUB, 1)
+    UI.add_centered_label(cx, subY + math.floor(panelH * 0.08), T("menu.beststage") .. tostring(bestStage or 0), UI_FONT_SUB, 1)
 
     -- Buttons
     local bw, bh = math.floor(math.min(panelW * 0.62, 560)), 60
@@ -1553,8 +1005,6 @@ local function DrawMainMenu(screenW, screenH, dt)
 
         if menuStartTimer <= 0 then
             menuStarting = false
-            showDifficultyMenu = false
-            diffChosen = false
             inMainMenu = false
             menuScreen = "main"
             Input.set_relative_mouse_mode(true)
@@ -1564,7 +1014,11 @@ local function DrawMainMenu(screenW, screenH, dt)
             isGameOver = false
             runLeaderboardSubmitted = false
             StartLevel(1, true)
-            -- Music will start after first window transition completes
+            -- Start music from beginning (synced with gameplay)
+            if musicEntity and not musicStartedThisLaunch then
+                AudioComponent.play(musicEntity, 0, -1)
+                musicStartedThisLaunch = true
+            end
         end
     end
 
@@ -1584,7 +1038,8 @@ local function DrawMainMenu(screenW, screenH, dt)
             pendingStartAfterName = true
             UI.clear_input("ts_player_name") -- ensures a clean box
         else
-            showDifficultyMenu = true
+            menuStarting = true
+            menuStartTimer = menuStartDelay
         end
     end
 
@@ -1635,9 +1090,7 @@ local function DrawMainMenu(screenW, screenH, dt)
     if showNamePrompt then
         DrawNamePrompt(screenW, screenH)
     end
-    if showDifficultyMenu and (not showNamePrompt) then
-        DrawDifficultyPrompt(screenW, screenH)
-    end
+
 end
 
 local function DrawLeaderboardMenu(screenW, screenH, dt, context)
@@ -1665,7 +1118,7 @@ local function DrawLeaderboardMenu(screenW, screenH, dt, context)
     local contentH = panelH - contentY - footerH
 
     UI.add_centered_label(cx, math.floor(panelH * 0.05), T("menu.leaderboard"), UI_FONT_TITLE, 1)
-    UI.add_centered_label(cx, math.floor(panelH * 0.15), T("leaderboard.description"), UI_FONT_SUB, 1)
+    UI.add_centered_label(cx, math.floor(panelH * 0.13), T("leaderboard.description"), UI_FONT_REG, 1)
 
     local NO_BACKGROUND = 128
     UI.begin_child(contentX, contentY, contentW, contentH, "TS_LeaderboardContent",
@@ -1682,7 +1135,7 @@ local function DrawLeaderboardMenu(screenW, screenH, dt, context)
     local lineH = 26
 
     if topLeaderboard then
-        local scoreX = math.floor(contentW * 0.68)
+        local stageX = math.floor(contentW * 0.68)
 
         for i = 1, 10 do
             local e = topLeaderboard[i]
@@ -1690,9 +1143,9 @@ local function DrawLeaderboardMenu(screenW, screenH, dt, context)
 
             if e then
                 local name = tostring(e.name)
-                local score = tonumber(e.score) or 0
-                UI.add_label(listX, y, 0, 0, string.format("%2d. %s", i, name), UI_FONT_REG, 1.1)
-                UI.add_label(scoreX, y, 0, 0, string.format(T("leaderboard.score"), score), UI_FONT_REG, 1.1)
+                local stage = tonumber(e.score) or 0
+                UI.add_label(listX, y, 0, 0, string.format("%2d. %s", i, name), "ImGuiDefault", 1.1)
+                UI.add_label(stageX, y, 0, 0, string.format(T("leaderboard.stage"), stage), UI_FONT_REG, 1.1)
             else
                 UI.add_label(listX, y, 0, 0, string.format("%2d. --", i), "ImGuiDefault", 1.1)
             end
@@ -1952,10 +1405,6 @@ local function SubmitLeaderboardScoreOnce(score)
     score = math.floor(tonumber(score) or 0)
     if score <= 0 then return end
 
-    -- Update local best score
-    TryUpdateBestScore(score)
-    
-    -- Submit to online leaderboard
     Firebase.submit_high_score(GAME_ID, playerName, score)
     runLeaderboardSubmitted = true
 end
@@ -1990,7 +1439,7 @@ local function DrawGameOverMenu(screenW, screenH, dt)
     UI_FONT_TITLE, 1)
 
     local summary = endRunSummary or CaptureEndRunSummary()
-    SubmitLeaderboardScoreOnce(summary.score or 0)  -- Submit score instead of stage
+    SubmitLeaderboardScoreOnce(summary.stageReached or 1)
     local shotsFired = tonumber(summary.shotsFired or 0) or 0
     local shotsHit = tonumber(summary.shotsHit or 0) or 0
 
@@ -2027,20 +1476,17 @@ local function DrawGameOverMenu(screenW, screenH, dt)
 
     -- Left column: results + combat
     UI.add_label(leftX, 10, 0, 0, T("summary.overall"), UI_FONT_HEADER, 0.8)
-    AddKV(leftX, y, T("summary.score"), summary.score or 0, true); y = y + lineH
     AddKV(leftX, y, T("summary.stage"), summary.stageReached or 1, true); y = y + lineH
     AddKV(leftX, y, T("summary.level"), summary.playerLevel or 1, true); y = y + lineH
-    AddKV(leftX, y, T("summary.difficulty"), summary.difficulty or "Medium", true); y = y + lineH
-    AddKV(leftX, y, T("summary.totalxp"), summary.totalXp or 0, true); y = y + lineH
     AddKV(leftX, y, T("summary.duration"), FormatTimeMMSS(summary.timeSurvived or 0), true); y = y + lineH
-    AddKV(leftX, y, T("summary.totalkilled"), summary.enemiesKilled or 0, true); y = y + lineH
+    AddKV(leftX, y, T("summary.totalkilled"), summary.enemiesKilled or 0, true); y = y + (lineH*2)
 
     y = y + 10
     UI.add_label(leftX, y - 5, 0, 0, T("summary.combat"), UI_FONT_HEADER, 0.8); y = y + lineH
     AddKV(leftX, y, T("summary.shotsfired"), shotsFired, false); y = y + lineH
     AddKV(leftX, y, T("summary.accuracy"), accuracyText, false); y = y + lineH
-    AddKV(leftX, y, T("summary.dmgdealt"), math.floor(summary.damageDealt or 0), false); y = y + lineH
-    AddKV(leftX, y, T("summary.dmgtaken"), math.floor(summary.damageTaken or 0), false); y = y + lineH
+    AddKV(leftX, y, T("summary.dmgdealt"), summary.damageDealt or 0, false); y = y + lineH
+    AddKV(leftX, y, T("summary.dmgtaken"), summary.damageTaken or 0, false); y = y + lineH
     AddKV(leftX, y, T("summary.hphealed"), summary.healingCollected or 0, false); y = y + lineH
 
     -- Right column: build recap
@@ -2050,13 +1496,8 @@ local function DrawGameOverMenu(screenW, screenH, dt)
     UI.add_label(rightX, ry, 0, 0, T("summary.firepower") .. tostring(b.firepower or 1), UI_FONT_REG, 1); ry = ry + lineH
     UI.add_label(rightX, ry, 0, 0, T("summary.pierce") .. tostring(b.pierce or 0), UI_FONT_REG, 1); ry = ry + lineH
     UI.add_label(rightX, ry, 0, 0, T("summary.bounce") .. tostring(b.bounce or 0), UI_FONT_REG, 1); ry = ry + lineH
-    UI.add_label(rightX, ry, 0, 0, T("summary.firerate") .. tostring(b.fireRateUpgrades or 0), UI_FONT_REG, 1); ry = ry + lineH
-    UI.add_label(rightX, ry, 0, 0, T("summary.maxhp") .. tostring(b.maxHealth or 100), UI_FONT_REG, 1); ry = ry + lineH
-    UI.add_label(rightX, ry, 0, 0, T("summary.nowitnesses") .. tostring(b.noWitnesses or 0), UI_FONT_REG, 1); ry = ry + lineH
-    UI.add_label(rightX, ry, 0, 0, T("summary.healingorbs") .. tostring(b.healingOrbUpgrades or 0), UI_FONT_REG, 1); ry = ry + lineH
-    UI.add_label(rightX, ry, 0, 0, T("summary.antivirus") .. (b.antivirus > 0 and "Yes" or "No"), UI_FONT_REG, 1); ry = ry + lineH
-    UI.add_label(rightX, ry, 0, 0, T("summary.overhealth") .. (b.overhealth > 0 and "Yes" or "No"), UI_FONT_REG, 1); ry = ry + lineH
-    UI.add_label(rightX, ry, 0, 0, T("summary.chainhits") .. (b.chainHits > 0 and "Yes" or "No"), UI_FONT_REG, 1)
+    UI.add_label(rightX, ry, 0, 0, string.format(T("summary.fireinterval"), tonumber(b.fireInterval or 0.5) or 0.5), UI_FONT_REG, 1); ry = ry + lineH
+    UI.add_label(rightX, ry, 0, 0, T("summary.maxhp") .. tostring(b.maxHealth or 100), UI_FONT_REG, 1)
 
     UI.end_child()
 
@@ -2095,8 +1536,8 @@ local function DrawGameOverMenu(screenW, screenH, dt)
         StartLevel(1, true)
         -- Restart music from beginning to sync with gameplay
         if musicEntity then
-            MusicComponent.stop(musicEntity, 0)  -- fadeOut=0
-            MusicComponent.play(musicEntity, true, 0)  -- loop=true, fadeIn=0
+            AudioComponent.terminate(musicEntity)
+            AudioComponent.play(musicEntity, 0, -1)
         end
 
     elseif UI.was_button_pressed("gameover_mainmenu") then
@@ -2171,9 +1612,9 @@ SetPaused = function(p)
     -- Stop/resume music to prevent desync
     if musicEntity then
         if isPaused then
-            MusicComponent.pause(musicEntity)
+            AudioComponent.pause(musicEntity)
         else
-            MusicComponent.resume(musicEntity)
+            AudioComponent.resume(musicEntity)
         end
     end
 end
@@ -2197,7 +1638,7 @@ GoToMainMenuFromPause = function()
 
     -- Stop music when returning to main menu
     if musicEntity then
-        MusicComponent.stop(musicEntity, 0)  -- fadeOut=0
+        AudioComponent.terminate(musicEntity)
         musicStartedThisLaunch = false
     end
 
@@ -2300,11 +1741,6 @@ function SystemShooter:OnUpdate()
             SystemShooterPlayer.updateMovement(dt, sensitivitySetting)
             SystemShooterPlayer.stopFiring()
         end
-        
-        -- Update healing orbs during transition (so they don't freeze)
-        SystemShooterPickups.update(dt)
-        SystemShooterPickups.constrainToScreen(screenW, screenH)
-        
         return
     end
 
@@ -2322,24 +1758,6 @@ function SystemShooter:OnUpdate()
                 local maxH = SystemShooterPlayerProgress.getMaxHealth()
                 local currentH = SystemShooterPlayer.getHealth()
                 SystemShooterPlayer.setHealth(math.min(maxH, currentH + 20))
-            elseif selectedUpgrade.type == "overhealth" then
-                local maxH = SystemShooterPlayerProgress.getMaxHealth()
-                local currentH = SystemShooterPlayer.getHealth()
-                local healAmount = 20
-                
-                if currentH + healAmount > maxH then
-                    -- Heal to full, put remainder into overhealth
-                    local overflow = (currentH + healAmount) - maxH
-                    SystemShooterPlayer.setHealth(maxH)
-                    
-                    local currentOver = SystemShooterPlayerProgress.getOverhealth()
-                    -- Cap overhealth at maxHealth (same as normal pickup logic)
-                    local newOver = math.min(maxH, currentOver + overflow)
-                    SystemShooterPlayerProgress.setOverhealth(newOver)
-                else
-                    -- Normal heal
-                    SystemShooterPlayer.setHealth(currentH + healAmount)
-                end
             end
             -- Start levelup peace timer and disable enemies
             peaceTimerSeconds = levelupPeaceDuration
@@ -2383,7 +1801,7 @@ function SystemShooter:OnUpdate()
             DrawPauseMenu(screenW, screenH, dt)
         end
 
-        return
+        return -- <-- THIS is what freezes gameplay
     end
 
 
@@ -2405,7 +1823,6 @@ function SystemShooter:OnUpdate()
     screenW = Window.get_width()
     screenH = Window.get_height()
     SystemShooterProjectiles.setScreenBounds(screenW, screenH)
-    SystemShooterPickups.constrainToScreen(screenW, screenH)
     
     -- Check if in peace phase (end-level peace when no enemies alive)
     local inPeacePhase = isStartLevelPeace or isLevelupPeace or (not enemiesAlive and peaceTimerSeconds > 0)
@@ -2439,7 +1856,9 @@ function SystemShooter:OnUpdate()
     -- Shooting (disabled during rewind)
     if not SystemShooterRewind.isActive() then
         local playGunshotSfx = function()
-            SystemShooterAudio.playGunshot()
+            if gunshot3SfxEntity then
+                AudioComponent.play(gunshot3SfxEntity)
+            end
         end
         local onShotFired = function(count)
             runShotsFired = runShotsFired + count
@@ -2466,430 +1885,11 @@ function SystemShooter:OnUpdate()
         -- Check enemy-player collision and apply damage
         UpdateEnemyCollision()
         
-        -- Update overhealth system and apply lightning zap damage to enemies
-        local overhealthActive, overhealthRadius, shouldZap, zapDamage, maxZapTargets = SystemShooterPlayerProgress.updateOverhealth(dt)
-        
-        -- Manage overhealth ring VFX
-        if overhealthActive and not wasOverhealthActive then
-            -- Overhealth just became active - create the ring
-            local pX, pY = SystemShooterPlayer.getPosition()
-            local pSize = SystemShooterPlayer.getSize()
-            local playerCenterX = pX + pSize / 2
-            local playerCenterY = pY + pSize / 2
-            overhealthRingId = VFX.create_ring(playerCenterX, playerCenterY, overhealthRadius, 1.5)
-            if overhealthRingId and overhealthRingId >= 0 then
-                -- Electric blue/cyan color with pulsing effect
-                VFX.set_ring_color(overhealthRingId, 0, 200, 255, 200)
-                VFX.set_ring_pulsing(overhealthRingId, true, 3.0, 100, 255)
-                VFX.set_ring_render_layer(overhealthRingId, 0, 15)  -- High z-order to render on top
-                VFX.set_ring_segments(overhealthRingId, 48)
-                VFX.set_ring_distortion(overhealthRingId, true, 2, 4.0, 3.5)
-            end
-        elseif not overhealthActive and wasOverhealthActive then
-            -- Overhealth just became inactive - destroy the ring
-            if overhealthRingId and overhealthRingId >= 0 then
-                VFX.destroy_ring(overhealthRingId)
-                overhealthRingId = nil
-            end
-            -- Clear any remaining overhealth lightnings (they should be expired by now)
-            overhealthLightnings = {}
-        end
-        wasOverhealthActive = overhealthActive
-        
-        -- Update ring position to follow player if active
-        if overhealthActive and overhealthRingId and overhealthRingId >= 0 then
-            local pX, pY = SystemShooterPlayer.getPosition()
-            local pSize = SystemShooterPlayer.getSize()
-            local playerCenterX = pX + pSize / 2
-            local playerCenterY = pY + pSize / 2
-            VFX.set_ring_position(overhealthRingId, playerCenterX, playerCenterY)
-            VFX.set_ring_radius(overhealthRingId, overhealthRadius)
-            
-            -- Apply lightning zap damage when timer triggers
-            if shouldZap then
-                -- Gather all enemies within radius
-                local enemiesInRange = {}
-                for i = 1, #enemies do
-                    local enemy = enemies[i]
-                    if not enemy.isDead and not enemy.disabled then
-                        local enemyCenterX = enemy.x
-                        local enemyCenterY = enemy.y
-                        local dx = enemyCenterX - playerCenterX
-                        local dy = enemyCenterY - playerCenterY
-                        local dist = math.sqrt(dx * dx + dy * dy)
-                        
-                        if dist <= overhealthRadius then
-                            table.insert(enemiesInRange, { enemy = enemy, dist = dist, cx = enemyCenterX, cy = enemyCenterY })
-                        end
-                    end
-                end
-                
-                -- Randomly select up to maxZapTargets enemies to zap
-                local targetsToZap = {}
-                local availableCount = #enemiesInRange
-                local numToZap = math.min(maxZapTargets, availableCount)
-                
-                -- Fisher-Yates shuffle to randomly select targets
-                for i = 1, numToZap do
-                    local randomIndex = math.random(i, availableCount)
-                    enemiesInRange[i], enemiesInRange[randomIndex] = enemiesInRange[randomIndex], enemiesInRange[i]
-                    table.insert(targetsToZap, enemiesInRange[i])
-                end
-                
-                -- Get overhealth config for lightning settings
-                local overhealthCfg = SystemShooterPlayerProgress.getOverhealthConfig()
-                local lightningLifetime = overhealthCfg.lightningLifetime or 0.25
-                local lightningColor = overhealthCfg.lightningColor or { r = 100, g = 200, b = 255, a = 255 }
-                
-                -- Play appropriate lightning sound based on number of targets
-                local zapCount = #targetsToZap
-                if zapCount == 1 then
-                    SystemShooterAudio.playLightning1()
-                elseif zapCount >= 2 then
-                    SystemShooterAudio.playLightning2()
-                end
-                
-                -- Zap each selected target
-                for _, target in ipairs(targetsToZap) do
-                    local enemy = target.enemy
-                    local enemyCenterX = target.cx
-                    local enemyCenterY = target.cy
-                    
-                    -- Create lightning bolt VFX from player to enemy
-                    local lightningId = VFX.create_lightning(playerCenterX, playerCenterY, enemyCenterX, enemyCenterY, lightningLifetime)
-                    if lightningId and lightningId >= 0 then
-                        VFX.set_lightning_color(lightningId, lightningColor.r, lightningColor.g, lightningColor.b, lightningColor.a)
-                        VFX.set_lightning_flicker(lightningId, true, 0.03)  -- Fast flicker for electric effect
-                        VFX.set_lightning_render_layer(lightningId, 0, 20)  -- High z-order, above ring
-                        VFX.set_lightning_fade_out(lightningId, true)
-                        
-                        -- Track lightning so we can update its start position to follow the player
-                        table.insert(overhealthLightnings, { lightningId = lightningId, targetEnemy = enemy })
-                    end
-                    
-                    -- Calculate damage as configured percentage of enemy max health, with a minimum
-                    local enemyMaxHealth = enemy.maxHealth or 100
-                    local damagePercent = overhealthCfg.zapDamagePercent or 0.10
-                    local minDamage = overhealthCfg.zapMinDamage or 15
-                    local percentDamage = enemyMaxHealth * damagePercent
-                    local actualDamage = math.max(percentDamage, minDamage)
-                    
-                    -- Apply burst damage
-                    enemy.health = enemy.health - actualDamage
-                    
-                    -- Flash enemy red when hit by zap
-                    FlashEnemy(enemy)
-                    runDamageDealt = runDamageDealt + actualDamage
-                    
-                    -- Grant XP for damage dealt (1 XP = 1 damage)
-                    local xpFromDamage = math.floor(actualDamage)
-                    levelXpGained = levelXpGained + xpFromDamage
-                    SystemShooterPlayerProgress.addXp(xpFromDamage)
-                    
-                    if enemy.health <= 0 then
-                        enemy.isDead = true
-                        Entity.set_global_pos(enemy.entity, -1000, -1000)
-                        
-                        -- Try to spawn healing orb at enemy death location
-                        local eSize = enemy.size or enemySize
-                        local deathX = enemy.x
-                        local deathY = enemy.y
-                        SystemShooterPickups.trySpawnHealingOrb(deathX, deathY)
-                        
-                        runEnemiesKilled = runEnemiesKilled + 1
-                        local xpAmount = enemy.xpReward or 5
-                        levelXpGained = levelXpGained + xpAmount
-                        SystemShooterPlayerProgress.addXp(xpAmount)
-                    end
-                end
-            end
-        end
-        
         -- Update enemy movement
         UpdateEnemyMovement()
-        
-        -- Update overhealth lightning positions to follow player and target enemies
-        local pX, pY = SystemShooterPlayer.getPosition()
-        local pSize = SystemShooterPlayer.getSize()
-        local playerCenterX = pX + pSize / 2
-        local playerCenterY = pY + pSize / 2
-        
-        -- Update and cleanup overhealth lightnings
-        local i = 1
-        while i <= #overhealthLightnings do
-            local lightning = overhealthLightnings[i]
-            if VFX.is_lightning_active(lightning.lightningId) then
-                local enemy = lightning.targetEnemy
-                if enemy and not enemy.isDead then
-                    local eSize = enemy.displaySize or enemy.size or enemySize
-                    local enemyCenterX = enemy.x
-                    local enemyCenterY = enemy.y
-                    VFX.set_lightning_position(lightning.lightningId, playerCenterX, playerCenterY, enemyCenterX, enemyCenterY)
-                    i = i + 1
-                else
-                    -- Enemy died or lightning expired, remove from tracking
-                    table.remove(overhealthLightnings, i)
-                end
-            else
-                -- Lightning expired, remove from tracking
-                table.remove(overhealthLightnings, i)
-            end
-        end
-        
-        -- Update and cleanup chain lightnings
-        i = 1
-        while i <= #chainLightnings do
-            local lightning = chainLightnings[i]
-            if VFX.is_lightning_active(lightning.lightningId) then
-                local source = lightning.sourceEnemy
-                local target = lightning.targetEnemy
-                if source and target and not source.isDead and not target.isDead then
-                    local sourceCenterX = source.x
-                    local sourceCenterY = source.y
-                    local targetCenterX = target.x
-                    local targetCenterY = target.y
-                    VFX.set_lightning_position(lightning.lightningId, sourceCenterX, sourceCenterY, targetCenterX, targetCenterY)
-                    i = i + 1
-                else
-                    -- Enemy died or lightning expired, remove from tracking
-                    table.remove(chainLightnings, i)
-                end
-            else
-                -- Lightning expired, remove from tracking
-                table.remove(chainLightnings, i)
-            end
-        end
-        
-        -- Update and cleanup enemy shield lightnings
-        i = 1
-        while i <= #shieldLightnings do
-            local shield = shieldLightnings[i]
-            if VFX.is_lightning_active(shield.lightningId) then
-                local enemy = shield.enemy
-                if enemy and not enemy.isDead then
-                    -- enemy.x/y are already center-based
-                    local enemyCenterX = enemy.x
-                    local enemyCenterY = enemy.y
-                    
-                    -- Calculate angle from enemy to player
-                    -- Use math.atan(y, x) instead of deprecated math.atan2(y, x) for Lua 5.4 compatibility
-                    local playerX, playerY = SystemShooterPlayer.getPosition()
-                    local angleToPlayer = math.atan(playerY - enemyCenterY, playerX - enemyCenterX)
-                    
-                    -- Calculate target rotation from base facing angle
-                    local targetRotation = angleToPlayer - shield.baseFacingAngle
-                    
-                    -- Normalize angle difference to [-π, π]
-                    local angleDiff = targetRotation - shield.currentRotation
-                    while angleDiff > math.pi do angleDiff = angleDiff - 2 * math.pi end
-                    while angleDiff < -math.pi do angleDiff = angleDiff + 2 * math.pi end
-                    
-                    -- Apply rotation speed limiting
-                    local maxRotation = shield.maxRotationSpeed * dt
-                    if angleDiff > maxRotation then
-                        angleDiff = maxRotation
-                    elseif angleDiff < -maxRotation then
-                        angleDiff = -maxRotation
-                    end
-                    
-                    -- Update current rotation
-                    shield.currentRotation = shield.currentRotation + angleDiff
-                    
-                    -- Apply rotation
-                    local cosRot = math.cos(shield.currentRotation)
-                    local sinRot = math.sin(shield.currentRotation)
-                    
-                    -- Rotate start offset
-                    local rotatedStartX = shield.baseOffsetStartX * cosRot - shield.baseOffsetStartY * sinRot
-                    local rotatedStartY = shield.baseOffsetStartX * sinRot + shield.baseOffsetStartY * cosRot
-                    
-                    -- Rotate end offset
-                    local rotatedEndX = shield.baseOffsetEndX * cosRot - shield.baseOffsetEndY * sinRot
-                    local rotatedEndY = shield.baseOffsetEndX * sinRot + shield.baseOffsetEndY * cosRot
-                    
-                    -- Update lightning position based on enemy center + rotated offsets
-                    local startX = enemyCenterX + rotatedStartX
-                    local startY = enemyCenterY + rotatedStartY
-                    local endX = enemyCenterX + rotatedEndX
-                    local endY = enemyCenterY + rotatedEndY
-                    
-                    VFX.set_lightning_position(shield.lightningId, startX, startY, endX, endY)
-                    i = i + 1
-                else
-                    -- Enemy died, destroy the shield lightning
-                    VFX.destroy_lightning(shield.lightningId)
-                    table.remove(shieldLightnings, i)
-                end
-            else
-                -- Lightning no longer active, remove from tracking
-                table.remove(shieldLightnings, i)
-            end
-        end
     end
 
     ParticleSystem.update(dt)
-    
-    -- Update launched shields (shield projectiles that fly toward enemies when broken)
-    local i = 1
-    while i <= #launchedShields do
-        local shield = launchedShields[i]
-        shield.lifetime = shield.lifetime + dt
-        shield.stateTimer = shield.stateTimer + dt
-        
-        -- Check if shield should be removed - ONLY when lifetime expires
-        -- The anchor entity controls the shield's lifetime, not the VFX state
-        local shouldRemove = false
-        if shield.lifetime >= LAUNCHED_SHIELD_CONFIG.lifetime then
-            shouldRemove = true
-        end
-        
-        if shouldRemove then
-            -- Destroy all lightning VFX for this launched shield
-            for _, lightning in ipairs(shield.lightnings) do
-                if VFX.is_lightning_active(lightning.id) then
-                    VFX.destroy_lightning(lightning.id)
-                end
-            end
-            -- Destroy the anchor entity
-            if shield.anchorEntity then
-                Entity.destroy_entity(shield.anchorEntity)
-            end
-            table.remove(launchedShields, i)
-        else
-            -- State machine for shield behavior
-            if shield.state == LAUNCHED_SHIELD_STATES.BOUNCE_BACK then
-                -- Bounce back toward player briefly (wind-up)
-                local bounceSpeed = LAUNCHED_SHIELD_CONFIG.bounceBackSpeed
-                shield.x = shield.x - shield.dirX * bounceSpeed * dt
-                shield.y = shield.y - shield.dirY * bounceSpeed * dt
-                
-                -- Sync anchor entity position
-                if shield.anchorEntity then
-                    Entity.set_global_pos(shield.anchorEntity, shield.x, shield.y)
-                end
-                
-                -- Transition to launch after bounce duration
-                if shield.stateTimer >= LAUNCHED_SHIELD_CONFIG.bounceBackDuration then
-                    shield.state = LAUNCHED_SHIELD_STATES.LAUNCH
-                    shield.stateTimer = 0
-                end
-            elseif shield.state == LAUNCHED_SHIELD_STATES.LAUNCH then
-                -- Launch forward toward and past the enemy
-                local launchSpeed = LAUNCHED_SHIELD_CONFIG.launchSpeed
-                shield.x = shield.x + shield.dirX * launchSpeed * dt
-                shield.y = shield.y + shield.dirY * launchSpeed * dt
-                
-                -- Sync anchor entity position
-                if shield.anchorEntity then
-                    Entity.set_global_pos(shield.anchorEntity, shield.x, shield.y)
-                end
-                
-                -- Check collision with enemies (including the source shielder!)
-                for j = 1, #enemies do
-                    local enemy = enemies[j]
-                    if not enemy.isDead and not enemy.disabled and not shield.hitEnemies[enemy] then
-                        local eSize = enemy.displaySize or enemy.size or 32
-                        local dx = enemy.x - shield.x
-                        local dy = enemy.y - shield.y
-                        local distSq = dx * dx + dy * dy
-                        local hitDist = LAUNCHED_SHIELD_CONFIG.hitRadius + eSize / 2
-                        
-                        if distSq < hitDist * hitDist then
-                            -- Hit enemy! Deal damage equal to shield enemy's health
-                            shield.hitEnemies[enemy] = true
-                            
-                            -- Deal damage (this will likely one-shot most enemies)
-                            local previousHealth = enemy.health
-                            local actualDamage = math.min(shield.damage, previousHealth)
-                            enemy.health = enemy.health - shield.damage
-                            
-                            -- Track damage dealt for stats
-                            runDamageDealt = runDamageDealt + actualDamage
-                            
-                            -- Award XP for damage dealt (same as regular hits)
-                            local damageXp = math.floor(actualDamage * 0.5)
-                            if damageXp > 0 then
-                                levelXpGained = levelXpGained + damageXp
-                                SystemShooterPlayerProgress.addXp(damageXp)
-                            end
-                            
-                            -- Emit hit particles (white for corrupted shield)
-                            ParticleSystem.emitHitBurst(enemy.x, enemy.y, enemy.color[1], enemy.color[2], enemy.color[3])
-                            ParticleSystem.emitHitBurst(enemy.x, enemy.y, 255, 255, 255)  -- White for corrupted shield
-                            
-                            -- Play impact sound
-                            SystemShooterAudio.playImpact()
-                            
-                            -- Check if enemy died
-                            if enemy.health <= 0 then
-                                enemy.isDead = true
-                                enemy.health = 0
-                                
-                                -- Store death position BEFORE moving entity off-screen
-                                -- This ensures health orbs spawn at the correct static location
-                                local deathX = enemy.x
-                                local deathY = enemy.y
-                                
-                                Entity.set_global_pos(enemy.entity, -1000, -1000)
-                                
-                                -- Update display size before death for particles
-                                SystemShooterEnemy.updateDisplaySize(enemy)
-                                
-                                -- Try to spawn healing orb at the stored death position (not enemy reference)
-                                SystemShooterPickups.trySpawnHealingOrb(deathX, deathY)
-                                
-                                -- Track kill for stats
-                                runEnemiesKilled = runEnemiesKilled + 1
-                            end
-                        end
-                    end
-                end
-            end
-            
-            -- Update lightning VFX positions based on shield position and rotation
-            local cosRot = math.cos(shield.rotation)
-            local sinRot = math.sin(shield.rotation)
-            
-            for _, lightning in ipairs(shield.lightnings) do
-                if VFX.is_lightning_active(lightning.id) then
-                    -- Rotate the offsets by the flipped rotation
-                    local rotatedStartX = lightning.baseOffsetStartX * cosRot - lightning.baseOffsetStartY * sinRot
-                    local rotatedStartY = lightning.baseOffsetStartX * sinRot + lightning.baseOffsetStartY * cosRot
-                    local rotatedEndX = lightning.baseOffsetEndX * cosRot - lightning.baseOffsetEndY * sinRot
-                    local rotatedEndY = lightning.baseOffsetEndX * sinRot + lightning.baseOffsetEndY * cosRot
-                    
-                    -- Position lightning relative to shield center
-                    local startX = shield.x + rotatedStartX
-                    local startY = shield.y + rotatedStartY
-                    local endX = shield.x + rotatedEndX
-                    local endY = shield.y + rotatedEndY
-                    
-                    VFX.set_lightning_position(lightning.id, startX, startY, endX, endY)
-                end
-            end
-            
-            i = i + 1
-        end
-    end
-    
-    -- Clean up shieldLaunched flag when launched shields are removed
-    for j = 1, #enemies do
-        local enemy = enemies[j]
-        if enemy.shieldLaunched then
-            -- Check if this enemy's launched shield is still active
-            local hasActiveShield = false
-            for k = 1, #launchedShields do
-                if launchedShields[k].sourceEnemy == enemy then
-                    hasActiveShield = true
-                    break
-                end
-            end
-            if not hasActiveShield then
-                enemy.shieldLaunched = false
-            end
-        end
-    end
-    
     SystemShooterPickups.update(dt)
     
     -- Check pickup collision and heal player (skip during rewind)
@@ -2899,34 +1899,12 @@ function SystemShooter:OnUpdate()
         local pSize = SystemShooterPlayer.getSize()
         local healAmount = SystemShooterPickups.checkPlayerCollision(pX, pY, pSize, maxHealth)
         if healAmount then
-            -- If player already has overhealth, halve the incoming healing
-            if SystemShooterPlayerProgress.getOverhealth() > 0 then
-                healAmount = math.floor(healAmount * 0.5)
-            end
-
             local before = SystemShooterPlayer.getHealth()
-            local newHealth = before + healAmount
-            
-            -- Check if overhealth is enabled
-            if SystemShooterPlayerProgress.isOverhealthEnabled() then
-                -- If healing would go over max, put excess into overhealth
-                if newHealth > maxHealth then
-                    local excess = newHealth - maxHealth
-                    SystemShooterPlayer.setHealth(maxHealth)
-                    SystemShooterPlayerProgress.addOverhealth(excess)
-                    runHealingCollected = runHealingCollected + healAmount
-                else
-                    SystemShooterPlayer.setHealth(newHealth)
-                    runHealingCollected = runHealingCollected + healAmount
-                end
-            else
-                -- No overhealth upgrade, just cap at max
-                newHealth = math.min(maxHealth, newHealth)
-                SystemShooterPlayer.setHealth(newHealth)
-                local actual = newHealth - before
-                if actual > 0 then
-                    runHealingCollected = runHealingCollected + actual
-                end
+            local newHealth = math.min(maxHealth, before + healAmount)
+            SystemShooterPlayer.setHealth(newHealth)
+            local actual = newHealth - before
+            if actual > 0 then
+                runHealingCollected = runHealingCollected + actual
             end
         end
     end
@@ -3061,43 +2039,31 @@ if levelCfg.timeLimitSeconds ~= nil and levelCfg.timeLimitSeconds > 0 then
         UI.draw_progress_bar(20, 20, 200, 20, currentEnemyHealthTotal, currentEnemyHealthTotal, 1)
     end
 
-    UI.add_centered_label(screenW/ 2, 10, tostring(FormatTimeMMSS(runTimeSeconds)), UI_FONT_REG)
-    UI.add_centered_label(screenW / 2, 30, T("gameplay.stage") .. tostring(currentLevel), UI_FONT_REG)
+    UI.add_centered_label(screenW / 2, 10, T("gameplay.stage") .. tostring(currentLevel), UI_FONT_REG)
     
     -- Display timeout counter
     local timeoutCount = SystemShooterPlayerProgress.getTimeoutCount()
     local maxTimeouts = SystemShooterPlayerProgress.getMaxTimeouts()
-    UI.add_centered_label(screenW / 2, 50, T("gameplay.timeouts") .. tostring(timeoutCount) .. " / " .. tostring(maxTimeouts), UI_FONT_REG)
- 
-
-    -- Display notification
-    if notificationTimer > 0 then
-        notificationTimer = notificationTimer - dt
-        UI.add_centered_label(screenW / 2, 100, notificationMessage, UI_FONT_BOLD, 0.75)
-    end
+    UI.add_centered_label(screenW / 2, 30, "Timeouts: " .. tostring(timeoutCount) .. " / " .. tostring(maxTimeouts), UI_FONT_REG)
 
     local playerHpBarX = screenW - 220
     local playerHpBarY = 20
     local playerHpBarW = 200
     local playerHpBarH = 20
 
-    local playerMaxHealth = SystemShooterPlayerProgress.getMaxHealth()
-    local playerHealth = SystemShooterPlayer.getHealth()
-    local playerOverhealth = SystemShooterPlayerProgress.getOverhealth()
-
     local hpStyle = {
       rounding = 10,
       border_size = 0,
       bg   = {30,30,30,220},
       fill = {0,255,0,255},
-      overfill = playerOverhealth,
-      overfill_color = {50, 150, 255, 200},  -- Blue for overhealth
     }
 
-    UI.draw_progress_bar_layered(playerHpBarX, playerHpBarY, playerHpBarW, playerHpBarH, playerMaxHealth, playerHealth, 2, hpStyle, "")
+    local playerMaxHealth = SystemShooterPlayerProgress.getMaxHealth()
+    local playerHealth = SystemShooterPlayer.getHealth()
+    UI.draw_progress_bar_styled(playerHpBarX, playerHpBarY, playerHpBarW, playerHpBarH, playerMaxHealth, playerHealth, 2, hpStyle, "")
 
     local level, xp, xpToNextLevel = SystemShooterPlayerProgress.getProgress()
-    local playerInfoText = T("gameplay.level") .. tostring(level) .. T("gameplay.exp") .. tostring(math.floor(xp)) .. "/" .. tostring(math.floor(xpToNextLevel))
+    local playerInfoText = T("gameplay.level") .. tostring(level) .. T("gameplay.exp") .. tostring(xp) .. "/" .. tostring(xpToNextLevel)
     UI.add_centered_label(playerHpBarX + playerHpBarW / 2, playerHpBarY + playerHpBarH + 8, playerInfoText, UI_FONT_REG, 0.85)
 
     -- Peace progress bar (during start-level or end-level peace)
@@ -3161,98 +2127,13 @@ if levelCfg.timeLimitSeconds ~= nil and levelCfg.timeLimitSeconds > 0 then
             UpdateEnemyMovement, clearProjectiles
         )
         
-        -- Sync music with rewind phases
-        if result and musicEntity then
-            local timeScale = SystemShooterRewind.getTimeScale()
-            local phase = result.phase
-            local isPlaying = MusicComponent.is_playing(musicEntity)
-            
-            -- Only log and set speed when phase changes
-            if phase ~= lastRewindPhase then
-                print("[Rewind Music] Phase changed: " .. tostring(lastRewindPhase) .. " -> " .. tostring(phase) .. ", IsPlaying: " .. tostring(isPlaying))
-                lastRewindPhase = phase
-                
-                if phase == "slowing" then
-                    -- Start slowing down - speed will be updated every frame for smooth slowdown
-                    print("[Rewind Music] Starting slowdown phase")
-                    
-                elseif phase == "stopped" then
-                    -- Brief pause - keep music playing at very slow speed, just mute it
-                    if isPlaying then
-                        print("[Rewind Music] Stopped phase - keeping stream alive, muting")
-                        -- Don't change speed, just mute
-                        MusicComponent.set_volume(musicEntity, 0)
-                    end
-                    
-                elseif phase == "rewinding" then
-                    -- Log when entering rewind phase, but don't set speed yet (will be smoothed every frame)
-                    if isPlaying then
-                        local currentSpeed = MusicComponent.get_speed(musicEntity)
-                        local currentPos = MusicComponent.get_position(musicEntity)
-                        print("[Rewind Music] ENTERING REWIND PHASE - Current speed: " .. tostring(currentSpeed) .. ", Position: " .. tostring(currentPos))
-                        print("[Rewind Music] Will smoothly transition to reverse speed -1.0")
-                    else
-                        print("[Rewind Music] WARNING: Music not playing when entering rewind phase!")
-                    end
-                end
-            end
-            
-            -- Update speed and volume every frame during slowing and rewinding
-            if phase == "slowing" then
-                if isPlaying then
-                    MusicComponent.set_speed(musicEntity, timeScale)  -- Update speed for smooth slowdown
-                    -- Use cubic ease-in for more dramatic slowdown (faster at start, smoother at end)
-                    local volumeProgress = 1.0 - timeScale
-                    local easedVolumeProgress = volumeProgress * volumeProgress * volumeProgress
-                    local volumeFade = 1.0 - easedVolumeProgress
-                    MusicComponent.set_volume(musicEntity, musicMuted and 0 or (musicBaseVolume * volumeFade))
-                end
-                
-            elseif phase == "rewinding" then
-                if isPlaying then
-                    -- Calculate rewind progress (0 at start, 1 at end)
-                    local rewindTimer = SystemShooterRewind.getTimer()
-                    local rewindDuration = SystemShooterRewind.getDuration()
-                    local rewindProgress = 1.0 - (rewindTimer / rewindDuration)
-                    if rewindProgress < 0 then rewindProgress = 0 end
-                    if rewindProgress > 1 then rewindProgress = 1 end
-                    
-                    -- Calculate required average playback speed to reach rememberedMusicPosition exactly
-                    local currentMusicPos = MusicComponent.get_position(musicEntity)
-                    local targetMusicPos = rememberedMusicPosition
-                    local positionDifference = currentMusicPos - targetMusicPos
-                    
-                    -- Required average speed = distance / time remaining
-                    -- Negative because we're going backwards
-                    local requiredAvgSpeed = -positionDifference / rewindTimer
-                    if rewindTimer < 0.01 then requiredAvgSpeed = 0 end  -- Avoid division by zero
-                    
-                    -- Apply sine wave curve to match visual rewind (peaks in middle, slows at ends)
-                    -- sin(progress * π) gives us: 0 at start → 1.0 at middle → 0 at end
-                    local speedCurve = math.sin(rewindProgress * math.pi)
-                    
-                    -- Scale the curve so that the average equals requiredAvgSpeed
-                    -- Integral of sin(x*π) from 0 to 1 is 2/π ≈ 0.6366
-                    -- So multiply by π/2 ≈ 1.571 to normalize the average to 1.0
-                    local normalizedSpeed = requiredAvgSpeed * speedCurve * (math.pi / 2)
-                    MusicComponent.set_speed(musicEntity, normalizedSpeed)
-                    
-                    -- Smoothly increase volume from 0% to 50% (capped) as rewind progresses
-                    -- Use ease-in-out for smoother volume transition
-                    local volumeFade = rewindProgress < 0.5 
-                        and 2 * rewindProgress * rewindProgress 
-                        or 1 - math.pow(-2 * rewindProgress + 2, 2) / 2
-                    -- Cap at 50% volume during rewind
-                    volumeFade = volumeFade * 0.5
-                    MusicComponent.set_volume(musicEntity, musicMuted and 0 or (musicBaseVolume * volumeFade))
-                end
-            end
-        end
-        
         if result then
             -- Apply returned values
             if result.levelTimer then
                 levelTimerSeconds = result.levelTimer
+            end
+            if result.playerHealth then
+                SystemShooterPlayer.setHealth(result.playerHealth)
             end
             
             -- Clear enemy projectiles when signaled (after they've been rewound)
@@ -3270,37 +2151,14 @@ if levelCfg.timeLimitSeconds ~= nil and levelCfg.timeLimitSeconds > 0 then
                 -- Just disable them for peace state (they'll be enabled when peace ends)
                 for _, enemy in ipairs(enemies) do
                     SystemShooterEnemy.setEnemyDisabled(enemy, true)
-                    -- Reset shoot timer to resync with beat after rewind
-                    enemy.shootTimer = 0
                 end
                 
-                -- Start peace timer and restore music
+                -- Start peace timer and resume music
                 peaceTimerSeconds = startLevelPeaceDuration
                 isStartLevelPeace = true
                 
-                -- Restore music to normal playback (position should already be at rememberedMusicPosition from smooth rewind)
                 if musicEntity then
-                    local finalPos = MusicComponent.get_position(musicEntity)
-                    print("[Rewind Music] Rewind complete - Final position: " .. tostring(finalPos) .. ", Target was: " .. tostring(rememberedMusicPosition))
-                    MusicComponent.set_speed(musicEntity, 1.0)  -- Normal speed
-                    -- Position should already be correct from smooth rewind, but ensure it's exact
-                    if math.abs(finalPos - rememberedMusicPosition) > 0.1 then
-                        print("[Rewind Music] Position drift detected, correcting...")
-                        MusicComponent.seek(musicEntity, rememberedMusicPosition)
-                    end
-                    -- Fade in volume from current (50%) to full over 1 second
-                    MusicComponent.fade_volume(musicEntity, musicMuted and 0 or musicBaseVolume, 1.0)
-                    
-                    -- Resync beatTimer with current music position to maintain beat timing
-                    local musicPos = MusicComponent.get_position(musicEntity)
-                    if beatBopHasStarted and musicPos >= beatStartDelaySeconds then
-                        -- Calculate how many beats have elapsed since drop
-                        local timeSinceDrop = musicPos - beatStartDelaySeconds
-                        local beatCount = math.floor(timeSinceDrop / secondsPerBeat)
-                        -- Set beatTimer to the remainder (current position within the beat)
-                        beatTimer = timeSinceDrop - (beatCount * secondsPerBeat)
-                        beatIndex = beatCount
-                    end
+                    AudioComponent.resume(musicEntity)
                 end
             end
         end
@@ -3346,165 +2204,6 @@ if levelCfg.timeLimitSeconds ~= nil and levelCfg.timeLimitSeconds > 0 then
 end
 
  --=====================================================================
- --  [CHAIN HITS] Process chain lightning when enemy is hit
- --=====================================================================
-ProcessChainHits = function(sourceEnemy, alreadyHit)
-    if not SystemShooterPlayerProgress.isChainHitsEnabled() then return end
-    
-    local cfg = SystemShooterPlayerProgress.getChainHitsConfig()
-    if not cfg then return end
-    
-    local chainRadius = cfg.chainRadius or 200
-    local maxBounces = cfg.maxBounces or 3
-    local bounceDamagePercent = cfg.bounceDamagePercent or { 0.05, 0.04, 0.03 }
-    local minDamage = cfg.minDamage or 3
-    local lightningLifetime = cfg.lightningLifetime or 0.30
-    local lightningColor = cfg.lightningColor or { r = 255, g = 220, b = 50, a = 255 }
-    
-    -- Track already hit enemies to avoid re-hitting
-    alreadyHit = alreadyHit or {}
-    alreadyHit[sourceEnemy] = true
-    
-    local currentEnemy = sourceEnemy
-    local bounceCount = 0
-    
-    -- Chain up to maxBounces times
-    while bounceCount < maxBounces do
-        local sourceSize = currentEnemy.displaySize or currentEnemy.size or enemySize
-        local sourceCenterX = currentEnemy.x
-        local sourceCenterY = currentEnemy.y
-        
-        -- Find closest enemy within chain radius that hasn't been hit
-        local closestEnemy = nil
-        local closestDistSq = chainRadius * chainRadius
-        
-        for i = 1, #enemies do
-            local enemy = enemies[i]
-            if not enemy.isDead and not enemy.disabled and not alreadyHit[enemy] then
-                local isVisible = enemy.teleportVisible == nil or enemy.teleportVisible
-                if isVisible then
-                    local eSize = enemy.displaySize or enemy.size or enemySize
-                    local enemyCenterX = enemy.x
-                    local enemyCenterY = enemy.y
-                    local dx = enemyCenterX - sourceCenterX
-                    local dy = enemyCenterY - sourceCenterY
-                    local distSq = dx * dx + dy * dy
-                    
-                    if distSq < closestDistSq then
-                        closestDistSq = distSq
-                        closestEnemy = enemy
-                    end
-                end
-            end
-        end
-        
-        -- No valid target found, stop chaining
-        if not closestEnemy then break end
-        
-        -- Mark as hit
-        alreadyHit[closestEnemy] = true
-        bounceCount = bounceCount + 1
-        
-        -- Get target position
-        local targetSize = closestEnemy.displaySize or closestEnemy.size or enemySize
-        local targetCenterX = closestEnemy.x
-        local targetCenterY = closestEnemy.y
-        
-        -- Create lightning bolt VFX from source to target (yellow chain lightning)
-        local lightningId = VFX.create_lightning(sourceCenterX, sourceCenterY, targetCenterX, targetCenterY, lightningLifetime)
-        if lightningId and lightningId >= 0 then
-            VFX.set_lightning_color(lightningId, lightningColor.r, lightningColor.g, lightningColor.b, lightningColor.a)
-            -- Faster flicker for chain hits to differentiate from overhealth lightning
-            VFX.set_lightning_flicker(lightningId, true, 0.02)
-            VFX.set_lightning_render_layer(lightningId, 0, 18)  -- Slightly below overhealth zap
-            VFX.set_lightning_fade_out(lightningId, true)
-            
-            -- Track lightning so we can update its position to follow source and target enemies
-            table.insert(chainLightnings, { lightningId = lightningId, sourceEnemy = currentEnemy, targetEnemy = closestEnemy })
-        end
-        
-        -- Calculate damage as percentage of current health
-        local damagePercent = bounceDamagePercent[bounceCount] or 0.03
-        local currentHealth = closestEnemy.health or 0
-        local percentDamage = currentHealth * damagePercent
-        local actualDamage = math.max(percentDamage, minDamage)
-        
-        -- Apply damage
-        closestEnemy.health = closestEnemy.health - actualDamage
-        
-        -- Flash enemy
-        FlashEnemy(closestEnemy)
-        SystemShooterEnemy.updateDisplaySize(closestEnemy)
-        
-        -- Emit hit particles
-        local color = closestEnemy.color or {255, 255, 255}
-        ParticleSystem.emitHitBurst(targetCenterX, targetCenterY, color[1], color[2], color[3])
-        
-        -- Track damage dealt
-        runDamageDealt = runDamageDealt + actualDamage
-        
-        -- Grant XP for damage dealt
-        local xpFromDamage = math.floor(actualDamage)
-        if xpFromDamage > 0 then
-            levelXpGained = levelXpGained + xpFromDamage
-            SystemShooterPlayerProgress.addXp(xpFromDamage)
-        end
-        
-        -- Check if enemy died
-        if closestEnemy.health <= 0 and not closestEnemy.isDead then
-            closestEnemy.isDead = true
-            Entity.set_global_pos(closestEnemy.entity, -1000, -1000)
-            
-            -- Try to spawn healing orb at enemy death location
-            SystemShooterPickups.trySpawnHealingOrb(targetCenterX, targetCenterY)
-            
-            runEnemiesKilled = runEnemiesKilled + 1
-            
-            -- Check if all enemies are dead
-            local allDead = true
-            for _, e in ipairs(enemies) do
-                if not e.isDead then
-                    allDead = false
-                    break
-                end
-            end
-            if allDead then
-                local levelCfg = SystemShooterLevels.getLevelConfig(currentLevel)
-                local totalTime = levelCfg and levelCfg.timeLimitSeconds or 0
-                local timeBonusCfg = SystemShooterPlayerProgress.getTimeBonusConfig()
-                local difficultyXpPercent = SystemShooterDifficulty.getBonusXpPercent()
-                
-                local shouldAwardBonus = totalTime > 0 and levelTimerSeconds > 0
-                if timeBonusCfg.requireNonMutated then
-                    shouldAwardBonus = shouldAwardBonus and not mutatedLevels[currentLevel]
-                end
-                
-                if shouldAwardBonus then
-                    local bonusRatio = levelTimerSeconds / totalTime
-                    local bonusXp = math.floor(levelXpGained * difficultyXpPercent * bonusRatio)
-                    if bonusXp > 0 then
-                        SystemShooterPlayerProgress.addXp(bonusXp)
-                        notificationMessage = "Bonus XP: " .. bonusXp .. " (Time Left: " .. string.format("%.1f", levelTimerSeconds) .. "s)"
-                        notificationTimer = endLevelPeaceDuration
-                    end
-                end
-
-                peaceTimerSeconds = endLevelPeaceDuration
-                isStartLevelPeace = false
-            end
-        end
-        
-        -- Move to next enemy for potential further chaining
-        currentEnemy = closestEnemy
-    end
-    
-    -- Play lightning sound if we chained to any enemies
-    if bounceCount >= 1 then
-        SystemShooterAudio.playLightning1()
-    end
-end
-
- --=====================================================================
  --  [DAMAGE / FEEDBACK] Flash + Damage Cooldowns
  --=====================================================================
 function FlashEnemy(enemy)
@@ -3544,22 +2243,6 @@ function UpdateFlash()
         end
     end
 
-    -- Compute authoritative beat/time info from music if possible so player stays synced
-    local sendBeatTimer = beatTimer
-    local sendBeatIndex = beatIndex
-    local sendTimeSinceDrop = nil
-    if musicEntity and MusicComponent.is_playing(musicEntity) then
-        local musicPos = MusicComponent.get_position(musicEntity)
-        if musicPos >= beatStartDelaySeconds then
-            local timeSinceDrop = musicPos - beatStartDelaySeconds
-            local bc = math.floor(timeSinceDrop / secondsPerBeat)
-            sendBeatTimer = timeSinceDrop - (bc * secondsPerBeat)
-            sendBeatIndex = bc
-            sendTimeSinceDrop = timeSinceDrop
-        end
-    end
-    -- Pass beat timing info and rewind state to player for beat-synced antivirus
-    SystemShooterPlayer.setBeatInfo(sendBeatTimer, secondsPerBeat, sendBeatIndex, SystemShooterRewind.isActive(), sendTimeSinceDrop)
     SystemShooterPlayer.updateFlash(dt)
 end
 
@@ -3567,11 +2250,6 @@ end
 -- Enemy-Player collision with damage cooldown
 ----------------------------------------------------------
 function UpdateEnemyCollision()
-    -- Skip collision if antivirus is active
-    if SystemShooterPlayer.isAntivirusActive() then
-        return
-    end
-    
     if SystemShooterPlayer.getDamageCooldown() > 0 then
         return
     end
@@ -3584,16 +2262,16 @@ function UpdateEnemyCollision()
     -- Check collision between enemies and player
     local pX, pY = SystemShooterPlayer.getPosition()
     local pSize = SystemShooterPlayer.getSize()
-    local playerCenterX = pX
-    local playerCenterY = pY
+    local playerCenterX = pX + pSize/2
+    local playerCenterY = pY + pSize/2
     for i = 1, #enemies do
         local enemy = enemies[i]
         -- Skip collision for disabled or dead enemies
         if enemy.disabled or enemy.isDead then
             goto continue_collision
         end
-        local enemyCenterX = enemy.x
-        local enemyCenterY = enemy.y
+        local enemyCenterX = enemy.x + enemySize/2
+        local enemyCenterY = enemy.y + enemySize/2
         local dx = playerCenterX - enemyCenterX
         local dy = playerCenterY - enemyCenterY
         local distSq = dx * dx + dy * dy
@@ -3641,29 +2319,13 @@ function UpdateEnemyCollision()
             SystemShooterPlayer.applyKnockback(pushX, pushY)
 
             local currentHealth = SystemShooterPlayer.getHealth()
-            local currentOverhealth = SystemShooterPlayerProgress.getOverhealth()
-            local damage = 10
-            
-            -- Damage overhealth first if present
-            if currentOverhealth > 0 then
-                if currentOverhealth >= damage then
-                    -- Overhealth absorbs all damage
-                    SystemShooterPlayerProgress.setOverhealth(currentOverhealth - damage)
-                else
-                    -- Overhealth partially absorbs, remaining damage goes to health
-                    local remainingDamage = damage - currentOverhealth
-                    SystemShooterPlayerProgress.setOverhealth(0)
-                    SystemShooterPlayer.setHealth(currentHealth - remainingDamage)
-                end
-            else
-                -- No overhealth, damage health directly
-                SystemShooterPlayer.setHealth(currentHealth - damage)
-            end
-            
-            runDamageTaken = runDamageTaken + damage
+            SystemShooterPlayer.setHealth(currentHealth - 10)
+            runDamageTaken = runDamageTaken + 10
             SystemShooterPlayer.flash()
             SystemShooterPlayer.setDamageCooldown(SystemShooterPlayer.getDamageCooldownDuration())
-            SystemShooterAudio.playPlayerDamage()
+            if playerDamageSfxEntity then
+                AudioComponent.play(playerDamageSfxEntity)
+            end
             break
         end
         ::continue_collision::
@@ -3680,11 +2342,7 @@ end
 local BEAM_RADIUS = 16
 local BEAM_DAMAGE = 15
 
-function SpawnBeam(enemy, fromX, fromY, toX, toY, shouldPlayAudio)
-    if shouldPlayAudio then
-        SystemShooterAudio.playBeam()
-    end
-    
+function SpawnBeam(enemy, fromX, fromY, toX, toY)
     local dx = toX - fromX
     local dy = toY - fromY
     local dist = math.sqrt(dx * dx + dy * dy)
@@ -3733,28 +2391,10 @@ function SpawnBeam(enemy, fromX, fromY, toX, toY, shouldPlayAudio)
         local hitRadius = playerRadius + BEAM_RADIUS
         if distToPlayerSq < hitRadius * hitRadius then
             local currentHealth = SystemShooterPlayer.getHealth()
-            local currentOverhealth = SystemShooterPlayerProgress.getOverhealth()
-            
-            -- Damage overhealth first if present
-            if currentOverhealth > 0 then
-                if currentOverhealth >= BEAM_DAMAGE then
-                    -- Overhealth absorbs all damage
-                    SystemShooterPlayerProgress.setOverhealth(currentOverhealth - BEAM_DAMAGE)
-                else
-                    -- Overhealth partially absorbs, remaining damage goes to health
-                    local remainingDamage = BEAM_DAMAGE - currentOverhealth
-                    SystemShooterPlayerProgress.setOverhealth(0)
-                    SystemShooterPlayer.setHealth(currentHealth - remainingDamage)
-                end
-            else
-                -- No overhealth, damage health directly
-                SystemShooterPlayer.setHealth(currentHealth - BEAM_DAMAGE)
-            end
-            
+            SystemShooterPlayer.setHealth(currentHealth - BEAM_DAMAGE)
             runDamageTaken = runDamageTaken + (BEAM_DAMAGE or 0)
             SystemShooterPlayer.flash()
             SystemShooterPlayer.setDamageCooldown(SystemShooterPlayer.getDamageCooldownDuration())
-            SystemShooterAudio.playPlayerDamage()
         end
     end
 end
@@ -3791,32 +2431,18 @@ end
  --=====================================================================
 function UpdateBeatBop()
     local dt = GetDt()
-    
-    -- Check if music has reached the drop point (using actual music position)
-    local beatBopActive = false
-    if not beatBopHasStarted and musicEntity and MusicComponent.is_playing(musicEntity) then
-        local musicPos = MusicComponent.get_position(musicEntity)
-        if musicPos >= beatStartDelaySeconds then
-            beatBopHasStarted = true
-            beatBopActive = true
-            -- Trigger immediate bop on the drop
-            bopTimer = bopDurationSeconds
-        end
-    elseif beatBopHasStarted then
-        beatBopActive = true
+    if beatStartDelayCounter < beatStartDelaySeconds then
+        beatStartDelayCounter = beatStartDelayCounter + dt
+        return
     end
 
-    -- Update beat timer (only when beatBopActive)
-    if beatBopActive then
-        beatTimer = beatTimer + dt
-        if beatTimer >= secondsPerBeat then
-            beatTimer = beatTimer - secondsPerBeat
-            beatIndex = beatIndex + 1
-            bopTimer = bopDurationSeconds
-        end
+    beatTimer = beatTimer + dt
+    if beatTimer >= secondsPerBeat then
+        beatTimer = beatTimer - secondsPerBeat
+        bopTimer = bopDurationSeconds
     end
 
-    if beatBopActive and bopTimer > 0 then
+    if bopTimer > 0 then
         bopTimer = bopTimer - dt
         local t = bopTimer / bopDurationSeconds
         local scale = 1.0 + bopScale * t
@@ -3834,14 +2460,14 @@ function UpdateBeatBop()
                 local scaledSize = math.floor(currentSize * scale)
                 Sprite.set_image_width(enemy.sprite, scaledSize)
                 Sprite.set_image_height(enemy.sprite, scaledSize)
-                -- No position adjustment needed - sprite scaling should be centered automatically
+                local offset = (scaledSize - currentSize) / 2
+                Entity.set_global_pos(enemy.entity, enemy.x - offset, enemy.y - offset)
             end
             ::continue_bop1::
         end
         
         SystemShooterPickups.applyBeatBop(t)
     else
-        -- Always update enemy display sizes to match current health (not just during bop)
         for i = 1, #enemies do
             local enemy = enemies[i]
             -- Skip dead enemies
@@ -3854,7 +2480,7 @@ function UpdateBeatBop()
                 local currentSize = enemy.displaySize or enemy.baseSize or enemy.size or enemyBaseImageSize
                 Sprite.set_image_width(enemy.sprite, math.floor(currentSize))
                 Sprite.set_image_height(enemy.sprite, math.floor(currentSize))
-                -- No position reset needed - position should remain unchanged
+                Entity.set_global_pos(enemy.entity, enemy.x, enemy.y)
             end
             ::continue_bop2::
         end

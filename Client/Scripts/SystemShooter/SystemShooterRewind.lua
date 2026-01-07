@@ -9,7 +9,7 @@ local state = {
     phase = nil,
     slowdownDuration = 2.0,      -- seconds for enemies to slow to a stop
     stopPauseDuration = 0.3,     -- brief pause at full stop before rewinding
-    duration = 6.0,              -- seconds for enemies to rewind to spawn positions
+    duration = 4.5,              -- seconds for enemies to rewind to spawn positions
     timer = 0,                   -- current phase timer
     timeScale = 1.0,             -- current time scale (1.0 = normal, 0.0 = stopped)
     enemyStartPositions = {},    -- stores {enemy -> {x, y}} for lerp start (keyed by enemy ref)
@@ -22,6 +22,8 @@ local state = {
     enemyProjStartPositions = {},-- stores {projIndex -> {x, y}} for enemy projectile rewind
     levelTimerStart = 0,         -- timer value at start of rewind phase
     levelTimerTarget = 0,        -- timer value to rewind to (full level time)
+    healthStart = 0,             -- health at start of rewind
+    healthTarget = 0,            -- health to rewind to (80% of max)
 }
 
 --=====================================================================
@@ -37,14 +39,6 @@ end
 
 function SystemShooterRewind.getTimeScale()
     return state.timeScale
-end
-
-function SystemShooterRewind.getTimer()
-    return state.timer
-end
-
-function SystemShooterRewind.getDuration()
-    return state.duration
 end
 
 --=====================================================================
@@ -78,7 +72,7 @@ end
 --=====================================================================
 --  [PUBLIC API] Start Rewind Sequence
 --=====================================================================
-function SystemShooterRewind.start(enemies, levelTimeLimitSeconds, enemyTargetHealthList)
+function SystemShooterRewind.start(enemies, playerHealth, maxHealth, levelTimeLimitSeconds, enemyTargetHealthList)
     state.phase = "slowing"
     state.timer = state.slowdownDuration
     state.timeScale = 1.0
@@ -110,6 +104,10 @@ function SystemShooterRewind.start(enemies, levelTimeLimitSeconds, enemyTargetHe
     -- Capture level timer target (full level time)
     state.levelTimerStart = 0  -- timer is at 0 when timeout happens
     state.levelTimerTarget = levelTimeLimitSeconds or 0
+    
+    -- Capture health values for animation
+    state.healthStart = playerHealth
+    state.healthTarget = math.floor(maxHealth * 0.8)  -- 80% of max
 end
 
 --=====================================================================
@@ -119,6 +117,7 @@ end
 --      phase = current phase,
 --      done = true if rewind just completed,
 --      levelTimer = current level timer value,
+--      playerHealth = current player health value,
 --  }
 --=====================================================================
 function SystemShooterRewind.update(dt, enemies, projectiles, enemyProjectiles, updateEnemyMovementFn, clearProjectilesFn)
@@ -130,6 +129,7 @@ function SystemShooterRewind.update(dt, enemies, projectiles, enemyProjectiles, 
         phase = state.phase,
         done = false,
         levelTimer = nil,
+        playerHealth = nil,
     }
     
     if state.phase == "slowing" then
@@ -324,10 +324,10 @@ function SystemShooterRewind.update(dt, enemies, projectiles, enemyProjectiles, 
             local startPos = state.enemyProjStartPositions[i]
             local sourceEnemy = proj.sourceEnemy
             if startPos and sourceEnemy then
-                -- Target is the center of the source enemy (already center-based)
+                -- Target is the center of the source enemy
                 local eSize = sourceEnemy.displaySize or sourceEnemy.size or 48
-                local targetX = sourceEnemy.x
-                local targetY = sourceEnemy.y
+                local targetX = sourceEnemy.x + eSize/2 - 12  -- Adjust for projectile size (24/2)
+                local targetY = sourceEnemy.y + eSize/2 - 12
                 
                 local newX = startPos.x + (targetX - startPos.x) * easedProgress
                 local newY = startPos.y + (targetY - startPos.y) * easedProgress
@@ -340,6 +340,9 @@ function SystemShooterRewind.update(dt, enemies, projectiles, enemyProjectiles, 
         -- Lerp level timer bar (refill)
         result.levelTimer = state.levelTimerStart + (state.levelTimerTarget - state.levelTimerStart) * easedProgress
         
+        -- Lerp health bar (refill to 80%)
+        result.playerHealth = state.healthStart + (state.healthTarget - state.healthStart) * easedProgress
+        
         if state.timer <= 0 then
             state.phase = "done"
             state.timer = 0
@@ -349,6 +352,7 @@ function SystemShooterRewind.update(dt, enemies, projectiles, enemyProjectiles, 
         -- Rewind complete
         result.done = true
         result.levelTimer = state.levelTimerTarget
+        result.playerHealth = state.healthTarget
         result.clearEnemyProjectiles = true  -- Signal to clear enemy projectiles
         
         -- Reset state

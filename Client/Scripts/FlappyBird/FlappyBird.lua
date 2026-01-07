@@ -1,10 +1,6 @@
 local ExampleScript = {}
 local assets = require("Scripts.Assets")
 local enums = require("Scripts.Enums")
-
--- Raycast coin collection toggle
-local ENABLE_RAYCAST = false
-
 local Background
 local Background2
 local backgroundSprite
@@ -16,7 +12,6 @@ local playerSprite
 -- Background scrolling (main menu)
 local BG_BASE_W, BG_BASE_H = 960, 610
 local BG_PAD = 20                -- oversize to hide seams/edges
-local floorTopWorld = 0.0 -- top of the floor collider
 
 local floorTileSprites = {}
 local BG_TILE_W = BG_BASE_W      
@@ -36,39 +31,36 @@ end
 local playerName = SanitiseName(Json.load_player_name())
 local showSettings = showSettings or false
 
--- --------------------------------------------------------------------------------
--- Language settings
--- --------------------------------------------------------------------------------
-local Localisation = require("Scripts.FlappyBird.Localisation")
-local function T(key) return Localisation.t(key) end
-
-local language = Json.load_setting(GAME_ID, "ui.language", "en") or "en"
-Localisation.set_language(language)
-
-local UI_FONT_BOLD = "ImGuiDefaultBold"
-local UI_FONT_REG  = "ImGuiDefault"
+-- UI fonts 
+local UI_FONT_REG    = "ImGuiDefault"
+local UI_FONT_SUB    = "ImGuiSub"
+local UI_FONT_HEADER = "ImGuiHeader"
+local UI_FONT_TITLE  = "ImGuiTitle"
 
 -- Language-specific 
-local function ApplyLanguageFonts()
-    -- use the actual language variable
-    local lang_local = language or Localisation.get_language() or "en"
-
-    if lang_local == "ja" then
-      UI_FONT_REG   = "JFDotJP"
-      UI_FONT_BOLD  = "JFDotBoldJP"
-      UI_FONT_SUB = "JFDotSubJP"
-      UI_FONT_HEADER = "JFDotHeaderJP"
-      UI_FONT_TITLE = "JFDotTitleJP"
+local function ApplyUIFontForLanguage(lang)
+    if lang == "jp" then
+        UI_FONT_REG    = "ImGuiDefaultJP"
+        UI_FONT_SUB    = "ImGuiSubJP"
+        UI_FONT_HEADER = "ImGuiHeaderJP"
+        UI_FONT_TITLE  = "ImGuiTitleJP"
     else
-      UI_FONT_REG   = "ImGuiDefault"
-      UI_FONT_BOLD  = "ImGuiDefaultBold"
-      UI_FONT_SUB = "ImGuiSub"
-      UI_FONT_HEADER = "ImGuiHeader"
-      UI_FONT_TITLE = "ImGuiTitle"
+        UI_FONT_REG    = "ImGuiDefault"
+        UI_FONT_SUB    = "ImGuiSub"
+        UI_FONT_HEADER = "ImGuiHeader"
+        UI_FONT_TITLE  = "ImGuiTitle"
     end
 end
 
-ApplyLanguageFonts()
+-- Localisation (separate file)
+local Localisation = require("Scripts.FlappyBird.Localisation")
+
+local function T(key, ...)
+    return Localisation.t(key, ...)
+end
+
+
+
 -- --------------------------------------------------------------------------------
 -- Saved settings 
 -- --------------------------------------------------------------------------------
@@ -131,20 +123,13 @@ local customiseTab = "backgrounds" -- "backgrounds" or "birds"
 -- Shop items 
 local STORE_BACKGROUNDS = {
     { id = "bg_classic", name = "Classic Sky", price = 0,  textureKey = "Background" },
-    { id = "bg_night",   name = "Night Sky",   price = 75, textureKey = "Background" },
-    { id = "bg_plains",  name = "Open Plains",  price = 250, textureKey = "Background_Mountains" },
+    { id = "bg_night",   name = "Night Sky",   price = 30, textureKey = "Background" }, -- tint style
 }
 
 local STORE_BIRDS = {
     { id = "bird_classic", name = "Classic Bird", price = 0,  textureKey = "FlappyBird" },
-    { id = "bird_purple",  name = "Purple Bird",  price = 150, textureKey = "FlappyPurple" },
-    { id = "bird_gold",    name = "Gold Bird",    price = 300, textureKey = "FlappyBird" }, -- tint skin
-    { id = "bird_sandy",  name = "Sandy Bird",  price = 450, textureKey = "FlappySandy" },
-    { id = "bird_ice",  name = "Ice Bird",  price = 450, textureKey = "FlappyIce" },
-    { id = "bird_hologram",  name = "Hologram Bird",  price = 550, textureKey = "FlappyHologram" },
-    { id = "bird_gui",  name = "Gui Bird",  price = 650, textureKey = "FlappyGui" },
-    { id = "bird_glitchy",  name = "Glitchy Bird",  price = 750, textureKey = "FlappyGlitch" },
-    { id = "bird_space",  name = "Space Bird",  price = 1000, textureKey = "FlappySpace" },
+    { id = "bird_gold",    name = "Gold Bird",    price = 50, textureKey = "FlappyBird" }, -- tint skin
+    { id = "bird_purple",  name = "Purple Bird",  price = 75, textureKey = "FlappyPurple" },
 }
 
 local BG_STYLES
@@ -166,90 +151,41 @@ end
 end
 
 BG_STYLES = {
-    bg_classic = {
-        tint = {255, 255, 255},
-        textureKey = "Background",
-        cols = 1,
-        rows = 1,
-        tick = nil, -- seconds per frame (nil = no animation)
-    },
-
-    bg_night = {
-        tint = {150, 170, 255},
-        textureKey = "Background",
-        cols = 1,
-        rows = 1,
-        tick = nil,
-    },
-
-    bg_plains = {
-        tint = {255, 255, 255},
-        textureKey = "Background_Mountains",
-        cols = 1,
-        rows = 1,
-        tick = nil,
-    },
+    bg_classic = { tint = {255, 255, 255}, textureKey = "Background" },
+    bg_night   = { tint = {150, 170, 255}, textureKey = "Background" }, -- night tint
 }
 
+
 BIRD_STYLES = {
-    bird_classic = { tint = {255, 255, 255}, textureKey = "FlappyBird", cols = 1, rows = 1  },
-    bird_purple  = { tint = {255, 255, 255}, textureKey = "FlappyPurple", cols = 1, rows = 1  },
-    bird_gold    = { tint = {255, 220, 120}, textureKey = "FlappyBird", cols = 1, rows = 1  },
-    bird_sandy   = { tint = {255, 240, 200}, textureKey = "FlappySandy", cols = 6, rows = 1, tick = 0.14 },
-    bird_ice     = { tint = {180, 220, 255}, textureKey = "FlappyIce", cols = 6, rows = 1, tick = 0.3 },
-    bird_hologram = { tint = {180, 255, 255}, textureKey = "FlappyHologram", cols = 6, rows = 1, tick = 0.145},
-    bird_gui     = { tint = {255, 255, 255}, textureKey = "FlappyGui", cols = 6, rows = 1, tick = 0.12 },
-    bird_glitchy  = { tint = {255, 255, 255}, textureKey = "FlappyGlitch", cols = 6, rows = 1, tick = 0.19 },
-    bird_space = { tint = {200, 220, 255}, textureKey = "FlappySpace", cols = 8, rows = 1, tick = 0.135 },
+    bird_classic = { tint = {255, 255, 255}, textureKey = "FlappyBird" },
+    bird_gold    = { tint = {255, 220, 120}, textureKey = "FlappyBird" },
+    bird_purple  = { tint = {255, 255, 255}, textureKey = "FlappyPurple" },
 }
 
 
 local function ApplyBackgroundStyle()
-    local style = BG_STYLES[equippedBackground] or BG_STYLES.bg_classic
+    local style = BG_STYLES[equippedBackground] or BG_STYLES["bg_classic"]
 
-    local key  = (style and style.textureKey) or "Background"
-    local tex  = (assets and assets.textures and (assets.textures[key] or assets.textures.Background)) or nil
-
-    local t    = (style and style.tint) or {255, 255, 255}
-    local cols = (style and style.cols) or 1
-    local rows = (style and style.rows) or 1
-    local tick = style and style.tick -- optional
-
-    for _, spr in ipairs({ backgroundSprite, backgroundSprite2 }) do
-        if spr then
-            if tex and Sprite and Sprite.set_texture then
-                pcall(Sprite.set_texture, spr, tex)
-            end
-
-            if Sprite and Sprite.set_columns then
-                pcall(Sprite.set_columns, spr, cols)
-            end
-
-            if Sprite and Sprite.set_rows then
-                pcall(Sprite.set_rows, spr, rows)
-            end
-
-            if tick and Sprite and Sprite.set_tick_rate then
-                pcall(Sprite.set_tick_rate, spr, tick)
-            end
-
-            if Sprite and Sprite.set_current_frame then
-                pcall(Sprite.set_current_frame, spr, 0)
-            end
-
-            if Sprite and Sprite.set_color then
-                pcall(Sprite.set_color, spr, t[1], t[2], t[3])
-            end
+    if (backgroundSprite or backgroundSprite2) and Sprite and Sprite.set_texture and assets and assets.textures then
+        local key = (style and style.textureKey) or "Background"
+        local tex = assets.textures[key] or assets.textures["Background"]
+        if tex then
+            if backgroundSprite then pcall(Sprite.set_texture, backgroundSprite, tex) end
+            if backgroundSprite2 then pcall(Sprite.set_texture, backgroundSprite2, tex) end
         end
     end
-end
 
+    local t = (style and style.tint) or {255, 255, 255}
+    if Sprite and Sprite.set_color then
+        if backgroundSprite then Sprite.set_color(backgroundSprite, t[1], t[2], t[3]) end
+        if backgroundSprite2 then Sprite.set_color(backgroundSprite2, t[1], t[2], t[3]) end
+    end
+end
 
 
 local function ApplyBirdStyle()
     local style = BIRD_STYLES[equippedBird] or BIRD_STYLES["bird_classic"]
 
-    -- Texture
     if playerSprite and Sprite and Sprite.set_texture and assets and assets.textures then
         local key = (style and style.textureKey) or "FlappyBird"
         local tex = assets.textures[key] or assets.textures["FlappyBird"]
@@ -258,28 +194,9 @@ local function ApplyBirdStyle()
         end
     end
 
-    -- Animation (spritesheet)
-    if playerSprite and Sprite then
-        local cols = (style and style.cols) or 1
-        local rows = (style and style.rows) or 1
-
-        if Sprite.set_columns then pcall(Sprite.set_columns, playerSprite, cols) end
-        if Sprite.set_rows then pcall(Sprite.set_rows, playerSprite, rows) end
-
-        if style and style.tick and Sprite.set_tick_rate then
-            pcall(Sprite.set_tick_rate, playerSprite, style.tick)
-        end
-
-        -- optional: restart anim on swap, only if your binding exists
-        if Sprite.set_current_frame then
-            pcall(Sprite.set_current_frame, playerSprite, 0)
-        end
-    end
-
-    -- Tint
     local t = (style and style.tint) or {255, 255, 255}
     if playerSprite and Sprite and Sprite.set_color then
-        pcall(Sprite.set_color, playerSprite, t[1], t[2], t[3])
+        Sprite.set_color(playerSprite, t[1], t[2], t[3])
     end
 end
 
@@ -292,18 +209,15 @@ local pipeSets = {}
 local pipesList = {} 
 local pipeSpeed = -3
 local pipeOffScreenLeft = -100 
-local pipeSpacingX = 350 -- horizontal spacing between pipe sets (pixels)
 
--- Pipe randomness (in pixels)
-local pipeHeight = 300       -- pipe sprite height in pixels
-local pipeStartGap = 355     -- starting gap size in pixels (easier)
-local pipeMinGap   = 240     -- minimum gap size in pixels (harder)
-local pipeShrinkGap = 3      -- gap shrinks by this many pixels per point
-local pipeGapMinAtCap = pipeStartGap - (20 * pipeShrinkGap)
-if pipeGapMinAtCap < pipeMinGap then pipeGapMinAtCap = pipeMinGap end
+-- Pipe randomness
+local pipeHeight = 3.0      
+local pipeStartGap = 3.3   -- start easier
+local pipeMinGap   = 2.1   -- end harder
+local pipeShrinkGap = 0.03
 
-local pipesetMinGap = 150    -- minimum Y position for gap center (in pixels from top)
-local pipesetMaxGap = 350    -- maximum Y position for gap center (in pixels from top)
+local pipesetMinGap = 1
+local pipesetMaxGap = 3.5
 
 -- Coins
 local coins = {}
@@ -326,13 +240,13 @@ local pipeEffectTimer = 0
 local pipeEffectDuration = 40
 
 -- Text
-local pipeScoreText = T("fb.score_label") .. "0"
-local scoreText = T("fb.coins") .. "0"
+local pipeScoreText = "Score: 0"
+local scoreText = "Coins: 0"
 local text1 = T("fb.press_space_start")
 local text2 = T("fb.press_space_restart")
-local finalScoreText = T("fb.final_score") .. "0"
-local coinsText = T("fb.coins_collected")
-local topScore = T("fb.highscore")
+local finalScoreText = "Final Score: 0"
+local coinsText = "Coins Collected: "
+local topScore = "Highscore: "
 
 -- Audio
 local birdJumpSound
@@ -538,37 +452,19 @@ end
 ----------------------------------------------------------
 local function spawnCoins(coin, pipeSet, offsetX)
     local bottomPos = Fysics.get_pos(pipeSet.bottom)
-    local topPos    = Fysics.get_pos(pipeSet.top)
+    local topPos = Fysics.get_pos(pipeSet.top)
 
-    local gapTop    = Mafs.get_vec_y(topPos) + pipeHeight
+    local pipeHeight = 3.5
+    local gapTop = Mafs.get_vec_y(topPos) + pipeHeight
     local gapBottom = Mafs.get_vec_y(bottomPos)
 
-    -- keep coins comfortably inside the gap
-    local margin = 24
-    local minY = gapTop + margin
-    local maxY = gapBottom - margin
+    local randY = math.random() * (gapBottom - gapTop - 1) + gapTop + 0.1
+    local yRandomOffset = (math.random() * 2 - 1) * 0.8
+    randY = randY + yRandomOffset
 
-    -- fallback if gap gets tight
-    if maxY <= minY then
-        minY = gapTop + 6
-        maxY = gapBottom - 6
-    end
-    if maxY <= minY then
-        local mid = (gapTop + gapBottom) * 0.5
-        minY, maxY = mid, mid
-    end
-
-    -- bias towards center using triangular distribution
-    local t = (math.random() + math.random()) * 0.5   -- clustered around 0.5
-    -- optional extra “center bias” (tighter grouping):
-    t = 0.5 + (t - 0.5) * 0.65
-
-    local randY = minY + (maxY - minY) * t
-    local randX = Mafs.get_vec_x(bottomPos) + (offsetX or 0)
-
+    local randX = Mafs.get_vec_x(bottomPos) + (offsetX / 100)
     Fysics.set_pos(coin, randX, randY)
 end
-
 
 ----------------------------------------------------------
 -- Reset Game
@@ -579,22 +475,22 @@ local function resetGame()
     gameOver = false
     score = 0
     Pscore = 0
-    pipeScoreText = T("fb.score_label") .. "0"
-    scoreText = T("fb.coins") .. "0"
+    pipeScoreText = "Score: 0"
+    scoreText = "Coins: 0"
     text1 = T("fb.press_space_start")
-    finalScoreText = T("fb.final_score") .. "0"
-    coinsText = T("fb.coins_collected")
-    topScore = T("fb.highscore")
+    finalScoreText = "Final Score: 0"
+    coinsText = "Coins Collected: "
+    topScore = "Highscore: "
     highscore = Json.load_high_score(GAME_ID)
 
     -- Reset player
-    Fysics.set_pos(player1, 100, 300)
+    Fysics.set_pos(player1, 1, 3)
     Fysics.set_gravity_scale(player1, 0)
     Fysics.set_linear_velocity(player1, 0, 0)
 
     -- Reset pipes
     local function resetPipe(pipeEntity, xPos, yPos)
-        Fysics.set_pos(pipeEntity, xPos, yPos)
+        Fysics.set_pos(pipeEntity, xPos / 100, yPos / 100)
         Fysics.set_linear_velocity(pipeEntity, 0, 0)
     end
 
@@ -656,9 +552,9 @@ end
     end
 
     text1 = T("fb.game_over_try_again")
-    finalScoreText = T("fb.final_score") .. tostring(Pscore)
-    topScore = T("fb.highscore") .. tostring(highscore)
-    coinsText = T("fb.coins_collected") .. tostring(score)
+    finalScoreText = "Final Score: " .. tostring(Pscore)
+    topScore = "Highscore: " .. tostring(highscore)
+    coinsText = "Coins Collected: " .. tostring(score)
 
     bankCoins = (bankCoins or 0) + (score or 0)
     SaveSetting("coins.total", bankCoins)
@@ -674,21 +570,19 @@ function ExampleScript:OnStart()
     ------------------------------------------------------
     local tileSize = 64
     local floorY = 550
-    floorTopWorld = (floorY - (tileSize * 0.5))
-
     -- Floor collision tiles
     for i = 0, 30 do
 
         local tile = Entity.create_entity()
         local xPos = i * tileSize
 
+        Entity.set_global_pos(tile, xPos, floorY)
         local s = Entity.add_sprite_component(tile, assets.textures.Sand, tileSize, tileSize, -5)
         floorTileSprites[#floorTileSprites+1] = s
         Sprite.set_columns(s, 1)
 
         Entity.add_fysics_component(tile, enums.bodytype.staticBody, false)
         Fysics.add_sprite_collider(tile, false, 1)
-        Fysics.set_pos(tile, xPos, floorY)
     end
 
     ------------------------------------------------------
@@ -721,34 +615,37 @@ function ExampleScript:OnStart()
     -- Create player1
     ------------------------------------------------------
     player1 = Entity.create_entity()
+
+    Entity.set_global_pos(player1, x, 300)
 	
-    playerSprite = Entity.add_sprite_component(player1, assets.textures.FlappyBird, 80, 80, 10)
+    playerSprite = Entity.add_sprite_component(player1, assets.textures.FlappyBird, 64, 64, 10)
     Sprite.set_columns(playerSprite,1)
     ApplyBirdStyle()
 
     -- PLAYER 1 PHYSICS
     Entity.add_fysics_component(player1, enums.bodytype.dynamicBody, true) -- dynamic body
     Fysics.add_sprite_collider(player1,false, 0.35)
-    Fysics.set_pos(player1, x, 300)
 
     -- Freeze bird
     Fysics.set_gravity_scale(player1, 0)
+
+
 
 	------------------------------------------------------
 	-- Create pipe obstacle
 	------------------------------------------------------
     local function createPipeSet(bottomX, bottomY, topX, topY)
         local bottomPipe = Entity.create_entity()
+        Entity.set_global_pos(bottomPipe, bottomX, bottomY)
         Entity.add_sprite_component(bottomPipe, assets.textures.FlappyPipe, 60, 500, 0)
         Entity.add_fysics_component(bottomPipe, enums.bodytype.kinematicBody, false)
         Fysics.add_sprite_collider(bottomPipe, false, 1)
-        Fysics.set_pos(bottomPipe, bottomX, bottomY)
 
         local topPipe = Entity.create_entity()
+        Entity.set_global_pos(topPipe, topX, topY)
         Entity.add_sprite_component(topPipe, assets.textures.FlappyPipe2, 60, 500, 0)
         Entity.add_fysics_component(topPipe, enums.bodytype.kinematicBody, false)
         Fysics.add_sprite_collider(topPipe, false, 1)
-        Fysics.set_pos(topPipe, topX, topY)
         return bottomPipe, topPipe
     end
 
@@ -854,29 +751,6 @@ end
 
 
 ----------------------------------------------------------
--- Helper: Localise item display names
-----------------------------------------------------------
-local function LocalisedItemName(item)
-    if not item or not item.id then return item and item.name or "" end
-    if string.sub(item.id, 1, 3) == "bg_" then
-        if item.id == "bg_classic" then return T("backgrounds.classic") end
-        if item.id == "bg_night" then return T("backgrounds.classicnight") end
-        if item.id == "bg_plains" then return T("backgrounds.plains") end
-    elseif string.sub(item.id, 1, 5) == "bird_" then
-        if item.id == "bird_classic" then return T("birds.classic") end
-        if item.id == "bird_purple" then return T("birds.purple") end
-        if item.id == "bird_gold" then return T("birds.gold") end
-        if item.id == "bird_sandy" then return T("birds.sandy") end
-        if item.id == "bird_ice" then return T("birds.ice") end
-        if item.id == "bird_hologram" then return T("birds.hologram") end
-        if item.id == "bird_gui" then return T("birds.gui") end
-        if item.id == "bird_glitchy" then return T("birds.glitchy") end
-        if item.id == "bird_space" then return T("birds.space") end
-    end
-    return item.name or item.id
-end
-
-----------------------------------------------------------
 -- Flappy UI
 ----------------------------------------------------------
 
@@ -886,11 +760,11 @@ local function DrawMainMenu_C(windowW, windowH)
     local cx = windowW / 2
 
     -- Header
-    UI.add_centered_label(cx, 55, T("fb.title"), UI_FONT_TITLE, 1)
+    UI.add_centered_label(cx, 55, "FLAPPY BIRD", "ImGuiDefaultBold", 2.2)
 
     -- Top-left stats
-    UI.add_label(18, 16, 0, 0, T("fb.best_score") .. tostring(highscore), UI_FONT_REG, 1)
-    UI.add_label(18, 40, 0, 0, T("fb.coins") .. tostring(bankCoins or 0), UI_FONT_REG, 1)
+    UI.add_label(18, 16, 0, 0, "Best: " .. tostring(highscore), "ImGuiDefaultBold", 1.2)
+    UI.add_label(18, 40, 0, 0, "Coins: " .. tostring(bankCoins or 0), "ImGuiDefaultBold", 1.2)
 
     -- Big play button
     local playW, playH = 320, 74
@@ -899,11 +773,13 @@ local function DrawMainMenu_C(windowW, windowH)
 
     UI.add_button(
         playX, playY, playW, playH,
-        T("fb.play"), "fb_play",
-        UI_FONT_BOLD, 1.15,
+        "PLAY", "fb_play",
+        "ImGuiDefaultBold", 1.15,
         playH / 2, true,
         70, 200, 120, 0.95
     )
+
+    UI.add_centered_label(cx, playY + playH + 28, "Press SPACE to flap", "", 1.15)
 
     -- Bottom nav strip
     local navBtnW, navBtnH = 150, 44
@@ -913,20 +789,20 @@ local function DrawMainMenu_C(windowW, windowH)
     local navY = windowH - navBtnH - 26
 
     UI.add_button(startX + (navBtnW + navGap) * 0, navY, navBtnW, navBtnH,
-        T("fb.customise"), "fb_nav_customise",
-        UI_FONT_BOLD, 1.0, navBtnH / 2, true,
+        "Customise", "fb_nav_customise",
+        "ImGuiDefaultBold", 1.0, navBtnH / 2, true,
         80, 170, 255, 0.92
     )
 
     UI.add_button(startX + (navBtnW + navGap) * 1, navY, navBtnW, navBtnH,
-        T("fb.settings"), "fb_nav_settings",
-        UI_FONT_BOLD, 1.0, navBtnH / 2, true,
+        "Settings", "fb_nav_settings",
+        "ImGuiDefaultBold", 1.0, navBtnH / 2, true,
         255, 170, 80, 0.92
     )
 
     UI.add_button(startX + (navBtnW + navGap) * 2, navY, navBtnW, navBtnH,
-        T("fb.exit"), "fb_nav_exit",
-        UI_FONT_BOLD, 1.0, navBtnH / 2, true,
+        "Exit", "fb_nav_exit",
+        "ImGuiDefaultBold", 1.0, navBtnH / 2, true,
         220, 80, 80, 0.90
     )
 
@@ -957,35 +833,14 @@ local function DrawSettingsMenu_C(windowW, windowH)
     local panelX = math.floor((windowW - panelW) / 2)
     local panelY = math.floor((windowH - panelH) / 2)
 
-    UI.begin_child(panelX, panelY, panelW, panelH, "FB_SettingsPanel",
-        true, 0, true, 0.80, 12, 26, 245, 225
-    )
+    UI.add_panel(panelX, panelY, panelW, panelH, 0.80, 26, 245, 225, 170)
 
-    local cx = panelW / 2
-    UI.add_centered_label(cx, 26, T("settings.settings"), UI_FONT_HEADER, 1)
+    local cx = windowW / 2
+    UI.add_centered_label(cx, panelY + 26, "SETTINGS", "ImGuiDefaultBold", 1.9)
 
-    local contentX = 30
-    local contentY = 65
-    local contentW = panelW - 60  
-    local contentH = panelH - 137
-
-    UI.begin_child(contentX, contentY, contentW, contentH, "FB_SettingsContent",
-         false, 8, true, 0.0, 0, 0, 0, 0,
-    0, false, 1.0
-)
-
-    local leftPad = 12
-    local x = leftPad
-    local w = contentW - (leftPad * 2) 
-    local y = 0
-
-    -- Center X inside inner child
-    local cxLocal = contentW / 2
-
-    -- Header for the audio block 
-    UI.add_centered_label(cxLocal, y + 8, T("settings.audio"), UI_FONT_HEADER, 1)
-    y = y + 36
-
+    local x = panelX + 40
+    local w = panelW - 80
+    local y = panelY + 85
     -- for future sliders
     local sliderStyle = {
         height = 18,
@@ -996,39 +851,34 @@ local function DrawSettingsMenu_C(windowW, windowH)
     }
 
     local checkboxStyle = {
-        size = 18,
-        rounding = 6,
-        off = { 60, 80, 100, 0.35 },
-        on  = { 255, 200, 80, 0.95 },
-        check = { 255, 255, 255, 0.95 }
+    size = 18,
+    rounding = 6,
+    off = { 60, 80, 100, 0.35 },
+    on  = { 255, 200, 80, 0.95 },
+    check = { 255, 255, 255, 0.95 }
     }
-
-    -- Use a fixed block spacing so sliders are equally spaced
-    local blockGap = 66
-
     -- Music toggle + slider 
-    UI.add_checkbox_styled(x, y, 0, 0, T("settings.musiccb"), "fb_music_on", s_musicOn, UI_FONT_REG, 1, checkboxStyle)
+    UI.add_checkbox_styled(x, y, 0, 0, "Music", "fb_music_on", s_musicOn, UI_FONT_REG, 1, checkboxStyle)
     y = y + 28
-    UI.add_label(x, y, 0, 0, T("settings.musicvol"), UI_FONT_REG, 1.0)
-    y = y + 23
+    UI.add_label(x, y, 0, 0, "Music Volume", UI_FONT_REG, 1.0)
+    y = y + 18
     UI.add_slider_styled(x, y, w, "", "fb_music_vol", 0, 100, s_musicVol, nil, nil, "%.0f", sliderStyle)
-    y = y + blockGap
+    y = y + 60
 
     -- SFX toggle + slider
-    UI.add_checkbox_styled(x, y, 0, 0, T("settings.sfxcb"), "fb_sfx_on", s_sfxOn, UI_FONT_REG, 1, checkboxStyle)
+    UI.add_checkbox_styled(x, y, 0, 0, "SFX", "fb_sfx_on", s_sfxOn, UI_FONT_REG, 1, checkboxStyle)
     y = y + 28
-    UI.add_label(x, y, 0, 0, T("settings.sfxvol"), UI_FONT_REG, 1.0)
-    y = y + 23
+    UI.add_label(x, y, 0, 0, "SFX Volume", UI_FONT_REG, 1.0)
+    y = y + 18
     UI.add_slider_styled(x, y, w, "", "fb_sfx_vol", 0, 100, s_sfxVol, nil, nil, "%.0f", sliderStyle)
-    y = y + blockGap
+    y = y + 60
 
     -- Master volume
-    UI.add_label(x, y, 0, 0, T("settings.mastervol"), UI_FONT_REG, 1.0)
-    y = y + 23
+    UI.add_label(x, y, 0, 0, "Master Volume", UI_FONT_REG, 1.0)
+    y = y + 18
     UI.add_slider_styled(x, y, w, "", "fb_master_vol", 0, 100, s_masterVol, nil, nil, "%.0f", sliderStyle)
-    y = y + 88 -- extra space before language header
 
-    -- Apply changes 
+    -- Apply changes
     if UI.was_checkbox_changed("fb_music_on") then
         s_musicOn = UI.get_checkbox("fb_music_on")
         if s_musicOn == nil then s_musicOn = true end
@@ -1049,6 +899,7 @@ local function DrawSettingsMenu_C(windowW, windowH)
         SaveSetting("audio.sfxOn", s_sfxOn)
         ApplySfxVolumes()
 
+        -- If disabling SFX, stop any currently playing sounds immediately
         if (not s_sfxOn) and AudioComponent and AudioComponent.terminate then
             AudioComponent.terminate(birdJumpSound)
             AudioComponent.terminate(hitSound)
@@ -1063,6 +914,8 @@ local function DrawSettingsMenu_C(windowW, windowH)
         ApplySfxVolumes()
     end
 
+
+
     if UI.was_slider_changed("fb_master_vol") then
         s_masterVol = UI.get_slider("fb_master_vol") or s_masterVol
         SaveSetting("audio.masterVol", s_masterVol)
@@ -1070,58 +923,18 @@ local function DrawSettingsMenu_C(windowW, windowH)
         ApplyMusicVolume()
     end
 
-    local ddStyle = {
-        height = 32,
-        rounding = 10,
-        popup_rounding = 10,
-        border_size = 1,
-
-        frame = { 60, 80, 100, 0.35 },
-
-        frame_hover  = { 255, 200, 80, 0.95 },
-        frame_active = { 255, 200, 80, 0.95 },
-
-        popup_bg = { 20, 20, 20, 0.95 },
-
-        item        = { 255, 200, 80, 0.95 },
-        item_hover  = { 255, 200, 80, 0.95 },
-        item_active = { 255, 200, 80, 0.95 },
-        text = { 255, 255, 255, 1.0 },
-    }
-
-    local opts = { "English", "日本語" }
-    local defaultIndex = (language == "ja") and 1 or 0
-
-    UI.add_centered_label(x + w/2, y, T("settings.language"), UI_FONT_HEADER, 1.2)
-    y = y + 36
-    local langDropdownFont = "ImGuiDefaultJP" -- use JP fontto support both EN and JA characters
-    UI.add_dropdown_styled(x, y, w, 32, "", "fb_lang", opts, defaultIndex, langDropdownFont, 1.0, ddStyle)
-
-    if UI.was_dropdown_changed("fb_lang") then
-        local idx = UI.get_dropdown_index("fb_lang") or 0
-        language = (idx == 1) and "ja" or "en"
-        Json.save_setting(GAME_ID, "ui.language", language)
-        Localisation.set_language(language)
-        ApplyLanguageFonts()
-    end
-
-    UI.end_child() -- end inner content child
-
-    -- Footer / Back button 
+    -- Back button
     local bw, bh = 200, 46
-    local bx = math.floor((panelW - bw) / 2)
-    local by = panelH - bh - 26
-
-    UI.add_button(bx, by, bw, bh, T("settings.back"), "fb_settings_back",
-        UI_FONT_BOLD, 1.0, bh / 2, true,
+    local bx = math.floor((windowW - bw) / 2)
+    local by = panelY + panelH - bh - 26
+    UI.add_button(bx, by, bw, bh, "Back", "fb_settings_back",
+        "ImGuiDefaultBold", 1.0, bh / 2, true,
         80, 170, 255, 0.92
     )
 
     if UI.was_button_pressed("fb_settings_back") then
         menuContext = settingsBackContext
     end
-
-    UI.end_child() -- end outer child (panel)
 end
 
 local function DrawCustomiseMenu_C(windowW, windowH)
@@ -1135,8 +948,8 @@ local function DrawCustomiseMenu_C(windowW, windowH)
     UI.add_panel(panelX, panelY, panelW, panelH, 0.80, 26, 245, 225, 170)
 
     local cx = windowW / 2
-    UI.add_centered_label(cx, panelY + 22, T("customise.customise"), UI_FONT_HEADER, 1.2)
-    UI.add_centered_label(cx, panelY + 56, T("customise.coins") .. tostring(bankCoins or 0), UI_FONT_BOLD, 1.2)
+    UI.add_centered_label(cx, panelY + 24, "CUSTOMISE", "ImGuiDefaultBold", 1.9)
+    UI.add_centered_label(cx, panelY + 54, "Coins: " .. tostring(bankCoins or 0), "ImGuiDefaultBold", 1.2)
 
     -- Tabs
     local tabW, tabH = 160, 40
@@ -1148,13 +961,13 @@ local function DrawCustomiseMenu_C(windowW, windowH)
         local r, g, b = 80, 170, 255
         local a = active and 0.95 or 0.70
         UI.add_button(x, tabY, tabW, tabH, label, id,
-            UI_FONT_BOLD, 1.0, tabH / 2, true,
+            "ImGuiDefaultBold", 1.0, tabH / 2, true,
             r, g, b, a
         )
     end
 
-    tabBtn(T("customise.backgrounds"), "fb_tab_bg", customiseTab == "backgrounds", tabX)
-    tabBtn(T("customise.birds"), "fb_tab_bird", customiseTab == "birds", tabX2)
+    tabBtn("Backgrounds", "fb_tab_bg", customiseTab == "backgrounds", tabX)
+    tabBtn("Birds",       "fb_tab_bird", customiseTab == "birds", tabX2)
 
     if UI.was_button_pressed("fb_tab_bg") then customiseTab = "backgrounds" end
     if UI.was_button_pressed("fb_tab_bird") then customiseTab = "birds" end
@@ -1164,53 +977,40 @@ local function DrawCustomiseMenu_C(windowW, windowH)
     local rowH = 54
     local rowW = panelW - 80
 
-    -- Back button (reserve space so list doesn't overlap it)
-    local backW, backH = 200, 46
-    local backX = math.floor((windowW - backW) / 2)
-    local backY = panelY + panelH - backH - 26
-
-    -- Scrollable list area (ends above Back button)
-    local listW = rowW
-    local listH = (backY - 18) - listY
-    if listH < 60 then listH = 60 end
-
-    UI.begin_child(listX, listY, listW, listH, "fb_customise_list",
-         false, 8, false
-    )
-
-    local function drawItemRow(item, ownedSet, currentEquipped, rowIndex)
-        local y = (rowIndex - 1) * rowH
+    local function drawItemRow(item, ownedSet, equippedIdKey, currentEquipped, rowIndex)
+        local y = listY + (rowIndex - 1) * rowH
+        if y + rowH > panelY + panelH - 90 then return end
 
         local owned = ownedSet[item.id] == true
         local equipped = (currentEquipped == item.id)
 
-        local label = LocalisedItemName(item)
+        local label = item.name
         if equipped then
-            label = label .. "  " .. T("customise.equipped")
+            label = label .. "  (Equipped)"
         elseif owned then
-            label = label .. "  " .. T("customise.owned")
+            label = label .. "  (Owned)"
         else
-            label = label .. "  (" .. tostring(item.price) .. T("customise.price") .. ")"
+            label = label .. "  (" .. tostring(item.price) .. " coins)"
         end
 
-        UI.add_label(0, y + 10, 0, 0, label, UI_FONT_BOLD, 1.15)
+        UI.add_label(listX, y + 10, 0, 0, label, "ImGuiDefaultBold", 1.15)
 
         local bw, bh = 140, 38
-        local bx = listW - bw
+        local bx = listX + rowW - bw
         local by = y + 8
 
         local btnText, canPress, br, bg, bb, ba
 
         if equipped then
-            btnText = T("customise.selected")
+            btnText = "Selected"
             canPress = false
             br, bg, bb, ba = 70, 200, 120, 0.92
         elseif owned then
-            btnText = T("customise.equip")
+            btnText = "Equip"
             canPress = true
             br, bg, bb, ba = 160, 160, 160, 0.85
         else
-            btnText = T("customise.buy")
+            btnText = "Buy"
             canPress = (bankCoins or 0) >= (item.price or 0)
             if canPress then
                 br, bg, bb, ba = 255, 170, 80, 0.92
@@ -1220,12 +1020,13 @@ local function DrawCustomiseMenu_C(windowW, windowH)
         end
 
         UI.add_button(bx, by, bw, bh, btnText, "fb_buy_" .. item.id,
-            UI_FONT_BOLD, 1.0, bh / 2, true,
+            "ImGuiDefaultBold", 1.0, bh / 2, true,
             br, bg, bb, ba
         )
 
         if canPress and UI.was_button_pressed("fb_buy_" .. item.id) then
             if owned then
+                -- equip
                 if customiseTab == "backgrounds" then
                     equippedBackground = item.id
                     SaveSetting("equipped.background", equippedBackground)
@@ -1236,6 +1037,7 @@ local function DrawCustomiseMenu_C(windowW, windowH)
                     ApplyBirdStyle()
                 end
             else
+                -- buy
                 bankCoins = (bankCoins or 0) - (item.price or 0)
                 SaveSetting("coins.total", bankCoins)
 
@@ -1251,21 +1053,20 @@ local function DrawCustomiseMenu_C(windowW, windowH)
 
     if customiseTab == "backgrounds" then
         for i, item in ipairs(STORE_BACKGROUNDS) do
-            drawItemRow(item, ownedBackgrounds, equippedBackground, i)
+            drawItemRow(item, ownedBackgrounds, "equipped.background", equippedBackground, i)
         end
     else
         for i, item in ipairs(STORE_BIRDS) do
-            drawItemRow(item, ownedBirds, equippedBird, i)
+            drawItemRow(item, ownedBirds, "equipped.bird", equippedBird, i)
         end
     end
 
-    UI.end_child()
     -- Back button
     local bw, bh = 200, 46
     local bx = math.floor((windowW - bw) / 2)
     local by = panelY + panelH - bh - 26
-    UI.add_button(backX, backY, backW, backH, T("customise.back"), "fb_customise_back",
-        UI_FONT_BOLD, 1.0, backH / 2, true,
+    UI.add_button(bx, by, bw, bh, "Back", "fb_customise_back",
+        "ImGuiDefaultBold", 1.0, bh / 2, true,
         80, 170, 255, 0.92
     )
 
@@ -1274,9 +1075,6 @@ local function DrawCustomiseMenu_C(windowW, windowH)
     end
 end
 
-local GAP_CAP_STEPS = 20  -- this is “the gap at 60 score” if you were using score/3 before
-local gapMinAtCap = pipeStartGap - (GAP_CAP_STEPS * pipeShrinkGap)
-if gapMinAtCap < pipeMinGap then gapMinAtCap = pipeMinGap end
 
 ----------------------------------------------------------
 -- OnUpdate
@@ -1289,9 +1087,9 @@ function ExampleScript:OnUpdate()
 -- Cache window size once per frame
 local windowW = Window.get_width()
 local windowH = Window.get_height()
-Window.set_size(960, 600)
+
 if inMainMenu then
-    -- Scroll the background horizontally on main menu
+    -- Scroll the background horizontally on the MAIN menu
     if Background ~= nil then
         if menuContext == "main" then
             local dt = Mafs.delta_time()
@@ -1307,6 +1105,7 @@ if inMainMenu then
                 Entity.set_global_pos(Background2, bgBaseX + bgScrollX + BG_TILE_W, bgBaseY + driftY)
             end
         else
+            -- Keep it static when in sub-menus
             bgScrollX = 0
             Entity.set_global_pos(Background, bgBaseX, bgBaseY)
             if Background2 ~= nil then
@@ -1338,7 +1137,7 @@ if inMainMenu then
         )
 
         local cx = panelW / 2
-        UI.add_centered_label(cx, S(34), T("fb.paused"), UI_FONT_TITLE, 1.0)
+        UI.add_centered_label(cx, S(34), "Paused", UI_FONT_TITLE, 1.0)
 
         local btnW, btnH = S(260), S(46)
         local btnX = (panelW - btnW) / 2
@@ -1347,16 +1146,16 @@ if inMainMenu then
 
         local function AddBtn(row, text, id, r, g, b, a)
             UI.add_button(btnX, startY + (btnH + gapY) * row, btnW, btnH, text, id,
-                UI_FONT_BOLD, 1.0, btnH / 2, true,
+                "ImGuiDefaultBold", 1.0, btnH / 2, true,
                 r, g, b, a
             )
         end
 
-        AddBtn(0, T("fb.resume"),   "fb_pause_resume",   80, 170, 255, 0.92)
-        AddBtn(1, T("fb.restart"),  "fb_pause_restart",  255, 170, 80, 0.92)
-        AddBtn(2, T("fb.settings"), "fb_pause_settings", 120, 220, 140, 0.90)
-        AddBtn(3, T("fb.returntomainmenu"),"fb_pause_main",     255, 170, 80, 0.92)
-        AddBtn(4, T("fb.exit"),     "fb_pause_exit",     220, 80, 80, 0.90)
+        AddBtn(0, "Resume",   "fb_pause_resume",   80, 170, 255, 0.92)
+        AddBtn(1, "Restart",  "fb_pause_restart",  255, 170, 80, 0.92)
+        AddBtn(2, "Settings", "fb_pause_settings", 120, 220, 140, 0.90)
+        AddBtn(3, "Main Menu","fb_pause_main",     255, 170, 80, 0.92)
+        AddBtn(4, "Exit",     "fb_pause_exit",     220, 80, 80, 0.90)
 
         UI.end_child()
 
@@ -1382,13 +1181,6 @@ if inMainMenu then
             Window.quit()
             print("Quitting Game")
         end
-
-        -- Escape to pause
-        if Input.get_key_down(Keys.ionix_escape) then
-            pauseGame(false)
-            inMainMenu = false
-            print("Resumed Game (Escape)")
-        end
     end
 
     return
@@ -1412,14 +1204,6 @@ end
             menuContext = "ingame"
         end
 
-        -- Escape to resume
-        if Input.get_key_down(Keys.ionix_escape) then
-            pauseGame(true)
-            inMainMenu = true
-            menuContext = "ingame"
-            print("Paused Game (Escape)")
-        end
-
     end
     -----------------------------------
     -- Out of bounds check (Game Over)
@@ -1436,6 +1220,187 @@ end
             return
         end
     end
+
+    -- ===================================================================================================== 
+	-- User Interface - button/checkbox/sliderFloat/radio button/dropdown/colour picker/child panel examples
+	-- ===================================================================================================== 
+
+    ------------------
+	-- Button
+	------------------
+    --UI.add_button(20, 20, 120, 35, "Restart", "restart_btn")
+     --if UI.was_button_pressed("restart_btn") then
+     --    resetGame()
+     --end
+
+    --UI.add_button(100, 50, 160, 35, "Retry", "retry_btn", "ImGuiDefaultBold", 1.0, 12, true, 70, 130, 180, 1)
+    ------------------
+	-- Checkbox
+	------------------
+     --UI.add_checkbox(20, 60, 0, 0, "Music", "music_chk", true)
+
+     --if UI.get_checkbox("music_chk") then
+     --   -- music on
+     --end
+
+     --if UI.was_checkbox_changed("music_chk") then
+     --    print("toggled to:", UI.get_checkbox("music_chk"))
+     --end
+
+    ------------------
+	-- Slider
+	------------------
+    --UI.add_slider(20, 80, 110, "Volume", "volume", 0.0, 1.0, 0.75)
+
+    --local v = UI.get_slider("volume")
+    --if UI.was_slider_changed("volume") then
+    --    print("volume now:", v)
+    --end
+
+    ------------------
+	-- Radio toggle
+	------------------
+    -- Three options in the same group "difficulty"
+    --UI.add_radio(20, 120, 0, 0, "Easy",   "difficulty", 0, 1, false) -- defaultValue = 1
+    --UI.add_radio(20, 140, 0, 0, "Normal", "difficulty", 1, 1, false)
+    --UI.add_radio(20, 160, 0, 0, "Hard",   "difficulty", 2, 1, false)
+
+    --local diff = UI.get_radio("difficulty")
+
+    --if UI.was_radio_changed("difficulty") then
+    --  print("difficulty now:", diff)
+    --end
+
+    ------------------
+	-- Dropdown
+	------------------
+    --UI.add_dropdown(
+    --  20, 200, 220, 0,
+    --  "Bird Skin",
+    --  "bird_skin_dd",
+    --  { "Classic", "Blue", "Red", "Gold" },
+    --  0 -- defaultIndex
+    --)
+
+    --local idx = UI.get_dropdown_index("bird_skin_dd")
+
+    --if UI.was_dropdown_changed("bird_skin_dd") then
+    --  print("dropdown index:", idx)
+    --end
+
+    ---- *string* option in Lua:
+    --local options = { "Classic", "Blue", "Red", "Gold" }
+    --local selected = options[idx + 1]  -- Lua is 1-based, index is 0-based
+
+    ------------------
+	-- Colour picker
+	------------------
+    --UI.add_color_picker(20, 250, 0, 0, "Tint", "bird_tint",
+    --  1.0, 1.0, 1.0, 1.0   -- r,g,b,a default
+    --)
+    --local c = UI.get_color("bird_tint")  -- table: { [1]=r, [2]=g, [3]=b, [4]=a }
+
+    --if UI.was_color_changed("bird_tint") then
+    --  print("color:", c[1], c[2], c[3], c[4])
+    --end
+
+    ------------------
+	-- Child panel
+	------------------
+
+    --UI.add_button(20, 20, 120, 35, "Restart", "restart_btn")
+     --if UI.was_button_pressed("restart_btn") then
+     --    resetGame()
+     --end
+
+    ---- A child region positioned at (20, 100) sized 300x260 with a coloured background
+    --UI.begin_child(20, 95, 320, 300, "FB_Settings", true, 0, true, 0.75, 10, 70, 160, 115) -- hasBg alpha rounding r  g   b
+
+    --UI.add_label(10, 10, 0, 0, "Settings", "ImGuiDefaultBold", 1.3)
+    --UI.add_radio(10, 40, 0, 0, "Easy", "difficulty", 0, 1, false)
+    --UI.add_radio(10, 60, 0, 0, "Normal", "difficulty", 1, 1, false)
+    --UI.add_radio(10, 80, 0, 0, "Hard", "difficulty", 2, 1, false)
+
+    --UI.add_dropdown(10, 120, 240, 0, "Bird Skin", "bird_skin_dd",
+    --  { "Classic", "Blue", "Red", "Gold" }, 0)
+
+    --UI.add_color_picker(10, 160, 0, 0, "Tint", "bird_tint", 1, 1, 1, 1)
+
+    --UI.end_child()
+
+    ------------------
+	-- Example Settings Panel showcase with button to toggle
+    --(Have to uncomment the top 'settings test' block too)
+	------------------
+   --[[
+    UI.add_button(150, 20, 160, 35, showSettings and "Hide Settings" or "Show Settings", "settings_btn", "ImGuiDefaultBold", 1.0, 12, true, 95, 150, 165, 0.75)
+    if UI.was_button_pressed("settings_btn") then
+      showSettings = not showSettings
+    end
+
+    if showSettings then
+      UI.begin_child(20, 70, 320, 300, "SettingsChild", true, 0,
+                     true, 0.75, 5, 95, 150, 165)
+
+      UI.add_label(10, 10, 0, 0, "Settings", "ImGuiDefaultBold", 1.3)
+
+      -- Radio: difficulty 
+      UI.add_radio(10, 45, 0, 0, "Easy",   "difficulty", 0, s_difficulty, false)
+      UI.add_radio(10, 65, 0, 0, "Normal", "difficulty", 1, s_difficulty, false)
+      UI.add_radio(10, 85, 0, 0, "Hard",   "difficulty", 2, s_difficulty, false)
+
+      -- Dropdown: skin 
+      UI.add_dropdown(10, 115, 240, 0, "Bird Skin", "bird_skin_dd",
+                      { "Classic", "Blue", "Red", "Gold" }, s_skin)
+
+      -- Color picker: tint 
+      UI.add_color_picker(10, 150, 0, 0, "Tint", "bird_tint",
+                          s_tint[1], s_tint[2], s_tint[3], s_tint[4])
+
+      -- Checkbox + slider examples 
+      UI.add_checkbox(10, 220, 0, 0, "Music", "music_chk", s_music)
+      UI.add_slider(10, 245, 200, "Volume", "volume", 0.0, 1.0, s_volume)
+
+      -- Save on change
+      if UI.was_radio_changed("difficulty") then
+        local v = UI.get_radio("difficulty")
+        Json.save_setting(GAME_ID, "ui.difficulty", v)
+        s_difficulty = v
+      end
+
+      if UI.was_dropdown_changed("bird_skin_dd") then
+        local idx = UI.get_dropdown_index("bird_skin_dd")
+        Json.save_setting(GAME_ID, "ui.skin_index", idx)
+        s_skin = idx
+      end
+
+      if UI.was_color_changed("bird_tint") then
+        local c = UI.get_color("bird_tint")
+        Json.save_setting(GAME_ID, "ui.tint", c)
+        s_tint = c
+      end
+
+      if UI.was_checkbox_changed("music_chk") then
+        local m = UI.get_checkbox("music_chk")
+        Json.save_setting(GAME_ID, "audio.music", m)
+        s_music = m
+      end
+
+      if UI.was_slider_changed("volume") then
+        local vol = UI.get_slider("volume")
+        Json.save_setting(GAME_ID, "audio.volume", vol)
+        s_volume = vol
+      end
+
+      UI.end_child()
+    end
+    ]]
+
+    -- =====================================================================================================
+    -- End of UI examples
+    -- =====================================================================================================
+
+    
 
     ------------------
 	-- Point effect
@@ -1501,7 +1466,7 @@ end
         )
 
         local lcx = lbW / 2
-        UI.add_centered_label(lcx, 6, T("fb.leaderboard"), UI_FONT_HEADER, 1.0)
+        UI.add_centered_label(lcx, 12, T("fb.leaderboard"), UI_FONT_HEADER, 1.0)
 
         if topLeaderboard then
             for i, e in ipairs(topLeaderboard) do
@@ -1525,7 +1490,7 @@ end
 
        local cx = panelW / 2
        local y0 = 14
-       local gap = 28
+       local gap = 22
 
        UI.add_centered_label(cx, y0, text1, UI_FONT_HEADER, 1.0)
        UI.add_centered_label(cx, y0 + gap*2, topScore, UI_FONT_SUB, 1.0)
@@ -1624,81 +1589,60 @@ end
     ------------------------------------
     -- Pipe reset w randomness 
     ------------------------------------
-    for i, set in ipairs(pipeSets) do
+    for _, set in ipairs(pipeSets) do
         local pipeX = Mafs.get_vec_x(Fysics.get_pos(set.bottom))
 
-        if pipeX < pipeOffScreenLeft then
+        if pipeX < -0.6 then
 
-            -- Added difficulty: shrink pipe gap as score increases (in pixels)
-            local effectiveScore = math.min(Pscore / 3, 20)
-            local t = math.random()
-            t = t * t
-            local gapSize = gapMinAtCap + math.random() * (pipeStartGap - gapMinAtCap)
+            -- Added difficulty: shrink pipe gap as score increases
+            local gapSize = pipeStartGap - (Pscore * pipeShrinkGap)
+            if gapSize < pipeMinGap then
+                gapSize = pipeMinGap
+            end
 
-
-            -- Random gap center Y position (in pixels)
-            local floorPad = 10
-
-            local minCenter = pipesetMinGap
-            local maxCenter = pipesetMaxGap
-
-            
-            local maxByFloor = (floorTopWorld - floorPad) - (gapSize / 2)
-            if maxCenter > maxByFloor then maxCenter = maxByFloor end
-            if maxCenter < minCenter then maxCenter = minCenter end
-
-            local gapCenter = minCenter + math.random() * (maxCenter - minCenter)
-
+            -- Random gap
+            local gapCenter = pipesetMinGap +
+                math.random() * (pipesetMaxGap - pipesetMinGap)
 
             if set.lastGapCenter then
                 local delta = gapCenter - set.lastGapCenter
-                if math.abs(delta) < 40 then
-                    gapCenter = gapCenter + (delta > 0 and 60 or -60)
+                if math.abs(delta) < 0.4 then
+                    gapCenter = gapCenter + (delta > 0 and 0.6 or -0.6)
                 end
             end
-            gapCenter = math.max(minCenter, math.min(maxCenter, gapCenter))
             set.lastGapCenter = gapCenter
 
-            -- Calculate pipe positions (in pixels)
-            -- bottomY is where the TOP edge of bottom pipe should be
+            -- Calculate pipe positions
             local bottomY = gapCenter + (gapSize / 2)
-            -- topY is where the BOTTOM edge of top pipe should be (pipe extends upward)
             local topY = gapCenter - (gapSize / 2) - pipeHeight
 
-            -- Respawn X: place this set after the current right-most pipe set
-            local rightMostX = -math.huge
-            for _, other in ipairs(pipeSets) do
-                if other ~= set then
-                    local ox = Mafs.get_vec_x(Fysics.get_pos(other.bottom))
-                    if ox > rightMostX then rightMostX = ox end
-                end
-            end
-            local spawnX = rightMostX + pipeSpacingX
-            if rightMostX == -math.huge then
-                spawnX = windowW + 60
-            end
-            if spawnX < windowW + 60 then spawnX = windowW + 60 end
+            local spawnX = (windowW + 60) / 100
 
             -- Apply positions
             Fysics.set_pos(set.bottom, spawnX, bottomY)
             Fysics.set_pos(set.top, spawnX, topY)
 
             set.passed = false
-            
-            -- Respawn the coin associated with this pipe set
-            local c = coins[i]
-            if c then
-                spawnCoins(c, set, 140)
-                
-                local s = Entity.get_sprite_component(c)
-                if s then
-                    Sprite.set_width(s, 16)
-                    Sprite.set_height(s, 16)
-                end
-                
-                coinHidden[c] = false
-                Fysics.set_linear_velocity(c, coinSpeed, 0)
+        end
+    end
+
+    -- Coin reset
+    for i, c in ipairs(coins) do
+        local coinX = Mafs.get_vec_x(Fysics.get_pos(c))
+
+        if coinX < -0.6 then
+            local pipeSet = pipeSets[i]
+
+            spawnCoins(c, pipeSet, 140)
+
+            local s = Entity.get_sprite_component(c)
+            if s then
+                Sprite.set_width(s, 16)
+                Sprite.set_height(s, 16)
             end
+
+            coinHidden[c] = false
+            Fysics.set_linear_velocity(c, coinSpeed, 0)
         end
     end
 
@@ -1708,7 +1652,7 @@ end
         local pipeX = Mafs.get_vec_x(Fysics.get_pos(set.bottom))
         if birdX > pipeX and not set.passed then
             Pscore = Pscore + 1
-            pipeScoreText = T("fb.score_label") .. tostring(Pscore)
+            pipeScoreText = "Score: " .. tostring(Pscore)
             set.passed = true
 
             -- Show pipe point effect
@@ -1721,57 +1665,20 @@ end
    local cx = windowW / 2
    local cy = windowH / 2
     -- UI
+    UI.Add_label(10, 10, 1000, 1000, pipeScoreText)
+    UI.Add_label(10, 40, 1000, 1000, scoreText)
 
-    UI.add_label(10, 10, 1000, 1000, pipeScoreText, UI_FONT_REG, 1)
-    UI.add_label(10, 40, 1000, 1000, scoreText, UI_FONT_REG, 1)
-    UI.add_centered_label(cx, cy, text1, UI_FONT_HEADER, 1)
     ------------------------------
     -----------Raycast------------
     ---------------------------------
-    if ENABLE_RAYCAST then
-        local playerPos = Entity.get_center_pos(player1)
-        local mousePos = Input.get_mouse_pos()
-        local hit, info = Fysics.raycast(playerPos, mousePos)
-        Fysics.draw_raycast(playerPos, mousePos, false)
-        local hitEntity = Raycast.entity(info)
-        if hit and hitEntity then
-            -- Check if the hit entity is a coin
-            local isCoin = false
-            for _, c in ipairs(coins) do
-                if c == hitEntity then
-                    isCoin = true
-                    break
-                end
-            end
-            
-            -- Only collect coins via raycast
-            if isCoin and not coinHidden[hitEntity] then
-                Fysics.draw_raycast(playerPos, mousePos, true)
-                
-                -- Hide the coin sprite
-                local s = Entity.get_sprite_component(hitEntity)
-                if s then
-                    Sprite.set_width(s, 0)
-                    Sprite.set_height(s, 0)
-                end
-                
-                -- Move the coin physics body off-screen
-                Fysics.set_pos(hitEntity, -1000, -1000)
-                Fysics.set_linear_velocity(hitEntity, 0, 0)
-                
-                coinHidden[hitEntity] = true
-                score = score + 1
-                scoreText = T("fb.coins") .. tostring(score)
-                
-                -- Play coin sfx
-                if coinSound then
-                    AudioComponent.play(coinSound)
-                end
-                
-                -- Show point effect
-                showPointEffect()
-            end
-        end
+    local playerPos = Entity.get_center_pos(player1)
+    local mousePos = Input.get_mouse_pos()
+    local hit, info = Fysics.raycast(playerPos, mousePos)
+    Fysics.draw_raycast(playerPos, mousePos, false)
+    local hitEntity = Raycast.entity(info)
+    if hit and hitEntity then
+        Fysics.draw_raycast(playerPos, mousePos, true)
+        Entity.set_global_pos(hitEntity, 200, 300)
     end
 
 
@@ -1799,18 +1706,14 @@ function ExampleScript:OnTriggerEnter(a, b)
                 Sprite.set_width(s, 0)
                 Sprite.set_height(s, 0)
             end
-            
-            -- Move the coin physics body off-screen
-            Fysics.set_pos(c, -1000, -1000)
-            Fysics.set_linear_velocity(c, 0, 0)
-            
             coinHidden[c] = true
             score = score + 1
-            scoreText = T("fb.coins") .. tostring(score)
+            scoreText = "Coins: " .. tostring(score)
 
             -- Output coin sfx
             if coinSound then
-                AudioComponent.play(coinSound)
+            AudioComponent.play(coinSound)
+            print("Coin sfx played")
             end
 
             -- Show point effect

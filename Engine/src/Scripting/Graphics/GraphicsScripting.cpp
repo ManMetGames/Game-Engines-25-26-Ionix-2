@@ -108,14 +108,6 @@ namespace IonixEngine {
             spriteComponent->setZedOrder(x);
             };
 
-        auto setAngle = [](SpriteComponent* spriteComponent, float angle) {
-            spriteComponent->setAngle(angle);
-            };
-
-        auto getAngle = [](SpriteComponent* spriteComponent) -> float {
-            return spriteComponent->getAngle();
-            };
-
         auto getPlaybackMode = [](SpriteComponent* spriteComponent) -> int {
             return spriteComponent->getPlaybackMode();
             };
@@ -259,8 +251,6 @@ namespace IonixEngine {
             "set_image_width", setImageWidth,
             "set_image_height", setImageHeight,
             "set_zed_order", setZedOrder,
-            "set_angle", setAngle,
-            "get_angle", getAngle,
             "get_playback_mode", getPlaybackMode,
             "set_playback_mode", setPlaybackMode,
             "set_color", setColor,

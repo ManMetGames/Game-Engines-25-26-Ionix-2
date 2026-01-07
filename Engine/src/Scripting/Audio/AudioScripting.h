@@ -1,9 +1,7 @@
 #pragma once
 #include <sol/sol.hpp>
 #include "Audio/AudioPlayer.h"
-#include "Audio/MusicComponent.h"
 #include "Architecture/AudioSystem/SoundManager.h"
-#include "Architecture/AudioSystem/MusicManager.h"
 #include <lua.h>
 
 namespace IonixEngine {

@@ -6,5 +6,4 @@
 #include "Architecture/Macros.h"
 #include "LayerSystem/Layer.h"
 #include "LayerSystem/LayerStack.h"
-#include "Audio/MusicComponent.h"
 #include "imgui.h"

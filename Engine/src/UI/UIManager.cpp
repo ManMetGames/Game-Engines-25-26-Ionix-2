@@ -10,9 +10,9 @@ void UIManager::AddChildToPanel(UIElement* element)
 	elements.push_back(element);
 }
 
-void UIManager::AddLabel(int x, int y, float xSize, float ySize, const char* text, const std::string& fontName, float fontScale, float wrapWidth)
+void UIManager::AddLabel(int x, int y, float xSize, float ySize, const char* text, const std::string& fontName, float fontScale)
 {
-	UIElement* element = new UIElement{};
+	UIElement* element = new UIElement;
 	element->type = UIType::Label;
 	element->xPos = x;
 	element->yPos = y;
@@ -22,12 +22,10 @@ void UIManager::AddLabel(int x, int y, float xSize, float ySize, const char* tex
 	element->text = element->ownedText.c_str();
 	element->fontName = fontName;
 	element->fontScale = fontScale;
-	element->wrapWidth = wrapWidth;
-
 	AddChildToPanel(element);
 }
 
-void UIManager::AddCenteredLabel(float centerX, float y, const char* text, const std::string& fontName, float fontScale, float wrapWidth)
+void UIManager::AddCenteredLabel(float centerX, float y, const char* text, const std::string& fontName, float fontScale)
 {
 	UIElement* element = new UIElement{};
 	element->type = UIType::Label;
@@ -37,7 +35,6 @@ void UIManager::AddCenteredLabel(float centerX, float y, const char* text, const
 
 	element->fontName = fontName;
 	element->fontScale = fontScale;
-	element->wrapWidth = wrapWidth;
 
 	element->ownedText = (text ? text : "");
 	element->text = element->ownedText.c_str();
@@ -47,9 +44,9 @@ void UIManager::AddCenteredLabel(float centerX, float y, const char* text, const
 
 void UIManager::AddLabelColored(int x, int y, float xSize, float ySize, const char* text,
 	float r, float g, float b, float a,
-	const std::string& fontName, float fontScale, float wrapWidth)
+	const std::string& fontName, float fontScale)
 {
-	UIElement* element = new UIElement{};
+	UIElement* element = new UIElement;
 	element->type = UIType::Label;
 	element->xPos = x;
 	element->yPos = y;
@@ -61,7 +58,6 @@ void UIManager::AddLabelColored(int x, int y, float xSize, float ySize, const ch
 
 	element->fontName = fontName;
 	element->fontScale = fontScale;
-	element->wrapWidth = wrapWidth;
 
 	element->hasTextColor = true;
 	element->textColor = ImVec4(r, g, b, a);
@@ -71,7 +67,7 @@ void UIManager::AddLabelColored(int x, int y, float xSize, float ySize, const ch
 
 void UIManager::AddCenteredLabelColored(float centerX, float y, const char* text,
 	float r, float g, float b, float a,
-	const std::string& fontName, float fontScale, float wrapWidth)
+	const std::string& fontName, float fontScale)
 {
 	UIElement* element = new UIElement{};
 	element->type = UIType::Label;
@@ -81,7 +77,6 @@ void UIManager::AddCenteredLabelColored(float centerX, float y, const char* text
 
 	element->fontName = fontName;
 	element->fontScale = fontScale;
-	element->wrapWidth = wrapWidth;
 
 	element->ownedText = (text ? text : "");
 	element->text = element->ownedText.c_str();
@@ -90,47 +85,6 @@ void UIManager::AddCenteredLabelColored(float centerX, float y, const char* text
 	element->textColor = ImVec4(r, g, b, a);
 
 	AddChildToPanel(element);
-}
-
-static void DrawWrappedCenteredLines(const char* text, float regionLeft, float regionWidth, float startY)
-{
-	if (!text || regionWidth <= 0.0f) return;
-	ImFont* font = ImGui::GetFont();
-	const float fontSize = ImGui::GetFontSize();
-	const float lineH = ImGui::GetTextLineHeightWithSpacing();
-
-	const char* s = text;
-	const char* end = text + (int)strlen(text);
-	float y = startY;
-
-	while (s < end)
-	{
-		const char* newline = (const char*)memchr(s, '\n', (size_t)(end - s));
-		const char* hardEnd = newline ? newline : end;
-
-		const char* wrapEnd = font->CalcWordWrapPositionA(fontSize, s, hardEnd, regionWidth);
-		if (wrapEnd == s)
-			wrapEnd = hardEnd;
-
-		const char* lineEnd = wrapEnd;
-		while (lineEnd > s && (lineEnd[-1] == ' ' || lineEnd[-1] == '\t'))
-			lineEnd--;
-
-		float lineW = ImGui::CalcTextSize(s, lineEnd).x;
-		float x = regionLeft + (regionWidth - lineW) * 0.5f;
-
-		ImGui::SetCursorPos(ImVec2(x, y));
-		ImGui::TextUnformatted(s, lineEnd);
-
-		y += lineH;
-
-		s = wrapEnd;
-		while (s < hardEnd && (*s == ' ' || *s == '\t'))
-			s++;
-
-		if (newline && s >= newline)
-			s = newline + 1;
-	}
 }
 
 void UIManager::AddButton(int x, int y, float xSize, float ySize, const char* text, const char* id, const std::string& fontName, float fontScale, float rounding, bool useColor,
@@ -342,7 +296,7 @@ void UIManager::SetSlider(const std::string& id, float v)
 
 void UIManager::AddInputText(int xPos, int yPos, float width, const char* label, const char* id, size_t maxLen, const std::string& fontName, float fontScale)
 {
-	UIElement* element = new UIElement{};
+	UIElement* element = new UIElement;
 	element->type = UIType::InputText;
 	element->xPos = xPos;
 	element->yPos = yPos;
@@ -537,7 +491,7 @@ void UIManager::AddDropdownStyled(int x, int y, float xSize, float ySize, const 
 
 void UIManager::AddProgressBar(int x, int y, float xSize, float ySize, float maxvalue, float* currentvalue, float incrementamount, const std::string& fontName)
 {
-	UIElement* element = new UIElement{};
+	UIElement* element = new UIElement;
 	element->type = UIType::ProgressBar;
 	element->xPos = x;
 	element->yPos = y;
@@ -607,50 +561,6 @@ void UIManager::AddProgressBarValueStyled(int x, int y, float xSize, float ySize
 
 	element->progressCapMax = capMax;
 	element->progressCapFill = capFill;
-	element->fontName = fontName;
-	element->fontScale = fontScale;
-
-	AddChildToPanel(element);
-}
-
-void UIManager::AddProgressBarValueLayered(int x, int y, float xSize, float ySize,
-	float maxValue, float currentValue, int colorId,
-	float rounding, float borderSize,
-	bool useColors, ImVec4 bg, ImVec4 fill, ImVec4 border,
-	float overfillValue, ImVec4 overfillColor,
-	float capMax, ImVec4 capFill,
-	const std::string& overlayText,
-	const std::string& fontName, float fontScale)
-{
-	UIElement* element = new UIElement{};
-	element->type = UIType::ProgressBar;
-	element->xPos = x;
-	element->yPos = y;
-	element->xSize = xSize;
-	element->ySize = ySize;
-
-	element->maxValue = maxValue;
-	element->currentValue = nullptr;          // value-mode
-	element->incrementAmount = 0.0f;
-
-	element->progressCurrentValue = currentValue;
-	element->progressColorId = colorId;
-
-	element->progressCustomStyle = true;
-	element->progressRounding = rounding;
-	element->progressBorderSize = borderSize;
-	element->progressUseColors = useColors;
-	element->progressBg = bg;
-	element->progressFill = fill;
-	element->progressBorder = border;
-	element->progressOverlayText = overlayText;
-
-	element->progressOverfillValue = overfillValue;
-	element->progressOverfillColor = overfillColor;
-
-	element->progressCapMax = capMax;
-	element->progressCapFill = capFill;
-
 	element->fontName = fontName;
 	element->fontScale = fontScale;
 
@@ -781,6 +691,13 @@ void UIManager::RenderElement(UIElement* element)
 	{
 		float x = (float)element->xPos;
 
+		if (element->centerAligned)
+		{
+			// This runs during rendering, with the correct font pushed already
+			float w = ImGui::CalcTextSize(element->text).x;
+			x = element->centerX - (w * 0.5f);
+		}
+
 		bool pushedTextColor = false;
 		if (element->hasTextColor)
 		{
@@ -788,32 +705,11 @@ void UIManager::RenderElement(UIElement* element)
 			pushedTextColor = true;
 		}
 
-		if (element->centerAligned && element->wrapWidth > 0.0f)
-		{
-			float regionLeft = element->centerX - (element->wrapWidth * 0.5f);
-			DrawWrappedCenteredLines(element->text, regionLeft, element->wrapWidth, (float)element->yPos);
-		}
-		else if (element->wrapWidth > 0.0f)
-		{
-			ImGui::SetCursorPos(ImVec2(x, (float)element->yPos));
-			ImGui::PushTextWrapPos(ImGui::GetCursorPosX() + element->wrapWidth);
-			ImGui::TextUnformatted(element->text);
-			ImGui::PopTextWrapPos();
-		}
-		else
-		{
-			if (element->centerAligned)
-			{
-				float w = ImGui::CalcTextSize(element->text).x;
-				x = element->centerX - (w * 0.5f);
-			}
-			m_ui->DrawLabel(element->text, element->xSize, element->ySize, (int)x, element->yPos);
-		}
+		m_ui->DrawLabel(element->text, element->xSize, element->ySize, (int)x, element->yPos);
 
 		if (pushedTextColor) ImGui::PopStyleColor();
 		break;
 	}
-
 	case UIType::Button:
 	{
 		// Make ImGui id unique: "Visible##id"
@@ -1106,13 +1002,9 @@ void UIManager::RenderElement(UIElement* element)
 			{
 				if (element->progressCustomStyle)
 				{
-					bool hasCap = (element->progressCapMax > 0.0f && element->progressCapMax < element->maxValue && element->progressCapFill.w > 0.0f);
-					bool hasOverfill = (element->progressOverfillValue > 0.0f && element->progressOverfillColor.w > 0.0f);
-
-					if (hasCap || hasOverfill)
+					if (element->progressCapMax > 0.0f && element->progressCapMax < element->maxValue && element->progressCapFill.w > 0.0f)
 					{
-						// Use the layered bar which supports both overfill and cap
-						m_ui->DrawProgressBarLayered(
+						m_ui->DrawProgressBarStyledCapped(
 							element->xPos, element->yPos,
 							element->xSize, element->ySize,
 							element->maxValue,
@@ -1124,8 +1016,6 @@ void UIManager::RenderElement(UIElement* element)
 							element->progressBg,
 							element->progressFill,
 							element->progressBorder,
-							element->progressOverfillValue,
-							element->progressOverfillColor,
 							element->progressCapMax,
 							element->progressCapFill,
 							element->progressOverlayText.c_str()
