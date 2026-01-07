@@ -116,6 +116,7 @@ return {
         Play = 1380681860,
         PointEffect = 4172305526,
         PongBall = 2488799070,
+        PongPaddle = 1367919372,
         Previous = 1657061876,
         Purple = 1889853884,
         Restart = 3946504526,

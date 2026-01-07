@@ -18,6 +18,20 @@ function PongButBetter:OnStart()
     Entity.set_global_pos(background, 0, 0)
     backgroundSprite = Entity.add_sprite_component(background, assets.textures.BackgroundPong, 800, 600, 0)
 
+    -- Create Left Paddle
+    leftPaddle = Entity.create_entity()
+    Entity.set_global_pos(leftPaddle, 30, 300)
+    leftPaddleSprite = Entity.add_sprite_component(leftPaddle, assets.textures.PongPaddle, 20, 80, 0)
+    Entity.add_fysics_component(leftPaddle, 1, false)
+    Fysics.add_box_collider(leftPaddle, 20, 80, 0, 0, 0, false)
+    
+    -- Create Right Paddle
+    rightPaddle = Entity.create_entity()
+    Entity.set_global_pos(rightPaddle, 770, 300)
+    rightPaddleSprite = Entity.add_sprite_component(rightPaddle, assets.textures.PongPaddle, 20, 80, 0)
+    Entity.add_fysics_component(rightPaddle, 1, false)
+    Fysics.add_box_collider(rightPaddle, 20, 80, 0, 0, 0, false)
+        
     -- Create Walls
     topWall = Entity.create_entity()
     Entity.set_global_pos(topWall, 400, 0)
@@ -51,12 +65,12 @@ function PongButBetter:OnUpdate()
     local dt = Mafs.delta_time()
 
     if dt > 0.1 then
-        dt = 0.016  -- ~60fps
+        dt = 0.016 -- ~60fps
     end
 
     ballX = ballX + ballVelX * dt
     ballY = ballY + ballVelY * dt
-    
+
     if ballY <= 20 or ballY >= 580 then
         ballVelY = -ballVelY
     end

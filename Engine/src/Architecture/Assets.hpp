@@ -119,6 +119,7 @@ struct Textures {
     uint32_t Play = 1380681860u;
     uint32_t PointEffect = 4172305526u;
     uint32_t PongBall = 2488799070u;
+    uint32_t PongPaddle = 1367919372u;
     uint32_t Previous = 1657061876u;
     uint32_t Purple = 1889853884u;
     uint32_t Restart = 3946504526u;
@@ -334,6 +335,7 @@ struct Textures {
         map["Play"] = "./Assets/Jimmy Demo/Menu/Buttons/Play.png";
         map["PointEffect"] = "./Assets/PointEffect.png";
         map["PongBall"] = "./Assets/PongBall.png";
+        map["PongPaddle"] = "./Assets/PongPaddle.png";
         map["Previous"] = "./Assets/Jimmy Demo/Menu/Buttons/Previous.png";
         map["Purple"] = "./Assets/Jimmy Demo/Background/Purple.png";
         map["Restart"] = "./Assets/Jimmy Demo/Menu/Buttons/Restart.png";
