@@ -420,7 +420,7 @@ namespace IonixEngine
     }
     void NavMef::RebuildClearance()
     {
-        float m_agentRadius = 32/100;
+        float m_agentRadius = 64/100;
         if (m_agentRadius <= 0.0f)
             return;
 
