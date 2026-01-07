@@ -250,21 +250,17 @@ namespace IonixEngine
     //Olesya's funnel algorithm <3
     std::vector<b2Vec2> NavMef::Funnel(const std::vector<int>& cellPath)
     {
-        //std::cout << "Cell Path: " << cellPath.size() << std::endl;
-
-        // get waypoints through shared edges
         std::vector<b2Vec2> result;
-        if (cellPath.size() < 2) 
-        { 
-            return result; 
+        if (cellPath.size() < 2)
+        {
+            return result;
         }
 
-        //collect corridor edges
         std::vector<b2Vec2> left;
         std::vector<b2Vec2> right;
 
-        
-        for (int i = 0; i < cellPath.size() - 1; i++) {
+        for (int i = 0; i < cellPath.size() - 1; i++)
+        {
             int a = cellPath[i];
             int b = cellPath[i + 1];
 
@@ -272,29 +268,35 @@ namespace IonixEngine
             const Cell& cb = m_cells[b];
 
             int sharedCount = 0;
-
             b2Vec2 p0;
             b2Vec2 p1;
 
-            // find two shared corners between different cells
-            for (int ia = 0; ia < 4; ia++) {
-                for (int ib = 0; ib < 4; ib++) {
-                    if (ca.corns[ia] == cb.corns[ib]) {
-                        if (sharedCount == 0) { p0 = m_corners[ca.corns[ia]]; }
-                        if (sharedCount == 1) { p1 = m_corners[ca.corns[ia]]; }
+            for (int ia = 0; ia < 4; ia++)
+            {
+                for (int ib = 0; ib < 4; ib++)
+                {
+                    if (ca.corns[ia] == cb.corns[ib])
+                    {
+                        if (sharedCount == 0) p0 = m_corners[ca.corns[ia]];
+                        if (sharedCount == 1) p1 = m_corners[ca.corns[ia]];
                         sharedCount++;
                     }
                 }
             }
 
-            // push the edge to either left or right to sort the order
-            if (sharedCount == 2) {
-                if (p0.x < p1.x) {
+            if (sharedCount == 2)
+            {
+                b2Vec2 dir = GetCellCentre(cb) - GetCellCentre(ca);
+                b2Vec2 perp(-dir.y, dir.x);
+                b2Vec2 centre = GetCellCentre(ca);
+
+                if (b2Dot(p0 - centre, perp) < 0)
+                {
                     left.push_back(p0);
                     right.push_back(p1);
                 }
-                else {
-
+                else
+                {
                     left.push_back(p1);
                     right.push_back(p0);
                 }
@@ -302,8 +304,6 @@ namespace IonixEngine
         }
 
         b2Vec2 apex = GetCellCentre(m_cells[cellPath[0]]);
-
-        // set up  funnel apex
         int leftIndex = 0;
         int rightIndex = 0;
 
@@ -313,17 +313,19 @@ namespace IonixEngine
         result.push_back(apex);
 
         int i = 1;
-        while (i < left.size()) {
-
+        while (i < left.size())
+        {
             b2Vec2 newLeft = left[i] - apex;
 
-
-            if (b2Cross(rightLeg, newLeft) <= 0) {
-                if (b2Cross(leftLeg, newLeft) >= 0) {
+            if (b2Cross(rightLeg, newLeft) <= 0)
+            {
+                if (b2Cross(leftLeg, newLeft) >= 0)
+                {
                     leftLeg = newLeft;
                     leftIndex = i;
                 }
-                else {
+                else
+                {
                     apex = apex + leftLeg;
                     result.push_back(apex);
                     rightIndex = i;
@@ -334,18 +336,18 @@ namespace IonixEngine
 
             b2Vec2 newRight = right[i] - apex;
 
-            if (b2Cross(newRight, leftLeg) <= 0) {
-
-                if (b2Cross(newRight, rightLeg) >= 0) {
+            if (b2Cross(newRight, leftLeg) <= 0)
+            {
+                if (b2Cross(newRight, rightLeg) >= 0)
+                {
                     rightLeg = newRight;
                     rightIndex = i;
                 }
-                else {
+                else
+                {
                     apex = apex + rightLeg;
                     result.push_back(apex);
-
                     leftIndex = i;
-
                     leftLeg = left[leftIndex] - apex;
                     rightLeg = right[rightIndex] - apex;
                 }
@@ -357,6 +359,7 @@ namespace IonixEngine
         result.push_back(GetCellCentre(m_cells[cellPath.back()]));
         return result;
     }
+
 
 
 
