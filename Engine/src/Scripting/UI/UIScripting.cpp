@@ -14,17 +14,19 @@ namespace IonixEngine {
     void UIScripting::Init(sol::state& lua)
     {
         auto AddLabel = [](const int x, int y, float xSize, float ySize, const char* text, sol::optional<std::string> fontName,
-            sol::optional<float> fontScale) {
+            sol::optional<float> fontScale, sol::optional<float> wrapWidth) {
                 Application::Get().layerUI->m_UIManager->AddLabel(x, y, xSize, ySize, text,
                     fontName.value_or(""),
-                    fontScale.value_or(1.0f));
+                    fontScale.value_or(1.0f),
+                    wrapWidth.value_or(0.0f));
             };
 
         auto AddCenteredLabel = [](float centerX, float y, const char* text, sol::optional<std::string> fontName,
-            sol::optional<float> fontScale) {
+            sol::optional<float> fontScale, sol::optional<float> wrapWidth) {
                 Application::Get().layerUI->m_UIManager->AddCenteredLabel(centerX, y, text,
                     fontName.value_or(""),
-                    fontScale.value_or(1.0f));
+                    fontScale.value_or(1.0f),
+                    wrapWidth.value_or(0.0f));
             };
 
 
@@ -32,7 +34,7 @@ namespace IonixEngine {
         auto AddLabelColored = [](const int x, int y, float xSize, float ySize, const char* text,
             sol::table color,
             sol::optional<std::string> fontName,
-            sol::optional<float> fontScale)
+            sol::optional<float> fontScale, sol::optional<float> wrapWidth)
             {
                 auto norm = [](float v) -> float { return (v > 1.0f) ? (v / 255.0f) : v; };
 
@@ -51,14 +53,15 @@ namespace IonixEngine {
                     x, y, xSize, ySize, text,
                     r, g, b, a,
                     fontName.value_or(""),
-                    fontScale.value_or(1.0f)
+                    fontScale.value_or(1.0f),
+                    wrapWidth.value_or(0.0f)
                 );
             };
 
         auto AddCenteredLabelColored = [](float centerX, float y, const char* text,
             sol::table color,
             sol::optional<std::string> fontName,
-            sol::optional<float> fontScale)
+            sol::optional<float> fontScale, sol::optional<float> wrapWidth)
             {
                 auto norm = [](float v) -> float { return (v > 1.0f) ? (v / 255.0f) : v; };
 
@@ -77,7 +80,8 @@ namespace IonixEngine {
                     centerX, y, text,
                     r, g, b, a,
                     fontName.value_or(""),
-                    fontScale.value_or(1.0f)
+                    fontScale.value_or(1.0f),
+                    wrapWidth.value_or(0.0f)
                 );
             };
 
@@ -354,6 +358,75 @@ namespace IonixEngine {
                     overlayText.value_or(""),
                     "", 1.0f,
                     capMax, capFill
+                );
+            };
+
+        // Layered progress bar: supports both overfill (on top, e.g. overhealth) and cap (lost portion)
+        auto DrawProgressBarLayered = [](int x, int y, float xSize, float ySize,
+            float maxValue, float currentValue, int colorId,
+            sol::optional<sol::table> style,
+            sol::optional<std::string> overlayText)
+            {
+                auto norm = [](float v) -> float { return (v > 1.0f) ? (v / 255.0f) : v; };
+
+                float rounding = -1.0f;
+                float borderSize = -1.0f;
+                bool useColors = false;
+                ImVec4 bg = ImVec4(0, 0, 0, 0);
+                ImVec4 fill = ImVec4(0, 0, 0, 0);
+                ImVec4 border = ImVec4(0, 0, 0, 0);
+
+                float overfillValue = 0.0f;
+                ImVec4 overfillColor = ImVec4(0.2f, 0.6f, 1.0f, 0.85f); // default blue
+
+                float capMax = -1.0f;
+                ImVec4 capFill = ImVec4(1.0f, 0.82f, 0.24f, 0.86f); // default golden
+
+                if (style)
+                {
+                    sol::table t = style.value();
+
+                    if (sol::optional<float> v = t["rounding"]) rounding = *v;
+                    if (sol::optional<float> v = t["border_size"]) borderSize = *v;
+
+                    auto readColor = [&](const char* key, ImVec4& out) -> bool
+                        {
+                            sol::object o = t[key];
+                            if (!o.valid() || !o.is<sol::table>()) return false;
+                            sol::table c = o.as<sol::table>();
+                            float r = norm(c.get_or(1, 0.0f));
+                            float g = norm(c.get_or(2, 0.0f));
+                            float b = norm(c.get_or(3, 0.0f));
+                            float a = norm(c.get_or(4, 1.0f));
+                            out = ImVec4(r, g, b, a);
+                            return true;
+                        };
+
+                    bool any = false;
+                    any = readColor("bg", bg) || any;
+                    any = readColor("fill", fill) || any;
+                    any = readColor("border", border) || any;
+
+                    // Overfill (overhealth)
+                    if (sol::optional<float> v = t["overfill"]) overfillValue = *v;
+                    bool hasOverfillColor = readColor("overfill_color", overfillColor);
+
+                    // Cap (lost portion)
+                    if (sol::optional<float> v = t["cap_max"]) capMax = *v;
+                    bool hasCapFill = readColor("cap_fill", capFill);
+
+                    useColors = any || hasOverfillColor || hasCapFill;
+                }
+
+                Application::Get().layerUI->m_UIManager->AddProgressBarValueLayered(
+                    x, y, xSize, ySize,
+                    maxValue, currentValue, colorId,
+                    rounding, borderSize,
+                    useColors, bg, fill, border,
+                    overfillValue, overfillColor,
+                    capMax, capFill,
+                    overlayText.value_or(""),
+                    "", 1.0f
                 );
             };
 
@@ -650,6 +723,7 @@ namespace IonixEngine {
             "add_slider_styled", AddSliderStyled,
             "draw_progress_bar", DrawProgressBar,
             "draw_progress_bar_styled", DrawProgressBarStyled,
+            "draw_progress_bar_layered", DrawProgressBarLayered,
             "add_input_text", AddInputText,
             "add_panel", AddPanel,
             "add_radio", AddRadio,

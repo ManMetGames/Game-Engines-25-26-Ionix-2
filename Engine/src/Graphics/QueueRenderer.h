@@ -41,7 +41,7 @@ namespace IonixEngine {
 		QueueRenderer(const QueueRenderer& obj) = delete; //prevent copis
 		QueueRenderer();
 		void AddToQueue(RenderCall sprite);
-		void OrderQueueByZ(queue<RenderCall>& sprites);
+		void Sort();
 		void RenderFromQueue();
 		void ClearQueue(queue<RenderCall>& sprites);
 		void DrawLine(int x1, int y1, int x2, int y2, bool hitColor);
@@ -53,8 +53,7 @@ namespace IonixEngine {
 
 		//sort algorithm stuff
 		void Merger(vector<RenderCall>& arr, int left, int mid, int right);
-		void MergeCaller(queue<RenderCall>& sprites, vector<RenderCall>& arr, int left, int right);
-		void ArrToQueueConverter(vector<RenderCall> temp, queue<RenderCall>& sprites);
+		void MergeSort(vector<RenderCall>& arr, int left, int right);
 
 	};
 }
