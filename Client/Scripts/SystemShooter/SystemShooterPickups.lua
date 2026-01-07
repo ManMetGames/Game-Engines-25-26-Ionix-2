@@ -35,6 +35,9 @@ local pickupPool = {}
 
 --=====================================================================
 --  [PUBLIC API] Spawn healing orb at position
+--  NOTE: Health orbs are stationary - they spawn at a fixed position
+--  and never move. The x,y coordinates are stored as simple values,
+--  not references to enemy positions.
 --=====================================================================
 function SystemShooterPickups.trySpawnHealingOrb(x, y)
     local roll = math.random()
@@ -60,8 +63,12 @@ function SystemShooterPickups.trySpawnHealingOrb(x, y)
         }
     end
     
-    pickup.x = x - CONFIG.ORB_SIZE / 2
-    pickup.y = y - CONFIG.ORB_SIZE / 2
+    -- Store spawn position as local values (not references)
+    -- These coordinates never change after spawning
+    local spawnX = x - CONFIG.ORB_SIZE / 2
+    local spawnY = y - CONFIG.ORB_SIZE / 2
+    pickup.x = spawnX
+    pickup.y = spawnY
     pickup.age = 0
     pickup.pickupType = "healing"
     pickup.baseSize = CONFIG.ORB_SIZE

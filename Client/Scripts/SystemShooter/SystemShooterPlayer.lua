@@ -450,9 +450,9 @@ function SystemShooterPlayer.updateAiming(enemies, enemySize)
         local e = enemies[i]
         -- Skip dead enemies for auto-aim (but allow disabled enemies for pre-fire)
         if not e.isDead then
-            local eSize = e.size or enemySize
-            local enemyCenterX = e.x + eSize/2
-            local enemyCenterY = e.y + eSize/2
+            -- enemy.x/y are already center-based after API change
+            local enemyCenterX = e.x
+            local enemyCenterY = e.y
             local dx = enemyCenterX - playerCenterX
             local dy = enemyCenterY - playerCenterY
             local distSq = dx * dx + dy * dy
@@ -464,7 +464,7 @@ function SystemShooterPlayer.updateAiming(enemies, enemySize)
     end
 
     if closestEnemy ~= nil then
-        local eSize = closestEnemy.size or enemySize
+        -- enemy.x/y are already center-based after API change
         local enemyCenterX = closestEnemy.x
         local enemyCenterY = closestEnemy.y
         local dx = enemyCenterX - playerCenterX

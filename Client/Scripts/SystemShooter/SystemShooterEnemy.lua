@@ -38,6 +38,7 @@ local ENEMY_TYPE_COLORS = {
     stationary_boss = {255, 100, 100},
     orbit = {200, 100, 255},
     teleporter = nil,
+    shielder = {50, 200, 200},  -- Teal/cyan for shield enemy
 }
 
 SystemShooterEnemy.DEFAULTS = DEFAULTS
@@ -48,6 +49,7 @@ SystemShooterEnemy.DEFAULTS = DEFAULTS
  local updateBounceMovement
  local updateOrbitMovement
  local updateTeleporterMovement
+ local updateShielderMovement
  local updateSpin
  local updateShootingRotation
 
@@ -141,6 +143,21 @@ function SystemShooterEnemy.createEnemy(x, y, config)
         beamAudioPlayed = false,  -- Track if beam audio has been played for current shot
         rainbowHue = 0,
         baseSize = size,
+        
+        -- Shielder-specific properties
+        shielderSpeed = config.shielderSpeed or 400,
+        shielderSpeedFast = config.shielderSpeedFast or 550,
+        shielderSpeedSlow = config.shielderSpeedSlow or 200,
+        shielderOrbitRadius = config.shielderOrbitRadius or 80,
+        shielderRotationSpeed = config.shielderRotationSpeed or 2.5,  -- Radians per second around ally
+        shielderCurrentAngle = 0,  -- Track current orbital angle
+        protectedAlly = nil,
+        isWalkingToAlly = true,  -- Start in walking state to find initial ally
+        
+        -- Shield state flags (always initialize to ensure they're never nil)
+        hasShield = false,  -- Set to true during spawn if shields are successfully created
+        shieldBroken = false,  -- Set to true if shield is destroyed or creation fails
+        shieldLaunched = false,  -- Set to true when shield is launched (stops movement)
     }
 
     Sprite.set_image_width(sprite, math.floor(displaySize))
@@ -180,9 +197,9 @@ function SystemShooterEnemy.setEnemyDisabled(enemy, disabled, screenW, screenH)
             if enemy.movementType == "orbit" then
                 local centerX = enemy.orbitCenter and enemy.orbitCenter[1] or ((screenW or 1920) / 2)
                 local centerY = enemy.orbitCenter and enemy.orbitCenter[2] or ((screenH or 1080) / 2)
-                local eDisplaySize = enemy.displaySize or enemy.size
-                local enemyCenterX = enemy.x + eDisplaySize / 2
-                local enemyCenterY = enemy.y + eDisplaySize / 2
+                -- enemy.x/y are already center-based
+                local enemyCenterX = enemy.x
+                local enemyCenterY = enemy.y
                 enemy.orbitAngle = math.atan(enemyCenterY - centerY, enemyCenterX - centerX)
             end
         else
@@ -241,9 +258,11 @@ end
              -- No movement
          elseif movementType == "teleporter" then
              updateTeleporterMovement(enemy, dt, playerCenterX, playerCenterY, screenW, screenH, SpawnBeam, EmitTeleportBurst, EmitBeamCharge)
+         elseif movementType == "shielder" then
+             updateShielderMovement(enemy, enemies, dt, playerCenterX, playerCenterY, screenW, screenH)
          end
 
-         if movementType ~= "teleporter" and movementType ~= "bounce" then
+         if movementType ~= "teleporter" and movementType ~= "bounce" and movementType ~= "shielder" then
              local shootInterval = enemy.shootInterval
              if shootInterval and shootInterval > 0 then
                  enemy.shootTimer = (enemy.shootTimer or 0) + dt
@@ -529,6 +548,174 @@ local TELEPORT_GROW_DURATION = 0.25
             Sprite.set_image_height(enemy.sprite, enemy.baseSize)
         end
     end
+end
+
+ --=====================================================================
+ --  [MOVEMENT] Shielder (Protects allies with shield)
+ --=====================================================================
+ -- Valid movement types for shielder protection (excludes bounce - too fast to keep up with)
+ local PROTECTABLE_MOVEMENT_TYPES = {
+    stationary = true,
+    orbit = true,
+    stationary_boss = true,
+    teleporter = true,
+ }
+ 
+ -- Find the closest living ally (non-shielder enemy, only protectable types)
+ local function findClosestAlly(shielder, enemies)
+    local closestAlly = nil
+    local closestDistSq = math.huge
+    local shielderX = shielder.x
+    local shielderY = shielder.y
+    
+    for i = 1, #enemies do
+        local other = enemies[i]
+        -- Skip self, dead enemies, disabled enemies, other shielders, and non-protectable types (like bounce)
+        if other ~= shielder and not other.isDead and not other.disabled 
+           and other.movementType ~= "shielder" 
+           and PROTECTABLE_MOVEMENT_TYPES[other.movementType] then
+            local dx = other.x - shielderX
+            local dy = other.y - shielderY
+            local distSq = dx * dx + dy * dy
+            if distSq < closestDistSq then
+                closestDistSq = distSq
+                closestAlly = other
+            end
+        end
+    end
+    
+    return closestAlly
+ end
+ 
+ updateShielderMovement = function(enemy, enemies, dt, playerCenterX, playerCenterY, screenW, screenH)
+    -- If shield has been launched, stop all movement
+    if enemy.shieldLaunched then
+        return
+    end
+    
+    local shielderSpeed = enemy.shielderSpeed or 400
+    local shielderSpeedFast = enemy.shielderSpeedFast or 550  -- Speed when moving to new ally (reduced from 650 for better gameplay)
+    local shielderSpeedSlow = enemy.shielderSpeedSlow or 200  -- Slow speed when chasing player
+    local orbitRadius = enemy.shielderOrbitRadius or 80       -- Distance to maintain from protected ally
+    
+    -- Find current ally to protect
+    local currentAlly = enemy.protectedAlly
+    
+    -- Check if current ally is still valid (alive, not disabled, and still a protectable type)
+    if currentAlly then
+        if currentAlly.isDead or currentAlly.disabled or not PROTECTABLE_MOVEMENT_TYPES[currentAlly.movementType] then
+            currentAlly = nil
+            enemy.protectedAlly = nil
+            enemy.isWalkingToAlly = true  -- Flag that we need to walk to a new ally
+        end
+    end
+    
+    -- If no current ally, find closest one
+    if not currentAlly then
+        currentAlly = findClosestAlly(enemy, enemies)
+        enemy.protectedAlly = currentAlly
+        if currentAlly then
+            enemy.isWalkingToAlly = true  -- Start walking to new ally (don't snap)
+            -- Initialize target angle for when we arrive
+            -- Use math.atan(y, x) instead of deprecated math.atan2(y, x) for Lua 5.4 compatibility
+            local allyCenterX = currentAlly.x
+            local allyCenterY = currentAlly.y
+            enemy.shielderCurrentAngle = math.atan(enemy.y - allyCenterY, enemy.x - allyCenterX)
+        end
+    end
+    
+    -- Get shielder size for positioning
+    local eSize = enemy.displaySize or enemy.size or 32
+    local shielderCenterX = enemy.x
+    local shielderCenterY = enemy.y
+    
+    if currentAlly then
+        -- Calculate ally center (already center-based)
+        local allyCenterX = currentAlly.x
+        local allyCenterY = currentAlly.y
+        
+        -- Use the configured orbit radius (positions are center-based)
+        local dynamicRadius = orbitRadius
+        
+        -- Calculate distance from shielder to ally center
+        local dxToAlly = allyCenterX - shielderCenterX
+        local dyToAlly = allyCenterY - shielderCenterY
+        local distToAlly = math.sqrt(dxToAlly * dxToAlly + dyToAlly * dyToAlly)
+        
+        -- Threshold for "close enough" to start orbiting (within 1.5x orbit radius)
+        local orbitEngageThreshold = dynamicRadius * 1.5
+        
+        -- If we're walking to the ally (swapping), move toward them first
+        if enemy.isWalkingToAlly and distToAlly > orbitEngageThreshold then
+            -- Walk toward the ally using fast speed
+            local moveSpeed = shielderSpeedFast
+            local moveX = (dxToAlly / distToAlly) * moveSpeed * dt
+            local moveY = (dyToAlly / distToAlly) * moveSpeed * dt
+            
+            enemy.x = shielderCenterX + moveX
+            enemy.y = shielderCenterY + moveY
+            
+            -- Update angle as we approach
+            -- Use math.atan(y, x) instead of deprecated math.atan2(y, x) for Lua 5.4 compatibility
+            enemy.shielderCurrentAngle = math.atan(enemy.y - allyCenterY, enemy.x - allyCenterX)
+        else
+            -- We're close enough, start/continue orbiting
+            enemy.isWalkingToAlly = false
+            
+            -- Calculate target angle from ally to player
+            -- Use math.atan(y, x) instead of deprecated math.atan2(y, x) for Lua 5.4 compatibility
+            local targetAngle = math.atan(playerCenterY - allyCenterY, playerCenterX - allyCenterX)
+            
+            -- Get rotation speed limit (radians per second around the ally)
+            local rotationSpeed = enemy.shielderRotationSpeed or 2.5
+            
+            -- Calculate angle difference with wrapping
+            local angleDiff = targetAngle - enemy.shielderCurrentAngle
+            -- Normalize to [-π, π]
+            while angleDiff > math.pi do angleDiff = angleDiff - 2 * math.pi end
+            while angleDiff < -math.pi do angleDiff = angleDiff + 2 * math.pi end
+            
+            -- Limit rotation speed
+            local maxRotation = rotationSpeed * dt
+            if angleDiff > maxRotation then
+                angleDiff = maxRotation
+            elseif angleDiff < -maxRotation then
+                angleDiff = -maxRotation
+            end
+            
+            -- Update current angle
+            enemy.shielderCurrentAngle = enemy.shielderCurrentAngle + angleDiff
+            
+            -- Position shielder exactly ON the orbit radius (not moving toward target, just staying on circle)
+            enemy.x = allyCenterX + math.cos(enemy.shielderCurrentAngle) * dynamicRadius
+            enemy.y = allyCenterY + math.sin(enemy.shielderCurrentAngle) * dynamicRadius
+        end
+        
+        -- No sprite rotation needed - shield VFX automatically faces player
+        
+    else
+        -- No allies left - walk toward player slowly
+        local dx = playerCenterX - shielderCenterX
+        local dy = playerCenterY - shielderCenterY
+        local dist = math.sqrt(dx * dx + dy * dy)
+        
+        if dist > 50 then  -- Don't get too close
+            local moveX = (dx / dist) * shielderSpeedSlow * dt
+            local moveY = (dy / dist) * shielderSpeedSlow * dt
+            
+            enemy.x = shielderCenterX + moveX
+            enemy.y = shielderCenterY + moveY
+        end
+        
+        -- No sprite rotation needed - shield VFX automatically faces player
+    end
+    
+    -- Clamp to screen bounds
+    local halfSize = eSize / 2
+    if enemy.x < halfSize then enemy.x = halfSize end
+    if enemy.x > screenW - halfSize then enemy.x = screenW - halfSize end
+    if enemy.y < halfSize then enemy.y = halfSize end
+    if enemy.y > screenH - halfSize then enemy.y = screenH - halfSize end
 end
 
  --=====================================================================

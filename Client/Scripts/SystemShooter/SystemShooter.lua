@@ -212,6 +212,24 @@ local overhealthLightnings = {}  -- Array of { lightningId, targetEnemy }
 -- Chain lightning tracking (for following source position)
 local chainLightnings = {}  -- Array of { lightningId, sourceEnemy, targetEnemy }
 
+-- Enemy shield lightnings (V-shape shield effect attached to enemies)
+local shieldLightnings = {}  -- Array of { lightningId, enemy, offsetStartX, offsetStartY, offsetEndX, offsetEndY }
+
+-- Launched shields (when shield breaks, it flips and launches toward enemy)
+-- Now uses the actual lightning VFX instead of a sprite
+local launchedShields = {}  -- Array of { lightnings, x, y, dirX, dirY, damage, state, stateTimer, ... }
+local LAUNCHED_SHIELD_STATES = {
+    BOUNCE_BACK = "bounce",  -- Brief bounce back toward player (wind-up)
+    LAUNCH = "launch",       -- Flying toward/past enemy
+}
+local LAUNCHED_SHIELD_CONFIG = {
+    bounceBackDuration = 0.75,  -- How long the bounce back lasts
+    bounceBackSpeed = 50,      -- Speed of bounce back
+    launchSpeed = 500,          -- Speed when launching forward
+    lifetime = 4.0,             -- Max lifetime before despawn
+    hitRadius = 40,             -- Collision radius for hitting enemies
+}
+
 local function GetActiveEnemyCount()
     local count = 0
     for i = 1, #enemies do
@@ -404,6 +422,29 @@ local function ResetRunStateForMenu()
     -- Clean up lightning VFX tracking
     overhealthLightnings = {}
     chainLightnings = {}
+    
+    -- Clean up enemy shield lightnings
+    for _, shield in ipairs(shieldLightnings) do
+        if shield.lightningId and shield.lightningId >= 0 then
+            VFX.destroy_lightning(shield.lightningId)
+        end
+    end
+    shieldLightnings = {}
+    
+    -- Clean up launched shields (destroy their lightning VFX and anchor entities)
+    for _, shield in ipairs(launchedShields) do
+        if shield.lightnings then
+            for _, lightning in ipairs(shield.lightnings) do
+                if lightning.id and VFX.is_lightning_active(lightning.id) then
+                    VFX.destroy_lightning(lightning.id)
+                end
+            end
+        end
+        if shield.anchorEntity then
+            Entity.destroy_entity(shield.anchorEntity)
+        end
+    end
+    launchedShields = {}
 
     -- Reset player state via module
     SystemShooterPlayer.resetForRun()
@@ -617,8 +658,8 @@ local function SpawnEnemiesForLevel(spawnDisabled)
             if not enemyCfg.x and not enemyCfg.y and #cfg.enemies > 1 then
                 local radius = 120
                 local angle = (2 * math.pi * (i - 1)) / #cfg.enemies
-                spawnX = screenW / 2 + math.cos(angle) * radius - templateSize / 2
-                spawnY = screenH / 2 + math.sin(angle) * radius - templateSize / 2
+                spawnX = screenW / 2 + math.cos(angle) * radius
+                spawnY = screenH / 2 + math.sin(angle) * radius
             end
             
             local config = {
@@ -638,6 +679,12 @@ local function SpawnEnemiesForLevel(spawnDisabled)
                 orbitCenter = enemyCfg.orbitCenter,
                 orbitRadius = enemyCfg.orbitRadius,
                 orbitSpeed = enemyCfg.orbitSpeed,
+                -- Shielder-specific parameters
+                shielderSpeed = enemyCfg.shielderSpeed,
+                shielderSpeedFast = enemyCfg.shielderSpeedFast,
+                shielderSpeedSlow = enemyCfg.shielderSpeedSlow,
+                shielderOrbitRadius = enemyCfg.shielderOrbitRadius,
+                shielderRotationSpeed = enemyCfg.shielderRotationSpeed,
             }
             
             local e = CreateEnemy(spawnX, spawnY, config)
@@ -647,6 +694,128 @@ local function SpawnEnemiesForLevel(spawnDisabled)
             table.insert(enemies, e)
             -- Store spawn position for rewind system
             SystemShooterRewind.setSpawnPosition(#enemies, spawnX, spawnY)
+            
+            -- Store lightning shield config on enemy for reference
+            if enemyCfg.lightningShield then
+                e.lightningShieldConfig = enemyCfg.lightningShield
+            end
+            
+            -- Create lightning shield VFX if configured (always create, even when disabled - VFX follows enemy)
+            if enemyCfg.lightningShield and enemyCfg.lightningShield.enabled then
+                local shield = enemyCfg.lightningShield
+                local radius = shield.radius or 100
+                local spread = shield.spreadAngle or math.rad(90)
+                local facing = shield.facingAngle or (math.pi / 2)  -- Default: facing down
+                
+                -- Calculate the two arms of the V-shape
+                -- Left arm: from enemy center to left tip (swapped to flip the V)
+                local leftAngle = facing + spread / 2
+                local rightAngle = facing - spread / 2
+                
+                -- Offsets from enemy center to the V tips
+                local leftTipOffsetX = math.cos(leftAngle) * radius
+                local leftTipOffsetY = math.sin(leftAngle) * radius
+                local rightTipOffsetX = math.cos(rightAngle) * radius
+                local rightTipOffsetY = math.sin(rightAngle) * radius
+                
+                -- The apex of the V (center point where both bolts meet)
+                local apexOffsetX = math.cos(facing) * radius
+                local apexOffsetY = math.sin(facing) * radius
+                
+                -- Get initial enemy center position (enemy.x/y are already center-based)
+                local enemyCenterX = spawnX
+                local enemyCenterY = spawnY
+                
+                -- Get corruption config if present
+                local corruptionCfg = shield.corruption
+                
+                -- Create left lightning bolt (from left tip to apex)
+                local leftId = VFX.create_lightning(
+                    enemyCenterX + leftTipOffsetX,
+                    enemyCenterY + leftTipOffsetY,
+                    enemyCenterX + apexOffsetX,
+                    enemyCenterY + apexOffsetY,
+                    999999  -- Very long lifetime (permanent until destroyed)
+                )
+                if leftId and leftId >= 0 then
+                    local color = shield.color or { r = 0, g = 220, b = 255, a = 255 }
+                    VFX.set_lightning_color(leftId, color.r, color.g, color.b, color.a)
+                    VFX.set_lightning_properties(leftId, shield.thickness or 3.0, shield.jaggedness or 0.02, shield.segments or 12)
+                    VFX.set_lightning_flicker(leftId, true, shield.flickerSpeed or 0.08)
+                    VFX.set_lightning_fade_out(leftId, false)
+                    VFX.set_lightning_render_layer(leftId, 0, 15)
+                    
+                    -- Enable corruption system if configured
+                    if corruptionCfg and corruptionCfg.enabled then
+                        VFX.set_lightning_corruption_enabled(leftId, true)
+                        local targetColor = corruptionCfg.targetColor or { r = 255, g = 255, b = 255 }
+                        VFX.set_lightning_corruption_color(leftId, targetColor.r, targetColor.g, targetColor.b)
+                        VFX.set_lightning_corruption_rates(leftId, corruptionCfg.decayRate or 0.15, corruptionCfg.spreadRate or 0.3)
+                    end
+                    
+                    table.insert(shieldLightnings, {
+                        lightningId = leftId,
+                        enemy = e,
+                        baseOffsetStartX = leftTipOffsetX,
+                        baseOffsetStartY = leftTipOffsetY,
+                        baseOffsetEndX = apexOffsetX,
+                        baseOffsetEndY = apexOffsetY,
+                        baseFacingAngle = facing,
+                        currentRotation = 0,
+                        maxRotationSpeed = shield.maxRotationSpeed or 2.0,
+                        corruptionConfig = corruptionCfg,
+                        broken = false,
+                    })
+                end
+                
+                -- Create right lightning bolt (from right tip to apex)
+                local rightId = VFX.create_lightning(
+                    enemyCenterX + rightTipOffsetX,
+                    enemyCenterY + rightTipOffsetY,
+                    enemyCenterX + apexOffsetX,
+                    enemyCenterY + apexOffsetY,
+                    999999  -- Very long lifetime (permanent until destroyed)
+                )
+                if rightId and rightId >= 0 then
+                    local color = shield.color or { r = 0, g = 220, b = 255, a = 255 }
+                    VFX.set_lightning_color(rightId, color.r, color.g, color.b, color.a)
+                    VFX.set_lightning_properties(rightId, shield.thickness or 3.0, shield.jaggedness or 0.02, shield.segments or 12)
+                    VFX.set_lightning_flicker(rightId, true, shield.flickerSpeed or 0.08)
+                    VFX.set_lightning_fade_out(rightId, false)
+                    VFX.set_lightning_render_layer(rightId, 0, 15)
+                    
+                    -- Enable corruption system if configured
+                    if corruptionCfg and corruptionCfg.enabled then
+                        VFX.set_lightning_corruption_enabled(rightId, true)
+                        local targetColor = corruptionCfg.targetColor or { r = 255, g = 255, b = 255 }
+                        VFX.set_lightning_corruption_color(rightId, targetColor.r, targetColor.g, targetColor.b)
+                        VFX.set_lightning_corruption_rates(rightId, corruptionCfg.decayRate or 0.15, corruptionCfg.spreadRate or 0.3)
+                    end
+                    
+                    table.insert(shieldLightnings, {
+                        lightningId = rightId,
+                        enemy = e,
+                        baseOffsetStartX = rightTipOffsetX,
+                        baseOffsetStartY = rightTipOffsetY,
+                        baseOffsetEndX = apexOffsetX,
+                        baseOffsetEndY = apexOffsetY,
+                        baseFacingAngle = facing,
+                        currentRotation = 0,
+                        maxRotationSpeed = shield.maxRotationSpeed or 2.0,
+                        corruptionConfig = corruptionCfg,
+                        broken = false,
+                    })
+                end
+                
+                -- Store shield reference on enemy for collision checks only if BOTH lightning bolts were created successfully
+                if (leftId and leftId >= 0) and (rightId and rightId >= 0) then
+                    e.hasShield = true
+                    e.shieldBroken = false
+                else
+                    e.hasShield = false
+                    e.shieldBroken = true
+                end
+            end
         end
     else
         local enemyCount = cfg.enemyCount or 1
@@ -703,6 +872,21 @@ LoadLevel = function(index, resetPlayerState)
     notificationTimer = 0
 
     ClearEnemies()
+    
+    -- Clear launched shields from previous level to prevent health orb issues
+    for _, shield in ipairs(launchedShields) do
+        if shield.lightnings then
+            for _, lightning in ipairs(shield.lightnings) do
+                if lightning.id and VFX.is_lightning_active(lightning.id) then
+                    VFX.destroy_lightning(lightning.id)
+                end
+            end
+        end
+        if shield.anchorEntity then
+            Entity.destroy_entity(shield.anchorEntity)
+        end
+    end
+    launchedShields = {}
 
     levelEnemyHealth = cfg.enemyHealth or levelEnemyHealth
     enemyShootIntervalSeconds = cfg.enemyShootIntervalSeconds or enemyShootIntervalSeconds
@@ -977,6 +1161,167 @@ function SystemShooter:OnStart()
             addXp = function(amount) 
                 levelXpGained = levelXpGained + amount
                 SystemShooterPlayerProgress.addXp(amount) 
+            end,
+            checkShieldCollision = function(projX, projY, projSize)
+                -- Check collision with all active shield lightnings
+                for _, shield in ipairs(shieldLightnings) do
+                    if not shield.broken and VFX.is_lightning_active(shield.lightningId) then
+                        local enemy = shield.enemy
+                        if enemy and not enemy.isDead and not enemy.shieldBroken then
+                            -- Get segment count and check collision with each segment
+                            local segCount = VFX.get_lightning_segment_count(shield.lightningId)
+                            for seg = 0, segCount - 1 do
+                                local segX, segY, success = VFX.get_lightning_segment_position(shield.lightningId, seg)
+                                if success then
+                                    -- Check distance from projectile to segment midpoint
+                                    local dx = projX - segX
+                                    local dy = projY - segY
+                                    local distSq = dx * dx + dy * dy
+                                    local hitRadius = projSize / 2 + 15  -- 15 pixel collision radius for segments
+                                    
+                                    if distSq < hitRadius * hitRadius then
+                                        -- Emit white particles on shield hit (always, even if not breaking)
+                                        ParticleSystem.emitHitBurst(segX, segY, 255, 255, 255)
+                                        
+                                        -- Hit! Apply corruption to this segment
+                                        local corruptionCfg = shield.corruptionConfig
+                                        if corruptionCfg and corruptionCfg.enabled then
+                                            local hitAmount = corruptionCfg.hitAmount or 0.35
+                                            VFX.apply_lightning_corruption(shield.lightningId, seg, hitAmount)
+                                            
+                                            -- Check if shield is broken (total corruption exceeds threshold)
+                                            local totalCorruption = VFX.get_lightning_total_corruption(shield.lightningId)
+                                            local breakThreshold = corruptionCfg.breakThreshold or 0.85
+                                            
+                                            if totalCorruption >= breakThreshold then
+                                                -- Shield is broken! Launch it toward the shielder!
+                                                shield.broken = true
+                                                enemy.shieldBroken = true
+                                                
+                                                -- Stop the shield enemy from moving permanently
+                                                enemy.shieldLaunched = true
+                                                
+                                                -- Calculate the current shield apex position in WORLD coordinates
+                                                -- The apex is where the two lightnings meet (the point of the V that faces the player)
+                                                local cosRot = math.cos(shield.currentRotation)
+                                                local sinRot = math.sin(shield.currentRotation)
+                                                local rotatedApexX = shield.baseOffsetEndX * cosRot - shield.baseOffsetEndY * sinRot
+                                                local rotatedApexY = shield.baseOffsetEndX * sinRot + shield.baseOffsetEndY * cosRot
+                                                
+                                                local enemyCenterX = enemy.x
+                                                local enemyCenterY = enemy.y
+                                                local apexWorldX = enemyCenterX + rotatedApexX
+                                                local apexWorldY = enemyCenterY + rotatedApexY
+                                                
+                                                -- Launch direction: from apex TOWARD the shielder
+                                                local dxToShielder = enemyCenterX - apexWorldX
+                                                local dyToShielder = enemyCenterY - apexWorldY
+                                                local distToShielder = math.sqrt(dxToShielder * dxToShielder + dyToShielder * dyToShielder)
+                                                local launchDirX, launchDirY
+                                                if distToShielder > 0.001 then
+                                                    launchDirX = dxToShielder / distToShielder
+                                                    launchDirY = dyToShielder / distToShielder
+                                                else
+                                                    -- Fallback: use inverted facing direction
+                                                    local facingAngle = shield.baseFacingAngle + shield.currentRotation
+                                                    launchDirX = -math.cos(facingAngle)
+                                                    launchDirY = -math.sin(facingAngle)
+                                                end
+                                                
+                                                -- Collect ALL lightning IDs for this enemy (both left and right bolts)
+                                                -- and recalculate offsets relative to the APEX (not the shielder)
+                                                -- Also track which indices to remove from shieldLightnings
+                                                local lightningData = {}
+                                                local indicesToRemove = {}
+                                                for idx, otherShield in ipairs(shieldLightnings) do
+                                                    if otherShield.enemy == enemy and VFX.is_lightning_active(otherShield.lightningId) then
+                                                        -- Mark index for removal from shieldLightnings
+                                                        table.insert(indicesToRemove, idx)
+                                                        
+                                                        -- Disable corruption system - shield is already broken, don't let VFX auto-destroy
+                                                        VFX.set_lightning_corruption_enabled(otherShield.lightningId, false)
+                                                        
+                                                        -- Recalculate offsets relative to apex instead of enemy center
+                                                        -- Original: start = enemy + rotatedStart, end = enemy + rotatedEnd (apex)
+                                                        -- New: we want offsets from apex, so newStart = start - apex, newEnd = 0
+                                                        local newStartOffsetX = otherShield.baseOffsetStartX - shield.baseOffsetEndX
+                                                        local newStartOffsetY = otherShield.baseOffsetStartY - shield.baseOffsetEndY
+                                                        -- The apex itself is now at (0,0) in local space
+                                                        local newEndOffsetX = 0
+                                                        local newEndOffsetY = 0
+                                                        
+                                                        table.insert(lightningData, {
+                                                            id = otherShield.lightningId,
+                                                            baseOffsetStartX = newStartOffsetX,
+                                                            baseOffsetStartY = newStartOffsetY,
+                                                            baseOffsetEndX = newEndOffsetX,
+                                                            baseOffsetEndY = newEndOffsetY,
+                                                        })
+                                                    end
+                                                end
+                                                
+                                                -- Remove the lightnings from shieldLightnings (in reverse order to preserve indices)
+                                                for removeIdx = #indicesToRemove, 1, -1 do
+                                                    table.remove(shieldLightnings, indicesToRemove[removeIdx])
+                                                end
+                                                
+                                                -- Flip the rotation by 180 degrees so the apex now faces the shielder
+                                                local flippedRotation = shield.currentRotation + math.pi
+                                                
+                                                -- Create an invisible anchor entity for the launched shield
+                                                -- This entity controls the shield's position and lifetime
+                                                local anchorEntity = Entity.create_entity()
+                                                Entity.set_global_pos(anchorEntity, apexWorldX, apexWorldY)
+                                                
+                                                -- Store launched shield data - positioned at the APEX via the anchor entity
+                                                table.insert(launchedShields, {
+                                                    lightnings = lightningData,
+                                                    anchorEntity = anchorEntity,  -- Invisible entity that controls position
+                                                    x = apexWorldX,
+                                                    y = apexWorldY,
+                                                    dirX = launchDirX,
+                                                    dirY = launchDirY,
+                                                    rotation = flippedRotation,
+                                                    damage = enemy.health,  -- Damage equals shielder's current health
+                                                    state = LAUNCHED_SHIELD_STATES.BOUNCE_BACK,
+                                                    stateTimer = 0,
+                                                    lifetime = 0,
+                                                    sourceEnemy = enemy,  -- Track source (shielder stays frozen)
+                                                    hitEnemies = {},  -- Track enemies already hit
+                                                })
+                                                
+                                                -- Immediately update VFX positions to the new apex-relative positions
+                                                -- This prevents a 1-frame delay where VFX might be at wrong position
+                                                local cosRotImmediate = math.cos(flippedRotation)
+                                                local sinRotImmediate = math.sin(flippedRotation)
+                                                for _, lightning in ipairs(lightningData) do
+                                                    -- Set to fully white since the shield is fully corrupted
+                                                    VFX.set_lightning_color(lightning.id, 255, 255, 255, 255)
+                                                    
+                                                    local rotStartX = lightning.baseOffsetStartX * cosRotImmediate - lightning.baseOffsetStartY * sinRotImmediate
+                                                    local rotStartY = lightning.baseOffsetStartX * sinRotImmediate + lightning.baseOffsetStartY * cosRotImmediate
+                                                    local rotEndX = lightning.baseOffsetEndX * cosRotImmediate - lightning.baseOffsetEndY * sinRotImmediate
+                                                    local rotEndY = lightning.baseOffsetEndX * sinRotImmediate + lightning.baseOffsetEndY * cosRotImmediate
+                                                    VFX.set_lightning_position(lightning.id, 
+                                                        apexWorldX + rotStartX, apexWorldY + rotStartY,
+                                                        apexWorldX + rotEndX, apexWorldY + rotEndY)
+                                                end
+                                                
+                                                -- Emit larger particle burst at the apex (break position)
+                                                ParticleSystem.emitHitBurst(apexWorldX, apexWorldY, 50, 200, 200)
+                                                ParticleSystem.emitHitBurst(apexWorldX, apexWorldY, 255, 255, 255)
+                                            end
+                                        end
+                                        
+                                        -- Projectile is absorbed
+                                        return true
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+                return false
             end,
         }
     })
@@ -2314,9 +2659,237 @@ function SystemShooter:OnUpdate()
                 table.remove(chainLightnings, i)
             end
         end
+        
+        -- Update and cleanup enemy shield lightnings
+        i = 1
+        while i <= #shieldLightnings do
+            local shield = shieldLightnings[i]
+            if VFX.is_lightning_active(shield.lightningId) then
+                local enemy = shield.enemy
+                if enemy and not enemy.isDead then
+                    -- enemy.x/y are already center-based
+                    local enemyCenterX = enemy.x
+                    local enemyCenterY = enemy.y
+                    
+                    -- Calculate angle from enemy to player
+                    -- Use math.atan(y, x) instead of deprecated math.atan2(y, x) for Lua 5.4 compatibility
+                    local playerX, playerY = SystemShooterPlayer.getPosition()
+                    local angleToPlayer = math.atan(playerY - enemyCenterY, playerX - enemyCenterX)
+                    
+                    -- Calculate target rotation from base facing angle
+                    local targetRotation = angleToPlayer - shield.baseFacingAngle
+                    
+                    -- Normalize angle difference to [-π, π]
+                    local angleDiff = targetRotation - shield.currentRotation
+                    while angleDiff > math.pi do angleDiff = angleDiff - 2 * math.pi end
+                    while angleDiff < -math.pi do angleDiff = angleDiff + 2 * math.pi end
+                    
+                    -- Apply rotation speed limiting
+                    local maxRotation = shield.maxRotationSpeed * dt
+                    if angleDiff > maxRotation then
+                        angleDiff = maxRotation
+                    elseif angleDiff < -maxRotation then
+                        angleDiff = -maxRotation
+                    end
+                    
+                    -- Update current rotation
+                    shield.currentRotation = shield.currentRotation + angleDiff
+                    
+                    -- Apply rotation
+                    local cosRot = math.cos(shield.currentRotation)
+                    local sinRot = math.sin(shield.currentRotation)
+                    
+                    -- Rotate start offset
+                    local rotatedStartX = shield.baseOffsetStartX * cosRot - shield.baseOffsetStartY * sinRot
+                    local rotatedStartY = shield.baseOffsetStartX * sinRot + shield.baseOffsetStartY * cosRot
+                    
+                    -- Rotate end offset
+                    local rotatedEndX = shield.baseOffsetEndX * cosRot - shield.baseOffsetEndY * sinRot
+                    local rotatedEndY = shield.baseOffsetEndX * sinRot + shield.baseOffsetEndY * cosRot
+                    
+                    -- Update lightning position based on enemy center + rotated offsets
+                    local startX = enemyCenterX + rotatedStartX
+                    local startY = enemyCenterY + rotatedStartY
+                    local endX = enemyCenterX + rotatedEndX
+                    local endY = enemyCenterY + rotatedEndY
+                    
+                    VFX.set_lightning_position(shield.lightningId, startX, startY, endX, endY)
+                    i = i + 1
+                else
+                    -- Enemy died, destroy the shield lightning
+                    VFX.destroy_lightning(shield.lightningId)
+                    table.remove(shieldLightnings, i)
+                end
+            else
+                -- Lightning no longer active, remove from tracking
+                table.remove(shieldLightnings, i)
+            end
+        end
     end
 
     ParticleSystem.update(dt)
+    
+    -- Update launched shields (shield projectiles that fly toward enemies when broken)
+    local i = 1
+    while i <= #launchedShields do
+        local shield = launchedShields[i]
+        shield.lifetime = shield.lifetime + dt
+        shield.stateTimer = shield.stateTimer + dt
+        
+        -- Check if shield should be removed - ONLY when lifetime expires
+        -- The anchor entity controls the shield's lifetime, not the VFX state
+        local shouldRemove = false
+        if shield.lifetime >= LAUNCHED_SHIELD_CONFIG.lifetime then
+            shouldRemove = true
+        end
+        
+        if shouldRemove then
+            -- Destroy all lightning VFX for this launched shield
+            for _, lightning in ipairs(shield.lightnings) do
+                if VFX.is_lightning_active(lightning.id) then
+                    VFX.destroy_lightning(lightning.id)
+                end
+            end
+            -- Destroy the anchor entity
+            if shield.anchorEntity then
+                Entity.destroy_entity(shield.anchorEntity)
+            end
+            table.remove(launchedShields, i)
+        else
+            -- State machine for shield behavior
+            if shield.state == LAUNCHED_SHIELD_STATES.BOUNCE_BACK then
+                -- Bounce back toward player briefly (wind-up)
+                local bounceSpeed = LAUNCHED_SHIELD_CONFIG.bounceBackSpeed
+                shield.x = shield.x - shield.dirX * bounceSpeed * dt
+                shield.y = shield.y - shield.dirY * bounceSpeed * dt
+                
+                -- Sync anchor entity position
+                if shield.anchorEntity then
+                    Entity.set_global_pos(shield.anchorEntity, shield.x, shield.y)
+                end
+                
+                -- Transition to launch after bounce duration
+                if shield.stateTimer >= LAUNCHED_SHIELD_CONFIG.bounceBackDuration then
+                    shield.state = LAUNCHED_SHIELD_STATES.LAUNCH
+                    shield.stateTimer = 0
+                end
+            elseif shield.state == LAUNCHED_SHIELD_STATES.LAUNCH then
+                -- Launch forward toward and past the enemy
+                local launchSpeed = LAUNCHED_SHIELD_CONFIG.launchSpeed
+                shield.x = shield.x + shield.dirX * launchSpeed * dt
+                shield.y = shield.y + shield.dirY * launchSpeed * dt
+                
+                -- Sync anchor entity position
+                if shield.anchorEntity then
+                    Entity.set_global_pos(shield.anchorEntity, shield.x, shield.y)
+                end
+                
+                -- Check collision with enemies (including the source shielder!)
+                for j = 1, #enemies do
+                    local enemy = enemies[j]
+                    if not enemy.isDead and not enemy.disabled and not shield.hitEnemies[enemy] then
+                        local eSize = enemy.displaySize or enemy.size or 32
+                        local dx = enemy.x - shield.x
+                        local dy = enemy.y - shield.y
+                        local distSq = dx * dx + dy * dy
+                        local hitDist = LAUNCHED_SHIELD_CONFIG.hitRadius + eSize / 2
+                        
+                        if distSq < hitDist * hitDist then
+                            -- Hit enemy! Deal damage equal to shield enemy's health
+                            shield.hitEnemies[enemy] = true
+                            
+                            -- Deal damage (this will likely one-shot most enemies)
+                            local previousHealth = enemy.health
+                            local actualDamage = math.min(shield.damage, previousHealth)
+                            enemy.health = enemy.health - shield.damage
+                            
+                            -- Track damage dealt for stats
+                            runDamageDealt = runDamageDealt + actualDamage
+                            
+                            -- Award XP for damage dealt (same as regular hits)
+                            local damageXp = math.floor(actualDamage * 0.5)
+                            if damageXp > 0 then
+                                levelXpGained = levelXpGained + damageXp
+                                SystemShooterPlayerProgress.addXp(damageXp)
+                            end
+                            
+                            -- Emit hit particles (white for corrupted shield)
+                            ParticleSystem.emitHitBurst(enemy.x, enemy.y, enemy.color[1], enemy.color[2], enemy.color[3])
+                            ParticleSystem.emitHitBurst(enemy.x, enemy.y, 255, 255, 255)  -- White for corrupted shield
+                            
+                            -- Play impact sound
+                            SystemShooterAudio.playImpact()
+                            
+                            -- Check if enemy died
+                            if enemy.health <= 0 then
+                                enemy.isDead = true
+                                enemy.health = 0
+                                
+                                -- Store death position BEFORE moving entity off-screen
+                                -- This ensures health orbs spawn at the correct static location
+                                local deathX = enemy.x
+                                local deathY = enemy.y
+                                
+                                Entity.set_global_pos(enemy.entity, -1000, -1000)
+                                
+                                -- Update display size before death for particles
+                                SystemShooterEnemy.updateDisplaySize(enemy)
+                                
+                                -- Try to spawn healing orb at the stored death position (not enemy reference)
+                                SystemShooterPickups.trySpawnHealingOrb(deathX, deathY)
+                                
+                                -- Track kill for stats
+                                runEnemiesKilled = runEnemiesKilled + 1
+                            end
+                        end
+                    end
+                end
+            end
+            
+            -- Update lightning VFX positions based on shield position and rotation
+            local cosRot = math.cos(shield.rotation)
+            local sinRot = math.sin(shield.rotation)
+            
+            for _, lightning in ipairs(shield.lightnings) do
+                if VFX.is_lightning_active(lightning.id) then
+                    -- Rotate the offsets by the flipped rotation
+                    local rotatedStartX = lightning.baseOffsetStartX * cosRot - lightning.baseOffsetStartY * sinRot
+                    local rotatedStartY = lightning.baseOffsetStartX * sinRot + lightning.baseOffsetStartY * cosRot
+                    local rotatedEndX = lightning.baseOffsetEndX * cosRot - lightning.baseOffsetEndY * sinRot
+                    local rotatedEndY = lightning.baseOffsetEndX * sinRot + lightning.baseOffsetEndY * cosRot
+                    
+                    -- Position lightning relative to shield center
+                    local startX = shield.x + rotatedStartX
+                    local startY = shield.y + rotatedStartY
+                    local endX = shield.x + rotatedEndX
+                    local endY = shield.y + rotatedEndY
+                    
+                    VFX.set_lightning_position(lightning.id, startX, startY, endX, endY)
+                end
+            end
+            
+            i = i + 1
+        end
+    end
+    
+    -- Clean up shieldLaunched flag when launched shields are removed
+    for j = 1, #enemies do
+        local enemy = enemies[j]
+        if enemy.shieldLaunched then
+            -- Check if this enemy's launched shield is still active
+            local hasActiveShield = false
+            for k = 1, #launchedShields do
+                if launchedShields[k].sourceEnemy == enemy then
+                    hasActiveShield = true
+                    break
+                end
+            end
+            if not hasActiveShield then
+                enemy.shieldLaunched = false
+            end
+        end
+    end
+    
     SystemShooterPickups.update(dt)
     
     -- Check pickup collision and heal player (skip during rewind)

@@ -2,6 +2,7 @@
 #include "Architecture/Application.h"
 #include "Architecture/Scene.h"
 #include "Graphics/VFXSystem.h"
+#include <tuple>
 
 namespace IonixEngine {
 
@@ -269,6 +270,98 @@ namespace IonixEngine {
             scene->GetVFXSystem().SetLightningFadeOut(id, enabled);
         };
 
+        // =========================================================================
+        // LIGHTNING CORRUPTION SYSTEM BINDINGS
+        // =========================================================================
+
+        // Enable/disable corruption system for a lightning bolt
+        auto setLightningCorruptionEnabled = [](int id, bool enabled) {
+            if (!Application::Get().layerScene || !Application::Get().layerScene->GetScene()) {
+                return;
+            }
+            Scene* scene = Application::Get().layerScene->GetScene();
+            scene->GetVFXSystem().SetLightningCorruptionEnabled(id, enabled);
+        };
+
+        // Set corruption target color (the color segments turn when corrupted)
+        auto setLightningCorruptionColor = [](int id, int r, int g, int b) {
+            if (!Application::Get().layerScene || !Application::Get().layerScene->GetScene()) {
+                return;
+            }
+            Scene* scene = Application::Get().layerScene->GetScene();
+            scene->GetVFXSystem().SetLightningCorruptionColor(
+                id,
+                static_cast<Uint8>(r),
+                static_cast<Uint8>(g),
+                static_cast<Uint8>(b)
+            );
+        };
+
+        // Set corruption decay and spread rates
+        auto setLightningCorruptionRates = [](int id, float decayRate, float spreadRate) {
+            if (!Application::Get().layerScene || !Application::Get().layerScene->GetScene()) {
+                return;
+            }
+            Scene* scene = Application::Get().layerScene->GetScene();
+            scene->GetVFXSystem().SetLightningCorruptionRates(id, decayRate, spreadRate);
+        };
+
+        // Apply corruption to a specific segment
+        auto applyLightningCorruption = [](int id, int segmentIndex, float amount) {
+            if (!Application::Get().layerScene || !Application::Get().layerScene->GetScene()) {
+                return;
+            }
+            Scene* scene = Application::Get().layerScene->GetScene();
+            scene->GetVFXSystem().ApplyLightningCorruption(id, segmentIndex, amount);
+        };
+
+        // Apply corruption at a point (finds nearest segment)
+        auto applyLightningCorruptionAtPoint = [](int id, float x, float y, float amount) {
+            if (!Application::Get().layerScene || !Application::Get().layerScene->GetScene()) {
+                return;
+            }
+            Scene* scene = Application::Get().layerScene->GetScene();
+            scene->GetVFXSystem().ApplyLightningCorruptionAtPoint(id, x, y, amount);
+        };
+
+        // Get total corruption across all segments (0-1 average)
+        auto getLightningTotalCorruption = [](int id) -> float {
+            if (!Application::Get().layerScene || !Application::Get().layerScene->GetScene()) {
+                return 0.0f;
+            }
+            Scene* scene = Application::Get().layerScene->GetScene();
+            return scene->GetVFXSystem().GetLightningTotalCorruption(id);
+        };
+
+        // Get corruption of a specific segment
+        auto getLightningSegmentCorruption = [](int id, int segmentIndex) -> float {
+            if (!Application::Get().layerScene || !Application::Get().layerScene->GetScene()) {
+                return 0.0f;
+            }
+            Scene* scene = Application::Get().layerScene->GetScene();
+            return scene->GetVFXSystem().GetLightningSegmentCorruption(id, segmentIndex);
+        };
+
+        // Get number of segments in a lightning bolt
+        auto getLightningSegmentCount = [](int id) -> int {
+            if (!Application::Get().layerScene || !Application::Get().layerScene->GetScene()) {
+                return 0;
+            }
+            Scene* scene = Application::Get().layerScene->GetScene();
+            return scene->GetVFXSystem().GetLightningSegmentCount(id);
+        };
+
+        // Get the position of a segment's midpoint (returns x, y)
+        auto getLightningSegmentPosition = [](int id, int segmentIndex) -> std::tuple<float, float, bool> {
+            if (!Application::Get().layerScene || !Application::Get().layerScene->GetScene()) {
+                return std::make_tuple(0.0f, 0.0f, false);
+            }
+            Scene* scene = Application::Get().layerScene->GetScene();
+            float x = 0.0f, y = 0.0f;
+            bool success = scene->GetVFXSystem().GetLightningSegmentPosition(id, segmentIndex, x, y);
+            return std::make_tuple(x, y, success);
+        };
+
         // Check if lightning is active
         auto isLightningActive = [](int id) -> bool {
             if (!Application::Get().layerScene || !Application::Get().layerScene->GetScene()) {
@@ -311,6 +404,17 @@ namespace IonixEngine {
             "set_lightning_flicker", setLightningFlicker,
             "set_lightning_render_layer", setLightningRenderLayer,
             "set_lightning_fade_out", setLightningFadeOut,
+            
+            // Lightning corruption system
+            "set_lightning_corruption_enabled", setLightningCorruptionEnabled,
+            "set_lightning_corruption_color", setLightningCorruptionColor,
+            "set_lightning_corruption_rates", setLightningCorruptionRates,
+            "apply_lightning_corruption", applyLightningCorruption,
+            "apply_lightning_corruption_at_point", applyLightningCorruptionAtPoint,
+            "get_lightning_total_corruption", getLightningTotalCorruption,
+            "get_lightning_segment_corruption", getLightningSegmentCorruption,
+            "get_lightning_segment_count", getLightningSegmentCount,
+            "get_lightning_segment_position", getLightningSegmentPosition,
             
             // Lightning queries
             "is_lightning_active", isLightningActive,

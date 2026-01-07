@@ -4,6 +4,7 @@
 #include "Architecture/Scene.h"
 #include "Architecture/ECS/Temp_Vec2.hpp"
 #include <cmath>
+#include <limits>
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -250,6 +251,7 @@ namespace IonixEngine {
                 lightning.active = false;
                 lightning.pathX.clear();
                 lightning.pathY.clear();
+                lightning.segmentCorruption.clear();
                 continue;
             }
             
@@ -259,6 +261,51 @@ namespace IonixEngine {
                 if (lightning.flickerTimer >= lightning.flickerSpeed) {
                     lightning.flickerTimer = 0.0f;
                     GenerateLightningPath(lightning);
+                }
+            }
+            
+            // Update corruption system (decay and spread)
+            if (lightning.corruptionEnabled && !lightning.segmentCorruption.empty()) {
+                int numSegments = static_cast<int>(lightning.segmentCorruption.size());
+                
+                // Create a copy to calculate spread without affecting current values
+                std::vector<float> spreadDelta(numSegments, 0.0f);
+                
+                // Calculate spread from each segment to neighbors
+                for (int seg = 0; seg < numSegments; ++seg) {
+                    float corruption = lightning.segmentCorruption[seg];
+                    if (corruption > 0.0f) {
+                        // Spread to left neighbor
+                        if (seg > 0) {
+                            float diff = corruption - lightning.segmentCorruption[seg - 1];
+                            if (diff > 0.0f) {
+                                spreadDelta[seg - 1] += diff * lightning.corruptionSpreadRate * dt;
+                            }
+                        }
+                        // Spread to right neighbor
+                        if (seg < numSegments - 1) {
+                            float diff = corruption - lightning.segmentCorruption[seg + 1];
+                            if (diff > 0.0f) {
+                                spreadDelta[seg + 1] += diff * lightning.corruptionSpreadRate * dt;
+                            }
+                        }
+                    }
+                }
+                
+                // Apply spread and decay
+                for (int seg = 0; seg < numSegments; ++seg) {
+                    // Apply spread
+                    lightning.segmentCorruption[seg] += spreadDelta[seg];
+                    
+                    // Apply decay
+                    lightning.segmentCorruption[seg] -= lightning.corruptionDecayRate * dt;
+                    
+                    // Clamp to valid range
+                    if (lightning.segmentCorruption[seg] < 0.0f) {
+                        lightning.segmentCorruption[seg] = 0.0f;
+                    } else if (lightning.segmentCorruption[seg] > 1.0f) {
+                        lightning.segmentCorruption[seg] = 1.0f;
+                    }
                 }
             }
         }
@@ -549,6 +596,15 @@ namespace IonixEngine {
         lightning.renderLayer = 0;
         lightning.zOrder = 0;
         
+        // Reset corruption system to prevent state bleeding from reused slots
+        lightning.corruptionEnabled = false;
+        lightning.segmentCorruption.clear();
+        lightning.corruptR = 255;
+        lightning.corruptG = 255;
+        lightning.corruptB = 255;
+        lightning.corruptionDecayRate = 0.15f;
+        lightning.corruptionSpreadRate = 0.3f;
+        
         // Generate initial path
         GenerateLightningPath(lightning);
 
@@ -562,6 +618,7 @@ namespace IonixEngine {
         m_Lightnings[id].active = false;
         m_Lightnings[id].pathX.clear();
         m_Lightnings[id].pathY.clear();
+        m_Lightnings[id].segmentCorruption.clear();  // Clear corruption state to prevent bleeding on reuse
     }
 
     void VFXSystem::SetLightningPosition(int id, float startX, float startY, float endX, float endY) {
@@ -631,6 +688,175 @@ namespace IonixEngine {
         return m_Lightnings[id].active;
     }
 
+    void VFXSystem::SetLightningCorruptionEnabled(int id, bool enabled) {
+        if (id < 0 || static_cast<std::size_t>(id) >= m_Lightnings.size() || !m_Lightnings[id].active) {
+            return;
+        }
+        LightningEffect& lightning = m_Lightnings[id];
+        lightning.corruptionEnabled = enabled;
+        
+        // Initialize segment corruption array if enabling
+        if (enabled && lightning.segmentCorruption.size() != static_cast<std::size_t>(lightning.segments)) {
+            lightning.segmentCorruption.clear();
+            lightning.segmentCorruption.resize(lightning.segments, 0.0f);
+        }
+    }
+
+    void VFXSystem::SetLightningCorruptionColor(int id, Uint8 r, Uint8 g, Uint8 b) {
+        if (id < 0 || static_cast<std::size_t>(id) >= m_Lightnings.size() || !m_Lightnings[id].active) {
+            return;
+        }
+        m_Lightnings[id].corruptR = r;
+        m_Lightnings[id].corruptG = g;
+        m_Lightnings[id].corruptB = b;
+    }
+
+    void VFXSystem::SetLightningCorruptionRates(int id, float decayRate, float spreadRate) {
+        if (id < 0 || static_cast<std::size_t>(id) >= m_Lightnings.size() || !m_Lightnings[id].active) {
+            return;
+        }
+        m_Lightnings[id].corruptionDecayRate = decayRate;
+        m_Lightnings[id].corruptionSpreadRate = spreadRate;
+    }
+
+    void VFXSystem::ApplyLightningCorruption(int id, int segmentIndex, float amount) {
+        if (id < 0 || static_cast<std::size_t>(id) >= m_Lightnings.size() || !m_Lightnings[id].active) {
+            return;
+        }
+        LightningEffect& lightning = m_Lightnings[id];
+        if (!lightning.corruptionEnabled) {
+            return;
+        }
+        
+        // Ensure corruption array is properly sized
+        if (lightning.segmentCorruption.size() != static_cast<std::size_t>(lightning.segments)) {
+            lightning.segmentCorruption.resize(lightning.segments, 0.0f);
+        }
+        
+        if (segmentIndex >= 0 && segmentIndex < lightning.segments) {
+            float previousCorruption = lightning.segmentCorruption[segmentIndex];
+            lightning.segmentCorruption[segmentIndex] += amount;
+            
+            // If segment is fully corrupted, overflow to neighbors
+            if (lightning.segmentCorruption[segmentIndex] > 1.0f) {
+                float overflow = lightning.segmentCorruption[segmentIndex] - 1.0f;
+                lightning.segmentCorruption[segmentIndex] = 1.0f;
+                
+                // Distribute overflow to adjacent segments (50% each if both exist)
+                int leftNeighbor = segmentIndex - 1;
+                int rightNeighbor = segmentIndex + 1;
+                bool hasLeft = leftNeighbor >= 0;
+                bool hasRight = rightNeighbor < lightning.segments;
+                
+                if (hasLeft && hasRight) {
+                    // Split overflow between both neighbors
+                    lightning.segmentCorruption[leftNeighbor] += overflow * 0.5f;
+                    lightning.segmentCorruption[rightNeighbor] += overflow * 0.5f;
+                    
+                    // Clamp neighbors
+                    if (lightning.segmentCorruption[leftNeighbor] > 1.0f) {
+                        lightning.segmentCorruption[leftNeighbor] = 1.0f;
+                    }
+                    if (lightning.segmentCorruption[rightNeighbor] > 1.0f) {
+                        lightning.segmentCorruption[rightNeighbor] = 1.0f;
+                    }
+                } else if (hasLeft) {
+                    // Only left neighbor exists, give it all overflow
+                    lightning.segmentCorruption[leftNeighbor] += overflow;
+                    if (lightning.segmentCorruption[leftNeighbor] > 1.0f) {
+                        lightning.segmentCorruption[leftNeighbor] = 1.0f;
+                    }
+                } else if (hasRight) {
+                    // Only right neighbor exists, give it all overflow
+                    lightning.segmentCorruption[rightNeighbor] += overflow;
+                    if (lightning.segmentCorruption[rightNeighbor] > 1.0f) {
+                        lightning.segmentCorruption[rightNeighbor] = 1.0f;
+                    }
+                }
+            }
+        }
+    }
+
+    void VFXSystem::ApplyLightningCorruptionAtPoint(int id, float x, float y, float amount) {
+        if (id < 0 || static_cast<std::size_t>(id) >= m_Lightnings.size() || !m_Lightnings[id].active) {
+            return;
+        }
+        LightningEffect& lightning = m_Lightnings[id];
+        if (!lightning.corruptionEnabled || lightning.pathX.size() < 2) {
+            return;
+        }
+        
+        // Find the closest segment to the given point
+        int closestSegment = 0;
+        float closestDist = std::numeric_limits<float>::max();
+        
+        for (std::size_t i = 0; i < lightning.pathX.size() - 1; ++i) {
+            // Get segment midpoint
+            float midX = (lightning.pathX[i] + lightning.pathX[i + 1]) * 0.5f;
+            float midY = (lightning.pathY[i] + lightning.pathY[i + 1]) * 0.5f;
+            
+            float dx = x - midX;
+            float dy = y - midY;
+            float dist = dx * dx + dy * dy;
+            
+            if (dist < closestDist) {
+                closestDist = dist;
+                closestSegment = static_cast<int>(i);
+            }
+        }
+        
+        ApplyLightningCorruption(id, closestSegment, amount);
+    }
+
+    float VFXSystem::GetLightningTotalCorruption(int id) const {
+        if (id < 0 || static_cast<std::size_t>(id) >= m_Lightnings.size() || !m_Lightnings[id].active) {
+            return 0.0f;
+        }
+        const LightningEffect& lightning = m_Lightnings[id];
+        if (!lightning.corruptionEnabled || lightning.segmentCorruption.empty()) {
+            return 0.0f;
+        }
+        
+        float total = 0.0f;
+        for (float corruption : lightning.segmentCorruption) {
+            total += corruption;
+        }
+        return total / static_cast<float>(lightning.segmentCorruption.size());
+    }
+
+    float VFXSystem::GetLightningSegmentCorruption(int id, int segmentIndex) const {
+        if (id < 0 || static_cast<std::size_t>(id) >= m_Lightnings.size() || !m_Lightnings[id].active) {
+            return 0.0f;
+        }
+        const LightningEffect& lightning = m_Lightnings[id];
+        if (segmentIndex < 0 || static_cast<std::size_t>(segmentIndex) >= lightning.segmentCorruption.size()) {
+            return 0.0f;
+        }
+        return lightning.segmentCorruption[segmentIndex];
+    }
+
+    int VFXSystem::GetLightningSegmentCount(int id) const {
+        if (id < 0 || static_cast<std::size_t>(id) >= m_Lightnings.size() || !m_Lightnings[id].active) {
+            return 0;
+        }
+        return m_Lightnings[id].segments;
+    }
+
+    bool VFXSystem::GetLightningSegmentPosition(int id, int segmentIndex, float& outX, float& outY) const {
+        if (id < 0 || static_cast<std::size_t>(id) >= m_Lightnings.size() || !m_Lightnings[id].active) {
+            return false;
+        }
+        const LightningEffect& lightning = m_Lightnings[id];
+        if (segmentIndex < 0 || static_cast<std::size_t>(segmentIndex) >= lightning.pathX.size() - 1) {
+            return false;
+        }
+        
+        // Return midpoint of segment
+        outX = (lightning.pathX[segmentIndex] + lightning.pathX[segmentIndex + 1]) * 0.5f;
+        outY = (lightning.pathY[segmentIndex] + lightning.pathY[segmentIndex + 1]) * 0.5f;
+        return true;
+    }
+
     void VFXSystem::GenerateLightningPath(LightningEffect& lightning) {
         lightning.pathX.clear();
         lightning.pathY.clear();
@@ -690,11 +916,94 @@ namespace IonixEngine {
         
         // Draw each segment of the lightning bolt
         for (std::size_t i = 0; i < lightning.pathX.size() - 1; ++i) {
-            DrawThickLine(renderer, 
-                         lightning.pathX[i], lightning.pathY[i],
-                         lightning.pathX[i + 1], lightning.pathY[i + 1],
-                         lightning.thickness,
-                         lightning.r, lightning.g, lightning.b, finalAlpha);
+            // If corruption is enabled, we use a more complex rendering method
+            // to achieve the "Venn diagram" circle-shaped leak effect while preserving the line shape.
+            if (lightning.corruptionEnabled) {
+                float x1 = lightning.pathX[i];
+                float y1 = lightning.pathY[i];
+                float x2 = lightning.pathX[i+1];
+                float y2 = lightning.pathY[i+1];
+                
+                float dx = x2 - x1;
+                float dy = y2 - y1;
+                float len = std::sqrt(dx*dx + dy*dy);
+                
+                // Subdivide the segment into small steps to create a smooth gradient
+                // Step size of ~2-4 pixels
+                int steps = static_cast<int>(len / 3.0f);
+                if (steps < 1) steps = 1;
+                
+                for (int s = 0; s < steps; ++s) {
+                    float t1 = static_cast<float>(s) / steps;
+                    float t2 = static_cast<float>(s + 1) / steps;
+                    
+                    float subX1 = x1 + dx * t1;
+                    float subY1 = y1 + dy * t1;
+                    float subX2 = x1 + dx * t2;
+                    float subY2 = y1 + dy * t2;
+                    
+                    float midX = (subX1 + subX2) * 0.5f;
+                    float midY = (subY1 + subY2) * 0.5f;
+                    
+                    // Calculate corruption at this point based on overlapping circles
+                    float totalCorruption = 0.0f;
+                    
+                    // Check influence from current, previous, and next segments
+                    // We treat each segment as having a "corruption circle" at its center
+                    for (int k = static_cast<int>(i) - 1; k <= static_cast<int>(i) + 1; ++k) {
+                        if (k >= 0 && k < static_cast<int>(lightning.pathX.size()) - 1 && k < static_cast<int>(lightning.segmentCorruption.size())) {
+                            float cVal = lightning.segmentCorruption[k];
+                            if (cVal > 0.0f) {
+                                // Get center of segment k
+                                float kX1 = lightning.pathX[k];
+                                float kY1 = lightning.pathY[k];
+                                float kX2 = lightning.pathX[k+1];
+                                float kY2 = lightning.pathY[k+1];
+                                float kMidX = (kX1 + kX2) * 0.5f;
+                                float kMidY = (kY1 + kY2) * 0.5f;
+                                
+                                // Calculate distance from current point to segment k center
+                                float distSq = (midX - kMidX)*(midX - kMidX) + (midY - kMidY)*(midY - kMidY);
+                                float dist = std::sqrt(distSq);
+                                
+                                // Radius of influence (overlap factor)
+                                float kLen = std::sqrt((kX2-kX1)*(kX2-kX1) + (kY2-kY1)*(kY2-kY1));
+                                float radius = kLen * 1.5f; // 1.5 overlap factor for wider spread (Venn diagram style)
+                                
+                                if (dist < radius) {
+                                    // Radial falloff (circle shape)
+                                    float influence = 1.0f - (dist / radius);
+                                    // Smooth it a bit
+                                    influence = influence * influence * (3.0f - 2.0f * influence);
+                                    totalCorruption += cVal * influence;
+                                }
+                            }
+                        }
+                    }
+                    
+                    if (totalCorruption > 1.0f) totalCorruption = 1.0f;
+                    
+                    // Calculate color for this sub-segment
+                    Uint8 r = lightning.r;
+                    Uint8 g = lightning.g;
+                    Uint8 b = lightning.b;
+                    
+                    if (totalCorruption > 0.0f) {
+                        r = static_cast<Uint8>(lightning.r + (lightning.corruptR - lightning.r) * totalCorruption);
+                        g = static_cast<Uint8>(lightning.g + (lightning.corruptG - lightning.g) * totalCorruption);
+                        b = static_cast<Uint8>(lightning.b + (lightning.corruptB - lightning.b) * totalCorruption);
+                    }
+                    
+                    DrawThickLine(renderer, subX1, subY1, subX2, subY2, lightning.thickness, r, g, b, finalAlpha);
+                }
+            } else {
+                // Standard rendering for non-corrupted lightning
+                DrawThickLine(renderer, 
+                             lightning.pathX[i], lightning.pathY[i],
+                             lightning.pathX[i + 1], lightning.pathY[i + 1],
+                             lightning.thickness,
+                             lightning.r, lightning.g, lightning.b, finalAlpha);
+            }
         }
     }
 

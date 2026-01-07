@@ -36,7 +36,7 @@ local UPGRADE_CONFIG = {
         desc         = "upgradedesc.firepower",
         minLevel     = 1,
         maxValue     = 8,
-        defaultValue = 1,
+        defaultValue = 2, 
         weight       = 8,  -- Higher weight = more common
     },
     pierce = {
@@ -161,7 +161,7 @@ local xpToNextLevel = 100
 local totalXpEarned = 0  -- Total XP earned across the entire run (for score calculation)
 
 local playerStats = {
-    firepower = 1,
+    firepower = UPGRADE_CONFIG.firepower.defaultValue,
     pierceCount = 0,
     bounceCount = 0,
     fireInterval = 0.3,
@@ -567,7 +567,7 @@ function SystemShooterPlayerProgress.reset()
     pendingLevelUp = false
     timeoutCount = 0
     
-    playerStats.firepower = 1
+    playerStats.firepower = UPGRADE_CONFIG.firepower.defaultValue
     playerStats.pierceCount = 0
     playerStats.bounceCount = 0
     playerStats.fireInterval = 0.3

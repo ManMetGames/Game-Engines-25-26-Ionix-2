@@ -207,4 +207,7 @@ namespace Maf
 		return radians * (180.0f / static_cast<float>(mafPI()));
 	}
 
+	//additional vector functions from Olesya
+
+
 }
