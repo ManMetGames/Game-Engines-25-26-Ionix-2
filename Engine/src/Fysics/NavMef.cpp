@@ -138,6 +138,7 @@ namespace IonixEngine
 
         if (IsCellBlocked(startCell) || IsCellBlocked(goalCell))
         {
+            std::cout << "Cell is blocked" << std::endl;
             return {};
         }
 
@@ -249,7 +250,7 @@ namespace IonixEngine
     //Olesya's funnel algorithm <3
     std::vector<b2Vec2> NavMef::Funnel(const std::vector<int>& cellPath)
     {
-        std::cout << "Cell Path: " << cellPath.size() << std::endl;
+        //std::cout << "Cell Path: " << cellPath.size() << std::endl;
 
         // get waypoints through shared edges
         std::vector<b2Vec2> result;
@@ -400,13 +401,8 @@ namespace IonixEngine
         }
     }
 
-    void NavMef::AddObstacle(Entity* entity)
+    void NavMef::AddObstacle(const b2Vec2& min, const b2Vec2& max)
     {
-        FysicsManager* fysicsManager = Application::Get().layerFysics->GetFysicsManager();
-        b2Body* body = fysicsManager->GetBodyFromEntity(entity);
-        b2Vec2 position = body->GetPosition();
-        b2Vec2 min = position;
-        b2Vec2 max = b2Vec2(min.x + 64, min.y + 64);
         
         for (int i = 0; i < m_cells.size(); i++)
         {
@@ -430,6 +426,54 @@ namespace IonixEngine
         return m_blockedCells[cellIndex];
     }
 
+    void NavMef::DrawGrid(float x, float y, float width, float height, float cellSize, SDL_Color color)
+    {
+        SDL_Renderer* renderer = Application::Get().GetWindow().GetSdlRenderer();
+
+        // Draw filled rectangles for blocked cells first
+        for (int i = 0; i < m_cells.size(); ++i)
+        {
+            if (!m_blockedCells.empty() && m_blockedCells[i])
+            {
+                const Cell& cell = m_cells[i];
+
+                // get the 4 corners
+                b2Vec2 c0 = m_corners[cell.corns[0]];
+                b2Vec2 c1 = m_corners[cell.corns[1]];
+                b2Vec2 c2 = m_corners[cell.corns[2]];
+                b2Vec2 c3 = m_corners[cell.corns[3]];
+
+                // get the bounding rect
+                float minX = std::min({ c0.x, c1.x, c2.x, c3.x });
+                float maxX = std::max({ c0.x, c1.x, c2.x, c3.x });
+                float minY = std::min({ c0.y, c1.y, c2.y, c3.y });
+                float maxY = std::max({ c0.y, c1.y, c2.y, c3.y });
+
+                SDL_FRect rect = { minX * 100, minY * 100, maxX * 100 - minX * 100, maxY * 100 - minY * 100 };
+
+                // fill blocked cell in red (semi-transparent)
+                SDL_SetRenderDrawColor(renderer, 255, 0, 0, 100);
+                SDL_RenderFillRectF(renderer, &rect);
+            }
+        }
+
+        // Draw the base grid lines over everything
+        SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+
+        // vertical lines
+        for (float i = 0; i <= width; i += cellSize)
+        {
+            float xPos = x + i;
+            SDL_RenderDrawLineF(renderer, xPos, y, xPos, y + height);
+        }
+
+        // horizontal lines
+        for (float j = 0; j <= height; j += cellSize)
+        {
+            float yPos = y + j;
+            SDL_RenderDrawLineF(renderer, x, yPos, x + width, yPos);
+        }
+    }
 
 
 

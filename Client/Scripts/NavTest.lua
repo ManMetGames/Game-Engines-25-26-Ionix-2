@@ -15,19 +15,21 @@ function NavTest:OnStart()
     Fysics.set_gravity_scale(agentEntity, 0)
 
     --------Terrain-----------
-    terrainEntity = Entity.create_entity()
-    Entity.set_global_pos(terrainEntity, 500, 500)
-    Entity.add_sprite_component(terrainEntity, assets.textures.Sand, 64, 64, 10)
-    Entity.add_fysics_component(terrainEntity, enums.bodytype.staticBody, true)
-    Fysics.add_sprite_collider(terrainEntity, false)
+    -- terrainEntity = Entity.create_entity()
+    -- Entity.set_global_pos(terrainEntity, 500, 500)
+    -- Entity.add_sprite_component(terrainEntity, assets.textures.Sand, 64, 64, 10)
+    -- Entity.add_fysics_component(terrainEntity, enums.bodytype.staticBody, true)
+    -- Fysics.add_sprite_collider(terrainEntity, false)
 
     
-    --Nav.add_obstacle(terrainEntity)
+
 
     Nav.load_nav_mef(0, 0, 960 / 100, 600 / 100, 25 / 100)
+    Nav.add_obstacle(400, 400, 500, 500)
+
     agent = Nav.create_agent(agentEntity, 4.0)
 
-    print("[NavTest] NavMesh + Agent initialised")
+    --print("[NavTest] NavMesh + Agent initialised")
 
     
 
@@ -46,7 +48,14 @@ function NavTest:OnUpdate()
         local mx, my = Input.get_mouse_x(), Input.get_mouse_y()
         local wx, wy = screen_to_world(mx, my)
         agent:move_to(mx / 100, my / 100)
-        print("[NavTest] Move request:", mx / 100, my / 100)
+        --print("[NavTest] Move request:", mx / 100, my / 100)
+    end
+
+        if Input.get_key_down(Keys.ionix_space) then
+            print("rightMouse")
+            local mx, my = Input.get_mouse_x(), Input.get_mouse_y()
+                Nav.add_obstacle(mx, my, mx + 64, my + 64)
+
     end
 end
 

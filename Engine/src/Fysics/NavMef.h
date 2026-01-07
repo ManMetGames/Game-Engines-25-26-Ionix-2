@@ -5,6 +5,8 @@
 #include <array>
 #include <iostream>
 #include <queue>
+#include <SDL_pixels.h>
+
 namespace IonixEngine
 {
     struct Cell {
@@ -75,10 +77,11 @@ namespace IonixEngine
         void ClearObstacles();
 
         //adds an obstacle
-        void AddObstacle(Entity* entity);
+        void AddObstacle(const b2Vec2& min, const b2Vec2& max);
 
         // check to see if a cell is unnavailable and blocked 
         bool IsCellBlocked(int cellIndex) const;
+        void DrawGrid(float x, float y, float width, float height, float cellSize, SDL_Color color);
     };
 }
 

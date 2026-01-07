@@ -27,14 +27,13 @@ namespace IonixEngine
 		auto drawNavGrid = [](float x, float y, float width, float height, float cellSize)
 		{
 			// Visualize the grid
-			SDL_Color gridColor = { 255, 0, 0, 20 }; // red
-			Application::Get().layerGraphics->GetQueue()->DrawGrid(x, y, width, height, cellSize, gridColor);
+			SDL_Color gridColor = { 0, 255, 0, 20 };
+			Application::Get().layerNavigation->GetNavMef()->DrawGrid(x, y, width, height, cellSize, gridColor);
 		};
 
-		auto addNavObstacle = [](Entity* entity)
+		auto addNavObstacle = [](float minX, float minY, float maxX, float maxY)
 		{
-			
-				Application::Get().layerNavigation->GetNavMef()->AddObstacle(entity);
+			Application::Get().layerNavigation->GetNavMef()->AddObstacle({ minX / 100, minY / 100 }, { maxX / 100, maxY / 100 });
 		};
 		
 		auto createNavAgent = [](Entity* entity, float speed)

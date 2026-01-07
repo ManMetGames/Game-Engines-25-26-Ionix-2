@@ -45,7 +45,6 @@ namespace IonixEngine {
 		void RenderFromQueue();
 		void ClearQueue(queue<RenderCall>& sprites);
 		void DrawLine(float x1, float y1, float x2, float y2, bool hitColor);
-		void DrawGrid(float x, float y, float width, float height, float cellSize, SDL_Color color);
 
 		static QueueRenderer& Get()
 		{

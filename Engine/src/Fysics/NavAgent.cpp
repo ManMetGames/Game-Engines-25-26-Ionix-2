@@ -22,7 +22,7 @@ namespace IonixEngine
 			m_path.clear();
 			return;
 		}
-		std::cout << "X Pos: " <<position.x << " " << "Y Pos: " << position.y << std::endl;
+		//std::cout << "X Pos: " <<position.x << " " << "Y Pos: " << position.y << std::endl;
 		std::vector<int> path = m_NavMef->FindPath(currentCell, goalCell);
 		m_path = m_NavMef->Funnel(path);
 		if (m_path.empty())
@@ -33,14 +33,14 @@ namespace IonixEngine
 		m_path[0] = body->GetPosition();
 
 		m_path.back() = endPosition;
-		std::cout << "Agent pos: "
+		/*std::cout << "Agent pos: "
 			<< position.x << ", " << position.y << std::endl;
 
 		std::cout << "Target pos: "
 			<< endPosition.x << ", " << endPosition.y << std::endl;
 
 		std::cout << "Start cell: " << currentCell
-			<< " Goal cell: " << goalCell << std::endl;
+			<< " Goal cell: " << goalCell << std::endl;*/
 
 		// Incorrect args passed to FindPath - commented out
 		//path = m_NavMef->FindPath(position, endPosition);
