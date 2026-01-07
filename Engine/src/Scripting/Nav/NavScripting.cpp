@@ -27,7 +27,7 @@ namespace IonixEngine
 		auto drawNavGrid = [](float x, float y, float width, float height, float cellSize)
 		{
 			// Visualize the grid
-			SDL_Color gridColor = { 255, 0, 0, 255 }; // red
+			SDL_Color gridColor = { 255, 0, 0, 20 }; // red
 			Application::Get().layerGraphics->GetQueue()->DrawGrid(x, y, width, height, cellSize, gridColor);
 		};
 

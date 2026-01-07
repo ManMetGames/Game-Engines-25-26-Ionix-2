@@ -22,6 +22,7 @@ namespace IonixEngine
 			m_path.clear();
 			return;
 		}
+		std::cout << "X Pos: " <<position.x << " " << "Y Pos: " << position.y << std::endl;
 		std::vector<int> path = m_NavMef->FindPath(currentCell, goalCell);
 		m_path = m_NavMef->Funnel(path);
 		if (m_path.empty())

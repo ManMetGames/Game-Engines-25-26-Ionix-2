@@ -116,11 +116,20 @@ namespace IonixEngine
 		b2Vec2 goalCentre = GetCellCentre(m_cells[goalIndex]);
 		return b2Distance(cellCentre, goalCentre);
 	}
+
+    
     std::vector<int>NavMef::FindPath(int startCell, int goalCell) {
         //get values from node calculate g using b2distance, calc h for the each cell using heuristic function, calc f from both;
         //if (startCell < 0 || goalCell < 0 || m_cells.size() >= startCell || m_cells.size() >= goalCell) {
         //    return{}; // wrong size check
         //}
+        bool pathFound = false;
+        
+        if (startCell == goalCell)
+        {
+            return{startCell};
+        }
+        
         if (startCell < 0 || goalCell < 0 ||
             startCell >= m_cells.size() || goalCell >= m_cells.size())
         {
@@ -161,6 +170,7 @@ namespace IonixEngine
             closeList[currentIndex] = true;
             if (currentIndex == goalCell) {
                 //found path
+                pathFound = true;
                 break;
             }
             //find adjacencys of cell
@@ -170,9 +180,7 @@ namespace IonixEngine
                 {
                     continue;
                 }
-
-
-
+                
                 if (closeList[adjacencyIndex]) {
                     continue;
                 }
@@ -194,7 +202,7 @@ namespace IonixEngine
         std::vector<int> path;
         int current = goalCell;
 
-        if (nodes[current].previousCell == -1) {
+        if (!pathFound) {
             return {};
         }
 
@@ -212,6 +220,7 @@ namespace IonixEngine
     {
         for (int i = 0; i < m_cells.size(); i++)
         {
+            
             const Cell& cell = m_cells[i];
 
             b2Vec2 c0 = m_corners[cell.corns[0]];
@@ -240,6 +249,8 @@ namespace IonixEngine
     //Olesya's funnel algorithm <3
     std::vector<b2Vec2> NavMef::Funnel(const std::vector<int>& cellPath)
     {
+        std::cout << "Cell Path: " << cellPath.size() << std::endl;
+
         // get waypoints through shared edges
         std::vector<b2Vec2> result;
         if (cellPath.size() < 2) 

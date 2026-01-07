@@ -22,9 +22,9 @@ function NavTest:OnStart()
     Fysics.add_sprite_collider(terrainEntity, false)
 
     
-    Nav.add_obstacle(terrainEntity)
+    --Nav.add_obstacle(terrainEntity)
 
-    Nav.load_nav_mef(0, 0, 1920/4, 1080/4, 25/4)
+    Nav.load_nav_mef(0, 0, 960, 600, 25/4)
     agent = Nav.create_agent(agentEntity, 4.0)
 
     print("[NavTest] NavMesh + Agent initialised")
@@ -34,7 +34,7 @@ function NavTest:OnStart()
 end
 
 function NavTest:OnUpdate()
-    Nav.draw_nav_grid(0, 0, 1920, 1080, 25)
+    Nav.draw_nav_grid(0, 0, 960, 600, 25)
     local function screen_to_world(x, y)
         local ppm = 4.0 
         return x / ppm, y / ppm
@@ -46,7 +46,7 @@ function NavTest:OnUpdate()
         local mx, my = Input.get_mouse_x(), Input.get_mouse_y()
         local wx, wy = screen_to_world(mx, my)
         agent:move_to(mx / 100, my / 100)
-        print("[NavTest] Move request:", wx, wy)
+        print("[NavTest] Move request:", mx / 100, my / 100)
     end
 end
 
