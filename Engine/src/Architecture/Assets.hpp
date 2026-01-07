@@ -8,6 +8,7 @@ struct Textures {
     uint32_t Apple = 3562895354u;
     uint32_t Back = 679751378u;
     uint32_t Background = 2667361274u;
+    uint32_t BackgroundPong = 2084382170u;
     uint32_t Background_Forest = 177688696u;
     uint32_t Bananas = 280088504u;
     uint32_t Blink__42x42_ = 4197074976u;
@@ -117,6 +118,7 @@ struct Textures {
     uint32_t PipeEffect = 2652724152u;
     uint32_t Play = 1380681860u;
     uint32_t PointEffect = 4172305526u;
+    uint32_t PongBall = 2488799070u;
     uint32_t Previous = 1657061876u;
     uint32_t Purple = 1889853884u;
     uint32_t Restart = 3946504526u;
@@ -221,6 +223,7 @@ struct Textures {
         map["Apple"] = "./Assets/Jimmy Demo/Items/Fruits/Apple.png";
         map["Back"] = "./Assets/Jimmy Demo/Menu/Buttons/Back.png";
         map["Background"] = "./Assets/Background.png";
+        map["BackgroundPong"] = "./Assets/BackgroundPong.png";
         map["Background_Forest"] = "./Assets/Background_Forest.png";
         map["Bananas"] = "./Assets/Jimmy Demo/Items/Fruits/Bananas.png";
         map["Blink__42x42_"] = "./Assets/Jimmy Demo/Traps/Rock Head/Blink (42x42).png";
@@ -330,6 +333,7 @@ struct Textures {
         map["PipeEffect"] = "./Assets/PipeEffect.png";
         map["Play"] = "./Assets/Jimmy Demo/Menu/Buttons/Play.png";
         map["PointEffect"] = "./Assets/PointEffect.png";
+        map["PongBall"] = "./Assets/PongBall.png";
         map["Previous"] = "./Assets/Jimmy Demo/Menu/Buttons/Previous.png";
         map["Purple"] = "./Assets/Jimmy Demo/Background/Purple.png";
         map["Restart"] = "./Assets/Jimmy Demo/Menu/Buttons/Restart.png";
@@ -456,8 +460,8 @@ struct Sounds {
         map["impact3"] = "./Assets/Audio/impact3.mp3";
         map["playerDamage"] = "./Assets/Audio/playerDamage.mp3";
         map["technoSong"] = "./Assets/technoSong.mp3";
-        map["test"] = "./Assets/test.wav";
-        map["test_1"] = "./Assets/test.mp3";
+        map["test"] = "./Assets/test.mp3";
+        map["test_1"] = "./Assets/test.wav";
         return map;
     };
 };

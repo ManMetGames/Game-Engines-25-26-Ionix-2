@@ -15,8 +15,8 @@ function PongButBetter:OnStart()
 
     -- Create Background
     background = Entity.create_entity()
-    Entity.set_global_pos(background, 400, 300)
-    backgoundSprite = Entity.add_sprite_component(background, assets.textures.Background, 800, 600, 0)
+    Entity.set_global_pos(background, 0, 0)
+    backgroundSprite = Entity.add_sprite_component(background, assets.textures.BackgroundPong, 800, 600, 0)
 
     -- Create Walls
     topWall = Entity.create_entity()
@@ -41,8 +41,8 @@ function PongButBetter:OnStart()
 
     -- Create ball
     ball = Entity.create_entity()
-    Entity.set_global_pos(ball, 400, 300)
-    ballSprite = Entity.add_sprite_component(ball, assets.textures.balls, 40, 40, 0)
+    Entity.set_global_pos(ball, ballX, ballY)
+    ballSprite = Entity.add_sprite_component(ball, assets.textures.PongBall, 20, 20, 0)
     Sprite.set_playback_mode(ballSprite, 4)
 
 end
@@ -50,9 +50,13 @@ end
 function PongButBetter:OnUpdate()
     local dt = Mafs.delta_time()
 
+    if dt > 0.1 then
+        dt = 0.016  -- ~60fps
+    end
+
     ballX = ballX + ballVelX * dt
     ballY = ballY + ballVelY * dt
-
+    
     if ballY <= 20 or ballY >= 580 then
         ballVelY = -ballVelY
     end
