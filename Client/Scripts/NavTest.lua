@@ -34,6 +34,7 @@ function NavTest:OnStart()
 end
 
 function NavTest:OnUpdate()
+    Nav.draw_nav_grid(0, 0, 1920, 1080, 25)
     local function screen_to_world(x, y)
         local ppm = 4.0 
         return x / ppm, y / ppm

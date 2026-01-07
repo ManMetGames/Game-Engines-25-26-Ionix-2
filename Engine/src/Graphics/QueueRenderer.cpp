@@ -6,7 +6,7 @@
 
 namespace IonixEngine {
 
-	void QueueRenderer::DrawLine(int x1, int y1, int x2, int y2, bool hitColor)
+	void QueueRenderer::DrawLine(float x1, float y1, float x2, float y2, bool hitColor)
 	{
 
 		SDL_Renderer* renderer = Application::Get().GetWindow().GetSdlRenderer();
@@ -20,7 +20,27 @@ namespace IonixEngine {
 
 
 		// Draw the line
-		SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
+		SDL_RenderDrawLineF(renderer, x1, y1, x2, y2);
+	}
+
+	void QueueRenderer::DrawGrid(float x, float y, float width, float height, float cellSize, SDL_Color color)
+	{
+		SDL_Renderer* renderer = Application::Get().GetWindow().GetSdlRenderer();
+		SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+
+		// Draw vertical lines
+		for (float i = 0; i <= width; i += cellSize)
+		{
+			float xPos = x + i;
+			SDL_RenderDrawLineF(renderer, xPos, y, xPos, y + height);
+		}
+
+		// Draw horizontal lines
+		for (float j = 0; j <= height; j += cellSize)
+		{
+			float yPos = y + j;
+			SDL_RenderDrawLineF(renderer, x, yPos, x + width, yPos);
+		}
 	}
 	
 	QueueRenderer::QueueRenderer() {

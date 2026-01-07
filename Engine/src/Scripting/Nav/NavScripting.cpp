@@ -20,6 +20,15 @@ namespace IonixEngine
 		auto loadNavMef = [](float x, float y, float width, float height,  float cellSize)
 		{
 			Application::Get().layerNavigation->GetNavMef()->BuildGrid({ x, y }, { width, height }, cellSize);
+
+
+		};
+
+		auto drawNavGrid = [](float x, float y, float width, float height, float cellSize)
+		{
+			// Visualize the grid
+			SDL_Color gridColor = { 255, 0, 0, 255 }; // red
+			Application::Get().layerGraphics->GetQueue()->DrawGrid(x, y, width, height, cellSize, gridColor);
 		};
 
 		auto addNavObstacle = [](Entity* entity)
@@ -40,6 +49,7 @@ namespace IonixEngine
 
 		lua["Nav"] = lua.create_table_with(
 			"load_nav_mef", loadNavMef,
+			"draw_nav_grid", drawNavGrid,
 			"add_obstacle", addNavObstacle,
 			"create_agent", createNavAgent
 		);
