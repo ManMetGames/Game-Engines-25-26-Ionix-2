@@ -9,7 +9,7 @@ local Background
 local Background2
 local backgroundSprite
 local backgroundSprite2
-local bgBaseX, bgBaseY = 0, 0
+local bgBaseX, bgBaseY = 0, 300
 local bgScrollX = 0
 local player1
 local playerSprite
@@ -348,10 +348,8 @@ local leaderboardFetched = false
 local RESTART_DELAY_FRAMES = 90   -- equivalent 1s at 60fps
 local restartDelayFrames = 0
 
-
 -- Window
 Window.set_size_centered(960, 600)
-
 
 -- Base SFX volumes
 local BASE_VOL_JUMP    = 100
@@ -673,7 +671,7 @@ function ExampleScript:OnStart()
     -- Pick texture for left / middle / right
     ------------------------------------------------------
     local tileSize = 64
-    local floorY = 550
+    local floorY = 590
     floorTopWorld = (floorY - (tileSize * 0.5))
 
     -- Floor collision tiles
@@ -932,9 +930,6 @@ local function DrawMainMenu_C(windowW, windowH)
 
     -- Actions
     if UI.was_button_pressed("fb_play") then
-        if Background ~= nil then
-            Entity.set_global_pos(Background, bgBaseX, bgBaseY)
-        end
 
         inMainMenu = false
         resetGame()
@@ -1291,20 +1286,21 @@ local windowW = Window.get_width()
 local windowH = Window.get_height()
 Window.set_size(960, 600)
 if inMainMenu then
+
+    local bgBaseY = 300
     -- Scroll the background horizontally on main menu
     if Background ~= nil then
         if menuContext == "main" then
             local dt = Mafs.delta_time()
-            local driftY = math.cos(Mafs.time() * 0.12) * 4
 
             bgScrollX = bgScrollX + (BG_SCROLL_SPEED * dt)
             if bgScrollX <= -BG_TILE_W then
                 bgScrollX = bgScrollX + BG_TILE_W
             end
 
-            Entity.set_global_pos(Background,  bgBaseX + bgScrollX,              bgBaseY + driftY)
+            Entity.set_global_pos(Background,  bgBaseX + bgScrollX, bgBaseY)
             if Background2 ~= nil then
-                Entity.set_global_pos(Background2, bgBaseX + bgScrollX + BG_TILE_W, bgBaseY + driftY)
+                Entity.set_global_pos(Background2, bgBaseX + bgScrollX + BG_TILE_W, bgBaseY)
             end
         else
             bgScrollX = 0
