@@ -33,6 +33,9 @@ namespace IonixEngine {
         virtual void Collide(Entity* other);
         virtual void Destroy();
 
+        // Update the entity pointer (used when entity is moved in memory)
+        void SetEntity(Entity* newEntity) { entity = newEntity; }
+
         inline bool HasPhysics() { return hasPhysics; }
         inline bool CanRender() { return canRender; }
         inline bool IsTag() { return isTag; }

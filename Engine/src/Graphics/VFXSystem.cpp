@@ -596,6 +596,15 @@ namespace IonixEngine {
         lightning.renderLayer = 0;
         lightning.zOrder = 0;
         
+        // Reset corruption system to prevent state bleeding from reused slots
+        lightning.corruptionEnabled = false;
+        lightning.segmentCorruption.clear();
+        lightning.corruptR = 255;
+        lightning.corruptG = 255;
+        lightning.corruptB = 255;
+        lightning.corruptionDecayRate = 0.15f;
+        lightning.corruptionSpreadRate = 0.3f;
+        
         // Generate initial path
         GenerateLightningPath(lightning);
 
@@ -609,6 +618,7 @@ namespace IonixEngine {
         m_Lightnings[id].active = false;
         m_Lightnings[id].pathX.clear();
         m_Lightnings[id].pathY.clear();
+        m_Lightnings[id].segmentCorruption.clear();  // Clear corruption state to prevent bleeding on reuse
     }
 
     void VFXSystem::SetLightningPosition(int id, float startX, float startY, float endX, float endY) {
