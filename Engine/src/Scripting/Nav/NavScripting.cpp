@@ -36,10 +36,11 @@ namespace IonixEngine
 			Application::Get().layerNavigation->GetNavMef()->AddObstacle({ minX / 100, minY / 100 }, { maxX / 100, maxY / 100 });
 		};
 		
-		auto createNavAgent = [](Entity* entity, float speed)
+		auto createNavAgent = [](Entity* entity, float speed) -> NavAgent*
 		{
-				return Application::Get().layerNavigation->CreateAgent(entity, speed);
+			return Application::Get().layerNavigation->CreateAgent(entity, speed);
 		};
+
 		auto navAgentMoveTo = [](NavAgent* agent, float x, float y)
 		{
 			if (!agent) return;
@@ -50,11 +51,8 @@ namespace IonixEngine
 			"load_nav_mef", loadNavMef,
 			"draw_nav_grid", drawNavGrid,
 			"add_obstacle", addNavObstacle,
-			"create_agent", createNavAgent
-		);
-		lua.new_usertype<NavAgent>(
-			"NavAgent",
-			"move_to", navAgentMoveTo
+			"create_agent", createNavAgent,
+			"agent_move_to", navAgentMoveTo
 		);
 	}
 }
