@@ -3,6 +3,7 @@
 #include "Architecture/ECS/Entity.hpp"
 #include "Fysics/FysicsBody.h"
 #include "Fysics/FysicsManager.h"
+#include "Audio/MusicComponent.h"
 namespace IonixEngine {
 
     EntityScripting* EntityScripting::s_Instance = nullptr;
@@ -47,22 +48,6 @@ namespace IonixEngine {
             b2Vec2 returnPos = b2Vec2{ pos.x, pos.y };
             return returnPos;
             };
-
-        auto getCenterPos = [](Entity* entity) -> b2Vec2 {
-            SpriteComponent* comp = nullptr;
-            if (!entity->TryGetComponent<SpriteComponent>(&comp))
-            {
-                std::cout << "Entity : " << entity->id << " has no sprite component, returning default position."<< std::endl;
-                Vec2 pos = entity->transform.GetGlobalPosition();
-                b2Vec2 nonCenterPos = b2Vec2{ pos.x, pos.y };
-                return nonCenterPos;
-            }
-            Vec2 pos = entity->transform.GetGlobalPosition();            
-            int entW = entity->GetComponent<SpriteComponent>()->getWidth() / 2;
-            int entH = entity->GetComponent<SpriteComponent>()->getHeight() / 2;
-            b2Vec2 returnPos = b2Vec2{ pos.x + entW, pos.y + entH};
-            return returnPos;
-        };
 
         auto getGlobalRot = [](Entity* entity) -> float {
             return entity->transform.GetGlobalRotation();
@@ -182,6 +167,10 @@ namespace IonixEngine {
         auto addAudioPlayerComponent = [](Entity* entity, std::string clip = "", bool playOnAwake = false) {
             entity->AddComponent(new AudioPlayer(entity, clip, playOnAwake));
             };
+
+        auto addMusicComponent = [](Entity* entity, std::string musicTrack = "", bool playOnAwake = false) {
+            entity->AddComponent(new MusicComponent(entity, musicTrack, playOnAwake));
+            };
         
         auto addFysicsBodyComponent = [](Entity* entity) {
             entity->AddComponent(new FysicsBody(entity, "", Application::Get().layerFysics->GetWorld()));
@@ -197,6 +186,10 @@ namespace IonixEngine {
 
         auto getAudioPlayerComponent = [](Entity* entity) {
             return entity->GetComponent<AudioPlayer>();
+            };
+
+        auto getMusicComponent = [](Entity* entity) {
+            return entity->GetComponent<MusicComponent>();
             };
 
         auto getFysicsBodyComponent = [](Entity* entity) {
@@ -223,6 +216,16 @@ namespace IonixEngine {
             return result;
             };
 
+        auto tryGetMusicComponent = [](Entity* entity) -> auto {
+            MusicComponent* comp = nullptr;
+            std::pair<bool, MusicComponent*> result;
+            bool hasComp = entity->TryGetComponent<MusicComponent>(&comp);
+
+            result = std::make_pair(hasComp, comp);
+
+            return result;
+            };
+
         auto tryGetFysicsBodyComponent = [](Entity* entity) -> auto {
             FysicsBody* comp = nullptr;
             std::pair<bool, FysicsBody*> result;
@@ -241,17 +244,19 @@ namespace IonixEngine {
             return entity->HasComponent<AudioPlayer>();
             };
 
+        auto hasMusicComponent = [](Entity* entity) -> bool {
+            return entity->HasComponent<MusicComponent>();
+            };
+
         auto hasFysicsBodyComponent = [](Entity* entity) -> bool {
             return entity->HasComponent<FysicsBody>();
             };
 
         
 
-        lua["Entity"] = lua.create_table_with(
-            "create_entity", entity,
-            "destroy_entity", destroy,
+        lua.new_usertype<Entity>("EntityType",
+            "destroy", destroy,
             "get_global_pos", getGlobalPos,
-            "get_center_pos", getCenterPos,
             "set_global_pos", setGlobalPos,
             "get_global_rot", getGlobalRot,
             "set_global_rot", setGlobalRot,
@@ -270,16 +275,60 @@ namespace IonixEngine {
             "remove_child_index", removeChildWithIndex,
             "add_sprite_component", addSpriteComponent,
             "add_audio_component", addAudioPlayerComponent,
-            "add_fysics_component", addFysicsBodyComponent,
-            "add_fysics_component", addFysicsBodyComponentWithType,
+            "add_music_component", addMusicComponent,
+            "add_fysics_component", sol::overload(addFysicsBodyComponent, addFysicsBodyComponentWithType),
             "get_sprite_component", getSpriteComponent,
             "get_audio_component", getAudioPlayerComponent,
+            "get_music_component", getMusicComponent,
             "get_fysics_component", getFysicsBodyComponent,
             "try_get_sprite_component", tryGetSpriteComponent,
             "try_get_audio_component", tryGetAudioComponent,
+            "try_get_music_component", tryGetMusicComponent,
             "try_get_fysics_component", tryGetFysicsBodyComponent,
             "has_sprite_component", hasSpriteComponent,
             "has_audio_component", hasAudioComponent,
+            "has_music_component", hasMusicComponent,
+            "has_fysics_component", hasFysicsBodyComponent
+        );
+
+
+        //THIS WILL NEED REMOVING SOON, THE ABOVE ONE IS THE CORRECT WAY,
+        //I JUST KEPT THE ONE BELOW SO I DO NOT BREAK PEOPLE'S GAMES RIGHT NOW - Xandru
+        lua["Entity"] = lua.create_table_with(
+            "create_entity", entity,
+            "destroy_entity", destroy,
+            "get_global_pos", getGlobalPos,
+            "set_global_pos", setGlobalPos,
+            "get_global_rot", getGlobalRot,
+            "set_global_rot", setGlobalRot,
+            "get_global_scale", getGlobalScale,
+            "set_global_scale", setGlobalScale,
+            "get_local_pos", getLocalPos,
+            "set_local_pos", setLocalPos,
+            "get_local_rot", getLocalRot,
+            "set_local_rot", setLocalRot,
+            "get_local_scale", getLocalScale,
+            "set_local_scale", setLocalScale,
+            "set_parent", setParent,
+            "remove_parent", removeParent,
+            "add_child", addChild,
+            "remove_child", removeChild,
+            "remove_child_index", removeChildWithIndex,
+            "add_sprite_component", addSpriteComponent,
+            "add_audio_component", addAudioPlayerComponent,
+            "add_music_component", addMusicComponent,
+            "add_fysics_component", sol::overload(addFysicsBodyComponent, addFysicsBodyComponentWithType),
+            "get_sprite_component", getSpriteComponent,
+            "get_audio_component", getAudioPlayerComponent,
+            "get_music_component", getMusicComponent,
+            "get_fysics_component", getFysicsBodyComponent,
+            "try_get_sprite_component", tryGetSpriteComponent,
+            "try_get_audio_component", tryGetAudioComponent,
+            "try_get_music_component", tryGetMusicComponent,
+            "try_get_fysics_component", tryGetFysicsBodyComponent,
+            "has_sprite_component", hasSpriteComponent,
+            "has_audio_component", hasAudioComponent,
+            "has_music_component", hasMusicComponent,
             "has_fysics_component", hasFysicsBodyComponent
 
         );

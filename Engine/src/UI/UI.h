@@ -10,7 +10,7 @@ namespace IonixEngine
     class UI
     {
     public:
-        void DrawLabel(const char* text, int xpos, int ypos, int xsize, int ysize);
+        void DrawLabel(const char* text, int xpos, int ypos, int xsize, int ysize, float wrapWidth = 0.0f);
         bool DrawButton(char* text, int xsize, int ysize, int xpos, int ypos);
         bool DrawSlider(const char* label, float* value, float width,
             int xpos, int ypos, float minval, float maxval,
@@ -30,6 +30,16 @@ namespace IonixEngine
             bool useColors, ImVec4 bg, ImVec4 fill, ImVec4 border,
             float capMax, ImVec4 capFill,
             const char* overlayText = "");
+
+        // Layered progress bar: supports both overfill (on top, e.g. overhealth) and cap (lost portion)
+        void DrawProgressBarLayered(int xpos, int ypos, float xsize, float ysize,
+            float maxvalue, float currentvalue, int colorId,
+            float rounding, float borderSize,
+            bool useColors, ImVec4 bg, ImVec4 fill, ImVec4 border,
+            float overfillValue, ImVec4 overfillColor,
+            float capMax, ImVec4 capFill,
+            const char* overlayText = "");
+
         bool DrawDropdown(int xPos, int yPos, float xSize, float ySize, const char* text,
             const std::vector<std::string>& options, int* currentIndex);
 

@@ -38,6 +38,7 @@ namespace IonixEngine {
         InputScripting::Get().Init(m_LuaState);
         AudioScripting::Get().Init(m_LuaState);
         GraphicsScripting::Get().Init(m_LuaState);
+        VFXScripting::Get().Init(m_LuaState);
         EntityScripting::Get().Init(m_LuaState);
         UIScripting::Get().Init(m_LuaState); 
         JsonScripting::Get().Init(m_LuaState);
