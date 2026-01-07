@@ -107,6 +107,11 @@ namespace IonixEngine
 		// Optional cap segment for styled progress bars (shows reduced max)
 		float progressCapMax = -1.0f;               // <=0 or >=max => disabled
 		ImVec4 progressCapFill = ImVec4(0, 0, 0, 0); // alpha==0 => disabled
+
+		// Optional overfill layer (for overhealth, drawn on top)
+		float progressOverfillValue = 0.0f;         // amount of overfill
+		ImVec4 progressOverfillColor = ImVec4(0, 0, 0, 0); // alpha==0 => disabled
+
 		// Panel specific
 		float panelAlpha = 0.45f;
 		float panelRounding = 6.0f;
@@ -179,7 +184,7 @@ namespace IonixEngine
 		// Font controls per element
 		std::string fontName = "";
 		float fontScale = 1.0f;
-
+		float wrapWidth = 0.0f;
 	};
 
 	class UIManager
@@ -229,17 +234,17 @@ namespace IonixEngine
 
 		// UI widgets
 
-		void AddLabel(int x, int y, float xSize, float ySize, const char* text, const std::string& fontName = "", float fontScale = 1.0f);
+		void AddLabel(int x, int y, float xSize, float ySize, const char* text, const std::string& fontName = "", float fontScale = 1.0f, float wrapWidth = 0.0f);
 
-		void AddCenteredLabel(float centerX, float y, const char* text, const std::string& fontName = "", float fontScale = 1.0f);
+		void AddCenteredLabel(float centerX, float y, const char* text, const std::string& fontName = "", float fontScale = 1.0f, float wrapWidth = 0.0f);
 
 		void AddLabelColored(int x, int y, float xSize, float ySize, const char* text,
 			float r, float g, float b, float a,
-			const std::string& fontName = "", float fontScale = 1.0f);
+			const std::string& fontName = "", float fontScale = 1.0f, float wrapWidth = 0.0f);
 
 		void AddCenteredLabelColored(float centerX, float y, const char* text,
 			float r, float g, float b, float a,
-			const std::string& fontName = "", float fontScale = 1.0f);
+			const std::string& fontName = "", float fontScale = 1.0f, float wrapWidth = 0.0f);
 
 		void AddButton(int x, int y, float w, float h, const char* text, const char* id = nullptr,
 			const std::string& fontName = "", float fontScale = 1.0f,
@@ -322,6 +327,16 @@ namespace IonixEngine
 			const std::string& overlayText = "",
 			const std::string& fontName = "", float fontScale = 1.0f,
 			float capMax = -1.0f, ImVec4 capFill = ImVec4(0, 0, 0, 0));
+
+		// Layered progress bar: supports both overfill (on top) and cap (lost portion)
+		void AddProgressBarValueLayered(int x, int y, float xSize, float ySize,
+			float maxValue, float currentValue, int colorId,
+			float rounding, float borderSize,
+			bool useColors, ImVec4 bg, ImVec4 fill, ImVec4 border,
+			float overfillValue, ImVec4 overfillColor,
+			float capMax, ImVec4 capFill,
+			const std::string& overlayText = "",
+			const std::string& fontName = "", float fontScale = 1.0f);
 
 		void AddPanel(int x, int y, float w, float h, float alpha = 0.45f, float rounding = 6.0f,
 			int r = 0, int g = 0, int b = 0);

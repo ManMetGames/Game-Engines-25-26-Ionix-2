@@ -9,10 +9,19 @@
 
 namespace IonixEngine
 {
-	void UI::DrawLabel(const char* text, int xsize, int ysize, int xpos, int ypos)
+	void UI::DrawLabel(const char* text, int xsize, int ysize, int xpos, int ypos, float wrapWidth)
 	{
 		ImGui::SetCursorPos(ImVec2(xpos, ypos));
-		ImGui::TextUnformatted(text);
+		if (wrapWidth > 0.0f)
+		{
+			ImGui::PushTextWrapPos(ImGui::GetCursorPosX() + wrapWidth);
+			ImGui::TextUnformatted(text);
+			ImGui::PopTextWrapPos();
+		}
+		else
+		{
+			ImGui::TextUnformatted(text);
+		}
 	}
 
 	bool UI::DrawButton(char* text, int xsize, int ysize, int xpos, int ypos)
@@ -323,6 +332,159 @@ namespace IonixEngine
 			}
 
 			// Overlay text centered
+			const char* overlay = (overlayText && overlayText[0]) ? overlayText : "";
+			if (overlay[0] != '\0')
+			{
+				ImVec2 ts = ImGui::CalcTextSize(overlay);
+				ImVec2 tp = ImVec2(p0.x + (xSize - ts.x) * 0.5f, p0.y + (ySize - ts.y) * 0.5f);
+				dl->AddText(tp, ImGui::GetColorU32(ImGuiCol_Text), overlay);
+			}
+		}
+		ImGui::End();
+
+		ImGui::PopStyleVar(pushedVars);
+	}
+
+	void UI::DrawProgressBarLayered(int xPos, int yPos, float xSize, float ySize,
+		float maxValue, float currentValue, int colorId,
+		float rounding, float borderSize,
+		bool useColors, ImVec4 bg, ImVec4 fill, ImVec4 border,
+		float overfillValue, ImVec4 overfillColor,
+		float capMax, ImVec4 capFill,
+		const char* overlayText)
+	{
+		// Clamp and normalize values
+		float clampedMax = (maxValue <= 0.0f) ? 1.0f : maxValue;
+		
+		// Cap handling: if capMax is valid and less than maxValue, use it as the effective max
+		bool hasCap = (capMax > 0.0f && capMax < clampedMax && capFill.w > 0.0f);
+		float effectiveMax = hasCap ? capMax : clampedMax;
+		
+		// Clamp current value to effective max
+		float clampedCurrent = currentValue;
+		if (clampedCurrent < 0.0f) clampedCurrent = 0.0f;
+		if (clampedCurrent > effectiveMax) clampedCurrent = effectiveMax;
+		
+		// Fraction of fill within effective max
+		float fracFill = (effectiveMax > 0.0f) ? (clampedCurrent / effectiveMax) : 0.0f;
+		fracFill = IM_CLAMP(fracFill, 0.0f, 1.0f);
+		
+		// Fraction of cap (portion of bar that's "available")
+		float fracCap = hasCap ? (capMax / clampedMax) : 1.0f;
+		fracCap = IM_CLAMP(fracCap, 0.0f, 1.0f);
+		
+		// Actual fill fraction in the full bar
+		float fracFillInBar = fracCap * fracFill;
+		fracFillInBar = IM_CLAMP(fracFillInBar, 0.0f, 1.0f);
+		
+		// Overfill handling: overfill is displayed on top, starting from left
+		// It represents extra health beyond max, shown as a fraction of maxValue
+		bool hasOverfill = (overfillValue > 0.0f && overfillColor.w > 0.0f);
+		float fracOverfill = 0.0f;
+		if (hasOverfill)
+		{
+			fracOverfill = overfillValue / clampedMax;
+			fracOverfill = IM_CLAMP(fracOverfill, 0.0f, 1.0f);
+		}
+
+		// Determine colors
+		ImVec4 fgColor;
+		ImVec4 bgColor;
+		ImVec4 borderColor = ImVec4(0, 0, 0, 0);
+
+		if (useColors)
+		{
+			fgColor = fill;
+			bgColor = bg;
+			borderColor = border;
+		}
+		else
+		{
+			switch (colorId)
+			{
+			case 1: // red
+				fgColor = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
+				bgColor = ImVec4(0.2f, 0.0f, 0.0f, 0.6f);
+				break;
+			case 2: // green
+				fgColor = ImVec4(0.0f, 1.0f, 0.0f, 1.0f);
+				bgColor = ImVec4(0.0f, 0.2f, 0.0f, 0.6f);
+				break;
+			case 3: // white
+				fgColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+				bgColor = ImVec4(0.2f, 0.2f, 0.2f, 0.6f);
+				break;
+			default: // 0 = default/orange
+				fgColor = ImVec4(1.0f, 0.6f, 0.0f, 1.0f);
+				bgColor = ImVec4(0.2f, 0.12f, 0.0f, 0.6f);
+				break;
+			}
+		}
+
+		ImGui::SetNextWindowPos(ImVec2((float)xPos, (float)yPos));
+		ImGui::SetNextWindowSize(ImVec2(xSize, ySize));
+		ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
+			ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar |
+			ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoBackground;
+
+		char windowName[64];
+		std::snprintf(windowName, sizeof(windowName), "BarLayered_%d_%d_%d_%d", xPos, yPos, (int)xSize, (int)ySize);
+
+		// No padding/spacing
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
+		int pushedVars = 2;
+
+		float usedRounding = (rounding >= 0.0f) ? rounding : ImGui::GetStyle().FrameRounding;
+		float thick = (borderSize > 0.0f) ? borderSize : 0.0f;
+
+		if (ImGui::Begin(windowName, nullptr, flags))
+		{
+			ImDrawList* dl = ImGui::GetWindowDrawList();
+			ImVec2 p0 = ImGui::GetWindowPos();
+			ImVec2 p1 = ImVec2(p0.x + xSize, p0.y + ySize);
+			float w = xSize;
+
+			// Layer 1: Background (full bar)
+			dl->AddRectFilled(p0, p1, ImGui::GetColorU32(bgColor), usedRounding, ImDrawFlags_RoundCornersAll);
+
+			// Layer 2: Cap segment (right side, from fracCap to 1.0) - "lost" portion
+			if (hasCap && fracCap < 1.0f)
+			{
+				ImVec2 c0 = ImVec2(p0.x + w * fracCap, p0.y);
+				ImDrawFlags cFlags = ImDrawFlags_RoundCornersRight;
+				dl->AddRectFilled(c0, p1, ImGui::GetColorU32(capFill), usedRounding, cFlags);
+			}
+
+			// Layer 3: Main fill (health)
+			if (fracFillInBar > 0.0f)
+			{
+				ImVec2 f1 = ImVec2(p0.x + w * fracFillInBar, p1.y);
+				ImDrawFlags fFlags = (fracFillInBar >= fracCap) ? ImDrawFlags_RoundCornersLeft : ImDrawFlags_RoundCornersLeft;
+				// If fill reaches the cap boundary and there's no cap segment, use all corners on left
+				if (fracFillInBar >= 1.0f)
+					fFlags = ImDrawFlags_RoundCornersAll;
+				else if (!hasCap && fracFillInBar >= 1.0f - 0.001f)
+					fFlags = ImDrawFlags_RoundCornersAll;
+				dl->AddRectFilled(p0, f1, ImGui::GetColorU32(fgColor), usedRounding, fFlags);
+			}
+
+			// Layer 4: Overfill (on top of main fill, for overhealth)
+			// This is drawn as a separate colored bar on top, starting from left
+			if (hasOverfill && fracOverfill > 0.0f)
+			{
+				ImVec2 o1 = ImVec2(p0.x + w * fracOverfill, p1.y);
+				ImDrawFlags oFlags = (fracOverfill >= 1.0f) ? ImDrawFlags_RoundCornersAll : ImDrawFlags_RoundCornersLeft;
+				dl->AddRectFilled(p0, o1, ImGui::GetColorU32(overfillColor), usedRounding, oFlags);
+			}
+
+			// Layer 5: Border
+			if (thick > 0.0f && borderColor.w > 0.0f)
+			{
+				dl->AddRect(p0, p1, ImGui::GetColorU32(borderColor), usedRounding, ImDrawFlags_RoundCornersAll, thick);
+			}
+
+			// Layer 6: Overlay text centered
 			const char* overlay = (overlayText && overlayText[0]) ? overlayText : "";
 			if (overlay[0] != '\0')
 			{

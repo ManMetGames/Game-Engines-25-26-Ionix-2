@@ -222,10 +222,27 @@ if not isUpgradeMenuOpen then return end
       local function getDisplayLabel(option)
         if option.cfg then
           local base = T(option.cfg.label) or option.cfg.label or ""
-          if option.cfg.maxValue then
-            local currentVal = option.currentValue or 0
-            return string.format("%s %d/%d", base, currentVal, option.cfg.maxValue)
+          local cfg = option.cfg
+          local currentVal = option.currentValue or cfg.defaultValue or 0
+
+          -- For upgrades that increase a numeric stat by an increment (eg. max health),
+          -- display the number of times the upgrade has been applied rather than the raw stat.
+          if cfg.increment then
+            local default = cfg.defaultValue or 0
+            local inc = cfg.increment or 1
+            local applied = math.floor((currentVal - default) / inc)
+            if applied < 0 then applied = 0 end
+            if cfg.maxValue then
+              return string.format("%s %d/%d", base, applied, cfg.maxValue)
+            else
+              return string.format("%s %d", base, applied)
+            end
           end
+
+          if cfg.maxValue then
+            return string.format("%s %d/%d", base, currentVal, cfg.maxValue)
+          end
+
           return base
         end
         return T(option.label) or option.label
@@ -235,19 +252,25 @@ if not isUpgradeMenuOpen then return end
 
       local descText = T(opt.desc) or ""
       if opt.type == "no_witnesses" then
-        local mult = 1
-        if opt.cfg and opt.cfg.damageMultiplier then
-          mult = opt.cfg.damageMultiplier
+        -- Custom description per rank
+        local currentRank = opt.currentValue or 0
+        if currentRank == 0 then
+            descText = T("upgradedesc.no_witnesses_rank1")
+        elseif currentRank >= 1 then
+            descText = T("upgradedesc.no_witnesses_rank2")
         end
-        descText = descText .. "\n" .. string.format("Damage x%s", tostring(mult))
+      elseif opt.type == "antivirus" and opt.cfg then
+        -- Dynamic description using config values
+        local active = opt.cfg.activeDuration or 2
+        local cycle = opt.cfg.cycleDuration or 10
+        descText = string.format(T("upgradedesc.antivirus"), active, cycle)
       end
 
-      local lines = splitLines(descText)
-      local baseY = 95
-      local lineGap = 22
-      for li, txt in ipairs(lines) do
-        UI.add_centered_label(cx, baseY + (li-1)*lineGap, txt, TS_UI.FONT_SUB, 1)
-      end
+      local pad = 20
+      local wrapW = cardW - pad*2
+      local descY = 95
+
+      UI.add_centered_label(cx, descY, descText, TS_UI.FONT_SUB, 1.0, 9000)
 
       local chooseW, chooseH = math.min(180, math.floor(cardW * 0.55)), 44
       local chooseX = (cardW - chooseW) / 2

@@ -13,6 +13,7 @@
 #include "Scripting/Fysics/FysicsScripting.h"
 #include "Scripting/Nav/NavScripting.h"
 #include "Scripting/Graphics/GraphicsScripting.h"
+#include "Scripting/Graphics/VFXScripting.h"
 #include "Scripting/Entity/EntityScripting.h"
 #include "Scripting/UI/UIScripting.h"
 #include "Scripting/Json/JsonScripting.h"
