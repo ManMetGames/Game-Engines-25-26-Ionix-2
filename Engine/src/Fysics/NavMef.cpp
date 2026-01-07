@@ -413,6 +413,46 @@ namespace IonixEngine
             }
 
         }
+        RebuildClearance();
+    }
+    void NavMef::RebuildClearance()
+    {
+        float m_agentRadius = 32/100;
+        if (m_agentRadius <= 0.0f)
+            return;
+
+        std::vector<bool> originalBlocked = m_blockedCells;
+
+        for (int i = 0; i < m_cells.size(); i++)
+        {
+            if (!originalBlocked[i])
+                continue;
+
+            const Cell& cell = m_cells[i];
+
+            b2Vec2 c0 = m_corners[cell.corns[0]];
+            b2Vec2 c1 = m_corners[cell.corns[1]];
+            b2Vec2 c2 = m_corners[cell.corns[2]];
+            b2Vec2 c3 = m_corners[cell.corns[3]];
+
+            b2Vec2 min(
+                std::min({ c0.x, c1.x, c2.x, c3.x }) - m_agentRadius,
+                std::min({ c0.y, c1.y, c2.y, c3.y }) - m_agentRadius
+            );
+
+            b2Vec2 max(
+                std::max({ c0.x, c1.x, c2.x, c3.x }) + m_agentRadius,
+                std::max({ c0.y, c1.y, c2.y, c3.y }) + m_agentRadius
+            );
+
+            for (int j = 0; j < m_cells.size(); j++)
+            {
+                if (CellOverlaps(m_cells[j], min, max))
+                {
+                    m_blockedCells[j] = true;
+                }
+            }
+        }
     }
 
     bool NavMef::IsCellBlocked(int cellIndex) const

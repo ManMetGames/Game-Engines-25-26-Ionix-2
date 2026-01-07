@@ -79,6 +79,8 @@ namespace IonixEngine
         //adds an obstacle
         void AddObstacle(const b2Vec2& min, const b2Vec2& max);
 
+        void RebuildClearance();
+
         // check to see if a cell is unnavailable and blocked 
         bool IsCellBlocked(int cellIndex) const;
         void DrawGrid(float x, float y, float width, float height, float cellSize, SDL_Color color);
