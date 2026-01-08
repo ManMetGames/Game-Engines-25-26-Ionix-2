@@ -1,5 +1,6 @@
 #pragma once
 
+#include <b2_math.h>
 #include <cmath>
 struct Vec2 {
     float x, y;
@@ -114,6 +115,23 @@ inline Vec2 Vec2Normalize(Vec2 v)
     }
 
     return Vec2{ v.x / length, v.y / length };
+}
+
+inline b2Vec2 b2Vec2Normalize(b2Vec2 v)
+{
+    float length = sqrtf(v.x * v.x + v.y * v.y);
+
+    if (length < 0.000001f)
+    {
+        return b2Vec2{ 0.0f, 0.0f };
+    }
+
+    return b2Vec2{ v.x / length, v.y / length };
+}
+
+inline b2Vec2 b2Lerp(const b2Vec2& a, const b2Vec2& b, float t)
+{
+    return b2Vec2(a.x + (b.x - a.x) * t,a.y + (b.y - a.y) * t);
 }
 
 // scale  vector

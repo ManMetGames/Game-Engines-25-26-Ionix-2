@@ -29,6 +29,8 @@ namespace IonixEngine
         }
     };
 
+
+
     //struct GridCell {
     //    bool canPass;
     //    Cell cell;
@@ -41,6 +43,7 @@ namespace IonixEngine
     private:
         std::vector<b2Vec2> m_corners; // corner coords
         std::vector<Cell> m_cells; // cell
+        
 
         bool ShareEdge(const Cell& a, const Cell& b);
 

@@ -10,6 +10,8 @@ namespace IonixEngine
 		return Application::Get().layerNavigation->GetNavMef();
 	}*/
 
+    
+
     bool NavMef::ShareEdge(const Cell& a, const Cell& b) {
         int shared = 0;
         for (int va : a.corns) {
