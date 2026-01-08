@@ -95,6 +95,12 @@ function PongButBetter:MovePaddles(dt)
         rightVelY = paddleSpeed
     end
 
+    local rightPaddleY = Mafs.get_vec_y(Entity.get_global_pos(rightPaddle))
+    
+    if (rightPaddleY <= 40 and rightVelY < 0) or (rightPaddleY >= 520 and rightVelY > 0) then
+        rightVelY = 0
+    end    
+    
     Fysics.set_linear_velocity(rightPaddle, 0, rightVelY)
 end
 
