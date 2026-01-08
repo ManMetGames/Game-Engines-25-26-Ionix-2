@@ -11,6 +11,8 @@ local isDead
 	
 function enemy:OnStart()
 	
+	isDead = false
+	
 	health = maxHealth
 	
 	Texture.add_texture("./Assets/ball.png", "enemy")
