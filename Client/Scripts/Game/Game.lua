@@ -10,6 +10,8 @@ local playerX = 150
 local playerY = 400
 local playerWidth = 50
 local playerHeight = 50
+local isJumping = false
+local jumpForce = -15000
 --Floor Settings
 local FloorY = 500
 local FloorHeight = 20
@@ -61,5 +63,15 @@ end
 -- OnUpdate
 ----------------------------------------------------------
 function ExampleScript:OnUpdate()
+
+    -- Player Jump Input
+    if Input.get_key_down(Keys.ionix_space) then
+
+        -- Check if player is on ground
+        local vel = Fysics.get_linear_velocity(Player)
+        if math.abs(vel.y) < 1.0 then
+            Fysics.add_impulse_to_center(Player, 0, jumpForce)
+            print("Jump!")
+        end
 end
 return ExampleScript
