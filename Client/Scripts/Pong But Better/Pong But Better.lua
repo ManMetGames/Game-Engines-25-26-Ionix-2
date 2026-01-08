@@ -25,14 +25,14 @@ function PongButBetter:OnStart()
     leftPaddleSprite = Entity.add_sprite_component(leftPaddle, assets.textures.PongPaddle, 20, 80, 0)
     Entity.add_fysics_component(leftPaddle, 1, false)
     Fysics.add_box_collider(leftPaddle, 20, 80, 0, 0, 0, false)
-    
+
     -- Create Right Paddle
     rightPaddle = Entity.create_entity()
     Entity.set_global_pos(rightPaddle, 770, 300)
     rightPaddleSprite = Entity.add_sprite_component(rightPaddle, assets.textures.PongPaddle, 20, 80, 0)
     Entity.add_fysics_component(rightPaddle, 1, false)
     Fysics.add_box_collider(rightPaddle, 20, 80, 0, 0, 0, false)
-        
+
     -- Create Walls
     topWall = Entity.create_entity()
     Entity.set_global_pos(topWall, 400, 0)
@@ -44,22 +44,11 @@ function PongButBetter:OnStart()
     Entity.add_fysics_component(bottomWall, 0, false)
     Fysics.add_box_collider(bottomWall, 800, 20, 0, 0, 0, false)
 
-    leftWall = Entity.create_entity()
-    Entity.set_global_pos(leftWall, 0, 300)
-    Entity.add_fysics_component(leftWall, 0, false)
-    Fysics.add_box_collider(leftWall, 200, 600, 0, 0, 0, false)
-
-    rightWall = Entity.create_entity()
-    Entity.set_global_pos(rightWall, 800, 300)
-    Entity.add_fysics_component(rightWall, 0, false)
-    Fysics.add_box_collider(rightWall, 200, 600, 0, 0, 0, false)
-
     -- Create ball
     ball = Entity.create_entity()
     Entity.set_global_pos(ball, ballX, ballY)
     ballSprite = Entity.add_sprite_component(ball, assets.textures.PongBall, 20, 20, 0)
     Sprite.set_playback_mode(ballSprite, 4)
-
 end
 
 function PongButBetter:OnUpdate()
@@ -72,17 +61,15 @@ function PongButBetter:OnUpdate()
     ballX = ballX + ballVelX * dt
     ballY = ballY + ballVelY * dt
 
-    if ballY <= 20 or ballY >= 580 then
+    
+    if ballY <= 10 or ballY >= 590 then
         ballVelY = -ballVelY
-    end
-
-    if ballX <= 20 or ballX >= 780 then
-        ballVelX = -ballVelX
     end
 
     Entity.set_global_pos(ball, ballX, ballY)
 
     self:MovePaddles(dt)
+    self:OnCollisionEnter()
 end
 
 function PongButBetter:MovePaddles(dt)
@@ -102,6 +89,14 @@ function PongButBetter:MovePaddles(dt)
     end    
     
     Fysics.set_linear_velocity(rightPaddle, 0, rightVelY)
+end
+
+function PongButBetter:OnCollisionEnter()
+    local rightY = Mafs.get_vec_y(Entity.get_global_pos(rightPaddle))
+
+    if ballX >= 750 and ballX <= 780 and ballY <= rightY + 80 and ballX >= ballY then
+        ballVelX = -Mafs.abs(ballVelX)
+    end    
 end
 
 return PongButBetter
