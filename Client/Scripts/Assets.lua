@@ -117,6 +117,7 @@ return {
         MapEdge1 = 2313193932,
         MapEdge2 = 3833018994,
         PacManScore = 2564662744,
+        PacManBack = 3259572418,
         Part_1__22x22_ = 3402242302,
         Part_2__22x22_ = 1294351574,
         PimBall = 3518613816,

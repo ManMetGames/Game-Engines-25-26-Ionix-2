@@ -6,6 +6,22 @@ local x = 245
 local y = Window.get_height()/5 - 50
 local tileGapFactor = 0.85
 
+
+--PACMAN MOVEMENTS
+local upBuffer
+local upBufferTime = 0
+local downBuffer
+local downBufferTime = 0
+local leftBuffer
+local leftBufferTime = 0
+local rightBuffer
+local rightBufferTime = 0
+
+local upDelay = 0
+local downDelay = 0
+local leftDelay = 0
+local rightDelay = 0
+
 ----------------------------------------------------------
 -- OnStart
 ----------------------------------------------------------
@@ -67,7 +83,7 @@ function ExampleScript:OnStart()
 
         Entity.set_global_pos(tile1, 410,140) -- Up
         Entity.set_global_pos(tile3, 220,325) -- Left
-        Entity.set_global_pos(tile2, 410,500) -- Down
+        Entity.set_global_pos(tile2, 410,510) -- Down
         Entity.set_global_pos(tile4, 600,325) -- Right
 
         Entity.add_fysics_component(tile1, enums.bodytype.staticBody, false)  -- static
@@ -100,6 +116,7 @@ function ExampleScript:OnStart()
     Entity.add_fysics_component(player1, enums.bodytype.dynamicBody, true) -- dynamic body, last value is rotation lock
     Fysics.add_sprite_collider(player1,false,1)
     Fysics.set_gravity_scale(player1, 0)
+
 end
 
 ----------------------------------------------------------
@@ -139,26 +156,44 @@ function ExampleScript:OnUpdate()
     local vx = Mafs.get_vec_x(vel1);
     local vy1 = Mafs.get_vec_y(vel1)
     
-	if Input.get_key_down(Keys.ionix_w) then -- move up
+	if Input.get_key_down(Keys.ionix_w) and hitUp == false then -- move up
         vy1 = -1
         vx = 0
-        --Entity.set_global_rot(player1, 270)
 	end
-    if Input.get_key_down(Keys.ionix_s) then -- move down
-         vy1 = 1
-          vx = 0
-        --Entity.set_global_rot(player1, 90)
+    if Input.get_key_down(Keys.ionix_s) and hitDown == false then -- move down
+        vy1 = 1
+        vx = 0
     end
-    if Input.get_key_down(Keys.ionix_a) then -- move left
+    if Input.get_key_down(Keys.ionix_a) and hitLeft == false then -- move left
         vx = -1
         vy1 = 0
-        --Entity.set_global_rot(player1, 180)
     end
-    if Input.get_key_down(Keys.ionix_d) then -- move right
+    if Input.get_key_down(Keys.ionix_d) and hitRight == false then -- move right
         vx = 1
         vy1 = 0
-        --Entity.set_global_rot(player1, 0)
+
     end
+
+    if upBuffer then
+        upBufferTime = upBufferTime + 1
+        if upBufferTime > 100 then upBufferTime = 0 upBuffer = false end
+    end
+
+    if downBuffer then
+        downBufferTime = downBufferTime + 1
+        if downBufferTime > 100 then downBufferTime = 0 downBuffer = false end
+    end
+
+    if leftBuffer then
+        leftBufferTime = leftBufferTime + 1
+        if leftBufferTime > 100 then leftBufferTime = 0 leftBuffer = false end
+    end
+
+    if rightBuffer then
+        rightBufferTime = rightBufferTime + 1
+        if rightBufferTime > 100 then rightBufferTime = 0 rightBuffer = false end
+    end
+
     Fysics.set_linear_velocity(player1, vx, vy1)
 end
 
