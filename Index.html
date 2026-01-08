@@ -454,6 +454,33 @@ footer {
             <tr><td><code>Fysics.set_gravity_scale(entity, graityScale)</code></td><td>Sets gravity scale for listed entity.</td></tr>
 
         </table>
+
+        <h3>Raycasts</h3>
+        <table>
+            <tr><td><code>Fysics.raycast(startPos, endPos)</code></td><td>Returns 2 values; a boolean whether or not the raycast hit and RayHit.</td></tr>
+            <tr><td><code>Fysics.draw_raycast(entity, startPos, endPos, enabled)</code></td><td>Visualises the raycast.</td></tr>
+        </table>
+
+        <h3>Colliders</h3>
+        <p>
+            For checking if 2 collider have collided, use these Lua functions:
+            <code>OnCollisionEnter</code> for checking if a collision has just occurred.
+            <code>OnCollisionExit</code> for checking if a collision has just ended.
+            <code>OnTriggerEnter</code> for checking if a trigger collision has just occurred.
+            <code>OnTriggerExit</code> for checking if a trigger collision has just occurred.
+
+            Use <code>Fysic.col(entity1, entity2)</code> in these functions for checking 2 specified entity collisions.
+        </p>
+        <table>
+            <tr><td><code>Fysics.add_box_collider(entity, sizeX, sizeY, offsetX, offsetY, angle, isTrigger)</code></td><td>Add a box collider to an entity.</td></tr>
+            <tr><td><code>Fysics.add_box_collider_v(entity, size, offset, angle, isTrigger)</code></td><td>Adds a box collider using vector 2s to an entity.</td></tr>
+            <tr><td><code>Fysics.add_sprite_collider(entity, isTrigger, scaleFactor)</code></td><td>Adds a collider around the sprite of an entity.</td></tr>
+            <tr><td><code>Fysics.add_polygon_collider(entity, tileSize, *terrainPositions)</code></td><td>Adds a polygon collider to an entity.</td></tr>
+            <tr><td><code>Fysics.add_circle_collider(entity, radius, offsetX, offsetY, isTrigger)</code></td><td>Adds a circle collider to an entity.</td></tr>
+            <tr><td><code>Fysics.is_collider_trigger(entity)</code></td><td>Checks if a collider is an isTrigger collider.</td></tr>
+            <tr><td><code>Fysics.set_collider_trigger(entity, value)</code></td><td>Sets whether a collider is isTrigger.</td></tr>
+            <tr><td><code>Fysics.set_collider_trigger(entity, value)</code></td><td>Sets whether a collider is isTrigger.</td></tr>
+        </table>
     </section>
     =======
     <!-- ================= UI ================= -->
