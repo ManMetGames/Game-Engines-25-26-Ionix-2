@@ -25,7 +25,8 @@ end
 
 function player:attack()
  if Input.get_mouse_button_down() then
-	enemy.health - attackDamage
+	enemy.health - attackDamage = enemy.dmgHealth
+	enemy.dmgHealth = enemy.health
  end
 
 end
