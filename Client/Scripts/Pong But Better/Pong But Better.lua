@@ -101,8 +101,9 @@ function PongButBetter:DrawUI()
         UI.add_label(280, 290, 0, 0, "PRESS SPACE TO START")
     elseif state == GameState.GAMEOVER then
         local winner = (leftScore >= winScore) and "LEFT WINS!" or "RIGHT WINS!"
-        UI.add_label(340, 250, 0, 0, winner)
-        UI.add_label(260, 290, 0, 0, "Press R to return to menu")
+        UI.add_label(340, 100, 0, 0, winner)
+        UI.add_label(270, 140, 0, 0, "Press R to return to menu")
+        UI.add_label(300, 180, 0, 0, "or Press Esc to quit")
     elseif state == GameState.SERVE then
         local count = Mafs.round(serveTimer * 1)
         count = Mafs.max(1, count)
@@ -220,6 +221,8 @@ function PongButBetter:UpdateGameOver(dt)
         leftScore, rightScore = 0, 0
         state = GameState.MENU
         self:ResetBall(1, true)
+    elseif Input.get_key_down(Keys.ionix_escape) then
+        Window.quit()
     end
 end
 
