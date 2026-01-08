@@ -25,7 +25,7 @@ function NavTest:OnStart()
 
     
 
-    Nav.load_nav_mef(0, 0, 960 / 100, 600 / 100, 10 / 100)
+    Nav.load_nav_mef(0, 0, 960, 600, 10)
     agent = Nav.create_agent(agentEntity, 4.0)
     --Nav.add_obstacle(400, 400, 500, 500)
 

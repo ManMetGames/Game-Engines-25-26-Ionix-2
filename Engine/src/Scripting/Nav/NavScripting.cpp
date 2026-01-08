@@ -19,14 +19,18 @@ namespace IonixEngine
 		//------------------------Nav Mef----------------------------
 		auto loadNavMef = [](float x, float y, float width, float height,  float cellSize)
 		{
-			Application::Get().layerNavigation->GetNavMef()->BuildGrid({ x, y }, { width, height }, cellSize);
-
-
+			float sX = x / 100;
+			float sY = y / 100;
+			float sW = width / 100;
+			float sH = height / 100;
+			float sC = cellSize / 100;
+			Application::Get().layerNavigation->GetNavMef()->BuildGrid({ sX, sY }, { sW, sH }, sC);
 		};
 
 		auto drawNavGrid = [](float x, float y, float width, float height, float cellSize)
 		{
 			// Visualize the grid
+			
 			SDL_Color gridColor = { 0, 255, 0, 20 };
 			Application::Get().layerNavigation->GetNavMef()->DrawGrid(x, y, width, height, cellSize, gridColor);
 		};
