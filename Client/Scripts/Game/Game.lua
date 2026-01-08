@@ -20,8 +20,8 @@ local playerHeight = 50
 local isJumping = false
 local jumpForce = -15000
 --Floor Settings
-local FloorY = 500
-local FloorHeight = 20
+local floorloorY = 500
+local floorHeight = 20
 -- Enemy Settings
 local enemySpawnX = 1000
 local enemyWidth = 30
@@ -108,7 +108,7 @@ function ExampleScript:OnUpdate()
         self:SpawnEnemy()
         spawnTimer = 0
     end
-        
+
     -- Update and cleanup enemies
     local i = 1
     while i <= #Enemies do
