@@ -64,13 +64,13 @@ function PongButBetter:OnUpdate()
     ballX = ballX + ballVelX * dt
     ballY = ballY + ballVelY * dt
 
-    
+
     if ballY <= 10 or ballY >= 590 then
         ballVelY = -ballVelY
     end
 
     Entity.set_global_pos(ball, ballX, ballY)
-    
+
     if ballX < -20 then
         rightScore = rightScore + 1
         self:ResetBall(-1)
@@ -78,12 +78,17 @@ function PongButBetter:OnUpdate()
         leftScore = leftScore + 1
         self:ResetBall(1)
     end
-
-     print("leftScore:", leftScore ," rightScore:", rightScore)
+    
+    self:DrawUI()
 
     self:MovePaddles(dt)
     self:OnCollisionEnter()
 end
+
+function PongButBetter:DrawUI()
+    UI.add_label(0, 0, 0, 0, "Left: " .. tostring(leftScore))
+    UI.add_label(700, 0, 0, 0, "Right: " .. tostring(rightScore))
+end    
 
 function PongButBetter:MovePaddles(dt)
     local leftVelY = 0
