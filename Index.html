@@ -277,17 +277,9 @@ footer {
             <tr><td><code>Sprite.get_tick_rate(sprite)</code></td><td>Returns the current tick speed of a sprite (used for animation sheets).</td></tr>
         </table>
 
-        <h4>Animation Play Back Modes</h4>
+        <h4>Animation PlayBack Modes</h4>
         <p>
-            <code>
-                enum playbackOptions {
-                FORWARD,
-                BACKWARD,
-                FORWARDANDBACKWARD,
-                PLAYONCE,
-                ONEFRAME
-                };
-            </code>
+            <code>Enums.playback.type</code>Specifies a playback mode (FORWARD, BACKWARD, FORWARDANDBACKWARD, PLAYONCE, ONEFRAME).
         </p>
 
         <!-- ================= VFX ================= -->
@@ -413,6 +405,8 @@ footer {
         <p>
             The <code>Fysics</code> table manipulates the <code>FysicsBody</code> component attached to an entity.
             These functions assume the entity has a FysicsBody (see <code>Entity.add_fysics_component</code>).
+
+            <code>Enums.bodytype.type</code>Specifies a FysicsBody type (staticBody, kinematicBody, dynamicBody).
         </p>
         <table>
             <tr><th>Function</th><th>Description</th></tr>
@@ -470,6 +464,8 @@ footer {
             <code>OnTriggerExit</code> for checking if a trigger collision has just occurred.
 
             Use <code>Fysic.col(entity1, entity2)</code> in these functions for checking 2 specified entity collisions.
+
+            <code>Enums.collider.type</code>Specifies a collider type (circle, box, polygon, none).
         </p>
         <table>
             <tr><td><code>Fysics.add_box_collider(entity, sizeX, sizeY, offsetX, offsetY, angle, isTrigger)</code></td><td>Add a box collider to an entity.</td></tr>
