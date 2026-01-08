@@ -9,6 +9,7 @@ local GameState = {
 
 local state = GameState.MENU
 local assets = require("Scripts.Assets")
+local ballAudio
 
 local ball
 local background
@@ -63,6 +64,7 @@ function PongButBetter:OnStart()
     ball = Entity.create_entity()
     Entity.set_global_pos(ball, ballX, ballY)
     ballSprite = Entity.add_sprite_component(ball, assets.textures.PongBall, 20, 20, 0)
+    ballAudio = Entity.add_audio_component(ball, "PongHit", false)
     Sprite.set_playback_mode(ballSprite, 4)
 
     state = GameState.MENU
@@ -149,13 +151,15 @@ function PongButBetter:OnCollisionEnter()
     
     local speedMult = 1.05
 
-    if ballX >= 750 and ballX <= 780 and ballY <= rightY + 80 and ballY >= rightY - 20 then
+    if ballX >= 750 and ballX <= 780 and ballY <= rightY + 80 and ballY >= rightY - 20 and ballVelX > 0 then
+        AudioComponent.play_one_shot(ball, "PongHit", 1.0)
         ballVelX = -Mafs.abs(ballVelX) * speedMult
         local hitOffset = (ballY - (rightY + 40)) / 40
         ballVelY = hitOffset * 250 * speedMult
     end
 
-    if ballX >= 20 and ballX <= 50 and ballY <= leftY + 80 and ballY >= leftY - 20 then
+    if ballX >= 20 and ballX <= 50 and ballY <= leftY + 80 and ballY >= leftY - 20 and ballVelX < 0 then
+        AudioComponent.play_one_shot(ball, "PongHit", 1.0)
         ballVelX = Mafs.abs(ballVelX) * speedMult
         local hitOffset = (ballY - (leftY + 40)) / 40
         ballVelY = hitOffset * 250 * speedMult
