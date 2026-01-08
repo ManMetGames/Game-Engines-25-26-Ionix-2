@@ -140,11 +140,14 @@ footer {
             <tr><th>Function</th><th>Description</th></tr>
             <tr><td><code>Input.get_mouse_x()</code></td><td>Returns mouse X position in window space.</td></tr>
             <tr><td><code>Input.get_mouse_y()</code></td><td>Returns mouse Y position in window space.</td></tr>
+            <tr><td><code>Input.get_mouse_pos()</code></td><td>Returns mouse position as a Vector 2.</td></tr>
             <tr><td><code>Input.get_mouse_button_down(button)</code></td><td>Returns <code>true</code> if the mouse button was pressed this frame.</td></tr>
             <tr><td><code>Input.get_mouse_button_up(button)</code></td><td>Returns <code>true</code> if the mouse button was released this frame.</td></tr>
             <tr><td><code>Input.set_scroll_diff(float)</code></td><td>change the scroll place</td></tr>
             <tr><td><code>Input.get_scroll_diff()</code></td><td>show scroll change</td></tr>
             <tr><td><code>Input.show_cursor()</code></td><td>show cursor in window</td></tr>
+            <tr><td><code>Input.set_relative_mouse_mode(bool enabled)</code></td><td>if enabled; hides cursor and constrains mouse position to the window</td></tr>
+            <tr><td><code>Input.get_mouse_delta()</code></td><td>used with relative mouse mode to return an accurate position for the mouse</td></tr>
         </table>
         <p>
             Typical mouse button codes are: <code>1</code> = left, <code>2</code> = middle, <code>3</code> = right.
@@ -160,6 +163,7 @@ footer {
             <tr><td><code>Input.get_right_stick_y(index)</code></td><td>Right stick Y axis in the range [-1, 1] (rounded to 2 decimals).</td></tr>
             <tr><td><code>Input.get_left_trigger(index)</code></td><td>Left trigger value in the range [0, 1] (rounded to 2 decimals).</td></tr>
             <tr><td><code>Input.get_right_trigger(index)</code></td><td>Right trigger value in the range [0, 1] (rounded to 2 decimals).</td></tr>
+            <tr><td><code>Input.get_controller_count(index)</code></td><td>Right trigger value in the range [0, 1] (rounded to 2 decimals).</td></tr>
         </table>
         <p>
             Button constants include: <code>Buttons.ionix_a</code>, <code>Buttons.ionix_b</code>,
@@ -205,42 +209,6 @@ footer {
       <tr><td><code>Mafs.deg2rag(degrees)</code></td><td>converts degrees to radians.</td></tr>
   </table>
 </section>
-=======
-    <!-- ================= MAFS ================= -->
-    <section>
-        <h2>Mafs (Math Library)</h2>
-        <table>
-            <tr><th>Function</th><th>Description</th></tr>
-            <tr><td><code>Mafs.clamp(x, min, max)</code></td><td>Clamp value within [min, max].</td></tr>
-            <tr><td><code>Mafs.abs(x)</code></td><td>Absolute value.</td></tr>
-            <tr><td><code>Mafs.min(x, minVal)</code></td><td>Return the smaller of x and minVal.</td></tr>
-            <tr><td><code>Mafs.max(x, maxVal)</code></td><td>Return the larger of x and maxVal.</td></tr>
-            <tr><td><code>Mafs.round(x)</code></td><td>Rounds to nearest integer.</td></tr>
-            <tr><td><code>Mafs.log(x)</code></td><td>Natural logarithm.</td></tr>
-            <tr><td><code>Mafs.log_10(x)</code></td><td>Base-10 logarithm.</td></tr>
-            <tr><td><code>Mafs.log_custom(x, base)</code></td><td>Logarithm with custom base.</td></tr>
-            <tr><td><code>Mafs.square_root(x)</code></td><td>Square root.</td></tr>
-            <tr><td><code>Mafs.mod(x, y)</code></td><td>Modulo operation (x % y).</td></tr>
-            <tr><td><code>Mafs.div(x, y)</code></td><td>Division helper (x / y).</td></tr>
-            <tr><td><code>Mafs.lerp(a, b, t)</code></td><td>Linear interpolation between a and b by t.</td></tr>
-            <tr><td><code>Mafs.sin(x)</code></td><td>Sine (x in radians).</td></tr>
-            <tr><td><code>Mafs.cos(x)</code></td><td>Cosine (x in radians).</td></tr>
-            <tr><td><code>Mafs.tan(x)</code></td><td>Tangent (x in radians).</td></tr>
-            <tr><td><code>Mafs.pi()</code></td><td>Returns π.</td></tr>
-            <tr><td><code>Mafs.vector2(x, y)</code></td><td>Create a 2D vector.</td></tr>
-            <tr><td><code>Mafs.vector2_x(vec2)</code></td><td>Get x component of a 2D vector.</td></tr>
-            <tr><td><code>Mafs.vector2_y(vec2)</code></td><td>Get y component of a 2D vector.</td></tr>
-            <tr><td><code>Mafs.vector3(x, y, z)</code></td><td>Create a 3D vector.</td></tr>
-            <tr><td><code>Mafs.vector3_x(vec3)</code></td><td>Get x component of a 3D vector.</td></tr>
-            <tr><td><code>Mafs.vector3_y(vec3)</code></td><td>Get y component of a 3D vector.</td></tr>
-            <tr><td><code>Mafs.vector3_z(vec3)</code></td><td>Get z component of a 3D vector.</td></tr>
-            <tr><td><code>Mafs.sqr_magnitude_vector2(vec2)</code></td><td>Squared length of a 2D vector.</td></tr>
-            <tr><td><code>Mafs.sqr_magnitude_vector3(vec3)</code></td><td>Squared length of a 3D vector.</td></tr>
-            <tr><td><code>Mafs.delta_time()</code></td><td>Time in seconds between the last two frames.</td></tr>
-            <tr><td><code>Mafs.time()</code></td><td>Time in seconds since the application started.</td></tr>
-        </table>
-    </section>
->>>>>>> Stashed changes
 
     <!-- ================= GRAPHICS / TEXTURE / SPRITE ================= -->
     <section>
