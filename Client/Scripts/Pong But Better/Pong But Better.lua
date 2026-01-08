@@ -67,6 +67,12 @@ function PongButBetter:OnUpdate()
     end
 
     Entity.set_global_pos(ball, ballX, ballY)
+    
+    if ballX < -20 then
+        self:ResetBall(-1)
+    elseif ballX > 800 then
+        self:ResetBall(1)
+    end
 
     self:MovePaddles(dt)
     self:OnCollisionEnter()
@@ -120,6 +126,13 @@ function PongButBetter:OnCollisionEnter()
         local hitOffset = (ballY - (leftY + 40)) / 40
         ballVelY = hitOffset * 250 * speedMult
     end    
+end
+
+function PongButBetter:ResetBall(dir)
+    ballX, ballY = 400, 300
+    ballVelX = 200 * dir
+    ballVelT = 150
+    Entity.set_global_pos(ball, ballX, ballY)
 end
 
 return PongButBetter
