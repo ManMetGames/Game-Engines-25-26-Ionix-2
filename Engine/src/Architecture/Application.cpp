@@ -162,7 +162,8 @@ namespace IonixEngine
             ImGui::Render();
             
             ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), m_Window->GetSdlRenderer());
-            Get().layerFysics->GetFysicsManager()->GetWorld()->DebugDraw();
+            //Hit box Gizmos:
+            //Get().layerFysics->GetFysicsManager()->GetWorld()->DebugDraw();
             SDL_RenderPresent(m_Window->m_Renderer);
 
             layerInput->m_Input->CopyCodesEndFrame();
