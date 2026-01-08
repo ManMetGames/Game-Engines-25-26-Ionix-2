@@ -290,10 +290,51 @@ footer {
             </code>
         </p>
 
-        <h3>Particles</h3>
+        <!-- ================= VFX ================= -->
+        <h3>VFX</h3>
+        <p>
+            VFX functions for adding effects such as particles and lightning effect
+        </p>
         <table>
             <tr><th>Function</th><th>Description</th></tr>
-            <tr><td><code>Particles.emit(texture, renderLayer, x, y, vx, vy, lifetime, startSize, endSize, useRainbow, startR, startG, startB, startA, endR, endG, endB, endA)</code></td><td>Emits particles using a texture and given parameters (parameters after 'lifetime' are optional)</td></tr>
+            <tr><td><code>Particles.emit(texture, renderLayer, x, y, vx, vy, lifetime, *startSize, *endSize, *useRainbow, *startR, *startG, *startB, *startA, *endR, *endG, *endB, *endA)</code></td><td>Emits particles using a texture and given parameters (parameters after 'lifetime' are optional)</td></tr>
+
+            <tr><td><code>VFX.create_ring(x,  y, radius, thickness)</code></td><td>Creates a ring effect and returns an ID (-1 if failed to create).</td></tr>
+            <tr><td><code>VFX.destroy_ring(id)</code></td><td>Destroys a ring effect.</td></tr>
+            <tr><td><code>VFX.set_ring_position(id, x, y)</code></td><td>Sets position of a ring effect.</td></tr>
+            <tr><td><code>VFX.set_ring_radius(id, radius)</code></td><td>Sets radius of a ring effect.</td></tr>
+            <tr><td><code>VFX.set_ring_thickness(id, thickness)</code></td><td>Sets thickness of a ring effect.</td></tr>
+            <tr><td><code>VFX.set_ring_color(id, r, g, b, *a)</code></td><td>Sets ring effect colour.</td></tr>
+            <tr><td><code>VFX.set_ring_pulsing(id, enabled, *speed, *minAlpha, *maxAlpha)</code></td><td>Sets pulsing animation for a ring effect (parameters after 'enabled' are optional).</td></tr>
+            <tr><td><code>VFX.set_ring_follow_entity(id, entity, *offsetX, *offsetY)</code></td><td>Sets a ring effect to follow a specified entity using optional offset parameters.</td></tr>
+            <tr><td><code>VFX.set_ring_render_layer(id, renderLayer, *zOrder)</code></td><td>Sets the rendering layer of a ring effect.</td></tr>
+            <tr><td><code>VFX.set_ring_segments(id, segments)</code></td><td>Sets the segment count (quality) for a ring effect.</td></tr>
+            <tr><td><code>VFX.set_ring_distortion(id, enabled, *amplitude, *frequency, *speed)</code></td><td>Sets the distortion of a ring effect (heat haze / gravitational lensing).</td></tr>
+            <tr><td><code>VFX.is_ring_active(id)</code></td><td>Checks if a ring effect is active.</td></tr>
+            <tr><td><code>VFX.get_ring_radius(id)</code></td><td>Returns the radius value of a ring effect.</td></tr>
+            <tr><td><code>VFX.is_ring_distortion_enabled(id)</code></td><td>Checks if a ring effect has distortion enabled.</td></tr>
+
+            <tr><td><code>VFX.create_lightning(startX, startY, endX, endY, *lifetime)</code></td><td>Creates a lightning bolt between 2 points then returns the id of the effect (-1 if creation failed).</td></tr>
+            <tr><td><code>VFX.destroy_lightning(id)</code></td><td>Destroys a lightning effect.</td></tr>
+            <tr><td><code>VFX.set_lightning_position(id, startX, startY, endX, endY)</code></td><td>Sets position of a lightning effect.</td></tr>
+            <tr><td><code>VFX.set_lightning_color(id, r, g, b, *a)</code></td><td>Sets colour of a lightning effect.</td></tr>
+            <tr><td><code>VFX.set_lightning_properties(id, *thickness, *jaggedness, *segments)</code></td><td>Sets a lightning effect's visual properties.</td></tr>
+            <tr><td><code>VFX.set_lightning_flicker(id, enabled, *speed)</code></td><td>Sets whether a lightning effect will flicker on and off.</td></tr>
+            <tr><td><code>VFX.set_lightning_render_layer(id, renderLayer, *xOrder)</code></td><td>Sets rendering layer of a lightning effect.</td></tr>
+            <tr><td><code>VFX.set_lightning_fade_out(id, enabled)</code></td><td>Sets whether a lightning effect will fade out.</td></tr>
+
+            <tr><td><code>VFX.set_lightning_corruption_enabled(id, enabled)</code></td><td>Enable/disable corruption system for a lightning effect.</td></tr>
+            <tr><td><code>VFX.set_lightning_corruption_color(id, r, g, b)</code></td><td>Set corruption target color of a lightning effect (the color segments turn when corrupted).</td></tr>
+            <tr><td><code>VFX.set_lightning_corruption_rates(id, decayRate, spreadRate)</code></td><td>Set corruption decay and spread rates of a lightning effect.</td></tr>
+            <tr><td><code>VFX.apply_lightning_corruption(id, segmentIndex, amount)</code></td><td>Apply corruption to a specific segment of a lightning effect.</td></tr>
+            <tr><td><code>VFX.apply_lightning_corruption_at_point(id, x, y, amount)</code></td><td>Apply corruption at a specified point of a lightning effect (finds nearest segment).</td></tr>
+            <tr><td><code>VFX.get_lightning_total_corruption(id)</code></td><td>Get total corruption across all segments of a lightning effect (0-1 average).</td></tr>
+            <tr><td><code>VFX.get_lightning_segment_corruption(id, segmentIndex)</code></td><td>Get corruption of a specific segment of a lightning effect.</td></tr>
+            <tr><td><code>VFX.get_lightning_segment_count(id)</code></td><td>Get number of segments in a lightning effect.</td></tr>
+            <tr><td><code>VFX.get_lightning_segment_position(id, segmentIndex)</code></td><td> Get the position of a segment's midpoint of a lightning effect (returns x, y).</td></tr>
+            <tr><td><code>VFX.is_lightning_active(id)</code></td><td>Check if a lightning effect is active.</td></tr>
+
+            <tr><td><code>VFX.clear()</code></td><td>Clears all VFX effects.</td></tr>
         </table>
 
     </section>
