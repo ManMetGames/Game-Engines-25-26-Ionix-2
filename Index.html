@@ -234,7 +234,7 @@ footer {
                 <td><code>Texture.add_texture(path, alias)</code></td>
                 <td>Register a texture from file at <code>path</code> with an alias string used by sprites.</td>
             </tr>
-            <tr><td><code>Assets.textures.NAME</code></td><td>Gets a texture found in the assets folder.</td></tr>
+            <tr><td><code>Assets.textures.NAME</code></td><td> Gets a texture found in the assets folder.</td></tr>
         </table>
 
         <h3>Sprite</h3>
@@ -279,7 +279,7 @@ footer {
 
         <h4>Animation PlayBack Modes</h4>
         <p>
-            <code>Enums.playback.type</code>Specifies a playback mode (FORWARD, BACKWARD, FORWARDANDBACKWARD, PLAYONCE, ONEFRAME).
+            <code>Enums.playback.type</code> Specifies a playback mode (FORWARD, BACKWARD, FORWARDANDBACKWARD, PLAYONCE, ONEFRAME).
         </p>
 
         <!-- ================= VFX ================= -->
@@ -406,7 +406,7 @@ footer {
             The <code>Fysics</code> table manipulates the <code>FysicsBody</code> component attached to an entity.
             These functions assume the entity has a FysicsBody (see <code>Entity.add_fysics_component</code>).
 
-            <code>Enums.bodytype.type</code>Specifies a FysicsBody type (staticBody, kinematicBody, dynamicBody).
+            <code>Enums.bodytype.type</code> Specifies a FysicsBody type (staticBody, kinematicBody, dynamicBody).
         </p>
         <table>
             <tr><th>Function</th><th>Description</th></tr>
@@ -457,15 +457,20 @@ footer {
 
         <h3>Colliders</h3>
         <p>
-            For checking if 2 collider have collided, use these Lua functions:
-            <code>OnCollisionEnter</code> for checking if a collision has just occurred.
-            <code>OnCollisionExit</code> for checking if a collision has just ended.
-            <code>OnTriggerEnter</code> for checking if a trigger collision has just occurred.
-            <code>OnTriggerExit</code> for checking if a trigger collision has just occurred.
+            For checking if 2 colliders have connected, use these Lua functions:
+        </p>
+        <table>
 
+            <tr><td><code>OnCollisionEnter</code> for checking if a collision has just occurred.</td></tr>
+            <tr><td><code>OnCollisionExit</code> for checking if a collision has just ended.</td></tr>
+            <tr><td><code>OnTriggerEnter</code> for checking if a trigger collision has just occurred.</td></tr>
+            <tr><td><code>OnTriggerExit</code> for checking if a trigger collision has just ended.</td></tr>
+        </table>
+        <p>
             Use <code>Fysic.col(entity1, entity2)</code> in these functions for checking 2 specified entity collisions.
-
-            <code>Enums.collider.type</code>Specifies a collider type (circle, box, polygon, none).
+        </p>
+        <p>
+            <code>Enums.collider.type</code> Specifies a collider type (circle, box, polygon, none).
         </p>
         <table>
             <tr><td><code>Fysics.add_box_collider(entity, sizeX, sizeY, offsetX, offsetY, angle, isTrigger)</code></td><td>Add a box collider to an entity.</td></tr>
@@ -478,14 +483,13 @@ footer {
             <tr><td><code>Fysics.set_collider_trigger(entity, value)</code></td><td>Sets whether a collider is isTrigger.</td></tr>
         </table>
     </section>
-    =======
     <!-- ================= UI ================= -->
     <section>
         <h2>UI</h2>
         <p>
             The <code>UI</code> table offers both immediate-mode drawing and managed UI elements via the UIManager.
 
-            <code>Assets.fonts.NAME</code>Gets a font found in the assets folder.
+            <code>Assets.fonts.NAME</code> Gets a font found in the assets folder.
         </p>
         <table>
             <tr><th>Function</th><th>Description</th></tr>
@@ -535,7 +539,7 @@ footer {
         <h2>Audio</h2>
         <p>
             Audio is controlled through an <code>AudioPlayer</code> component attached to an entity.
-            <tr><td><code>Assets.sounds.NAME</code></td><td>Gets a sound file found in the assets folder.</td></tr>
+            
             In Lua this is exposed via the <code>AudioComponent</code> table. A typical flow:
         </p>
         <pre><code>
@@ -546,7 +550,9 @@ local audio = Entity.get_audio_component(e)
 -- Then call AudioComponent functions with this entity:
 AudioComponent.play(e)
   </code></pre>
-
+        <p>
+            <code>Assets.sounds.NAME</code> Gets a sound file found in the assets folder.
+        </p>
         <h3>AudioComponent</h3>
         <table>
             <tr><th>Function</th><th>Description</th></tr>
