@@ -1,5 +1,11 @@
 local PongButBetter = {}
 
+local GameState = {
+    MENU = 1,
+    PLAY = 2,
+    GAMEOVER = 3}
+
+local state = GameState.MENU
 local assets = require("Scripts.Assets")
 
 local ball
@@ -13,6 +19,7 @@ local paddleSpeed = 4
 
 local rightScore = 0
 local leftScore = 0
+local winScore = 5
 
 function PongButBetter:OnStart()
     Window.set_size(800, 600)
@@ -52,6 +59,8 @@ function PongButBetter:OnStart()
     Entity.set_global_pos(ball, ballX, ballY)
     ballSprite = Entity.add_sprite_component(ball, assets.textures.PongBall, 20, 20, 0)
     Sprite.set_playback_mode(ballSprite, 4)
+
+    state = GameState.MENU
 end
 
 function PongButBetter:OnUpdate()
@@ -61,33 +70,34 @@ function PongButBetter:OnUpdate()
         dt = 0.016 -- ~60fps
     end
 
-    ballX = ballX + ballVelX * dt
-    ballY = ballY + ballVelY * dt
+    if state == GameState.MENU then
+        self:UpdateMenu(dt)
+    elseif state == GameState.PLAY then
+        self:UpdatePlay(dt)
+    elseif state == GameState.GAMEOVER then
+        self:UpdateGameOver(dt)
+    end    
 
-
-    if ballY <= 10 or ballY >= 590 then
-        ballVelY = -ballVelY
-    end
-
-    Entity.set_global_pos(ball, ballX, ballY)
-
-    if ballX < -20 then
-        rightScore = rightScore + 1
-        self:ResetBall(-1)
-    elseif ballX > 800 then
-        leftScore = leftScore + 1
-        self:ResetBall(1)
-    end
-    
     self:DrawUI()
 
-    self:MovePaddles(dt)
-    self:OnCollisionEnter()
+    if state == GameState.PLAY then
+        self:MovePaddles(dt)
+    end
 end
 
 function PongButBetter:DrawUI()
     UI.add_label(0, 0, 0, 0, "Left: " .. tostring(leftScore))
     UI.add_label(700, 0, 0, 0, "Right: " .. tostring(rightScore))
+    
+    if state == GameState.MENU then
+        UI.add_label(300, 250, 0, 0, "PONG BUT BETTER")
+        UI.add_label(280, 290, 0, 0, "PRESS SPACE TO START")
+    
+    elseif state == GameState.GAMEOVER then
+        local winner = (leftScore >= winScore) and "LEFT WINS!" or "RIGHT WINS!"
+        UI.add_label(340, 250, 0, 0, winner)
+        UI.add_label(260, 290, 0, 0, "Press R to return to menu")
+    end
 end    
 
 function PongButBetter:MovePaddles(dt)
@@ -137,14 +147,68 @@ function PongButBetter:OnCollisionEnter()
         ballVelX = Mafs.abs(ballVelX) * speedMult
         local hitOffset = (ballY - (leftY + 40)) / 40
         ballVelY = hitOffset * 250 * speedMult
-    end    
+    end
 end
 
-function PongButBetter:ResetBall(dir)
+function PongButBetter:ResetBall(dir, hold)
     ballX, ballY = 400, 300
-    ballVelX = 200 * dir
-    ballVelT = 150
+    
+    if hold then
+        ballVelX, ballVelY = 0, 0
+    else
+        ballVelX = 200 * dir
+        ballVelY = 150
+    end
+
     Entity.set_global_pos(ball, ballX, ballY)
 end
 
+function PongButBetter:UpdateMenu(dt)
+    if Input.get_key_down(Keys.ionix_space) then
+        leftScore, rightScore = 0, 0
+        self:ResetBall(1, false)
+        state = GameState.PLAY
+    end
+end
+
+
+function PongButBetter:UpdatePlay(dt)
+    ballX = ballX + ballVelX * dt
+    ballY = ballY + ballVelY * dt
+    
+    if ballY <= 10 or ballY >= 590 then
+        ballVelY = -ballVelY
+    end
+    
+    if ballX < -20 then
+        rightScore = rightScore + 1
+        if rightScore >= winScore then
+            state = GameState.GAMEOVER
+            self:ResetBall(-1, true)
+        else
+            self:ResetBall(-1, false)
+        end    
+    
+    elseif ballX > 800 then
+        leftScore = leftScore + 1
+        if leftScore >= winScore then
+            state = GameState.GAMEOVER
+            self:ResetBall(1, true)
+        else
+            self:ResetBall(1, false)
+        end
+    end
+    self:OnCollisionEnter()
+    
+    Entity.set_global_pos(ball, ballX, ballY)
+end    
+
+function PongButBetter:UpdateGameOver(dt)
+    if Input.get_key_down(Keys.ionix_r) then
+        leftScore, rightScore = 0, 0
+        state = GameState.MENU
+        self:ResetBall(1, true)
+    end
+end    
+    
 return PongButBetter
