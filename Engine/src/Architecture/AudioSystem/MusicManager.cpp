@@ -40,8 +40,18 @@ namespace IonixEngine {
         SDL_Log("[MusicManager] Successfully initialized SoLoud");
 
         // Auto-load music from Assets
-        for (const auto& pair : Assets::Get().music.GetMusic()) {
-            LoadMusic(pair.first, pair.second);
+        struct MusicDef {
+            const char* alias;
+            const char* path;
+        };
+
+        static MusicDef musicList[] = {
+            { "bgmMusic", "Assets/Audio/bgmMusic.ogg" }
+        };
+
+        for (const auto& m : musicList)
+        {
+            LoadMusic(m.alias, m.path);
         }
         
         return true;

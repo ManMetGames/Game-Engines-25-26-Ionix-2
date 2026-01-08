@@ -834,9 +834,12 @@ function ExampleScript:OnStart()
     Entity.add_audio_component(gameOverSound, "gameOver", false)
     AudioComponent.change_volume(gameOverSound, 30)
 
-    --    musicEntity = Entity.create_entity()
-    --Entity.add_audio_component(musicEntity, "", false)
-    
+    musicEntity = Entity.create_entity()
+    Entity.add_audio_component(musicEntity, "bgmMusic", false)
+    musicStarted = false
+    print("Music ON:", s_musicOn, "Vol:", s_musicVol)
+
+
     -- Apply saved audio settings
     ApplyMusicVolume()
     UpdateMusicPlayback()
