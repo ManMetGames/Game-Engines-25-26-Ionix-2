@@ -74,6 +74,34 @@ function ExampleScript:OnUpdate()
             Fysics.add_impulse_to_center(Player, 0, jumpForce)
             print("Jump!")
         end
+    end
+    -- Update and cleanup enemies
+    local i = 1
+    while i <= #Enemies do
+        local enemy = Enemies[i]
+        
+        if enemy ~= nil then
+            -- Move enemy left
+            local pos = Entity.get_global_pos(enemy)
+            Entity.set_global_pos(enemy, pos.x - gameSpeed * Mafs.delta_time(), pos.y)
+            
+            -- Check collision with player
+            if Fysics.col(Player, enemy) then
+                print("Collision! Game Over!")
+                gameOver = true
+            end
+            
+            -- Remove enemy if off screen
+            if pos.x < -50 then
+                Entity.destroy_entity(enemy)
+                table.remove(Enemies, i)
+            else
+                i = i + 1
+            end
+        else
+            i = i + 1
+        end
+    end
 end
 
 ----------------------------------------------------------
