@@ -176,41 +176,53 @@ footer {
         </p>
     </section>
 
-<<<<<<< Updated upstream
-<!-- ================= MAFS ================= -->
-<section>
-  <h2>Mafs (Math Library)</h2>
-  <table>
-      <tr><th>Function</th><th>Description</th></tr>
-      <tr><td><code>Mafs.clamp(x, min, max)</code></td><td>Clamp value within [min, max].</td></tr>
-      <tr><td><code>Mafs.abs(x)</code></td><td>Absolute value.</td></tr>
-      <tr><td><code>Mafs.min(x, minVal)</code></td><td>Return the smaller of x and minVal.</td></tr>
-      <tr><td><code>Mafs.max(x, maxVal)</code></td><td>Return the larger of x and maxVal.</td></tr>
-      <tr><td><code>Mafs.round(x)</code></td><td>Rounds to nearest integer.</td></tr>
-      <tr><td><code>Mafs.log(x)</code></td><td>Natural logarithm.</td></tr>
-      <tr><td><code>Mafs.log_10(x)</code></td><td>Base-10 logarithm.</td></tr>
-      <tr><td><code>Mafs.log_custom(x, base)</code></td><td>Logarithm with custom base.</td></tr>
-      <tr><td><code>Mafs.square_root(x)</code></td><td>Square root.</td></tr>
-      <tr><td><code>Mafs.mod(x, y)</code></td><td>Modulo operation (x % y).</td></tr>
-      <tr><td><code>Mafs.div(x, y)</code></td><td>Division helper (x / y).</td></tr>
-      <tr><td><code>Mafs.lerp(a, b, t)</code></td><td>Linear interpolation between a and b by t in seconds.</td></tr>
-      <tr><td><code>Mafs.lerp_vec(a, b, t)</code></td><td>Linear interpolation between two vectors by t in seconds.</td></tr>
-      <tr><td><code>Mafs.sin(x)</code></td><td>Sine (x in radians).</td></tr>
-      <tr><td><code>Mafs.cos(x)</code></td><td>Cosine (x in radians).</td></tr>
-      <tr><td><code>Mafs.tan(x)</code></td><td>Tangent (x in radians).</td></tr>
-      <tr><td><code>Mafs.pi()</code></td><td>Returns π.</td></tr>
-      <tr><td><code>Mafs.vec_2(x, y)</code></td><td>Creates a vector 2 with inputted x and y values.</td></tr>
-      <tr><td><code>Mafs.set_vec_x(vector2, newX)</code></td><td>Sets the x value of a given vector 2.</td></tr>
-      <tr><td><code>Mafs.set_vec_y(vector2, newY)</code></td><td>Sets the y value of a given vector 2.</td></tr>
-      <tr><td><code>Mafs.get_vec_x(vector2)</code></td><td>Returns the x value of a vector 2.</td></tr>
-      <tr><td><code>Mafs.get_vec_y(vector2)</code></td><td>Returns the y value of a vector 2.</td></tr>
-      <tr><td><code>Mafs.sqr_magnitude_vec_2(vec2)</code></td><td>Squared length of a 2D vector.</td></tr>
-      <tr><td><code>Mafs.delta_time()</code></td><td>Time in seconds between the last two frames.</td></tr>
-      <tr><td><code>Mafs.time()</code></td><td>Time in seconds since the application started.</td></tr>
-      <tr><td><code>Mafs.rad_2_deg(radians)</code></td><td>converts radians to degrees.</td></tr>
-      <tr><td><code>Mafs.deg_2_rad(degrees)</code></td><td>converts degrees to radians.</td></tr>
-  </table>
-</section>
+    <!-- ================= MAFS ================= -->
+    <section>
+        <h2>Mafs (Math Library)</h2>
+        <table>
+            <tr><th>Function</th><th>Description</th></tr>
+            <tr><td><code>Mafs.clamp(x, min, max)</code></td><td>Clamp value within [min, max].</td></tr>
+            <tr><td><code>Mafs.abs(x)</code></td><td>Absolute value.</td></tr>
+            <tr><td><code>Mafs.min(x, minVal)</code></td><td>Return the smaller of x and minVal.</td></tr>
+            <tr><td><code>Mafs.max(x, maxVal)</code></td><td>Return the larger of x and maxVal.</td></tr>
+            <tr><td><code>Mafs.round(x)</code></td><td>Rounds to nearest integer.</td></tr>
+            <tr><td><code>Mafs.log(x)</code></td><td>Natural logarithm.</td></tr>
+            <tr><td><code>Mafs.log_10(x)</code></td><td>Base-10 logarithm.</td></tr>
+            <tr><td><code>Mafs.log_custom(x, base)</code></td><td>Logarithm with custom base.</td></tr>
+            <tr><td><code>Mafs.square_root(x)</code></td><td>Square root.</td></tr>
+            <tr><td><code>Mafs.mod(x, y)</code></td><td>Modulo operation (x % y).</td></tr>
+            <tr><td><code>Mafs.div(x, y)</code></td><td>Division helper (x / y).</td></tr>
+            <tr><td><code>Mafs.lerp(a, b, t)</code></td><td>Linear interpolation between a and b by t in seconds.</td></tr>
+            <tr><td><code>Mafs.lerp_vec(a, b, t)</code></td><td>Linear interpolation between two vectors by t in seconds.</td></tr>
+            <tr><td><code>Mafs.sin(x)</code></td><td>Sine (x in radians).</td></tr>
+            <tr><td><code>Mafs.cos(x)</code></td><td>Cosine (x in radians).</td></tr>
+            <tr><td><code>Mafs.tan(x)</code></td><td>Tangent (x in radians).</td></tr>
+            <tr><td><code>Mafs.pi()</code></td><td>Returns π.</td></tr>
+            <tr><td><code>Mafs.vec_2(x, y)</code></td><td>Creates a vector 2 with inputted x and y values.</td></tr>
+            <tr><td><code>Mafs.set_vec_x(vector2, newX)</code></td><td>Sets the x value of a given vector 2.</td></tr>
+            <tr><td><code>Mafs.set_vec_y(vector2, newY)</code></td><td>Sets the y value of a given vector 2.</td></tr>
+            <tr><td><code>Mafs.get_vec_x(vector2)</code></td><td>Returns the x value of a vector 2.</td></tr>
+            <tr><td><code>Mafs.get_vec_y(vector2)</code></td><td>Returns the y value of a vector 2.</td></tr>
+            <tr><td><code>Mafs.sqr_magnitude_vec_2(vec2)</code></td><td>Squared length of a 2D vector.</td></tr>
+            <tr><td><code>Mafs.delta_time()</code></td><td>Time in seconds between the last two frames.</td></tr>
+            <tr><td><code>Mafs.time()</code></td><td>Time in seconds since the application started.</td></tr>
+            <tr><td><code>Mafs.rad_2_deg(radians)</code></td><td>converts radians to degrees.</td></tr>
+            <tr><td><code>Mafs.deg_2_rad(degrees)</code></td><td>converts degrees to radians.</td></tr>
+        </table>
+    </section>
+
+    <!-- ================= MAFS ================= -->
+    <section>
+        <h2>NavMef (NavMesh Library)</h2>
+        <table>
+            <tr><th>Function</th><th>Description</th></tr>
+            <tr><td><code>Nav.load_nav_mef(x, y, width, height, cellSize)</code></td><td>Creates a NavMef Grid using given values for position, grid size and cell size.</td></tr>
+            <tr><td><code>Nav.draw_nav_grid(x, y, width, height, cellSize)</code></td><td>Visualizes a NavMef Grid.</td></tr>
+            <tr><td><code>Nav.add_obstacle(minX, minY, maxX, maxY)</code></td><td>Adds a NavMef Obstacle to the Grid.</td></tr>
+            <tr><td><code>Nav.create_agent(entity, speed)</code></td><td>Creates a NavMef Agent using a given entity and speed then returns it.</td></tr>
+            <tr><td><code>Nav.agent_move_to(agent, x, y)</code></td><td>Moves a NavMef Agent to a specified position on the Grid.</td></tr>
+        </table>
+    </section>
 
     <!-- ================= GRAPHICS / TEXTURE / SPRITE ================= -->
     <section>
@@ -332,55 +344,55 @@ footer {
         </table>
     </section>
 
-<!-- ================= FYSICS ================= -->
-<section>
-  <h2>Fysics (2D Physics)</h2>
-  <p>
-    The <code>Fysics</code> table manipulates the <code>FysicsBody</code> component attached to an entity.
-    These functions assume the entity has a FysicsBody (see <code>Entity.add_fysics_component</code>).
-  </p>
-  <table>
-      <tr><th>Function</th><th>Description</th></tr>
-      <tr><td><code>Fysics.get_pos(entity)</code></td><td>Get the body's world position as a vector.</td></tr>
-      <tr><td><code>Fysics.set_pos(entity, x, y)</code></td><td>Set the body's world position.</td></tr>
-      <tr><td><code>Fysics.set_pos_v(entity, vec2.x, vec2.y)</code></td><td>Set the body's world position using v2.</td></tr>
-      <tr><td><code>Fysics.get_angle(entity)</code></td><td>Get body rotation in radians.</td></tr>
-      <tr><td><code>Fysics.set_angle(entity, radians)</code></td><td>Set body rotation in radians.</td></tr>
-      <tr><td><code>Fysics.get_linear_velocity(entity)</code></td><td>Get linear velocity vector.</td></tr>
-      <tr><td><code>Fysics.set_linear_velocity(entity, x, y)</code></td><td>Set linear velocity.</td></tr>
-      <tr><td><code>Fysics.set_linear_velocity_v(entity, vec2.x, vec2.y)</code></td><td>Set linear velocity using v2.</td></tr>
-      <tr><td><code>Fysics.get_angular_velocity(entity)</code></td><td>Get angular velocity (radians/sec).</td></tr>
-      <tr><td><code>Fysics.set_angular_velocity(entity, value)</code></td><td>Set angular velocity.</td></tr>
-      <tr><td><code>Fysics.get_awake(entity)</code></td><td>Returns <code>true</code> if the body is awake.</td></tr>
-      <tr><td><code>Fysics.set_awake(entity, flag)</code></td><td>Set whether the body is awake.</td></tr>
-      <tr><td><code>Fysics.rotate_pos(entity, angle)</code></td><td>Rotate the body's position around its origin by <code>angle</code> (radians).</td></tr>
-      <tr><td><code>Fysics.get_linear_damping(entity)</code></td><td>Get linear damping factor.</td></tr>
-      <tr><td><code>Fysics.set_linear_damping(entity, damping)</code></td><td>Set linear damping.</td></tr>
-      <tr><td><code>Fysics.get_angular_damping(entity)</code></td><td>Get angular damping factor.</td></tr>
-      <tr><td><code>Fysics.set_angular_damping(entity, damping)</code></td><td>Set angular damping.</td></tr>
-      <tr><td><code>Fysics.get_allow_sleep(entity)</code></td><td>Returns <code>true</code> if the body is allowed to sleep.</td></tr>
-      <tr><td><code>Fysics.set_allow_sleep(entity, flag)</code></td><td>Enable or disable sleeping.</td></tr>
-      <tr><td><code>Fysics.get_fixed_rotation(entity)</code></td><td>Returns <code>true</code> if rotation is locked.</td></tr>
-      <tr><td><code>Fysics.set_fixed_rotation(entity, flag)</code></td><td>Lock/unlock rotation.</td></tr>
-      <tr><td><code>Fysics.get_is_bullet(entity)</code></td><td>Returns <code>true</code> if the body is treated as a bullet (continuous collision).</td></tr>
-      <tr><td><code>Fysics.set_is_bullet(entity, flag)</code></td><td>Enable/disable bullet mode.</td></tr>
-      <tr><td><code>Fysics.add_force(entity, force, point)</code></td><td>Add a force vector at a specific world point.</td></tr>
-      <tr><td><code>Fysics.add_force_v(entity, impulseVec2, originVec2)</code></td><td>Add a force vector to a specific point using v2.</td></tr>
-      <tr><td><code>Fysics.add_force_to_center(entity, force)</code></td><td>Add a force vector at the center of mass.</td></tr>
-      <tr><td><code>Fysics.add_force_to_center_v(entity, originVec2)</code></td><td>Add a force vector at center of mass using v2.</td></tr>
-      <tr><td><code>Fysics.add_impulse(entity, impulse, point)</code></td><td>Apply an impulse at a world point.</td></tr>
-      <tr><td><code>Fysics.add_impulse_v(entity, impulseVec2, forceVec2)</code></td><td>Apply an impulse at a world point using v2.</td></tr>
-      <tr><td><code>Fysics.add_impulse_to_center(entity, impulse)</code></td><td>Apply an impulse at the center of mass.</td></tr>
-      <tr><td><code>Fysics.add_impulse_to_center_v(entity, forceVec2)</code></td><td>Apply an impulse at the center of mass using v2.</td></tr>
-      <tr><td><code>Fysics.add_torque(entity, torque)</code></td><td>Apply torque to the body.</td></tr>
-      <tr><td><code>Fysics.add_angular_impulse(entity, torque)</code></td><td>Apply an angular impulse to the body.</td></tr>
-      <tr><td><code>Fysics.clear_forces(entity)</code></td><td>Clear all forces/torques applied to the body.</td></tr>
-      <tr><td><code>Fysics.get_gravity_scale(entity)</code></td><td>Get current gravity scale.</td></tr>
-      <tr><td><code>Fysics.set_gravity_scale(entity, graityScale)</code></td><td>Sets gravity scale for listed entity.</td></tr>
+    <!-- ================= FYSICS ================= -->
+    <section>
+        <h2>Fysics (2D Physics)</h2>
+        <p>
+            The <code>Fysics</code> table manipulates the <code>FysicsBody</code> component attached to an entity.
+            These functions assume the entity has a FysicsBody (see <code>Entity.add_fysics_component</code>).
+        </p>
+        <table>
+            <tr><th>Function</th><th>Description</th></tr>
+            <tr><td><code>Fysics.get_pos(entity)</code></td><td>Get the body's world position as a vector.</td></tr>
+            <tr><td><code>Fysics.set_pos(entity, x, y)</code></td><td>Set the body's world position.</td></tr>
+            <tr><td><code>Fysics.set_pos_v(entity, vec2.x, vec2.y)</code></td><td>Set the body's world position using v2.</td></tr>
+            <tr><td><code>Fysics.get_angle(entity)</code></td><td>Get body rotation in radians.</td></tr>
+            <tr><td><code>Fysics.set_angle(entity, radians)</code></td><td>Set body rotation in radians.</td></tr>
+            <tr><td><code>Fysics.get_linear_velocity(entity)</code></td><td>Get linear velocity vector.</td></tr>
+            <tr><td><code>Fysics.set_linear_velocity(entity, x, y)</code></td><td>Set linear velocity.</td></tr>
+            <tr><td><code>Fysics.set_linear_velocity_v(entity, vec2.x, vec2.y)</code></td><td>Set linear velocity using v2.</td></tr>
+            <tr><td><code>Fysics.get_angular_velocity(entity)</code></td><td>Get angular velocity (radians/sec).</td></tr>
+            <tr><td><code>Fysics.set_angular_velocity(entity, value)</code></td><td>Set angular velocity.</td></tr>
+            <tr><td><code>Fysics.get_awake(entity)</code></td><td>Returns <code>true</code> if the body is awake.</td></tr>
+            <tr><td><code>Fysics.set_awake(entity, flag)</code></td><td>Set whether the body is awake.</td></tr>
+            <tr><td><code>Fysics.rotate_pos(entity, angle)</code></td><td>Rotate the body's position around its origin by <code>angle</code> (radians).</td></tr>
+            <tr><td><code>Fysics.get_linear_damping(entity)</code></td><td>Get linear damping factor.</td></tr>
+            <tr><td><code>Fysics.set_linear_damping(entity, damping)</code></td><td>Set linear damping.</td></tr>
+            <tr><td><code>Fysics.get_angular_damping(entity)</code></td><td>Get angular damping factor.</td></tr>
+            <tr><td><code>Fysics.set_angular_damping(entity, damping)</code></td><td>Set angular damping.</td></tr>
+            <tr><td><code>Fysics.get_allow_sleep(entity)</code></td><td>Returns <code>true</code> if the body is allowed to sleep.</td></tr>
+            <tr><td><code>Fysics.set_allow_sleep(entity, flag)</code></td><td>Enable or disable sleeping.</td></tr>
+            <tr><td><code>Fysics.get_fixed_rotation(entity)</code></td><td>Returns <code>true</code> if rotation is locked.</td></tr>
+            <tr><td><code>Fysics.set_fixed_rotation(entity, flag)</code></td><td>Lock/unlock rotation.</td></tr>
+            <tr><td><code>Fysics.get_is_bullet(entity)</code></td><td>Returns <code>true</code> if the body is treated as a bullet (continuous collision).</td></tr>
+            <tr><td><code>Fysics.set_is_bullet(entity, flag)</code></td><td>Enable/disable bullet mode.</td></tr>
+            <tr><td><code>Fysics.add_force(entity, force, point)</code></td><td>Add a force vector at a specific world point.</td></tr>
+            <tr><td><code>Fysics.add_force_v(entity, impulseVec2, originVec2)</code></td><td>Add a force vector to a specific point using v2.</td></tr>
+            <tr><td><code>Fysics.add_force_to_center(entity, force)</code></td><td>Add a force vector at the center of mass.</td></tr>
+            <tr><td><code>Fysics.add_force_to_center_v(entity, originVec2)</code></td><td>Add a force vector at center of mass using v2.</td></tr>
+            <tr><td><code>Fysics.add_impulse(entity, impulse, point)</code></td><td>Apply an impulse at a world point.</td></tr>
+            <tr><td><code>Fysics.add_impulse_v(entity, impulseVec2, forceVec2)</code></td><td>Apply an impulse at a world point using v2.</td></tr>
+            <tr><td><code>Fysics.add_impulse_to_center(entity, impulse)</code></td><td>Apply an impulse at the center of mass.</td></tr>
+            <tr><td><code>Fysics.add_impulse_to_center_v(entity, forceVec2)</code></td><td>Apply an impulse at the center of mass using v2.</td></tr>
+            <tr><td><code>Fysics.add_torque(entity, torque)</code></td><td>Apply torque to the body.</td></tr>
+            <tr><td><code>Fysics.add_angular_impulse(entity, torque)</code></td><td>Apply an angular impulse to the body.</td></tr>
+            <tr><td><code>Fysics.clear_forces(entity)</code></td><td>Clear all forces/torques applied to the body.</td></tr>
+            <tr><td><code>Fysics.get_gravity_scale(entity)</code></td><td>Get current gravity scale.</td></tr>
+            <tr><td><code>Fysics.set_gravity_scale(entity, graityScale)</code></td><td>Sets gravity scale for listed entity.</td></tr>
 
-  </table>
-</section>
-=======
+        </table>
+    </section>
+    =======
     <!-- ================= UI ================= -->
     <section>
         <h2>UI</h2>
@@ -417,7 +429,7 @@ footer {
             </tr>
         </table>
     </section>
->>>>>>> Stashed changes
+    >>>>>>> Stashed changes
 
     <!-- ================= AUDIO ================= -->
     <section>
