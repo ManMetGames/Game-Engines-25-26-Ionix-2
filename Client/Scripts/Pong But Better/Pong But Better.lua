@@ -35,6 +35,11 @@ local serveTimer = 0
 local serveDuration = 3
 
 local AISpeed = 3.6
+local ReactionTime = 0.12
+local Error = 20
+local DeadZone = 18
+local AITimer = 0
+local AITargetY = 300
 
 function PongButBetter:OnStart()
     Window.set_size(800, 600)
@@ -281,16 +286,25 @@ function PongButBetter:UpdateServe(dt)
 end
 
 function PongButBetter:GetAIVelocity(dt)
+    AITimer = AITimer - dt
+    
     local leftPaddleY = Mafs.get_vec_y(Entity.get_global_pos(leftPaddle))
-    local dy = ballY - leftPaddleY
 
-    if Mafs.abs(dy) < 8 then return 0 end
-
-    if ballVelX >= 0 then
-        local centreDy = 300 - leftPaddleY
-        if Mafs.abs(centreDy) < 8 then return 0 end
-        return (centreDy > 0) and AISpeed or -AISpeed 
+    if AITimer < 0 then
+        AITimer = ReactionTime
+        if ballVelX < 0 then
+            local error = (math.random() * 2 - 1) * Error
+            AITargetY = ballY + error
+        else
+            AITargetY = 300
+        end
     end
+    
+    local dy = AITargetY - leftPaddleY - 40
+    
+    if Mafs.abs(dy) <= DeadZone then
+        return 0
+    end    
     
     return (dy > 0) and AISpeed or -AISpeed
 end
