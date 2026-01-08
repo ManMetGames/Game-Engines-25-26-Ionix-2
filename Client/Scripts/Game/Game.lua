@@ -45,6 +45,15 @@ function ExampleScript:OnStart()
     Entity.add_sprite_component(Player, assets.textures.FlappyBird, playerWidth, playerHeight, 2)
     Entity.set_global_pos(Player, playerX, playerY)
 
+    -- Add physics to player
+    Entity.add_fysics_component(Player)
+    Fysics.add_box_collider(Player, playerWidth/2, playerHeight/2, 0, 0, 0, false)
+    Fysics.set_fixed_rotation(Player, true)
+    Fysics.set_linear_damping(Player, 0.5)
+
+    -- Setup collision detection
+    Fysics.add_to_collision_map(Player, Floor)
+
     print("Player and Floor created successfully!")
 end
 
