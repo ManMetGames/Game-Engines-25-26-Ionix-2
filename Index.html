@@ -211,7 +211,7 @@ footer {
         </table>
     </section>
 
-    <!-- ================= MAFS ================= -->
+    <!-- ================= NAVMEF ================= -->
     <section>
         <h2>NavMef (NavMesh Library)</h2>
         <table>
@@ -234,6 +234,7 @@ footer {
                 <td><code>Texture.add_texture(path, alias)</code></td>
                 <td>Register a texture from file at <code>path</code> with an alias string used by sprites.</td>
             </tr>
+            <tr><td><code>Assets.textures.NAME</code></td><td>Gets a texture found in the assets folder.</td></tr>
         </table>
 
         <h3>Sprite</h3>
@@ -249,6 +250,8 @@ footer {
             <tr><td><code>Sprite.columns(sprite)</code></td><td>Get number of columns in the sprite sheet.</td></tr>
             <tr><td><code>Sprite.width(sprite)</code></td><td>Get the sprite frame width in pixels.</td></tr>
             <tr><td><code>Sprite.height(sprite)</code></td><td>Get the sprite frame height in pixels.</td></tr>
+            <tr><td><code>Sprite.image_width(sprite)</code></td><td>Gets the width of the sprite image (not the sprite size itself).</td></tr>
+            <tr><td><code>Sprite.image_height(sprite)</code></td><td>Gets the height of the sprite image (not the sprite size itself).</td></tr>
             <tr><td><code>Sprite.zed_order(sprite)</code></td><td>Get draw order (z-index) of the sprite.</td></tr>
             <tr><td><code>Sprite.total_frames(sprite)</code></td><td>Get total number of frames in the animation.</td></tr>
             <tr><td><code>Sprite.current_column(sprite)</code></td><td>Get the current column in the sprite sheet.</td></tr>
@@ -260,12 +263,34 @@ footer {
             <tr><td><code>Sprite.set_columns(sprite, cols)</code></td><td>Set number of columns in the sprite sheet.</td></tr>
             <tr><td><code>Sprite.set_width(sprite, width)</code></td><td>Set the sprite frame width in pixels.</td></tr>
             <tr><td><code>Sprite.set_height(sprite, height)</code></td><td>Set the sprite frame height in pixels.</td></tr>
+            <tr><td><code>Sprite.set_image_width(sprite, width)</code></td><td>Set the sprite image width in pixels.</td></tr>
+            <tr><td><code>Sprite.set_image_height(sprite, height)</code></td><td>Set the sprite image height in pixels.</td></tr>
             <tr><td><code>Sprite.set_zed_order(sprite, order)</code></td><td>Set draw order (z-index) of the sprite.</td></tr>
+            <tr><td><code>Sprite.set_angle(sprite, angle)</code></td><td>Sets the angle rotation of a given sprite.</td></tr>
+            <tr><td><code>Sprite.get_angle(sprite)</code></td><td>Gets the angle rotation of a given sprite.</td></tr>
 
             <tr><td><code>Sprite.get_playback_mode(sprite)</code></td><td>Get the current playback mode as an integer enum.</td></tr>
             <tr><td><code>Sprite.set_playback_mode(sprite, mode)</code></td><td>Set the playback mode using an integer enum.</td></tr>
+            <tr><td><code>Sprite.set_animation(sprite, rows, cols, spriteW, spriteH)</code></td><td>Sets the animation sheet size of a given sprite all at once.</td></tr>
+            <tr><td><code>Sprite.set_texture(sprite, texture)</code></td><td>Changes the texture of a sprite.</td></tr>
+            <tr><td><code>Sprite.set_tick_rate(sprite, tickSpeed)</code></td><td>Sets the tick speed of a sprite (used for animation sheets).</td></tr>
+            <tr><td><code>Sprite.get_tick_rate(sprite)</code></td><td>Returns the current tick speed of a sprite (used for animation sheets).</td></tr>
         </table>
-    </section>
+
+        <h4>Animation Play Back Modes</h4>
+        <p>
+            <code>
+                enum playbackOptions {
+                FORWARD,
+                BACKWARD,
+                FORWARDANDBACKWARD,
+                PLAYONCE,
+                ONEFRAME
+                };
+            </code>
+        </p>
+
+</section>
     <!-- ================= CAMERA ================= -->
     <section>
         <h2>Camera</h2>
@@ -279,7 +304,7 @@ footer {
             <tr><td><code>Camera.movecamera(deltaX, deltaY, true)</code></td><td>Moves the camera to the specified x,y coordinate.</td></tr>
             <tr><td><code>Camera.switchcamera()</code></td><td>Changes which camera is currently being used.</td></tr>
             <tr><td><code>Camera.rotate(angle)</code></td><td>Rotates the camera in place.</td></tr>
-            <tr><td><code>Camera.RenderToScreen(renderer, posX, posY, sizeX, sizeY)</code></td><td></td></tr>
+            <tr><td><code>Camera.RenderToScreen(renderer, posX, posY, sizeX, sizeY)</code></td><td>Renders the Camera to the screen window.</td></tr>
         </table>
     </section>
     <!-- ================= ENTITY ================= -->
