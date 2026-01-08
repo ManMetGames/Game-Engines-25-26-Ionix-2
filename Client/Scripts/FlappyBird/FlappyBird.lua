@@ -596,12 +596,12 @@ local function resetGame()
         Fysics.set_linear_velocity(pipeEntity, 0, 0)
     end
 
-    resetPipe(pipe, 400, 360)
-    resetPipe(pipeT, 400, -250)
-    resetPipe(pipe2, 750, 300)
-    resetPipe(pipeT2, 750, -350)
-    resetPipe(pipe3, 1100, 400)
-    resetPipe(pipeT3, 1100, -200)
+    resetPipe(pipe, 400, 600)
+    resetPipe(pipeT, 400, -10)
+    resetPipe(pipe2, 750, 540)
+    resetPipe(pipeT2, 750, -110)
+    resetPipe(pipe3, 1100, 640)
+    resetPipe(pipeT3, 1100, 40)
 
     -- Reset coins
     for i, c in ipairs(coins) do
@@ -750,9 +750,9 @@ function ExampleScript:OnStart()
         return bottomPipe, topPipe
     end
 
-    pipe, pipeT = createPipeSet(400, 360, 400, -250)
-    pipe2, pipeT2 = createPipeSet(750, 300, 750, -350)
-    pipe3, pipeT3 = createPipeSet(1100, 400, 1100, -200)
+    pipe, pipeT = createPipeSet(400, 600, 400, -10)
+    pipe2, pipeT2 = createPipeSet(750, 540, 750, -110)
+    pipe3, pipeT3 = createPipeSet(1100, 640, 1100, 40)
     
     pipeSets = {
     { bottom = pipe,  top = pipeT,  passed = false },
@@ -1631,27 +1631,36 @@ end
             t = t * t
             local gapSize = gapMinAtCap + math.random() * (pipeStartGap - gapMinAtCap)
 
+            local floorPad = 5
+            local ceilingPad = 5
+            local minVerticalSpan = 120
 
-            -- Random gap center Y position (in pixels)
-            local floorPad = 10
+            local minByCeiling = ceilingPad + pipeHeight + (gapSize / 2)
+            local minCenter = math.max(pipesetMinGap, minByCeiling)
 
-            local minCenter = pipesetMinGap
             local maxCenter = pipesetMaxGap
-
-            
             local maxByFloor = (floorTopWorld - floorPad) - (gapSize / 2)
             if maxCenter > maxByFloor then maxCenter = maxByFloor end
             if maxCenter < minCenter then maxCenter = minCenter end
 
-            local gapCenter = minCenter + math.random() * (maxCenter - minCenter)
+            -- Ensure usable randomness range
+            if (maxCenter - minCenter) < minVerticalSpan then
+                local mid = (minCenter + maxCenter) * 0.5
+                minCenter = mid - minVerticalSpan * 0.5
+                maxCenter = mid + minVerticalSpan * 0.5
+            end
 
+            -- Randomness
+            local r = math.random()
+            r = r * r
+            local gapCenter = minCenter + r * (maxCenter - minCenter)
 
+            -- Variation between sets
             if set.lastGapCenter then
                 local delta = gapCenter - set.lastGapCenter
-                if math.abs(delta) < 40 then
-                    gapCenter = gapCenter + (delta > 0 and 60 or -60)
-                end
+                gapCenter = gapCenter + delta * 0.35
             end
+
             gapCenter = math.max(minCenter, math.min(maxCenter, gapCenter))
             set.lastGapCenter = gapCenter
 
@@ -1669,6 +1678,7 @@ end
                     if ox > rightMostX then rightMostX = ox end
                 end
             end
+
             local spawnX = rightMostX + pipeSpacingX
             if rightMostX == -math.huge then
                 spawnX = windowW + 60
