@@ -82,7 +82,13 @@ function ExampleScript:OnUpdate()
         end
         return
     end
+
+    -- Update score based on time
+    score = score + 1
     
+    -- Display score
+    UI.draw_label("Score: " .. tostring(math.floor(score / 60)), 200, 50, 50, 50, "")
+
     -- Player Jump Input
     if Input.get_key_down(Keys.ionix_space) then
 
@@ -93,6 +99,16 @@ function ExampleScript:OnUpdate()
             print("Jump!")
         end
     end
+
+    -- Update spawn timer
+    spawnTimer = spawnTimer + Mafs.delta_time()
+    
+    -- Spawn enemies
+    if spawnTimer >= spawnInterval then
+        self:SpawnEnemy()
+        spawnTimer = 0
+    end
+        
     -- Update and cleanup enemies
     local i = 1
     while i <= #Enemies do
