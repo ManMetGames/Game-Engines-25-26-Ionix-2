@@ -49,9 +49,9 @@ function ExampleScript:OnStart()
             --Entity.add_fysics_component(score, enums,bodytype.staticBody, false)
             --Fysics.add_sprite_collider(tile, false, 1)
 
+        end
+        initialY = initialY + 52
     end
-    initialY = initialY + 52
-end
     	------------------------------------------------------
 		-- creates map border and adds colliders to it
 		------------------------------------------------------
@@ -111,13 +111,26 @@ function ExampleScript:OnUpdate()
     local playerX = Mafs.get_vec_x(pos)
     local playerY = Mafs.get_vec_y(pos)
 
-    local upEndPos = {
-    x = pos.x,
-    y = pos.y
-    }
-    local hit, info = Fysics.raycast(pos, upEndPos) 
+    -- Raycast length
+    local rayLength = 50
 
-    --Fysics.draw_raycast(playerPos, upEndPos, false)
+    -- Calculate end positions for all 4 directions using Mafs.vec_2
+    local upEndPos = Mafs.vec_2(playerX, playerY - rayLength)
+    local downEndPos = Mafs.vec_2(playerX, playerY + rayLength)
+    local leftEndPos = Mafs.vec_2(playerX - rayLength, playerY)
+    local rightEndPos = Mafs.vec_2(playerX + rayLength, playerY)
+
+    -- Perform raycasts in all 4 directions
+    local hitUp, infoUp = Fysics.raycast(pos, upEndPos)
+    local hitDown, infoDown = Fysics.raycast(pos, downEndPos)
+    local hitLeft, infoLeft = Fysics.raycast(pos, leftEndPos)
+    local hitRight, infoRight = Fysics.raycast(pos, rightEndPos)
+
+    -- Visualise raycasts (true = hit, false = no hit for color)
+    Fysics.draw_raycast(pos, upEndPos, hitUp)
+    Fysics.draw_raycast(pos, downEndPos, hitDown)
+    Fysics.draw_raycast(pos, leftEndPos, hitLeft)
+    Fysics.draw_raycast(pos, rightEndPos, hitRight)
 
 
     -- get current velocity
