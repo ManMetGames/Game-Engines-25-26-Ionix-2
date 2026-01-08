@@ -634,7 +634,28 @@ AudioComponent.play(e)
             <tr><td><code>MusicManager.get_duration(name)</code></td><td>Returns the duration of a specified track.</td></tr>
         </table>
     </section>
-
+    <!-- ================= FIREBASE ================= -->
+    <section>
+        <h2>Firebase</h2>
+        <table>
+            <tr><th>Function</th><th>Description</th></tr>
+            <tr><td><code>Firebase.submit_high_score(id, name, score)</code></td><td>Submits a highscore to a online leaderboard.</td></tr>
+            <tr><td><code>Firebase.retrieve_high_score(state, id, count)</code></td><td>Retrieves a highscore from the online leaderboard.</td></tr>
+        </table>
+    </section>
+    <!-- ================= JSON ================= -->
+    <section>
+        <h2>JSON</h2>
+        <table>
+            <tr><th>Function</th><th>Description</th></tr>
+            <tr><td><code>Json.save_high_score(id, score)</code></td><td>Saves a highscore value to a JSON file.</td></tr>
+            <tr><td><code>Json.load_high_score(id)</code></td><td>Loads a highscore value from a JSON file.</td></tr>
+            <tr><td><code>Json.save_player_name(id, name)</code></td><td>Saves a player's name to a JSON file.</td></tr>
+            <tr><td><code>Json.load_player_name(id)</code></td><td>Loads a player's name from a JSON file.</td></tr>
+            <tr><td><code>Json.save_setting(id, path, value)</code></td><td>Saves settings to a JSON file.</td></tr>
+            <tr><td><code>Json.load_setting(state, id, path, defaultValue)</code></td><td>Loads settings from a JSON file.</td></tr>
+        </table>
+    </section>
 </main>
 
 <footer id="footer-easteregg">
