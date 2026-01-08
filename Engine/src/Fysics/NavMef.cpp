@@ -417,7 +417,7 @@ namespace IonixEngine
         RebuildClearance();
     }
 
-    void NavMef::AddObstacleFromEntity(Entity* entity)
+    void NavMef::AddObstacleFromEntity(Entity* entity, float scaleMultiplier)
     {
         b2Body* body = Application::Get().layerFysics->GetFysicsManager()->GetBodyFromEntity(entity);
         if (body == nullptr)
@@ -432,8 +432,8 @@ namespace IonixEngine
         b2Vec2 halfSpriteSize = b2Vec2(spriteSize.x / 2, spriteSize.y / 2);
         //b2Vec2 min = body->GetPosition() - b2Vec2(1, 1);
         //b2Vec2 max = body->GetPosition() + b2Vec2(1, 1);
-        b2Vec2 min = body->GetPosition() - halfSpriteSize;
-        b2Vec2 max = body->GetPosition() + halfSpriteSize;
+        b2Vec2 min = body->GetPosition() - b2Vec2(halfSpriteSize.x * scaleMultiplier, halfSpriteSize.y * scaleMultiplier);
+        b2Vec2 max = body->GetPosition() + b2Vec2(halfSpriteSize.x * scaleMultiplier, halfSpriteSize.y * scaleMultiplier);
         for (int i = 0; i < m_cells.size(); i++)
         {
             if (CellOverlaps(m_cells[i], min, max))

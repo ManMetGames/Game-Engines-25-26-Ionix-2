@@ -40,9 +40,13 @@ namespace IonixEngine
 			Application::Get().layerNavigation->GetNavMef()->AddObstacle({ minX / 100, minY / 100 }, { maxX / 100, maxY / 100 });
 		};
 
-		auto addObstacleFromEntity = [](Entity* entity)
+		auto addObstacleFromEntity = [](Entity* entity, float scaleMultiplier)
 		{
-			Application::Get().layerNavigation->GetNavMef()->AddObstacleFromEntity(entity);
+			if (scaleMultiplier == 0)
+			{
+				scaleMultiplier = 1;
+			}
+			Application::Get().layerNavigation->GetNavMef()->AddObstacleFromEntity(entity, scaleMultiplier);
 		};
 		
 		auto createNavAgent = [](Entity* entity, float speed) -> NavAgent*

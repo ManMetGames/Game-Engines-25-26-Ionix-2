@@ -80,7 +80,7 @@ namespace IonixEngine
 
         //adds an obstacle
         void AddObstacle(const b2Vec2& min, const b2Vec2& max);
-        void AddObstacleFromEntity(Entity* entity);
+        void AddObstacleFromEntity(Entity* entity, float scaleMultiplier0);
 
         void RebuildClearance();
 
