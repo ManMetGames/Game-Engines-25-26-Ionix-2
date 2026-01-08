@@ -14,6 +14,11 @@ Texture.add_texture("./Assets/"playerBlue_walk1", "player")
 
 player = Entity.create_entity()
 Entity.set_entity_pos(player, x , y) 
+playerSprite = Entity.add_sprite_component(player, "walk" , 75, 75 ,0)
+Sprite.set_playback_mode(playerSprite, 4) 
+
+Entity.add_fysics_component(player, 2 , true) 
+Fysics.add_sprite_collider(player, true)
 
 end
 
