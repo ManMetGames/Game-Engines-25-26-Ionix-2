@@ -491,35 +491,46 @@ footer {
         </p>
         <table>
             <tr><th>Function</th><th>Description</th></tr>
-            <tr>
-                <td><code>UI.Add_label(x, y, w, h, text)</code></td>
-                <td>Add a managed label at (x, y) with size (w, h) and the given text.</td>
-            </tr>
-            <tr>
-                <td><code>UI.draw_label(text, w, h, x, y, font)</code></td>
-                <td>Draw a label immediately at (x, y) with size (w, h). <code>font</code> is currently unused/placeholder.</td>
-            </tr>
-            <tr>
-                <td><code>UI.draw_button(text, w, h, x, y)</code></td>
-                <td>Draw a button immediately; returns <code>true</code> if clicked this frame.</td>
-            </tr>
-            <tr>
-                <td><code>UI.add_button(x, y, w, h, text, onClickFn)</code></td>
-                <td>
-                    Add a managed button at (x, y) with size (w, h). When clicked, calls the provided
-                    Lua callback <code>onClickFn()</code>.
-                </td>
-            </tr>
-            <tr>
-                <td><code>UI.add_slider(label, value, w, h, x, y, min, max)</code></td>
-                <td>
-                    Draw a slider and return the updated value. Label is shown next to the slider;
-                    value is clamped between <code>min</code> and <code>max</code>.
-                </td>
-            </tr>
+            <tr><td><code>UI.add_label(x, y, xSize, ySize, text, *fontName, *fontScale, *wrapWidth)</code></td><td>Add a UI label.</td></tr>
+            <tr><td><code>UI.add_centered_label(x, y, xSize, ySize, text, *fontName, *fontScale, *wrapWidth)</code></td><td>Add a UI label that is centered.</td></tr>
+            <tr><td><code>UI.add_label_colored(x, y, xSize, ySize, text, colour, *fontName, *fontScale, *wrapWidth)</code></td><td>Adds a UI coloured label.</td></tr>
+            <tr><td><code>UI.add_centered_label_colored(x, y, xSize, ySize, text, colour, *fontName, *fontScale, *wrapWidth)</code></td><td>Adds a UI coloured label that is centered.</td></tr>
+            <tr><td><code>UI.add_button(x, y, w, h, text, *id, *fontName, *fontScale, *rounding, *useColour, *r, *g, *b, *a)</code></td><td>Adds a UI button.</td></tr>
+            <tr><td><code>UI.add_checkbox(x, y, w, h, text, id, *defaultValue, *fontName, *fontScale)</code></td><td>Adds a UI checkbox.</td></tr>
+            <tr><td><code>UI.add_checkbox_styled(x, y, w, h, text, id, *defaultValue, *fontName, *fontScale, *style)</code></td><td>Adds a styled UI checkbox.</td></tr>
+            <tr><td><code>UI.add_slider(x, y, width, label, id, min, max, *defaultValue, *fontName, *fontScale, *format)</code></td><td>Adds a UI slider.</td></tr>
+            <tr><td><code>UI.add_slider_styled(x, y, width, label, id, min, max, *defaultValue, *fontName, *fontScale, *format, *style)</code></td><td>Adds a styled UI slider.</td></tr>
+            <tr><td><code>UI.draw_progress_bar(x, y, xSize, ySize, maxValue, currentValue, colourId)</code></td><td>Adds a UI progress bar.</td></tr>
+            <tr><td><code>UI.draw_progress_bar_styled(x, y, xSize, ySize, maxValue, currentValue, colourId, *style, *overlayText)</code></td><td>Adds a styled UI progress bar.</td></tr>
+            <tr><td><code>UI.draw_progress_bar_layered(x, y, xSize, ySize, maxValue, currentValue, colourId, *style, *overlayText)</code></td><td>Adds a mult-layered UI progress bar: supports both overfill (on top, e.g. overhealth) and cap (lost portion).</td></tr>
+            <tr><td><code>UI.add_input_text(xPos, yPos, width, label, id, maxLen, *fontName, *fontScale )</code></td><td>Adds UI text input.</td></tr>
+            <tr><td><code>UI.add_panel(x, y, w, h, alpha, rounding, *r, *g, *b)</code></td><td>Adds a UI panel.</td></tr>
+            <tr><td><code>UI.add_radio(x, y, w, h, label)</code></td><td>Adds a UI radio button.</td></tr>
+            <tr><td><code>UI.add_dropdown(x, y, w, h, label, id, opitions, *defaultIndex, *fontName, *fontScale)</code></td><td>Adds a UI dropdown menu.</td></tr>
+            <tr><td><code>UI.add_dropdown_styled(x, y, w, h, label, id, opitions, *defaultIndex, *fontName, *fontScale, *style)</code></td><td>Adds a styled UI dropdown menu.</td></tr>
+            <tr><td><code>UI.add_color_picker(x, y, w, h, label, id, *r, *g, *b, *a, *fontName, *fontScale)</code></td><td>Adds a UI colour picker.</td></tr>
+
+            <tr><td><code>UI.was_button_pressed(id)</code></td><td>Checks if a UI button has been pressed.</td></tr>
+            <tr><td><code>UI.get_checkbox(id)</code></td><td>Returns a UI checkbox.</td></tr>
+            <tr><td><code>UI.was_checkbox_changed(id)</code></td><td>Checks if a UI checkbox has changed.</td></tr>
+            <tr><td><code>UI.get_slider(id)</code></td><td>Returns a UI slider.</td></tr>
+            <tr><td><code>UI.was_slider_changed(id)</code></td><td>Checks if a UI slider has changed.</td></tr>
+            <tr><td><code>UI.set_slider(id, value)</code></td><td>Sets a UI slider to a specific value.</td></tr>
+            <tr><td><code>UI.get_input_text(id)</code></td><td>Returns inputted text from a UI text input.</td></tr>
+            <tr><td><code>UI.was_input_committed(id)</code></td><td>Checks if text has been committed to the UI input.</td></tr>
+            <tr><td><code>UI.get_input_text_live(id)</code></td><td>Returns live text from the UI input.</td></tr>
+            <tr><td><code>UI.get_radio(id)</code></td><td>Returns a UI radio button.</td></tr>
+            <tr><td><code>UI.was_radio_changed(id)</code></td><td>Checks if the radio button has changed.</td></tr>
+            <tr><td><code>UI.get_dropdown_index(id)</code></td><td>Returns a UI dropdown menu.</td></tr>
+            <tr><td><code>UI.was_dropdown_changed(id)</code></td><td>Checks if the dropdown menu has changed.</td></tr>
+            <tr><td><code>UI.get_color(state, id)</code></td><td>Returns a UI colour picker.</td></tr>
+            <tr><td><code>UI.was_color_changed(id)</code></td><td>Checks if the UI colour picker has changed.</td></tr>
+            <tr><td><code>UI.clear_input(id)</code></td><td>Clear text inputted to a UI text input.</td></tr>
+            <tr><td><code>UI.calc_text_width(text)</code></td><td>Calculates length of text.</td></tr>
+            <tr><td><code>UI.begin_child(x, y, w, h, id, *border, *flags, *hasBg, *alpha, *rounding, *r, *g, *b, *borderSize, *autoBorder, *borderDarken, *borderR, *borderG, *borderB, *borderA)</code></td><td>Creates a UI overlay.</td></tr>
+            <tr><td><code>UI.end_child()</code></td><td>Ends the UI overlay.</td></tr>
         </table>
     </section>
-    >>>>>>> Stashed changes
 
     <!-- ================= AUDIO ================= -->
     <section>
