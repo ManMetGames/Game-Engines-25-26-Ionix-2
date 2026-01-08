@@ -366,56 +366,44 @@ footer {
         <table>
             <tr><th>Function</th><th>Description</th></tr>
             <tr>
-                <td><code>Entity.create_entity()</code></td>
-                <td>Create a new entity and return a reference to it.</td>
+                <td><code>Entity.create_entity(*renderLayer)</code></td>
+                <td>Create a new entity and returns a reference to it.</td>
             </tr>
-            <tr>
-                <td><code>Entity.get_entity_pos(entity)</code></td>
-                <td>Get the entity's position as a 2D vector (x, y).</td>
-            </tr>
-            <tr>
-                <td><code>Entity.set_entity_pos(entity, x, y)</code></td>
-                <td>Set the entity's position.</td>
-            </tr>
-            <tr>
-                <td><code>Entity.add_sprite_component(entity, alias, width, height, zOrder)</code></td>
-                <td>Add a <code>SpriteComponent</code> to the entity using a texture alias and basic sprite layout.</td>
-            </tr>
-            <tr>
-                <td><code>Entity.add_audio_component(entity[, clip, playOnAwake])</code></td>
-                <td>
-                    Add an <code>AudioPlayer</code> component to the entity. Optional:
-                    <code>clip</code> (string) and <code>playOnAwake</code> (bool, default false).
-                </td>
-            </tr>
-            <tr>
-                <td><code>Entity.add_fysics_component(entity)</code></td>
-                <td>Add a <code>FysicsBody</code> component to the entity.</td>
-            </tr>
-            <tr>
-                <td><code>Entity.get_sprite_component(entity)</code></td>
-                <td>Get the entity's <code>SpriteComponent</code> (or <code>nil</code> if missing).</td>
-            </tr>
-            <tr>
-                <td><code>Entity.get_audio_component(entity)</code></td>
-                <td>Get the entity's <code>AudioPlayer</code> component (or <code>nil</code> if missing).</td>
-            </tr>
-            <tr>
-                <td><code>Entity.get_fysics_component(entity)</code></td>
-                <td>Get the entity's <code>FysicsBody</code> component (or <code>nil</code> if missing).</td>
-            </tr>
-            <tr>
-                <td><code>Entity.has_sprite_component(entity)</code></td>
-                <td>Returns <code>true</code> if the entity has a <code>SpriteComponent</code>.</td>
-            </tr>
-            <tr>
-                <td><code>Entity.has_audio_component(entity)</code></td>
-                <td>Returns <code>true</code> if the entity has an <code>AudioPlayer</code> component.</td>
-            </tr>
-            <tr>
-                <td><code>Entity.has_fysics_component(entity)</code></td>
-                <td>Returns <code>true</code> if the entity has a <code>FysicsBody</code> component.</td>
-            </tr>
+            <tr><td><code>entity1.destroy(entity1)</code></td><td>Destroys the entity.</td></tr>
+            <tr><td><code>entity1.get_global_pos(entity1)</code></td><td>Gets the global position of the entity.</td></tr>
+            <tr><td><code>entity1.set_global_pos(entity1, x, y)</code></td><td>Sets the global position of the entity.</td></tr>
+            <tr><td><code>entity1.get_global_rot(entity1)</code></td><td>Gets the global rotation of the entity.</td></tr>
+            <tr><td><code>entity1.set_global_rot(entity1, angle)</code></td><td>Sets the global rotation of the entity.</td></tr>
+            <tr><td><code>entity1.get_global_scale(entity1)</code></td><td>Gets the global scale of the entity.</td></tr>
+            <tr><td><code>entity1.set_global_scale(entity1, x, y)</code></td><td>Sets the global scale of the entity.</td></tr>
+            <tr><td><code>entity1.get_local_pos(entity1)</code></td><td>Gets the local position of the entity.</td></tr>
+            <tr><td><code>entity1.set_local_pos(entity1, x, y)</code></td><td>Sets the local position of the entity.</td></tr>
+            <tr><td><code>entity1.get_local_rot(entity1)</code></td><td>Gets the local rotation of the entity.</td></tr>
+            <tr><td><code>entity1.set_local_rot(entity1, angle)</code></td><td>Sets the local rotation of the entity.</td></tr>
+            <tr><td><code>entity1.get_local_scale(entity1)</code></td><td>Gets the local scale of the entity.</td></tr>
+            <tr><td><code>entity1.set_local_scale(entity1, x, y)</code></td><td>Sets the local scale of the entity.</td></tr>
+            <tr><td><code>entity1.set_parent(entity1, newParentEntity, *maintainLocation)</code></td><td>Sets the transform parent of the entity.</td></tr>
+            <tr><td><code>entity1.remove_parent(entity1, *maintainLocation)</code></td><td>Removes the parent transform of the entity.</td></tr>
+            <tr><td><code>entity1.add_child(entity1, newChild)</code></td><td>Adds a child transform to the entity.</td></tr>
+            <tr><td><code>entity1.remove_child(entity1, newChild)</code></td><td>Removes the child transform of the entity .</td></tr>
+            <tr><td><code>entity1.remove_child_index(entity1, index)</code></td><td>Removes a child transform at an given index.</td></tr>
+            <tr><td><code>entity1.add_sprite_component(entity1, texture, width, height, zOrder)</code></td><td>Adds a sprite component to the entity.</td></tr>
+            <tr><td><code>entity1.add_audio_component(entity1)</code></td><td>Adds a audio component to the entity.</td></tr>
+            <tr><td><code>entity1.add_music_component(entity1)</code></td><td>Adds a music component to the entity.</td></tr>
+            <tr><td><code>entity1.add_fysics_component(entity1, *type, *rotationLocked)</code></td><td>Adds a fysics component to the entity.</td></tr>
+            <tr><td><code>entity1.get_sprite_component(entity1)</code></td><td>Returns the sprite component of the entity.</td></tr>
+            <tr><td><code>entity1.get_audio_component(entity1)</code></td><td>Returns the audio component of the entity.</td></tr>
+            <tr><td><code>entity1.get_music_component(entity1)</code></td><td>Returns the music component of the entity.</td></tr>
+            <tr><td><code>entity1.get_fysics_component(entity1)</code></td><td>Returns the fysics component of the entity.</td></tr>
+            <tr><td><code>entity1.try_get_sprite_component(entity1)</code></td><td>Attempts to retrieve sprite component (returns true and the component reference or returns false and null).</td></tr>
+            <tr><td><code>entity1.try_get_audio_component(entity1)</code></td><td>Attempts to retrieve audio component (returns true and the component reference or returns false and null).</td></tr>
+            <tr><td><code>entity1.try_get_music_component(entity1)</code></td><td>Attempts to retrieve music component (returns true and the component reference or returns false and null).</td></tr>
+            <tr><td><code>entity1.try_get_fysics_component(entity1)</code></td><td>Attempts to retrieve fysics component (returns true and the component reference or returns false and null).</td></tr>
+            <tr><td><code>entity1.has_sprite_component(entity1)</code></td><td>Checks if the entity has a sprite component.</td></tr>
+            <tr><td><code>entity1.has_audio_component(entity1)</code></td><td>Checks if the entity has a audio component.</td></tr>
+            <tr><td><code>entity1.has_music_component(entity1)</code></td><td>Checks if the entity has a music component.</td></tr>
+            <tr><td><code>entity1.has_fysics_component(entity1)</code></td><td>Checks if the entity has a fysics component.</td></tr>
+
         </table>
     </section>
 
