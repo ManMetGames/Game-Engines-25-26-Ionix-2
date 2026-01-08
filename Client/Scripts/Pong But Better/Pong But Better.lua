@@ -75,27 +75,44 @@ end
 function PongButBetter:MovePaddles(dt)
     local leftVelY = 0
     local rightVelY = 0
-    
+
     if Input.get_key_held(Keys.arrow_up) then
         rightVelY = -paddleSpeed
     elseif Input.get_key_held(Keys.arrow_down) then
         rightVelY = paddleSpeed
     end
 
+    if Input.get_key_held(Keys.ionix_w) then
+        leftVelY = -paddleSpeed
+    elseif Input.get_key_held(Keys.ionix_s) then
+        leftVelY = paddleSpeed
+    end
+
     local rightPaddleY = Mafs.get_vec_y(Entity.get_global_pos(rightPaddle))
-    
+    local leftPaddleY = Mafs.get_vec_y(Entity.get_global_pos(leftPaddle))
+
     if (rightPaddleY <= 40 and rightVelY < 0) or (rightPaddleY >= 520 and rightVelY > 0) then
         rightVelY = 0
-    end    
-    
+    end
+
+    if (leftPaddleY <= 40 and leftVelY < 0) or (leftPaddleY >= 520 and leftVelY > 0) then
+        leftVelY = 0
+    end
+
     Fysics.set_linear_velocity(rightPaddle, 0, rightVelY)
+    Fysics.set_linear_velocity(leftPaddle, 0, leftVelY)
 end
 
 function PongButBetter:OnCollisionEnter()
     local rightY = Mafs.get_vec_y(Entity.get_global_pos(rightPaddle))
+    local leftY = Mafs.get_vec_y(Entity.get_global_pos(leftPaddle))
 
-    if ballX >= 750 and ballX <= 780 and ballY <= rightY + 80 and ballX >= ballY then
+    if ballX >= 750 and ballX <= 780 and ballY <= rightY + 80 and ballY >= rightY then
         ballVelX = -Mafs.abs(ballVelX)
+    end
+
+    if ballX >= 20 and ballX <= 50 and ballY <= leftY + 80 and ballY >= leftY then
+        ballVelX = Mafs.abs(ballVelX)
     end    
 end
 
