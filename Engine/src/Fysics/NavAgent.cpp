@@ -128,7 +128,7 @@ namespace IonixEngine
 		const BezierSegment& seg = m_segments[m_segmentIndex];
 		b2Vec2 target = EvaluateBezier(seg, m_t);
 
-		// 3️⃣ Move toward it
+		// Move toward it
 		b2Vec2 agentCentre = body->GetWorldCenter();
 		b2Vec2 toTarget = target - agentCentre;
 		toTarget.Normalize();
