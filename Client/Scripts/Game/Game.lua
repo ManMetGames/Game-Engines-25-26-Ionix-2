@@ -84,6 +84,15 @@ function ExampleScript:SpawnEnemy()
     Entity.add_sprite_component(enemy, assets.textures.PimBall, enemyWidth, enemyHeight, 2)
     Entity.set_global_pos(enemy, enemySpawnX, floorY - enemyHeight/2 - floorHeight/2)
     
+    -- Add physics to enemy
+    Entity.add_fysics_component(enemy)
+    Fysics.add_box_collider(enemy, enemyWidth/2, enemyHeight/2, 0, 0, 0, false)
+    Fysics.set_gravity_scale(enemy, 0)
+    Fysics.set_fixed_rotation(enemy, true)
+    
+    -- Setup collision detection with player
+    Fysics.add_to_collision_map(Player, enemy)
+    
     table.insert(Enemies, enemy)
     print("Enemy spawned! Total enemies: " .. #Enemies)
 end
