@@ -7,7 +7,13 @@ local GameState = {
     GAMEOVER = 4
 }
 
+local GameMode = {
+    PVP = 1,
+    PVC = 2
+}
+
 local state = GameState.MENU
+local mode = GameMode.PVP
 local assets = require("Scripts.Assets")
 local ballAudio
 local scoreAudio
@@ -27,6 +33,8 @@ local winScore = 5
 
 local serveTimer = 0
 local serveDuration = 3
+
+local AISpeed = 3.6
 
 function PongButBetter:OnStart()
     Window.set_size(800, 600)
@@ -103,6 +111,9 @@ function PongButBetter:DrawUI()
     if state == GameState.MENU then
         UI.add_label(300, 250, 0, 0, "PONG BUT BETTER")
         UI.add_label(280, 290, 0, 0, "PRESS SPACE TO START")
+        UI.add_label(260, 330, 0, 0, "Press 1 for 1 Player (vs AI)")
+        UI.add_label(260, 360, 0, 0, "Press 2 for 2 Player")
+        UI.add_label(260, 390, 0, 0, "Current: " .. ((mode == GameMode.PVC) and "1P and AI" or "2P PVP"))
     elseif state == GameState.GAMEOVER then
         local winner = (leftScore >= winScore) and "LEFT WINS!" or "RIGHT WINS!"
         UI.add_label(340, 100, 0, 0, winner)
@@ -126,11 +137,15 @@ function PongButBetter:MovePaddles(dt)
         rightVelY = paddleSpeed
     end
 
-    if Input.get_key_held(Keys.ionix_w) then
-        leftVelY = -paddleSpeed
-    elseif Input.get_key_held(Keys.ionix_s) then
-        leftVelY = paddleSpeed
-    end
+    if mode == GameMode.PVP then
+        if Input.get_key_held(Keys.ionix_w) then
+            leftVelY = -paddleSpeed
+        elseif Input.get_key_held(Keys.ionix_s) then
+            leftVelY = paddleSpeed
+        end
+    else
+        leftVelY = self:GetAIVelocity(dt)
+    end    
 
     local rightPaddleY = Mafs.get_vec_y(Entity.get_global_pos(rightPaddle))
     local leftPaddleY = Mafs.get_vec_y(Entity.get_global_pos(leftPaddle))
@@ -187,7 +202,11 @@ function PongButBetter:UpdateMenu(dt)
         leftScore, rightScore = 0, 0
         local dir = (math.random(0, 1) == 0) and -1 or 1
         self:BeginServe(dir)
-    end
+    elseif Input.get_key_down(Keys.ionix_1) then
+        mode = GameMode.PVC
+    elseif Input.get_key_down(Keys.ionix_2) then
+        mode = GameMode.PVP
+    end    
 end
 
 
@@ -250,6 +269,21 @@ function PongButBetter:UpdateServe(dt)
         ballVelY = math.random(-120, 120)
         state = GameState.PLAY
     end
+end
+
+function PongButBetter:GetAIVelocity(dt)
+    local leftPaddleY = Mafs.get_vec_y(Entity.get_global_pos(leftPaddle))
+    local dy = ballY - leftPaddleY
+
+    if Mafs.abs(dy) < 8 then return 0 end
+
+    if ballVelX >= 0 then
+        local centreDy = 300 - leftPaddleY
+        if Mafs.abs(centreDy) < 8 then return 0 end
+        return (centreDy > 0) and AISpeed or -AISpeed 
+    end
+    
+    return (dy > 0) and AISpeed or -AISpeed
 end
 
 return PongButBetter
