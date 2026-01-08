@@ -157,7 +157,8 @@ function PongButBetter:ResetBall(dir, hold)
         ballVelX, ballVelY = 0, 0
     else
         ballVelX = 200 * dir
-        ballVelY = 150
+        ballVelY = math.random(-120, 120)
+        print(ballVelY)
     end
 
     Entity.set_global_pos(ball, ballX, ballY)
@@ -166,7 +167,8 @@ end
 function PongButBetter:UpdateMenu(dt)
     if Input.get_key_down(Keys.ionix_space) then
         leftScore, rightScore = 0, 0
-        self:ResetBall(1, false)
+        local dir = (math.random(0, 1) == 0) and -1 or 1
+        self:ResetBall(dir, false)
         state = GameState.PLAY
     end
 end
