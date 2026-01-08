@@ -218,6 +218,7 @@ return {
         Hit = 2134794416,
         Jump = 3884640712,
         PongHit = 1455273230,
+        PongScore = 435254344,
         coin = 1941127746,
         gameOver = 3624654154,
         gunshot1 = 1107995564,

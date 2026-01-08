@@ -440,6 +440,7 @@ struct Sounds {
     uint32_t Hit = 2134794416u;
     uint32_t Jump = 3884640712u;
     uint32_t PongHit = 1455273230u;
+    uint32_t PongScore = 435254344u;
     uint32_t coin = 1941127746u;
     uint32_t gameOver = 3624654154u;
     uint32_t gunshot1 = 1107995564u;
@@ -456,6 +457,7 @@ struct Sounds {
         map["Hit"] = "./Assets/FlappyBird Audio/Hit.wav";
         map["Jump"] = "./Assets/FlappyBird Audio/Jump.mp3";
         map["PongHit"] = "./Assets/Audio/PongHit.wav";
+        map["PongScore"] = "./Assets/Audio/PongScore.wav";
         map["coin"] = "./Assets/FlappyBird Audio/coin.mp3";
         map["gameOver"] = "./Assets/FlappyBird Audio/gameOver.wav";
         map["gunshot1"] = "./Assets/Audio/gunshot1.mp3";

@@ -10,6 +10,7 @@ local GameState = {
 local state = GameState.MENU
 local assets = require("Scripts.Assets")
 local ballAudio
+local scoreAudio
 
 local ball
 local background
@@ -65,6 +66,7 @@ function PongButBetter:OnStart()
     Entity.set_global_pos(ball, ballX, ballY)
     ballSprite = Entity.add_sprite_component(ball, assets.textures.PongBall, 20, 20, 0)
     ballAudio = Entity.add_audio_component(ball, "PongHit", false)
+    scoreAudio = Entity.add_audio_component(ball, "PongScore", false)
     Sprite.set_playback_mode(ballSprite, 4)
 
     state = GameState.MENU
@@ -194,11 +196,13 @@ function PongButBetter:UpdatePlay(dt)
     ballY = ballY + ballVelY * dt
     
     if ballY <= 10 or ballY >= 590 then
+        AudioComponent.play_one_shot(ball, "PongHit", 1.0)
         ballVelY = -ballVelY
     end
     
     if ballX < -20 then
         rightScore = rightScore + 1
+        AudioComponent.play_one_shot(ball, "PongScore", 1.0)
         if rightScore >= winScore then
             state = GameState.GAMEOVER
             self:ResetBall(-1, true)
@@ -208,6 +212,7 @@ function PongButBetter:UpdatePlay(dt)
     
     elseif ballX > 800 then
         leftScore = leftScore + 1
+        AudioComponent.play_one_shot(ball, "PongScore", 1.0)
         if leftScore >= winScore then
             state = GameState.GAMEOVER
             self:ResetBall(1, true)
