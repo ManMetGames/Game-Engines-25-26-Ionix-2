@@ -5,6 +5,7 @@ local enums = require("Scripts.Enums")
 local Background
 local Floor
 local Player
+local Enemies = {}
 --Player Settings
 local playerX = 150
 local playerY = 400
@@ -15,10 +16,10 @@ local jumpForce = -15000
 --Floor Settings
 local FloorY = 500
 local FloorHeight = 20
-local x = 200
-local y = 300
-local t = 10
-local coinCount = 0
+-- Enemy Settings
+local enemySpawnX = 1000
+local enemyWidth = 30
+local enemyHeight = 50
 
 ----------------------------------------------------------
 -- OnStart
@@ -74,4 +75,17 @@ function ExampleScript:OnUpdate()
             print("Jump!")
         end
 end
+
+----------------------------------------------------------
+-- Spawn Enemy
+----------------------------------------------------------
+function ExampleScript:SpawnEnemy()
+    local enemy = Entity.create_entity()
+    Entity.add_sprite_component(enemy, assets.textures.PimBall, enemyWidth, enemyHeight, 2)
+    Entity.set_global_pos(enemy, enemySpawnX, floorY - enemyHeight/2 - floorHeight/2)
+    
+    table.insert(Enemies, enemy)
+    print("Enemy spawned! Total enemies: " .. #Enemies)
+end
+
 return ExampleScript
