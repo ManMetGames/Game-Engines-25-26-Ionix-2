@@ -9,6 +9,7 @@ local ballX = 400
 local ballY = 300
 local ballVelX = 200
 local ballVelY = 150
+local paddleSpeed = 4
 
 function PongButBetter:OnStart()
     Window.set_size(800, 600)
@@ -80,6 +81,21 @@ function PongButBetter:OnUpdate()
     end
 
     Entity.set_global_pos(ball, ballX, ballY)
+
+    self:MovePaddles(dt)
+end
+
+function PongButBetter:MovePaddles(dt)
+    local leftVelY = 0
+    local rightVelY = 0
+    
+    if Input.get_key_held(Keys.arrow_up) then
+        rightVelY = -paddleSpeed
+    elseif Input.get_key_held(Keys.arrow_down) then
+        rightVelY = paddleSpeed
+    end
+
+    Fysics.set_linear_velocity(rightPaddle, 0, rightVelY)
 end
 
 return PongButBetter
