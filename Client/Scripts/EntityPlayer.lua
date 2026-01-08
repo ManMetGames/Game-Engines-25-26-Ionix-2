@@ -25,6 +25,8 @@ function EntityPlayer:OnStart()
 		--Sprite.set_playback_mode(sprite1, 4)
 		Sprite.set_columns(sprite1, 1)
 	end
+
+	--Nav.load_nav_mef(0, 0, 500, 200, 25)
 end
 
 function EntityPlayer:OnUpdate()

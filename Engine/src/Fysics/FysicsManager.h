@@ -3,6 +3,8 @@
 #include "Fysics/Shapes.h"
 #include "Fysics/Force.h"
 #include "Fysics/Joints.h"
+#include "Fysics/NavAgent.h"
+#include "Fysics/NavMef.h"
 #include "Raycast.h"
 #include "Fysics/RigidBodyTransform.h"
 #include "Fysics/CollisionListener.h"

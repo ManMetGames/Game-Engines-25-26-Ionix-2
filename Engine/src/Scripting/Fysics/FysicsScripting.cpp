@@ -479,6 +479,8 @@ namespace IonixEngine
 
 			return false;
 		};
+		
+		
 
 		lua["Raycast"] = lua.create_table_with(
 					"entity", getRaycastEntity

@@ -29,7 +29,8 @@ LoadModule("FlappyBird", "Scripts/FlappyBird/FlappyBird.lua")
 --LoadModule("FlappyBird", "Scripts/FlappyBird/FlappyBird.lua")
 --LoadModule("ExampleScript", "Scripts/ExampleScript.lua")
 --LoadModule("Ball","Scripts/Ball.lua")
---LoadModule("SystemShooter", "Scripts/SystemShooter/SystemShooter.lua")
+LoadModule("SystemShooter", "Scripts/SystemShooter/SystemShooter.lua")
+--LoadModule("NavTest", "Scripts/NavTest.lua")
 
 -- Lifecycle hooks
 function OnStart()

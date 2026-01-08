@@ -6,7 +6,7 @@
 
 namespace IonixEngine {
 
-	void QueueRenderer::DrawLine(int x1, int y1, int x2, int y2, bool hitColor)
+	void QueueRenderer::DrawLine(float x1, float y1, float x2, float y2, bool hitColor)
 	{
 
 		SDL_Renderer* renderer = Application::Get().GetWindow().GetSdlRenderer();
@@ -20,8 +20,10 @@ namespace IonixEngine {
 
 
 		// Draw the line
-		SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
+		SDL_RenderDrawLineF(renderer, x1, y1, x2, y2);
 	}
+
+
 	
 	QueueRenderer::QueueRenderer() {
 		sprites = queue<RenderCall>();// queue of render data
