@@ -107,16 +107,18 @@ function PongButBetter:OnCollisionEnter()
     local rightY = Mafs.get_vec_y(Entity.get_global_pos(rightPaddle))
     local leftY = Mafs.get_vec_y(Entity.get_global_pos(leftPaddle))
     
-    local speedMult = 1.1
+    local speedMult = 1.05
 
     if ballX >= 750 and ballX <= 780 and ballY <= rightY + 80 and ballY >= rightY then
         ballVelX = -Mafs.abs(ballVelX) * speedMult
-        ballVelY = ballVelY * speedMult
+        local hitOffset = (ballY - (rightY + 40)) / 40
+        ballVelY = hitOffset * 250 * speedMult
     end
 
     if ballX >= 20 and ballX <= 50 and ballY <= leftY + 80 and ballY >= leftY then
         ballVelX = Mafs.abs(ballVelX) * speedMult
-        ballVelY = ballVelY * speedMult
+        local hitOffset = (ballY - (leftY + 40)) / 40
+        ballVelY = hitOffset * 250 * speedMult
     end    
 end
 
