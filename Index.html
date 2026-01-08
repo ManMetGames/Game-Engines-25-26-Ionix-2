@@ -608,6 +608,31 @@ AudioComponent.play(e)
                 <td>Returns <code>true</code> if the clip will auto-play when the component is created.</td>
             </tr>
         </table>
+
+        <h3>MusicComponent</h3>
+        <table>
+            <tr><td><code>MusicComponent.play(entity, *loop, *fadeIn)</code></td><td>Plays music component.</td></tr>
+            <tr><td><code>MusicComponent.stop(entity, *fadeOut)</code></td><td>Stops music component.</td></tr>
+            <tr><td><code>MusicComponent.pause(entity)</code></td><td>Pauses music component.</td></tr>
+            <tr><td><code>MusicComponent.resume(entity)</code></td><td>Resumes music component.</td></tr>
+            <tr><td><code>MusicComponent.set_speed(entity, speed)</code></td><td>Sets the speed of the music.</td></tr>
+            <tr><td><code>MusicComponent.get_speed(entity)</code></td><td>Returns the current speed of the music component.</td></tr>
+            <tr><td><code>MusicComponent.seek(entity, seconds)</code></td><td>Goes to a specific position in the track.</td></tr>
+            <tr><td><code>MusicComponent.get_position(entity)</code></td><td>Gets current playback position.</td></tr>
+            <tr><td><code>MusicComponent.get_duration(entity)</code></td><td>Returns duration of the track.</td></tr>
+            <tr><td><code>MusicComponent.set_volume(entity, volume)</code></td><td>Sets the volume of the track.</td></tr>
+            <tr><td><code>MusicComponent.fade_volume(entity, target, duration)</code></td><td>Fades the volume over time.</td></tr>
+            <tr><td><code>MusicComponent.set_pan(entity, pan)</code></td><td>Set stereo panning of the track.</td></tr>
+            <tr><td><code>MusicComponent.toggle_mute(entity)</code></td><td>Mute or unmute the track.</td></tr>
+            <tr><td><code>MusicComponent.is_playing(entity)</code></td><td>Checks if the track is playing.</td></tr>
+            <tr><td><code>MusicComponent.is_paused(entity)</code></td><td>Checks if the track is paused.</td></tr>
+            <tr><td><code>MusicComponent.get_volume(entity)</code></td><td>Returns current volume of the track.</td></tr>
+            <tr><td><code>MusicComponent.get_mute(entity)</code></td><td>Returns whether the track is muted.</td></tr>
+            <tr><td><code>MusicComponent.get_name(entity)</code></td><td>Returns the name of the track.</td></tr>
+            <tr><td><code>MusicManager.set_global_volume(volume)</code></td><td>Sets the volume of the global music.</td></tr>
+            <tr><td><code>MusicManager.get_global_volume()</code></td><td>Returns the volume of the global music.</td></tr>
+            <tr><td><code>MusicManager.get_duration(name)</code></td><td>Returns the duration of a specified track.</td></tr>
+        </table>
     </section>
 
 </main>
