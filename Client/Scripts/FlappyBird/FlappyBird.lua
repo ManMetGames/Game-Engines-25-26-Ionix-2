@@ -5,25 +5,30 @@ local enums = require("Scripts.Enums")
 -- Raycast coin collection toggle
 local ENABLE_RAYCAST = false
 
+-- Background
 local Background
 local Background2
 local backgroundSprite
 local backgroundSprite2
 local bgBaseX, bgBaseY = 0, 300
 local bgScrollX = 0
-local player1
-local playerSprite
+
 -- Background scrolling (main menu)
 local BG_BASE_W, BG_BASE_H = 960, 610
 local BG_PAD = 20                -- oversize to hide seams/edges
 local floorTopWorld = 0.0 -- top of the floor collider
-
-local floorTileSprites = {}
 local BG_TILE_W = BG_BASE_W      
-local BG_SCROLL_SPEED = -18      
+local BG_SCROLL_SPEED = -18  
+
+-- Player
+local player1
+local playerSprite
+local floorTileSprites = {}
 local x = 100
 local gameOver = false
 local GAME_ID = "flappy_bird"
+
+-- Scoreboard
 local highscore = Json.load_high_score(GAME_ID)
 local newHighScore = false
 local submitted = false -- For Highscore submission
