@@ -56,10 +56,12 @@ end
 
         if Input.get_key_down(Keys.ionix_space) then
         local mx, my = Input.get_mouse_x(), Input.get_mouse_y()
-        Nav.add_obstacle(mx, my, mx + 120, my + 120)
+        --Nav.add_obstacle(mx, my, mx + 120, my + 120)
         terrainEntity = Entity.create_entity()
         Entity.set_global_pos(terrainEntity, mx - 2, my - 2)
-        Entity.add_sprite_component(terrainEntity, assets.textures.Sand, 110, 110, 10)
+        Entity.add_sprite_component(terrainEntity, assets.textures.Sand, 64, 64, 0)
+        Entity.add_fysics_component(terrainEntity, enums.bodytype.staticBody, true)
+        Nav.add_obstacle_from_entity(terrainEntity)
     end
 end
 

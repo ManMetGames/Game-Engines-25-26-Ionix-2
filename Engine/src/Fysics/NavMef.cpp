@@ -1,5 +1,4 @@
 #include "NavMef.h"
-
 #include "FysicsManager.h"
 #include "Architecture/Application.h"
 //#include <Testing/Box2D/DebugDraw.h>
@@ -414,9 +413,35 @@ namespace IonixEngine
             {
                 m_blockedCells[i] = true;
             }
-
         }
         RebuildClearance();
+    }
+
+    void NavMef::AddObstacleFromEntity(Entity* entity)
+    {
+        b2Body* body = Application::Get().layerFysics->GetFysicsManager()->GetBodyFromEntity(entity);
+        if (body == nullptr)
+        {
+            std::cout << "Body does not exist to add obstacle to!" << std::endl;
+            return;
+        }
+        
+        float spriteWidth = entity->GetComponent<SpriteComponent>()->getWidth();
+        float spriteHeight = entity->GetComponent<SpriteComponent>()->getHeight();
+        b2Vec2 spriteSize = b2Vec2(spriteWidth / 50, spriteHeight / 50);
+        b2Vec2 halfSpriteSize = b2Vec2(spriteSize.x / 2, spriteSize.y / 2);
+        //b2Vec2 min = body->GetPosition() - b2Vec2(1, 1);
+        //b2Vec2 max = body->GetPosition() + b2Vec2(1, 1);
+        b2Vec2 min = body->GetPosition() - halfSpriteSize;
+        b2Vec2 max = body->GetPosition() + halfSpriteSize;
+        for (int i = 0; i < m_cells.size(); i++)
+        {
+            if (CellOverlaps(m_cells[i], min, max))
+            {
+                m_blockedCells[i] = true;
+            }
+        }
+        //RebuildClearance();
     }
     void NavMef::RebuildClearance()
     {

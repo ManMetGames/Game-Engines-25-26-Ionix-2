@@ -1,11 +1,12 @@
 #pragma once
 #include "LayerSystem/Layers/LayerFysics.h"
-
 #include <vector>
 #include <array>
 #include <iostream>
 #include <queue>
 #include <SDL_pixels.h>
+#include "Architecture/ECS/Component.hpp"
+
 
 namespace IonixEngine
 {
@@ -35,7 +36,8 @@ namespace IonixEngine
     //
     //};
 
-    class NavMef {
+    class NavMef
+    {
     private:
         std::vector<b2Vec2> m_corners; // corner coords
         std::vector<Cell> m_cells; // cell
@@ -78,6 +80,7 @@ namespace IonixEngine
 
         //adds an obstacle
         void AddObstacle(const b2Vec2& min, const b2Vec2& max);
+        void AddObstacleFromEntity(Entity* entity);
 
         void RebuildClearance();
 

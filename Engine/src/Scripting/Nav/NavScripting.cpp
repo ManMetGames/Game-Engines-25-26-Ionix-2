@@ -35,6 +35,11 @@ namespace IonixEngine
 		{
 			Application::Get().layerNavigation->GetNavMef()->AddObstacle({ minX / 100, minY / 100 }, { maxX / 100, maxY / 100 });
 		};
+
+		auto addObstacleFromEntity = [](Entity* entity)
+		{
+			Application::Get().layerNavigation->GetNavMef()->AddObstacleFromEntity(entity);
+		};
 		
 		auto createNavAgent = [](Entity* entity, float speed) -> NavAgent*
 		{
@@ -51,6 +56,7 @@ namespace IonixEngine
 			"load_nav_mef", loadNavMef,
 			"draw_nav_grid", drawNavGrid,
 			"add_obstacle", addNavObstacle,
+			"add_obstacle_from_entity", addObstacleFromEntity,
 			"create_agent", createNavAgent,
 			"agent_move_to", navAgentMoveTo
 		);
