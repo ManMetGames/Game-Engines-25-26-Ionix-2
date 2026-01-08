@@ -1,7 +1,13 @@
 local player = {}
 local keyCode = SDL_SCANCODE_SPACE
 
+local health
+local maxHealth = 100
+
+
 function player:OnStart()
+health = maxHealth
+
 end
 
 
