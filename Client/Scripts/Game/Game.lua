@@ -27,6 +27,13 @@ function ExampleScript:OnStart()
     Entity.add_sprite_component(Floor, assets.textures.Background, 960, floorHeight, 1)
     Entity.set_global_pos(Floor, 480, floorY)
 
+    -- Add physics to floor
+    Entity.add_fysics_component(Floor)
+    Fysics.add_box_collider(Floor, 480, floorHeight/2, 0, 0, 0, false)
+    Fysics.set_gravity_scale(Floor, 0)
+    Fysics.set_linear_velocity(Floor, 0, 0)
+    
+
 
     ------------------------------------------------------
     -- Create player1
