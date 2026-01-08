@@ -6,6 +6,7 @@ local health
 local maxHealth = 100
 local x = 200
 local y =  200
+local attackDamage = 10
 
 function player:OnStart()
 health = maxHealth
@@ -19,6 +20,13 @@ Sprite.set_playback_mode(playerSprite, 4)
 
 Entity.add_fysics_component(player, 2 , true) 
 Fysics.add_sprite_collider(player, true)
+
+end
+
+function player:attack()
+ if Input.get_mouse_button_down() then
+	enemy.health - attackDamage
+ end
 
 end
 
