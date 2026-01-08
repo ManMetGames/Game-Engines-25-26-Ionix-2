@@ -11,6 +11,9 @@ local ballVelX = 200
 local ballVelY = 150
 local paddleSpeed = 4
 
+local rightScore = 0
+local leftScore = 0
+
 function PongButBetter:OnStart()
     Window.set_size(800, 600)
 
@@ -69,10 +72,14 @@ function PongButBetter:OnUpdate()
     Entity.set_global_pos(ball, ballX, ballY)
     
     if ballX < -20 then
+        rightScore = rightScore + 1
         self:ResetBall(-1)
     elseif ballX > 800 then
+        leftScore = leftScore + 1
         self:ResetBall(1)
     end
+
+     print("leftScore:", leftScore ," rightScore:", rightScore)
 
     self:MovePaddles(dt)
     self:OnCollisionEnter()
