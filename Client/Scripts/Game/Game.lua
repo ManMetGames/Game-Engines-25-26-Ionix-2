@@ -6,6 +6,12 @@ local Background
 local Floor
 local Player
 local Enemies = {}
+-- Game State
+local gameOver = false
+local score = 0
+local gameSpeed = 200
+local spawnTimer = 0
+local spawnInterval = 2.0
 --Player Settings
 local playerX = 150
 local playerY = 400
@@ -64,7 +70,19 @@ end
 -- OnUpdate
 ----------------------------------------------------------
 function ExampleScript:OnUpdate()
-
+        if gameOver then
+        -- Display Game Over
+        UI.draw_label("GAME OVER!", 300, 100, 330, 250, "")
+        UI.draw_label("Score: " .. tostring(score), 200, 50, 360, 350, "")
+        UI.draw_label("Press SPACE to restart", 300, 50, 310, 400, "")
+        
+        -- Restart on space
+        if Input.get_key_down(Keys.ionix_space) then
+            self:RestartGame()
+        end
+        return
+    end
+    
     -- Player Jump Input
     if Input.get_key_down(Keys.ionix_space) then
 
@@ -123,6 +141,34 @@ function ExampleScript:SpawnEnemy()
     
     table.insert(Enemies, enemy)
     print("Enemy spawned! Total enemies: " .. #Enemies)
+end
+
+----------------------------------------------------------
+-- Restart Game
+----------------------------------------------------------
+function ExampleScript:RestartGame()
+    print("Restarting game...")
+    
+    -- Reset game state
+    gameOver = false
+    score = 0
+    gameSpeed = 200
+    spawnTimer = 0
+    spawnInterval = 2.0
+    
+    -- Reset player position
+    Entity.set_global_pos(Player, playerX, playerY)
+    Fysics.set_linear_velocity(Player, 0, 0)
+    
+    -- Destroy all enemies
+    for i = 1, #Enemies do
+        if Enemies[i] ~= nil then
+            Entity.destroy_entity(Enemies[i])
+        end
+    end
+    Enemies = {}
+    
+    print("Game restarted!")
 end
 
 return ExampleScript
