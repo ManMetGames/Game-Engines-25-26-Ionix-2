@@ -11,12 +11,16 @@ local isDead
 	
 function enemy:OnStart()
 	
+	--sets Enemy death to false to make sure that the death function isnt accidently called
 	isDead = false
 	
+	--sets health to 100 
 	health = maxHealth
 	
+	--Loads the texutre 
 	Texture.add_texture("./Assets/ball.png", "enemy")
 	
+	--creates the enemy entity 
 	enemy = Entity.create_entity()
 	Entity.set_entity_pos(enemy, x, y) 
 	enemySprite = Entity.add_sprite_component(enemy, "ball", 75, 75, 0) 
@@ -26,6 +30,7 @@ function enemy:OnStart()
 	
 end
 
+--works with the Attack function in the player class allowing for the enemy to take damage
 function enemy:death()
 
 if health = 0() then
