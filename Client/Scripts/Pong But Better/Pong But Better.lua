@@ -214,9 +214,18 @@ function PongButBetter:UpdatePlay(dt)
     ballX = ballX + ballVelX * dt
     ballY = ballY + ballVelY * dt
     
-    if ballY <= 10 or ballY >= 590 then
+    local ballHalf = 10
+    local topLimit = ballHalf
+    local bottomLimit = 600 - ballHalf
+    
+    if ballY <= topLimit then
         AudioComponent.play_one_shot(ball, "PongHit", 1.0)
-        ballVelY = -ballVelY
+        ballY = topLimit + 0.001
+        ballVelY = Mafs.abs(ballVelY)
+    elseif ballY >= bottomLimit then
+        AudioComponent.play_one_shot(ball, "PongHit", 1.0)
+        ballY = bottomLimit - 0.001
+        ballVelY = -Mafs.abs(ballVelY)
     end
     
     if ballX < -20 then
