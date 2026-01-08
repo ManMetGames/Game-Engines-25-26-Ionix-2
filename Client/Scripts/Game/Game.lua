@@ -4,6 +4,12 @@ local enums = require("Scripts.Enums")
 --Game Objects
 local Background
 local Floor
+local Player
+--Player Settings
+local playerX = 150
+local playerY = 400
+local playerWidth = 50
+local playerHeight = 50
 --Floor Settings
 local FloorY = 500
 local FloorHeight = 20
@@ -24,7 +30,7 @@ function ExampleScript:OnStart()
 
     -- Create Floor
     Floor = Entity.create_entity()
-    Entity.add_sprite_component(Floor, assets.textures.Background, 960, floorHeight, 1)
+    Entity.add_sprite_component(Floor, assets.textures.Sand, 960, floorHeight, 1)
     Entity.set_global_pos(Floor, 480, floorY)
 
     -- Add physics to floor
@@ -32,13 +38,14 @@ function ExampleScript:OnStart()
     Fysics.add_box_collider(Floor, 480, floorHeight/2, 0, 0, 0, false)
     Fysics.set_gravity_scale(Floor, 0)
     Fysics.set_linear_velocity(Floor, 0, 0)
-    
-
-
     ------------------------------------------------------
-    -- Create player1
+    -- Create Player
     ------------------------------------------------------
-    
+    Player = Entity.create_entity()
+    Entity.add_sprite_component(Player, assets.textures.FlappyBird, playerWidth, playerHeight, 2)
+    Entity.set_global_pos(Player, playerX, playerY)
+
+    print("Player and Floor created successfully!")
 end
 
 ----------------------------------------------------------
