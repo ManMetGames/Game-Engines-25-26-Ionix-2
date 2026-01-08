@@ -5,25 +5,30 @@ local enums = require("Scripts.Enums")
 -- Raycast coin collection toggle
 local ENABLE_RAYCAST = false
 
+-- Background
 local Background
 local Background2
 local backgroundSprite
 local backgroundSprite2
-local bgBaseX, bgBaseY = 0, 0
+local bgBaseX, bgBaseY = 0, 300
 local bgScrollX = 0
-local player1
-local playerSprite
+
 -- Background scrolling (main menu)
 local BG_BASE_W, BG_BASE_H = 960, 610
 local BG_PAD = 20                -- oversize to hide seams/edges
 local floorTopWorld = 0.0 -- top of the floor collider
-
-local floorTileSprites = {}
 local BG_TILE_W = BG_BASE_W      
-local BG_SCROLL_SPEED = -18      
+local BG_SCROLL_SPEED = -18  
+
+-- Player
+local player1
+local playerSprite
+local floorTileSprites = {}
 local x = 100
 local gameOver = false
 local GAME_ID = "flappy_bird"
+
+-- Scoreboard
 local highscore = Json.load_high_score(GAME_ID)
 local newHighScore = false
 local submitted = false -- For Highscore submission
@@ -348,10 +353,8 @@ local leaderboardFetched = false
 local RESTART_DELAY_FRAMES = 90   -- equivalent 1s at 60fps
 local restartDelayFrames = 0
 
-
 -- Window
 Window.set_size_centered(960, 600)
-
 
 -- Base SFX volumes
 local BASE_VOL_JUMP    = 100
@@ -598,12 +601,12 @@ local function resetGame()
         Fysics.set_linear_velocity(pipeEntity, 0, 0)
     end
 
-    resetPipe(pipe, 400, 360)
-    resetPipe(pipeT, 400, -250)
-    resetPipe(pipe2, 750, 300)
-    resetPipe(pipeT2, 750, -350)
-    resetPipe(pipe3, 1100, 400)
-    resetPipe(pipeT3, 1100, -200)
+    resetPipe(pipe, 400, 600)
+    resetPipe(pipeT, 400, -10)
+    resetPipe(pipe2, 750, 540)
+    resetPipe(pipeT2, 750, -110)
+    resetPipe(pipe3, 1100, 640)
+    resetPipe(pipeT3, 1100, 40)
 
     -- Reset coins
     for i, c in ipairs(coins) do
@@ -673,7 +676,7 @@ function ExampleScript:OnStart()
     -- Pick texture for left / middle / right
     ------------------------------------------------------
     local tileSize = 64
-    local floorY = 550
+    local floorY = 590
     floorTopWorld = (floorY - (tileSize * 0.5))
 
     -- Floor collision tiles
@@ -752,9 +755,9 @@ function ExampleScript:OnStart()
         return bottomPipe, topPipe
     end
 
-    pipe, pipeT = createPipeSet(400, 360, 400, -250)
-    pipe2, pipeT2 = createPipeSet(750, 300, 750, -350)
-    pipe3, pipeT3 = createPipeSet(1100, 400, 1100, -200)
+    pipe, pipeT = createPipeSet(400, 600, 400, -10)
+    pipe2, pipeT2 = createPipeSet(750, 540, 750, -110)
+    pipe3, pipeT3 = createPipeSet(1100, 640, 1100, 40)
     
     pipeSets = {
     { bottom = pipe,  top = pipeT,  passed = false },
@@ -932,9 +935,6 @@ local function DrawMainMenu_C(windowW, windowH)
 
     -- Actions
     if UI.was_button_pressed("fb_play") then
-        if Background ~= nil then
-            Entity.set_global_pos(Background, bgBaseX, bgBaseY)
-        end
 
         inMainMenu = false
         resetGame()
@@ -1104,6 +1104,8 @@ local function DrawSettingsMenu_C(windowW, windowH)
         Localisation.set_language(language)
         ApplyLanguageFonts()
     end
+
+    UI.add_centered_label(x + w/2, y+50, "", UI_FONT_HEADER, 1.2)
 
     UI.end_child() -- end inner content child
 
@@ -1291,20 +1293,21 @@ local windowW = Window.get_width()
 local windowH = Window.get_height()
 Window.set_size(960, 600)
 if inMainMenu then
+
+    local bgBaseY = 300
     -- Scroll the background horizontally on main menu
     if Background ~= nil then
         if menuContext == "main" then
             local dt = Mafs.delta_time()
-            local driftY = math.cos(Mafs.time() * 0.12) * 4
 
             bgScrollX = bgScrollX + (BG_SCROLL_SPEED * dt)
             if bgScrollX <= -BG_TILE_W then
                 bgScrollX = bgScrollX + BG_TILE_W
             end
 
-            Entity.set_global_pos(Background,  bgBaseX + bgScrollX,              bgBaseY + driftY)
+            Entity.set_global_pos(Background,  bgBaseX + bgScrollX, bgBaseY)
             if Background2 ~= nil then
-                Entity.set_global_pos(Background2, bgBaseX + bgScrollX + BG_TILE_W, bgBaseY + driftY)
+                Entity.set_global_pos(Background2, bgBaseX + bgScrollX + BG_TILE_W, bgBaseY)
             end
         else
             bgScrollX = 0
@@ -1635,27 +1638,36 @@ end
             t = t * t
             local gapSize = gapMinAtCap + math.random() * (pipeStartGap - gapMinAtCap)
 
+            local floorPad = 5
+            local ceilingPad = 5
+            local minVerticalSpan = 120
 
-            -- Random gap center Y position (in pixels)
-            local floorPad = 10
+            local minByCeiling = ceilingPad + pipeHeight + (gapSize / 2)
+            local minCenter = math.max(pipesetMinGap, minByCeiling)
 
-            local minCenter = pipesetMinGap
             local maxCenter = pipesetMaxGap
-
-            
             local maxByFloor = (floorTopWorld - floorPad) - (gapSize / 2)
             if maxCenter > maxByFloor then maxCenter = maxByFloor end
             if maxCenter < minCenter then maxCenter = minCenter end
 
-            local gapCenter = minCenter + math.random() * (maxCenter - minCenter)
+            -- Ensure usable randomness range
+            if (maxCenter - minCenter) < minVerticalSpan then
+                local mid = (minCenter + maxCenter) * 0.5
+                minCenter = mid - minVerticalSpan * 0.5
+                maxCenter = mid + minVerticalSpan * 0.5
+            end
 
+            -- Randomness
+            local r = math.random()
+            r = r * r
+            local gapCenter = minCenter + r * (maxCenter - minCenter)
 
+            -- Variation between sets
             if set.lastGapCenter then
                 local delta = gapCenter - set.lastGapCenter
-                if math.abs(delta) < 40 then
-                    gapCenter = gapCenter + (delta > 0 and 60 or -60)
-                end
+                gapCenter = gapCenter + delta * 0.35
             end
+
             gapCenter = math.max(minCenter, math.min(maxCenter, gapCenter))
             set.lastGapCenter = gapCenter
 
@@ -1673,6 +1685,7 @@ end
                     if ox > rightMostX then rightMostX = ox end
                 end
             end
+
             local spawnX = rightMostX + pipeSpacingX
             if rightMostX == -math.huge then
                 spawnX = windowW + 60

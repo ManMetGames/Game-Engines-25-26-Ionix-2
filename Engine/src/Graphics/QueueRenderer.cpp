@@ -35,6 +35,7 @@ namespace IonixEngine {
 	}   //all of this is TEMPORARY because we're TESTING - it's in the name, that's why it says TEMP everywhere. We'll change this soon, thanks
 
 	void QueueRenderer::RenderFromQueue() {
+		Sort();
 		while (!sprites.empty()) {
 			RenderCall call = sprites.front();
 			if (call.renderLayer == Application::Get().currentCam->renderLayer) {
@@ -74,7 +75,16 @@ namespace IonixEngine {
 
 		while (i < n1 && j < n2)
 		{
-			if (leftHand[i].z < rightHand[j].z)
+			if (leftHand[i].renderLayer != rightHand[j].renderLayer)
+			{
+				arr[k] = (leftHand[i].renderLayer < rightHand[j].renderLayer)? leftHand[i] : rightHand[j];
+
+				if (leftHand[i].renderLayer < rightHand[j].renderLayer)
+					i++;
+				else
+					j++;
+			}
+			else if (leftHand[i].z < rightHand[j].z)
 			{
 				arr[k] = leftHand[i];
 				i++;
