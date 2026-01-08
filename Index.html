@@ -290,23 +290,32 @@ footer {
             </code>
         </p>
 
-</section>
+        <h3>Particles</h3>
+        <table>
+            <tr><th>Function</th><th>Description</th></tr>
+            <tr><td><code>Particles.emit(texture, renderLayer, x, y, vx, vy, lifetime, startSize, endSize, useRainbow, startR, startG, startB, startA, endR, endG, endB, endA)</code></td><td>Emits particles using a texture and given parameters (parameters after 'lifetime' are optional)</td></tr>
+        </table>
+
+    </section>
     <!-- ================= CAMERA ================= -->
     <section>
         <h2>Camera</h2>
         <table>
             <tr><th>Function</th><th>Description</th></tr>
-            <tr><td><code>Camera.camera(x, y, renderlayer)</code></td><td>Creates a camera.</td></tr>
-            <tr><td><code>Camera.Init()</code></td><td>Initialises the camera.</td></tr>
-            <tr><td><code>Camera.SetZoom()</code></td><td>Sets how zoomed in the camera is.</td></tr>
-            <tr><td><code>Camera.clearbackground(renderer)</code></td><td>Resets the background colour.</td></tr>
-            <tr><td><code>Camera.Setcolor(r, g, b, a)</code></td><td>Sets the background colour.</td></tr>
-            <tr><td><code>Camera.movecamera(deltaX, deltaY, true)</code></td><td>Moves the camera to the specified x,y coordinate.</td></tr>
-            <tr><td><code>Camera.switchcamera()</code></td><td>Changes which camera is currently being used.</td></tr>
-            <tr><td><code>Camera.rotate(angle)</code></td><td>Rotates the camera in place.</td></tr>
-            <tr><td><code>Camera.RenderToScreen(renderer, posX, posY, sizeX, sizeY)</code></td><td>Renders the Camera to the screen window.</td></tr>
+            <tr><td><code>Camera.create_camera(x, y, renderlayer)</code></td><td>Creates a camera.</td></tr>
+            <tr><td><code>Camera.initialize_camera()</code></td><td>Initialises the camera.</td></tr>
+            <tr><td><code>Camera.set_zoom()</code></td><td>Sets how zoomed in the camera is.</td></tr>
+            <tr><td><code>Camera.clear_background(renderer)</code></td><td>Resets the background colour.</td></tr>
+            <tr><td><code>Camera.set_color(r, g, b, a)</code></td><td>Sets the background colour.</td></tr>
+            <tr><td><code>Camera.move_camera(deltaX, deltaY, true)</code></td><td>Moves the camera to the specified x,y coordinate.</td></tr>
+            <tr><td><code>Camera.switch_camera()</code></td><td>Changes which camera is currently being used.</td></tr>
+            <tr><td><code>Camera.rotate_camera(angle)</code></td><td>Rotates the camera in place.</td></tr>
+            <tr><td><code>Camera.rotate_entity(entity, angle)</code></td><td>Rotates an entity using the camera.</td></tr>
+            <tr><td><code>Camera.render_to_screen(renderer, posX, posY, sizeX, sizeY)</code></td><td>Renders the Camera to the screen window.</td></tr>
         </table>
     </section>
+
+
     <!-- ================= ENTITY ================= -->
     <section>
         <h2>Entity</h2>
