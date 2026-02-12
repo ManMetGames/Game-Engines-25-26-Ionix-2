@@ -142,25 +142,25 @@ b2Joint* IonixEngine::PrismaticJoints::getJoint()
     return joint;
 }
 
-float IonixEngine::PrismaticJoints::getJointTranslation()
+float IonixEngine::PrismaticJoints::getJointTranslation(b2PrismaticJoint* _joint)
 {
-    return joint->GetJointTranslation();
+    return _joint->GetJointTranslation();
 }
 
-void IonixEngine::PrismaticJoints::setJointTranslation(float lowerTranslation, float upperTranslation)
+void IonixEngine::PrismaticJoints::setJointTranslation(b2PrismaticJoint* _joint, float lowerTranslation, float upperTranslation)
 {
-    if (joint == nullptr) return;
-    joint->SetLimits(lowerTranslation, upperTranslation);
+    if (_joint == nullptr) return;
+    _joint->SetLimits(lowerTranslation, upperTranslation);
 }
 
-float IonixEngine::PrismaticJoints::getJointSpeed()
+float IonixEngine::PrismaticJoints::getJointSpeed(b2PrismaticJoint* _joint)
 {
-    return joint->GetJointSpeed();
+    return _joint->GetJointSpeed();
 }
 
-float IonixEngine::PrismaticJoints::getMotorForce(float inverseDeltaTime)
+float IonixEngine::PrismaticJoints::getMotorForce(b2PrismaticJoint* _joint, float inverseDeltaTime)
 {
-    return joint->GetMotorForce(inverseDeltaTime);
+    return _joint->GetMotorForce(inverseDeltaTime);
 }
 
 float IonixEngine::PrismaticJoints::getMaxMotorForce()
@@ -168,10 +168,10 @@ float IonixEngine::PrismaticJoints::getMaxMotorForce()
     return _maxMotorForce;
 }
 
-void IonixEngine::PrismaticJoints::setMaxMotorForce(float force)
+void IonixEngine::PrismaticJoints::setMaxMotorForce(b2PrismaticJoint* _joint, float force)
 {
-    if (joint == nullptr) return;
-    joint->SetMaxMotorForce(force);
+    if (_joint == nullptr) return;
+    _joint->SetMaxMotorForce(force);
     _maxMotorForce = force;
 }
 
@@ -180,10 +180,10 @@ float IonixEngine::PrismaticJoints::getMotorSpeed()
     return _motorSpeed;
 }
 
-void IonixEngine::PrismaticJoints::setMotorSpeed(float speed)
+void IonixEngine::PrismaticJoints::setMotorSpeed(b2PrismaticJoint* _joint,float speed)
 {
-    if (joint == nullptr) return;
-    joint->SetMotorSpeed(speed);
+    if (_joint == nullptr) return;
+    _joint->SetMotorSpeed(speed);
     _motorSpeed = speed;
 }
 
@@ -280,7 +280,7 @@ b2Joint* IonixEngine::WeldJoints::getJoint()
 
 void IonixEngine::WeldJoints::setDamping(b2WeldJoint* _joint, float damping)
 {
-    joint->SetDamping(damping);
+    _joint->SetDamping(damping);
 }
 
 float IonixEngine::WeldJoints::getDamping(b2WeldJoint* _joint)
@@ -290,7 +290,7 @@ float IonixEngine::WeldJoints::getDamping(b2WeldJoint* _joint)
 
 void IonixEngine::WeldJoints::setStiffness(b2WeldJoint* _joint, float stiffness)
 {
-    joint->SetStiffness(stiffness);
+    _joint->SetStiffness(stiffness);
 }
 
 float IonixEngine::WeldJoints::getStiffness(b2WeldJoint* _joint)
@@ -317,7 +317,7 @@ void IonixEngine::PulleyJoints::setJoint()
 void IonixEngine::PulleyJoints::setJoint(Entity* entityA, Entity* entityB, b2Vec2 p1, b2Vec2 p2, float ratio, float lengthA, float lengthB)
 {
     _bodyA = Application::Get().layerFysics->GetFysicsManager()->GetBodyFromEntity(entityA);
-    _bodyB = Application::Get().layerFysics->GetFysicsManager()->GetBodyFromEntity(entityA);
+    _bodyB = Application::Get().layerFysics->GetFysicsManager()->GetBodyFromEntity(entityB);
     _position1 = p1;
     _position2 = p2;
     _ratio = ratio;
@@ -341,9 +341,9 @@ b2Joint* IonixEngine::PulleyJoints::getJoint()
     return joint;
 }
 
-float IonixEngine::PulleyJoints::getLengthA()
+float IonixEngine::PulleyJoints::getLengthA(b2PulleyJoint* _joint)
 {
-    return joint->GetLengthA();
+    return _joint->GetLengthA();
 }
 
 void IonixEngine::PulleyJoints::setLengthA(float newLengthA)
@@ -353,9 +353,9 @@ void IonixEngine::PulleyJoints::setLengthA(float newLengthA)
     setJoint();
 }
 
-float IonixEngine::PulleyJoints::getLengthB()
+float IonixEngine::PulleyJoints::getLengthB(b2PulleyJoint* _joint)
 {
-    return joint->GetLengthB();
+    return _joint->GetLengthB();
 }
 
 void IonixEngine::PulleyJoints::setLengthB(float newLengthB)
@@ -365,19 +365,19 @@ void IonixEngine::PulleyJoints::setLengthB(float newLengthB)
     setJoint();
 }
 
-float IonixEngine::PulleyJoints::getCurrentLengthA()
+float IonixEngine::PulleyJoints::getCurrentLengthA(b2PulleyJoint* _joint)
 {
-    return joint->GetCurrentLengthA();
+    return _joint->GetCurrentLengthA();
 }
 
-float IonixEngine::PulleyJoints::getCurrentLengthB()
+float IonixEngine::PulleyJoints::getCurrentLengthB(b2PulleyJoint* _joint)
 {
-    return joint->GetCurrentLengthB();
+    return _joint->GetCurrentLengthB();
 }
 
-float IonixEngine::PulleyJoints::getRatio()
+float IonixEngine::PulleyJoints::getRatio(b2PulleyJoint* _joint)
 {
-    return joint->GetRatio();
+    return _joint->GetRatio();
 }
 
 void IonixEngine::PulleyJoints::setRatio(float newRatio)
@@ -387,14 +387,14 @@ void IonixEngine::PulleyJoints::setRatio(float newRatio)
     setJoint();
 }
 
-b2Vec2 IonixEngine::PulleyJoints::getGroundAnchorA()
+b2Vec2 IonixEngine::PulleyJoints::getGroundAnchorA(b2PulleyJoint* _joint)
 {
-    return joint->GetGroundAnchorA();
+    return _joint->GetGroundAnchorA();
 }
 
-b2Vec2 IonixEngine::PulleyJoints::getGroundAnchorB()
+b2Vec2 IonixEngine::PulleyJoints::getGroundAnchorB(b2PulleyJoint* _joint)
 {
-    return joint->GetGroundAnchorB();
+    return _joint->GetGroundAnchorB();
 }
 
 b2Vec2 IonixEngine::PulleyJoints::getPosition1()
@@ -446,15 +446,22 @@ void IonixEngine::DistanceJoints::setJoint(Entity* entityA, Entity* entityB, flo
     joint = (b2DistanceJoint*)Application::Get().layerFysics->GetFysicsManager()->GetWorld()->CreateJoint(&jointDef);
 }
 
-float IonixEngine::DistanceJoints::getLength()
+float IonixEngine::DistanceJoints::getLength(b2DistanceJoint* _joint)
 {
-    return joint->GetLength();
+    return _joint->GetLength();
 }
 
-void IonixEngine::DistanceJoints::setLength(float l)
+void IonixEngine::DistanceJoints::setLength(b2DistanceJoint* _joint, float l)
 {
-    joint->SetLength(l);
+    _joint->SetLength(l);
     _length = l;
+}
+
+void IonixEngine::DistanceJoints::setLinearStiffness(b2DistanceJoint* _joint, float frequencyHz, float dampingRatio)
+{
+    float stiffness = _joint->GetStiffness();
+    float damping = _joint->GetDamping();
+    b2LinearStiffness(stiffness, damping, frequencyHz, dampingRatio, _joint->GetBodyA(), _joint->GetBodyB());
 }
 
 b2Joint* IonixEngine::DistanceJoints::getJoint()
@@ -501,33 +508,33 @@ void IonixEngine::RevoluteJoints::setJoint(Entity* entityA, Entity* entityB, boo
     joint = (b2RevoluteJoint*)Application::Get().layerFysics->GetFysicsManager()->GetWorld()->CreateJoint(&def);
 }
 
-float IonixEngine::RevoluteJoints::getJointAngle()
+float IonixEngine::RevoluteJoints::getJointAngle(b2RevoluteJoint* _joint)
 {
     return joint->GetJointAngle();
 }
 
-float IonixEngine::RevoluteJoints::getJointSpeed()
+float IonixEngine::RevoluteJoints::getJointSpeed(b2RevoluteJoint* _joint)
 {
     return joint->GetJointSpeed();
 }
 
-float IonixEngine::RevoluteJoints::getMotorSpeed()
+float IonixEngine::RevoluteJoints::getMotorSpeed(b2RevoluteJoint* _joint)
 {
     return _motorSpeed;
 }
 
-void IonixEngine::RevoluteJoints::setMotorSpeed(float speed)
+void IonixEngine::RevoluteJoints::setMotorSpeed(b2RevoluteJoint* _joint, float speed)
 {
     _motorSpeed = speed;
     joint->SetMotorSpeed(speed);
 }
 
-float IonixEngine::RevoluteJoints::getMotorTorque(float inv_dt)
+float IonixEngine::RevoluteJoints::getMotorTorque(b2RevoluteJoint* _joint, float inv_dt)
 {
     return joint->GetMotorTorque(inv_dt);
 }
 
-void IonixEngine::RevoluteJoints::setMaxMotorTorque(float torque)
+void IonixEngine::RevoluteJoints::setMaxMotorTorque(b2RevoluteJoint* _joint, float torque)
 {
     joint->SetMaxMotorTorque(torque);
     _maxMotorTorque = torque;

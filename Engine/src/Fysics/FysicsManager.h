@@ -60,5 +60,7 @@ namespace IonixEngine
         Entity* GetEntityFromBody(b2Body* body);
 
         void AddEntityBodyPair(Entity* entity, b2Body* body);
+
+        b2Joint* GetJointFromID(int jointID);
     };
 }

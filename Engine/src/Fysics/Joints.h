@@ -24,6 +24,8 @@ namespace IonixEngine
 
         virtual b2Joint* getJoint();
 
+        b2Joint* getJointFromID(int jointID);
+
         void destroyJoint(b2Joint* joint);
 
         b2Body* getBodyA(b2Joint* joint);
@@ -81,21 +83,21 @@ namespace IonixEngine
 
         b2Joint* getJoint() override;
 
-        float getJointTranslation();
+        float getJointTranslation(b2PrismaticJoint* _joint);
 
-        void setJointTranslation(float lowerTranslation, float upperTranslation);
+        void setJointTranslation(b2PrismaticJoint* _joint,float lowerTranslation, float upperTranslation);
 
-        float getJointSpeed();
+        float getJointSpeed(b2PrismaticJoint* _joint);
 
-        float getMotorForce(float inverseDeltaTime);
+        float getMotorForce(b2PrismaticJoint* _joint, float inverseDeltaTime);
 
         float getMaxMotorForce();
 
-        void setMaxMotorForce(float force);
+        void setMaxMotorForce(b2PrismaticJoint* _joint, float force);
 
         float getMotorSpeed();
 
-        void setMotorSpeed(float speed);
+        void setMotorSpeed(b2PrismaticJoint* _joint, float speed);
 
         b2Vec2 getWorldAxis();
 
@@ -160,25 +162,25 @@ namespace IonixEngine
 
         b2Joint* getJoint() override;
 
-        float getLengthA();
+        float getLengthA(b2PulleyJoint* _joint);
 
         void setLengthA(float newLengthA);
 
-        float getLengthB();
+        float getLengthB(b2PulleyJoint* _joint);
 
         void setLengthB(float newLengthB);
 
-        float getCurrentLengthA();
+        float getCurrentLengthA(b2PulleyJoint* _joint);
 
-        float getCurrentLengthB();
+        float getCurrentLengthB(b2PulleyJoint* _joint);
 
-        float getRatio();
+        float getRatio(b2PulleyJoint* _joint);
 
         void setRatio(float newRatio);
 
-        b2Vec2 getGroundAnchorA();
+        b2Vec2 getGroundAnchorA(b2PulleyJoint* _joint);
 
-        b2Vec2 getGroundAnchorB();
+        b2Vec2 getGroundAnchorB(b2PulleyJoint* _joint);
 
         b2Vec2 getPosition1();
 
@@ -202,9 +204,11 @@ namespace IonixEngine
 
         void setJoint(Entity* entityA, Entity* entityB, float length = -1.0f);
 
-        float getLength();
+        float getLength(b2DistanceJoint* _joint);
 
-        void setLength(float l);
+        void setLength(b2DistanceJoint* _joint, float l);
+
+        void setLinearStiffness(b2DistanceJoint* _joint, float frequencyHz = 4.0f, float dampingRatio = 5.0f);
 
         b2Joint* getJoint() override;
 
@@ -229,17 +233,17 @@ namespace IonixEngine
 
         void setJoint(Entity* entityA, Entity* entityB, bool enableLimit = false, float lowerAngle = 0.0f, float upperAngle = 0.0f, bool enableMotor = false, float motorSpeed = 0.0f, float maxMotorTorque = 0.0f);
 
-        float getJointAngle();
+        float getJointAngle(b2RevoluteJoint* _joint);
 
-        float getJointSpeed();
+        float getJointSpeed(b2RevoluteJoint* _joint);
 
-        float getMotorSpeed();
+        float getMotorSpeed(b2RevoluteJoint* _joint);
 
-        void setMotorSpeed(float speed);
+        void setMotorSpeed(b2RevoluteJoint* _joint, float speed);
 
-        float getMotorTorque(float inv_dt);
+        float getMotorTorque(b2RevoluteJoint* _joint, float inv_dt);
 
-        void setMaxMotorTorque(float torque);
+        void setMaxMotorTorque(b2RevoluteJoint* _joint, float torque);
 
         bool getEnableLimit();
 
