@@ -13,7 +13,12 @@ namespace IonixEngine
         MouseCoords(int x, int y) : x(x), y(y) {}
     };
 
-
+    struct ScrollCoords
+    {
+        int y;
+        
+        ScrollCoords(int y) : y(y) {};
+    };
 
     class Input
     {
@@ -38,6 +43,29 @@ namespace IonixEngine
         void CopyCodesEndFrame();
 
 
+        // for Mouse Up
+        void SetMouseReleased(Uint8 code);
+
+        void SetScrollDiff(float diff);
+
+        float GetScrollDiff() const;
+      
+        // for Previous Key
+        void CopyCodesEndFrame();
+
+        
+  
+        private:
+            std::unordered_set<SDL_Scancode> currentKeys;
+            std::unordered_set<SDL_Scancode> previousKeys;
+
+            std::unordered_set<Uint8> currentMouse;
+            std::unordered_set<Uint8> previousMouse;
+            std::unordered_set<Uint8> currentScroll;
+            std::unordered_set<Uint8> previousScroll;
+
+
+            float scrollDiff = 0.0f; //Resets each frame
     private:
         //Keyboard
         std::unordered_set<SDL_Scancode> currentKeys;

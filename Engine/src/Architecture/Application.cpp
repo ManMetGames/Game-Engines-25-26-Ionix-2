@@ -175,6 +175,14 @@ namespace IonixEngine
                isMMouseDown = false;
            }
 
+           if (layerInput->m_Input->ScrollWheel(SDL_MOUSEWHEEL))
+           {
+               std::cout << "Scroll Wheel is scrolling.\n";
+           }
+           
+
+          
+
            MouseCoords mc = layerInput->m_Input->GetMousePosition();
            std::cout << "Mouse X Pos: " << mc.x << " Mouse Y Pos: " << mc.y << std::endl;
            */
